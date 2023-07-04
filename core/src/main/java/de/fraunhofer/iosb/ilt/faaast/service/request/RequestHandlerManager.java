@@ -69,6 +69,7 @@ public class RequestHandlerManager {
     private void init() {
         // TODO implement build-time scan to improve performance (see https://github.com/classgraph/classgraph/wiki/Build-Time-Scanning)
         final Object[] constructorArgs = new Object[] {
+                coreConfig,
                 persistence,
                 messageBus,
                 assetConnectionManager

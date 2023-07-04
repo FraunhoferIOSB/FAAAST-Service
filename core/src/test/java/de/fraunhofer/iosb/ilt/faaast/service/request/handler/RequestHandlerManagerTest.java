@@ -86,6 +86,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest;
@@ -152,6 +153,8 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
@@ -160,6 +163,7 @@ import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,6 +184,9 @@ public class RequestHandlerManagerTest {
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_1.getSubmodelElements().get(0);
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
 
+    private static final CoreConfig coreConfigWithConstraintValidation = CoreConfig.builder()
+            .validateConstraints(true)
+            .build();
     private static CoreConfig coreConfig;
     private static AssetAdministrationShellEnvironment environment;
     private static MessageBus messageBus;
@@ -192,7 +199,7 @@ public class RequestHandlerManagerTest {
     @Before
     public void createRequestHandlerManager() throws ConfigurationException, AssetConnectionException {
         environment = AASFull.createEnvironment();
-        coreConfig = CoreConfig.builder().build();
+        coreConfig = CoreConfig.DEFAULT;
         messageBus = mock(MessageBus.class);
         persistence = mock(Persistence.class);
         serviceContext = mock(ServiceContext.class);
@@ -287,6 +294,16 @@ public class RequestHandlerManagerTest {
     }
 
 
+    @Test(expected = ValidationException.class)
+    public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
+        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PostAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder()
+                                .build())
+                        .build());
+    }
+
+
     @Test
     public void testGetAssetAdministrationShellByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getAssetAdministrationShells().get(0).getIdentification(), OutputModifier.DEFAULT, AssetAdministrationShell.class))
@@ -368,6 +385,15 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test(expected = ValidationException.class)
+    public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
+        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PutAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder().build())
+                        .build());
     }
 
 
@@ -524,6 +550,21 @@ public class RequestHandlerManagerTest {
     }
 
 
+    @Test(expected = ValidationException.class)
+    public void testPostSubmodelRequestDuplicateIdShort() throws ResourceNotFoundException, Exception {
+        manager.execute(new PostSubmodelRequest.Builder()
+                .submodel(new DefaultSubmodel.Builder()
+                        .submodelElement(new DefaultProperty.Builder()
+                                .idShort("foo")
+                                .build())
+                        .submodelElement(new DefaultProperty.Builder()
+                                .idShort("foo")
+                                .build())
+                        .build())
+                .build());
+    }
+
+
     @Test
     public void testGetSubmodelByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getSubmodels().get(0).getIdentification(), OutputModifier.DEFAULT, Submodel.class))
@@ -646,6 +687,17 @@ public class RequestHandlerManagerTest {
     }
 
 
+    @Test(expected = ValidationException.class)
+    public void testPostSubmodelElementRequestInvalidValueType() throws ResourceNotFoundException, Exception {
+        manager.execute(new PostSubmodelElementRequest.Builder()
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
+                .submodelElement(new DefaultProperty.Builder()
+                        .valueType("invalidValueType")
+                        .build())
+                .build());
+    }
+
+
     @Test
     public void testGetSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
         Submodel submodel = environment.getSubmodels().get(0);
@@ -685,6 +737,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getIdentification())
+                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
@@ -979,6 +1032,15 @@ public class RequestHandlerManagerTest {
     }
 
 
+    @Test(expected = ValidationException.class)
+    public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
+        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PostConceptDescriptionRequest.Builder()
+                        .conceptDescription(new DefaultConceptDescription.Builder().build())
+                        .build());
+    }
+
+
     @Test
     public void testGetConceptDescriptionByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getConceptDescriptions().get(0).getIdentification(), OutputModifier.DEFAULT, ConceptDescription.class))
@@ -1108,7 +1170,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
-        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(coreConfig, persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .value("sub")

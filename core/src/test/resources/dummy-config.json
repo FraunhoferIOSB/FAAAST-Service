@@ -3,7 +3,28 @@
     "core":
             {
                 "requestHandlerThreadPoolSize": 2,
-                "assetConnectionRetryInterval": 1000
+                "assetConnectionRetryInterval": 1000,
+                "validateOnLoad":
+                        {
+                            "validateConstraints": true,
+                            "valueTypeValidation": true,
+                            "idShortUniqueness": true,
+                            "identifierUniqueness": true
+                        },
+                "validationOnCreate":
+                        {
+                            "validateConstraints": false,
+                            "valueTypeValidation": true,
+                            "idShortUniqueness": true,
+                            "identifierUniqueness": true
+                        },
+                "validationOnUpdate":
+                        {
+                            "validateConstraints": false,
+                            "valueTypeValidation": true,
+                            "idShortUniqueness": true,
+                            "identifierUniqueness": true
+                        }
             },
     "assetConnections": [
         {

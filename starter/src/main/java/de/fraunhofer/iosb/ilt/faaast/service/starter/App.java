@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -31,7 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
@@ -39,8 +40,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.validator.ShaclValidator;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,8 +55,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.jena.shacl.ValidationReport;
-import org.apache.jena.shacl.lib.ShLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -243,7 +240,7 @@ public class App implements Runnable {
                 AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
                         ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
                         : config.getPersistence().getInitialModel();
-                validate(model);
+                validate(config.getCore(), model);
             }
             catch (IOException e) {
                 throw new InitializationException("Unexpected exception while validating model", e);
@@ -494,26 +491,25 @@ public class App implements Runnable {
     }
 
 
-    private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
+    private void validate(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnv) throws IOException {
+        if (!coreConfig.getValidateOnLoad().isEnabled()) {
+            LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
+            return;
+        }
         LOGGER.debug("Validating model...");
+        LOGGER.debug("validation mode:");
+        LOGGER.debug("constraint validation: {}", coreConfig.getValidateOnLoad().getValidateConstraints());
+        LOGGER.debug("valueType validation: {}", coreConfig.getValidateOnLoad().getValueTypeValidation());
+        LOGGER.debug("idShort uniqueness validation: {}", coreConfig.getValidateOnLoad().getIdShortUniqueness());
+        LOGGER.debug("identifier uniqueness validation: {}", coreConfig.getValidateOnLoad().getIdentifierUniqueness());
         try {
-            ValueTypeValidator.validate(aasEnv);
+            ModelValidator.validate(aasEnv, coreConfig.getValidateOnLoad());
         }
         catch (ValidationException e) {
             throw new InitializationException(
-                    String.format("Model type validation failed with the following error(s):%s%s",
+                    String.format("Model validation failed with the following error(s):%s%s",
                             System.lineSeparator(),
                             e.getMessage()));
-        }
-        ShaclValidator shaclValidator = ShaclValidator.getInstance();
-        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (!report.conforms()) {
-            ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-            ShLib.printReport(validationResultStream, report);
-            throw new InitializationException(
-                    String.format("Detailed model validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            validationResultStream));
         }
         LOGGER.info("Model successfully validated");
     }
