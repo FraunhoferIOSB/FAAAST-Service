@@ -55,7 +55,7 @@ public class SelfSignedCertificateHandler {
             return sslContext;
         }
         catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException(e);
+            throw new CustomSSLContextCreationException("Failed to create custom SSL context.", e);
         }
     }
 
@@ -99,7 +99,12 @@ public class SelfSignedCertificateHandler {
             if (chain.length == 1 && trustedCertificates.contains(chain[0])) {
                 return;
             }
-            defaultTrustManager.checkServerTrusted(chain, authType);
+            try {
+                defaultTrustManager.checkServerTrusted(chain, authType);
+            }
+            catch (CertificateException e) {
+                throw new CertificateException("Server certificate not trusted.", e);
+            }
         }
 
 
@@ -109,5 +114,27 @@ public class SelfSignedCertificateHandler {
             return defaultTrustManager.getAcceptedIssuers();
         }
 
+    }
+
+    /**
+     * Wrapper class to propagate CustomSSLContextCreationException to the caller in HttpAssetConnection.
+     * When exception occurs, it will be thrown as an AssetConnectionException and
+     * can be caught and handled appropriately by the caller.
+     */
+    public static class CustomSSLContextCreationException extends GeneralSecurityException {
+        public CustomSSLContextCreationException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    /**
+     * Wrapper class to propagate CertificateException to the caller in HttpAssetConnection.
+     * when a CertificateException occurs, it will be thrown as an AssetConnectionException and can be caught and
+     * handled appropriately by the caller.
+     */
+    public static class AssetConnectionException extends IOException {
+        public AssetConnectionException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }
