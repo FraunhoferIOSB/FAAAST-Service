@@ -47,16 +47,12 @@ public class SelfSignedCertificateHandler {
      */
     public SSLContext createCustomSSLContext(HttpAssetConnectionConfig config) throws IOException, GeneralSecurityException {
         loadTrustedCertificates(config);
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(null, new TrustManager[] {
-                    new CustomTrustManager()
-            }, new SecureRandom());
-            return sslContext;
-        }
-        catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new CustomSSLContextCreationException("Failed to create custom SSL context.", e);
-        }
+
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+        sslContext.init(null, new TrustManager[] {
+                new CustomTrustManager()
+        }, new SecureRandom());
+        return sslContext;
     }
 
 
@@ -99,12 +95,7 @@ public class SelfSignedCertificateHandler {
             if (chain.length == 1 && trustedCertificates.contains(chain[0])) {
                 return;
             }
-            try {
-                defaultTrustManager.checkServerTrusted(chain, authType);
-            }
-            catch (CertificateException e) {
-                throw new CertificateException("Server certificate not trusted.", e);
-            }
+            defaultTrustManager.checkServerTrusted(chain, authType);
         }
 
 
@@ -112,29 +103,6 @@ public class SelfSignedCertificateHandler {
         public X509Certificate[] getAcceptedIssuers() {
             // TODO check if it is enough to here return also all trusted certificates
             return defaultTrustManager.getAcceptedIssuers();
-        }
-
-    }
-
-    /**
-     * Wrapper class to propagate CustomSSLContextCreationException to the caller in HttpAssetConnection.
-     * When exception occurs, it will be thrown as an AssetConnectionException and
-     * can be caught and handled appropriately by the caller.
-     */
-    public static class CustomSSLContextCreationException extends GeneralSecurityException {
-        public CustomSSLContextCreationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    /**
-     * Wrapper class to propagate CertificateException to the caller in HttpAssetConnection.
-     * when a CertificateException occurs, it will be thrown as an AssetConnectionException and can be caught and
-     * handled appropriately by the caller.
-     */
-    public static class AssetConnectionException extends IOException {
-        public AssetConnectionException(String message, Throwable cause) {
-            super(message, cause);
         }
     }
 }
