@@ -37,7 +37,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
@@ -45,8 +46,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.validator.ShaclValidator;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,8 +64,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.jena.shacl.ValidationReport;
-import org.apache.jena.shacl.lib.ShLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -144,8 +141,8 @@ public class App implements Runnable {
     @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyModel = false;
 
-    @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
-    public boolean validateModel = true;
+    @Option(names = "--no-validation", negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
+    public boolean noValidation = false;
 
     @Option(names = "--loglevel-faaast", description = "Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as -q or -v.")
     public Level logLevelFaaast;
@@ -253,21 +250,38 @@ public class App implements Runnable {
     }
 
 
-    private void validateModelIfRequired(ServiceConfig config) {
-        if (validateModel) {
-            try {
-                AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
-                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
-                        : config.getPersistence().getInitialModel();
-                validate(model);
-            }
-            catch (IOException e) {
-                throw new InitializationException("Unexpected exception while validating model", e);
-            }
-            catch (DeserializationException e) {
-                throw new InitializationException("Error loading model file", e);
-            }
+    private void validate(ServiceConfig config) {
+        if (noValidation) {
+            config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnCreate(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
         }
+        try {
+            AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+                    ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
+                    : config.getPersistence().getInitialModel();
+            if (!config.getCore().getValidationOnLoad().isEnabled()) {
+                LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
+                return;
+            }
+            LOGGER.debug("Validating model...");
+            LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
+            LOGGER.debug("ValueType validation: {}", config.getCore().getValidationOnLoad().getValueTypeValidation());
+            LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
+            LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
+            ModelValidator.validate(model, config.getCore().getValidationOnLoad());
+            LOGGER.info("Model successfully validated");
+        }
+        catch (DeserializationException e) {
+            throw new InitializationException("Error loading model file", e);
+        }
+        catch (ValidationException e) {
+            throw new InitializationException(
+                    String.format("Model validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            e.getMessage()));
+        }
+
     }
 
 
@@ -315,7 +329,6 @@ public class App implements Runnable {
             ServiceConfigHelper.autoComplete(config);
         }
         withModel(config);
-        validateModelIfRequired(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
@@ -331,6 +344,7 @@ public class App implements Runnable {
         catch (JsonProcessingException e) {
             throw new InitializationException("Overriding config properties failed", e);
         }
+        validate(config);
         if (!dryRun) {
             runService(config);
         }
@@ -458,7 +472,7 @@ public class App implements Runnable {
             LOGGER.info("Model: empty (default)");
         }
         LOGGER.info("Model validation is disabled when using empty model");
-        validateModel = false;
+        noValidation = true;
         config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
@@ -507,31 +521,6 @@ public class App implements Runnable {
             LOGGER.info("error determining version info (reason: {})", e.getMessage());
         }
         LOGGER.info("-------------------------------------------------------------------------");
-    }
-
-
-    private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        LOGGER.debug("Validating model...");
-        try {
-            ValueTypeValidator.validate(aasEnv);
-        }
-        catch (ValidationException e) {
-            throw new InitializationException(
-                    String.format("Model type validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            e.getMessage()));
-        }
-        ShaclValidator shaclValidator = ShaclValidator.getInstance();
-        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (!report.conforms()) {
-            ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-            ShLib.printReport(validationResultStream, report);
-            throw new InitializationException(
-                    String.format("Detailed model validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            validationResultStream));
-        }
-        LOGGER.info("Model successfully validated");
     }
 
 

@@ -26,13 +26,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,10 +42,10 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 public class AppTest {
 
-    protected App application;
-    protected CommandLine cmd;
     private static final String MODEL_RESOURCE_PATH = "/AASMinimal.json"; // Path of model resource from core dependency
     private static final String CONFIG = "src/test/resources/config-minimal.json";
+    private App application;
+    private CommandLine cmd;
     private Path modelPath;
     private static ServiceConfig dummyMessageBusConfig;
 
@@ -61,10 +60,10 @@ public class AppTest {
 
     @Before
     public void prepareResources() throws IOException {
-        modelPath = Paths.get("." + MODEL_RESOURCE_PATH);
+        modelPath = Files.createTempFile("faaast-app-test-model", ".json");
+        modelPath.toFile().deleteOnExit();
         InputStream modelResourceAsStream = AppTest.class.getResourceAsStream(MODEL_RESOURCE_PATH);
-
-        Files.copy(modelResourceAsStream, modelPath);
+        Files.copy(modelResourceAsStream, modelPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
 
@@ -108,12 +107,6 @@ public class AppTest {
                     : result.and(key, value);
         }
         return result;
-    }
-
-
-    @After
-    public void cleanUpResources() throws IOException {
-        Files.deleteIfExists(modelPath);
     }
 
 
@@ -284,15 +277,15 @@ public class AppTest {
 
     @Test
     public void testModelValidationCLI() {
-        executeAssertSuccess("--no-modelValidation");
-        Assert.assertFalse(application.validateModel);
+        executeAssertSuccess("--no-validation");
+        Assert.assertTrue(application.noValidation);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
         executeAssertSuccess("-m", modelPath.toString());
-        Assert.assertTrue(application.validateModel);
+        Assert.assertFalse(application.noValidation);
     }
 
 

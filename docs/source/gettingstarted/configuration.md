@@ -8,7 +8,25 @@ The basic structure of a configuration is the following
 {
 	"core" : {
 		"requestHandlerThreadPoolSize": 2,      // how many threads are used for executing requests
-		"assetConnectionRetryInterval": 1000    // interval in ms in which to retry establishing asset connections
+		"assetConnectionRetryInterval": 1000,   // interval in ms in which to retry establishing asset connections
+		"validationOnLoad": {					// (optional) which validation rules to use when loading the model at startup
+			"validateConstraints": true,
+			"valueTypeValidation": true,
+			"idShortUniqueness": true,
+			"identifierUniqueness": true
+		},
+		"validationOnCreate": {                 // (optional) which validation rules to use when creating elements via API
+			"validateConstraints": false,
+			"valueTypeValidation": true,
+			"idShortUniqueness": true,
+			"identifierUniqueness": true
+		},
+		"validationOnUpdate": {                 // (optional) which validation rules to use when updating elements via API
+			"validateConstraints": false,
+			"valueTypeValidation": true,
+			"idShortUniqueness": true,
+			"identifierUniqueness": true
+		}
 	},
 	"endpoints" : [
 		// endpoint configurations, multiple allowed

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
@@ -31,10 +32,31 @@ public class CoreConfig {
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
+    private ModelValidatorConfig validationOnLoad;
+    private ModelValidatorConfig validationOnCreate;
+    private ModelValidatorConfig validationOnUpdate;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
         this.requestHandlerThreadPoolSize = DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE;
+        this.validationOnLoad = ModelValidatorConfig.builder()
+                .validateConstraints(true)
+                .validateIdShortUniqueness(true)
+                .validateIdentifierUniqueness(true)
+                .validateValueTypes(true)
+                .build();
+        this.validationOnCreate = ModelValidatorConfig.builder()
+                .validateConstraints(false)
+                .validateIdShortUniqueness(true)
+                .validateIdentifierUniqueness(true)
+                .validateValueTypes(true)
+                .build();
+        this.validationOnUpdate = ModelValidatorConfig.builder()
+                .validateConstraints(false)
+                .validateIdShortUniqueness(true)
+                .validateIdentifierUniqueness(true)
+                .validateValueTypes(true)
+                .build();
     }
 
 
@@ -58,6 +80,36 @@ public class CoreConfig {
     }
 
 
+    public void setValidationOnLoad(ModelValidatorConfig validationOnLoad) {
+        this.validationOnLoad = validationOnLoad;
+    }
+
+
+    public ModelValidatorConfig getValidationOnLoad() {
+        return validationOnLoad;
+    }
+
+
+    public void setValidationOnCreate(ModelValidatorConfig validationOnCreate) {
+        this.validationOnCreate = validationOnCreate;
+    }
+
+
+    public ModelValidatorConfig getValidationOnCreate() {
+        return validationOnCreate;
+    }
+
+
+    public void setValidationOnUpdate(ModelValidatorConfig validationOnUpdate) {
+        this.validationOnUpdate = validationOnUpdate;
+    }
+
+
+    public ModelValidatorConfig getValidationOnUpdate() {
+        return validationOnUpdate;
+    }
+
+
     public void setRequestHandlerThreadPoolSize(int requestHandlerThreadPoolSize) {
         this.requestHandlerThreadPoolSize = requestHandlerThreadPoolSize;
     }
@@ -65,7 +117,11 @@ public class CoreConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(assetConnectionRetryInterval, requestHandlerThreadPoolSize);
+        return Objects.hash(assetConnectionRetryInterval,
+                requestHandlerThreadPoolSize,
+                validationOnLoad,
+                validationOnCreate,
+                validationOnUpdate);
     }
 
 
@@ -82,7 +138,10 @@ public class CoreConfig {
         }
         final CoreConfig other = (CoreConfig) obj;
         return Objects.equals(this.assetConnectionRetryInterval, other.assetConnectionRetryInterval)
-                && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize);
+                && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize)
+                && Objects.equals(this.validationOnLoad, other.validationOnLoad)
+                && Objects.equals(this.validationOnCreate, other.validationOnCreate)
+                && Objects.equals(this.validationOnUpdate, other.validationOnUpdate);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
@@ -95,6 +154,56 @@ public class CoreConfig {
 
         public Builder assetConnectionRetryInterval(long value) {
             getBuildingInstance().setAssetConnectionRetryInterval(value);
+            return getSelf();
+        }
+
+
+        public Builder validationOnLoad(ModelValidatorConfig value) {
+            getBuildingInstance().setValidationOnLoad(value);
+            return getSelf();
+        }
+
+
+        public Builder validationOnCreate(ModelValidatorConfig value) {
+            getBuildingInstance().setValidationOnCreate(value);
+            return getSelf();
+        }
+
+
+        public Builder validationOnUpdate(ModelValidatorConfig value) {
+            getBuildingInstance().setValidationOnUpdate(value);
+            return getSelf();
+        }
+
+
+        public Builder validateConstraints(boolean value) {
+            getBuildingInstance().getValidationOnLoad().setValidateConstraints(value);
+            getBuildingInstance().getValidationOnCreate().setValidateConstraints(value);
+            getBuildingInstance().getValidationOnUpdate().setValidateConstraints(value);
+            return getSelf();
+        }
+
+
+        public Builder validateIdShortUniqueness(boolean value) {
+            getBuildingInstance().getValidationOnLoad().setValidateIdShortUniqueness(value);
+            getBuildingInstance().getValidationOnCreate().setValidateIdShortUniqueness(value);
+            getBuildingInstance().getValidationOnUpdate().setValidateIdShortUniqueness(value);
+            return getSelf();
+        }
+
+
+        public Builder validateIdentifierUniqueness(boolean value) {
+            getBuildingInstance().getValidationOnLoad().setValidateIdentifierUniqueness(value);
+            getBuildingInstance().getValidationOnCreate().setValidateIdentifierUniqueness(value);
+            getBuildingInstance().getValidationOnUpdate().setValidateIdentifierUniqueness(value);
+            return getSelf();
+        }
+
+
+        public Builder validateValueTypes(boolean value) {
+            getBuildingInstance().getValidationOnLoad().setValidateValueTypes(value);
+            getBuildingInstance().getValidationOnCreate().setValidateValueTypes(value);
+            getBuildingInstance().getValidationOnUpdate().setValidateValueTypes(value);
             return getSelf();
         }
 
