@@ -88,6 +88,9 @@ public class HttpsAssetConnectionTest {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private URL baseUrl;
+
+    @Rule
+    public WireMockRule wireMockRule = generateWireMockRule();
     public static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
             .commonName("FA³ST Service HTTP Asset Connection Test")
@@ -123,12 +126,10 @@ public class HttpsAssetConnectionTest {
         }
     }
 
-    @Rule
-    public WireMockRule wireMockRule;
 
-    public HttpsAssetConnectionTest() {
+    private WireMockRule generateWireMockRule() {
         generateSelfSignedServerCertificate();
-        wireMockRule = new WireMockRule(options()
+        return new WireMockRule(options()
                 .dynamicHttpsPort()
                 .keystoreType(KEYSTORE_TYPE_SERVER)
                 .keystorePath(keyStoreFileServer.getAbsolutePath())
