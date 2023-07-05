@@ -85,7 +85,7 @@ public class CoreConfig {
     }
 
 
-    public ModelValidatorConfig getValidateOnLoad() {
+    public ModelValidatorConfig getValidationOnLoad() {
         return validationOnLoad;
     }
 
@@ -177,7 +177,7 @@ public class CoreConfig {
 
 
         public Builder validateConstraints(boolean value) {
-            getBuildingInstance().getValidateOnLoad().setValidateConstraints(value);
+            getBuildingInstance().getValidationOnLoad().setValidateConstraints(value);
             getBuildingInstance().getValidationOnCreate().setValidateConstraints(value);
             getBuildingInstance().getValidationOnUpdate().setValidateConstraints(value);
             return getSelf();
@@ -185,7 +185,7 @@ public class CoreConfig {
 
 
         public Builder validateIdShortUniqueness(boolean value) {
-            getBuildingInstance().getValidateOnLoad().setValidateIdShortUniqueness(value);
+            getBuildingInstance().getValidationOnLoad().setValidateIdShortUniqueness(value);
             getBuildingInstance().getValidationOnCreate().setValidateIdShortUniqueness(value);
             getBuildingInstance().getValidationOnUpdate().setValidateIdShortUniqueness(value);
             return getSelf();
@@ -193,7 +193,7 @@ public class CoreConfig {
 
 
         public Builder validateIdentifierUniqueness(boolean value) {
-            getBuildingInstance().getValidateOnLoad().setValidateIdentifierUniqueness(value);
+            getBuildingInstance().getValidationOnLoad().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnCreate().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnUpdate().setValidateIdentifierUniqueness(value);
             return getSelf();
@@ -201,7 +201,7 @@ public class CoreConfig {
 
 
         public Builder validateValueTypes(boolean value) {
-            getBuildingInstance().getValidateOnLoad().setValidateValueTypes(value);
+            getBuildingInstance().getValidationOnLoad().setValidateValueTypes(value);
             getBuildingInstance().getValidationOnCreate().setValidateValueTypes(value);
             getBuildingInstance().getValidationOnUpdate().setValidateValueTypes(value);
             return getSelf();

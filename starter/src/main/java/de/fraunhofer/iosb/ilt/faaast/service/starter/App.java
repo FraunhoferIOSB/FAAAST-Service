@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -33,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
@@ -125,8 +125,8 @@ public class App implements Runnable {
     @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyModel = false;
 
-    @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
-    public boolean validateModel = true;
+    @Option(names = "--no-validation", negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
+    public boolean noValidation = false;
 
     @Option(names = "--loglevel-faaast", description = "Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as -q or -v.")
     public Level logLevelFaaast;
@@ -234,18 +234,38 @@ public class App implements Runnable {
     }
 
 
-    private void validateModelIfRequired(ServiceConfig config) {
-        if (validateModel) {
-            try {
-                AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
-                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
-                        : config.getPersistence().getInitialModel();
-                validate(config.getCore(), model);
-            }
-            catch (DeserializationException e) {
-                throw new InitializationException("Error loading model file", e);
-            }
+    private void validate(ServiceConfig config) {
+        if (noValidation) {
+            config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnCreate(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
         }
+        try {
+            AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+                    ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
+                    : config.getPersistence().getInitialModel();
+            if (!config.getCore().getValidationOnLoad().isEnabled()) {
+                LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
+                return;
+            }
+            LOGGER.debug("Validating model...");
+            LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
+            LOGGER.debug("ValueType validation: {}", config.getCore().getValidationOnLoad().getValueTypeValidation());
+            LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
+            LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
+            ModelValidator.validate(model, config.getCore().getValidationOnLoad());
+            LOGGER.info("Model successfully validated");
+        }
+        catch (DeserializationException e) {
+            throw new InitializationException("Error loading model file", e);
+        }
+        catch (ValidationException e) {
+            throw new InitializationException(
+                    String.format("Model validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            e.getMessage()));
+        }
+
     }
 
 
@@ -293,7 +313,6 @@ public class App implements Runnable {
             ServiceConfigHelper.autoComplete(config);
         }
         withModel(config);
-        validateModelIfRequired(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
@@ -309,6 +328,7 @@ public class App implements Runnable {
         catch (JsonProcessingException e) {
             throw new InitializationException("Overriding config properties failed", e);
         }
+        validate(config);
         if (!dryRun) {
             runService(config);
         }
@@ -436,7 +456,7 @@ public class App implements Runnable {
             LOGGER.info("Model: empty (default)");
         }
         LOGGER.info("Model validation is disabled when using empty model");
-        validateModel = false;
+        noValidation = true;
         config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
@@ -485,30 +505,6 @@ public class App implements Runnable {
             LOGGER.info("error determining version info (reason: {})", e.getMessage());
         }
         LOGGER.info("-------------------------------------------------------------------------");
-    }
-
-
-    private void validate(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnv) {
-        if (!coreConfig.getValidateOnLoad().isEnabled()) {
-            LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
-            return;
-        }
-        LOGGER.debug("Validating model...");
-        LOGGER.debug("validation mode:");
-        LOGGER.debug("constraint validation: {}", coreConfig.getValidateOnLoad().getValidateConstraints());
-        LOGGER.debug("valueType validation: {}", coreConfig.getValidateOnLoad().getValueTypeValidation());
-        LOGGER.debug("idShort uniqueness validation: {}", coreConfig.getValidateOnLoad().getIdShortUniqueness());
-        LOGGER.debug("identifier uniqueness validation: {}", coreConfig.getValidateOnLoad().getIdentifierUniqueness());
-        try {
-            ModelValidator.validate(aasEnv, coreConfig.getValidateOnLoad());
-        }
-        catch (ValidationException e) {
-            throw new InitializationException(
-                    String.format("Model validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            e.getMessage()));
-        }
-        LOGGER.info("Model successfully validated");
     }
 
 

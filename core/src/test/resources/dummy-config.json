@@ -4,7 +4,7 @@
             {
                 "requestHandlerThreadPoolSize": 2,
                 "assetConnectionRetryInterval": 1000,
-                "validateOnLoad":
+                "validationOnLoad":
                         {
                             "validateConstraints": true,
                             "valueTypeValidation": true,

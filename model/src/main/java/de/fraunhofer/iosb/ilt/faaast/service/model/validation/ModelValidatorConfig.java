@@ -25,6 +25,19 @@ import java.util.Objects;
 public class ModelValidatorConfig {
 
     public static final ModelValidatorConfig DEFAULT = ModelValidatorConfig.builder().build();
+    public static final ModelValidatorConfig ALL = ModelValidatorConfig.builder()
+            .validateConstraints(true)
+            .validateValueTypes(true)
+            .validateIdShortUniqueness(true)
+            .validateIdentifierUniqueness(true)
+            .build();
+    public static final ModelValidatorConfig NONE = ModelValidatorConfig.builder()
+            .validateConstraints(false)
+            .validateValueTypes(false)
+            .validateIdShortUniqueness(false)
+            .validateIdentifierUniqueness(false)
+            .build();
+
     private static final boolean DEFAULT_VALIDATE_CONSTRAINTS = true;
     private static final boolean DEFAULT_VALIDATE_VALUE_TYPES = true;
     private static final boolean DEFAULT_VALIDATE_ID_SHORT_UNIQUENESS = true;
