@@ -24,13 +24,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +47,10 @@ public class AppTest {
 
     @Before
     public void prepareResources() throws IOException {
-        modelPath = Paths.get("." + MODEL_RESOURCE_PATH);
+        modelPath = Files.createTempFile("faaast-app-test-model", ".json");
+        modelPath.toFile().deleteOnExit();
         InputStream modelResourceAsStream = AppTest.class.getResourceAsStream(MODEL_RESOURCE_PATH);
-
-        Files.copy(modelResourceAsStream, modelPath);
+        Files.copy(modelResourceAsStream, modelPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
 
@@ -62,12 +61,6 @@ public class AppTest {
         cmd = new CommandLine(application)
                 .setCaseInsensitiveEnumValuesAllowed(true);
         cmd.setOut(new PrintWriter(new StringWriter()));
-    }
-
-
-    @After
-    public void cleanUpResources() throws IOException {
-        Files.deleteIfExists(modelPath);
     }
 
 
@@ -209,15 +202,15 @@ public class AppTest {
 
     @Test
     public void testModelValidationCLI() {
-        executeAssertSuccess("--no-modelValidation");
-        Assert.assertFalse(application.validateModel);
+        executeAssertSuccess("--no-validation");
+        Assert.assertTrue(application.noValidation);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
         executeAssertSuccess("-m", modelPath.toString());
-        Assert.assertTrue(application.validateModel);
+        Assert.assertFalse(application.noValidation);
     }
 
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -34,8 +35,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  */
 public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<PostSubmodelReferenceRequest, PostSubmodelReferenceResponse> {
 
-    public PostSubmodelReferenceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PostSubmodelReferenceRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 

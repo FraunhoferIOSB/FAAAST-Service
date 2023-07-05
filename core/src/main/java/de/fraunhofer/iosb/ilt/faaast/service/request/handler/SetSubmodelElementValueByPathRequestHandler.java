@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -40,8 +41,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 public class SetSubmodelElementValueByPathRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
-    public SetSubmodelElementValueByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public SetSubmodelElementValueByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
