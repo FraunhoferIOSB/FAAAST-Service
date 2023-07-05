@@ -33,15 +33,9 @@
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>${tomakehurst.wiremock.version}</version>
+            <artifactId>wiremock-jre8</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
-            <artifactId>endpoint-http</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
