@@ -12,6 +12,8 @@
 	*   More fine-grained configuration of validation via configuration file
 	*   Enabled validation for API calls creating or updating elements (basic validation enabled by default)
 	*   Renamed CLI argument `--no-modelValidation` to `--no-validation`. It now enables any validation when used (overriding validation configuration in configuration file is present).
+*   Other
+	*   Environment variables use "_" as a separator
 
 **Internal changes & bugfixes**
 *   General

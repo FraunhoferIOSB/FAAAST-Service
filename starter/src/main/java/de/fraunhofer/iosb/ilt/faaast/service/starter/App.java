@@ -21,8 +21,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -46,10 +52,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -97,10 +106,17 @@ public class App implements Runnable {
     protected static final String ENV_MODEL_KEY = "model";
     protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
     // environment
-    protected static final String ENV_PATH_SEPERATOR = ".";
+    protected static final String ENV_PATH_SEPERATOR = "_";
+    protected static final String JSON_PATH_SEPERATOR = ".";
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
+    private static final Configuration JSON_PATH_CONFIG = Configuration
+            .builder()
+            .mappingProvider(new JacksonMappingProvider())
+            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .build()
+            .addOptions(com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS);
 
     @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
     public boolean autoCompleteConfiguration = true;
@@ -323,7 +339,7 @@ public class App implements Runnable {
             throw new InitializationException("Adding endpoints to config failed", e);
         }
         try {
-            config = ServiceConfigHelper.withProperties(config, getConfigOverrides());
+            config = ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
         }
         catch (JsonProcessingException e) {
             throw new InitializationException("Overriding config properties failed", e);
@@ -544,6 +560,74 @@ public class App implements Runnable {
                             .collect(Collectors.joining(System.lineSeparator())));
         }
         return result;
+    }
+
+
+    /**
+     * Collects config overrides from environment and CLI parameters.
+     *
+     * @param config used to replace certain separators
+     *
+     * @return map of config overrides
+     */
+    protected Map<String, String> getConfigOverrides(ServiceConfig config) {
+        return replaceSeparators(config, getConfigOverrides());
+    }
+
+
+    private Map<String, String> replaceSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+        Map<String, String> result = new HashMap<>();
+        DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
+        configOverrides.forEach((k, v) -> {
+            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_SEPERATOR)));
+            String newPath = getNewPathRecursive(document, pathParts.get(0), pathParts, 1);
+            result.put(newPath, v);
+        });
+        return result;
+    }
+
+
+    private String getNewPathRecursive(DocumentContext document, String currPath, List<String> pathParts, int nextPartIndex) {
+        String jsonPath = String.format("$.%s", currPath);
+        JsonNode node = document.read(jsonPath);
+
+        if (nextPartIndex >= pathParts.size()) {
+            return node == null ? null : currPath;
+        }
+
+        String nextPart = pathParts.get(nextPartIndex);
+
+        if (node == null) {
+            return getNewPathRecursive(
+                    document,
+                    currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+        }
+        else {
+            String pathWithDot = getNewPathRecursive(
+                    document,
+                    currPath + JSON_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            String pathWithSeparator = getNewPathRecursive(
+                    document,
+                    currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            if (Objects.nonNull(pathWithDot) && Objects.nonNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file.",
+                        pathWithDot,
+                        pathWithSeparator));
+            }
+            if (Objects.isNull(pathWithDot) && Objects.isNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Unresolvable environment variable found '%s'.",
+                        pathWithDot));
+            }
+            return Objects.nonNull(pathWithDot) ? pathWithDot : pathWithSeparator;
+        }
     }
 
     /**

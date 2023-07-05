@@ -76,13 +76,13 @@ Default Configuration:
 ```
 
 The FA³ST Service Starter consider following environment variables:
--   `faaast.config` to use a own configuration file
--   `faaast.model` to use a Asset Administration Environment file
+-   `faaast_config` to use a own configuration file
+-   `faaast_model` to use a Asset Administration Environment file
 
-Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)) with the prefix `faaast.config.extension.`:
--   `faaast.config.extension.[dot.separated.path]`
+Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)), with '_' as a separator and with the prefix `faaast_config_extension_`:
+-   `faaast_config_extension_[underscore_separated_path]`
 
-If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.config.extension.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.config.extension.endpoints[0].port=8081`.
+If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast_config_extension_core_requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast_config_extension_endpoints[0]_port=8081`.
 
 You could also use properties to adjust configuration components. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
 

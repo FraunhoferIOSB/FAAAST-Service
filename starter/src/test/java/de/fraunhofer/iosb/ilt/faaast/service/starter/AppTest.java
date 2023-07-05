@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
@@ -32,6 +34,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import picocli.CommandLine;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
@@ -44,6 +47,16 @@ public class AppTest {
     private App application;
     private CommandLine cmd;
     private Path modelPath;
+    private static ServiceConfig dummyMessageBusConfig;
+
+    @BeforeClass
+    public static void init() {
+        DummyMessageBusConfig messageBusConfig = new DummyMessageBusConfig();
+        dummyMessageBusConfig = ServiceConfig.builder()
+                .messageBus(messageBusConfig)
+                .build();
+    }
+
 
     @Before
     public void prepareResources() throws IOException {
@@ -64,7 +77,7 @@ public class AppTest {
     }
 
 
-    private EnvironmentVariables withEnv(Map<String, String> variables) {
+    protected EnvironmentVariables withEnv(Map<String, String> variables) {
         return withEnv(variables.entrySet().stream()
                 .map(x -> new String[] {
                         x.getKey(),
@@ -75,7 +88,7 @@ public class AppTest {
     }
 
 
-    private EnvironmentVariables withEnv(String... variables) {
+    protected EnvironmentVariables withEnv(String... variables) {
         Ensure.requireNonNull(variables, "variables must be non-null");
         Ensure.require(variables.length >= 2, "variables must contain at least one element");
         Ensure.require(variables.length % 2 == 0, "variables must contain an even number of elements");
@@ -115,6 +128,68 @@ public class AppTest {
             return application.getConfigOverrides();
         });
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testNestedSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPraefixSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_PRAEFIX_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_PRAEFIX_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAmbiguitySeparatorReplacement() throws Exception {
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_AMBIGUITY_BEFORE, "1");
+
+        Assert.assertThrows(InitializationException.class, () -> {
+            withEnv(envProperties).execute(() -> {
+                application.getConfigOverrides(dummyMessageBusConfig);
+            });
+        });
     }
 
 
