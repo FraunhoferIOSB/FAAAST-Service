@@ -59,6 +59,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -109,6 +110,7 @@ public class App implements Runnable {
     protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
     // environment
     protected static final String ENV_PATH_SEPERATOR = "_";
+    protected static final String JSON_PATH_SEPERATOR = ".";
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
@@ -607,19 +609,35 @@ public class App implements Runnable {
         String nextPart = pathParts.get(nextPartIndex);
 
         if (node == null) {
-            return getNewPathRecursive(document, currPath + ENV_PATH_SEPERATOR + nextPart,
-                    pathParts, nextPartIndex + 1);
+            return getNewPathRecursive(
+                    document,
+                    currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
         }
         else {
-            String pathWithDot = getNewPathRecursive(document, currPath + "." + nextPart,
-                    pathParts, nextPartIndex + 1);
-            String pathWithSeparator = getNewPathRecursive(document, currPath + ENV_PATH_SEPERATOR + nextPart,
-                    pathParts, nextPartIndex + 1);
-            if (pathWithDot != null && pathWithSeparator != null) {
-                throw new InitializationException(
-                        String.format("Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file!", pathWithDot, pathWithSeparator));
+            String pathWithDot = getNewPathRecursive(
+                    document,
+                    currPath + JSON_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            String pathWithSeparator = getNewPathRecursive(
+                    document,
+                    currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            if (Objects.nonNull(pathWithDot) && Objects.nonNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file.",
+                        pathWithDot,
+                        pathWithSeparator));
             }
-            return (pathWithDot == null) ? pathWithSeparator : pathWithDot;
+            if (Objects.isNull(pathWithDot) && Objects.isNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Unresolvable environment variable found '%s'.",
+                        pathWithDot));
+            }
+            return Objects.nonNull(pathWithDot) ? pathWithDot : pathWithSeparator;
         }
     }
 
