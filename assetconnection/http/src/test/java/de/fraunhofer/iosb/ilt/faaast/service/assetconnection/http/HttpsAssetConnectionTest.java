@@ -89,7 +89,7 @@ public class HttpsAssetConnectionTest {
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String KEYSTORE_PASSWORD = "changeit";
     private static final String KEYMANAGER_PASSWORD = "changeit";
-    private static final String KEYSTORE_TYPE_SERVER = "JKS";
+    private static final String KEYSTORE_TYPE_SERVER = "PKCS12";
     private static File keyStoreFileServer = null;
     private static File keyStoreFileClient = null;
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -112,7 +112,7 @@ public class HttpsAssetConnectionTest {
 
     private void generateSelfSignedServerCertificate() {
         try {
-            keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".jks").toFile();
+            keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".p12").toFile();
             keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
             CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
             KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD, KEYMANAGER_PASSWORD);
