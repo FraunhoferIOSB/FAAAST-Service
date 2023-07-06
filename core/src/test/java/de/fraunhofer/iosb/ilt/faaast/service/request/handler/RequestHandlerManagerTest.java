@@ -86,7 +86,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest;
@@ -294,13 +293,14 @@ public class RequestHandlerManagerTest {
     }
 
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
-        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+        PostAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PostAssetAdministrationShellRequest.Builder()
                         .aas(new DefaultAssetAdministrationShell.Builder()
                                 .build())
                         .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
@@ -388,12 +388,13 @@ public class RequestHandlerManagerTest {
     }
 
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
-        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+        PutAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PutAssetAdministrationShellRequest.Builder()
                         .aas(new DefaultAssetAdministrationShell.Builder().build())
                         .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
@@ -550,9 +551,8 @@ public class RequestHandlerManagerTest {
     }
 
 
-    @Test(expected = ValidationException.class)
     public void testPostSubmodelRequestDuplicateIdShort() throws ResourceNotFoundException, Exception {
-        manager.execute(new PostSubmodelRequest.Builder()
+        PostSubmodelResponse actual = manager.execute(new PostSubmodelRequest.Builder()
                 .submodel(new DefaultSubmodel.Builder()
                         .submodelElement(new DefaultProperty.Builder()
                                 .idShort("foo")
@@ -562,6 +562,7 @@ public class RequestHandlerManagerTest {
                                 .build())
                         .build())
                 .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
@@ -687,14 +688,15 @@ public class RequestHandlerManagerTest {
     }
 
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testPostSubmodelElementRequestInvalidValueType() throws ResourceNotFoundException, Exception {
-        manager.execute(new PostSubmodelElementRequest.Builder()
+        PostSubmodelElementResponse actual = manager.execute(new PostSubmodelElementRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .submodelElement(new DefaultProperty.Builder()
                         .valueType("invalidValueType")
                         .build())
                 .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
@@ -1032,12 +1034,13 @@ public class RequestHandlerManagerTest {
     }
 
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
-        new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+        PostConceptDescriptionResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PostConceptDescriptionRequest.Builder()
                         .conceptDescription(new DefaultConceptDescription.Builder().build())
                         .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
