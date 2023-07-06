@@ -108,6 +108,7 @@ public class KeyStoreHelper {
      * @param file the file to write to
      * @param certificateData the certificate data
      * @param password the password to set
+     * @param keyManagerPassword the key manager password to set
      * @throws IOException if writing to the file fails
      * @throws GeneralSecurityException if generating the certificate fails
      */
