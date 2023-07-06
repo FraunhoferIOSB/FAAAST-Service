@@ -472,7 +472,7 @@ public class App implements Runnable {
             LOGGER.info("Model: empty (default)");
         }
         LOGGER.info("Model validation is disabled when using empty model");
-        noValidation = true;
+        config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
         config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
