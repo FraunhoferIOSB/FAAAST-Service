@@ -13,7 +13,6 @@
     <description>HTTP Asset Connection implementation of the FA³ST Service.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
-        <tomakehurst.wiremock.version>2.26.3</tomakehurst.wiremock.version>
     </properties>
     <dependencies>
         <dependency>
