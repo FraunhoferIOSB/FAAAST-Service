@@ -14,7 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.request;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
@@ -81,6 +88,7 @@ public class HttpsAssetConnectionTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAssetConnectionTest.class);
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String KEYSTORE_PASSWORD = "changeit";
+    private static final String KEYMANAGER_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE_SERVER = "JKS";
     private static File keyStoreFileServer = null;
     private static File keyStoreFileClient = null;
@@ -107,7 +115,7 @@ public class HttpsAssetConnectionTest {
             keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".jks").toFile();
             keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
             CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-            KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD);
+            KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD, KEYMANAGER_PASSWORD);
             LOGGER.info("Self-signed cert generated & stored successfully in the server keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
             KeyStoreHelper.save(keyStoreFileClient, certificateData, KEYSTORE_PASSWORD);
             LOGGER.info("Self-signed cert stored successfully in the client keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
@@ -133,7 +141,8 @@ public class HttpsAssetConnectionTest {
                 .dynamicHttpsPort()
                 .keystoreType(KEYSTORE_TYPE_SERVER)
                 .keystorePath(keyStoreFileServer.getAbsolutePath())
-                .keystorePassword(KEYSTORE_PASSWORD));
+                .keystorePassword(KEYSTORE_PASSWORD)
+                .keyManagerPassword(KEYMANAGER_PASSWORD));
     }
 
 

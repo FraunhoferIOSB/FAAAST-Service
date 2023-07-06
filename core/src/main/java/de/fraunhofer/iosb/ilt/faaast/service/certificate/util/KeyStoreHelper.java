@@ -111,7 +111,8 @@ public class KeyStoreHelper {
      * @throws IOException if writing to the file fails
      * @throws GeneralSecurityException if generating the certificate fails
      */
-    public static void save(String keyStoreType, File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
+    public static void save(String keyStoreType, File file, CertificateData certificateData, String password, String keyManagerPassword)
+            throws IOException, GeneralSecurityException {
         save(file, createKeyStore(keyStoreType, certificateData, password), password);
     }
 
