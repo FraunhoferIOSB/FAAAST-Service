@@ -90,8 +90,7 @@ public class HttpsAssetConnectionTest {
     private static final String KEYSTORE_PASSWORD = "changeit";
     private static final String KEYMANAGER_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE_SERVER = "PKCS12";
-    private static File keyStoreFileServer = null;
-    private static File keyStoreFileClient = null;
+    private static File keyStoreFile = null;
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
@@ -112,12 +111,11 @@ public class HttpsAssetConnectionTest {
 
     private void generateSelfSignedServerCertificate() {
         try {
-            keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".p12").toFile();
-            keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
+            keyStoreFile = Files.createTempFile("faaast-assetconnection-http-cert", ".p12").toFile();
             CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-            KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD, KEYMANAGER_PASSWORD);
+            KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFile, certificateData, KEYSTORE_PASSWORD, KEYMANAGER_PASSWORD);
             LOGGER.info("Self-signed cert generated & stored successfully in the server keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-            KeyStoreHelper.save(keyStoreFileClient, certificateData, KEYSTORE_PASSWORD);
+            KeyStoreHelper.save(keyStoreFile, certificateData, KEYSTORE_PASSWORD);
             LOGGER.info("Self-signed cert stored successfully in the client keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
 
         }
@@ -125,11 +123,8 @@ public class HttpsAssetConnectionTest {
             LOGGER.error("Creating keystore or generating certs not succeeded!", exception);
         }
         finally {
-            if (keyStoreFileServer != null) {
-                keyStoreFileServer.deleteOnExit();
-            }
-            if (keyStoreFileClient != null) {
-                keyStoreFileClient.deleteOnExit();
+            if (keyStoreFile != null) {
+                keyStoreFile.deleteOnExit();
             }
         }
     }
@@ -140,7 +135,7 @@ public class HttpsAssetConnectionTest {
         return new WireMockRule(options()
                 .dynamicHttpsPort()
                 .keystoreType(KEYSTORE_TYPE_SERVER)
-                .keystorePath(keyStoreFileServer.getAbsolutePath())
+                .keystorePath(keyStoreFile.getAbsolutePath())
                 .keystorePassword(KEYSTORE_PASSWORD)
                 .keyManagerPassword(KEYMANAGER_PASSWORD));
     }
@@ -308,7 +303,7 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePath(keyStoreFile.getAbsolutePath())
                         .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
@@ -424,7 +419,7 @@ public class HttpsAssetConnectionTest {
                                         .payload(payload)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePath(keyStoreFile.getAbsolutePath())
                         .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
@@ -594,7 +589,7 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePath(keyStoreFile.getAbsolutePath())
                         .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
