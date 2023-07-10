@@ -106,7 +106,6 @@ public abstract class AssetConnectionBaseTest {
     @Rule
     public WireMockRule wireMockRule = createWireMockRule();
 
-
     protected abstract WireMockRule createWireMockRule();
 
 
@@ -181,6 +180,7 @@ public abstract class AssetConnectionBaseTest {
     @Test
     public abstract void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException,
             ConfigurationInitializationException, InterruptedException;
+
 
     void generateSelfSignedServerCertificate() {
         try {

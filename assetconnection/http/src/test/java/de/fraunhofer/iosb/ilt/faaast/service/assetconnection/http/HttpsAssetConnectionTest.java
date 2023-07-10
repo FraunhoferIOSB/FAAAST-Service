@@ -65,6 +65,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
                 template.replaceAll("\\$\\{value\\}", value));
     }
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -72,6 +73,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testValueProviderWithHeaders() {}
+
 
     /**
      * This test case is intentionally left empty.
@@ -81,6 +83,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testValueProviderPropertyGetValueWithQueryJSON() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -88,6 +91,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testValueProviderPropertySetValueJSON() {}
+
 
     /**
      * This test case is intentionally left empty.
@@ -97,6 +101,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testSubscriptionProviderPropertyJsonGET() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -104,6 +109,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testSubscriptionProviderPropertyJsonGET2() {}
+
 
     /**
      * This test case is intentionally left empty.
@@ -113,6 +119,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testSubscriptionProviderPropertyJsonPOST() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -120,6 +127,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testOperationProviderPropertyJsonPOSTNoParameters() {}
+
 
     /**
      * This test case is intentionally left empty.
@@ -129,6 +137,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOnly() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -136,6 +145,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testOperationProviderPropertyJsonPOSTOutputOnly() {}
+
 
     /**
      * This test case is intentionally left empty.
@@ -145,6 +155,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOutputOnly() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -153,6 +164,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
     @Override
     public void testOperationProviderPropertyJsonPOSTInoutputOnly() {}
 
+
     /**
      * This test case is intentionally left empty.
      * <p>
@@ -160,6 +172,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testOperationProviderPropertyJsonPOST() {}
+
 
     /**
      * This test case is intentionally left empty.
