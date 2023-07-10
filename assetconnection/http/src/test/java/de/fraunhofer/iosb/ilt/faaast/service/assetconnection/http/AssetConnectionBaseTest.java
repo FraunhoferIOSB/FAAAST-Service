@@ -92,9 +92,20 @@ public abstract class AssetConnectionBaseTest {
     protected static final String CONTENT_TYPE = "Content-Type";
     protected static final String APPLICATION_JSON = "application/json";
     protected URL baseUrl;
+    static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
+            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
+            .commonName("FA³ST Service HTTP Asset Connection Test")
+            .countryCode("DE")
+            .localityName("Karlsruhe")
+            .organization("Fraunhofer IOSB")
+            .organizationUnit("ILT")
+            .ipAddress("127.0.0.1")
+            .dnsName("localhost")
+            .build();
 
     @Rule
     public WireMockRule wireMockRule = createWireMockRule();
+
 
     protected abstract WireMockRule createWireMockRule();
 
@@ -170,17 +181,6 @@ public abstract class AssetConnectionBaseTest {
     @Test
     public abstract void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException,
             ConfigurationInitializationException, InterruptedException;
-
-    static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
-            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
-            .commonName("FA³ST Service HTTP Asset Connection Test")
-            .countryCode("DE")
-            .localityName("Karlsruhe")
-            .organization("Fraunhofer IOSB")
-            .organizationUnit("ILT")
-            .ipAddress("127.0.0.1")
-            .dnsName("localhost")
-            .build();
 
     void generateSelfSignedServerCertificate() {
         try {

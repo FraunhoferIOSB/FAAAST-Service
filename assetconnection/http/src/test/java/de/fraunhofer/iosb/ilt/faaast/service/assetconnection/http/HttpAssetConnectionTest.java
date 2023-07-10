@@ -52,7 +52,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
 
     @Override
-    public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
+    public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
         assertValueProviderHeaders(Map.of(), Map.of(), Map.of());
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"));
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"));
@@ -83,7 +83,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertValueProviderPropertyWriteJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 null,
@@ -93,7 +93,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testValueProviderPropertySetValueWithTemplateJSON() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -153,8 +153,8 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
 
     @Override
-    public void testOperationProviderPropertyJsonPOSTNoParameters() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+    public void testOperationProviderPropertyJsonPOSTNoParameters() throws AssetConnectionException,
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -170,7 +170,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1} }}",
@@ -186,7 +186,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testOperationProviderPropertyJsonPOSTOutputOnly() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -202,7 +202,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOutputOnly() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"in2\": ${in2} }}",
@@ -219,7 +219,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testOperationProviderPropertyJsonPOSTInoutputOnly() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"inout1\": ${inout1}}}",
@@ -235,7 +235,7 @@ public class HttpAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Override
     public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException,
-            ConfigurationInitializationException, InterruptedException {
+            ConfigurationInitializationException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",

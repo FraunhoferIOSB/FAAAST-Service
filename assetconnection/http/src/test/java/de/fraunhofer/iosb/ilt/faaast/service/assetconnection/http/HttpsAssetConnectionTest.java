@@ -56,7 +56,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
 
     @Test
     public void testValueProviderPropertySetValueWithTemplateJSON()
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -65,55 +65,107 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
                 template.replaceAll("\\$\\{value\\}", value));
     }
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testValueProviderWithHeaders() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testValueProviderPropertyGetValueWithQueryJSON() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testValueProviderPropertySetValueJSON() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testSubscriptionProviderPropertyJsonGET() {}
-
-
+    
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testSubscriptionProviderPropertyJsonGET2() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testSubscriptionProviderPropertyJsonPOST() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOSTNoParameters() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOnly() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOSTOutputOnly() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOSTInputOutputOnly() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOSTInoutputOnly() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testOperationProviderPropertyJsonPOST() {}
 
-
+    /**
+     * This test case is intentionally left empty.
+     * <p>
+     * Explanation: implemented in HttpAssetConnectionTest
+     */
     @Override
     public void testValueProviderPropertyGetValueJSON() {}
 
