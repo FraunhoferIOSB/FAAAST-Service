@@ -87,7 +87,7 @@
         <jackson.version>2.15.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <janino.version>3.1.9</janino.version>
-        <jena.version>4.8.0</jena.version>
+        <jena.version>4.9.0</jena.version>
         <jetty.version>11.0.15</jetty.version>
         <json-smart.version>2.5.0</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
