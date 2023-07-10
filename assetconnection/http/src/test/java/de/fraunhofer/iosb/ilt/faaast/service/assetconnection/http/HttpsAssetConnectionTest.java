@@ -72,7 +72,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testValueProviderWithHeaders() {}
+    public void testValueProviderWithHeaders() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -81,7 +83,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testValueProviderPropertyGetValueWithQueryJSON() {}
+    public void testValueProviderPropertyGetValueWithQueryJSON() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -90,7 +94,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testValueProviderPropertySetValueJSON() {}
+    public void testValueProviderPropertySetValueJSON() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -99,7 +105,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testSubscriptionProviderPropertyJsonGET() {}
+    public void testSubscriptionProviderPropertyJsonGET() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -108,7 +116,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testSubscriptionProviderPropertyJsonGET2() {}
+    public void testSubscriptionProviderPropertyJsonGET2() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -117,7 +127,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testSubscriptionProviderPropertyJsonPOST() {}
+    public void testSubscriptionProviderPropertyJsonPOST() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -126,7 +138,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOSTNoParameters() {}
+    public void testOperationProviderPropertyJsonPOSTNoParameters() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -135,7 +149,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOSTInputOnly() {}
+    public void testOperationProviderPropertyJsonPOSTInputOnly() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -144,7 +160,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOSTOutputOnly() {}
+    public void testOperationProviderPropertyJsonPOSTOutputOnly() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -153,7 +171,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOSTInputOutputOnly() {}
+    public void testOperationProviderPropertyJsonPOSTInputOutputOnly() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -162,7 +182,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOSTInoutputOnly() {}
+    public void testOperationProviderPropertyJsonPOSTInoutputOnly() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -171,7 +193,9 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testOperationProviderPropertyJsonPOST() {}
+    public void testOperationProviderPropertyJsonPOST() {
+        // No implementation required for this test case in this test class
+    }
 
 
     /**
@@ -180,6 +204,8 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      * Explanation: implemented in HttpAssetConnectionTest
      */
     @Override
-    public void testValueProviderPropertyGetValueJSON() {}
+    public void testValueProviderPropertyGetValueJSON() {
+        // No implementation required for this test case in this test class
+    }
 
 }
