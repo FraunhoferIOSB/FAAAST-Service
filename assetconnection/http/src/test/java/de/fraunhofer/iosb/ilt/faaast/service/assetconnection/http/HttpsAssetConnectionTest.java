@@ -96,7 +96,7 @@ public class HttpsAssetConnectionTest extends AssetConnectionBaseTest {
      */
     @Override
     public void testSubscriptionProviderPropertyJsonGET() {}
-    
+
     /**
      * This test case is intentionally left empty.
      * <p>
