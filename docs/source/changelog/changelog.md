@@ -8,6 +8,9 @@
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
+*   Asset Connection
+	*   HTTP
+		*   Now provides a way to explicitely trust server certificates, e.g. useful when servers are using a self-signed certificate
 
 **Internal changes & bugfixes**
 *   General
