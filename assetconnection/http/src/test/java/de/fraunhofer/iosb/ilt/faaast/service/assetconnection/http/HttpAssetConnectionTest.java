@@ -440,7 +440,14 @@ public class HttpAssetConnectionTest {
                 null,
                 config,
                 x -> x.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON)),
-                LambdaExceptionHelper.rethrowConsumer(x -> Assert.assertEquals(expected, x.getValue())));
+                LambdaExceptionHelper.rethrowConsumer(x -> {
+                    try{
+                        Assert.assertEquals("Unexpected property value.", expected, x.getValue());
+                    }catch (AssertionError e) {
+                        throw new AssertionError("Assertion failed in assertValueProviderPropertyReadJson().", e);
+                    }
+                })
+        );
     }
 
 
