@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -43,18 +42,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
-import io.adminshell.aas.v3.model.*;
-import io.adminshell.aas.v3.model.impl.*;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.IdentifierType;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultRange;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.jena.ext.com.google.common.net.HttpHeaders;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
@@ -64,6 +72,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -74,6 +83,7 @@ import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractHttpEndpointTest {
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpEndpointTest.class);
     protected static final String HOST = "localhost";
     protected static String scheme;
@@ -88,8 +98,8 @@ public abstract class AbstractHttpEndpointTest {
 
     @Before
     public void setUp() {
-        reset(persistence);
-        reset(service);
+        Mockito.reset(persistence);
+        Mockito.reset(service);
     }
 
 
@@ -198,9 +208,9 @@ public abstract class AbstractHttpEndpointTest {
                 .scheme(scheme)
                 .send()
                 .getHeaders();
-        assertFalse(headers.contains(HttpHeaders.SERVER));
-        assertFalse(headers.contains(HttpHeaders.DATE));
-        assertFalse(headers.contains(HttpHeaders.X_POWERED_BY));
+        assertFalse(headers.contains(HttpHeader.SERVER));
+        assertFalse(headers.contains(HttpHeader.DATE));
+        assertFalse(headers.contains(HttpHeader.X_POWERED_BY));
     }
 
 
