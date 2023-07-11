@@ -74,7 +74,7 @@ public class HttpAssetConnection extends
         AbstractAssetConnection<HttpAssetConnection, HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider> {
 
     private static final String PROTOCOL_HTTPS = "https";
-    private static final String PROTOCOL_SSL = "SSL";
+    private static final String PROTOCOL_TLS = "TLS";
     private HttpClient client;
 
     public HttpAssetConnection() {
@@ -140,7 +140,7 @@ public class HttpAssetConnection extends
 
     private SSLContext createCustomSSLContext() throws IOException, GeneralSecurityException {
         List<X509Certificate> trustedCertificates = loadTrustedCertificates(config);
-        SSLContext sslContext = SSLContext.getInstance(PROTOCOL_SSL);
+        SSLContext sslContext = SSLContext.getInstance(PROTOCOL_TLS);
         TrustManagerFactory defaultFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         defaultFactory.init((KeyStore) null);
         X509TrustManager defaultTrustManager = (X509TrustManager) Stream.of(defaultFactory.getTrustManagers())
