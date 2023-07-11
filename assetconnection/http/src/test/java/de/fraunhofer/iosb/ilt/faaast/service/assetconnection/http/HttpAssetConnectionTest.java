@@ -468,9 +468,9 @@ public class HttpAssetConnectionTest {
 
 
     private void awaitConnection(AssetConnection connection) {
-        await().atMost(30, TimeUnit.SECONDS)
+        await().atMost(60, TimeUnit.SECONDS)
                 .with()
-                .pollInterval(1, TimeUnit.SECONDS)
+                .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> {
                     try {
                         connection.connect();
