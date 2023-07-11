@@ -24,12 +24,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
@@ -43,15 +47,14 @@ import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -223,6 +226,29 @@ public class App implements Runnable {
         }
         else {
             System.exit(exitCode);
+        }
+    }
+
+    private static void registerInRegistry() {
+        HttpClient client = HttpClient.newBuilder().build();
+
+        AssetAdministrationShellDescriptor descriptor = new DefaultAssetAdministrationShellDescriptor();
+
+        try {
+            String body = mapper.writeValueAsString(descriptor);
+            URL BASE_URL = new URL("http", "localhost", 8080, "/registry/shell-descriptors");
+
+            java.net.http.HttpResponse<String> response = HttpHelper.execute(
+                    client,
+                    BASE_URL,
+                    "",
+                    null,
+                    "POST",
+                    HttpRequest.BodyPublishers.ofString(body),
+                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    null);
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 
