@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -179,6 +180,12 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
         public B keyStorePath(String value) {
             getBuildingInstance().setKeyStorePath(value);
+            return getSelf();
+        }
+
+
+        public B keyStorePath(File value) {
+            getBuildingInstance().setKeyStorePath(value.getAbsolutePath());
             return getSelf();
         }
 
