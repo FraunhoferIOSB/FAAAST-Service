@@ -91,23 +91,20 @@ public class App implements Runnable {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    private static AtomicReference<Service> serviceRef = new AtomicReference<>();
+    private static final AtomicReference<Service> serviceRef = new AtomicReference<>();
     // commands
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
     // config
     protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
-    protected static final String ENV_CONFIG_KEY = "config";
-    protected static final String ENV_EXTENSION_KEY = "extension";
-    protected static final String ENV_FAAAST_KEY = "faaast";
-    protected static final String ENV_CONFIG_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
-
-    protected static final String ENV_CONFIG_EXTENSION_PREFIX = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY, ENV_EXTENSION_KEY, "");
-    protected static final String ENV_MODEL_KEY = "model";
-    protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
     // environment
-    protected static final String ENV_PATH_SEPERATOR = "_";
-    protected static final String JSON_PATH_SEPERATOR = ".";
+    protected static final String ENV_PATH_SEPARATOR = ".";
+    protected static final String ENV_PATH_ALTERNATIVE_SEPARATOR = "_";
+    protected static final String JSON_PATH_SEPARATOR = ".";
+    protected static final String ENV_KEY_PREFIX = "faaast";
+    protected static final String ENV_PATH_CONFIG_FILE = envPath(ENV_KEY_PREFIX, "config");
+    protected static final String ENV_PATH_MODEL_FILE = envPath(ENV_KEY_PREFIX, "model");
+    protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
@@ -241,7 +238,7 @@ public class App implements Runnable {
 
 
     private static String envPath(String... args) {
-        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
+        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPARATOR));
     }
 
 
@@ -404,10 +401,10 @@ public class App implements Runnable {
             }
             return ServiceConfigHelper.load(configFile);
         }
-        if (System.getenv(ENV_CONFIG_FILE_PATH) != null && !System.getenv(ENV_CONFIG_FILE_PATH).isBlank()) {
-            LOGGER.info("Config: {} (ENV)", System.getenv(ENV_CONFIG_FILE_PATH));
-            configFile = new File(System.getenv(ENV_CONFIG_FILE_PATH));
-            return ServiceConfigHelper.load(new File(System.getenv(ENV_CONFIG_FILE_PATH)));
+        if (getEnvValue(ENV_PATH_CONFIG_FILE) != null && !getEnvValue(ENV_PATH_CONFIG_FILE).isBlank()) {
+            LOGGER.info("Config: {} (ENV)", getEnvValue(ENV_PATH_CONFIG_FILE));
+            configFile = new File(getEnvValue(ENV_PATH_CONFIG_FILE));
+            return ServiceConfigHelper.load(new File(getEnvValue(ENV_PATH_CONFIG_FILE)));
         }
         if (new File(CONFIG_FILENAME_DEFAULT).exists()) {
             configFile = new File(CONFIG_FILENAME_DEFAULT);
@@ -421,6 +418,24 @@ public class App implements Runnable {
         }
         LOGGER.info("Config: empty (default)");
         return ServiceConfigHelper.getDefaultServiceConfig();
+    }
+
+
+    private static String getEnvValue(String key) {
+        return System.getenv().containsKey(key)
+                ? System.getenv(key)
+                : System.getenv(envPathWithAlternativeSeparator(key));
+    }
+
+
+    /**
+     * Replaces env path separators with alternative separators to support using both separators in env variable names.
+     *
+     * @param key the env path to replace separators in
+     * @return input with replaced separators
+     */
+    protected static String envPathWithAlternativeSeparator(String key) {
+        return key.replace(ENV_PATH_SEPARATOR, ENV_PATH_ALTERNATIVE_SEPARATOR);
     }
 
 
@@ -441,15 +456,15 @@ public class App implements Runnable {
             return;
 
         }
-        if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
-            LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
+        if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
+            LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
             if (config.getPersistence().getInitialModelFile() != null) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
                         config.getPersistence().getInitialModelFile(),
-                        System.getenv(ENV_MODEL_FILE_PATH));
+                        getEnvValue(ENV_PATH_MODEL_FILE));
             }
-            config.getPersistence().setInitialModelFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
-            modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
+            config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
             return;
         }
 
@@ -531,16 +546,15 @@ public class App implements Runnable {
      */
     protected Map<String, String> getConfigOverrides() {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
-                .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
-                .filter(x -> !properties.containsKey(x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length() - 1)))
-                .collect(Collectors.toMap(
-                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
+                .filter(x -> x.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION))
+                .filter(x -> !properties.containsKey(x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length() - 1)))
+                .collect(Collectors.toMap(x -> x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length()),
                         Entry::getValue));
         Map<String, String> result = new HashMap<>(envParameters);
         for (var property: properties.entrySet()) {
-            if (property.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX)) {
-                String realKey = property.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length());
-                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_CONFIG_EXTENSION_PREFIX);
+            if (property.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION)) {
+                String realKey = property.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length());
+                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_PREFIX_CONFIG_EXTENSION);
                 result.put(realKey, property.getValue());
             }
             else {
@@ -579,7 +593,7 @@ public class App implements Runnable {
         Map<String, String> result = new HashMap<>();
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
         configOverrides.forEach((k, v) -> {
-            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_SEPERATOR)));
+            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_ALTERNATIVE_SEPARATOR)));
             String newPath = getNewPathRecursive(document, pathParts.get(0), pathParts, 1);
             result.put(newPath, v);
         });
@@ -598,21 +612,18 @@ public class App implements Runnable {
         String nextPart = pathParts.get(nextPartIndex);
 
         if (node == null) {
-            return getNewPathRecursive(
-                    document,
-                    currPath + ENV_PATH_SEPERATOR + nextPart,
+            return getNewPathRecursive(document,
+                    currPath + ENV_PATH_ALTERNATIVE_SEPARATOR + nextPart,
                     pathParts,
                     nextPartIndex + 1);
         }
         else {
-            String pathWithDot = getNewPathRecursive(
-                    document,
-                    currPath + JSON_PATH_SEPERATOR + nextPart,
+            String pathWithDot = getNewPathRecursive(document,
+                    currPath + ENV_PATH_SEPARATOR + nextPart,
                     pathParts,
                     nextPartIndex + 1);
-            String pathWithSeparator = getNewPathRecursive(
-                    document,
-                    currPath + ENV_PATH_SEPERATOR + nextPart,
+            String pathWithSeparator = getNewPathRecursive(document,
+                    currPath + ENV_PATH_ALTERNATIVE_SEPARATOR + nextPart,
                     pathParts,
                     nextPartIndex + 1);
             if (Objects.nonNull(pathWithDot) && Objects.nonNull(pathWithSeparator)) {
