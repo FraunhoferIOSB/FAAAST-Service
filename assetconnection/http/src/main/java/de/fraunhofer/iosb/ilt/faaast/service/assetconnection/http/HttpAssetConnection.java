@@ -42,11 +42,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -72,7 +71,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class HttpAssetConnection extends
         AbstractAssetConnection<HttpAssetConnection, HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider> {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
     private static final String PROTOCOL_HTTPS = "https";
     private static final String PROTOCOL_TLS = "TLS";
     private HttpClient client;
@@ -132,8 +131,15 @@ public class HttpAssetConnection extends
             }
             client = builder.build();
         }
-        catch (IOException | GeneralSecurityException e) {
+        catch (SSLHandshakeException | GeneralSecurityException e) {
+            System.out.println("==========================================================================================");
+            LOGGER.info("exception: ", e);
             throw new AssetConnectionException("error establishing HTTP asset connection", e);
+        }
+        catch (IOException e) {
+            System.out.println("========================================================================================");
+            LOGGER.info("SSLException: ", e);
+            throw new AssetConnectionException("error establishing load/store files", e);
         }
     }
 

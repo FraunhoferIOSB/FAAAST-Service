@@ -64,11 +64,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,10 +76,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -187,37 +181,10 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testHttpsUntrusted() throws AssetConnectionException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-                        // Trust the untrusted certificate without throwing an exception
-                    }
-                }
-        };
-        SSLContext sslContext;
-        try {
-            sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-        }
-        catch (Exception e) {
-            throw new AssetConnectionException("Error initializing SSL context", e);
-        }
+    public void testHttpsUntrusted()  {
         HttpAssetConnectionConfig config = HttpAssetConnectionConfig.builder()
                 .baseUrl(httpsUrl)
                 .build();
-        HttpClient.Builder builder = HttpClient.newBuilder();
-        if (PROTOCOL_HTTPS.equalsIgnoreCase(config.getBaseUrl().getProtocol())) {
-            builder.sslContext(sslContext);
-        }
         AssetConnectionException exception = Assert.assertThrows(
                 AssetConnectionException.class,
                 () -> assertValueProviderPropertyReadJson(
