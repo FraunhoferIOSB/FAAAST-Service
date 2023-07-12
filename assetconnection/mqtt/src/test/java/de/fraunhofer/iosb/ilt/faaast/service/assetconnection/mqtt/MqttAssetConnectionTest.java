@@ -73,7 +73,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import uk.org.lidalia.slf4jext.Level;
+import org.slf4j.event.Level;
 
 
 public class MqttAssetConnectionTest {
