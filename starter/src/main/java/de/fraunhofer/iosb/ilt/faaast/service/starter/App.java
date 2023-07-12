@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.validator.ShaclValidator;
@@ -229,28 +230,7 @@ public class App implements Runnable {
         }
     }
 
-    private static void registerInRegistry() {
-        HttpClient client = HttpClient.newBuilder().build();
 
-        AssetAdministrationShellDescriptor descriptor = new DefaultAssetAdministrationShellDescriptor();
-
-        try {
-            String body = mapper.writeValueAsString(descriptor);
-            URL BASE_URL = new URL("http", "localhost", 8080, "/registry/shell-descriptors");
-
-            java.net.http.HttpResponse<String> response = HttpHelper.execute(
-                    client,
-                    BASE_URL,
-                    "",
-                    null,
-                    "POST",
-                    HttpRequest.BodyPublishers.ofString(body),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
-                    null);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
 
 
     private static String envPath(String... args) {
@@ -326,6 +306,7 @@ public class App implements Runnable {
         }
         withModel(config);
         validateModelIfRequired(config);
+        registerInRegistry(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
@@ -343,6 +324,32 @@ public class App implements Runnable {
         }
         if (!dryRun) {
             runService(config);
+        }
+    }
+
+    protected void registerInRegistry(ServiceConfig config) {
+        HttpClient client = HttpClient.newBuilder().build();
+
+        AssetAdministrationShellEnvironment aasEnv = config.getPersistence().getInitialModel();
+        AssetAdministrationShell aas = aasEnv.getAssetAdministrationShells().get(0);
+        AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
+
+        try {
+            String body = mapper.writeValueAsString(descriptor);
+            URL BASE_URL = new URL("http://localhost:8080/registry/shell-descriptors");
+
+            java.net.http.HttpResponse<String> response = HttpHelper.execute(
+                    client,
+                    BASE_URL,
+                    "",
+                    "JSON",
+                    "POST",
+                    HttpRequest.BodyPublishers.ofString(body),
+                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    null);
+            System.out.println("YAY");
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 
