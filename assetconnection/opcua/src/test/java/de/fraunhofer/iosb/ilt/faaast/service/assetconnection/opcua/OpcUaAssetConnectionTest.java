@@ -74,12 +74,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
@@ -192,7 +193,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testOperationProvider()
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ConfigurationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
         assertInvokeOperation(server,
@@ -233,7 +234,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testOperationProviderMapping()
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ConfigurationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
         assertInvokeOperation(server,
@@ -365,7 +366,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderWithArrayValues()
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
         assertSubscribe(server, "ns=2;s=HelloWorld/MatrixTypes/DoubleArray", PropertyValue.of(Datatype.DOUBLE, "5.3"), "[3][2]");
         server.shutdown();
@@ -374,7 +375,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderWithScalarValues()
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
         assertSubscribe(server, "ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"), null);
         server.shutdown();
@@ -383,7 +384,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testValueProviderWithArrayValues()
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ConfigurationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
         assertWriteReadValue(server, "ns=2;s=HelloWorld/ArrayTypes/Int32Array", PropertyValue.of(Datatype.INT, "78"), "[2]");
         assertWriteReadValue(server, "ns=2;s=HelloWorld/ArrayTypes/FloatArray", PropertyValue.of(Datatype.FLOAT, "24.5"), "[1]");
@@ -482,7 +483,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private void assertConnect(EmbeddedOpcUaServer server, OpcUaAssetConnectionConfig config)
-            throws ValueFormatException, AssetConnectionException, ConfigurationException, SSLHandshakeException {
+            throws ValueFormatException, AssetConnectionException, ConfigurationException {
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expected = PropertyValue.of(Datatype.DOUBLE, "3.3");
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -707,7 +708,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private void assertSubscribe(EmbeddedOpcUaServer server, String nodeId, PropertyValue expected, String elementIndex)
-            throws Exception {
+            throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
         ServiceContext serviceContext = mock(ServiceContext.class);
@@ -772,7 +773,7 @@ public class OpcUaAssetConnectionTest {
                                       String nodeId,
                                       PropertyValue expected,
                                       String arrayIndex)
-            throws AssetConnectionException, ConfigurationException, IOException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
