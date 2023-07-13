@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
@@ -48,6 +47,7 @@ import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -328,28 +328,49 @@ public class App implements Runnable {
     }
 
     protected void registerInRegistry(ServiceConfig config) {
+        //TODO client klauen?, model früher laden?, Welches AAS verwenden?, gutes Exception Handling, URL configbar
+
         HttpClient client = HttpClient.newBuilder().build();
 
-        AssetAdministrationShellEnvironment aasEnv = config.getPersistence().getInitialModel();
+        AssetAdministrationShellEnvironment aasEnv;
+        try {
+            aasEnv = config.getPersistence().loadInitialModel();
+        } catch (Exception e) {
+            // TODO Exception
+            return;
+        }
+        if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
+            return;
+
         AssetAdministrationShell aas = aasEnv.getAssetAdministrationShells().get(0);
         AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
 
+        String body;
+        URL url;
         try {
-            String body = mapper.writeValueAsString(descriptor);
-            URL BASE_URL = new URL("http://localhost:8080/registry/shell-descriptors");
+            body = mapper.writeValueAsString(descriptor);
+            url = new URL("http://localhost:8080/registry/shell-descriptors");
+        } catch (JsonProcessingException | MalformedURLException e) {
+            // TODO Exception
+            return;
+        }
 
+        try {
             java.net.http.HttpResponse<String> response = HttpHelper.execute(
                     client,
-                    BASE_URL,
+                    url,
                     "",
                     "JSON",
                     "POST",
                     HttpRequest.BodyPublishers.ofString(body),
                     java.net.http.HttpResponse.BodyHandlers.ofString(),
                     null);
-            System.out.println("YAY");
+
+            if (!HttpHelper.is2xxSuccessful(response)) {
+                // TODO Exception
+            }
         } catch (Exception e) {
-            System.out.println(e);
+            // TODO Exception
         }
     }
 
