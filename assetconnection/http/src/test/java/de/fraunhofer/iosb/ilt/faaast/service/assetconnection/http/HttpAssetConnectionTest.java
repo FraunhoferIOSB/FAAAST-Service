@@ -181,7 +181,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testHttpsUntrusted()  {
+    public void testHttpsUntrusted() {
         HttpAssetConnectionConfig config = HttpAssetConnectionConfig.builder()
                 .baseUrl(httpsUrl)
                 .build();
@@ -192,8 +192,14 @@ public class HttpAssetConnectionTest {
                         "5",
                         null,
                         config));
-        Assert.assertNotNull(exception.getCause());
-        Assert.assertTrue(SSLHandshakeException.class.isAssignableFrom(exception.getCause().getClass()));
+        Throwable cause = exception.getCause();
+        while (Objects.nonNull(cause)) {
+            if (SSLHandshakeException.class.isAssignableFrom(cause.getClass())) {
+                return;
+            }
+            cause = cause.getCause();
+        }
+        Assert.fail("Expected SSLHandshakeException but none found");
     }
 
 
