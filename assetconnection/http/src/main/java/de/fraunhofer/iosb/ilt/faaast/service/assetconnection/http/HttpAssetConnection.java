@@ -75,7 +75,6 @@ import org.slf4j.LoggerFactory;
 public class HttpAssetConnection extends
         AbstractAssetConnection<HttpAssetConnection, HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
     private static final String PROTOCOL_HTTPS = "https";
     private static final String PROTOCOL_TLS = "TLS";
     private HttpClient client;

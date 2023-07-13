@@ -114,7 +114,7 @@ public class KeyStoreHelper {
      */
     public static void save(String keyStoreType, File file, CertificateData certificateData, String password, String keyManagerPassword)
             throws IOException, GeneralSecurityException {
-        save(file, createKeyStore(keyStoreType, certificateData, password), password);
+        save(file, createKeyStore(keyStoreType, certificateData, password), keyManagerPassword);
     }
 
 
