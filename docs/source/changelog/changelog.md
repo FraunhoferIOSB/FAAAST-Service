@@ -12,6 +12,9 @@
 	*   More fine-grained configuration of validation via configuration file
 	*   Enabled validation for API calls creating or updating elements (basic validation enabled by default)
 	*   Renamed CLI argument `--no-modelValidation` to `--no-validation`. It now enables any validation when used (overriding validation configuration in configuration file is present).
+*   Asset Connection
+	*   HTTP
+		*   Now provides a way to explicitely trust server certificates, e.g. useful when servers are using a self-signed certificate
 *   Other
 	*   Environment variables use "_" as a separator
 

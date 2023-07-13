@@ -245,7 +245,7 @@ public abstract class AbstractMessageBusMqttTest<T> {
         File clientKeyStoreFile = File.createTempFile("faaast-", "-keystore-client");
         clientKeyStoreFile.deleteOnExit();
         CertificateData clientCertificateData = KeyStoreHelper.generateSelfSigned(CLIENT_CERTIFICATE_INFORMATION);
-        KeyStore clientKeyStore = KeyStoreHelper.createKeyStore(clientCertificateData, CLIENT_KEYSTORE_PASSWORD);
+        KeyStore clientKeyStore = KeyStoreHelper.create(clientCertificateData, CLIENT_KEYSTORE_PASSWORD);
         clientKeyStore.setCertificateEntry("server-key", serverCertificateData.getCertificate());
         KeyStoreHelper.save(clientKeyStoreFile, clientKeyStore, CLIENT_KEYSTORE_PASSWORD);
         clientKeyStorePath = clientKeyStoreFile.getAbsolutePath();

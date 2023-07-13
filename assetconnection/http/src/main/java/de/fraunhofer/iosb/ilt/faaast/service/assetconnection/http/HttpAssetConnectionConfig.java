@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -37,6 +38,8 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     private String username;
     private String password;
     private Map<String, String> headers;
+    private String keyStorePath;
+    private String keyStorePassword;
 
     public HttpAssetConnectionConfig() {
         this.headers = new HashMap<>();
@@ -83,9 +86,29 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
+    public String getKeyStorePath() {
+        return keyStorePath;
+    }
+
+
+    public void setKeyStorePath(String keyStorePath) {
+        this.keyStorePath = keyStorePath;
+    }
+
+
+    public String getKeyStorePassword() {
+        return keyStorePassword;
+    }
+
+
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, username, password, headers);
+        return Objects.hash(baseUrl, username, password, headers, keyStorePath, keyStorePassword);
     }
 
 
@@ -105,7 +128,9 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
                 && Objects.equals(this.baseUrl, other.baseUrl)
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password)
-                && Objects.equals(this.headers, other.headers);
+                && Objects.equals(this.headers, other.headers)
+                && Objects.equals(this.keyStorePath, other.keyStorePath)
+                && Objects.equals(this.keyStorePassword, other.keyStorePassword);
     }
 
 
@@ -149,6 +174,24 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
         public B header(String name, String value) {
             getBuildingInstance().getHeaders().put(name, value);
+            return getSelf();
+        }
+
+
+        public B keyStorePath(String value) {
+            getBuildingInstance().setKeyStorePath(value);
+            return getSelf();
+        }
+
+
+        public B keyStorePath(File value) {
+            getBuildingInstance().setKeyStorePath(value.getAbsolutePath());
+            return getSelf();
+        }
+
+
+        public B keyStorePassword(String value) {
+            getBuildingInstance().setKeyStorePassword(value);
             return getSelf();
         }
 

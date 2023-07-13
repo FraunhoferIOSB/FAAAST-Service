@@ -157,7 +157,7 @@ public class EmbeddedOpcUaServer {
         return Objects.nonNull(config.getApplicationCertificate())
                 ? config.getApplicationCertificate()
                 : KeyStoreHelper
-                        .loadOrDefault(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
+                        .loadOrDefaultCertificateData(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
                                 DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
