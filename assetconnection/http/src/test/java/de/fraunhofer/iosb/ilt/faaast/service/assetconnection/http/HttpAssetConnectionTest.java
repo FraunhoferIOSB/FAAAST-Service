@@ -88,11 +88,8 @@ import org.junit.Test;
 
 
 public class HttpAssetConnectionTest {
-
-    private static final String PROTOCOL_HTTPS = "https";
     @ClassRule
     public static WireMockClassRule server;
-
     // required, see https://wiremock.org/docs/junit-extensions/#other-rule-configurations
     @Rule
     public WireMockClassRule instanceRule = server;
@@ -147,7 +144,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueWithTemplateJSON_Https() throws AssetConnectionException,
+    public void testValueProviderPropertySetValueWithTemplateJSONHttps() throws AssetConnectionException,
             ConfigurationInitializationException,
             ValueFormatException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
