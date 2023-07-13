@@ -177,7 +177,7 @@ public class HttpAssetConnection extends
     private List<X509Certificate> loadTrustedCertificates(HttpAssetConnectionConfig config) throws IOException, GeneralSecurityException {
         List<X509Certificate> result = new ArrayList<>();
         if (Objects.nonNull(config.getKeyStorePath()) && !config.getKeyStorePath().isEmpty()) {
-            var keyStore = KeyStoreHelper.loadKeyStore(new File(config.getKeyStorePath()), config.getKeyStorePassword());
+            var keyStore = KeyStoreHelper.load(new File(config.getKeyStorePath()), config.getKeyStorePassword());
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 var alias = aliases.nextElement();

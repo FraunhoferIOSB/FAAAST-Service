@@ -231,7 +231,7 @@ public class OpcUaHelper {
             }
             if (authenticationCertificateFile.exists()) {
                 try {
-                    CertificateData certificateData = KeyStoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                    CertificateData certificateData = KeyStoreHelper.loadOrCreateCertificateData(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
                             OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
                     retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
                 }
@@ -276,7 +276,7 @@ public class OpcUaHelper {
 
     private static Optional<CertificateData> loadCertificate(File file, String password) {
         try {
-            return Optional.of(KeyStoreHelper.load(file, password));
+            return Optional.of(KeyStoreHelper.loadCertificateData(file, password));
         }
         catch (IOException | GeneralSecurityException e) {
             return Optional.empty();

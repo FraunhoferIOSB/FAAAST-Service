@@ -449,7 +449,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private static CertificateData loadServerApplicationCertificate() throws IOException, GeneralSecurityException {
-        return KeyStoreHelper.load(
+        return KeyStoreHelper.loadCertificateData(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream(SERVER_APPLICATION_CERTIFICATE_FILE),
                 SERVER_APPLICATION_CERTIFICATE_PASSWORD);
     }
@@ -829,7 +829,7 @@ public class OpcUaAssetConnectionTest {
         Files.createDirectories(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()));
         Files.write(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()).resolve("client.cer"),
                 KeyStoreHelper
-                        .loadOrDefault(
+                        .loadOrDefaultCertificateData(
                                 Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
                                 CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
                                 CertificateInformation.builder().build())
