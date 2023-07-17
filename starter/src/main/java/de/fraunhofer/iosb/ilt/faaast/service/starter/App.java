@@ -29,11 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
@@ -48,12 +48,14 @@ import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.registry.Registry;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
@@ -306,7 +308,6 @@ public class App implements Runnable {
         }
         withModel(config);
         validateModelIfRequired(config);
-        registerInRegistry(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
@@ -325,31 +326,51 @@ public class App implements Runnable {
         if (!dryRun) {
             runService(config);
         }
+
+        try {
+            registerInRegistry(config);
+        } catch(RegistryException e) {
+            LOGGER.error(String.format("Registration in Faaas-Registry failed: %s", e.getMessage()), e);
+        }
     }
 
-    protected void registerInRegistry(ServiceConfig config) {
+    protected void registerInRegistry(ServiceConfig config) throws RegistryException {
         HttpClient client = HttpClient.newBuilder().build();
 
         AssetAdministrationShellEnvironment aasEnv = config.getPersistence().getInitialModel();
+        if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
+            return;
+
         AssetAdministrationShell aas = aasEnv.getAssetAdministrationShells().get(0);
         AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
 
+        String body;
+        URL url;
         try {
-            String body = mapper.writeValueAsString(descriptor);
-            URL BASE_URL = new URL("http://localhost:8080/registry/shell-descriptors");
+            body = mapper.writeValueAsString(descriptor);
+            url = new URL("http://localhost:8080/registry/shell-descriptors");
+        } catch (JsonProcessingException | MalformedURLException e) {
+            throw new RegistryException(e);
+        }
 
+        try {
             java.net.http.HttpResponse<String> response = HttpHelper.execute(
                     client,
-                    BASE_URL,
+                    url,
                     "",
                     "JSON",
                     "POST",
                     HttpRequest.BodyPublishers.ofString(body),
                     java.net.http.HttpResponse.BodyHandlers.ofString(),
                     null);
-            System.out.println("YAY");
+
+            if (HttpHelper.is2xxSuccessful(response)) {
+                LOGGER.info("AAS successfully in Faaast-Registry registered");
+            } else {
+                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
+            }
         } catch (Exception e) {
-            System.out.println(e);
+            throw new RegistryException("Connection to Faaast-Registry failed!");
         }
     }
 
