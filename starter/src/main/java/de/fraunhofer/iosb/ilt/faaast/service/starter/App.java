@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -168,6 +169,8 @@ public class App implements Runnable {
 
     private static HttpClient httpClient;
     private static AssetAdministrationShellDescriptor aasDescriptor;
+    private static CoreConfig coreConfig;
+    private static String REGISTRY_BASE_PATH = "registry/shell-descriptors";
 
     /**
      * Main entry point.
@@ -345,6 +348,7 @@ public class App implements Runnable {
 
     private static void initRegistryData(ServiceConfig config) {
         httpClient = HttpClient.newBuilder().build();
+        coreConfig = config.getCore();
 
         AssetAdministrationShellEnvironment aasEnv = config.getPersistence().getInitialModel();
         if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
@@ -363,7 +367,7 @@ public class App implements Runnable {
         URL url;
         try {
             body = mapper.writeValueAsString(descriptor);
-            url = new URL("http://localhost:8080/registry/shell-descriptors");
+            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), REGISTRY_BASE_PATH);
         }
         catch (JsonProcessingException | MalformedURLException e) {
             throw new RegistryException(e);
@@ -400,7 +404,7 @@ public class App implements Runnable {
         URL url;
         String aasIdentifier = descriptor.getIdentification().getIdentifier();
         try {
-            url = new URL("http://localhost:8080/registry/shell-descriptors/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), REGISTRY_BASE_PATH + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
         }
         catch (MalformedURLException e) {
             throw new RegistryException(e);
