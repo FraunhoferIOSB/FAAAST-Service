@@ -5,7 +5,7 @@ services:
     volumes:
       - ../examples/:/app/resources/
     environment:
-      - faaast.model=/app/resources/demoAAS.json
-      - faaast.config=/app/resources/exampleConfiguration.json
+      - faaast_model=/app/resources/demoAAS.json
+      - faaast_config=/app/resources/exampleConfiguration.json
     ports:
       - 8080:8080

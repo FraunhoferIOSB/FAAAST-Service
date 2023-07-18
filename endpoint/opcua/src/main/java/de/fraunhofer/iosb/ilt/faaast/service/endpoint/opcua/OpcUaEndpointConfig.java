@@ -14,10 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
+import com.prosysopc.ua.stack.core.UserTokenType;
+import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -32,19 +37,22 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private int tcpPort;
     private int secondsTillShutdown;
     private Map<String, String> userMap;
-    private boolean allowAnonymous;
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
     private String userCertificateBasePath;
+    private Set<SecurityPolicy> supportedSecurityPolicies;
+    private Set<UserTokenType> supportedAuthentications;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
         this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
-        this.allowAnonymous = true;
         this.discoveryServerUrl = "";
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
+        this.supportedSecurityPolicies = new HashSet<>(SecurityPolicy.ALL_SECURE_104);
+        this.supportedSecurityPolicies.add(SecurityPolicy.NONE);
+        this.supportedAuthentications = new HashSet<>(Arrays.asList(UserTokenType.Anonymous));
     }
 
 
@@ -59,17 +67,19 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
         return Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
-                && Objects.equals(allowAnonymous, that.allowAnonymous)
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
                 && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
-                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
+                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath)
+                && Objects.equals(supportedSecurityPolicies, that.supportedSecurityPolicies)
+                && Objects.equals(supportedAuthentications, that.supportedAuthentications);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath);
+        return Objects.hash(tcpPort, secondsTillShutdown, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath, supportedSecurityPolicies,
+                supportedAuthentications);
     }
 
 
@@ -130,26 +140,6 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      */
     public void setUserMap(Map<String, String> value) {
         userMap = value;
-    }
-
-
-    /**
-     * Gets a value indicating whether anonymous access to the server is allowed
-     * 
-     * @return True if anonymous access is allowed, false otherwise
-     */
-    public boolean getAllowAnonymous() {
-        return allowAnonymous;
-    }
-
-
-    /**
-     * Sets a value indicating whether anonymous access to the server is allowed
-     * 
-     * @param value True if anonymous access is allowed, false otherwise
-     */
-    public void setAllowAnonymous(boolean value) {
-        allowAnonymous = value;
     }
 
 
@@ -215,6 +205,46 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets the set of supported Security Policies.
+     *
+     * @return The set of supported Security Policies.
+     */
+    public Set<SecurityPolicy> getSupportedSecurityPolicies() {
+        return supportedSecurityPolicies;
+    }
+
+
+    /**
+     * Sets the set of supported Security Policies.
+     *
+     * @param value The set of supported Security Policies.
+     */
+    public void setSupportedSecurityPolicies(Set<SecurityPolicy> value) {
+        supportedSecurityPolicies = value;
+    }
+
+
+    /**
+     * Gets the set of supported Authentication types (e.g. Anonymous, Username / Password, ...).
+     *
+     * @return The set of supported Authentication types.
+     */
+    public Set<UserTokenType> getSupportedAuthentications() {
+        return supportedAuthentications;
+    }
+
+
+    /**
+     * Sets the list of supported Authentication types.
+     *
+     * @param value The list of supported Authentication types.
+     */
+    public void setSupportedAuthentications(Set<UserTokenType> value) {
+        supportedAuthentications = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -245,8 +275,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B allowAnonymous(boolean value) {
-            getBuildingInstance().setAllowAnonymous(value);
+        public B discoveryServerUrl(String value) {
+            getBuildingInstance().setDiscoveryServerUrl(value);
             return getSelf();
         }
 
@@ -259,6 +289,30 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B userCertificateBasePath(String value) {
             getBuildingInstance().setUserCertificateBasePath(value);
+            return getSelf();
+        }
+
+
+        public B supportedSecurityPolicies(Set<SecurityPolicy> value) {
+            getBuildingInstance().setSupportedSecurityPolicies(value);
+            return getSelf();
+        }
+
+
+        public B supportedSecurityPolicy(SecurityPolicy value) {
+            getBuildingInstance().getSupportedSecurityPolicies().add(value);
+            return getSelf();
+        }
+
+
+        public B supportedAuthentications(Set<UserTokenType> value) {
+            getBuildingInstance().setSupportedAuthentications(value);
+            return getSelf();
+        }
+
+
+        public B supportedAuthentication(UserTokenType value) {
+            getBuildingInstance().getSupportedAuthentications().add(value);
             return getSelf();
         }
     }

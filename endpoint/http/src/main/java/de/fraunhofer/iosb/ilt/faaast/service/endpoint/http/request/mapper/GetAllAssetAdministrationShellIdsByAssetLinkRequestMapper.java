@@ -44,7 +44,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends A
             GetAllAssetAdministrationShellIdsByAssetLinkRequest.Builder builder = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder();
             if (httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)) {
                 builder = builder.assetIdentifierPairs(deserializer.readList(
-                        EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
+                        EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
                         IdentifierKeyValuePair.class));
             }
             return builder.build();

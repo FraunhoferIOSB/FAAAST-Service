@@ -39,6 +39,7 @@
         <module>model</module>
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
+        <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
         <module>assetconnection/common</module>
         <module>persistence/file</module>
@@ -74,69 +75,70 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <checkstyle.version>10.9.3</checkstyle.version>
-        <classgraph.version>4.8.157</classgraph.version>
-        <commons.codec.version>1.15</commons.codec.version>
-        <commons.io.version>2.11.0</commons.io.version>
+        <bouncycastle.version>1.70</bouncycastle.version>
+        <checkstyle.version>10.12.1</checkstyle.version>
+        <classgraph.version>4.8.161</classgraph.version>
+        <commons.codec.version>1.16.0</commons.codec.version>
+        <commons.io.version>2.13.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.14.1</equalsverifier.version>
-        <guava.version>31.1-jre</guava.version>
+        <equalsverifier.version>3.15</equalsverifier.version>
+        <guava.version>32.1.1-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
         <influxdb.client.java.version>6.7.0</influxdb.client.java.version>
         <influxdb.java.version>2.23</influxdb.java.version>
         <influxdb.version>6.7.0</influxdb.version>
-        <jackson.databind.version>2.14.2</jackson.databind.version>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.databind.version>2.15.2</jackson.databind.version>
+        <jackson.version>2.15.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <janino.version>3.1.9</janino.version>
-        <jena.version>4.7.0</jena.version>
-        <jetty.version>11.0.14</jetty.version>
-        <json-smart.version>2.4.10</json-smart.version>
+        <jena.version>4.9.0</jena.version>
+        <jetty.version>11.0.15</jetty.version>
+        <json-smart.version>2.5.0</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.8.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <kotlin.version>1.6.20</kotlin.version>
-        <logback.version>1.4.6</logback.version>
+        <logback.version>1.4.8</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <maven.plugin.assembly.version>3.5.0</maven.plugin.assembly.version>
-        <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
-        <maven.plugin.checkstyle.version>3.2.1</maven.plugin.checkstyle.version>
+        <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
+        <maven.plugin.buildhelper.version>3.4.0</maven.plugin.buildhelper.version>
+        <maven.plugin.checkstyle.version>3.3.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.5.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.0.0</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.9</maven.plugin.jacoco.version>
+        <maven.plugin.dependency.version>3.6.0</maven.plugin.dependency.version>
+        <maven.plugin.failsafe.version>3.1.2</maven.plugin.failsafe.version>
+        <maven.plugin.git.commit.id.version>6.0.0</maven.plugin.git.commit.id.version>
+        <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
+        <maven.plugin.jacoco.version>0.8.10</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.2.1</maven.plugin.owasp.version>
-        <maven.plugin.picocli.version>4.7.1</maven.plugin.picocli.version>
+        <maven.plugin.owasp.version>8.3.1</maven.plugin.owasp.version>
+        <maven.plugin.picocli.version>4.7.4</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.10.0-37</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
-        <maven.plugin.shade.version>3.4.1</maven.plugin.shade.version>
-        <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.35.0</maven.plugin.spotless.version>
-        <milo.version>0.6.9</milo.version>
-        <mockito.version>5.2.0</mockito.version>
-        <moquette.version>0.15.1</moquette.version>
-        <netty.version>4.1.91.Final</netty.version>
+        <maven.plugin.shade.version>3.5.0</maven.plugin.shade.version>
+        <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
+        <maven.plugin.spotless.version>2.37.0</maven.plugin.spotless.version>
+        <milo.version>0.6.10</milo.version>
+        <mockito.version>5.4.0</mockito.version>
+        <moquette.version>0.15.2</moquette.version>
+        <netty.version>4.1.94.Final</netty.version>
         <paho.version>1.2.5</paho.version>
-        <picocli.version>4.7.1</picocli.version>
+        <picocli.version>4.7.4</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.0.8</proguard.core.version>
+        <proguard.core.version>9.0.10</proguard.core.version>
         <proguard.version>7.3.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>4.10.4-14</prosys.sdk.version>
-        <protobuf.version>3.22.2</protobuf.version>
+        <prosys.sdk.version>4.10.6-24</prosys.sdk.version>
+        <protobuf.version>3.23.4</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
-        <slf4j.test.version>2.9.0</slf4j.test.version>
+        <slf4j.test.version>3.0.1</slf4j.test.version>
         <slf4j.version>2.0.7</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -147,7 +149,7 @@
         <systemstubs.version>2.0.2</systemstubs.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <woodstox.version>6.5.0</woodstox.version>
+        <woodstox.version>6.5.1</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -298,7 +300,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
+                    <version>2.2.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>

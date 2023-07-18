@@ -14,13 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.Objects;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +49,14 @@ import org.slf4j.LoggerFactory;
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
+    private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
+            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http")
+            .commonName("FA³ST Service HTTP Endpoint")
+            .countryCode("DE")
+            .localityName("Karlsruhe")
+            .organization("Fraunhofer IOSB")
+            .organizationUnit("ILT")
+            .build();
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;
@@ -62,7 +87,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (server != null && server.isStarted()) {
             return;
         }
-        server = new Server(config.getPort());
+        server = new Server();
+        configureHttpServer();
         handler = new RequestHandler(serviceContext, config);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
@@ -72,6 +98,57 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         catch (Exception e) {
             throw new EndpointException("error starting HTTP endpoint", e);
         }
+    }
+
+
+    private void configureHttpServer() throws EndpointException {
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(false);
+        httpConfig.setSendXPoweredBy(false);
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+        ServerConnector serverConnector;
+        if (config.isHttpsEnabled()) {
+            httpConfig.addCustomizer(new SecureRequestCustomizer());
+            serverConnector = buildSSLServerConnector(httpConnectionFactory);
+        }
+        else {
+            serverConnector = new ServerConnector(server, httpConnectionFactory);
+        }
+        serverConnector.setPort(config.getPort());
+        server.addConnector(serverConnector);
+    }
+
+
+    private KeyStore generateSelfSignedCertificate() throws EndpointException {
+        try {
+            LOGGER.debug("Generating self-signed certificate for HTTP endpoint...");
+            CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELFSIGNED_CERTIFICATE_INFORMATION);
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry(DEFAULT_ALIAS, certificateData.getCertificate());
+            keyStore.setKeyEntry(DEFAULT_ALIAS, certificateData.getKeyPair().getPrivate(), null, certificateData.getCertificateChain());
+            LOGGER.debug("Self-signed certificate for HTTP endpoint successfully generated");
+            return keyStore;
+        }
+        catch (IOException | CertificateException | KeyStoreException | NoSuchAlgorithmException e) {
+            throw new EndpointException("error generating self-signed certificate for HTTPS endpoint", e);
+        }
+    }
+
+
+    private ServerConnector buildSSLServerConnector(HttpConnectionFactory httpConnectionFactory) throws EndpointException {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        if (Objects.isNull(config.getKeystorePath()) || config.getKeystorePath().equals("")) {
+            LOGGER.info("Generating self-signed certificate for HTTPS (reason: no certificate provided)");
+            sslContextFactory.setKeyStore(generateSelfSignedCertificate());
+        }
+        else {
+            sslContextFactory.setKeyStorePath(config.getKeystorePath());
+            sslContextFactory.setKeyStorePassword(config.getKeystorePassword());
+        }
+        SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, httpConnectionFactory.getProtocol());
+        return new ServerConnector(server, sslConnectionFactory, httpConnectionFactory);
     }
 
 

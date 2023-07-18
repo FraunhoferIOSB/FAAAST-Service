@@ -18,6 +18,7 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelpe
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
+import com.prosysopc.ua.stack.core.UserTokenType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
@@ -37,8 +38,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.test.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -183,7 +184,7 @@ public class AssetConnectionIT {
                         .build())
                 .endpoint(OpcUaEndpointConfig.builder()
                         .tcpPort(portOpcUa)
-                        .allowAnonymous(true)
+                        .supportedAuthentication(UserTokenType.Anonymous)
                         .build())
                 .endpoint(HttpEndpointConfig.builder()
                         .port(portHttp)

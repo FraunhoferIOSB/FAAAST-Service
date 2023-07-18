@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.moquette.BrokerConstants;
@@ -49,7 +50,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -73,7 +73,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import uk.org.lidalia.slf4jext.Level;
+import org.slf4j.event.Level;
 
 
 public class MqttAssetConnectionTest {
@@ -97,23 +97,9 @@ public class MqttAssetConnectionTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        try {
-            mqttPort = findFreePort();
-        }
-        catch (IOException e) {
-            Assert.fail("could not find free port");
-        }
+        mqttPort = PortHelper.findFreePort();
         mqttServer = startMqttServer(mqttPort);
         mqttServerUri = "tcp://" + LOCALHOST + ":" + mqttPort;
-    }
-
-
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
     }
 
 
@@ -264,7 +250,7 @@ public class MqttAssetConnectionTest {
     @Test
     public void testSubscriptionProviderConnectionLost()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
-        int port = findFreePort();
+        int port = PortHelper.findFreePort();
         Server localServer = startMqttServer(port);
 
         MqttAssetConnection connection = MqttAssetConnectionConfig.builder()
@@ -289,7 +275,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testReconnect() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
-        int assetMqttPort = findFreePort();
+        int assetMqttPort = PortHelper.findFreePort();
         Server localMqttServer = startMqttServer(assetMqttPort);
         String localMqttServerUri = "tcp://" + LOCALHOST + ":" + assetMqttPort;
         String message = "7";

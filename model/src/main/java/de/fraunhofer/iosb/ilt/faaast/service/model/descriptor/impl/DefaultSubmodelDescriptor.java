@@ -78,7 +78,7 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
 
 
         public B from(SubmodelDescriptor other) {
-            if (other != null) {
+            if (Objects.nonNull(other)) {
                 idShort(other.getIdShort());
                 endpoints(other.getEndpoints());
                 administration(other.getAdministration());

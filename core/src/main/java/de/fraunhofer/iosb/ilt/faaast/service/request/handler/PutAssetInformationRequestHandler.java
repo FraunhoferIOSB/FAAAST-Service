@@ -15,14 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
@@ -35,13 +38,14 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  */
 public class PutAssetInformationRequestHandler extends AbstractRequestHandler<PutAssetInformationRequest, PutAssetInformationResponse> {
 
-    public PutAssetInformationRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PutAssetInformationRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public PutAssetInformationResponse process(PutAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException {
+    public PutAssetInformationResponse process(PutAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
+        ModelValidator.validate(request.getAssetInformation(), coreConfig.getValidationOnUpdate());
         PutAssetInformationResponse response = new PutAssetInformationResponse();
         AssetAdministrationShell shell = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
         shell.setAssetInformation(request.getAssetInformation());

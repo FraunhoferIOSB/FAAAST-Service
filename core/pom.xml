@@ -144,9 +144,16 @@
                     <groupId>com.fasterxml.woodstox</groupId>
                     <artifactId>woodstox-core</artifactId>
                 </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>model</artifactId>
+            <version>${aas.model.version}</version>
+            <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.woodstox</groupId>
-                    <artifactId>woodstox-core</artifactId>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -175,6 +182,16 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>${poi.ooxml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastle.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

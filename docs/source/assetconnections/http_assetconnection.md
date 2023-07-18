@@ -18,6 +18,8 @@
 | username | String | _optional_ username for connecting to the HTTP server |
 | password | String | _optional_ password for connecting to the HTTP server |
 | headers | Map<String,String> | _optional_ headers to send with each request |
+| keyStorePath | String | _optional_ PKCS12 keyStore containing trusted certificates, e.g. when a server uses a self-signed certificate|
+| keyStorePassword | String | _optional_ password of the keyStore |
 
 ### Value Provider
 

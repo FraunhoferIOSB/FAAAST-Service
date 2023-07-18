@@ -36,6 +36,7 @@ import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.core.StatusCodes;
+import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
@@ -102,13 +103,14 @@ public class OpcUaEndpointFullTest {
     @BeforeClass
     public static void startTest() throws Exception {
 
-        OpcUaEndpointConfig config = new OpcUaEndpointConfig();
-        config.setTcpPort(OPC_TCP_PORT);
-        config.setSecondsTillShutdown(0);
-        config.setAllowAnonymous(true);
-        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
-        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
-        config.setDiscoveryServerUrl(null);
+        OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
+                .tcpPort(OPC_TCP_PORT)
+                .secondsTillShutdown(0)
+                .supportedAuthentication(UserTokenType.Anonymous)
+                .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
+                .userCertificateBasePath(TestConstants.USER_CERT_PATH)
+                .discoveryServerUrl(null)
+                .build();
 
         TestAssetConnectionConfig assetConnectionConfig = new TestAssetConnectionConfig();
 

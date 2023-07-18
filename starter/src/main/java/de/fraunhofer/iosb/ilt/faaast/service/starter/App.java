@@ -21,8 +21,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -31,7 +37,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
@@ -39,25 +46,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.validator.ShaclValidator;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.jena.shacl.ValidationReport;
-import org.apache.jena.shacl.lib.ShLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -85,25 +91,29 @@ public class App implements Runnable {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    private static AtomicReference<Service> serviceRef = new AtomicReference<>();
+    private static final AtomicReference<Service> serviceRef = new AtomicReference<>();
     // commands
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
     // config
     protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
-    protected static final String ENV_CONFIG_KEY = "config";
-    protected static final String ENV_EXTENSION_KEY = "extension";
-    protected static final String ENV_FAAAST_KEY = "faaast";
-    protected static final String ENV_CONFIG_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
-
-    protected static final String ENV_CONFIG_EXTENSION_PREFIX = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY, ENV_EXTENSION_KEY, "");
-    protected static final String ENV_MODEL_KEY = "model";
-    protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
     // environment
-    protected static final String ENV_PATH_SEPERATOR = ".";
+    protected static final String ENV_PATH_SEPARATOR = ".";
+    protected static final String ENV_PATH_ALTERNATIVE_SEPARATOR = "_";
+    protected static final String JSON_PATH_SEPARATOR = ".";
+    protected static final String ENV_KEY_PREFIX = "faaast";
+    protected static final String ENV_PATH_CONFIG_FILE = envPath(ENV_KEY_PREFIX, "config");
+    protected static final String ENV_PATH_MODEL_FILE = envPath(ENV_KEY_PREFIX, "model");
+    protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
+    private static final Configuration JSON_PATH_CONFIG = Configuration
+            .builder()
+            .mappingProvider(new JacksonMappingProvider())
+            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .build()
+            .addOptions(com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS);
 
     @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
     public boolean autoCompleteConfiguration = true;
@@ -128,8 +138,8 @@ public class App implements Runnable {
     @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyModel = false;
 
-    @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
-    public boolean validateModel = true;
+    @Option(names = "--no-validation", negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
+    public boolean noValidation = false;
 
     @Option(names = "--loglevel-faaast", description = "Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as -q or -v.")
     public Level logLevelFaaast;
@@ -228,7 +238,7 @@ public class App implements Runnable {
 
 
     private static String envPath(String... args) {
-        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
+        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPARATOR));
     }
 
 
@@ -237,21 +247,38 @@ public class App implements Runnable {
     }
 
 
-    private void validateModelIfRequired(ServiceConfig config) {
-        if (validateModel) {
-            try {
-                AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
-                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
-                        : config.getPersistence().getInitialModel();
-                validate(model);
-            }
-            catch (IOException e) {
-                throw new InitializationException("Unexpected exception while validating model", e);
-            }
-            catch (DeserializationException e) {
-                throw new InitializationException("Error loading model file", e);
-            }
+    private void validate(ServiceConfig config) {
+        if (noValidation) {
+            config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnCreate(ModelValidatorConfig.NONE);
+            config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
         }
+        try {
+            AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+                    ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
+                    : config.getPersistence().getInitialModel();
+            if (!config.getCore().getValidationOnLoad().isEnabled()) {
+                LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
+                return;
+            }
+            LOGGER.debug("Validating model...");
+            LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
+            LOGGER.debug("ValueType validation: {}", config.getCore().getValidationOnLoad().getValueTypeValidation());
+            LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
+            LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
+            ModelValidator.validate(model, config.getCore().getValidationOnLoad());
+            LOGGER.info("Model successfully validated");
+        }
+        catch (DeserializationException e) {
+            throw new InitializationException("Error loading model file", e);
+        }
+        catch (ValidationException e) {
+            throw new InitializationException(
+                    String.format("Model validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            e.getMessage()));
+        }
+
     }
 
 
@@ -299,7 +326,6 @@ public class App implements Runnable {
             ServiceConfigHelper.autoComplete(config);
         }
         withModel(config);
-        validateModelIfRequired(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
@@ -310,11 +336,12 @@ public class App implements Runnable {
             throw new InitializationException("Adding endpoints to config failed", e);
         }
         try {
-            config = ServiceConfigHelper.withProperties(config, getConfigOverrides());
+            config = ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
         }
         catch (JsonProcessingException e) {
             throw new InitializationException("Overriding config properties failed", e);
         }
+        validate(config);
         if (!dryRun) {
             runService(config);
         }
@@ -374,10 +401,10 @@ public class App implements Runnable {
             }
             return ServiceConfigHelper.load(configFile);
         }
-        if (System.getenv(ENV_CONFIG_FILE_PATH) != null && !System.getenv(ENV_CONFIG_FILE_PATH).isBlank()) {
-            LOGGER.info("Config: {} (ENV)", System.getenv(ENV_CONFIG_FILE_PATH));
-            configFile = new File(System.getenv(ENV_CONFIG_FILE_PATH));
-            return ServiceConfigHelper.load(new File(System.getenv(ENV_CONFIG_FILE_PATH)));
+        if (getEnvValue(ENV_PATH_CONFIG_FILE) != null && !getEnvValue(ENV_PATH_CONFIG_FILE).isBlank()) {
+            LOGGER.info("Config: {} (ENV)", getEnvValue(ENV_PATH_CONFIG_FILE));
+            configFile = new File(getEnvValue(ENV_PATH_CONFIG_FILE));
+            return ServiceConfigHelper.load(new File(getEnvValue(ENV_PATH_CONFIG_FILE)));
         }
         if (new File(CONFIG_FILENAME_DEFAULT).exists()) {
             configFile = new File(CONFIG_FILENAME_DEFAULT);
@@ -391,6 +418,24 @@ public class App implements Runnable {
         }
         LOGGER.info("Config: empty (default)");
         return ServiceConfigHelper.getDefaultServiceConfig();
+    }
+
+
+    private static String getEnvValue(String key) {
+        return System.getenv().containsKey(key)
+                ? System.getenv(key)
+                : System.getenv(envPathWithAlternativeSeparator(key));
+    }
+
+
+    /**
+     * Replaces env path separators with alternative separators to support using both separators in env variable names.
+     *
+     * @param key the env path to replace separators in
+     * @return input with replaced separators
+     */
+    protected static String envPathWithAlternativeSeparator(String key) {
+        return key.replace(ENV_PATH_SEPARATOR, ENV_PATH_ALTERNATIVE_SEPARATOR);
     }
 
 
@@ -411,15 +456,15 @@ public class App implements Runnable {
             return;
 
         }
-        if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
-            LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
+        if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
+            LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
             if (config.getPersistence().getInitialModelFile() != null) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
                         config.getPersistence().getInitialModelFile(),
-                        System.getenv(ENV_MODEL_FILE_PATH));
+                        getEnvValue(ENV_PATH_MODEL_FILE));
             }
-            config.getPersistence().setInitialModelFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
-            modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
+            config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
             return;
         }
 
@@ -442,7 +487,7 @@ public class App implements Runnable {
             LOGGER.info("Model: empty (default)");
         }
         LOGGER.info("Model validation is disabled when using empty model");
-        validateModel = false;
+        config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
         config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
@@ -494,31 +539,6 @@ public class App implements Runnable {
     }
 
 
-    private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        LOGGER.debug("Validating model...");
-        try {
-            ValueTypeValidator.validate(aasEnv);
-        }
-        catch (ValidationException e) {
-            throw new InitializationException(
-                    String.format("Model type validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            e.getMessage()));
-        }
-        ShaclValidator shaclValidator = ShaclValidator.getInstance();
-        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (!report.conforms()) {
-            ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-            ShLib.printReport(validationResultStream, report);
-            throw new InitializationException(
-                    String.format("Detailed model validation failed with the following error(s):%s%s",
-                            System.lineSeparator(),
-                            validationResultStream));
-        }
-        LOGGER.info("Model successfully validated");
-    }
-
-
     /**
      * Collects config overrides from environment and CLI parameters.
      *
@@ -526,16 +546,15 @@ public class App implements Runnable {
      */
     protected Map<String, String> getConfigOverrides() {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
-                .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
-                .filter(x -> !properties.containsKey(x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length() - 1)))
-                .collect(Collectors.toMap(
-                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
+                .filter(x -> x.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION))
+                .filter(x -> !properties.containsKey(x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length() - 1)))
+                .collect(Collectors.toMap(x -> x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length()),
                         Entry::getValue));
         Map<String, String> result = new HashMap<>(envParameters);
         for (var property: properties.entrySet()) {
-            if (property.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX)) {
-                String realKey = property.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length());
-                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_CONFIG_EXTENSION_PREFIX);
+            if (property.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION)) {
+                String realKey = property.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length());
+                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_PREFIX_CONFIG_EXTENSION);
                 result.put(realKey, property.getValue());
             }
             else {
@@ -555,6 +574,71 @@ public class App implements Runnable {
                             .collect(Collectors.joining(System.lineSeparator())));
         }
         return result;
+    }
+
+
+    /**
+     * Collects config overrides from environment and CLI parameters.
+     *
+     * @param config used to replace certain separators
+     *
+     * @return map of config overrides
+     */
+    protected Map<String, String> getConfigOverrides(ServiceConfig config) {
+        return replaceSeparators(config, getConfigOverrides());
+    }
+
+
+    private Map<String, String> replaceSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+        Map<String, String> result = new HashMap<>();
+        DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
+        configOverrides.forEach((k, v) -> {
+            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_ALTERNATIVE_SEPARATOR)));
+            String newPath = getNewPathRecursive(document, pathParts.get(0), pathParts, 1);
+            result.put(newPath, v);
+        });
+        return result;
+    }
+
+
+    private String getNewPathRecursive(DocumentContext document, String currPath, List<String> pathParts, int nextPartIndex) {
+        String jsonPath = String.format("$.%s", currPath);
+        JsonNode node = document.read(jsonPath);
+
+        if (nextPartIndex >= pathParts.size()) {
+            return node == null ? null : currPath;
+        }
+
+        String nextPart = pathParts.get(nextPartIndex);
+
+        if (node == null) {
+            return getNewPathRecursive(document,
+                    currPath + ENV_PATH_ALTERNATIVE_SEPARATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+        }
+        else {
+            String pathWithDot = getNewPathRecursive(document,
+                    currPath + ENV_PATH_SEPARATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            String pathWithSeparator = getNewPathRecursive(document,
+                    currPath + ENV_PATH_ALTERNATIVE_SEPARATOR + nextPart,
+                    pathParts,
+                    nextPartIndex + 1);
+            if (Objects.nonNull(pathWithDot) && Objects.nonNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file.",
+                        pathWithDot,
+                        pathWithSeparator));
+            }
+            if (Objects.isNull(pathWithDot) && Objects.isNull(pathWithSeparator)) {
+                throw new InitializationException(String.format(
+                        "Unresolvable environment variable found '%s'.",
+                        pathWithDot));
+            }
+            return Objects.nonNull(pathWithDot) ? pathWithDot : pathWithSeparator;
+        }
     }
 
     /**

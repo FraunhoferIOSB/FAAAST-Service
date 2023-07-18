@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.UaAddress;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
@@ -28,22 +29,29 @@ import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
 import com.prosysopc.ua.stack.core.BrowsePathTarget;
+import com.prosysopc.ua.stack.core.EndpointDescription;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
+import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
+import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -59,10 +67,10 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -98,27 +106,19 @@ public class OpcUaEndpointTest {
     private static TestService service;
     private static int aasns;
 
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
-
-
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
-        OPC_TCP_PORT = findFreePort();
+        OPC_TCP_PORT = PortHelper.findFreePort();
         ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
-        OpcUaEndpointConfig config = new OpcUaEndpointConfig();
-        config.setTcpPort(OPC_TCP_PORT);
-        config.setSecondsTillShutdown(0);
-        config.setAllowAnonymous(true);
-        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
-        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
-        config.setDiscoveryServerUrl(null);
+        OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
+                .tcpPort(OPC_TCP_PORT)
+                .secondsTillShutdown(0)
+                .supportedAuthentication(UserTokenType.Anonymous)
+                .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
+                .userCertificateBasePath(TestConstants.USER_CERT_PATH)
+                .discoveryServerUrl(null)
+                .build();
 
         service = new TestService(config, null, false);
         service.start();
@@ -779,6 +779,127 @@ public class OpcUaEndpointTest {
 
         System.out.println("disconnect client");
         client.disconnect();
+    }
+
+
+    @Test
+    public void testSecurityPolicyOnlyNone() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.NONE),
+                Set.of(UserTokenType.Anonymous)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyBasic256Sha256() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.BASIC256SHA256),
+                Set.of(UserTokenType.UserName)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyBasic128() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.BASIC128RSA15),
+                Set.of(UserTokenType.Anonymous,
+                        UserTokenType.Certificate)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyAllSecure104() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                SecurityPolicy.ALL_SECURE_104,
+                Set.of(UserTokenType.Anonymous,
+                        UserTokenType.UserName,
+                        UserTokenType.Certificate)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyMultiple1() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.BASIC256SHA256,
+                        SecurityPolicy.NONE,
+                        SecurityPolicy.BASIC256),
+                Set.of(UserTokenType.Anonymous,
+                        UserTokenType.Certificate)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyMultiple2() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.BASIC256SHA256,
+                        SecurityPolicy.AES128_SHA256_RSAOAEP,
+                        SecurityPolicy.AES256_SHA256_RSAPSS,
+                        SecurityPolicy.BASIC128RSA15),
+                Set.of(UserTokenType.UserName,
+                        UserTokenType.Certificate)));
+    }
+
+
+    @Test
+    public void testSecurityPolicyMultiple3() throws ConfigurationException, Exception {
+        Assert.assertTrue(testConfig(
+                Set.of(SecurityPolicy.NONE,
+                        SecurityPolicy.BASIC256SHA256,
+                        SecurityPolicy.AES128_SHA256_RSAOAEP,
+                        SecurityPolicy.AES256_SHA256_RSAPSS,
+                        SecurityPolicy.BASIC128RSA15),
+                Set.of(UserTokenType.Certificate,
+                        UserTokenType.Anonymous)));
+    }
+
+
+    private boolean testConfig(Set<SecurityPolicy> expectedPolicies, Set<UserTokenType> expectedUserTokens)
+            throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException {
+        int port = PortHelper.findFreePort();
+        String url = "opc.tcp://localhost:" + port;
+
+        List<String> expectedPolicyUris = new ArrayList<>();
+        expectedPolicies.stream().forEach(ep -> {
+            expectedPolicyUris.add(ep.getPolicyUri());
+        });
+        OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
+                .tcpPort(port)
+                .secondsTillShutdown(0)
+                .supportedAuthentication(UserTokenType.Anonymous)
+                .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
+                .userCertificateBasePath(TestConstants.USER_CERT_PATH)
+                .discoveryServerUrl(null)
+                .supportedSecurityPolicies(expectedPolicies)
+                .supportedAuthentications(expectedUserTokens)
+                .build();
+
+        TestService localService = new TestService(config, null, false);
+        localService.start();
+
+        UaClient discoveryClient = new UaClient();
+        discoveryClient.setAddress(UaAddress.parse(url));
+        List<String> currentPolicies = new ArrayList<>();
+        List<UserTokenType> currentUserTokens = new ArrayList<>();
+        for (EndpointDescription ed: discoveryClient.discoverEndpoints()) {
+            if (!currentPolicies.contains(ed.getSecurityPolicyUri())) {
+                LOGGER.info("testConfig: found SecurityPolicyUri {}", ed.getSecurityPolicyUri());
+                currentPolicies.add(ed.getSecurityPolicyUri());
+            }
+            if (currentUserTokens.isEmpty()) {
+                for (var t: ed.getUserIdentityTokens()) {
+                    currentUserTokens.add(t.getTokenType());
+                }
+            }
+        }
+
+        LOGGER.info("testConfig: found {} policyUris and {} userTokens", currentPolicies.size(), currentUserTokens.size());
+        Assert.assertEquals(expectedPolicies.size(), currentPolicies.size());
+        Assert.assertTrue(
+                expectedPolicyUris.size() == currentPolicies.size() && expectedPolicyUris.containsAll(currentPolicies) && currentPolicies.containsAll(expectedPolicyUris));
+        Assert.assertTrue(
+                expectedUserTokens.size() == currentUserTokens.size() && expectedUserTokens.containsAll(currentUserTokens) && currentUserTokens.containsAll(expectedUserTokens));
+        localService.stop();
+        return true;
     }
 
 

@@ -139,7 +139,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
 
 
         public B from(AssetAdministrationShellDescriptor other) {
-            if (other != null) {
+            if (Objects.nonNull(other)) {
                 idShort(other.getIdShort());
                 endpoints(other.getEndpoints());
                 administration(other.getAdministration());

@@ -44,5 +44,9 @@ public class JsonFieldNames {
     public static final String RELATIONSHIP_ELEMENT_FIRST = "first";
     public static final String RELATIONSHIP_ELEMENT_SECOND = "second";
 
+    public static final String EVENT_MODELTYPE = "modelType";
+    public static final String EVENT_VALUE = "value";
+    public static final String EVENT_DATATYPE = "dataType";
+
     private JsonFieldNames() {}
 }

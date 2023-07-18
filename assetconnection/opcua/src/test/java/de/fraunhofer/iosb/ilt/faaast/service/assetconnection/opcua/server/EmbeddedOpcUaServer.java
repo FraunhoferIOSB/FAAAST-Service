@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.KeystoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.SecurityPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -156,8 +156,8 @@ public class EmbeddedOpcUaServer {
     private static CertificateData getApplicationCertificate(EmbeddedOpcUaServerConfig config) throws IOException, GeneralSecurityException {
         return Objects.nonNull(config.getApplicationCertificate())
                 ? config.getApplicationCertificate()
-                : KeystoreHelper
-                        .loadOrDefault(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
+                : KeyStoreHelper
+                        .loadOrDefaultCertificateData(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
                                 DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
