@@ -28,14 +28,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationEx
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
-import io.github.classgraph.ClassGraph;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import io.github.classgraph.ScanResult;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +76,7 @@ public class RequestHandlerManager {
                 assetConnectionManager
         };
         final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getDeclaredConstructors()[0].getParameterTypes();
-        try (ScanResult scanResult = ScanResult.fromJSON(loadScanResultString())) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             handlers = scanResult.getSubclasses(AbstractRequestHandler.class).loadClasses().stream()
                     .filter(x -> !Modifier.isAbstract(x.getModifiers()))
                     .map(x -> (Class<? extends AbstractRequestHandler>) x)
@@ -112,23 +108,6 @@ public class RequestHandlerManager {
                 new BasicThreadFactory.Builder()
                         .namingPattern("RequestHandler" + "-%d")
                         .build());
-    }
-
-    private String loadScanResultString() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("D:\\Fraunhofer\\FAAAST-Service\\FAAAST-Service\\starter\\src\\main\\resources\\scanresult.json"))) {
-            StringBuilder jsonStringBuilder = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                jsonStringBuilder.append(line);
-            }
-
-            String jsonString = jsonStringBuilder.toString();
-            return jsonString;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 
 

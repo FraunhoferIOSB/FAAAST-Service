@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class ReflectionHelper {
 
     private static final String ROOT_PACKAGE_NAME = "de.fraunhofer.iosb.ilt.faaast.service";
-    private static final String MODEL_PACKAGE_NAME = ROOT_PACKAGE_NAME + ".model";
 
     /**
      * List of enum classes that are part of the FA³ST model.
@@ -35,10 +34,7 @@ public class ReflectionHelper {
     private ReflectionHelper() {}
 
     static {
-        ENUMS = new ClassGraph()
-                .enableClassInfo()
-                .acceptPackages(MODEL_PACKAGE_NAME)
-                .scan()
+        ENUMS = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())
                 .getAllEnums()
                 .loadClasses(Enum.class)
                 .stream()

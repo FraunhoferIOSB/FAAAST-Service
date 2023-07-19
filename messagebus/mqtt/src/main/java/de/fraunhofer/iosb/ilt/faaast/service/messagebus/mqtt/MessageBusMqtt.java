@@ -24,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -125,8 +125,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
 
     private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
-        try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
-                .enableClassInfo().scan()) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             if (Modifier.isAbstract(messageType.getModifiers())) {
                 return scanResult
                         .getSubclasses(messageType.getName())

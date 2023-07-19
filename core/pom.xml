@@ -12,6 +12,7 @@
     <name>core</name>
     <description>Core of the FA³ST Service containing component interfaces and service main classes.</description>
     <properties>
+        <resource.path>${project.basedir}/src/main/resources</resource.path>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -208,6 +209,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${resource.path}</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

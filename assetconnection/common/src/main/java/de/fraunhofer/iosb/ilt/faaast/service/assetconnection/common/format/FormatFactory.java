@@ -14,8 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
-import io.github.classgraph.ClassGraph;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -41,11 +40,7 @@ public class FormatFactory {
             return;
         }
         formats = new ConcurrentHashMap<>();
-        try (ScanResult scanResult = new ClassGraph()
-                .enableClassInfo()
-                .enableAnnotationInfo()
-                .addClassLoader(ImplementationManager.getClassLoader())
-                .scan()) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             for (var classInfo: scanResult.getClassesWithAnnotation(Dataformat.class)) {
                 String key = ((Dataformat) classInfo.getAnnotationInfo(Dataformat.class).loadClassAndInstantiate()).key();
                 if (StringUtils.isBlank(key)) {

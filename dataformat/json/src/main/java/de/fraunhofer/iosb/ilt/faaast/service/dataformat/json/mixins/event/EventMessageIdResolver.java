@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
-import io.github.classgraph.ClassGraph;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import io.github.classgraph.ScanResult;
 import java.util.List;
 import java.util.Objects;
@@ -88,9 +88,7 @@ public class EventMessageIdResolver extends TypeIdResolverBase {
 
 
     private List<Class<EventMessage>> getEventMessagesTypes() {
-        try (ScanResult scanResult = new ClassGraph()
-                .acceptPackages(EventMessage.class.getPackageName())
-                .enableClassInfo().scan()) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             return scanResult
                     .getSubclasses(EventMessage.class)
                     .filter(x -> !x.isAbstract())

@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -50,10 +50,7 @@ public abstract class AbstractMappingManager<T> {
 
 
     private void init() {
-        try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo()
-                .acceptPackages(getClass().getPackageName())
-                .scan()) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             mappers = scanResult
                     .getSubclasses(mapperType.getName())
                     .filter(x -> !x.isAbstract() && !x.isInterface())

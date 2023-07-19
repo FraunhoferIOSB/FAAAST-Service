@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -54,10 +54,7 @@ public class EnvironmentSerializationManager {
         initialized = true;
         serializers = new EnumMap<>(DataFormat.class);
         deserializers = new EnumMap<>(DataFormat.class);
-        try (ScanResult scanResult = new ClassGraph()
-                .enableClassInfo()
-                .enableAnnotationInfo()
-                .scan()) {
+        try (ScanResult scanResult = ScanResult.fromJSON(BuildTimeScanner.loadScanResultString())) {
             for (var classInfo: scanResult.getClassesWithAnnotation(SupportedDataformat.class)) {
                 DataFormat dataFormat = ((SupportedDataformat) classInfo.getAnnotationInfo(SupportedDataformat.class).loadClassAndInstantiate()).value();
                 if (classInfo.implementsInterface(EnvironmentSerializer.class)) {
