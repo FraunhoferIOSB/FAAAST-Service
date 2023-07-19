@@ -24,7 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.io.File;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -139,13 +141,25 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     private ServerConnector buildSSLServerConnector(HttpConnectionFactory httpConnectionFactory) throws EndpointException {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        if (Objects.isNull(config.getKeystorePath()) || config.getKeystorePath().equals("")) {
+        if (Objects.isNull(config.getCertificate())
+                || Objects.isNull(config.getCertificate().getKeyStorePath())
+                || config.getCertificate().getKeyStorePath().equals("")) {
             LOGGER.info("Generating self-signed certificate for HTTPS (reason: no certificate provided)");
             sslContextFactory.setKeyStore(generateSelfSignedCertificate());
         }
         else {
-            sslContextFactory.setKeyStorePath(config.getKeystorePath());
-            sslContextFactory.setKeyStorePassword(config.getKeystorePassword());
+            try {
+                KeyStore keyStore = KeyStoreHelper.load(
+                        new File(config.getCertificate().getKeyStorePath()),
+                        config.getCertificate().getKeyStoreType(),
+                        config.getCertificate().getKeyStorePassword());
+                sslContextFactory.setKeyStorePassword(config.getCertificate().getKeyStorePassword());
+                sslContextFactory.setKeyManagerPassword(config.getCertificate().getKeyPassword());
+                sslContextFactory.setKeyStore(keyStore);
+            }
+            catch (IOException | GeneralSecurityException e) {
+                throw new EndpointException("Error loading certificate for HTTP endpoint", e);
+            }
         }
         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, httpConnectionFactory.getProtocol());
         return new ServerConnector(server, sslConnectionFactory, httpConnectionFactory);

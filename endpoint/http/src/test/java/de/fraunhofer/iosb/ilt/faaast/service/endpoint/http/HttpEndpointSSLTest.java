@@ -21,6 +21,7 @@ import static org.mockito.Mockito.spy;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -36,10 +37,12 @@ import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
 
+    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http:test")
             .commonName("FA³ST Service HTTP Endpoint - Unit Test")
@@ -66,8 +69,11 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
         keyStoreTempFile = Files.createTempFile("http-endpoint", "https-cert").toFile();
         keyStoreTempFile.deleteOnExit();
         KeyStoreHelper.save(
-                keyStoreTempFile,
                 KeyStoreHelper.generateSelfSigned(SELFSIGNED_CERTIFICATE_INFORMATION),
+                keyStoreTempFile,
+                DEFAULT_KEY_STORE_TYPE,
+                null,
+                KEYSTORE_PASSWORD,
                 KEYSTORE_PASSWORD);
     }
 
@@ -83,8 +89,10 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
                         .port(port)
                         .cors(true)
                         .https(true)
-                        .keystorePath(keyStoreTempFile.getAbsolutePath())
-                        .keystorePassword(KEYSTORE_PASSWORD)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(keyStoreTempFile)
+                                .keyStorePassword(KEYSTORE_PASSWORD)
+                                .build())
                         .build(),
                 service);
         server.start();

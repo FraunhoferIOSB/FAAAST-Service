@@ -73,6 +73,7 @@ public class EmbeddedOpcUaServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
     public static final String DEFAULT_APPLICATION_CERTIFICATE_FILE = "server-application.p12";
     public static final String DEFAULT_APPLICATION_CERTIFICATE_PASSWORD = "";
+    public static final String DEFAULT_APPLICATION_CERTIFICATE_KEY_STORE_TYPE = "PKCS12";
     private static final BuildInfo BUILD_INFO = BuildInfo.builder()
             .productUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua:test")
             .manufacturerName("Fraunhofer IOSB")
@@ -158,6 +159,9 @@ public class EmbeddedOpcUaServer {
                 ? config.getApplicationCertificate()
                 : KeyStoreHelper
                         .loadOrDefaultCertificateData(Thread.currentThread().getContextClassLoader().getResourceAsStream(DEFAULT_APPLICATION_CERTIFICATE_FILE),
+                                DEFAULT_APPLICATION_CERTIFICATE_KEY_STORE_TYPE,
+                                null,
+                                DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
                                 DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }

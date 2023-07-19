@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,13 +45,11 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
     private String clientId;
-    private String clientKeystorePassword;
-    private String clientKeystorePath;
+    private CertificateConfig clientCertificate;
+    private CertificateConfig serverCertificate;
     private String host;
     private String password;
     private int port;
-    private String serverKeystorePassword;
-    private String serverKeystorePath;
     private int sslPort;
     private int sslWebsocketPort;
     private String topicPrefix;
@@ -67,11 +66,15 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         this.host = DEFAULT_HOST;
         this.websocketPort = DEFAULT_WEBSOCKET_PORT;
         this.sslWebsocketPort = DEFAULT_SSL_WEBSOCKET_PORT;
-        this.serverKeystorePassword = DEFAULT_SERVER_KEYSTORE_PASSWORD;
-        this.serverKeystorePath = DEFAULT_SERVER_KEYSTORE_PATH;
-        this.clientKeystorePassword = DEFAULT_CLIENT_KEYSTORE_PASSWORD;
+        this.serverCertificate = CertificateConfig.builder()
+                .keyStorePath(DEFAULT_SERVER_KEYSTORE_PATH)
+                .keyStorePassword(DEFAULT_SERVER_KEYSTORE_PASSWORD)
+                .build();
+        this.clientCertificate = CertificateConfig.builder()
+                .keyStorePath(DEFAULT_CLIENT_KEYSTORE_PATH)
+                .keyStorePassword(DEFAULT_CLIENT_KEYSTORE_PASSWORD)
+                .build();
         this.users = new HashMap<>();
-        this.clientKeystorePath = DEFAULT_CLIENT_KEYSTORE_PATH;
         this.useWebsocket = DEFAULT_USE_WEBSOCKETS;
         this.clientId = DEFAULT_CLIENT_ID;
         this.topicPrefix = DEFAULT_TOPIC_PREFIX;
@@ -88,23 +91,23 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
-    public String getClientKeystorePassword() {
-        return clientKeystorePassword;
+    public CertificateConfig getServerCertificate() {
+        return serverCertificate;
     }
 
 
-    public void setClientKeystorePassword(String clientKeystorePassword) {
-        this.clientKeystorePassword = clientKeystorePassword;
+    public void setServerCertificate(CertificateConfig serverCertificate) {
+        this.serverCertificate = serverCertificate;
     }
 
 
-    public String getClientKeystorePath() {
-        return clientKeystorePath;
+    public CertificateConfig getClientCertificate() {
+        return clientCertificate;
     }
 
 
-    public void setClientKeystorePath(String clientKeystorePath) {
-        this.clientKeystorePath = clientKeystorePath;
+    public void setClientCertificate(CertificateConfig clientCertificate) {
+        this.clientCertificate = clientCertificate;
     }
 
 
@@ -135,26 +138,6 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-
-    public String getServerKeystorePassword() {
-        return serverKeystorePassword;
-    }
-
-
-    public void setServerKeystorePassword(String serverKeystorePassword) {
-        this.serverKeystorePassword = serverKeystorePassword;
-    }
-
-
-    public String getServerKeystorePath() {
-        return serverKeystorePath;
-    }
-
-
-    public void setServerKeystorePath(String serverKeystorePath) {
-        this.serverKeystorePath = serverKeystorePath;
     }
 
 
@@ -253,10 +236,8 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 && Objects.equals(host, other.host)
                 && Objects.equals(websocketPort, other.websocketPort)
                 && Objects.equals(sslWebsocketPort, other.sslWebsocketPort)
-                && Objects.equals(serverKeystorePassword, other.serverKeystorePassword)
-                && Objects.equals(serverKeystorePath, other.serverKeystorePath)
-                && Objects.equals(clientKeystorePath, other.clientKeystorePath)
-                && Objects.equals(clientKeystorePassword, other.clientKeystorePassword)
+                && Objects.equals(serverCertificate, other.serverCertificate)
+                && Objects.equals(clientCertificate, other.clientCertificate)
                 && Objects.equals(users, other.users)
                 && Objects.equals(username, other.username)
                 && Objects.equals(password, other.password)
@@ -275,10 +256,8 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 host,
                 websocketPort,
                 sslWebsocketPort,
-                serverKeystorePassword,
-                serverKeystorePath,
-                clientKeystorePath,
-                clientKeystorePassword,
+                serverCertificate,
+                clientCertificate,
                 users,
                 username,
                 password,
@@ -312,10 +291,8 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
             getBuildingInstance().setWebsocketPort(base.getWebsocketPort());
             getBuildingInstance().setSslWebsocketPort(base.getSslWebsocketPort());
             getBuildingInstance().setUseWebsocket(base.getUseWebsocket());
-            getBuildingInstance().setServerKeystorePassword(base.getServerKeystorePassword());
-            getBuildingInstance().setClientKeystorePassword(base.getClientKeystorePassword());
-            getBuildingInstance().setServerKeystorePath(base.getServerKeystorePath());
-            getBuildingInstance().setClientKeystorePath(base.getClientKeystorePath());
+            getBuildingInstance().setServerCertificate(base.getServerCertificate());
+            getBuildingInstance().setClientCertificate(base.getClientCertificate());
             getBuildingInstance().setUsername(base.getUsername());
             getBuildingInstance().setPassword(base.getPassword());
             getBuildingInstance().setUsers(base.getUsers());
@@ -367,26 +344,14 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         }
 
 
-        public B serverKeystorePassword(String value) {
-            getBuildingInstance().setServerKeystorePassword(value);
+        public B serverCertificate(CertificateConfig value) {
+            getBuildingInstance().setServerCertificate(value);
             return getSelf();
         }
 
 
-        public B clientKeystorePassword(String value) {
-            getBuildingInstance().setClientKeystorePassword(value);
-            return getSelf();
-        }
-
-
-        public B serverKeystorePath(String value) {
-            getBuildingInstance().setServerKeystorePath(value);
-            return getSelf();
-        }
-
-
-        public B clientKeystorePath(String value) {
-            getBuildingInstance().setClientKeystorePath(value);
+        public B clientCertificate(CertificateConfig value) {
+            getBuildingInstance().setClientCertificate(value);
             return getSelf();
         }
 
