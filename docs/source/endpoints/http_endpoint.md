@@ -3,10 +3,7 @@
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
 The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
 Exchanging Information via Application
-Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-Interface-Collection/V1.0RC01), Apr, 26th 2022
-
-For detailed information on the REST API see
-[DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-Interface-Collection/V1.0RC01), Apr, 26th 2022
+Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02), Apr, 26th 2022
 
 ## Configuration Parameters
 
