@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.util.BuildTimeScanner;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -171,12 +172,17 @@ public class App implements Runnable {
     private CommandSpec spec;
     private static int exitCode = -1;
 
+
+
     /**
      * Main entry point.
      *
      * @param args CLI arguments
      */
     public static void main(String[] args) {
+        BuildTimeScanner buildTimeScanner = new BuildTimeScanner();
+        buildTimeScanner.scanFromRoot();
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
