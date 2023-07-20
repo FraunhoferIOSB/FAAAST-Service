@@ -95,7 +95,8 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.build();
 ```
 
-.. _certificate-info:
+(certificate_info)=
+
 ## Providing certificates in configuration
 
 Multiple components of FA³ST Service make use of certificates, either by using them for their own services or by trusting the provided certificates.
