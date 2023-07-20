@@ -495,8 +495,8 @@ public class HttpAssetConnectionTest {
                 .build();
         if (useHttps) {
             result.setBaseUrl(httpsUrl);
-            result.getCertificate().setKeyStorePath(keyStoreFile.getAbsolutePath());
-            result.getCertificate().setKeyStorePassword(KEY_PASSWORD);
+            result.getTrustedCertificates().setKeyStorePath(keyStoreFile.getAbsolutePath());
+            result.getTrustedCertificates().setKeyStorePassword(KEY_PASSWORD);
         }
         return result;
     }

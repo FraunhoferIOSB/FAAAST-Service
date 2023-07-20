@@ -37,7 +37,6 @@ import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 
 public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {

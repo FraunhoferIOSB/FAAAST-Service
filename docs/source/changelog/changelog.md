@@ -3,6 +3,9 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+*   General
+	*   Unified way to configure certificate information (:ref:`See details<certificate-info>`). Affected components: HTTP Asset Connection, OPC UA Asset Connection, HTTP Endpoint, MQTT MessageBus
+	*   Environment variables now use `_` instead of `.` as a separator
 * HTTP Endpoint
 	*   Now supports HTTPS
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
@@ -15,8 +18,6 @@
 *   Asset Connection
 	*   HTTP
 		*   Now provides a way to explicitely trust server certificates, e.g. useful when servers are using a self-signed certificate
-*   Other
-	*   Environment variables use "_" as a separator
 
 **Internal changes & bugfixes**
 *   General

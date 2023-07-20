@@ -38,11 +38,11 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     private String username;
     private String password;
     private Map<String, String> headers;
-    private CertificateConfig certificate;
+    private CertificateConfig trustedCertificates;
 
     public HttpAssetConnectionConfig() {
         this.headers = new HashMap<>();
-        this.certificate = CertificateConfig.builder().build();
+        this.trustedCertificates = CertificateConfig.builder().build();
     }
 
 
@@ -86,19 +86,19 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
-    public CertificateConfig getCertificate() {
-        return certificate;
+    public CertificateConfig getTrustedCertificates() {
+        return trustedCertificates;
     }
 
 
-    public void setCertificate(CertificateConfig certificate) {
-        this.certificate = certificate;
+    public void setTrustedCertificates(CertificateConfig trustedCertificates) {
+        this.trustedCertificates = trustedCertificates;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, username, password, headers, certificate);
+        return Objects.hash(baseUrl, username, password, headers, trustedCertificates);
     }
 
 
@@ -119,7 +119,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password)
                 && Objects.equals(this.headers, other.headers)
-                && Objects.equals(this.certificate, other.certificate);
+                && Objects.equals(this.trustedCertificates, other.trustedCertificates);
     }
 
 
@@ -167,8 +167,8 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
         }
 
 
-        public B certificate(CertificateConfig value) {
-            getBuildingInstance().setCertificate(value);
+        public B trustedCertificates(CertificateConfig value) {
+            getBuildingInstance().setTrustedCertificates(value);
             return getSelf();
         }
 
