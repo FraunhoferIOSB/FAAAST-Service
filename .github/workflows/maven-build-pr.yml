@@ -17,6 +17,16 @@ jobs:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
 
+    - name: Fix documentation
+      run: |
+        echo "Running pre-build commands."
+        echo `date`
+        echo `pwd`
+        echo `ls`
+        echo `ls docs`
+        echo "Fixing the table links"
+        bash docs/fix_links.sh
+
     - name: Cache maven repository
       uses: actions/cache@v3
       with:
