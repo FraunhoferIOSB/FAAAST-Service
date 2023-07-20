@@ -18,7 +18,7 @@
 | username | String | _optional_ username for connecting to the HTTP server |
 | password | String | _optional_ password for connecting to the HTTP server |
 | headers | Map<String,String> | _optional_ headers to send with each request |
-| trustedCertificates | Object | _optional_  information to load a key store containing certificates that should be trusted, i.e. when connecting to a server that is using self-signed certificates that by default would not be trusted. [See details](certificate_info) |
+| trustedCertificates | Object | _optional_  information to load a key store containing certificates that should be trusted, i.e. when connecting to a server that is using self-signed certificates that by default would not be trusted. {ref}`See details <certificate_info>` |
 
 ### Value Provider
 
