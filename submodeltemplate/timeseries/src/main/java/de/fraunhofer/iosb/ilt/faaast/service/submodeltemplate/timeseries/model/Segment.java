@@ -17,13 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.ZonedDateTimeComparator;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.TimeUnitHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -33,12 +30,9 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 /**
@@ -48,12 +42,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private boolean calculatePropertiesIfNotPresent;
-
-    @JsonIgnore
-    private ListWrapper<Record, SubmodelElementCollection> records;
-
-    @JsonIgnore
-    ExtendableSubmodelElementCollection recordsList;
 
     @JsonIgnore
     private Wrapper<String, Property> dataKind = new ValueWrapper<>(
@@ -82,7 +70,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
                             .valueType(Datatype.LONG.getName())
                             .value(Long.toString(Optional
                                     .ofNullable(x)
-                                    .orElse(Long.valueOf(records.getValue().size()))))
+                                    .orElse(Long.valueOf(0)))) //TODO: get better default value
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_RECORD_COUNT_ID_SHORT, x.getIdShort()),
@@ -94,16 +82,13 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent && !records.isEmpty())
+            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
                             .value(Objects.toString(
-                                    Optional.ofNullable(x).orElse(records.stream()
-                                            .map(Record::getTime)
-                                            .max(new ZonedDateTimeComparator())
-                                            .orElse(null))))
+                                    Optional.ofNullable(x).orElse(null))) //TODO: get better default value
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_END_TIME_ID_SHORT, x.getIdShort()),
@@ -145,17 +130,14 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent && !records.isEmpty())
+            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
                             .value(Objects.toString(
                                     Optional.ofNullable(x)
-                                            .orElse(records.stream()
-                                                    .map(Record::getTime)
-                                                    .min(new ZonedDateTimeComparator())
-                                                    .orElse(null))))
+                                            .orElse(null))) //TODO: get better default value
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_START_TIME_ID_SHORT, x.getIdShort()),
@@ -163,18 +145,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     protected Segment() {
         withAdditionalValues(dataKind, recordCount, start, end, samplingInterval, samplingRate);
-        recordsList = new ExtendableSubmodelElementCollection.Builder()
-                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
-                .build();
-        records = new ListWrapper<>(
-                recordsList.getValues(),
-                new ArrayList<>(),
-                SubmodelElementCollection.class,
-                x -> x,
-                x -> Objects.equals(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID), x.getSemanticId()),
-                Record::of);
-        recordsList.withAdditionalValues(records);
-        values.add(recordsList);
         this.idShort = IdentifierHelper.randomId("Segment");
         this.calculatePropertiesIfNotPresent = false;
     }
@@ -258,21 +228,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
      */
     public void setRecordCount(long recordCount) {
         this.recordCount.setValue(recordCount);
-    }
-
-
-    public List<Record> getRecords() {
-        return records.getValue();
-    }
-
-
-    /**
-     * Sets the records of this segment.
-     *
-     * @param records the records to set
-     */
-    public void setRecords(List<Record> records) {
-        this.records.setValue(records);
     }
 
 
@@ -367,21 +322,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
      * @return the modified {@code target}
      */
     protected static <T extends Segment> T of(T target, SubmodelElementCollection smc) {
-        Optional<SubmodelElementCollection> records = smc.getValues().stream()
-                .filter(Objects::nonNull)
-                .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
-                .map(SubmodelElementCollection.class::cast)
-                .filter(x -> Objects.equals(x.getIdShort(), Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT))
-                .findFirst();
-        SubmodelElementCollection toParse = smc;
-        if (records.isPresent()) {
-            target.recordsList = ExtendableSubmodelElementCollection.genericOf(target.recordsList, records.get());
-            toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
-            toParse.setValues(smc.getValues().stream()
-                    .filter(x -> !Objects.equals(records.get(), x))
-                    .collect(Collectors.toList()));
-        }
-        return ExtendableSubmodelElementCollection.genericOf(target, toParse);
+        return ExtendableSubmodelElementCollection.genericOf(target, smc);
     }
 
     public abstract static class AbstractBuilder<T extends Segment, B extends AbstractBuilder<T, B>> extends SubmodelElementCollectionBuilder<T, B> {
@@ -394,18 +335,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
         public B samplingRate(IntervalWithUnit value) {
             getBuildingInstance().setSamplingRate(value);
-            return getSelf();
-        }
-
-
-        public B records(List<Record> value) {
-            getBuildingInstance().setRecords(value);
-            return getSelf();
-        }
-
-
-        public B record(Record value) {
-            getBuildingInstance().getRecords().add(value);
             return getSelf();
         }
 
@@ -438,5 +367,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             getBuildingInstance().setCalculatePropertiesIfNotPresent(false);
             return getSelf();
         }
+
     }
 }

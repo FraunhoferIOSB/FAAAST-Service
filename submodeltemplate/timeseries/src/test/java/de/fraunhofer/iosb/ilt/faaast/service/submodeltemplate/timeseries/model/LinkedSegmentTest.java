@@ -86,9 +86,9 @@ public class LinkedSegmentTest extends BaseModelTest {
     @Test
     public void testWithUpdatingElements() throws ValueFormatException {
 
-        SubmodelElementCollection emptyRecords = new DefaultSubmodelElementCollection.Builder()
-                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
-                .build();
+        //        SubmodelElementCollection emptyRecords = new DefaultSubmodelElementCollection.Builder()
+        //                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+        //                .build();
 
         Property emptyEndpoint = new DefaultProperty.Builder()
                 .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
@@ -115,18 +115,18 @@ public class LinkedSegmentTest extends BaseModelTest {
                 .build();
 
         LinkedSegment segment = new LinkedSegment();
-        assertAASElements(segment, emptyRecords, emptyEndpoint, emptyQuery);
+        assertAASElements(segment, emptyEndpoint, emptyQuery);
 
         segment.setQuery(query.getValue());
-        assertAASElements(segment, emptyRecords, emptyEndpoint, query);
+        assertAASElements(segment, emptyEndpoint, query);
 
         segment.setEndpoint(endpoint.getValue());
-        assertAASElements(segment, emptyRecords, endpoint, query);
+        assertAASElements(segment, endpoint, query);
 
         segment.setQuery(null);
-        assertAASElements(segment, emptyRecords, endpoint, emptyQuery);
+        assertAASElements(segment, endpoint, emptyQuery);
 
         segment.setEndpoint(null);
-        assertAASElements(segment, emptyRecords, emptyEndpoint, emptyQuery);
+        assertAASElements(segment, emptyEndpoint, emptyQuery);
     }
 }
