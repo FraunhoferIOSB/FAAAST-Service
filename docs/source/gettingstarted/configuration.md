@@ -94,9 +94,8 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.messageBus(MessageBusInternalConfig.builder().build())
 	.build();
 ```
-
-(certificate_info)=
-
+<project:#foo>
+(foo)=
 ## Providing certificates in configuration
 
 Multiple components of FA³ST Service make use of certificates, either by using them for their own services or by trusting the provided certificates.
