@@ -25,7 +25,7 @@ jobs:
         echo `ls`
         echo `ls docs`
         echo "Fixing the table links"
-        bash docs/fix_links.sh
+        bash fix_links.sh
 
     - name: Cache maven repository
       uses: actions/cache@v3
