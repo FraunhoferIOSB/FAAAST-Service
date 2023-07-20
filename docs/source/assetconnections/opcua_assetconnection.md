@@ -24,8 +24,8 @@
 | securityMode | Enum | _optional_ Security Mode for the connection to the OPC UA server. Possible values are: None, Sign and SignAndEncrypt. Default value is None. |
 | transportProfile | Enum | _optional_ Transport Profile for the connection to the OPC UA server. Possible values are: TCP_UASC_UABINARY, HTTPS_UABINARY, HTTPS_UAXML, HTTPS_UAJSON, WSS_UASC_UABINARY, WSS_UAJSON. Default value is TCP_UASC_UABINARY |
 | securityBaseDir | String | _optional_ Base directory for the certificate handling. Default value is the current directory ("."). |
-| applicationCertificate | Object | _optional_  The application certificate :ref:`See details<certificate-info>` |
-| authenticationCertificate | Object | _optional_  The authentication certificate :ref:`See details<certificate-info>` |
+| applicationCertificate | Object | _optional_  The application certificate [See details](#providing-certificates-in-configuration) |
+| authenticationCertificate | Object | _optional_  The authentication certificate [See details](#providing-certificates-in-configuration) |
 
 #### Remarks on certificate management
 In OPC UA , certificates can be used for two purposes:

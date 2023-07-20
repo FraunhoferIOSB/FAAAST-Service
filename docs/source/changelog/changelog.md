@@ -4,7 +4,7 @@
 
 **New Features & Major Changes**
 *   General
-	*   Unified way to configure certificate information (:ref:`See details<certificate-info>`). Affected components: HTTP Asset Connection, OPC UA Asset Connection, HTTP Endpoint, MQTT MessageBus
+	*   Unified way to configure certificate information ([See details](#providing-certificates-in-configuration)). Affected components: HTTP Asset Connection, OPC UA Asset Connection, HTTP Endpoint, MQTT MessageBus
 	*   Environment variables now use `_` instead of `.` as a separator
 * HTTP Endpoint
 	*   Now supports HTTPS
