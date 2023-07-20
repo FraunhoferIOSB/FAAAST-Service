@@ -40,7 +40,6 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
-        bash docs/fix_links.sh
 
     - name: Test with Coverage
       if: ${{ github.event.pull_request.head.repo.fork == false }}
