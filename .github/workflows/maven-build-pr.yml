@@ -11,9 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Fix links in documentation
-      run: |
-        bash docs/fix_links.sh
     - name: Checkout Source
       uses: actions/checkout@v3
       with:
@@ -43,6 +40,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
+        bash docs/fix_links.sh
 
     - name: Test with Coverage
       if: ${{ github.event.pull_request.head.repo.fork == false }}
