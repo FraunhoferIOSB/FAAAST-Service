@@ -94,7 +94,6 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.messageBus(MessageBusInternalConfig.builder().build())
 	.build();
 ```
-<project:#foo>
 (foo)=
 ## Providing certificates in configuration
 
