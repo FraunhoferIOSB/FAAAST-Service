@@ -40,10 +40,6 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private static final boolean DEFAULT_USE_WEBSOCKETS = false;
     private static final int DEFAULT_WEBSOCKET_PORT = 9001;
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private String clientId;
     private CertificateConfig clientCertificate;
     private CertificateConfig serverCertificate;
@@ -264,6 +260,11 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 useWebsocket,
                 clientId,
                 topicPrefix);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder extends AbstractBuilder<MessageBusMqttConfig, Builder> {

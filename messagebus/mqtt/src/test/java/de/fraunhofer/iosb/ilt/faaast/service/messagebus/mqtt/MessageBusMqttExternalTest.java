@@ -21,7 +21,6 @@ import io.moquette.broker.config.MemoryConfig;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
-import org.junit.Test;
 
 
 public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Server> {
@@ -79,11 +78,4 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
 
         return result;
     }
-
-
-    @Test
-    public void testWithSslAsAnonymousSuccess() throws Exception {
-        super.testWithSslAsAnonymousSuccess();
-    }
-
 }
