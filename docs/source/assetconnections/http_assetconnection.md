@@ -20,7 +20,7 @@
 | headers | Map<String,String> | _optional_ headers to send with each request |
 | trustedCertificates | Object | _optional_  information to load a key store containing certificates that should be trusted, i.e. when connecting to a server that is using self-signed certificates that by default would not be trusted. [See details](#providing-certificates-in-configuration) |
 | 1 | - | {ref}`Test1 <providing-certificates-in-configuration>` |
-| 2 | - | [Test2](#providing-certificates-in-configuration) |
+| 2 | - | [Test2](gettingstarted.md##providing-certificates-in-configuration) |
 
 {ref}`Test1 <providing-certificates-in-configuration>`
 
