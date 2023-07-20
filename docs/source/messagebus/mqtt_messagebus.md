@@ -66,8 +66,8 @@ For derserialization of events the class `JsonEventDeserializer` in module `data
 | host | String | _optional_ The host name of the MQTT server (without prefix, e.g 192.168.0.1), default: localhost |
 | websocketPort | Integer | _optional_ The port to use for TCP communication, default 9001 | 
 | sslWebsocketPort | Integer |   _optional_ The port to use for secure websocket communication, default 443 |
-| serverCertificate | Object | _optional_  The server certificate to use. If not provided, SSL will be disabled [See details](#providing-certificates-in-configuration) |
-| clientCertificate | Object | _optional_  The client certificate to use. If not provided, SSL will be disabled [See details](#providing-certificates-in-configuration) |
+| serverCertificate | Object | _optional_  The server certificate to use. If not provided, SSL will be disabled [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
+| clientCertificate | Object | _optional_  The client certificate to use. If not provided, SSL will be disabled [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 | users | Map | _optional_ Map of usernames and passwords of users that are allowed to connect to the MQTT server. This is only used when `useInternalServer` is true, default: empty |
 | username | String | _optional_ Username used to connect to the MQTT server |
 | password | String | _optional_ Password used to connect to the MQTT server |

@@ -12,7 +12,7 @@ Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI docum
 | port | Integer |  _optional_ The port to use, default: 8080 |
 | corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false |
 | httpsEnabled | Boolean | _optional_ If true, the endpoint will only be available via HTTPS; if false, it will only be available via HTTP, default: false |
-| certificate; | Object | _optional_  The certificate to use when `httpsEnabled` is true, if none is provided a self-signed certificate will be generated [See details](#providing-certificates-in-configuration) |
+| certificate; | Object | _optional_  The certificate to use when `httpsEnabled` is true, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 
 ### Example
 
