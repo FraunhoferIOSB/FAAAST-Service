@@ -57,3 +57,5 @@ jobs:
         OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
       run: |
         mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
+  pre_build:
+    - bash docs/fix_links.sh
