@@ -26,11 +26,11 @@ public class Constants {
 
     // SMT types & properties
     public static final String TIMESERIES_SUBMODEL_ID_SHORT = "TimeSeries";
-    public static final String TIMESERIES_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/1/1/Submodel";
-    public static final String SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/1/1";
+    public static final String TIMESERIES_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/1/1";
+    public static final String SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/1/1";
     public static final String TIMESERIES_SEGMENTS_ID_SHORT = "Segments";
     public static final String TIMESERIES_METADATA_ID_SHORT = "Metadata";
-    public static final String METADATA_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Metadata/1/1";
+    public static final String METADATA_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Metadata/1/1";
     public static final String METADATA_RECORD_METADATA_ID_SHORT = "RecordMetadata";
     public static final String SEGMENT_RECORD_COUNT_ID_SHORT = "RecordCount";
     public static final String SEGMENT_START_TIME_ID_SHORT = "StartTime";
@@ -42,32 +42,33 @@ public class Constants {
     public static final String SEGMENT_STATE_ID_SHORT = "State";
     public static final String SEGMENT_STATE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1";
     public static final String SEGMENT_LAST_UPDATE_ID_SHORT = "LastUpdate";
-    public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/ExternalSegment/1/1";
-    public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries//File/1/1";
-    public static final String LINKED_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/LinkedSegment/1/1";
+    public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/ExternalSegment/1/1";
+    public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries//File/1/1";
+    public static final String BLOB_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Blob/1/1";
+    public static final String LINKED_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/LinkedSegment/1/1";
     public static final String LINKED_SEGMENT_ENDPOINT_ID_SHORT = "Endpoint";
     public static final String LINKED_SEGMENT_QUERY_ID_SHORT = "Query";
-    public static final String INTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/InternalSegment/1/1";
+    public static final String INTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1";
     public static final String INTERNAL_SEGMENT_RECORDS_ID_SHORT = "Records";
     public static final String RECORD_TIME_ID_SHORT = "Time";
-    public static final String RECORD_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Record/1/1";
+    public static final String RECORD_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Record/1/1";
     // Operation: ReadRecords
     public static final String READ_RECORDS_ID_SHORT = "ReadRecords";
-    public static final String READ_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/ReadRecords";
+    public static final String READ_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadRecords";
     public static final String READ_RECORDS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
     public static final String READ_RECORDS_OUTPUT_RECORDS_ID_SHORT = "Records";
-    public static final String READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/TimeSeries/ReadRecords/Records";
+    public static final String READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/TimeSeries/ReadRecords/Records"; //TODO: check correctness and use
     // Operation: ReadSegments
     public static final String READ_SEGMENTS_ID_SHORT = "ReadSegments";
-    public static final String READ_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/ReadSegments";
+    public static final String READ_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadSegments";
     public static final String READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
     public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT = "Segments";
-    public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/TimeSeries /ReadSegments/Segments/1/1";
+    public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/TimeSeries /ReadSegments/Segments/1/1"; //TODO: check correctness and use
     // Time
-    public static final String TIME_UTC = "https://admin-shell.io/idta/timeseries/UtcTime/1/1";
-    public static final String TIME_TAI = "https://admin-shell.io/idta/timeseries/TaiTime/1/1";
-    public static final String TIME_RELATIVE_POINT_IN_TIME = "https://admin-shell.io/idta/timeseries/RelativePointInTime/1/1";
-    public static final String TIME_RELATIVE_DURATION = "https://admin-shell.io/idta/timeseries/RelativeTimeDuration/1/1";
+    public static final String TIME_UTC = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
+    public static final String TIME_TAI = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";
+    public static final String TIME_RELATIVE_POINT_IN_TIME = "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1";
+    public static final String TIME_RELATIVE_DURATION = "https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1";
     // Time Unit
     public static final String TIMEUNIT_MILLISECOND = "millisecond";
     public static final String TIMEUNIT_SECOND = "second";
