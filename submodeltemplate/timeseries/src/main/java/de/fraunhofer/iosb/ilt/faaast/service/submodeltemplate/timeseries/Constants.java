@@ -37,7 +37,11 @@ public class Constants {
     public static final String SEGMENT_END_TIME_ID_SHORT = "EndTime";
     public static final String SEGMENT_SAMPLING_INTERVAL_ID_SHORT = "SamplingInterval";
     public static final String SEGMENT_SAMPLING_RATE_ID_SHORT = "SamplingRate";
-    public static final String SEGMENT_KIND_ID_SHORT = "Kind";
+    public static final String SEGMENT_DURATION_ID_SHORT = "Duration";
+    public static final String SEGMENT_DURATION_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/Duration/1/1 ";
+    public static final String SEGMENT_STATE_ID_SHORT = "State";
+    public static final String SEGMENT_STATE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1";
+    public static final String SEGMENT_LAST_UPDATE_ID_SHORT = "LastUpdate";
     public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/ExternalSegment/1/1";
     public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries//File/1/1";
     public static final String LINKED_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/LinkedSegment/1/1";

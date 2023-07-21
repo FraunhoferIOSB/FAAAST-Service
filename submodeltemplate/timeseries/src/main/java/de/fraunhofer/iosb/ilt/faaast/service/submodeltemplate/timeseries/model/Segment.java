@@ -44,18 +44,51 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     private boolean calculatePropertiesIfNotPresent;
 
     @JsonIgnore
-    private Wrapper<String, Property> dataKind = new ValueWrapper<>(
+    private Wrapper<String, Property> duration = new ValueWrapper<>(
             values,
             null,
             false,
             Property.class,
             x -> new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_KIND_ID_SHORT)
-                    //.semanticId("???")
+                    .idShort(Constants.SEGMENT_DURATION_ID_SHORT)
+                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID)) //TODO: depending on semantic id property in ISO 8601 format in string or as long
                     .valueType(Datatype.STRING.getName())
                     .value(x)
                     .build(),
-            x -> Objects.equals(Constants.SEGMENT_KIND_ID_SHORT, x.getIdShort()),
+            x -> Objects.equals(Constants.SEGMENT_DURATION_ID_SHORT, x.getIdShort()),
+            Property::getValue);
+
+    @JsonIgnore
+    private Wrapper<ZonedDateTime, Property> lastUpdate = new ValueWrapper<>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
+                    ? new DefaultProperty.Builder()
+                            .idShort(Constants.SEGMENT_LAST_UPDATE_ID_SHORT)
+                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getName())
+                            .value(Objects.toString(
+                                    Optional.ofNullable(x).orElse(null))) //TODO: get better default value or def calculation in subclass
+                            .build()
+                    : null,
+            x -> Objects.equals(Constants.SEGMENT_LAST_UPDATE_ID_SHORT, x.getIdShort()),
+            x -> ZonedDateTime.parse(x.getValue()));
+
+    @JsonIgnore
+    private Wrapper<String, Property> state = new ValueWrapper<>(
+            values,
+            null,
+            false,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.SEGMENT_STATE_ID_SHORT)
+                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_STATE_SEMANTIC_ID))
+                    .valueType(Datatype.STRING.getName())
+                    .value(x)
+                    .build(),
+            x -> Objects.equals(Constants.SEGMENT_STATE_ID_SHORT, x.getIdShort()),
             Property::getValue);
 
     @JsonIgnore
@@ -144,7 +177,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             x -> ZonedDateTime.parse(x.getValue()));
 
     protected Segment() {
-        withAdditionalValues(dataKind, recordCount, start, end, samplingInterval, samplingRate);
+        withAdditionalValues(recordCount, start, end, duration, samplingInterval, samplingRate, state, lastUpdate);
         this.idShort = IdentifierHelper.randomId("Segment");
         this.calculatePropertiesIfNotPresent = false;
     }
@@ -164,15 +197,15 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
         else {
             Segment other = (Segment) obj;
             return super.equals(obj)
-                    && Objects.equals(this.calculatePropertiesIfNotPresent, other.calculatePropertiesIfNotPresent)
-                    && Objects.equals(this.dataKind, other.dataKind);
+                    && Objects.equals(this.calculatePropertiesIfNotPresent, other.calculatePropertiesIfNotPresent);
+            //TODO: compare other variables
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), calculatePropertiesIfNotPresent, dataKind);
+        return Objects.hash(super.hashCode(), calculatePropertiesIfNotPresent);
     }
 
 
@@ -186,33 +219,33 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     }
 
 
-    public String getDataKind() {
-        return dataKind.getValue();
+    public String getState() {
+        return state.getValue();
     }
 
 
     /**
-     * Sets the data kind..
+     * Sets the state of this segment.
      *
-     * @param dataKind the data kind to set
+     * @param state the state to set
      */
-    public void setDataKind(String dataKind) {
-        this.dataKind.setValue(dataKind);
+    public void setState(String state) {
+        this.state.setValue(state);
     }
 
 
-    public ZonedDateTime getEnd() {
-        return end.getValue();
+    public ZonedDateTime getLastUpdate() {
+        return lastUpdate.getValue();
     }
 
 
     /**
-     * Sets the end of this segment.
+     * Sets the timepoint of the last update of this segment.
      *
-     * @param end the end to set
+     * @param lastUpdate the last timepoint the segment was updated
      */
-    public void setEnd(ZonedDateTime end) {
-        this.end.setValue(end);
+    public void setLastUpdate(ZonedDateTime lastUpdate) {
+        this.lastUpdate.setValue(lastUpdate);
     }
 
 
@@ -276,6 +309,36 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     }
 
 
+    public ZonedDateTime getEnd() {
+        return end.getValue();
+    }
+
+
+    /**
+     * Sets the end of this segment.
+     *
+     * @param end the end to set
+     */
+    public void setEnd(ZonedDateTime end) {
+        this.end.setValue(end);
+    }
+
+
+    public String getDuration() {
+        return duration.getValue();
+    }
+
+
+    /**
+     * Sets the duration of the segment.
+     *
+     * @param duration the duration to set
+     */
+    public void setDuration(String duration) {
+        this.duration.setValue(duration);
+    }
+
+
     @Override
     public Collection<SubmodelElement> getValues() {
         updateCalculatedProperties();
@@ -283,7 +346,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     }
 
 
-    private void updateCalculatedProperties() {
+    private void updateCalculatedProperties() { //TODO: really update values -> subclass-specific?
         start.setValue(start.getValue());
         end.setValue(end.getValue());
         recordCount.setValue(recordCount.getValue());
@@ -351,8 +414,26 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
         }
 
 
-        public B dataKind(String value) {
-            getBuildingInstance().setDataKind(value);
+        public B recordCount(long value) {
+            getBuildingInstance().setRecordCount(value);
+            return getSelf();
+        }
+
+
+        public B duration(String value) {
+            getBuildingInstance().setDuration(value);
+            return getSelf();
+        }
+
+
+        public B lastUpdate(ZonedDateTime value) {
+            getBuildingInstance().setLastUpdate(value);
+            return getSelf();
+        }
+
+
+        public B state(String value) {
+            getBuildingInstance().setState(value);
             return getSelf();
         }
 
