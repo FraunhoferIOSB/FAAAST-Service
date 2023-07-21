@@ -88,6 +88,7 @@ import org.junit.Test;
 
 
 public class HttpAssetConnectionTest {
+
     @ClassRule
     public static WireMockClassRule server;
     // required, see https://wiremock.org/docs/junit-extensions/#other-rule-configurations
@@ -95,8 +96,8 @@ public class HttpAssetConnectionTest {
     public WireMockClassRule instanceRule = server;
 
     private static final long DEFAULT_TIMEOUT = 10000;
-    private static final String KEYSTORE_PASSWORD = "changeit";
-    private static final String KEYMANAGER_PASSWORD = "changeit";
+    private static final String KEY_PASSWORD = "changeit";
+    private static final String KEY_STORE_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
@@ -125,8 +126,8 @@ public class HttpAssetConnectionTest {
                 .httpDisabled(false)
                 .keystoreType(KEYSTORE_TYPE)
                 .keystorePath(keyStoreFile.getAbsolutePath())
-                .keystorePassword(KEYSTORE_PASSWORD)
-                .keyManagerPassword(KEYMANAGER_PASSWORD));
+                .keystorePassword(KEY_PASSWORD)
+                .keyManagerPassword(KEY_STORE_PASSWORD));
     }
 
 
@@ -384,7 +385,7 @@ public class HttpAssetConnectionTest {
         keyStoreFile = Files.createTempFile("faaast-assetconnection-http-cert", ".p12").toFile();
         keyStoreFile.deleteOnExit();
         CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-        KeyStoreHelper.save(KEYSTORE_TYPE, keyStoreFile, certificateData, KEYSTORE_PASSWORD, KEYMANAGER_PASSWORD);
+        KeyStoreHelper.save(certificateData, keyStoreFile, KEYSTORE_TYPE, null, KEY_PASSWORD, KEY_STORE_PASSWORD);
     }
 
 
@@ -494,8 +495,8 @@ public class HttpAssetConnectionTest {
                 .build();
         if (useHttps) {
             result.setBaseUrl(httpsUrl);
-            result.setKeyStorePath(keyStoreFile.getAbsolutePath());
-            result.setKeyStorePassword(KEYSTORE_PASSWORD);
+            result.getTrustedCertificates().setKeyStorePath(keyStoreFile.getAbsolutePath());
+            result.getTrustedCertificates().setKeyStorePassword(KEY_PASSWORD);
         }
         return result;
     }

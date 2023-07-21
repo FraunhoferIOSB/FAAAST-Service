@@ -89,13 +89,17 @@ public class MoquetteServer {
         if (config.getUseWebsocket()) {
             serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
-        String keystorePath = config.getServerKeystorePath();
-        if (Objects.nonNull(keystorePath) && !keystorePath.isEmpty()) {
+        if (Objects.nonNull(config.getServerCertificate())
+                && Objects.nonNull(config.getServerCertificate().getKeyStorePath())
+                && !config.getServerCertificate().getKeyStorePath().isEmpty()) {
             LOGGER.debug("Configuring keystore for ssl");
-            serverConfig.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, keystorePath);
-            if (Objects.nonNull(config.getServerKeystorePassword())) {
-                serverConfig.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
-                serverConfig.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
+            serverConfig.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
+            serverConfig.setProperty(BrokerConstants.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
+            if (Objects.nonNull(config.getServerCertificate().getKeyStorePassword())) {
+                serverConfig.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
+            }
+            if (Objects.nonNull(config.getServerCertificate().getKeyPassword())) {
+                serverConfig.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
             }
             serverConfig.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
             if (config.getUseWebsocket()) {
