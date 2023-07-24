@@ -20,6 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.w
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.Blob;
+import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Objects;
@@ -31,17 +33,36 @@ import java.util.Objects;
 public class ExternalSegment extends Segment {
 
     @JsonIgnore
-    private final Wrapper<File, File> file = new ValueWrapper<>(
+    private final Wrapper<File, File> file = new ValueWrapper<File, File>(
             values,
             null,
             true,
             File.class,
             x -> {
-                x.setSemanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID));
+                if (x != null) {
+                    x.setSemanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID));
+                }
                 return x;
             },
             x -> Objects.equals(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID), x.getSemanticId()),
             x -> x);
+
+    @JsonIgnore
+    private final Wrapper<Blob, Blob> blob = new ValueWrapper<Blob, Blob>(
+            values,
+            null,
+            true,
+            Blob.class,
+            x -> {
+                if (x != null) {
+                    x.setSemanticId(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID));
+                }
+                return x;
+            },
+            x -> Objects.equals(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID), x.getSemanticId()),
+            x -> x);
+
+    private Wrapper<? extends DataElement, ? extends DataElement> data;
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
@@ -58,22 +79,36 @@ public class ExternalSegment extends Segment {
     public ExternalSegment() {
         this.idShort = IdentifierHelper.randomId("ExternalSegment");
         this.semanticId = ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID);
-        withAdditionalValues(file);
+        if (file != null) { //TODO: ranking file over blob. Think about different impl. of OR
+            data = file;
+        }
+        else {
+            data = blob;
+        }
+        withAdditionalValues(data);
+        //        withAdditionalValues(file, blob);
     }
 
 
-    public File getFile() {
-        return file.getValue();
+    public DataElement getData() {
+        return data.getValue();
     }
 
 
     /**
-     * Sets the file.
+     * Sets the data.
      *
-     * @param file the file to set.
+     * @param data the data to set. Either File or Blob. Other data is ignored.
      */
-    public void setFile(File file) {
-        this.file.setValue(file);
+    public void setData(DataElement data) {
+        if (data instanceof File) {
+            this.file.setValue((File) data);
+            this.data = this.file;
+        }
+        else if (data instanceof Blob) {
+            this.blob.setValue((Blob) data);
+            this.data = this.blob;
+        }
     }
 
 
@@ -107,7 +142,25 @@ public class ExternalSegment extends Segment {
     public abstract static class AbstractBuilder<T extends ExternalSegment, B extends AbstractBuilder<T, B>> extends Segment.AbstractBuilder<T, B> {
 
         public B file(File value) {
-            getBuildingInstance().setFile(value);
+            //            if (getBuildingInstance().getBlob() == null) { //TODO: alternatively remove blob?
+            //                getBuildingInstance().setFile(value);                
+            //            }
+            getBuildingInstance().setData(value);
+            return getSelf();
+        }
+
+
+        public B blob(Blob value) {
+            //            if (getBuildingInstance().getFile() == null) { //TODO: alternatively remove file? 
+            //                getBuildingInstance().setBlob(value);                
+            //            }
+            getBuildingInstance().setData(value);
+            return getSelf();
+        }
+
+
+        public B data(DataElement value) {
+            getBuildingInstance().setData(value);
             return getSelf();
         }
     }
