@@ -51,7 +51,7 @@ public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSub
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException {
         ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnUpdate());
         //check if resource does exist
-        persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT, Submodel.class);
+        persistence.get(request.getSubmodel().getId(), QueryModifier.DEFAULT, Submodel.class);
         Submodel submodel = persistence.put(request.getSubmodel());
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());

@@ -22,13 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementSubtypeResolvingVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.Collection;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -106,7 +106,7 @@ public class QueryModifierHelper {
                     AssetAdministrationShellElementVisitor visitor = new DefaultAssetAdministrationShellElementSubtypeResolvingVisitor() {
                         @Override
                         public void visit(SubmodelElementCollection submodelElementCollection) {
-                            submodelElementCollection.getValues().clear();
+                            submodelElementCollection.getValue().clear();
                         }
                     };
                     list.forEach(visitor::visit);
@@ -115,7 +115,7 @@ public class QueryModifierHelper {
 
                 @Override
                 public void visit(SubmodelElementCollection submodelElementCollection) {
-                    clearSubcollections(submodelElementCollection.getValues());
+                    clearSubcollections(submodelElementCollection.getValue());
                 }
             }.visit(referable);
         }

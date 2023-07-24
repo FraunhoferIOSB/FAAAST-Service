@@ -38,7 +38,8 @@ public class ModelValidatorConfig {
             .validateIdentifierUniqueness(false)
             .build();
 
-    private static final boolean DEFAULT_VALIDATE_CONSTRAINTS = true;
+    // TODO currently deactived because not present in AAS4j
+    private static final boolean DEFAULT_VALIDATE_CONSTRAINTS = false;
     private static final boolean DEFAULT_VALIDATE_VALUE_TYPES = true;
     private static final boolean DEFAULT_VALIDATE_ID_SHORT_UNIQUENESS = true;
     private static final boolean DEFAULT_VALIDATE_IDENTIFIER_UNIQUENESS = true;

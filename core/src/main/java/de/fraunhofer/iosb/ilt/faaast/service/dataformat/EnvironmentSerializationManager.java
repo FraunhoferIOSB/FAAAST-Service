@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.io.File;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +134,7 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Reads an {@link AssetAdministrationShellEnvironment} from given file while automatically determining used data
+     * Reads an {@link Environment} from given file while automatically determining used data
      * format based on file extension.
      *
      * @param file the file to read

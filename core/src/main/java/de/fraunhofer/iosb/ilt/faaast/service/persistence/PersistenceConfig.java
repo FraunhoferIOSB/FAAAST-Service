@@ -19,11 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import java.io.File;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,19 +39,19 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceConfig.class);
     protected File initialModelFile;
     @JsonIgnore
-    protected AssetAdministrationShellEnvironment initialModel;
+    protected Environment initialModel;
 
     public File getInitialModelFile() {
         return initialModelFile;
     }
 
 
-    public AssetAdministrationShellEnvironment getInitialModel() {
+    public Environment getInitialModel() {
         return initialModel;
     }
 
 
-    public void setInitialModel(AssetAdministrationShellEnvironment initialModel) {
+    public void setInitialModel(Environment initialModel) {
         this.initialModel = initialModel;
     }
 
@@ -70,7 +70,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
      *             file
      * @throws DeserializationException if deserialization fails
      */
-    public AssetAdministrationShellEnvironment loadInitialModel() throws InvalidConfigurationException, DeserializationException {
+    public Environment loadInitialModel() throws InvalidConfigurationException, DeserializationException {
         if (Objects.nonNull(initialModel)) {
             LOGGER.debug("using model from code/memory");
             return initialModel;
@@ -86,7 +86,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
                     .deserialize(initialModelFile)
                     .getEnvironment();
         }
-        return new DefaultAssetAdministrationShellEnvironment.Builder().build();
+        return new DefaultEnvironment.Builder().build();
     }
 
 
@@ -127,7 +127,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
         }
 
 
-        public B initialModel(AssetAdministrationShellEnvironment value) {
+        public B initialModel(Environment value) {
             getBuildingInstance().setInitialModel(value);
             return getSelf();
         }

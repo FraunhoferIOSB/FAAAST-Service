@@ -19,15 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.AASXDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.AASXDeserializer;
 
 
 /**
- * AASX deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * AASX deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentDeserializer implements EnvironmentDeserializer {
@@ -41,7 +41,7 @@ public class AasxEnvironmentDeserializer implements EnvironmentDeserializer {
                     .files(deserializer.getRelatedFiles())
                     .build();
         }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException | InvalidFormatException | IOException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | InvalidFormatException | IOException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

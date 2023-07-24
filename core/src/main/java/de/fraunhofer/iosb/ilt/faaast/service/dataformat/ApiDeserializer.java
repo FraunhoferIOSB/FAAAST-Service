@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,11 +33,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
  * Deseriliazer for API calls. Deserializes not only whole
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but also other elements like
+ * {@link io.adminshell.aas.v3.model.Environment} but also other elements like
  * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel} or
  * {@link io.adminshell.aas.v3.model.SubmodelElement}.
  */

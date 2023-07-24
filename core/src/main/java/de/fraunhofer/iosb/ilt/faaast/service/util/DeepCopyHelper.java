@@ -14,15 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.Identifiable}
  * <li>{@link io.adminshell.aas.v3.model.Referable}
- * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+ * <li>{@link io.adminshell.aas.v3.model.Environment}
  * </ul>
  */
 public class DeepCopyHelper {
@@ -39,13 +39,13 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} object.
+     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Environment} object.
      *
      * @param env the asset administration shell environment which should be deep copied
      * @return a deep copied instance of the asset administration shell environment
      * @throws RuntimeException when operation fails
      */
-    public static AssetAdministrationShellEnvironment deepCopy(AssetAdministrationShellEnvironment env) {
+    public static Environment deepCopy(Environment env) {
         try {
             return new JsonDeserializer().read(new JsonSerializer().write(env));
         }

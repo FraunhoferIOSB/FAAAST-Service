@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,8 +30,8 @@ public class DeepCopyHelperTest {
 
     @Test
     public void testDeepCopyEnvNull() {
-        AssetAdministrationShellEnvironment expected = null;
-        AssetAdministrationShellEnvironment actual = DeepCopyHelper.deepCopy(expected);
+        Environment expected = null;
+        Environment actual = DeepCopyHelper.deepCopy(expected);
         Assert.assertEquals(expected, actual);
     }
 
@@ -119,8 +119,8 @@ public class DeepCopyHelperTest {
 
     @Test
     public void testDeepEnvCopy() {
-        AssetAdministrationShellEnvironment expected = AASFull.ENVIRONMENT;
-        AssetAdministrationShellEnvironment actual = DeepCopyHelper.deepCopy(expected);
+        Environment expected = AASFull.createEnvironment();
+        Environment actual = DeepCopyHelper.deepCopy(expected);
         Assert.assertEquals(expected, actual);
     }
 

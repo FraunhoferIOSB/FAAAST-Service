@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -50,11 +50,11 @@ public interface ServiceContext {
 
 
     /**
-     * Get a copied version of the AssetAdministrationShellEnvironment instance of the service.
+     * Get a copied version of the Environment instance of the service.
      *
-     * @return a deep copied AssetAdministrationShellEnvironment instance of the service
+     * @return a deep copied Environment instance of the service
      */
-    public AssetAdministrationShellEnvironment getAASEnvironment();
+    public Environment getAASEnvironment();
 
 
     /**

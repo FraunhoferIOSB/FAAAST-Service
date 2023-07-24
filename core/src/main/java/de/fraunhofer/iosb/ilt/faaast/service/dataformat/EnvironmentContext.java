@@ -14,22 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Wrapper class representing an {@link AssetAdministrationShellEnvironment} and the related files which make up an AASX
+ * Wrapper class representing an {@link Environment} and the related files which make up an AASX
  * file.
  */
 public class EnvironmentContext {
 
-    private AssetAdministrationShellEnvironment environment;
+    private Environment environment;
     private List<InMemoryFile> files;
 
     public EnvironmentContext() {
@@ -37,12 +37,12 @@ public class EnvironmentContext {
     }
 
 
-    public AssetAdministrationShellEnvironment getEnvironment() {
+    public Environment getEnvironment() {
         return environment;
     }
 
 
-    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
+    public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
 
@@ -84,7 +84,7 @@ public class EnvironmentContext {
     public abstract static class AbstractBuilder<T extends EnvironmentContext, B extends AbstractBuilder<T, B>>
             extends ExtendableBuilder<T, B> {
 
-        public B environment(AssetAdministrationShellEnvironment value) {
+        public B environment(Environment value) {
             getBuildingInstance().setEnvironment(value);
             return getSelf();
         }

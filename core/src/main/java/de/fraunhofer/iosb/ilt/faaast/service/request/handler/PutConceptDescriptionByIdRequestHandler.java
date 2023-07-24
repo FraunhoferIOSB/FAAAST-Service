@@ -45,7 +45,7 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
     @Override
     public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
         ModelValidator.validate(request.getConceptDescription(), coreConfig.getValidationOnUpdate());
-        persistence.get(request.getConceptDescription().getIdentification(), QueryModifier.DEFAULT, ConceptDescription.class);
+        persistence.get(request.getConceptDescription().getId(), QueryModifier.DEFAULT, ConceptDescription.class);
         ConceptDescription conceptDescription = persistence.put(request.getConceptDescription());
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(conceptDescription)

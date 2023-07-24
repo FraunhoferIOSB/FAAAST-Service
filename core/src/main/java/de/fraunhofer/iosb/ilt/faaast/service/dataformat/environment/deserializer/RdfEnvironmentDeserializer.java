@@ -19,44 +19,41 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.rdf.Serializer;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.Lang;
 
 
 /**
- * RDF deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * RDF deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    private final Serializer deserializer;
+    // private final Serializer deserializer;
 
     public RdfEnvironmentDeserializer() {
-        this.deserializer = new Serializer();
+        // this.deserializer = new Serializer();
     }
 
 
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        try {
-            return EnvironmentContext.builder()
-                    .environment(deserializer.read(IOUtils.toString(in, charset)))
-                    .build();
-        }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("RDF deserialization failed", e);
-        }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        // try {
+        //     return EnvironmentContext.builder()
+        //             .environment(deserializer.read(IOUtils.toString(in, charset)))
+        //             .build();
+        // }
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | IOException e) {
+        //     throw new DeserializationException("RDF deserialization failed", e);
+        // }
     }
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link io.adminshell.aas.v3.model.Environment} and related files.
      *
      * @param in the InputStream to read
      * @param charset the charset to use
@@ -65,19 +62,20 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset, Lang rdfLanguage) throws DeserializationException {
-        try {
-            return EnvironmentContext.builder()
-                    .environment(deserializer.read(IOUtils.toString(in, charset), rdfLanguage))
-                    .build();
-        }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("RDF deserialization failed", e);
-        }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        // try {
+        //     return EnvironmentContext.builder()
+        //             .environment(deserializer.read(IOUtils.toString(in, charset), rdfLanguage))
+        //             .build();
+        // }
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | IOException e) {
+        //     throw new DeserializationException("RDF deserialization failed", e);
+        // }
     }
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link io.adminshell.aas.v3.model.Environment} and related files.
      *
      * @param file the file to read
      * @param charset the charset to use
@@ -86,17 +84,18 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(File file, Charset charset, Lang rdfLanguage) throws DeserializationException {
-        try (InputStream in = new FileInputStream(file)) {
-            return read(in, charset, rdfLanguage);
-        }
-        catch (IOException e) {
-            throw new DeserializationException(String.format("error while deserializing - file not found (%s)", file), e);
-        }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        // try (InputStream in = new FileInputStream(file)) {
+        //     return read(in, charset, rdfLanguage);
+        // }
+        // catch (IOException e) {
+        //     throw new DeserializationException(String.format("error while deserializing - file not found (%s)", file), e);
+        // }
     }
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link io.adminshell.aas.v3.model.Environment} and related files.
      *
      * @param in the Inputstream to read
      * @param rdfLanguage the RDF language to use
@@ -109,7 +108,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link io.adminshell.aas.v3.model.Environment} and related files.
      *
      * @param file the File to read
      * @param rdfLanguage the RDF language to use

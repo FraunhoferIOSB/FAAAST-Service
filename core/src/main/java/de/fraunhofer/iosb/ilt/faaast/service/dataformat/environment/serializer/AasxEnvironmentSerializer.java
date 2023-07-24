@@ -18,17 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.AASXSerializer;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.AASXSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * AASX serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * AASX serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentSerializer implements EnvironmentSerializer {
@@ -41,12 +41,12 @@ public class AasxEnvironmentSerializer implements EnvironmentSerializer {
 
 
     @Override
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException {
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             serializer.write(environment, files, out);
             return out.toByteArray();
         }
-        catch (io.adminshell.aas.v3.dataformat.SerializationException | IOException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException | IOException e) {
             throw new SerializationException("AASX serialization failed", e);
         }
     }

@@ -26,11 +26,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
 /**
@@ -56,7 +56,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
     public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException {
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
-                .payload(new DefaultAssetAdministrationShellEnvironment.Builder()
+                .payload(new DefaultEnvironment.Builder()
                         .assetAdministrationShells(
                                 request.getAasIds().stream()
                                         .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.get(x, OUTPUT_MODIFIER, AssetAdministrationShell.class)))

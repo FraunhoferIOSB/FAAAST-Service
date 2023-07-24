@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -24,15 +23,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class GlobalAssetIdentification implements AssetIdentification {
 
-    private Reference reference;
+    private String value;
 
-    public Reference getReference() {
-        return reference;
+    public String getValue() {
+        return value;
     }
 
 
-    public void setReference(Reference reference) {
-        this.reference = reference;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 
@@ -45,13 +44,13 @@ public class GlobalAssetIdentification implements AssetIdentification {
             return false;
         }
         GlobalAssetIdentification that = (GlobalAssetIdentification) o;
-        return Objects.equals(reference, that.reference);
+        return Objects.equals(value, that.value);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(reference);
+        return Objects.hash(value);
     }
 
 
@@ -61,8 +60,8 @@ public class GlobalAssetIdentification implements AssetIdentification {
 
     public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B reference(Reference value) {
-            getBuildingInstance().setReference(value);
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
             return getSelf();
         }
     }

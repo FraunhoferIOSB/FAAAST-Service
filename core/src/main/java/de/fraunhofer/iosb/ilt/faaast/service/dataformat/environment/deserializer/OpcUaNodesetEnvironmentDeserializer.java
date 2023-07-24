@@ -19,36 +19,34 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.i4aas.I4AASDeserializer;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import org.apache.commons.io.IOUtils;
 
 
 /**
- * OPC UA Nodeset deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related
+ * OPC UA Nodeset deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related
  * files.
  */
 @SupportedDataformat(DataFormat.UANODESET)
 public class OpcUaNodesetEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    private final I4AASDeserializer deserializer;
+    // private final I4AASDeserializer deserializer;
 
     public OpcUaNodesetEnvironmentDeserializer() {
-        this.deserializer = new I4AASDeserializer();
+        // this.deserializer = new I4AASDeserializer();
     }
 
 
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        try {
-            return EnvironmentContext.builder()
-                    .environment(deserializer.read(IOUtils.toString(in, charset)))
-                    .build();
-        }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("OPC UA Nodeset deserialization failed", e);
-        }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support OPC UA Nodeset de-/serialization");
+        // try {
+        //     return EnvironmentContext.builder()
+        //             .environment(deserializer.read(IOUtils.toString(in, charset)))
+        //             .build();
+        // }
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | IOException e) {
+        //     throw new DeserializationException("OPC UA Nodeset deserialization failed", e);
+        // }
     }
 }

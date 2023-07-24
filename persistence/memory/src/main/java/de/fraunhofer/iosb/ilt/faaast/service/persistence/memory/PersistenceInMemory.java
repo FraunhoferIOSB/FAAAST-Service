@@ -197,7 +197,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<PackageDescription> get(Identifier aasId) {
+    public List<PackageDescription> getAasxPackages(Identifier aasId) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -244,7 +244,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+    public String putAasxPackage(Set<Identifier> aasIds, AASXPackage file, String fileName) {
         throw new UnsupportedOperationException();
     }
 
@@ -295,7 +295,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void remove(String packageId) {
+    public void removeAasxPackage(String packageId) {
         throw new UnsupportedOperationException();
     }
 

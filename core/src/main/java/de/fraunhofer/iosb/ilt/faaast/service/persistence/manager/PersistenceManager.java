@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.manager;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
@@ -26,9 +26,9 @@ public abstract class PersistenceManager {
     protected static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
     protected static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID = "Resource not found by id %s";
 
-    protected AssetAdministrationShellEnvironment aasEnvironment;
+    protected Environment aasEnvironment;
 
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
+    public void setAasEnvironment(Environment aasEnvironment) {
         this.aasEnvironment = aasEnvironment;
     }
 

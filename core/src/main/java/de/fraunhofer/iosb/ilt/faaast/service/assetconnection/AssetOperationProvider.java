@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
 /**

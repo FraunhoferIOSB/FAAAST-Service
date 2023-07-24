@@ -26,14 +26,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 
 
 /**
@@ -55,23 +51,18 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
     @Override
     public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) throws MessageBusException {
         List<AssetIdentification> assetIdentifications = new ArrayList<>();
-        List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
-        for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
+        List<SpecificAssetID> identifierKeyValuePairs = request.getAssetIds();
+        for (SpecificAssetID pair: identifierKeyValuePairs) {
             AssetIdentification id = null;
-            if (pair.getKey().equalsIgnoreCase("globalAssetId")) {
+            if (pair.getName().equalsIgnoreCase("globalAssetId")) {
                 id = new GlobalAssetIdentification.Builder()
-                        .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.GLOBAL_REFERENCE)
-                                .value(pair.getValue())
-                                .build())
-                                .build())
+                        .value(pair.getValue())
                         .build();
             }
             else {
                 id = new SpecificAssetIdentification.Builder()
                         .value(pair.getValue())
-                        .key(pair.getKey())
+                        .key(pair.getName())
                         .build();
             }
             assetIdentifications.add(id);

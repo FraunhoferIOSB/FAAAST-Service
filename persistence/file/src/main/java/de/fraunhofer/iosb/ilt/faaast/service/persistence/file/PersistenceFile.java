@@ -108,8 +108,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public List<PackageDescription> get(Identifier aasId) {
-        return persistence.get(aasId);
+    public List<PackageDescription> getAasxPackages(Identifier aasId) {
+        return persistence.getAasxPackages(aasId);
     }
 
 
@@ -170,8 +170,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
-        String result = persistence.put(aasIds, file, fileName);
+    public String putAasxPackage(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+        String result = persistence.putAasxPackage(aasIds, file, fileName);
         save();
         return result;
     }
@@ -228,8 +228,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public void remove(String packageId) {
-        persistence.remove(packageId);
+    public void removeAasxPackage(String packageId) {
+        persistence.removeAasxPackage(packageId);
         save();
     }
 }

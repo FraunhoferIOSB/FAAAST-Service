@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.certificate;
 
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 
 
 /**

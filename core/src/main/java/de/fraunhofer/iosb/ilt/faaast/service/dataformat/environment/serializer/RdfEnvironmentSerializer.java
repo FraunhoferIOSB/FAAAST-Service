@@ -18,9 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.rdf.Serializer;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,24 +26,26 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * RDF serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * RDF serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentSerializer implements EnvironmentSerializer {
 
     public static final Lang DEFAULT_RDF_LANGUAGE = Lang.TTL;
-    private final Serializer serializer;
+    // private final Serializer serializer;
 
     public RdfEnvironmentSerializer() {
-        this.serializer = new Serializer();
+        // this.serializer = new Serializer();
     }
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
+     * Serializes a {@link io.adminshell.aas.v3.model.Environment} and related files as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -55,27 +54,28 @@ public class RdfEnvironmentSerializer implements EnvironmentSerializer {
      * @return input serialized as byte[]
      * @throws SerializationException if serialization fails
      */
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files, Lang rdfLanguage) throws SerializationException {
-        if (files != null && !files.isEmpty()) {
-            throw new UnsupportedOperationException("serializing file content is not supported for data format RDF");
-        }
-        try {
-            return serializer.write(environment, rdfLanguage).getBytes(charset);
-        }
-        catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
-            throw new SerializationException("RDF serialization failed", e);
-        }
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files, Lang rdfLanguage) throws SerializationException {
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF/JSON-LD de-/serialization");
+        // if (files != null && !files.isEmpty()) {
+        //     throw new UnsupportedOperationException("serializing file content is not supported for data format RDF");
+        // }
+        // try {
+        //     return serializer.write(environment, rdfLanguage).getBytes(charset);
+        // }
+        // catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
+        //     throw new SerializationException("RDF serialization failed", e);
+        // }
     }
 
 
     @Override
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException {
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
         return write(charset, environment, files, DEFAULT_RDF_LANGUAGE);
     }
 
 
     @Override
-    public void write(File file, Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
+    public void write(File file, Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
         try (OutputStream out = new FileOutputStream(file)) {
             out.write(write(charset, environment, files, RDFLanguages.filenameToLang(file.getName(), DEFAULT_RDF_LANGUAGE)));
         }

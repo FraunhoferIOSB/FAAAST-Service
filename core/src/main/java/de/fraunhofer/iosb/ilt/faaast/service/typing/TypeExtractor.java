@@ -17,6 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.typing;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -24,11 +29,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 
 
 /**
@@ -59,7 +59,7 @@ public class TypeExtractor {
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
             SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodelElement;
-            submodelElementCollection.getValues().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            submodelElementCollection.getValue().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
         }
         else if (Entity.class.isAssignableFrom(type)) {
             Entity entity = (Entity) submodelElement;
@@ -67,11 +67,11 @@ public class TypeExtractor {
         }
         else if (Property.class.isAssignableFrom(type)) {
             Property property = (Property) submodelElement;
-            builder.datatype(Datatype.fromName(property.getValueType()));
+            builder.datatype(Datatype.fromAas4jDatatype(property.getValueType()));
         }
         else if (Range.class.isAssignableFrom(type)) {
             Range range = (Range) submodelElement;
-            builder.datatype(Datatype.fromName(range.getValueType()));
+            builder.datatype(Datatype.fromAas4jDatatype(range.getValueType()));
         }
         return builder.build();
     }

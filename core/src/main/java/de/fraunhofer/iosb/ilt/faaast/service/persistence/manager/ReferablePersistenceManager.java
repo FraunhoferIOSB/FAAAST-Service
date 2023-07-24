@@ -23,6 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -31,9 +34,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -96,10 +96,10 @@ public class ReferablePersistenceManager extends PersistenceManager {
             result = ((Submodel) referable).getSubmodelElements();
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
-            result = ((SubmodelElementCollection) referable).getValues();
+            result = ((SubmodelElementCollection) referable).getValue();
         }
         if (semanticId != null) {
-            result.removeIf(x -> !Objects.equals(x.getSemanticId(), semanticId));
+            result.removeIf(x -> !Objects.equals(x.getSemanticID(), semanticId));
         }
         return DeepCopyHelper.deepCopy(result, SubmodelElement.class);
     }
@@ -138,7 +138,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             submodelElements = ((Submodel) referable).getSubmodelElements();
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
-            submodelElements = ((SubmodelElementCollection) referable).getValues();
+            submodelElements = ((SubmodelElementCollection) referable).getValue();
         }
         else {
             throw new IllegalArgumentException(String.format("illegal parent type %s, must be one of %s, %s",
@@ -194,7 +194,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
                     @Override
                     public void visit(SubmodelElementCollection submodelElementCollection) {
                         // type-safety guaranteed
-                        submodelElementCollection.getValues().remove(referable);
+                        submodelElementCollection.getValue().remove(referable);
                     }
 
 

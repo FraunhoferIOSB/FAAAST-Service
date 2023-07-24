@@ -24,19 +24,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
 /**
@@ -55,21 +49,12 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
     @Override
     public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
         AssetAdministrationShell aas = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
-        List<IdentifierKeyValuePair> globalKeys = request.getAssetLinks().stream()
-                .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getKey()))
+        List<SpecificAssetID> globalKeys = request.getAssetLinks().stream()
+                .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getName()))
                 .collect(Collectors.toList());
         if (!globalKeys.isEmpty()) {
             if (globalKeys.size() == 1 && globalKeys.get(0) != null) {
-                Reference parsedReference = AasUtils.parseReference(globalKeys.get(0).getValue());
-                aas.getAssetInformation().setGlobalAssetId(parsedReference != null
-                        ? parsedReference
-                        : new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .idType(KeyType.IRI)
-                                        .type(KeyElements.ASSET)
-                                        .value(globalKeys.get(0).getValue())
-                                        .build())
-                                .build());
+                aas.getAssetInformation().setGlobalAssetID(globalKeys.get(0).getValue());
             }
             else {
                 return PostAllAssetLinksByIdResponse.builder()
@@ -80,12 +65,12 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                         .build();
             }
         }
-        List<IdentifierKeyValuePair> newSpecificAssetIds = request.getAssetLinks().stream()
-                .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))
+        List<SpecificAssetID> newSpecificAssetIds = request.getAssetLinks().stream()
+                .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());
         for (var newSpecificAssetId: newSpecificAssetIds) {
-            List<IdentifierKeyValuePair> existingLinks = aas.getAssetInformation().getSpecificAssetIds().stream()
-                    .filter(x -> Objects.equals(x.getKey(), newSpecificAssetId.getKey()))
+            List<SpecificAssetID> existingLinks = aas.getAssetInformation().getSpecificAssetIds().stream()
+                    .filter(x -> Objects.equals(x.getName(), newSpecificAssetId.getName()))
                     .collect(Collectors.toList());
             if (existingLinks.isEmpty()) {
                 aas.getAssetInformation().getSpecificAssetIds().add(newSpecificAssetId);
@@ -99,18 +84,16 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                         .error(StatusCode.CLIENT_ERROR_BAD_REQUEST,
                                 String.format("error updating specificAssetId - found %d entries for key '%s', but expected only one",
                                         existingLinks.size(),
-                                        newSpecificAssetId.getKey()))
+                                        newSpecificAssetId.getName()))
                         .build();
             }
         }
         aas = persistence.put(aas);
-        List<IdentifierKeyValuePair> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        if (aas.getAssetInformation().getGlobalAssetId() != null
-                && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
-                && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()) {
-            result.add(new DefaultIdentifierKeyValuePair.Builder()
-                    .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                    .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+        List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        if (aas.getAssetInformation().getGlobalAssetID() != null) {
+            result.add(new DefaultSpecificAssetID.Builder()
+                    .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                    .value(aas.getAssetInformation().getGlobalAssetID())
                     .build());
         }
         return PostAllAssetLinksByIdResponse.builder()

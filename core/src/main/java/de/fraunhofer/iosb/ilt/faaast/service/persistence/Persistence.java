@@ -23,23 +23,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import java.util.List;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import java.util.List;
-import java.util.Set;
 
 
 /**
  * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
  * delete actions with the element in the corresponding
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
+ * {@link io.adminshell.aas.v3.model.Environment}. Each persistence instance needs one instance
  * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
  *
  * @param <C> type of the corresponding configuration class
@@ -61,7 +60,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws IllegalArgumentException if modifier is null
      * @throws IllegalArgumentException if type is null
      */
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException;
+    public <T extends Identifiable> T get(String id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException;
 
 
     /**
@@ -152,11 +151,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Get the AssetAdministrationShellEnvironment.
+     * Get the Environment.
      *
-     * @return AssetAdministrationShellEnvironment
+     * @return Environment
      */
-    public AssetAdministrationShellEnvironment getEnvironment();
+    public Environment getEnvironment();
 
 
     /**
@@ -191,7 +190,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param fileName of the AASX package
      * @return the updated AASX package
      */
-    public AASXPackage put(String packageId, Set<Identifier> aasIds, AASXPackage file, String fileName);
+    public AASXPackage put(String packageId, Set<String> aasIds, AASXPackage file, String fileName);
 
 
     /**
@@ -200,7 +199,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param id of the Identifiable
      * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if resource is not found
      */
-    public void remove(Identifier id) throws ResourceNotFoundException;
+    public void remove(String id) throws ResourceNotFoundException;
 
 
     /**
@@ -217,7 +216,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param packageId of the AASX package to be removed
      */
-    public void remove(String packageId);
+    public void removeAasxPackage(String packageId);
 
 
     /**
@@ -227,7 +226,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param aasId of AASX packages which should be considered. This parameter is optional and may be null
      * @return List of package descriptions
      */
-    public List<PackageDescription> get(Identifier aasId);
+    public List<PackageDescription> getAasxPackages(String aasId);
 
 
     /**
@@ -238,7 +237,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param fileName of the AASX package
      * @return the package id of the created AASX package
      */
-    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName);
+    public String putAasxPackage(Set<String> aasIds, AASXPackage file, String fileName);
 
 
     /**

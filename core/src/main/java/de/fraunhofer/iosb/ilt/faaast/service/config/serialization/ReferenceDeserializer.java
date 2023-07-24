@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import java.io.IOException;
 
 
 /**

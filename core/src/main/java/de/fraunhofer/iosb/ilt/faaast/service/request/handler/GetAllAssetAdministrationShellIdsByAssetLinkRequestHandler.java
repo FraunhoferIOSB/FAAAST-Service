@@ -21,12 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdmin
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 
 
 /**
@@ -49,19 +48,16 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
     public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request) {
         // TODO update Persistence interface to forward query; specification does not say whether to use AND or OR on global/specific assetIds
         List<String> globalAssetIds = request.getAssetIdentifierPairs().stream()
-                .filter(x -> Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))
-                .map(IdentifierKeyValuePair::getValue)
+                .filter(x -> Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
+                .map(SpecificAssetID::getValue)
                 .collect(Collectors.toList());
-        List<IdentifierKeyValuePair> specificAssetIds = request.getAssetIdentifierPairs().stream()
-                .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))
+        List<SpecificAssetID> specificAssetIds = request.getAssetIdentifierPairs().stream()
+                .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());
-        List<Identifier> result = persistence.getEnvironment().getAssetAdministrationShells().stream()
+        List<String> result = persistence.getEnvironment().getAssetAdministrationShells().stream()
                 .filter(aas -> {
-                    boolean globalMatch = aas.getAssetInformation().getGlobalAssetId() != null
-                            && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
-                            && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()
-                            && globalAssetIds.contains(
-                                    aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue());
+                    boolean globalMatch = aas.getAssetInformation().getGlobalAssetID() != null
+                            && globalAssetIds.contains(aas.getAssetInformation().getGlobalAssetID());
                     boolean specificMatch = specificAssetIds.stream().allMatch(x -> aas.getAssetInformation().getSpecificAssetIds().contains(x));
                     if (!globalAssetIds.isEmpty() && specificAssetIds.isEmpty()) {
                         return globalMatch;
@@ -74,7 +70,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
                     }
                     return true;
                 })
-                .map(Identifiable::getIdentification)
+                .map(Identifiable::getId)
                 .collect(Collectors.toList());
         return GetAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
                 .payload(result)

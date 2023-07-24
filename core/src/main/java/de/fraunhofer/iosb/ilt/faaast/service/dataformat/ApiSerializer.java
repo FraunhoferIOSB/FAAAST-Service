@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Seriliazer for API calls. Serializes not only whole
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but also other elements like
+ * {@link io.adminshell.aas.v3.model.Environment} but also other elements like
  * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel} or
  * {@link io.adminshell.aas.v3.model.SubmodelElement} supporting {@link OutputModifier}.
  */

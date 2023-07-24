@@ -73,8 +73,8 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
                             .noneMatch(x -> ReferenceHelper.isEqualsIgnoringKeyType(x, submodelRef))) {
                 throw new ResourceNotFoundException(String.format(
                         "AAS does not contain requested submodel (aasId: %s, submodelId: %s)",
-                        request.getAasId().getIdentifier(),
-                        request.getSubmodelId().getIdentifier()));
+                        request.getAasId(),
+                        request.getSubmodelId()));
             }
         }
     }

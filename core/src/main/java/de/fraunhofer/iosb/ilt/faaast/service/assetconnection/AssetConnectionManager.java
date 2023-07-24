@@ -26,10 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierType;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.LoggerFactory;
 
 
@@ -136,10 +134,7 @@ public class AssetConnectionManager {
             try {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
                     Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
-                            .submodelId(new DefaultIdentifier.Builder()
-                                    .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
-                                    .idType(IdentifierType.IRI)
-                                    .build())
+                            .submodelId(subscriptionInfo.getKey().getKeys().get(0).getValue())
                             .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
                             .internal()
                             .value(data)

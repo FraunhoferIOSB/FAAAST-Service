@@ -23,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**

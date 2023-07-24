@@ -23,11 +23,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifierKeyValuePair;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
 /**
@@ -46,13 +46,11 @@ public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<G
     @Override
     public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
         AssetAdministrationShell aas = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
-        List<IdentifierKeyValuePair> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        if (aas.getAssetInformation().getGlobalAssetId() != null
-                && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
-                && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()) {
-            result.add(new DefaultIdentifierKeyValuePair.Builder()
-                    .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                    .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+        List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        if (aas.getAssetInformation().getGlobalAssetID() != null) {
+            result.add(new DefaultSpecificAssetID.Builder()
+                    .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                    .value(aas.getAssetInformation().getGlobalAssetID())
                     .build());
         }
         return GetAllAssetLinksByIdResponse.builder()

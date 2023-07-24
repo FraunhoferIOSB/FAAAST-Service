@@ -18,37 +18,35 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.i4aas.I4AASSerializer;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * OPC UA Nodeset serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related
- * files.
+ * OPC UA Nodeset serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.UANODESET)
 public class OpcUaNodesetEnvironmentSerializer implements EnvironmentSerializer {
 
-    private final I4AASSerializer serializer;
-
+    // private final I4AASSerializer serializer;
     public OpcUaNodesetEnvironmentSerializer() {
-        this.serializer = new I4AASSerializer();
+        // this.serializer = new I4AASSerializer();
     }
 
 
     @Override
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException {
-        if (files != null && !files.isEmpty()) {
-            throw new UnsupportedOperationException("serializing file content is not supported for data format OPC UA Nodeset");
-        }
-        try {
-            return serializer.write(environment).getBytes(charset);
-        }
-        catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
-            throw new SerializationException("OPC UA Nodeset serialization failed", e);
-        }
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support OPC UA Nodeset de-/serialization");
+        // if (files != null && !files.isEmpty()) {
+        //     throw new UnsupportedOperationException("serializing file content is not supported for data format OPC UA Nodeset");
+        // }
+        // try {
+        //     return serializer.write(environment).getBytes(charset);
+        // }
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException e) {
+        //     throw new SerializationException("OPC UA Nodeset serialization failed", e);
+        // }
     }
 }

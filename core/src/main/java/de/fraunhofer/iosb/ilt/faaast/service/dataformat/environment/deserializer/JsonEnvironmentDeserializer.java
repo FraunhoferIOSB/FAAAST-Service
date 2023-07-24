@@ -19,13 +19,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 
 
 /**
- * JSON deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * JSON deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
@@ -44,7 +44,7 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
                     .environment(deserializer.read(in, charset))
                     .build();
         }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

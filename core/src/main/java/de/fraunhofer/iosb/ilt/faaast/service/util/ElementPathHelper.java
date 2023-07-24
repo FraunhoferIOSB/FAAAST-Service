@@ -15,17 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
@@ -88,8 +88,7 @@ public class ElementPathHelper {
                 .map(x -> {
                     try {
                         Key key = ConstructorUtils.invokeConstructor(ReflectionHelper.getDefaultImplementation(Key.class));
-                        key.setIdType(IdentifierHelper.guessKeyType(x));
-                        key.setType(KeyElements.SUBMODEL_ELEMENT);
+                        key.setType(KeyTypes.SUBMODEL_ELEMENT);
                         key.setValue(x);
                         return key;
                     }

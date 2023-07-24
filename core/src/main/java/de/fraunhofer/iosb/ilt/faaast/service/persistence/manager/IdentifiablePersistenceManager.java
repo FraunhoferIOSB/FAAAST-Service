@@ -22,17 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Asset;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifierKeyValuePair;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +30,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
 /**
@@ -71,19 +68,18 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * @return the Identifiable
      * @throws ResourceNotFoundException if resource is not found
      */
-    public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
+    public <T extends Identifiable> T getIdentifiableById(String id) throws ResourceNotFoundException {
         ensureInitialized();
         if (id == null) {
             return null;
         }
         return (T) Stream.of(aasEnvironment.getAssetAdministrationShells(),
                 aasEnvironment.getSubmodels(),
-                aasEnvironment.getConceptDescriptions(),
-                aasEnvironment.getAssets())
+                aasEnvironment.getConceptDescriptions())
                 .flatMap(Collection::stream)
-                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier()))
+                .filter(x -> x.getId().equalsIgnoreCase(id))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id))));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, id)));
     }
 
 
@@ -111,14 +107,14 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                                 && assetIds.stream()
                                         .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
                                         .map(GlobalAssetIdentification.class::cast)
-                                        .anyMatch(x -> Objects.equal(aas.getAssetInformation().getGlobalAssetId(), x.getReference()))))
+                                        .anyMatch(x -> Objects.equal(aas.getAssetInformation().getGlobalAssetID(), x.getValue()))))
                 // specificAssetId
                 .filter(aas -> assetIds == null || assetIds.stream().noneMatch(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
                         || (aas.getAssetInformation() != null
                                 && assetIds.stream()
                                         .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
-                                        .map(x -> new DefaultIdentifierKeyValuePair.Builder()
-                                                .key(((SpecificAssetIdentification) x).getKey())
+                                        .map(x -> new DefaultSpecificAssetID.Builder()
+                                                .name(((SpecificAssetIdentification) x).getKey())
                                                 .value(((SpecificAssetIdentification) x).getValue())
                                                 .build())
                                         .anyMatch(x -> aas.getAssetInformation().getSpecificAssetIds().contains(x))))
@@ -140,8 +136,8 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         List<Submodel> result = aasEnvironment.getSubmodels()
                 .stream()
                 .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
-                .filter(x -> semanticId == null || (x.getSemanticId() != null
-                        && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId)))
+                .filter(x -> semanticId == null || (x.getSemanticID() != null
+                        && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticID(), semanticId)))
                 .collect(Collectors.toList());
         return DeepCopyHelper.deepCopy(result, Submodel.class);
     }
@@ -160,7 +156,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         ensureInitialized();
         List<ConceptDescription> result = aasEnvironment.getConceptDescriptions().stream()
                 .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
-                .filter(x -> isCaseOf == null || x.getIsCaseOfs().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf)))
+                .filter(x -> isCaseOf == null || x.getIsCaseOf().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf)))
                 .filter(x -> dataSpecification == null
                         || (x.getEmbeddedDataSpecifications() != null
                                 && x.getEmbeddedDataSpecifications().stream()
@@ -183,15 +179,14 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * @param id of the indetifiable which should be removed
      * @throws ResourceNotFoundException if there is no identifiable with such an identifer
      */
-    public void remove(Identifier id) throws ResourceNotFoundException {
+    public void remove(String id) throws ResourceNotFoundException {
         ensureInitialized();
         if (id == null) {
             return;
         }
-        Predicate<Identifiable> predicate = x -> x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier());
+        Predicate<Identifiable> predicate = x -> x.getId().equalsIgnoreCase(id);
         if (aasEnvironment.getAssetAdministrationShells().removeIf(predicate)
-                || aasEnvironment.getConceptDescriptions().removeIf(predicate)
-                || aasEnvironment.getAssets().removeIf(predicate)) {
+                || aasEnvironment.getConceptDescriptions().removeIf(predicate)) {
             return;
         }
         Optional<Submodel> submodelToDelete = aasEnvironment.getSubmodels().stream().filter(predicate).findAny();
@@ -201,7 +196,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             aasEnvironment.getAssetAdministrationShells().forEach(x -> x.getSubmodels().remove(submodelRef));
             return;
         }
-        throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
+        throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, id));
     }
 
 
@@ -230,16 +225,12 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         else if (ConceptDescription.class.isAssignableFrom(identifiable.getClass())) {
             list = aasEnvironment.getConceptDescriptions();
         }
-        else if (Asset.class.isAssignableFrom(identifiable.getClass())) {
-            list = aasEnvironment.getAssets();
-        }
         else {
             throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s, %s",
                     identifiable.getClass(),
                     Submodel.class,
                     AssetAdministrationShell.class,
-                    ConceptDescription.class,
-                    Asset.class));
+                    ConceptDescription.class));
         }
         EnvironmentHelper.updateIdentifiableList(list, identifiable);
         return identifiable;
