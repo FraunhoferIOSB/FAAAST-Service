@@ -94,21 +94,42 @@ public class ExternalSegment extends Segment {
         return data.getValue();
     }
 
-
     /**
      * Sets the data.
      *
      * @param data the data to set. Either File or Blob. Other data is ignored.
      */
-    public void setData(DataElement data) {
-        if (data instanceof File) {
-            this.file.setValue((File) data);
-            this.data = this.file;
-        }
-        else if (data instanceof Blob) {
-            this.blob.setValue((Blob) data);
-            this.data = this.blob;
-        }
+    //    public void setData(DataElement data) {
+    //        if (data instanceof File) {
+    //            this.file.setValue((File) data);
+    //            this.data = this.file;
+    //        }
+    //        else if (data instanceof Blob) {
+    //            this.blob.setValue((Blob) data);
+    //            this.data = this.blob;
+    //        }
+    //    }
+
+
+    /**
+     * Sets the data, if data is of type File.
+     *
+     * @param data the data to set.
+     */
+    public void setData(File data) {
+        this.file.setValue(data);
+        this.data = this.file;
+    }
+
+
+    /**
+     * Sets the data, if data is of type Blob.
+     *
+     * @param data the data to set. Either File or Blob. Other data is ignored.
+     */
+    public void setData(Blob data) {
+        this.blob.setValue(data);
+        this.data = this.blob;
     }
 
 
@@ -142,24 +163,24 @@ public class ExternalSegment extends Segment {
     public abstract static class AbstractBuilder<T extends ExternalSegment, B extends AbstractBuilder<T, B>> extends Segment.AbstractBuilder<T, B> {
 
         public B file(File value) {
-            //            if (getBuildingInstance().getBlob() == null) { //TODO: alternatively remove blob?
-            //                getBuildingInstance().setFile(value);                
-            //            }
             getBuildingInstance().setData(value);
             return getSelf();
         }
 
 
         public B blob(Blob value) {
-            //            if (getBuildingInstance().getFile() == null) { //TODO: alternatively remove file? 
-            //                getBuildingInstance().setBlob(value);                
-            //            }
             getBuildingInstance().setData(value);
             return getSelf();
         }
 
 
-        public B data(DataElement value) {
+        public B data(File value) {
+            getBuildingInstance().setData(value);
+            return getSelf();
+        }
+
+
+        public B data(Blob value) {
             getBuildingInstance().setData(value);
             return getSelf();
         }

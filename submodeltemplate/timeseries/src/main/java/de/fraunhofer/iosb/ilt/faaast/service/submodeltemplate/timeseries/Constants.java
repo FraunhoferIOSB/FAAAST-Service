@@ -43,7 +43,7 @@ public class Constants {
     public static final String SEGMENT_STATE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1";
     public static final String SEGMENT_LAST_UPDATE_ID_SHORT = "LastUpdate";
     public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/ExternalSegment/1/1";
-    public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries//File/1/1";
+    public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/File/1/1";
     public static final String BLOB_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Blob/1/1";
     public static final String LINKED_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/LinkedSegment/1/1";
     public static final String LINKED_SEGMENT_ENDPOINT_ID_SHORT = "Endpoint";

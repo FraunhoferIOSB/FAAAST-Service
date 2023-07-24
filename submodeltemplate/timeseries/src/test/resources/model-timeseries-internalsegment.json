@@ -11,7 +11,7 @@
 		"keys": [
 			{
 				"type": "GlobalReference",
-				"value": "https://admin-shell.io/idta/timeseries/1/1/Submodel",
+				"value": "https://admin-shell.io/idta/TimeSeries/1/1",
 				"idType": "Iri"
 			}
 		]
@@ -29,7 +29,7 @@
 				"keys": [
 					{
 						"type": "GlobalReference",
-						"value": "https://admin-shell.io/idta/timeseries/Metadata/1/1",
+						"value": "https://admin-shell.io/idta/TimeSeries/Metadata/1/1",
 						"idType": "Iri"
 					}
 				]
@@ -47,7 +47,7 @@
 						"keys": [
 							{
 								"type": "GlobalReference",
-								"value": "https://admin-shell.io/idta/timeseries/Record/1/1",
+								"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1",
 								"idType": "Iri"
 							}
 						]
@@ -93,7 +93,7 @@
 						"keys": [
 							{
 								"type": "GlobalReference",
-								"value": "https://admin-shell.io/idta/timeseries/Segments/InternalSegment/1/1",
+								"value": "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1",
 								"idType": "Iri"
 							}
 						]
@@ -117,7 +117,7 @@
 										"keys": [
 											{
 												"type": "GlobalReference",
-												"value": "https://admin-shell.io/idta/timeseries/Record/1/1",
+												"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1",
 												"idType": "Iri"
 											}
 										]
@@ -140,7 +140,7 @@
 												"keys": [
 													{
 														"type": "GlobalReference",
-														"value": "https://admin-shell.io/idta/timeseries/UtcTime/1/1",
+														"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1",
 														"idType": "Iri"
 													}
 												]
