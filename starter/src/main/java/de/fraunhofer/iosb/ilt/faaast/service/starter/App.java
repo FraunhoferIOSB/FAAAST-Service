@@ -42,7 +42,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConf
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.BuildTimeScanner;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -178,8 +177,6 @@ public class App implements Runnable {
      * @param args CLI arguments
      */
     public static void main(String[] args) {
-        BuildTimeScanner.scanFromRoot();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

@@ -21,13 +21,12 @@ import java.util.Scanner;
 
 
 /**
- * Creates a classgraph once to be saved and loaded in a json file.
+ * Creates a classgraph once at build-time to be saved and loaded in a json file.
  */
 public class BuildTimeScanner {
     private static final String SCAN_ROOT = "de.fraunhofer.iosb.ilt.faaast.service";
     private static final int INDENT_WIDTH = 2;
-    private static final String OUTPUT_FILENAME = "scanresult.json";
-    private static final String RESOURCE_PATH_FILENAME = "resource_path.txt";
+    private static final String OUTPUT_FILENAME = "classgraphScanResult.json";
 
     private BuildTimeScanner() {
         // intentionally empty
@@ -35,10 +34,17 @@ public class BuildTimeScanner {
 
 
     /**
-     * Creates a classgraph instance for the whole project and saves it as a json file.
+     * Main entry for build-time scanning.
+     *
+     * @param args dir for outputting the json file.
+     * @throws Exception
      */
-    public static void scanFromRoot() {
-        File jsonFile = new File(getResourcePath(), OUTPUT_FILENAME);
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            throw new RuntimeException("Please specify output directory");
+        }
+        String dir = args[0];
+        File jsonFile = new File(dir, OUTPUT_FILENAME);
         try (ScanResult scanResult = new ClassGraph()
                 .acceptPackages(SCAN_ROOT)
                 .enableAllInfo()
@@ -51,17 +57,6 @@ public class BuildTimeScanner {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-
-    private static String getResourcePath() {
-        InputStream inputStream = BuildTimeScanner.class.getClassLoader().getResourceAsStream(RESOURCE_PATH_FILENAME);
-        Scanner scanner = new Scanner(inputStream);
-        StringBuilder jsonStringBuilder = new StringBuilder();
-        while (scanner.hasNextLine()) {
-            jsonStringBuilder.append(scanner.nextLine());
-        }
-        return jsonStringBuilder.toString();
     }
 
 
