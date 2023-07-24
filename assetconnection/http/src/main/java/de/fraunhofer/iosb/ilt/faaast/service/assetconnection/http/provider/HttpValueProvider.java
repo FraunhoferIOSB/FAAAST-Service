@@ -96,8 +96,11 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
             }
             return response.body();
         }
-        catch (IOException | InterruptedException | URISyntaxException e) {
+        catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
+        }
+        catch (IOException | URISyntaxException e) {
             throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
         }
     }

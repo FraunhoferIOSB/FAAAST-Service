@@ -118,6 +118,17 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>model</artifactId>
+            <version>${aas.model.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- currently not present in aas4j, TODO: reintegrate once available -->
         <!--<dependency>
@@ -129,11 +140,6 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>${json-smart.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-shacl</artifactId>
-            <version>${jena.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>

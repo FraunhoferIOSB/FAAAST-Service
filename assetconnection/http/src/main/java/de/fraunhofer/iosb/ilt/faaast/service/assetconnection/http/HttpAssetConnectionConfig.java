@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -37,9 +38,11 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     private String username;
     private String password;
     private Map<String, String> headers;
+    private CertificateConfig trustedCertificates;
 
     public HttpAssetConnectionConfig() {
         this.headers = new HashMap<>();
+        this.trustedCertificates = CertificateConfig.builder().build();
     }
 
 
@@ -83,9 +86,19 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
+    public CertificateConfig getTrustedCertificates() {
+        return trustedCertificates;
+    }
+
+
+    public void setTrustedCertificates(CertificateConfig trustedCertificates) {
+        this.trustedCertificates = trustedCertificates;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, username, password, headers);
+        return Objects.hash(baseUrl, username, password, headers, trustedCertificates);
     }
 
 
@@ -105,7 +118,8 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
                 && Objects.equals(this.baseUrl, other.baseUrl)
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password)
-                && Objects.equals(this.headers, other.headers);
+                && Objects.equals(this.headers, other.headers)
+                && Objects.equals(this.trustedCertificates, other.trustedCertificates);
     }
 
 
@@ -149,6 +163,12 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
         public B header(String name, String value) {
             getBuildingInstance().getHeaders().put(name, value);
+            return getSelf();
+        }
+
+
+        public B trustedCertificates(CertificateConfig value) {
+            getBuildingInstance().setTrustedCertificates(value);
             return getSelf();
         }
 

@@ -15,10 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
@@ -31,13 +33,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class PostAssetAdministrationShellRequestHandler extends AbstractRequestHandler<PostAssetAdministrationShellRequest, PostAssetAdministrationShellResponse> {
 
-    public PostAssetAdministrationShellRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PostAssetAdministrationShellRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
     public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
+        ModelValidator.validate(request.getAas(), coreConfig.getValidationOnCreate());
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(shell)

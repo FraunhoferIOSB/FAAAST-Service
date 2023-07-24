@@ -16,14 +16,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -38,13 +41,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSubmodelByIdRequest, PutSubmodelByIdResponse> {
 
-    public PutSubmodelByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PutSubmodelByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
+    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException {
+        ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnUpdate());
         //check if resource does exist
         persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT, Submodel.class);
         Submodel submodel = persistence.put(request.getSubmodel());

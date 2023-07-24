@@ -180,6 +180,9 @@ public class RequestHandlerManagerTest {
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_1.getSubmodelElements().get(0);
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
 
+    private static final CoreConfig coreConfigWithConstraintValidation = CoreConfig.builder()
+            .validateConstraints(true)
+            .build();
     private static CoreConfig coreConfig;
     private static AssetAdministrationShellEnvironment environment;
     private static MessageBus messageBus;
@@ -192,7 +195,7 @@ public class RequestHandlerManagerTest {
     @Before
     public void createRequestHandlerManager() throws ConfigurationException, AssetConnectionException {
         environment = AASFull.createEnvironment();
-        coreConfig = CoreConfig.builder().build();
+        coreConfig = CoreConfig.DEFAULT;
         messageBus = mock(MessageBus.class);
         persistence = mock(Persistence.class);
         serviceContext = mock(ServiceContext.class);
@@ -288,6 +291,17 @@ public class RequestHandlerManagerTest {
 
 
     @Test
+    public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
+        PostAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PostAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder()
+                                .build())
+                        .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
+    }
+
+
+    @Test
     public void testGetAssetAdministrationShellByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getAssetAdministrationShells().get(0).getIdentification(), OutputModifier.DEFAULT, AssetAdministrationShell.class))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
@@ -368,6 +382,16 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
+        PutAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PutAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder().build())
+                        .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
 
@@ -524,6 +548,21 @@ public class RequestHandlerManagerTest {
     }
 
 
+    public void testPostSubmodelRequestDuplicateIdShort() throws ResourceNotFoundException, Exception {
+        PostSubmodelResponse actual = manager.execute(new PostSubmodelRequest.Builder()
+                .submodel(new DefaultSubmodel.Builder()
+                        .submodelElement(new DefaultProperty.Builder()
+                                .idShort("foo")
+                                .build())
+                        .submodelElement(new DefaultProperty.Builder()
+                                .idShort("foo")
+                                .build())
+                        .build())
+                .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
+    }
+
+
     @Test
     public void testGetSubmodelByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getSubmodels().get(0).getIdentification(), OutputModifier.DEFAULT, Submodel.class))
@@ -647,6 +686,18 @@ public class RequestHandlerManagerTest {
 
 
     @Test
+    public void testPostSubmodelElementRequestInvalidValueType() throws ResourceNotFoundException, Exception {
+        PostSubmodelElementResponse actual = manager.execute(new PostSubmodelElementRequest.Builder()
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
+                .submodelElement(new DefaultProperty.Builder()
+                        .valueType("invalidValueType")
+                        .build())
+                .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
+    }
+
+
+    @Test
     public void testGetSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement cur_submodelElement = new DefaultProperty.Builder()
@@ -685,6 +736,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getIdentification())
+                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
@@ -980,6 +1032,16 @@ public class RequestHandlerManagerTest {
 
 
     @Test
+    public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
+        PostConceptDescriptionResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
+                .execute(new PostConceptDescriptionRequest.Builder()
+                        .conceptDescription(new DefaultConceptDescription.Builder().build())
+                        .build());
+        Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
+    }
+
+
+    @Test
     public void testGetConceptDescriptionByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getConceptDescriptions().get(0).getIdentification(), OutputModifier.DEFAULT, ConceptDescription.class))
                 .thenReturn(environment.getConceptDescriptions().get(0));
@@ -1108,7 +1170,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
-        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(coreConfig, persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .value("sub")

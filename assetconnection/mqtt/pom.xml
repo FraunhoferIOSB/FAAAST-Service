@@ -47,16 +47,20 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2-mvstore</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.bugsnag</groupId>
                     <artifactId>bugsnag</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>io.netty</groupId>
-                    <artifactId>netty-codec</artifactId>
+                    <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-codec-http</artifactId>
+                    <groupId>com.librato.metrics</groupId>
+                    <artifactId>librato-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

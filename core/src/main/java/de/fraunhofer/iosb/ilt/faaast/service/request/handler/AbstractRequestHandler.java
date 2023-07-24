@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -49,11 +50,13 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
  */
 public abstract class AbstractRequestHandler<I extends Request<O>, O extends Response> {
 
+    protected final CoreConfig coreConfig;
     protected final Persistence<?> persistence;
     protected final MessageBus messageBus;
     protected final AssetConnectionManager assetConnectionManager;
 
-    protected AbstractRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    protected AbstractRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        this.coreConfig = coreConfig;
         this.persistence = persistence;
         this.messageBus = messageBus;
         this.assetConnectionManager = assetConnectionManager;

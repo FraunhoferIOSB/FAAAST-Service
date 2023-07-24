@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import io.github.classgraph.ClassGraph;
@@ -69,6 +70,7 @@ public class RequestHandlerManager {
     private void init() {
         // TODO implement build-time scan to improve performance (see https://github.com/classgraph/classgraph/wiki/Build-Time-Scanning)
         final Object[] constructorArgs = new Object[] {
+                coreConfig,
                 persistence,
                 messageBus,
                 assetConnectionManager
@@ -155,6 +157,9 @@ public class RequestHandlerManager {
         }
         catch (ResourceNotFoundException e) {
             return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
+        }
+        catch (ValidationException e) {
+            return createResponse(request, StatusCode.CLIENT_ERROR_BAD_REQUEST, MessageType.ERROR, e);
         }
     }
 

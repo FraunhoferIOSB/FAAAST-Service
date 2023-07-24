@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import java.util.Objects;
 
@@ -26,9 +27,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final int DEFAULT_PORT = 8080;
     private int port;
     private boolean corsEnabled;
+    private boolean httpsEnabled;
+    private CertificateConfig certificate;
 
     public HttpEndpointConfig() {
         this.port = DEFAULT_PORT;
+        this.certificate = CertificateConfig.builder()
+                .build();
     }
 
 
@@ -42,6 +47,36 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public boolean isCorsEnabled() {
+        return corsEnabled;
+    }
+
+
+    public void setCorsEnabled(boolean corsEnabled) {
+        this.corsEnabled = corsEnabled;
+    }
+
+
+    public boolean isHttpsEnabled() {
+        return httpsEnabled;
+    }
+
+
+    public void setHttpsEnabled(boolean httpsEnabled) {
+        this.httpsEnabled = httpsEnabled;
+    }
+
+
+    public CertificateConfig getCertificate() {
+        return certificate;
+    }
+
+
+    public void setCertificate(CertificateConfig certificate) {
+        this.certificate = certificate;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -51,13 +86,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             return false;
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
-        return Objects.equals(port, that.port);
+        return Objects.equals(port, that.port)
+                && Objects.equals(corsEnabled, that.corsEnabled)
+                && Objects.equals(httpsEnabled, that.httpsEnabled)
+                && Objects.equals(certificate, that.certificate);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port);
+        return Objects.hash(port, corsEnabled, httpsEnabled, certificate);
     }
 
 
@@ -77,6 +115,18 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             getBuildingInstance().setCorsEnabled(value);
             return getSelf();
         }
+
+
+        public B https(boolean value) {
+            getBuildingInstance().setHttpsEnabled(value);
+            return getSelf();
+        }
+
+
+        public B certificate(CertificateConfig value) {
+            getBuildingInstance().setCertificate(value);
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<HttpEndpointConfig, Builder> {
@@ -93,12 +143,4 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
     }
 
-    public boolean isCorsEnabled() {
-        return corsEnabled;
-    }
-
-
-    public void setCorsEnabled(boolean corsEnabled) {
-        this.corsEnabled = corsEnabled;
-    }
 }

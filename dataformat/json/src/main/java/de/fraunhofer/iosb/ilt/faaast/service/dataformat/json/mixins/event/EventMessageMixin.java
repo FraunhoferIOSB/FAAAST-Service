@@ -12,20 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.test.util;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import org.junit.Assert;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 
-public class PortHelper {
+/**
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue} when used in message bus events. As
+ * in this case no context informatino is available it needs to be embedded when serialising.
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonTypeIdResolver(EventMessageIdResolver.class)
+public interface EventMessageMixin {
 
-    public static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
 }

@@ -18,7 +18,9 @@ import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
@@ -223,28 +225,34 @@ public class OpcUaHelper {
     private static IdentityProvider getIdentityProviderCertificate(OpcUaAssetConnectionConfig config)
             throws ConfigurationInitializationException {
         IdentityProvider retval;
-        if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
-            File authenticationCertificateFile = config.getAuthenticationCertificateFile();
+        if (Objects.nonNull(config.getAuthenticationCertificate()) && Objects.nonNull(config.getAuthenticationCertificate().getKeyStorePath())) {
+            File authenticationCertificateFile = new File(config.getAuthenticationCertificate().getKeyStorePath());
             if (!authenticationCertificateFile.exists()) {
                 authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
             }
             if (authenticationCertificateFile.exists()) {
                 try {
-                    CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                    CertificateData certificateData = KeyStoreHelper.loadOrCreateCertificateData(
+                            CertificateConfig.builder()
+                                    .keyStoreType(config.getAuthenticationCertificate().getKeyStoreType())
+                                    .keyStorePath(authenticationCertificateFile)
+                                    .keyStorePassword(config.getAuthenticationCertificate().getKeyStorePassword())
+                                    .keyPassword(config.getAuthenticationCertificate().getKeyPassword())
+                                    .build(),
                             OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
                     retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
                 }
                 catch (IOException | GeneralSecurityException e) {
                     throw new ConfigurationInitializationException(String.format(
                             "error loading OPC UA client authentication certificate file (file: %s)",
-                            config.getAuthenticationCertificateFile()),
+                            config.getAuthenticationCertificate().getKeyStorePath()),
                             e);
                 }
             }
             else {
                 throw new ConfigurationInitializationException(String.format(
                         "OPC UA client authentication certificate file not found (file: %s)",
-                        config.getAuthenticationCertificateFile()));
+                        config.getAuthenticationCertificate().getKeyStorePath()));
             }
         }
         else {
@@ -273,9 +281,9 @@ public class OpcUaHelper {
     }
 
 
-    private static Optional<CertificateData> loadCertificate(File file, String password) {
+    private static Optional<CertificateData> loadCertificate(File file, String keyStoreType, String keyAlias, String keyPassword, String keyStorePassword) {
         try {
-            return Optional.of(KeystoreHelper.load(file, password));
+            return Optional.of(KeyStoreHelper.loadCertificateData(file, keyStoreType, keyAlias, keyPassword, keyStorePassword));
         }
         catch (IOException | GeneralSecurityException e) {
             return Optional.empty();
@@ -288,13 +296,28 @@ public class OpcUaHelper {
      *
      * @param securityBaseDir the security base dir
      * @param certificateFile the keystore file
-     * @param certificatePassword the password for the keystore
+     * @param keyStoreType type of the keyStore
+     * @param keyAlias key alias to use
+     * @param keyPassword key password to use
+     * @param keyStorePassword keyStore password to use
      * @return the certificate data
      * @throws ConfigurationInitializationException if loading fails
      */
-    public static CertificateData loadAuthenticationCertificate(Path securityBaseDir, File certificateFile, String certificatePassword)
+    public static CertificateData loadAuthenticationCertificate(
+                                                                Path securityBaseDir,
+                                                                File certificateFile,
+                                                                String keyStoreType,
+                                                                String keyAlias,
+                                                                String keyPassword,
+                                                                String keyStorePassword)
             throws ConfigurationInitializationException {
-        return loadCertificate("authentication", securityBaseDir, certificateFile, certificatePassword);
+        return loadCertificate("authentication",
+                securityBaseDir,
+                certificateFile,
+                keyStoreType,
+                keyAlias,
+                keyPassword,
+                keyStorePassword);
     }
 
 
@@ -303,34 +326,50 @@ public class OpcUaHelper {
      *
      * @param securityBaseDir the security base dir
      * @param certificateFile the keystore file
-     * @param certificatePassword the password for the keystore
+     * @param keyStoreType type of the keyStore
+     * @param keyAlias key alias to use
+     * @param keyPassword key password to use
+     * @param keyStorePassword keyStore password to use
      * @return the certificate data
      * @throws ConfigurationInitializationException if loading fails
      */
-    public static CertificateData loadApplicationCertificate(Path securityBaseDir, File certificateFile, String certificatePassword) throws ConfigurationInitializationException {
-        return loadCertificate("application", securityBaseDir, certificateFile, certificatePassword);
+    public static CertificateData loadApplicationCertificate(Path securityBaseDir,
+                                                             File certificateFile,
+                                                             String keyStoreType,
+                                                             String keyAlias,
+                                                             String keyPassword,
+                                                             String keyStorePassword)
+            throws ConfigurationInitializationException {
+        return loadCertificate("application", securityBaseDir, certificateFile, keyStoreType, keyAlias, keyPassword, keyStorePassword);
     }
 
 
-    private static CertificateData loadCertificate(String name, Path securityBaseDir, File certificateFile, String certificatePassword)
+    private static CertificateData loadCertificate(
+                                                   String name,
+                                                   Path securityBaseDir,
+                                                   File certificateFile,
+                                                   String keyStoreType,
+                                                   String keyAlias,
+                                                   String keyPassword,
+                                                   String keyStorePassword)
             throws ConfigurationInitializationException {
         Optional<CertificateData> result;
         // try loading from given path (either absolute or relative)
-        result = loadCertificate(certificateFile, certificatePassword);
+        result = loadCertificate(certificateFile, keyStoreType, keyAlias, keyPassword, keyStorePassword);
         if (result.isPresent()) {
             LOGGER.debug("Using OPC UA client {} certificate from {}", name, certificateFile);
         }
         else {
             // try loading relative to securityBaseDir
             result = loadCertificate(
-                    securityBaseDir.resolve(certificateFile.toPath()).toFile(), certificatePassword);
+                    securityBaseDir.resolve(certificateFile.toPath()).toFile(), keyStoreType, keyAlias, keyPassword, keyStorePassword);
             if (result.isPresent()) {
                 LOGGER.debug("Using OPC UA client {} certificate from {}", name, securityBaseDir.resolve(certificateFile.toPath()));
             }
             else {
                 try {
                     // if still empty, generate
-                    result = Optional.of(KeystoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
+                    result = Optional.of(KeyStoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
                     // save generated certificate
                     File newFile;
                     if (certificateFile.isAbsolute()) {
@@ -339,10 +378,13 @@ public class OpcUaHelper {
                     else {
                         newFile = securityBaseDir.resolve(certificateFile.toPath()).toFile();
                     }
-                    KeystoreHelper.save(
-                            newFile,
+                    KeyStoreHelper.save(
                             result.get(),
-                            certificatePassword);
+                            newFile,
+                            keyStoreType,
+                            keyAlias,
+                            keyPassword,
+                            keyStorePassword);
                 }
                 catch (IOException | GeneralSecurityException e) {
                     throw new ConfigurationInitializationException(String.format("error generating OPC UA client %s certificate", name), e);
@@ -359,8 +401,11 @@ public class OpcUaHelper {
             throws AssetConnectionException, ConfigurationInitializationException {
         CertificateData applicationCertificate = loadApplicationCertificate(
                 config.getSecurityBaseDir(),
-                config.getApplicationCertificateFile(),
-                config.getApplicationCertificatePassword());
+                new File(config.getApplicationCertificate().getKeyStorePath()),
+                config.getApplicationCertificate().getKeyStoreType(),
+                config.getApplicationCertificate().getKeyAlias(),
+                config.getApplicationCertificate().getKeyPassword(),
+                config.getApplicationCertificate().getKeyStorePassword());
 
         ClientCertificateValidator certificateValidator;
         try {

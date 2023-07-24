@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security;
+package de.fraunhofer.iosb.ilt.faaast.service.certificate;
 
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 import java.security.KeyPair;

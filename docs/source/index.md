@@ -7,7 +7,7 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 | Specification | Version |
 |:--| -- |
 | Details of the Asset Administration Shell - Part 1<br />The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01<br />(based on [admin-shell-io/java-model](https://github.com/admin-shell-io/java-model))
-| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02 |
+| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02<br />([specification](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf))<br />([swagger](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02)) |
 
 ## Features
 
@@ -41,6 +41,7 @@ General <architecture/architecture.md>
 :hidden:
 :caption: Endpoints
 :maxdepth: 3
+General <endpoints/endpoint.md>
 HTTP <endpoints/http_endpoint.md>
 OPC UA <endpoints/opcua_endpoint.md>
 ```
@@ -62,6 +63,15 @@ OPC UA <assetconnections/opcua_assetconnection.md>
 General <persistences/persistence.md>
 In-Memory <persistences/inmemory_persistence.md>
 File-based <persistences/file_persistence.md>
+```
+
+```{toctree}
+:hidden:
+:caption: MessageBus
+:maxdepth: 3
+General <messagebus/messagebus.md>
+Internal <messagebus/internal_messagebus.md>
+MQTT <messagebus/mqtt_messagebus.md>
 ```
 
 ```{toctree}

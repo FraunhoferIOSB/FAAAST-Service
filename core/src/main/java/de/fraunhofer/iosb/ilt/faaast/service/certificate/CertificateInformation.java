@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security;
+package de.fraunhofer.iosb.ilt.faaast.service.certificate;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
 
 
 /**

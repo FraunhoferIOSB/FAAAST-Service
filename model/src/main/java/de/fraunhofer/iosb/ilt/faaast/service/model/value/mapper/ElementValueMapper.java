@@ -128,14 +128,12 @@ public class ElementValueMapper {
     public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
         init();
         Ensure.requireNonNull(valueType, "valueType must be non-null");
-        Class<?> aasValueType = ReflectionHelper.getAasInterface(valueType);
         Optional<?> result = mappers.values().stream()
                 .map(x -> TypeToken.of(x.getClass()))
-                .filter(x -> x.resolveType(DataValueMapper.class.getTypeParameters()[1]).getRawType().isAssignableFrom(aasValueType))
+                .filter(x -> x.resolveType(DataValueMapper.class.getTypeParameters()[1]).getRawType().isAssignableFrom(valueType))
                 .map(x -> (Class<? extends SubmodelElement>) x.resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType())
                 .sorted(new MostSpecificClassComparator())
                 .findFirst();
-
         if (!result.isPresent()) {
             throw new IllegalArgumentException("no element class defined for value type  " + valueType.getSimpleName());
         }
