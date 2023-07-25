@@ -22,7 +22,7 @@ import java.util.Optional;
 
 
 /**
- * Class representeing a timestamp with optional start and end points. If start resp. end is not set that means that the
+ * Class representing a timestamp with optional start and end points. If start resp. end is not set that means that the
  * interval is open in that direction.
  */
 public class Timespan {

@@ -372,6 +372,9 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
         if (Objects.equals(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
             return LinkedSegment.of(smc);
         }
+        if (Objects.equals(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
+            return ExternalSegment.of(smc);
+        }
         throw new IllegalArgumentException(String.format("unsupported segment type (semanticId: %s)", AasUtils.asString(smc.getSemanticId())));
     }
 

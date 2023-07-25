@@ -17,17 +17,23 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.dataformat.SerializationException;
+import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultBlob;
 import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,10 +44,48 @@ public class ExternalSegmentTest extends BaseModelTest {
     private Blob testBlob;
     private ExternalSegment testSegment;
 
+    @Test
+    public void testFromFile()
+            throws ValueFormatException, DeserializationException, io.adminshell.aas.v3.dataformat.DeserializationException, IOException, SerializationException {
+
+        TimeSeries actualTS = TimeSeries.of(new JsonDeserializer()
+                .readReferable(
+                        new String(
+                                getClass().getClassLoader().getResourceAsStream("model-timeseries-externalsegment.json").readAllBytes(),
+                                StandardCharsets.UTF_8),
+                        Submodel.class));
+
+        ExternalSegment actual = ExternalSegment.of(actualTS.getSegments().get(0));
+
+        File testFile = new DefaultFile.Builder()
+                .value("./testCSVFile.csv")
+                .mimeType("text/csv")
+                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .idShort("Data")
+                .build();
+
+        ExternalSegment expected = ExternalSegment.builder()
+                .idShort(actual.getIdShort())
+                .semanticId(actual.getSemanticId())
+                .data(testFile)
+                .build();
+
+        assertEquals(expected, actual);
+    }
+
+
     @Before
     public void setupTestObjects() {
-        this.testFile = new DefaultFile();
-        this.testBlob = new DefaultBlob();
+        this.testFile = new DefaultFile.Builder()
+                .value("./testFile.csv")
+                .mimeType("text/csv")
+                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .build();;
+        this.testBlob = new DefaultBlob.Builder()
+                .value("thisIsATest".getBytes(StandardCharsets.UTF_8))
+                .mimeType("text")
+                .semanticId(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID))
+                .build();
 
         this.testSegment = new ExternalSegment();
         this.testSegment.setSemanticId(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID));
@@ -112,7 +156,7 @@ public class ExternalSegmentTest extends BaseModelTest {
 
     @Test
     public void testBuilderWithFile() {
-        ExternalSegment builderTestSegmentFile = ExternalSegment.builder().file(testFile).build();
+        ExternalSegment builderTestSegmentFile = ExternalSegment.builder().data(testFile).build();
 
         assertEquals(testFile, builderTestSegmentFile.getData());
         assertNotNull(builderTestSegmentFile.getData());
@@ -121,7 +165,7 @@ public class ExternalSegmentTest extends BaseModelTest {
 
     @Test
     public void testBuilderWithBlob() {
-        ExternalSegment builderTestSegmentBlob = ExternalSegment.builder().blob(testBlob).build();
+        ExternalSegment builderTestSegmentBlob = ExternalSegment.builder().data(testBlob).build();
 
         assertEquals(testBlob, builderTestSegmentBlob.getData());
         assertNotNull(builderTestSegmentBlob.getData());
