@@ -64,21 +64,26 @@ public class CoreConfig {
         this.requestHandlerThreadPoolSize = requestHandlerThreadPoolSize;
     }
 
+
     public String getRegistryHost() {
         return registryHost;
     }
+
 
     public void setRegistryHost(String registryHost) {
         this.registryHost = registryHost;
     }
 
+
     public int getRegistryPort() {
         return registryPort;
     }
 
+
     public void setRegistryPort(int registryPort) {
         this.registryPort = registryPort;
     }
+
 
     @Override
     public int hashCode() {
@@ -114,15 +119,18 @@ public class CoreConfig {
             getBuildingInstance().setAssetConnectionRetryInterval(value);
             return getSelf();
         }
+
+
         public Builder registryHost(String value) {
             getBuildingInstance().setRegistryHost(value);
             return getSelf();
         }
+
+
         public Builder registryPort(int value) {
             getBuildingInstance().setRegistryPort(value);
             return getSelf();
         }
-
 
 
         @Override

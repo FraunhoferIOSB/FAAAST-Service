@@ -24,17 +24,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
@@ -42,17 +37,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -167,11 +157,6 @@ public class App implements Runnable {
     private CommandSpec spec;
     private static int exitCode = -1;
 
-    private static HttpClient httpClient;
-    private static AssetAdministrationShellDescriptor aasDescriptor;
-    private static CoreConfig coreConfig;
-    private static String REGISTRY_BASE_PATH = "registry/shell-descriptors";
-
     /**
      * Main entry point.
      *
@@ -227,12 +212,6 @@ public class App implements Runnable {
                 LOGGER.info("Shutting down FA³ST Service...");
                 if (serviceRef.get() != null) {
                     serviceRef.get().stop();
-                }
-                try {
-                    unregisterInRegistry(aasDescriptor);
-                }
-                catch (RegistryException e) {
-                    LOGGER.error(String.format("Unregistration in Fa³st-Registry failed: %s", e.getMessage()), e);
                 }
                 LOGGER.info("FA³ST Service successfully shut down");
                 SHUTDOWN_FINISHED.countDown();
@@ -334,102 +313,6 @@ public class App implements Runnable {
         }
         if (!dryRun) {
             runService(config);
-        }
-
-        initRegistryData(config);
-        try {
-            registerInRegistry(aasDescriptor);
-        }
-        catch (RegistryException e) {
-            LOGGER.error(String.format("Registration in Fa³st-Registry failed: %s", e.getMessage()), e);
-        }
-    }
-
-
-    private static void initRegistryData(ServiceConfig config) {
-        httpClient = HttpClient.newBuilder().build();
-        coreConfig = config.getCore();
-
-        AssetAdministrationShellEnvironment aasEnv = config.getPersistence().getInitialModel();
-        if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
-            return;
-
-        AssetAdministrationShell aas = aasEnv.getAssetAdministrationShells().get(0);
-        aasDescriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
-    }
-
-
-    private static void registerInRegistry(AssetAdministrationShellDescriptor descriptor) throws RegistryException {
-        if (descriptor == null)
-            return;
-
-        String body;
-        URL url;
-        try {
-            body = mapper.writeValueAsString(descriptor);
-            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), REGISTRY_BASE_PATH);
-        }
-        catch (JsonProcessingException | MalformedURLException e) {
-            throw new RegistryException(e);
-        }
-
-        try {
-            java.net.http.HttpResponse<String> response = HttpHelper.execute(
-                    httpClient,
-                    url,
-                    "",
-                    "JSON",
-                    "POST",
-                    HttpRequest.BodyPublishers.ofString(body),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
-                    null);
-
-            if (HttpHelper.is2xxSuccessful(response)) {
-                LOGGER.info("AAS successfully in FA³ST-Registry registered");
-            }
-            else {
-                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
-            }
-        }
-        catch (Exception e) {
-            throw new RegistryException("Connection to FA³ST-Registry failed!");
-        }
-    }
-
-
-    protected static void unregisterInRegistry(AssetAdministrationShellDescriptor descriptor) throws RegistryException {
-        if (descriptor == null)
-            return;
-
-        URL url;
-        String aasIdentifier = descriptor.getIdentification().getIdentifier();
-        try {
-            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), REGISTRY_BASE_PATH + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
-        }
-        catch (MalformedURLException e) {
-            throw new RegistryException(e);
-        }
-        LOGGER.info("AAS successfully in FA³ST-Registry registered");
-        try {
-            java.net.http.HttpResponse<String> response = HttpHelper.execute(
-                    httpClient,
-                    url,
-                    "",
-                    "JSON",
-                    "DELETE",
-                    HttpRequest.BodyPublishers.noBody(),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
-                    null);
-
-            if (HttpHelper.is2xxSuccessful(response)) {
-                LOGGER.info("AAS successfully in FA³ST-Registry unregistered");
-            }
-            else {
-                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
-            }
-        }
-        catch (Exception e) {
-            throw new RegistryException("Connection to FA³ST-Registry failed!");
         }
     }
 
