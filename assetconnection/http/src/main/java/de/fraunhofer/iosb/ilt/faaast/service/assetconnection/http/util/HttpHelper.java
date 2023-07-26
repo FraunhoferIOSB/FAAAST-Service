@@ -93,6 +93,7 @@ public class HttpHelper {
                                               BodyHandler<T> bodyHandler,
                                               Map<String, String> headers)
             throws URISyntaxException, IOException, InterruptedException {
+
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");

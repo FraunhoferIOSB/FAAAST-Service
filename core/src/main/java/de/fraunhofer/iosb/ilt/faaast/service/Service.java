@@ -38,6 +38,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -206,6 +208,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
+        messageBus.subscribe(SubscriptionInfo.create(ChangeEventMessage.class, this::handleRegistryEvent));
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -358,6 +361,10 @@ public class Service implements ServiceContext {
                 throw new RegistryException("Connection to FA³ST-Registry failed!");
             }
         }
+    }
+
+    protected void handleRegistryEvent(ChangeEventMessage eventMessage) {
+        System.out.println(eventMessage);
     }
 
 
