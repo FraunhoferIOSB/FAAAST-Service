@@ -44,14 +44,14 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     private boolean calculatePropertiesIfNotPresent;
 
     @JsonIgnore
-    private Wrapper<String, Property> duration = new ValueWrapper<>(
+    private Wrapper<String, Property> duration = new ValueWrapper<>( //TODO: depending on semantic id property in ISO 8601 format in string or as long
             values,
             null,
             false,
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(Constants.SEGMENT_DURATION_ID_SHORT)
-                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID)) //TODO: depending on semantic id property in ISO 8601 format in string or as long
+                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID))
                     .valueType(Datatype.STRING.getName())
                     .value(x)
                     .build(),
@@ -158,7 +158,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             x -> new IntervalWithUnit(Long.parseLong(x.getValue()), TimeUnitHelper.fromSemanticId(x.getSemanticId())));
 
     @JsonIgnore
-    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>(
+    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>( //TODO: is enum [completed, in progress]
             values,
             null,
             true,

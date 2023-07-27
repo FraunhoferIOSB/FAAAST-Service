@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.aas.DefaultInternalSegmentProviderConfig;
@@ -31,10 +32,12 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
 
     private boolean useSegmentTimestamps;
     private List<LinkedSegmentProviderConfig> linkedSegmentProviders;
+    private List<ExternalSegmentProviderConfig> externalSegmentProviders;
     private SegmentProviderConfig internalSegmentProvider;
 
     public TimeSeriesSubmodelTemplateProcessorConfig() {
         this.linkedSegmentProviders = new ArrayList<>();
+        this.externalSegmentProviders = new ArrayList<>();
         this.internalSegmentProvider = new DefaultInternalSegmentProviderConfig();
     }
 
@@ -54,8 +57,18 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
     }
 
 
-    public void setLinkedSegmentProviders(List<LinkedSegmentProviderConfig> linkedSegmentProviders) {
+    public void setLinkedSegmentProviders(List<LinkedSegmentProviderConfig> externalSegmentProviders) {
         this.linkedSegmentProviders = linkedSegmentProviders;
+    }
+
+
+    public List<ExternalSegmentProviderConfig> getExternalSegmentProviders() {
+        return externalSegmentProviders;
+    }
+
+
+    public void setExternalSegmentProviders(List<ExternalSegmentProviderConfig> externalSegmentProviders) {
+        this.externalSegmentProviders = externalSegmentProviders;
     }
 
 
@@ -80,13 +93,14 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
         TimeSeriesSubmodelTemplateProcessorConfig that = (TimeSeriesSubmodelTemplateProcessorConfig) o;
         return Objects.equals(useSegmentTimestamps, that.useSegmentTimestamps)
                 && Objects.equals(linkedSegmentProviders, that.linkedSegmentProviders)
+                && Objects.equals(externalSegmentProviders, that.externalSegmentProviders)
                 && Objects.equals(internalSegmentProvider, that.internalSegmentProvider);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(useSegmentTimestamps, linkedSegmentProviders, internalSegmentProvider);
+        return Objects.hash(useSegmentTimestamps, linkedSegmentProviders, externalSegmentProviders, internalSegmentProvider);
     }
 
     protected abstract static class AbstractBuilder<C extends TimeSeriesSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
@@ -118,6 +132,18 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
 
         public B linkedSegmentProvider(List<LinkedSegmentProviderConfig> value) {
             getBuildingInstance().setLinkedSegmentProviders(value);
+            return getSelf();
+        }
+
+
+        public B externalSegmentProvider(ExternalSegmentProviderConfig value) {
+            getBuildingInstance().getExternalSegmentProviders().add(value);
+            return getSelf();
+        }
+
+
+        public B externalSegmentProvider(List<ExternalSegmentProviderConfig> value) {
+            getBuildingInstance().setExternalSegmentProviders(value);
             return getSelf();
         }
 

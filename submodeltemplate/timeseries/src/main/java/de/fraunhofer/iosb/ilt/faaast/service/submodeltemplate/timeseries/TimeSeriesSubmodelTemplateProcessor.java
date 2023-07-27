@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
@@ -53,7 +54,8 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesSubmodelTemplateProcessor.class);
     private TimeSeriesSubmodelTemplateProcessorConfig config;
 
-    private Map<String, LinkedSegmentProvider> segmentProviders;
+    private Map<String, LinkedSegmentProvider> linkedSegmentProviders;
+    private Map<String, ExternalSegmentProvider> externalSegmentProviders;
     private SegmentProvider internalSegmentProvider;
 
     @Override
@@ -72,11 +74,17 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     @Override
     public void init(CoreConfig coreConfig, TimeSeriesSubmodelTemplateProcessorConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
-        segmentProviders = new HashMap<>();
+        linkedSegmentProviders = new HashMap<>();
+        externalSegmentProviders = new HashMap<>();
         try {
             config.getLinkedSegmentProviders()
-                    .forEach(LambdaExceptionHelper.rethrowConsumer(x -> segmentProviders.put(x.getEndpoint(), (LinkedSegmentProvider) x.newInstance(coreConfig, serviceContext))));
+                    .forEach(LambdaExceptionHelper
+                            .rethrowConsumer(x -> linkedSegmentProviders.put(x.getEndpoint(), (LinkedSegmentProvider) x.newInstance(coreConfig, serviceContext))));
+            config.getExternalSegmentProviders()
+                    .forEach(LambdaExceptionHelper
+                            .rethrowConsumer(x -> externalSegmentProviders.put(x.toString(), (ExternalSegmentProvider) x.newInstance(coreConfig, serviceContext)))); // TODO what to use as key for map?
             internalSegmentProvider = (SegmentProvider) config.getInternalSegmentProvider().newInstance(coreConfig, serviceContext);
+
         }
         catch (ConfigurationException e) {
             throw new ConfigurationInitializationException(e);
@@ -180,7 +188,8 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
                     () -> LambdaOperationProviderConfig.builder()
                             .implementation(new ReadSegmentsOperationProvider(
                                     AasUtils.toReference(submodel),
-                                    segmentProviders,
+                                    linkedSegmentProviders,
+                                    externalSegmentProviders,
                                     internalSegmentProvider,
                                     config.isUseSegmentTimestamps()))
                             .build());
@@ -189,7 +198,8 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
                     () -> LambdaOperationProviderConfig.builder()
                             .implementation(new ReadRecordsOperationProvider(
                                     AasUtils.toReference(submodel),
-                                    segmentProviders,
+                                    linkedSegmentProviders,
+                                    externalSegmentProviders,
                                     internalSegmentProvider))
                             .build());
             return true;

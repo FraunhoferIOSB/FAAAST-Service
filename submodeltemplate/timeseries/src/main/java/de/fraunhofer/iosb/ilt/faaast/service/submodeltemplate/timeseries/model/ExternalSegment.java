@@ -180,7 +180,6 @@ public class ExternalSegment extends Segment {
             ExternalSegment other = (ExternalSegment) obj;
             return super.equals(obj)
                     && Objects.equals(this.data, other.data);
-            //            return super.equals(obj);
         }
     }
 

@@ -17,11 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
@@ -46,11 +48,14 @@ import java.util.stream.Stream;
 public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationProvider {
 
     private final Map<String, LinkedSegmentProvider> linkedSegmentProviders;
+    private final Map<String, ExternalSegmentProvider> externalSegmentProviders;
     private final SegmentProvider internalSegmentProvider;
 
-    public ReadRecordsOperationProvider(Reference submodelRef, Map<String, LinkedSegmentProvider> linkedSegmentProviders, SegmentProvider internalSegmentProvider) {
+    public ReadRecordsOperationProvider(Reference submodelRef, Map<String, LinkedSegmentProvider> linkedSegmentProviders,
+            Map<String, ExternalSegmentProvider> externalSegmentProviders, SegmentProvider internalSegmentProvider) {
         super(Constants.READ_RECORDS_ID_SHORT, submodelRef);
         this.linkedSegmentProviders = linkedSegmentProviders;
+        this.externalSegmentProviders = externalSegmentProviders;
         this.internalSegmentProvider = internalSegmentProvider;
     }
 
@@ -71,7 +76,7 @@ public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationPro
             validateInputParameters(input);
             Timespan timespan = getTimespanFromInput(input, Constants.READ_RECORDS_INPUT_TIMESPAN_ID_SHORT);
             TimeSeries timeSeries = loadTimeSeries();
-            List<Record> result = Stream.concat(
+            List<Record> result = Stream.concat(Stream.concat(
                     timeSeries.getSegments(InternalSegment.class).stream()
                             .flatMap(LambdaExceptionHelper.rethrowFunction(
                                     x -> (Stream<Record>) internalSegmentProvider.getRecords(
@@ -84,8 +89,14 @@ public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationPro
                                     x -> (Stream<Record>) linkedSegmentProviders.get(x.getEndpoint()).getRecords(
                                             timeSeries.getMetadata(),
                                             x,
+                                            timespan).stream()))),
+                    timeSeries.getSegments(ExternalSegment.class).stream()
+                            .filter(x -> linkedSegmentProviders.containsKey(x.toString())) //TODO don't use toString, use different identifier for externalSegments
+                            .flatMap(LambdaExceptionHelper.rethrowFunction(
+                                    x -> (Stream<Record>) linkedSegmentProviders.get(x.toString()).getRecords( //TODO see above
+                                            timeSeries.getMetadata(),
+                                            x,
                                             timespan).stream())))
-                    // TODO add external segments
                     .collect(Collectors.toList());
             return new OperationVariable[] {
                     new DefaultOperationVariable.Builder()

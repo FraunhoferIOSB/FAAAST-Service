@@ -49,6 +49,7 @@
         <module>dataformat/json</module>
         <module>submodeltemplate/timeseries</module>
         <module>submodeltemplate/timeseries/provider/influx</module>
+        <module>submodeltemplate/timeseries/provider/csv</module>
         <module>starter</module>
     </modules>
     <scm>

@@ -17,12 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Segment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
@@ -50,13 +52,16 @@ import java.util.stream.Stream;
 public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationProvider {
 
     private final Map<String, LinkedSegmentProvider> linkedSegmentProviders;
+    private final Map<String, ExternalSegmentProvider> externalSegmentProviders;
     private final SegmentProvider internalSegmentProvider;
     private final boolean useSegmentTimestamps;
 
-    public ReadSegmentsOperationProvider(Reference submodelRef, Map<String, LinkedSegmentProvider> linkedSegmentProviders, SegmentProvider internalSegmentProvider,
+    public ReadSegmentsOperationProvider(Reference submodelRef, Map<String, LinkedSegmentProvider> linkedSegmentProviders,
+            Map<String, ExternalSegmentProvider> externalSegmentProviders, SegmentProvider internalSegmentProvider,
             boolean useSegmentTimestamps) {
         super(Constants.READ_SEGMENTS_ID_SHORT, submodelRef);
         this.linkedSegmentProviders = linkedSegmentProviders;
+        this.externalSegmentProviders = externalSegmentProviders;
         this.internalSegmentProvider = internalSegmentProvider;
         this.useSegmentTimestamps = useSegmentTimestamps;
     }
@@ -86,13 +91,16 @@ public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationPr
             validateInputParameters(input);
             Timespan timespan = getTimespanFromInput(input, Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT);
             TimeSeries timeSeries = loadTimeSeries();
-            List<Segment> result = Stream.concat(
+            List<Segment> result = Stream.concat(Stream.concat(
                     timeSeries.getSegments(InternalSegment.class).stream()
                             .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(), x -> internalSegmentProvider)),
                     timeSeries.getSegments(LinkedSegment.class).stream()
                             .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(),
-                                    x -> linkedSegmentProviders.get(x.getEndpoint()))))
-                    // TODO add external segments
+                                    x -> linkedSegmentProviders.get(x.getEndpoint())))),
+                    timeSeries.getSegments(ExternalSegment.class).stream()
+                            .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(),
+                                    x -> externalSegmentProviders.get(x.toString()))) // TODO fix here: use defining string instead of toString(see TimeSeriesSubmodelTemplateProcessor)
+            )
                     .collect(Collectors.toList());
             return new OperationVariable[] {
                     new DefaultOperationVariable.Builder()
