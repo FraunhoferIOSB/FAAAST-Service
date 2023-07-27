@@ -170,7 +170,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getSubmodelElementWithSimilarIDShortTest() throws ResourceNotFoundException {
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String submodelElementIdShort = "ExampleEntity2";
-        Reference reference = ReferenceHelper.buildReferenceToSubmodelElement(
+        Reference reference = ReferenceHelper.build(
                 submodelId,
                 submodelElementIdShort);
         ConceptDescription conceptDescription = new DefaultConceptDescription.Builder()

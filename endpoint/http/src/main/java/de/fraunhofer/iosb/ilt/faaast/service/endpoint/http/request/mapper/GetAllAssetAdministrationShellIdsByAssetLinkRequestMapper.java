@@ -22,8 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
 
 
 /**

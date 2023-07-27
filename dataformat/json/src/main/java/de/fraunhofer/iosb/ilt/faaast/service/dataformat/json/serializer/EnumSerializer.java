@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 
 
 /**

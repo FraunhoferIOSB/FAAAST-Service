@@ -44,7 +44,7 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
     public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extent extend) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField(JsonFieldNames.BLOB_VALUE_MIME_TYPE, value.getMimeType());
+            generator.writeStringField(JsonFieldNames.BLOB_VALUE_CONTENT_TYPE, value.getContentType());
             if (extend == Extent.WITH_BLOB_VALUE) {
                 generator.writeStringField(JsonFieldNames.BLOB_VALUE_VALUE, new String(EncodingHelper.base64Encode(value.getValue())));
             }

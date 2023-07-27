@@ -54,6 +54,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
@@ -381,6 +382,14 @@ public interface AssetAdministrationShellElementVisitor {
      * @param submodelElementCollection the submodelElementCollection
      */
     public void visit(SubmodelElementCollection submodelElementCollection);
+
+
+    /**
+     * Visit submodelElementList.
+     *
+     * @param submodelElementList the submodelElementList
+     */
+    public void visit(SubmodelElementList submodelElementList);
 
 
     /**

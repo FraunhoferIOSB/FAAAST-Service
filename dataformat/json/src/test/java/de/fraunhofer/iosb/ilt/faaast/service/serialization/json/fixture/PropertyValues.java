@@ -14,165 +14,189 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import java.io.File;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierType;
-import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
-import org.eclipse.digitaltwin.aas4j.v3.model.ModelingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
-import java.io.File;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 
 
 public class PropertyValues {
 
     public static final Blob BLOB = new DefaultBlob.Builder()
             .idShort("blob1")
-            .kind(ModelingKind.INSTANCE)
-            .mimeType("application/octet-stream")
+            .contentType("application/octet-stream")
             .value("example-data".getBytes())
             .build();
 
     public static final Entity ENTITY = new DefaultEntity.Builder()
             .idShort("entity1")
-            .kind(ModelingKind.INSTANCE)
             .entityType(EntityType.SELF_MANAGED_ENTITY)
-            .statement(new DefaultProperty.Builder()
+            .statements(new DefaultProperty.Builder()
                     .idShort("MaxRotationSpeed")
-                    .valueType(Datatype.INT.getName())
+                    .valueType(DataTypeDefXSD.INT)
                     .value("5000")
                     .build())
-            .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
+            .globalAssetID("http://customer.com/demo/asset/1/1/MySubAsset")
             .build();
-    public static final io.adminshell.aas.v3.model.File FILE = new DefaultFile.Builder()
+    public static final org.eclipse.digitaltwin.aas4j.v3.model.File FILE = new DefaultFile.Builder()
             .idShort("file1")
-            .kind(ModelingKind.INSTANCE)
-            .mimeType("application/pdf")
+            .contentType("application/pdf")
             .value("SafetyInstructions.pdf")
             .build();
     public static final MultiLanguageProperty MULTI_LANGUAGE_PROPERTY = new DefaultMultiLanguageProperty.Builder()
             .idShort("multiLanguageProp1")
-            .kind(ModelingKind.INSTANCE)
-            .value(new LangString("foo", "de"))
-            .value(new LangString("bar", "en"))
+            .value(new DefaultLangStringTextType.Builder()
+                    .language("de")
+                    .text("foo")
+                    .build())
+            .value(new DefaultLangStringTextType.Builder()
+                    .language("en")
+                    .text("bar")
+                    .build())
             .build();
     public static final Property PROPERTY_DOUBLE = new DefaultProperty.Builder()
             .category("category")
             .idShort("propDouble")
-            .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.DOUBLE.getName())
+            .valueType(DataTypeDefXSD.DOUBLE)
             .value("42.17")
             .build();
     public static final Property PROPERTY_DATETIME = new DefaultProperty.Builder()
             .category("category")
             .idShort("propDateTime")
-            .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.DATE_TIME.getName())
+            .valueType(DataTypeDefXSD.DATE_TIME)
             .value(ZonedDateTime.of(2022, 7, 31, 17, 8, 51, 0, ZoneOffset.UTC).toString())
             .build();
 
     public static final Property PROPERTY_INT = new DefaultProperty.Builder()
             .category("category")
             .idShort("propInt")
-            .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.INT.getName())
+            .valueType(DataTypeDefXSD.INT)
             .value("42")
             .build();
     public static final Property PROPERTY_STRING = new DefaultProperty.Builder()
             .category("category")
             .idShort("propString")
-            .kind(ModelingKind.INSTANCE)
             .value("foo")
             .build();
     public static final Range RANGE_DOUBLE = new DefaultRange.Builder()
             .idShort("rangeDouble")
-            .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.DOUBLE.getName())
+            .valueType(DataTypeDefXSD.DOUBLE)
             .min("3.0")
             .max("5.0")
             .build();
     public static final SubmodelElementCollection ELEMENT_COLLECTION = new DefaultSubmodelElementCollection.Builder()
             .idShort("collection1")
-            .kind(ModelingKind.INSTANCE)
             .value(PROPERTY_STRING)
             .value(RANGE_DOUBLE)
             .value(ENTITY)
             .build();
+    public static final SubmodelElementList ELEMENT_LIST = new DefaultSubmodelElementList.Builder()
+            .idShort("list1")
+            .value(new DefaultProperty.Builder()
+                    .category("category")
+                    .value("foo")
+                    .build())
+            .value(new DefaultProperty.Builder()
+                    .category("category")
+                    .value("bar")
+                    .build())
+            .value(new DefaultProperty.Builder()
+                    .category("category")
+                    .value("foobar")
+                    .build())
+            .build();
     public static final Range RANGE_INT = new DefaultRange.Builder()
             .idShort("rangeInt")
-            .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.INT.getName())
+            .valueType(DataTypeDefXSD.INT)
             .min("17")
             .max("42")
             .build();
 
     public static final ReferenceElement REFERENCE_ELEMENT_GLOBAL = new DefaultReferenceElement.Builder()
             .idShort("referenceGlobal")
-            .value(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/aas/1/1/1234859590,(GlobalReference)[IRI]http://customer.com/demo/aas/1/2/4567895050"))
+            .value(new DefaultReference.Builder()
+                    .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                    .keys(new DefaultKey.Builder()
+                            .type(KeyTypes.GLOBAL_REFERENCE)
+                            .value("http://customer.com/demo/aas/1/1/1234859590")
+                            .build())
+                    .build())
             .build();
 
     public static final ReferenceElement REFERENCE_ELEMENT_MODEL = new DefaultReferenceElement.Builder()
             .idShort("referenceModel")
-            .value(AasUtils.parseReference("(Submodel)[IRI]http://customer.com/demo/aas/1/1/1234859590,(Property)[ID_SHORT]MaxRotationSpeed"))
+            .value(new DefaultReference.Builder()
+                    .type(ReferenceTypes.MODEL_REFERENCE)
+                    .keys(new DefaultKey.Builder()
+                            .type(KeyTypes.SUBMODEL)
+                            .value("http://customer.com/demo/aas/1/1/1234859590")
+                            .build())
+                    .keys(new DefaultKey.Builder()
+                            .type(KeyTypes.PROPERTY)
+                            .value("MaxRotationSpeed")
+                            .build())
+                    .build())
             .build();
+
     public static final AnnotatedRelationshipElement ANNOTATED_RELATIONSHIP_ELEMENT = new DefaultAnnotatedRelationshipElement.Builder()
             .idShort("annotatedRelationship1")
-            .kind(ModelingKind.INSTANCE)
             .first(REFERENCE_ELEMENT_GLOBAL.getValue())
             .second(REFERENCE_ELEMENT_MODEL.getValue())
-            .annotation(new DefaultProperty.Builder()
+            .annotations(new DefaultProperty.Builder()
                     .idShort("AppliedRule")
                     .value("TechnicalCurrentFlowDirection")
                     .build())
             .build();
     public static final RelationshipElement RELATIONSHIP_ELEMENT = new DefaultRelationshipElement.Builder()
             .idShort("relationship1")
-            .kind(ModelingKind.INSTANCE)
             .first(REFERENCE_ELEMENT_GLOBAL.getValue())
             .second(REFERENCE_ELEMENT_MODEL.getValue())
             .build();
     public static final Submodel SUBMODEL = new DefaultSubmodel.Builder()
             .category("category")
             .idShort("submodel1")
-            .kind(ModelingKind.INSTANCE)
-            .identification(new DefaultIdentifier.Builder()
-                    .idType(IdentifierType.IRI)
-                    .identifier("http://example.org/test")
-                    .build())
-            .submodelElement(PROPERTY_STRING)
-            .submodelElement(RANGE_DOUBLE)
-            .submodelElement(ELEMENT_COLLECTION)
-            .submodelElement(new DefaultOperation.Builder()
+            .id("http://example.org/test")
+            .submodelElements(PROPERTY_STRING)
+            .submodelElements(RANGE_DOUBLE)
+            .submodelElements(ELEMENT_COLLECTION)
+            .submodelElements(new DefaultOperation.Builder()
                     .idShort("operation1")
                     .build())
             .build();
     private static final String RESOURCE_PATH = "src/test/resources";
     public static final File SUBMODEL_FILE = new File(RESOURCE_PATH + "/submodel.json");
     public static final File ELEMENT_COLLECTION_FILE = new File(RESOURCE_PATH + "/element-collection.json");
+    public static final File ELEMENT_LIST_FILE = new File(RESOURCE_PATH + "/element-list.json");
     public static final File ENTITY_FILE = new File(RESOURCE_PATH + "/entity.json");
 
     public static final File ANNOTATED_RELATIONSHIP_ELEMENT_FILE = new File(RESOURCE_PATH + "/annotated-relationship-element.json");

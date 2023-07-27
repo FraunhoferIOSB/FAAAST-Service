@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 /**
@@ -42,8 +41,8 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
                     LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
         }
 
-        value.setFirst(submodelElement.getFirst() != null ? submodelElement.getFirst().getKeys() : null);
-        value.setSecond(submodelElement.getSecond() != null ? submodelElement.getSecond().getKeys() : null);
+        value.setFirst(submodelElement.getFirst());
+        value.setSecond(submodelElement.getSecond());
         return value;
     }
 
@@ -52,8 +51,8 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
     public AnnotatedRelationshipElement setValue(AnnotatedRelationshipElement submodelElement, AnnotatedRelationshipElementValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
 
-        submodelElement.setFirst(value.getFirst() != null ? new DefaultReference.Builder().keys(value.getFirst()).build() : null);
-        submodelElement.setSecond(value.getSecond() != null ? new DefaultReference.Builder().keys(value.getSecond()).build() : null);
+        submodelElement.setFirst(value.getFirst());
+        submodelElement.setSecond(value.getSecond());
         if (submodelElement.getAnnotations() != null) {
             for (SubmodelElement element: submodelElement.getAnnotations()) {
                 if (element != null && value.getAnnotations().containsKey(element.getIdShort())) {

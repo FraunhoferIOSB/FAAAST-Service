@@ -5,6 +5,14 @@
                     "MaxRotationSpeed": 5000
                 },
         "entityType": "SelfManagedEntity",
-        "globalAssetId": ["http://customer.com/demo/asset/1/1/MySubAsset"]
+        "globalAssetId": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "http://customer.com/demo/asset/1/1/MySubAsset"
+                }
+            ]
+        }
     }
 }

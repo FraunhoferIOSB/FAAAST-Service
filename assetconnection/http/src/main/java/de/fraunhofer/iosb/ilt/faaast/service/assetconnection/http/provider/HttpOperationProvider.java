@@ -21,9 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConne
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -31,6 +28,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**

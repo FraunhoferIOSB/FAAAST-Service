@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -242,8 +241,12 @@ public class AssetConnectionManager {
      * @return operation provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetOperationProvider getOperationProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getOperationProviders().containsKey(reference)).map(x -> (AssetOperationProvider) x.getOperationProviders().get(reference))
-                .findFirst().orElse(null);
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 
@@ -254,8 +257,12 @@ public class AssetConnectionManager {
      * @return subscription provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getSubscriptionProviders().containsKey(reference))
-                .map(x -> (AssetSubscriptionProvider) x.getSubscriptionProviders().get(reference)).findFirst().orElse(null);
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 
@@ -266,7 +273,11 @@ public class AssetConnectionManager {
      * @return value provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetValueProvider getValueProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
                 .orElse(null);
     }
 
@@ -318,14 +329,7 @@ public class AssetConnectionManager {
      * @return true if there is a operation provider defined for the provided AAS element, otherwise false
      */
     public boolean hasOperationProvider(Reference reference) {
-        Reference temp = reference;
-        try {
-            ReferenceHelper.completeReferenceWithProperKeyElements(temp, this.serviceContext.getAASEnvironment());
-        }
-        catch (ResourceNotFoundException ex) {
-            // ignore
-        }
-        return connections.stream().anyMatch(x -> x.getOperationProviders().containsKey(temp));
+        return Objects.nonNull(getOperationProvider(reference));
     }
 
 
@@ -336,7 +340,7 @@ public class AssetConnectionManager {
      * @return true if there is a subscription provider defined for the provided AAS element, otherwise false
      */
     public boolean hasSubscriptionProvider(Reference reference) {
-        return connections.stream().anyMatch(x -> x.getSubscriptionProviders().containsKey(reference));
+        return Objects.nonNull(getSubscriptionProvider(reference));
     }
 
 
@@ -347,7 +351,7 @@ public class AssetConnectionManager {
      * @return true if there is a value provider defined for the provided AAS element, otherwise false
      */
     public boolean hasValueProvider(Reference reference) {
-        return connections.stream().anyMatch(x -> x.getValueProviders().containsKey(reference));
+        return Objects.nonNull(getValueProvider(reference));
     }
 
 

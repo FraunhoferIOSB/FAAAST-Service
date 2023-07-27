@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelRequest;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**

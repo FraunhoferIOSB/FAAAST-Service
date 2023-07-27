@@ -49,7 +49,7 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
     @Override
     public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
         ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnCreate());
-        Reference parentReference = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
+        Reference parentReference = ReferenceHelper.build(request.getSubmodelId(), Submodel.class);
         Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
         SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {

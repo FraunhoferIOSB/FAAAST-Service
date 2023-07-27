@@ -44,6 +44,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -210,6 +211,9 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
             visit((SubmodelElementCollection) submodelElement);
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(type)) {
+            visit((SubmodelElementList) submodelElement);
         }
         else if (Operation.class.isAssignableFrom(type)) {
             visit((Operation) submodelElement);

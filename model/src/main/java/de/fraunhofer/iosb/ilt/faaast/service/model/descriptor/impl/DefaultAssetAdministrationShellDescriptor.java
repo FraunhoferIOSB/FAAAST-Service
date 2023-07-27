@@ -248,7 +248,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
             from(aas);
             if (submodels != null) {
                 List<Submodel> submodelsNotPresentInAAS = submodels.stream()
-                        .filter(x -> !aas.getSubmodels().contains(ReferenceHelper.toReference(x.getId(), Submodel.class)))
+                        .filter(x -> !aas.getSubmodels().contains(ReferenceHelper.build(x.getId(), Submodel.class)))
                         .collect(Collectors.toList());
                 if (!submodelsNotPresentInAAS.isEmpty()) {
                     throw new IllegalArgumentException(String.format("Submodel(s) not found in AAS (id: %s) ",

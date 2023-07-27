@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.http.HttpClient;
@@ -47,6 +46,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**

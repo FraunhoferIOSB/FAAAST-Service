@@ -36,6 +36,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
@@ -48,12 +54,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -153,7 +153,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return null;
         }
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, model);
+        ReferenceHelper.fixKeyTypes(reference, model);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElement(reference, modifier),
                 modifier);
@@ -215,7 +215,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
         ensureInitialized();
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, model);
+        ReferenceHelper.fixKeyTypes(reference, model);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElements(reference, semanticId),
                 modifier);
@@ -228,10 +228,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Ensure.require(parent != null || referenceToSubmodelElement != null, "either parent or referenceToSubmodelElement must be non-null");
         if (parent != null) {
-            ReferenceHelper.completeReferenceWithProperKeyElements(parent, model);
+            ReferenceHelper.fixKeyTypes(parent, model);
         }
         if (referenceToSubmodelElement != null) {
-            ReferenceHelper.completeReferenceWithProperKeyElements(referenceToSubmodelElement, model);
+            ReferenceHelper.fixKeyTypes(referenceToSubmodelElement, model);
         }
         return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
     }
@@ -288,7 +288,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public void remove(Reference reference) throws ResourceNotFoundException {
         if (reference != null) {
-            ReferenceHelper.completeReferenceWithProperKeyElements(reference, model);
+            ReferenceHelper.fixKeyTypes(reference, model);
             referablePersistenceManager.remove(reference);
         }
     }

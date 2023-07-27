@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import java.io.IOException;
 import java.util.Map;
 
@@ -45,12 +44,8 @@ public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<A
     public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST, ReferenceElementValue.builder()
-                    .keys(value.getFirst())
-                    .build(), generator);
-            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND, ReferenceElementValue.builder()
-                    .keys(value.getSecond())
-                    .build(), generator);
+            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST, value.getFirst(), generator);
+            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND, value.getSecond(), generator);
             generator.writeFieldName(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION);
             generator.writeStartArray();
             for (Map.Entry<String, DataElementValue> annotation: value.getAnnotations().entrySet()) {

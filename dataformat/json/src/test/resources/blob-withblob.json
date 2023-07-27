@@ -1,6 +1,6 @@
 {
     "blob1": {
-        "mimeType": "application/octet-stream",
+        "contentType": "application/octet-stream",
         "value": "ZXhhbXBsZS1kYXRh"
     }
 }

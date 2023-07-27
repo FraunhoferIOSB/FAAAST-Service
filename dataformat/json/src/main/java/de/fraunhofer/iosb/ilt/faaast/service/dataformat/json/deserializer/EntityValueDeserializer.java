@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
+import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
-import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -48,7 +48,8 @@ public class EntityValueDeserializer extends ContextAwareElementValueDeserialize
             builder.entityType(EntityType.valueOf(AasUtils.deserializeEnumName(node.get(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE).asText())));
         }
         if (node.has(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID)) {
-            builder.globalAssetId(context.readTreeAsValue(node.get(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID), ReferenceElementValue.class).getKeys());
+            builder.globalAssetId(context.readTreeAsValue(node.get(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID), Reference.class)
+                    .getKeys().get(0).getValue());
         }
         if (node.has(JsonFieldNames.ENTITY_VALUE_STATEMENTS)) {
             builder.statements(deserializeChildren(node.get(JsonFieldNames.ENTITY_VALUE_STATEMENTS), context, ElementValue.class));

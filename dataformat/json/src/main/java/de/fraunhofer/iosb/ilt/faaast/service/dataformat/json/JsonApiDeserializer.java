@@ -36,9 +36,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EnumDe
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.MultiLanguagePropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.PropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RangeValueDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ReferenceElementValueDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RelationshipElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.SubmodelElementCollectionValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.SubmodelElementListValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.TypedValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueArrayDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueCollectionDeserializer;
@@ -46,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueM
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -55,14 +55,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
     @Override
     public <T> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
+            return wrapper.getMapper().readValue(json, type);
         }
         catch (JsonProcessingException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -99,7 +98,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
     @Override
     public <T> List<T> readList(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
+            return wrapper.getMapper().readValue(json, wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
         }
         catch (JsonProcessingException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -122,7 +121,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         try {
             return (T) wrapper.getMapper().reader()
                     .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
-                    .treeToValue(ModelTypeProcessor.preprocess(json), typeInfo.getType());
+                    .readValue(json, typeInfo.getType());
         }
         catch (IOException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -133,7 +132,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
     @Override
     public <T extends ElementValue> T readValue(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
+            return wrapper.getMapper().readValue(json, type);
         }
         catch (JsonProcessingException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -163,10 +162,11 @@ public class JsonApiDeserializer implements ApiDeserializer {
             throw new DeserializationException(ERROR_MSG_CONTENT_TYPE_MUST_BE_NON_NULL);
         }
         try {
-            return (ElementValue[]) wrapper.getMapper().reader()
+            return (ElementValue[]) wrapper.getMapper()
+                    .readerForArrayOf(containerTypeInfo.getContentType())
                     .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()))
-                    .treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()));
+                    .readValue(json);
         }
         catch (IOException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -257,6 +257,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
+        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {
@@ -299,10 +300,9 @@ public class JsonApiDeserializer implements ApiDeserializer {
         module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
         module.addDeserializer(PropertyValue.class, new PropertyValueDeserializer());
         module.addDeserializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueDeserializer());
-        module.addDeserializer(RelationshipElementValue.class, new RelationshipElementValueDeserializer());
         module.addDeserializer(SubmodelElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
+        module.addDeserializer(SubmodelElementListValue.class, new SubmodelElementListValueDeserializer());
         module.addDeserializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueDeserializer());
-        module.addDeserializer(ReferenceElementValue.class, new ReferenceElementValueDeserializer());
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());

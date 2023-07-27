@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 /**
@@ -31,7 +30,7 @@ public class ReferenceElementValueMapper implements DataValueMapper<ReferenceEle
             return null;
         }
         ReferenceElementValue referenceElementValue = new ReferenceElementValue();
-        referenceElementValue.setKeys(submodelElement.getValue() == null ? null : submodelElement.getValue().getKeys());
+        referenceElementValue.setValue(submodelElement.getValue());
         return referenceElementValue;
     }
 
@@ -39,9 +38,7 @@ public class ReferenceElementValueMapper implements DataValueMapper<ReferenceEle
     @Override
     public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValue(value.getKeys() != null ? new DefaultReference.Builder()
-                .keys(value.getKeys())
-                .build() : null);
+        submodelElement.setValue(value.getValue());
         return submodelElement;
     }
 }

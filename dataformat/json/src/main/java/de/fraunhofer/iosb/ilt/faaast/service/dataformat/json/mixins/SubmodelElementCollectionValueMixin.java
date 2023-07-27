@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 /**
- * Mixin for {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
+ * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}.
  */
 public abstract class SubmodelElementCollectionValueMixin {
 

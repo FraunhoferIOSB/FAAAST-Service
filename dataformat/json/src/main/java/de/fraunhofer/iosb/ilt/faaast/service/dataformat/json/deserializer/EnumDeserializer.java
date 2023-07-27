@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 
 
 /**

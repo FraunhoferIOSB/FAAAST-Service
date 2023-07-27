@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -29,16 +30,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.util.List;
 
 
 /**
  * JSON API serializer for FA³ST supporting different output modifier as defined by specification.
- *
- * <p>Currently supports only content=value.
  */
 public class JsonApiSerializer implements ApiSerializer {
 
@@ -64,6 +63,7 @@ public class JsonApiSerializer implements ApiSerializer {
         mapper.registerModule(module);
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
+        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
     }
 
 
@@ -82,16 +82,16 @@ public class JsonApiSerializer implements ApiSerializer {
         try {
             JsonMapper mapper = wrapper.getMapper();
             if (obj != null && List.class.isAssignableFrom(obj.getClass()) && !((List) obj).isEmpty()) {
-                ObjectWriter objectWriter = mapper.writerFor(mapper.getTypeFactory()
-                        .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
+                ObjectWriter objectWriter = mapper
+                        .writerFor(mapper.getTypeFactory()
+                                .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
                         .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
-                return mapper.writeValueAsString(ModelTypeProcessor.postprocess(
-                        mapper.readTree(objectWriter.writeValueAsString(obj))));
+                return objectWriter.writeValueAsString(obj);
             }
             else {
                 return mapper.writer()
                         .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
-                        .writeValueAsString(ModelTypeProcessor.postprocess(wrapper.getMapper().valueToTree(obj)));
+                        .writeValueAsString(obj);
             }
         }
         catch (JsonProcessingException e) {

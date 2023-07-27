@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 
 
 /**
@@ -24,5 +23,5 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 public abstract class AbstractSubmodelInterfaceRequestMixin {
 
     @JsonIgnore
-    private Identifier submodelId;
+    private String submodelId;
 }

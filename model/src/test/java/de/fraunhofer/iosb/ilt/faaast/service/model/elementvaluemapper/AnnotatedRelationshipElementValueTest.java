@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
@@ -45,12 +46,8 @@ public class AnnotatedRelationshipElementValueTest {
                 .build();
         AnnotatedRelationshipElementValue value = createAnnotatedRelationshipElementValue();
         SubmodelElement expected = new DefaultAnnotatedRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(value.getFirst())
-                        .build())
-                .second(new DefaultReference.Builder()
-                        .keys(value.getSecond())
-                        .build())
+                .first(value.getFirst())
+                .second(value.getSecond())
                 .annotations(new DefaultProperty.Builder()
                         .idShort(value.getAnnotations().keySet().iterator().next())
                         .valueType(DataTypeDefXSD.STRING)
@@ -70,17 +67,17 @@ public class AnnotatedRelationshipElementValueTest {
                 .second(null)
                 .build();
         AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue.Builder()
-                .first(List.of(
-                        new DefaultKey.Builder()
+                .first(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
-                                .build()))
+                                .build())
+                        .build())
                 .second(null)
                 .build();
         SubmodelElement expected = new DefaultAnnotatedRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(value.getFirst())
-                        .build())
+                .first(value.getFirst())
                 .second(null)
                 .annotations((List<DataElement>) null)
                 .build();
@@ -93,12 +90,8 @@ public class AnnotatedRelationshipElementValueTest {
     public void testToValueMapping() throws ValueFormatException, ValueMappingException {
         AnnotatedRelationshipElementValue expected = createAnnotatedRelationshipElementValue();
         SubmodelElement input = new DefaultAnnotatedRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(expected.getFirst())
-                        .build())
-                .second(new DefaultReference.Builder()
-                        .keys(expected.getSecond())
-                        .build())
+                .first(expected.getFirst())
+                .second(expected.getSecond())
                 .annotations(new DefaultProperty.Builder()
                         .idShort(expected.getAnnotations().keySet().iterator().next())
                         .valueType(DataTypeDefXSD.STRING)
@@ -128,24 +121,28 @@ public class AnnotatedRelationshipElementValueTest {
 
     private AnnotatedRelationshipElementValue createAnnotatedRelationshipElementValue() throws ValueFormatException {
         return new AnnotatedRelationshipElementValue.Builder()
-                .first(List.of(
-                        new DefaultKey.Builder()
+                .first(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
-                                .build(),
-                        new DefaultKey.Builder()
+                                .build())
+                        .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.PROPERTY)
                                 .value("property1")
-                                .build()))
-                .second(List.of(
-                        new DefaultKey.Builder()
+                                .build())
+                        .build())
+                .second(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/2")
-                                .build(),
-                        new DefaultKey.Builder()
+                                .build())
+                        .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.PROPERTY)
                                 .value("property2")
-                                .build()))
+                                .build())
+                        .build())
                 .annotation("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .build();
     }

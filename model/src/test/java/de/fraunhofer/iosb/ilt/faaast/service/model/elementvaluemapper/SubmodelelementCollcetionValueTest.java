@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class SubmodelelementCollcetionValueTest {
+public class SubmodelElementCollcetionValueTest {
 
     @Test
     public void testToValueMapping() throws ValueMappingException {

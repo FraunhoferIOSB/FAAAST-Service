@@ -18,10 +18,8 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 
 /**
@@ -41,17 +39,17 @@ public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementV
 
     @Override
     public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        return MultiLanguagePropertyValue.builder()
-                .values(((Map<String, String>) context.readTreeAsValue(
-                        node,
-                        context.getTypeFactory().constructMapType(
-                                Map.class,
-                                String.class,
-                                String.class)))
-                                        .entrySet().stream()
-                                        .map(x -> new LangString(x.getValue(), x.getKey()))
-                                        .collect(Collectors.toSet()))
-                .build();
+        MultiLanguagePropertyValue.Builder builder = MultiLanguagePropertyValue.builder();
+        if (Objects.nonNull(node) && node.isArray()) {
+            for (var entryNode: node) {
+                if (!entryNode.isObject() || entryNode.size() != 1) {
+                    context.reportBadDefinition(MultiLanguagePropertyValue.class, "each entry must be a JSON object with language as single key and text as value");
+                }
+                var entry = entryNode.fields().next();
+                builder.value(entry.getKey(), entry.getValue().textValue());
+            }
+        }
+        return builder.build();
     }
 
 }

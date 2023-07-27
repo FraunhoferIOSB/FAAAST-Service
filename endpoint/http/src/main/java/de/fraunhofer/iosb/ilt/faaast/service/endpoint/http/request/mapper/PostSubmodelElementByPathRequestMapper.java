@@ -24,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementBy
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**

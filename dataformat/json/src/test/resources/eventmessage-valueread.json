@@ -1,24 +1,23 @@
 {
     "@type": "ValueReadEvent",
     "element":
-    {
-        "keys": [
             {
-                "idType": "Iri",
-                "type": "Submodel",
-                "value": "http://example.org/submodel"
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
             },
-            {
-                "idType": "IdShort",
-                "type": "Property",
-                "value": "property"
-            }
-        ]
-    },
     "value":
-    {
-        "modelType": "Property",
-        "dataType": "string",
-        "value": "example value"
-    }
+            {
+                "modelType": "Property",
+                "dataType": "xs:string",
+                "value": "example value"
+            }
 }

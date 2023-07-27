@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelElementCollectionValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelElementListValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.TypedValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.AnnotatedRelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BlobValueSerializer;
@@ -34,8 +36,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EntityVa
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.FileValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.MultiLanguagePropertyValueSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ReferenceElementValueSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.RelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -47,14 +47,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -151,6 +153,11 @@ public class ValueOnlyJsonSerializer {
     }
 
 
+    private static boolean isExplicitelyAcceptedType(Class<?> type) {
+        return Key.class.equals(type);
+    }
+
+
     /**
      * Modifies the mapper by adding required mixins and De-/serializers.
      *
@@ -161,13 +168,13 @@ public class ValueOnlyJsonSerializer {
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         mapper.addMixIn(SubmodelElementCollectionValue.class, SubmodelElementCollectionValueMixin.class);
+        mapper.addMixIn(SubmodelElementListValue.class, SubmodelElementListValueMixin.class);
         mapper.addMixIn(TypedValue.class, TypedValueMixin.class);
+        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         SimpleModule module = new SimpleModule();
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
-        module.addSerializer(ReferenceElementValue.class, new ReferenceElementValueSerializer());
         module.addSerializer(FileValue.class, new FileValueSerializer());
         module.addSerializer(BlobValue.class, new BlobValueSerializer());
-        module.addSerializer(RelationshipElementValue.class, new RelationshipElementValueSerializer());
         module.addSerializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueSerializer());
         module.addSerializer(EntityValue.class, new EntityValueSerializer());
         module.addSerializer(SubmodelElement.class, new SubmodelElementValueSerializer());
@@ -182,10 +189,11 @@ public class ValueOnlyJsonSerializer {
                     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                                                                      BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
                         beanProperties.removeIf(property -> {
-                            JavaType type = property.getType();
-                            List<JavaType> usedTypes = new ArrayList<>();
-                            evalContainerType(type, usedTypes);
-                            return !usedTypes.stream().allMatch(x -> isJreType(x.getRawClass()) || ElementValueHelper.isValueOnlySupported(x.getRawClass()));
+                            return !evalContainerType(property.getType()).stream()
+                                    .allMatch(
+                                            x -> isJreType(x.getRawClass())
+                                                    || ElementValueHelper.isValueOnlySupported(x.getRawClass())
+                                                    || isExplicitelyAcceptedType(x.getRawClass()));
                         });
                         return beanProperties;
                     }
@@ -196,18 +204,20 @@ public class ValueOnlyJsonSerializer {
     }
 
 
-    private void evalContainerType(JavaType type, List<JavaType> usedTypes) {
+    private Set<JavaType> evalContainerType(JavaType type) {
+        Set<JavaType> result = new HashSet<>();
         if (type.isContainerType()) {
             if (type.getContentType() != null) {
-                usedTypes.add(type.getContentType());
+                result.add(type.getContentType());
             }
             if (type.getKeyType() != null) {
-                usedTypes.add(type.getKeyType());
+                result.add(type.getKeyType());
             }
             if (type.getBindings() != null) {
-                usedTypes.addAll(type.getBindings().getTypeParameters());
+                result.addAll(type.getBindings().getTypeParameters());
             }
         }
+        return result;
     }
 
 }

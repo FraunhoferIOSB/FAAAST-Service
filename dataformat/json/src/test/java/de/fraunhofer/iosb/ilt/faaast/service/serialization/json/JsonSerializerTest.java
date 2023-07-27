@@ -21,6 +21,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -29,13 +36,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -133,21 +133,21 @@ public class JsonSerializerTest {
 
     @Test
     public void testFullExampleSerialization() throws Exception {
-        String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(AASFull.createEnvironment());
+        String expected = new org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer().write(AASFull.createEnvironment());
         String actual = serializer.write(AASFull.createEnvironment(), new OutputModifier.Builder().build());
         assertEquals(expected, actual);
     }
 
 
     private void assertAdminShellIoSerialization(Referable referable) throws Exception {
-        String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referable);
+        String expected = new org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer().write(referable);
         String actual = serializer.write(referable, new OutputModifier.Builder().build());
         assertEquals(expected, actual);
     }
 
 
     private void assertAdminShellIoSerialization(List<Referable> referables) throws Exception {
-        String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referables);
+        String expected = new org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer().write(referables);
         String actual = serializer.write(referables, new OutputModifier.Builder().build());
         assertEquals(expected, actual);
     }

@@ -24,8 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -39,6 +37,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

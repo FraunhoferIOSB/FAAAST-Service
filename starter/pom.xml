@@ -118,17 +118,6 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
-        </dependency>        
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- currently not present in aas4j, TODO: reintegrate once available -->
         <!--<dependency>

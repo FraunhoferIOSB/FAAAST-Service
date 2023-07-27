@@ -1,386 +1,381 @@
 {
     "@type": "OperationInvokeEvent",
     "element":
-    {
-        "keys": [
             {
-                "idType": "Iri",
-                "type": "Submodel",
-                "value": "http://example.org/submodel"
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
             },
-            {
-                "idType": "IdShort",
-                "type": "Property",
-                "value": "property"
-            }
-        ]
-    },
     "input": [
         {
             "modelType": "Property",
-            "dataType": "int",
+            "dataType": "xs:int",
             "value": 1
         },
         {
             "modelType": "Property",
-            "dataType": "double",
+            "dataType": "xs:double",
             "value": 3.14
         },
         {
             "modelType": "Property",
-            "dataType": "string",
+            "dataType": "xs:string",
             "value": "example value"
         },
         {
             "modelType": "Range",
             "max":
-            {
-                "dataType": "double",
-                "value": 0.2
-            },
+                    {
+                        "dataType": "xs:double",
+                        "value": 0.2
+                    },
             "min":
-            {
-                "dataType": "double",
-                "value": 0.1
-            }
+                    {
+                        "dataType": "xs:double",
+                        "value": 0.1
+                    }
         },
         {
             "modelType": "RelationshipElement",
             "first":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "second":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
-                    },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     }
-                ]
-            }
         },
         {
             "modelType": "AnnotatedRelationshipElement",
             "first":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "second":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "annotation": [
                 {
                     "exampleAnnotation":
-                    {
-                        "modelType": "Property",
-                        "dataType": "int",
-                        "value": 1
-                    }
+                            {
+                                "modelType": "Property",
+                                "dataType": "xs:int",
+                                "value": 1
+                            }
                 }
             ]
         },
         {
             "modelType": "MultiLanguageProperty",
-            "en": "english",
-            "de": "deutsch"
-        },
-        {
-            "modelType": "File",
-            "mimeType": "mimeType",
-            "value": "/example.txt"
-        },
-        {
-            "modelType": "ReferenceElement",
             "value": [
                 {
-                    "idType": "Iri",
-                    "type": "Submodel",
-                    "value": "http://example.org/submodel"
+                    "de": "deutsch"
                 },
                 {
-                    "idType": "IdShort",
-                    "type": "Property",
-                    "value": "property"
+                    "en": "english"
                 }
             ]
         },
         {
+            "modelType": "File",
+            "contentType": "mimeType",
+            "value": "/example.txt"
+        },
+        {
+            "modelType": "ReferenceElement",
+            "type": "ModelReference",
+            "keys":
+                    [
+                        {
+                            "type": "Submodel",
+                            "value": "http://example.org/submodel"
+                        },
+                        {
+                            "type": "Property",
+                            "value": "property"
+                        }
+                    ]
+        },
+        {
             "modelType": "SubmodelElementCollection",
             "values":
-            {
-                "nested_collection":
-                {
-                    "modelType": "SubmodelElementCollection",
-                    "values":
                     {
-                        "nested_property_int":
-                        {
-                            "modelType": "Property",
-                            "dataType": "int",
-                            "value": 1
-                        },
-                        "nested_property_double":
-                        {
-                            "modelType": "Property",
-                            "dataType": "double",
-                            "value": 3.14
-                        },
-                        "nested_property_string":
-                        {
-                            "modelType": "Property",
-                            "dataType": "string",
-                            "value": "example value"
-                        }
+                        "nested_collection":
+                                {
+                                    "modelType": "SubmodelElementCollection",
+                                    "values":
+                                            {
+                                                "nested_property_int":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:int",
+                                                            "value": 1
+                                                        },
+                                                "nested_property_double":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:double",
+                                                            "value": 3.14
+                                                        },
+                                                "nested_property_string":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:string",
+                                                            "value": "example value"
+                                                        }
+                                            }
+                                },
+                        "property_string":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:string",
+                                    "value": "example value"
+                                },
+                        "property_int":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:int",
+                                    "value": 1
+                                },
+                        "property_double":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:double",
+                                    "value": 3.14
+                                }
                     }
-                },
-                "property_string":
-                {
-                    "modelType": "Property",
-                    "dataType": "string",
-                    "value": "example value"
-                },
-                "property_int":
-                {
-                    "modelType": "Property",
-                    "dataType": "int",
-                    "value": 1
-                },
-                "property_double":
-                {
-                    "modelType": "Property",
-                    "dataType": "double",
-                    "value": 3.14
-                }
-            }
         }
     ],
     "inoutput": [
         {
             "modelType": "Property",
-            "dataType": "int",
+            "dataType": "xs:int",
             "value": 1
         },
         {
             "modelType": "Property",
-            "dataType": "double",
+            "dataType": "xs:double",
             "value": 3.14
         },
         {
             "modelType": "Property",
-            "dataType": "string",
+            "dataType": "xs:string",
             "value": "example value"
         },
         {
             "modelType": "Range",
             "max":
-            {
-                "dataType": "double",
-                "value": 0.2
-            },
+                    {
+                        "dataType": "xs:double",
+                        "value": 0.2
+                    },
             "min":
-            {
-                "dataType": "double",
-                "value": 0.1
-            }
+                    {
+                        "dataType": "xs:double",
+                        "value": 0.1
+                    }
         },
         {
             "modelType": "RelationshipElement",
             "first":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "second":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
-                    },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     }
-                ]
-            }
         },
         {
             "modelType": "AnnotatedRelationshipElement",
             "first":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "second":
-            {
-                "modelType": "ReferenceElement",
-                "value": [
                     {
-                        "idType": "Iri",
-                        "type": "Submodel",
-                        "value": "http://example.org/submodel"
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://example.org/submodel"
+                            },
+                            {
+                                "type": "Property",
+                                "value": "property"
+                            }
+                        ],
+                        "type": "ModelReference"
                     },
-                    {
-                        "idType": "IdShort",
-                        "type": "Property",
-                        "value": "property"
-                    }
-                ]
-            },
             "annotation": [
                 {
                     "exampleAnnotation":
-                    {
-                        "modelType": "Property",
-                        "dataType": "int",
-                        "value": 1
-                    }
+                            {
+                                "modelType": "Property",
+                                "dataType": "xs:int",
+                                "value": 1
+                            }
                 }
             ]
         },
         {
             "modelType": "MultiLanguageProperty",
-            "en": "english",
-            "de": "deutsch"
-        },
-        {
-            "modelType": "File",
-            "mimeType": "mimeType",
-            "value": "/example.txt"
-        },
-        {
-            "modelType": "ReferenceElement",
             "value": [
                 {
-                    "idType": "Iri",
-                    "type": "Submodel",
-                    "value": "http://example.org/submodel"
+                    "de": "deutsch"
                 },
                 {
-                    "idType": "IdShort",
-                    "type": "Property",
-                    "value": "property"
+                    "en": "english"
                 }
             ]
         },
         {
+            "modelType": "File",
+            "contentType": "mimeType",
+            "value": "/example.txt"
+        },
+        {
+            "modelType": "ReferenceElement",
+            "type": "ModelReference",
+            "keys":
+                    [
+                        {
+                            "type": "Submodel",
+                            "value": "http://example.org/submodel"
+                        },
+                        {
+                            "type": "Property",
+                            "value": "property"
+                        }
+                    ]
+        },
+        {
             "modelType": "SubmodelElementCollection",
             "values":
-            {
-                "nested_collection":
-                {
-                    "modelType": "SubmodelElementCollection",
-                    "values":
                     {
-                        "nested_property_int":
-                        {
-                            "modelType": "Property",
-                            "dataType": "int",
-                            "value": 1
-                        },
-                        "nested_property_double":
-                        {
-                            "modelType": "Property",
-                            "dataType": "double",
-                            "value": 3.14
-                        },
-                        "nested_property_string":
-                        {
-                            "modelType": "Property",
-                            "dataType": "string",
-                            "value": "example value"
-                        }
+                        "nested_collection":
+                                {
+                                    "modelType": "SubmodelElementCollection",
+                                    "values":
+                                            {
+                                                "nested_property_int":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:int",
+                                                            "value": 1
+                                                        },
+                                                "nested_property_double":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:double",
+                                                            "value": 3.14
+                                                        },
+                                                "nested_property_string":
+                                                        {
+                                                            "modelType": "Property",
+                                                            "dataType": "xs:string",
+                                                            "value": "example value"
+                                                        }
+                                            }
+                                },
+                        "property_string":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:string",
+                                    "value": "example value"
+                                },
+                        "property_int":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:int",
+                                    "value": 1
+                                },
+                        "property_double":
+                                {
+                                    "modelType": "Property",
+                                    "dataType": "xs:double",
+                                    "value": 3.14
+                                }
                     }
-                },
-                "property_string":
-                {
-                    "modelType": "Property",
-                    "dataType": "string",
-                    "value": "example value"
-                },
-                "property_int":
-                {
-                    "modelType": "Property",
-                    "dataType": "int",
-                    "value": 1
-                },
-                "property_double":
-                {
-                    "modelType": "Property",
-                    "dataType": "double",
-                    "value": 3.14
-                }
-            }
         }
     ]
 }

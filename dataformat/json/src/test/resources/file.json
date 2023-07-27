@@ -1,6 +1,6 @@
 {
     "file1": {
-        "mimeType": "application/pdf",
+        "contentType": "application/pdf",
         "value": "SafetyInstructions.pdf"
     }
 }

@@ -14,10 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -26,20 +24,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class RelationshipElementValue extends ElementValue {
 
-    private List<Key> first;
-    private List<Key> second;
-
-    public RelationshipElementValue() {
-        this.first = new ArrayList<>();
-        this.second = new ArrayList<>();
-    }
-
-
-    public RelationshipElementValue(List<Key> first, List<Key> second) {
-        this.first = first;
-        this.second = second;
-    }
-
+    private Reference first;
+    private Reference second;
 
     @Override
     public boolean equals(Object o) {
@@ -54,22 +40,22 @@ public class RelationshipElementValue extends ElementValue {
     }
 
 
-    public List<Key> getFirst() {
+    public Reference getFirst() {
         return first;
     }
 
 
-    public void setFirst(List<Key> first) {
+    public void setFirst(Reference first) {
         this.first = first;
     }
 
 
-    public List<Key> getSecond() {
+    public Reference getSecond() {
         return second;
     }
 
 
-    public void setSecond(List<Key> second) {
+    public void setSecond(Reference second) {
         this.second = second;
     }
 
@@ -86,13 +72,13 @@ public class RelationshipElementValue extends ElementValue {
 
     public abstract static class AbstractBuilder<T extends RelationshipElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B first(List<Key> value) {
+        public B first(Reference value) {
             getBuildingInstance().setFirst(value);
             return getSelf();
         }
 
 
-        public B second(List<Key> value) {
+        public B second(Reference value) {
             getBuildingInstance().setSecond(value);
             return getSelf();
         }

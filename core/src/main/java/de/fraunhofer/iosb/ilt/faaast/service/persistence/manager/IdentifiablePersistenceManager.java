@@ -137,7 +137,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                 .stream()
                 .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
                 .filter(x -> semanticId == null || (x.getSemanticID() != null
-                        && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticID(), semanticId)))
+                        && ReferenceHelper.equals(x.getSemanticID(), semanticId)))
                 .collect(Collectors.toList());
         return DeepCopyHelper.deepCopy(result, Submodel.class);
     }
@@ -156,12 +156,12 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         ensureInitialized();
         List<ConceptDescription> result = aasEnvironment.getConceptDescriptions().stream()
                 .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
-                .filter(x -> isCaseOf == null || x.getIsCaseOf().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf)))
+                .filter(x -> isCaseOf == null || x.getIsCaseOf().stream().anyMatch(y -> ReferenceHelper.equals(y, isCaseOf)))
                 .filter(x -> dataSpecification == null
                         || (x.getEmbeddedDataSpecifications() != null
                                 && x.getEmbeddedDataSpecifications().stream()
                                         .anyMatch(y -> y.getDataSpecification() != null
-                                                && ReferenceHelper.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification))))
+                                                && ReferenceHelper.equals(y.getDataSpecification(), dataSpecification))))
                 .collect(Collectors.toList());
         return DeepCopyHelper.deepCopy(result, ConceptDescription.class);
     }

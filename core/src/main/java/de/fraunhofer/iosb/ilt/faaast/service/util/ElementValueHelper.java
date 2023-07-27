@@ -35,6 +35,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -114,6 +115,7 @@ public class ElementValueHelper {
     public static boolean isSerializableAsValue(Class<?> type) {
         return DataElement.class.isAssignableFrom(type)
                 || SubmodelElementCollection.class.isAssignableFrom(type)
+                || SubmodelElementList.class.isAssignableFrom(type)
                 || ReferenceElement.class.isAssignableFrom(type)
                 || RelationshipElement.class.isAssignableFrom(type)
                 || AnnotatedRelationshipElement.class.isAssignableFrom(type)

@@ -27,9 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +34,9 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
 /**

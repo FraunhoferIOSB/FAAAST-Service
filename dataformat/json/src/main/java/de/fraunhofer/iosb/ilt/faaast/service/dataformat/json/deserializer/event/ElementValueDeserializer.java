@@ -22,10 +22,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**

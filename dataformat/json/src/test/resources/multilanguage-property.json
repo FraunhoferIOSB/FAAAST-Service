@@ -1,6 +1,10 @@
 {
-    "multiLanguageProp1": {
-        "de": "foo",
-        "en": "bar"
-    }
+    "multiLanguageProp1": [
+        {
+            "de": "foo"
+        },
+        {
+            "en": "bar"
+        }
+    ]
 }

@@ -40,8 +40,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
@@ -59,6 +57,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;

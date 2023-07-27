@@ -38,11 +38,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 public class EventValues {
@@ -61,22 +65,32 @@ public class EventValues {
 
     public static final String ERROR_EVENT_FILE = RESOURCE_PATH + "/eventmessage-error.json";
 
-    private static final Reference REFERENCE = AasUtils.parseReference("(Submodel)[IRI]http://example.org/submodel,(Property)[ID_SHORT]property");
+    private static final Reference REFERENCE = new DefaultReference.Builder()
+            .type(ReferenceTypes.MODEL_REFERENCE)
+            .keys(new DefaultKey.Builder()
+                    .type(KeyTypes.SUBMODEL)
+                    .value("http://example.org/submodel")
+                    .build())
+            .keys(new DefaultKey.Builder()
+                    .type(KeyTypes.PROPERTY)
+                    .value("property")
+                    .build())
+            .build();
 
     private static final Property PROPERTY_INT = new DefaultProperty.Builder()
             .idShort("PROPERTY_INT")
-            .valueType(Datatype.INT.getName())
+            .valueType(DataTypeDefXSD.INT)
             .value("1")
             .build();
     private static final Property PROPERTY_DOUBLE = new DefaultProperty.Builder()
             .idShort("PROPERTY_DOUBLE")
-            .valueType(Datatype.DOUBLE.getName())
+            .valueType(DataTypeDefXSD.DOUBLE)
             .value("3.14")
             .build();
 
     private static final Property PROPERTY_STRING = new DefaultProperty.Builder()
             .idShort("PROPERTY_STRING")
-            .valueType(Datatype.STRING.getName())
+            .valueType(DataTypeDefXSD.STRING)
             .value("example value")
             .build();
 
@@ -102,12 +116,12 @@ public class EventValues {
                     .max(TypedValueFactory.create(Datatype.DOUBLE, "0.2"))
                     .build();
             RELATIONSHIP_ELEMENT_VALUE = RelationshipElementValue.builder()
-                    .first(REFERENCE.getKeys())
-                    .second(REFERENCE.getKeys())
+                    .first(REFERENCE)
+                    .second(REFERENCE)
                     .build();
             ANNOTATED_RELATIONSHIP_ELEMENT_VALUE = new AnnotatedRelationshipElementValue.Builder()
-                    .first(REFERENCE.getKeys())
-                    .second(REFERENCE.getKeys())
+                    .first(REFERENCE)
+                    .second(REFERENCE)
                     .annotation("exampleAnnotation", PROPERTY_VALUE_INT)
                     .build();
             MULTILANGUAGE_PROPERTY_VALUE = MultiLanguagePropertyValue.builder()
@@ -119,7 +133,7 @@ public class EventValues {
                     .value("/example.txt")
                     .build();
             REFERENCE_ELEMENT_VALUE = ReferenceElementValue.builder()
-                    .keys(REFERENCE.getKeys())
+                    .value(REFERENCE)
                     .build();
             SUBMODEL_ELEMENT_COLLECTION_VALUE = SubmodelElementCollectionValue.builder()
                     .value("property_int", PROPERTY_VALUE_INT)

@@ -44,13 +44,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.io.ByteArrayOutputStream;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.validator.ShaclValidator;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,6 +64,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -101,7 +98,7 @@ public class App implements Runnable {
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
     // config
-    protected static final String CONFIG_FILENAME_DEFAULT = "config.json";  
+    protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
     // environment
     protected static final String ENV_PATH_SEPARATOR = ".";
     protected static final String ENV_PATH_ALTERNATIVE_SEPARATOR = "_";
@@ -542,6 +539,7 @@ public class App implements Runnable {
         }
         LOGGER.info("-------------------------------------------------------------------------");
     }
+
 
     /**
      * Collects config overrides from environment and CLI parameters.

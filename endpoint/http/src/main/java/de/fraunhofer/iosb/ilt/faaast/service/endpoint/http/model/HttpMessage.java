@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**

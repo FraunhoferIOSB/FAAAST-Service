@@ -14,14 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 
 
 /**
@@ -29,22 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
  */
 public class ReferenceElementValue extends DataElementValue {
 
-    private List<Key> keys;
-
-    public ReferenceElementValue() {
-        this.keys = new ArrayList<>();
-    }
-
-
-    public ReferenceElementValue(List<Key> keys) {
-        this.keys = keys;
-    }
-
-
-    public ReferenceElementValue(Key... keys) {
-        this.keys = Arrays.asList(keys);
-    }
-
+    private Reference value;
 
     @Override
     public boolean equals(Object o) {
@@ -55,23 +35,23 @@ public class ReferenceElementValue extends DataElementValue {
             return false;
         }
         ReferenceElementValue that = (ReferenceElementValue) o;
-        return Objects.equals(keys, that.keys);
+        return Objects.equals(value, that.value);
     }
 
 
-    public List<Key> getKeys() {
-        return keys;
+    public Reference getValue() {
+        return value;
     }
 
 
-    public void setKeys(List<Key> keys) {
-        this.keys = keys;
+    public void setValue(Reference value) {
+        this.value = value;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(keys);
+        return Objects.hash(value);
     }
 
 
@@ -81,26 +61,10 @@ public class ReferenceElementValue extends DataElementValue {
 
     public abstract static class AbstractBuilder<T extends ReferenceElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B keys(List<Key> value) {
-            getBuildingInstance().setKeys(value);
+        public B value(Reference value) {
+            getBuildingInstance().setValue(value);
             return getSelf();
         }
-
-
-        public B key(Key value) {
-            getBuildingInstance().getKeys().add(value);
-            return getSelf();
-        }
-
-
-        public B key(KeyTypes type, String value) {
-            getBuildingInstance().getKeys().add(new DefaultKey.Builder()
-                    .type(type)
-                    .value(value)
-                    .build());
-            return getSelf();
-        }
-
     }
 
     public static class Builder extends AbstractBuilder<ReferenceElementValue, Builder> {

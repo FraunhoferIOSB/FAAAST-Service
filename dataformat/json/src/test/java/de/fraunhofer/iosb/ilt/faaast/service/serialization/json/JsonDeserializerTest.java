@@ -27,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -214,6 +214,12 @@ public class JsonDeserializerTest {
     @Test
     public void testSubmodelElementCollection() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         assertValue(PropertyValues.ELEMENT_COLLECTION, PropertyValues.ELEMENT_COLLECTION_FILE);
+    }
+
+
+    @Test
+    public void testSubmodelElementList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+        assertValue(PropertyValues.ELEMENT_LIST, PropertyValues.ELEMENT_LIST_FILE);
     }
 
 

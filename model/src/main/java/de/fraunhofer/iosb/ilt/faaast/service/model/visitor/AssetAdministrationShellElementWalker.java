@@ -57,6 +57,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -497,6 +498,23 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
             submodelElementCollection.getValue().forEach(x -> visit(x));
         }
         visitAfter(submodelElementCollection);
+    }
+
+
+    @Override
+    public void visit(SubmodelElementList submodelElementList) {
+        visitBefore(submodelElementList);
+        if (submodelElementList != null) {
+            visit(submodelElementList.getSemanticID());
+            submodelElementList.getSupplementalSemanticIds().forEach(x -> visit(x));
+            submodelElementList.getDescription().forEach(x -> visit(x));
+            submodelElementList.getDisplayName().forEach(x -> visit(x));
+            submodelElementList.getQualifiers().forEach(x -> visit(x));
+            submodelElementList.getEmbeddedDataSpecifications().forEach(x -> visit(x));
+            submodelElementList.getExtensions().forEach(x -> visit(x));
+            submodelElementList.getValue().forEach(x -> visit(x));
+        }
+        visitAfter(submodelElementList);
     }
 
 

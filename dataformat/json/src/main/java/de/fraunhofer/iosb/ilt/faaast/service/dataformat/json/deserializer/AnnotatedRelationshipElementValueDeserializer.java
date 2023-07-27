@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -43,10 +43,10 @@ public class AnnotatedRelationshipElementValueDeserializer extends ContextAwareE
     public AnnotatedRelationshipElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         AnnotatedRelationshipElementValue.Builder builder = new AnnotatedRelationshipElementValue.Builder();
         if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST)) {
-            builder.first(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST), ReferenceElementValue.class).getKeys());
+            builder.first(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST), Reference.class));
         }
         if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND)) {
-            builder.second(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND), ReferenceElementValue.class).getKeys());
+            builder.second(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND), Reference.class));
         }
         if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION)) {
             builder.annotations(deserializeChildren(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION), context, DataElementValue.class));

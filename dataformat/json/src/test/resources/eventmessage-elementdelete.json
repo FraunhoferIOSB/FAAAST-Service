@@ -1,25 +1,24 @@
 {
     "@type": "ElementDeleteEvent",
     "element":
-    {
-        "keys": [
             {
-                "idType": "Iri",
-                "type": "Submodel",
-                "value": "http://example.org/submodel"
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
             },
-            {
-                "idType": "IdShort",
-                "type": "Property",
-                "value": "property"
-            }
-        ]
-    },
     "value":
-    {
-        "modelType": "Property",
-        "value": "1",
-        "valueType": "int",
-        "idShort": "PROPERTY_INT"
-    }
+            {
+                "modelType": "Property",
+                "value": "1",
+                "valueType": "xs:int",
+                "idShort": "PROPERTY_INT"
+            }
 }

@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 
 
 public class PersistenceInMemoryTest extends AbstractPersistenceTest<PersistenceInMemory, PersistenceInMemoryConfig> {

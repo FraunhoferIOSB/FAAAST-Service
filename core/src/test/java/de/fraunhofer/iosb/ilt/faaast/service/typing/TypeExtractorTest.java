@@ -19,18 +19,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -244,6 +248,102 @@ public class TypeExtractorTest {
                                 .value("5000")
                                 .build())
                         .globalAssetID("http://customer.com/demo/asset/1/1/MySubAsset")
+                        .build())
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementList() {
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.STRING)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .valueTypeListElement(DataTypeDefXSD.STRING)
+                .typeValueListElement(AASSubmodelElements.PROPERTY)
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("bar")
+                        .build())
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementListWithComplexElementType() {
+        SubmodelElement complexType = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .valueTypeListElement(DataTypeDefXSD.STRING)
+                .typeValueListElement(AASSubmodelElements.PROPERTY)
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("bar")
+                        .build())
+                .build();
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(null)
+                        .type(SubmodelElementCollectionValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .typeValueListElement(AASSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
+                .value(complexType)
+                .value(complexType)
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementListWithoutElementType() {
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.STRING)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .value("bar")
                         .build())
                 .build();
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);

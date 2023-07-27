@@ -23,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdReques
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**

@@ -20,12 +20,13 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Serializer for {@link io.adminshell.aas.v3.model.SubmodelElement}. Converts the submodel element zo value before
+ * Serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}. Converts the submodel element zo value
+ * before
  * serializing.
  */
 public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElement> {

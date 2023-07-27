@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.Arrays;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;

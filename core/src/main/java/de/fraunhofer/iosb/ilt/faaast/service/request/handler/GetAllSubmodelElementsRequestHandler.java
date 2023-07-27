@@ -50,7 +50,7 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
     @Override
     public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException {
-        Reference reference = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
+        Reference reference = ReferenceHelper.build(request.getSubmodelId(), Submodel.class);
         List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
         syncWithAsset(reference, submodelElements);
         if (submodelElements != null) {

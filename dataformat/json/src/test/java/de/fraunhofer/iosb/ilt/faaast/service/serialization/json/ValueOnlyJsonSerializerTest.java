@@ -23,14 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,6 +66,13 @@ public class ValueOnlyJsonSerializerTest {
 
 
     @Test
+    public void testElementList() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(PropertyValues.ELEMENT_LIST_FILE, PropertyValues.ELEMENT_LIST);
+        assertValue(PropertyValues.ELEMENT_LIST_FILE, PropertyValues.ELEMENT_LIST);
+    }
+
+
+    @Test
     public void testEntity() throws SerializationException, JSONException, IOException, ValueMappingException {
         assertEquals(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
         assertValue(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
@@ -88,7 +95,7 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test(expected = SerializationException.class)
     public void testNonValue() throws SerializationException, JSONException, IOException {
-        serializer.write(AasUtils.parseReference("(Property)[IRI]foo)"));
+        serializer.write(new DefaultProperty.Builder().build());
     }
 
 
