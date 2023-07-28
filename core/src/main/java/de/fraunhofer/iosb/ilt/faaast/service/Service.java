@@ -47,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
@@ -340,7 +341,7 @@ public class Service implements ServiceContext {
             catch (MalformedURLException e) {
                 throw new RegistryException(e);
             }
-            LOGGER.info("AAS successfully in FA³ST-Registry registered");
+
             try {
                 java.net.http.HttpResponse<String> response = execute(
                         url,
@@ -364,7 +365,52 @@ public class Service implements ServiceContext {
     }
 
     protected void handleRegistryEvent(ChangeEventMessage eventMessage) {
-        System.out.println(eventMessage);
+        if (referenceIsAas(eventMessage.getElement())) {
+            String identifier = ""; //TODO get identifier from reference
+            try {
+                updateAasInRegistry(identifier);
+            }
+            catch (RegistryException e) {
+                LOGGER.error(String.format("Unregistration in Fa³st-Registry failed: %s", e.getMessage()), e);
+            }
+        }
+    }
+
+    private boolean referenceIsAas(Reference reference) {
+        return !reference.getKeys().isEmpty() && reference.getKeys().get(0).getType() == KeyElements.ASSET_ADMINISTRATION_SHELL;
+    }
+
+    private void updateAasInRegistry(String aasIdentifier) throws RegistryException {
+        String body = "";
+        URL url;
+        try {
+            //body = mapper.writeValueAsString(descriptor); TODO send descriptor and get him back from response body?
+            url = new URL("HTTP", config.getCore().getRegistryHost(), config.getCore().getRegistryPort(),
+                    REGISTRY_BASE_PATH + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+        }
+        catch (MalformedURLException e) {
+            throw new RegistryException(e);
+        }
+
+        try {
+            java.net.http.HttpResponse<String> response = execute(
+                    url,
+                    "",
+                    "PUT",
+                    HttpRequest.BodyPublishers.ofString(body),
+                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    null);
+
+            if (is2xxSuccessful(response)) {
+                LOGGER.info("AAS successfully in FA³ST-Registry updated");
+            }
+            else {
+                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
+            }
+        }
+        catch (Exception e) {
+            throw new RegistryException("Connection to FA³ST-Registry failed!");
+        }
     }
 
 
