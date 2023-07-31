@@ -55,7 +55,7 @@ public class TimeSeriesTest extends BaseModelTest {
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
                         .record(Record.builder()
-                                .time(ZonedDateTime.parse("2022-01-01T00:00:00Z"))
+                                .time("Time00", ZonedDateTime.parse("2022-01-01T00:00:00Z"))
                                 .variable(TimeSeriesData.FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
                                 .variable(TimeSeriesData.FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
                                 .idShort("Record01")
@@ -63,7 +63,6 @@ public class TimeSeriesTest extends BaseModelTest {
                         .idShort("InternalSegment01")
                         .build())
                 .build();
-
         Assert.assertEquals(expected, actual);
     }
 

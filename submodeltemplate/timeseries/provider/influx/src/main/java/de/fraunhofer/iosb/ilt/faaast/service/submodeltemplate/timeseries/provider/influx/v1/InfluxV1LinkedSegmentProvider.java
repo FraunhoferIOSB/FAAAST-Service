@@ -100,13 +100,13 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
             String fieldName = fields.get(i);
             Object fieldValue = values.get(i);
             if (TIME_FIELD.equals(fieldName)) {
-                result.setTime(ZonedDateTime.parse(fieldValue.toString()));
+                result.getTime().put(fieldName, ZonedDateTime.parse(fieldValue.toString()));
             }
-            else if (metadata.getRecordMetadata().containsKey(fieldName)) {
+            else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                 try {
                     result.getVariables().put(
                             fieldName,
-                            parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                            parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
                 }
                 catch (ValueFormatException e) {
                     throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);

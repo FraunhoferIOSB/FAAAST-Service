@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.AbstractCSVExternalSegmentProviderConfig;
+import java.util.List;
 
 
 /**
@@ -24,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
 
     private String baseDir;
-    private String timeColumn;
+    private List<String> timeColumns;
 
     public String getBaseDir() {
         return baseDir;
@@ -36,13 +37,13 @@ public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegment
     }
 
 
-    public String getTimeColumn() {
-        return timeColumn;
+    public List<String> getTimeColumns() {
+        return timeColumns;
     }
 
 
-    public void setTimeColumn(String timeColumn) {
-        this.timeColumn = timeColumn;
+    public void setTimeColumns(List<String> timeColumns) {
+        this.timeColumns = timeColumns;
     }
 
     protected abstract static class AbstractBuilder<T extends CSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
@@ -54,8 +55,8 @@ public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegment
         }
 
 
-        public B timeColumn(String value) {
-            getBuildingInstance().setTimeColumn(value);
+        public B timeColumns(List<String> value) {
+            getBuildingInstance().setTimeColumns(value);
             return getSelf();
         }
 

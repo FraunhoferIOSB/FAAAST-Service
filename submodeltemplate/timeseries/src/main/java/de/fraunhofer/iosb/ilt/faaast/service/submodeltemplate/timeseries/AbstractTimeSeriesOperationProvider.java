@@ -102,7 +102,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
         SubmodelElementCollection metadata = AasHelper.getElementByIdShort(loadTimeSeries().getSubmodelElements(), Constants.TIMESERIES_METADATA_ID_SHORT,
                 SubmodelElementCollection.class);
         return Metadata.builder()
-                .recordMetadata(AasHelper.getElementByIdShort(metadata.getValues(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
+                .recordMetadataVariables(AasHelper.getElementByIdShort(metadata.getValues(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
                         .getValues().stream()
                         .collect(Collectors.toMap(
                                 Referable::getIdShort,

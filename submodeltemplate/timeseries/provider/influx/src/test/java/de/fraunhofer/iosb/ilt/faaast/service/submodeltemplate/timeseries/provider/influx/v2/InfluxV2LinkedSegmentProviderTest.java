@@ -46,7 +46,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 serverConfig.getToken())) {
             client.getWriteApiBlocking().writePoints(records.stream().map(record -> Point
                     .measurement(measurement)
-                    .time(record.getTime().toEpochSecond(), WritePrecision.S)
+                    .time(record.getSingleTime().toEpochSecond(), WritePrecision.S)
                     .addFields(record.getVariables().entrySet().stream()
                             .collect(Collectors.toMap(
                                     x -> x.getKey(),

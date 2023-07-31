@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -31,10 +30,13 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -42,22 +44,41 @@ import java.util.Objects;
  */
 public class Record extends ExtendableSubmodelElementCollection {
 
+    //    @JsonIgnore
+    //    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<>(
+    //            values,
+    //            null,
+    //            false,
+    //            Property.class,
+    //            x -> Objects.nonNull(x)
+    //                    ? new DefaultProperty.Builder()
+    //                            .idShort(Constants.RECORD_TIME_ID_SHORT)
+    //                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+    //                            .valueType(Datatype.DATE_TIME.getName())
+    //                            .value(x.toString())
+    //                            .build()
+    //                    : null,
+    //            x -> Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+    //            x -> ZonedDateTime.parse(x.getValue()));
+
+    //    @JsonIgnore
+    //    private ListWrapper<String, SubmodelElementCollection> timeList;
+    //    
+    //    @JsonIgnore
+    //    private ExtendableSubmodelElementCollection timeCollection;
     @JsonIgnore
-    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<>(
+    private Wrapper<Map<String, ZonedDateTime>, Property> time = new MapWrapper<>(
             values,
-            null,
-            false,
+            new LinkedHashMap<>(),
             Property.class,
-            x -> Objects.nonNull(x)
-                    ? new DefaultProperty.Builder()
-                            .idShort(Constants.RECORD_TIME_ID_SHORT)
-                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                            .valueType(Datatype.DATE_TIME.getName())
-                            .value(x.toString())
-                            .build()
-                    : null,
+            x -> new DefaultProperty.Builder()
+                    .idShort(x.getKey()) //Time{xx}
+                    .valueType(Datatype.DATE_TIME.getName())
+                    .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x.getValue()))
+                    .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                    .build(),
             x -> Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-            x -> ZonedDateTime.parse(x.getValue()));
+            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), ZonedDateTime.parse(x.getValue(), DateTimeFormatter.ISO_ZONED_DATE_TIME)));
 
     @JsonIgnore
     private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<>(
@@ -72,11 +93,7 @@ public class Record extends ExtendableSubmodelElementCollection {
             x -> !Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
             x -> {
                 try {
-                    return new AbstractMap.SimpleEntry<>(
-                            x.getIdShort(),
-                            TypedValueFactory.create(
-                                    x.getValueType(),
-                                    x.getValue()));
+                    return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
                 }
                 catch (ValueFormatException e) {
                     throw new IllegalArgumentException(e);
@@ -128,17 +145,34 @@ public class Record extends ExtendableSubmodelElementCollection {
     }
 
 
-    public ZonedDateTime getTime() {
+    public Map<String, ZonedDateTime> getTime() {
         return time.getValue();
+    }
+
+
+    /**
+     * Get a single timestamp from the timestamps of the record.
+     *
+     * @return timestamp of the record or null, if no time is set
+     */
+    public ZonedDateTime getSingleTime() {
+        Optional<String> timeName = this.time.getValue().keySet().stream().findFirst();
+        if (timeName.isPresent()) {
+            return this.time.getValue().get(timeName.get());
+        }
+        else {
+            return null;
+        }
+
     }
 
 
     /**
      * Sets the time.
      *
-     * @param time the tiem to set
+     * @param time the time to set
      */
-    public void setTime(ZonedDateTime time) {
+    public void setTime(Map<String, ZonedDateTime> time) {
         this.time.setValue(time);
     }
 
@@ -158,14 +192,31 @@ public class Record extends ExtendableSubmodelElementCollection {
     }
 
 
+    /**
+     * Add to the variables.
+     *
+     * @param variableName name of the variable
+     * @param value {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue} of the variable
+     */
+    public void addVariables(String variableName, TypedValue value) {
+        this.variables.getValue().put(variableName, value);
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends Record, B extends AbstractBuilder<T, B>> extends SubmodelElementCollectionBuilder<T, B> {
 
-        public B time(ZonedDateTime value) {
+        public B time(Map<String, ZonedDateTime> value) {
             getBuildingInstance().setTime(value);
+            return getSelf();
+        }
+
+
+        public B time(String key, ZonedDateTime value) {
+            getBuildingInstance().getTime().put(key, value);
             return getSelf();
         }
 

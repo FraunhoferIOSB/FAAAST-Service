@@ -77,8 +77,8 @@ public class ExternalSegment extends Segment {
      */
     public static ExternalSegment of(SubmodelElementCollection smc) {
         ExternalSegment target = new ExternalSegment();
-        Optional<File> smcFile = getDataObject(smc, File.class);
-        Optional<Blob> smcBlob = getDataObject(smc, Blob.class);
+        Optional<File> smcFile = createDataObject(smc, File.class);
+        Optional<Blob> smcBlob = createDataObject(smc, Blob.class);
         SubmodelElementCollection toParse = smc;
         toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
         if (smcFile.isPresent()) {
@@ -93,11 +93,12 @@ public class ExternalSegment extends Segment {
                     .filter(x -> !Objects.equals(smcBlob.get(), x))
                     .collect(Collectors.toList()));
         }
+
         return Segment.of(target, toParse);
     }
 
 
-    private static <T extends DataElement> Optional<T> getDataObject(SubmodelElementCollection smc, Class<T> type) {
+    private static <T extends DataElement> Optional<T> createDataObject(SubmodelElementCollection smc, Class<T> type) {
         String semanticID = type.equals(File.class) ? Constants.FILE_SEMANTIC_ID : Constants.BLOB_SEMANTIC_ID;
         Optional<T> smcObj = smc.getValues().stream()
                 .filter(Objects::nonNull)

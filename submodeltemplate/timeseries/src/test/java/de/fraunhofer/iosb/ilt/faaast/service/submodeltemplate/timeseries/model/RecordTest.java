@@ -28,6 +28,8 @@ import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,7 +53,7 @@ public class RecordTest extends BaseModelTest {
                 .description(new LangString("foo", "en"))
                 .description(new LangString("bar", "de"))
                 .kind(ModelingKind.INSTANCE)
-                .time(ZonedDateTime.parse("2021-01-01T00:00:00Z"))
+                .time("Time00", ZonedDateTime.parse("2021-01-01T00:00:00Z"))
                 .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
                 .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
                 .build();
@@ -91,7 +93,7 @@ public class RecordTest extends BaseModelTest {
         Record record = new Record();
         assertAASElements(record);
 
-        record.setTime(TIME);
+        record.setTime(new LinkedHashMap<String, ZonedDateTime>(Map.of(Constants.RECORD_TIME_ID_SHORT, TIME)));
         assertAASElements(record, PROPERTY_TIME);
 
         record.getVariables().put(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"));

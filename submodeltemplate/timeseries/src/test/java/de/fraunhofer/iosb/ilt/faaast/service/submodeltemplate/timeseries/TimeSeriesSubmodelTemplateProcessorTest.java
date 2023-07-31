@@ -81,8 +81,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
             .dontCalculatePropertiesIfNotPresent()
-            .start(TimeSeriesData.RECORD_00.getTime())
-            .end(TimeSeriesData.RECORD_05.getTime())
+            .start(TimeSeriesData.RECORD_00.getSingleTime())
+            .end(TimeSeriesData.RECORD_05.getSingleTime())
             .record(TimeSeriesData.RECORD_00)
             .record(TimeSeriesData.RECORD_01)
             .record(TimeSeriesData.RECORD_02)
@@ -99,8 +99,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     public static final InternalSegment INTERNAL_SEGMENT_WITH_WRONG_TIMES = InternalSegment.builder()
             .dontCalculatePropertiesIfNotPresent()
-            .start(TimeSeriesData.RECORD_00.getTime())
-            .end(TimeSeriesData.RECORD_05.getTime())
+            .start(TimeSeriesData.RECORD_00.getSingleTime())
+            .end(TimeSeriesData.RECORD_05.getSingleTime())
             .record(TimeSeriesData.RECORD_08)
             .record(TimeSeriesData.RECORD_09)
             .build();
@@ -258,25 +258,25 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 TimeSeriesData.RECORDS);
         // fetch exactly all records
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime(),
-                TimeSeriesData.RECORD_09.getTime(),
+                TimeSeriesData.RECORD_00.getSingleTime(),
+                TimeSeriesData.RECORD_09.getSingleTime(),
                 TimeSeriesData.RECORDS);
         // fetch nothing
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime().minusHours(1),
-                TimeSeriesData.RECORD_00.getTime().minusMinutes(1));
+                TimeSeriesData.RECORD_00.getSingleTime().minusHours(1),
+                TimeSeriesData.RECORD_00.getSingleTime().minusMinutes(1));
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getTime().plusMinutes(1),
-                TimeSeriesData.RECORD_09.getTime().plusHours(1));
+                TimeSeriesData.RECORD_09.getSingleTime().plusMinutes(1),
+                TimeSeriesData.RECORD_09.getSingleTime().plusHours(1));
         // fetch records from only one segment        
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                INTERNAL_SEGMENT.getRecords().get(0).getTime(),
-                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getTime(),
+                INTERNAL_SEGMENT.getRecords().get(0).getSingleTime(),
+                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime(),
                 INTERNAL_SEGMENT.getRecords());
         // fetch partialy records from multiple segment
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getTime(),
-                INTERNAL_SEGMENT_WITHOUT_TIMES.getRecords().get(0).getTime(),
+                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime(),
+                INTERNAL_SEGMENT_WITHOUT_TIMES.getRecords().get(0).getSingleTime(),
                 List.of(TimeSeriesData.RECORD_05, TimeSeriesData.RECORD_06));
     }
 
@@ -297,40 +297,40 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES);
         // fetch exactly all records
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime(),
-                TimeSeriesData.RECORD_09.getTime(),
+                TimeSeriesData.RECORD_00.getSingleTime(),
+                TimeSeriesData.RECORD_09.getSingleTime(),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime(),
-                TimeSeriesData.RECORD_09.getTime(),
+                TimeSeriesData.RECORD_00.getSingleTime(),
+                TimeSeriesData.RECORD_09.getSingleTime(),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES);
         // fetch nothing
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime().minusHours(1),
-                TimeSeriesData.RECORD_00.getTime().minusMinutes(1));
+                TimeSeriesData.RECORD_00.getSingleTime().minusHours(1),
+                TimeSeriesData.RECORD_00.getSingleTime().minusMinutes(1));
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime().minusHours(1),
-                TimeSeriesData.RECORD_00.getTime().minusMinutes(1));
+                TimeSeriesData.RECORD_00.getSingleTime().minusHours(1),
+                TimeSeriesData.RECORD_00.getSingleTime().minusMinutes(1));
 
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getTime().plusMinutes(1),
-                TimeSeriesData.RECORD_09.getTime().plusHours(1));
+                TimeSeriesData.RECORD_09.getSingleTime().plusMinutes(1),
+                TimeSeriesData.RECORD_09.getSingleTime().plusHours(1));
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getTime().plusMinutes(1),
-                TimeSeriesData.RECORD_09.getTime().plusHours(1));
+                TimeSeriesData.RECORD_09.getSingleTime().plusMinutes(1),
+                TimeSeriesData.RECORD_09.getSingleTime().plusHours(1));
         // fetch partial 
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime(),
-                TimeSeriesData.RECORD_05.getTime(),
+                TimeSeriesData.RECORD_00.getSingleTime(),
+                TimeSeriesData.RECORD_05.getSingleTime(),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getTime(),
-                TimeSeriesData.RECORD_05.getTime(),
+                TimeSeriesData.RECORD_00.getSingleTime(),
+                TimeSeriesData.RECORD_05.getSingleTime(),
                 INTERNAL_SEGMENT);
     }
 

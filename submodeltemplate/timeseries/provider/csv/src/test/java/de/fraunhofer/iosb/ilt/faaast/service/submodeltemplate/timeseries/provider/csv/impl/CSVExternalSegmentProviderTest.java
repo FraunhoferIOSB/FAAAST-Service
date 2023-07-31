@@ -55,7 +55,8 @@ public class CSVExternalSegmentProviderTest {
             .build();
 
     //TODO move somewhere nicer?
-    byte[] base64Blob = "dGltZSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiw5LDAuOSxpdA=="
+    //    byte[] base64Blob = "dGltZSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiw5LDAuOSxpdA=="
+    byte[] base64Blob = "VGltZTAwLFRpbWUwMSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDIwMjItMDItMDFUMDE6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMjAyMi0wMi0wMVQwMjowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyMDIyLTAyLTAxVDAzOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMjAyMi0wMi0wMVQwNDowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosMjAyMi0wMi0wMVQwNTowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosMjAyMi0wMi0wMlQwMjowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDIwMjItMDItMDJUMDM6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDIwMjItMDItMDJUMDQ6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDIwMjItMDItMDNUMDI6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiwyMDIyLTAyLTAzVDAzOjAwOjAwWiw5LDAuOSxpdA=="
             .getBytes();
     private final Blob dataBlob = new DefaultBlob.Builder()
             .value(base64Blob)
@@ -71,7 +72,7 @@ public class CSVExternalSegmentProviderTest {
         blobSegment = ExternalSegment.builder().data(dataBlob).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
-        config = CSVExternalSegmentProviderConfig.builder().timeColumn("time").build();
+        config = CSVExternalSegmentProviderConfig.builder().timeColumns(List.of("Time00", "Time01")).build();
     }
 
 
@@ -153,20 +154,20 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getTime(),
-                        TimeSeriesTestData.RECORD_09.getTime())));
+                        TimeSeriesTestData.RECORD_00.getSingleTime(),
+                        TimeSeriesTestData.RECORD_09.getSingleTime())));
         // fetch nothing
         assertEqualsIgnoringIdShort(
                 List.of(),
                 provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getTime().minusHours(1),
-                        TimeSeriesTestData.RECORD_00.getTime().minusMinutes(1))));
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
         // fetch partially
         assertEqualsIgnoringIdShort(
                 List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
                 provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_03.getTime(),
-                        TimeSeriesTestData.RECORD_04.getTime())));
+                        TimeSeriesTestData.RECORD_03.getSingleTime(),
+                        TimeSeriesTestData.RECORD_04.getSingleTime())));
 
     }
 

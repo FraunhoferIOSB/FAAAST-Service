@@ -30,6 +30,7 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.stream.Stream;
 import org.hamcrest.Matchers;
@@ -38,7 +39,7 @@ import org.junit.Assert;
 
 public abstract class BaseModelTest {
 
-    protected static final ZonedDateTime TIME = ZonedDateTime.parse("2021-01-01T00:00:00Z");
+    protected static final ZonedDateTime TIME = ZonedDateTime.parse("2021-01-01T00:00:00Z", DateTimeFormatter.ISO_ZONED_DATE_TIME);
 
     protected static final Property PROPERTY_FIELD1 = new DefaultProperty.Builder()
             .idShort(FIELD_1)
@@ -55,7 +56,7 @@ public abstract class BaseModelTest {
     protected static final Property PROPERTY_TIME = new DefaultProperty.Builder()
             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
             .valueType(Datatype.DATE_TIME.getName())
-            .value(TIME.toString())
+            .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(TIME))
             .idShort(Constants.RECORD_TIME_ID_SHORT)
             .build();
 

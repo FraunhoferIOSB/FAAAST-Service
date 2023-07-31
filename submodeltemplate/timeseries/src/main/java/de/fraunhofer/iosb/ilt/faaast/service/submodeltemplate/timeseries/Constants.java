@@ -50,7 +50,7 @@ public class Constants {
     public static final String LINKED_SEGMENT_QUERY_ID_SHORT = "Query";
     public static final String INTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1";
     public static final String INTERNAL_SEGMENT_RECORDS_ID_SHORT = "Records";
-    public static final String RECORD_TIME_ID_SHORT = "Time";
+    public static final String RECORD_TIME_ID_SHORT = "Time00";
     public static final String RECORD_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Record/1/1";
     // Operation: ReadRecords
     public static final String READ_RECORDS_ID_SHORT = "ReadRecords";

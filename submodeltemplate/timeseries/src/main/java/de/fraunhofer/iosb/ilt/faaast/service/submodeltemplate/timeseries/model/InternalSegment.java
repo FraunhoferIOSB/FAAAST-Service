@@ -60,8 +60,11 @@ public class InternalSegment extends Segment {
 
         if (getCalculatePropertiesIfNotPresent() && !records.isEmpty()) {
             this.setRecordCount(records.getValue().size());
-            this.setStart(records.stream().map(Record::getTime).min(new ZonedDateTimeComparator()).orElse(null));
-            this.setEnd(records.stream().map(Record::getTime).max(new ZonedDateTimeComparator()).orElse(null));
+            // TODO: Hardcoded to use one (random) timestamp. See where to define which one to use
+            this.setStart(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).min(new ZonedDateTimeComparator()).orElse(null));
+            this.setEnd(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).max(new ZonedDateTimeComparator()).orElse(null));
+            //            this.setStart(records.stream().map(Record::getTime).min(new ZonedDateTimeComparator()).orElse(null));
+            //            this.setEnd(records.stream().map(Record::getTime).max(new ZonedDateTimeComparator()).orElse(null));
         }
     }
 

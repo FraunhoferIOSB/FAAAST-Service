@@ -57,7 +57,7 @@ public interface SegmentProvider<T extends Segment, C extends SegmentProviderCon
      */
     public default List<Record> getRecords(Metadata metadata, T segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, segment).stream()
-                .filter(x -> timespan.includes(x.getTime()))
+                .filter(x -> timespan.includes(x.getTime().get(x.getTime().keySet().stream().findFirst().get())))
                 .collect(Collectors.toList());
     }
 }

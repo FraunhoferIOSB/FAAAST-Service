@@ -109,18 +109,18 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                     Object fieldValue = values[index];
                     if (fieldValue != null) {
                         if (TIME_FIELD.equals(fieldName)) {
-                            result.setTime(ZonedDateTime.ofInstant(
+                            result.getTime().put(fieldName, ZonedDateTime.ofInstant(
                                     Instant.ofEpochMilli(
                                             TimeUnit.MILLISECONDS.convert(
                                                     Long.parseLong(fieldValue.toString()),
                                                     TimeUnit.NANOSECONDS)),
                                     ZoneOffset.UTC));
                         }
-                        else if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                        else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                             try {
                                 result.getVariables().put(
                                         fieldName,
-                                        parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                                        parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
                             }
                             catch (ValueFormatException e) {
                                 throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);
@@ -165,16 +165,16 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                 for (int j = 0; j < table.getRecords().size(); j++) {
                     FluxRecord record = table.getRecords().get(j);
                     String fieldName = record.getField();
-                    if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                    if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                         Object fieldValue = record.getValue();
                         Record newRecord = result[j] == null ? new Record() : result[j];
                         try {
-                            newRecord.getVariables().put(fieldName, parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                            newRecord.getVariables().put(fieldName, parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
                         }
                         catch (ValueFormatException ex) {
                             LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                         }
-                        newRecord.setTime(record.getTime().atZone(ZoneOffset.UTC));
+                        newRecord.getTime().put(fieldName, record.getTime().atZone(ZoneOffset.UTC));
                         result[j] = newRecord;
                     }
                 }

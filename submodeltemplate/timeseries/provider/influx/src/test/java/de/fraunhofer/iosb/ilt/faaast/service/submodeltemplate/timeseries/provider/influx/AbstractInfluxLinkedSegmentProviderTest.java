@@ -120,20 +120,20 @@ public abstract class AbstractInfluxLinkedSegmentProviderTest {
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getTime(),
-                            TimeSeriesData.RECORD_09.getTime())));
+                            TimeSeriesData.RECORD_00.getSingleTime(),
+                            TimeSeriesData.RECORD_09.getSingleTime())));
             // fetch nothing
             assertEqualsIgnoringIdShort(
                     List.of(),
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getTime().minusHours(1),
-                            TimeSeriesData.RECORD_00.getTime().minusMinutes(1))));
+                            TimeSeriesData.RECORD_00.getSingleTime().minusHours(1),
+                            TimeSeriesData.RECORD_00.getSingleTime().minusMinutes(1))));
             // fetch partially
             assertEqualsIgnoringIdShort(
                     List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_03.getTime(),
-                            TimeSeriesData.RECORD_04.getTime())));
+                            TimeSeriesData.RECORD_03.getSingleTime(),
+                            TimeSeriesData.RECORD_04.getSingleTime())));
         }
         finally {
             server.stop();

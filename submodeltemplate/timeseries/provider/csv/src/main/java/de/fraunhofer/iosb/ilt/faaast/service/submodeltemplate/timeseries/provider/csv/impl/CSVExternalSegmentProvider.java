@@ -168,7 +168,7 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
         try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(inputReader)) {
             Map<String, String> values;
             while ((values = reader.readMap()) != null) {
-                ZonedDateTime timestamp = ZonedDateTime.parse(values.get(config.getTimeColumn()));
+                ZonedDateTime timestamp = ZonedDateTime.parse(values.get(config.getTimeColumns().get(0))); //TODO: determine which timestamp to use
 
                 if (timespan != null) {
                     if (timespan.getStart().isPresent() && timespan.getStart().get().isAfter(timestamp)) {
@@ -193,7 +193,7 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
             throw new SegmentProviderException(message);
         }
         catch (CsvValidationException e) {
-            String message = String.format("Error reading from CSV File: csv not valid: %s",
+            String message = String.format("Error reading from CSV File: CSV not valid: %s",
                     e.getMessage());
             LOGGER.debug(message);
             throw new SegmentProviderException(message);
@@ -207,13 +207,14 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
         Record record = new Record();
         for (Entry<String, String> columnEntry: row.entrySet()) {
             String columnName = columnEntry.getKey().trim();
-            if (columnName.equalsIgnoreCase(config.getTimeColumn())) {
-                record.setTime(ZonedDateTime.parse(columnEntry.getValue()));
+            if (config.getTimeColumns().contains(columnName)) {//(columnName.equalsIgnoreCase(config.getTimeColumn())) {
+                //record.setTime(ZonedDateTime.parse(columnEntry.getValue()));
+                record.getTime().put(columnName, ZonedDateTime.parse(columnEntry.getValue()));
             }
-            else if (metadata.getRecordMetadata().containsKey(columnName)) {
+            else if (metadata.getRecordMetadataVariables().containsKey(columnName)) {
                 try {
                     record.getVariables().put(columnName,
-                            parseValue(columnEntry.getValue(), metadata.getRecordMetadata().get(columnName)));
+                            parseValue(columnEntry.getValue(), metadata.getRecordMetadataVariables().get(columnName).getDataType())); //TODO: check correct
                 }
                 catch (ValueFormatException e) {
                     LOGGER.debug("Error reading from CSV - conversion error: " + e.getMessage());

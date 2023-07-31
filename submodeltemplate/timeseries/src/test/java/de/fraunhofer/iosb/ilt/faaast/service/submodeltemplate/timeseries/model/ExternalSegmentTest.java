@@ -123,10 +123,10 @@ public class ExternalSegmentTest extends BaseModelTest {
     public void testParseWithAdditionalElement() throws ValueFormatException {
         SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
                 .semanticId(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID))
-                .value(new DefaultFile())
+                .value(testFile)
                 .value(ADDITIONAL_ELEMENT)
                 .build();
-        Record actual = Record.of(expected);
+        ExternalSegment actual = ExternalSegment.of(expected);
         assertAASEquals(expected, actual);
     }
 

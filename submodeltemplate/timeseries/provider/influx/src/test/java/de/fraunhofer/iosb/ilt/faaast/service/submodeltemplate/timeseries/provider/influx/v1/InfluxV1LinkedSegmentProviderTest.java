@@ -49,7 +49,7 @@ public class InfluxV1LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 .database(serverConfig.getDatabase())
                 .points(records.stream().map(record -> Point
                         .measurement(measurement)
-                        .time(record.getTime().toEpochSecond(), TimeUnit.SECONDS)
+                        .time(record.getSingleTime().toEpochSecond(), TimeUnit.SECONDS)
                         .fields(record.getVariables().entrySet().stream()
                                 .collect(Collectors.toMap(
                                         x -> x.getKey(),
