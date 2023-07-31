@@ -39,16 +39,6 @@ import java.util.stream.Collectors;
  */
 public class Metadata extends ExtendableSubmodelElementCollection {
 
-    //    @JsonIgnore
-    //    private ValueWrapper<RecordMetadata, SubmodelElementCollection> recordMetadata = new ValueWrapper<>(
-    //            values,
-    //            new RecordMetadata(),
-    //            false,
-    //            SubmodelElementCollection.class,
-    //            x -> x,
-    //            x -> Objects.equals(Constants.METADATA_RECORD_METADATA_ID_SHORT, x.getIdShort()),
-    //            x -> ExtendableSubmodelElementCollection.genericOf(new RecordMetadata(), x));
-
     // TODO change to optional field (currently empty metadatarecord is needed or will be created?
     @JsonIgnore
     private Wrapper<Record, SubmodelElementCollection> recordMetadata = new ValueWrapper<>(
@@ -62,9 +52,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
                 }
                 return x;
             },
-            x -> {
-                return ((x == null) || Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID)));
-            },
+            x -> ((x == null) || Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))),
             x -> ExtendableSubmodelElementCollection.genericOf(new Record(), x));
 
     public Metadata() {
@@ -120,9 +108,6 @@ public class Metadata extends ExtendableSubmodelElementCollection {
                     .collect(Collectors.toList()));
         }
         return ExtendableSubmodelElementCollection.genericOf(target, toParse);
-        //        return ExtendableSubmodelElementCollection.genericOf(target, smc);
-
-        //        return ExtendableSubmodelElementCollection.genericOf(new Metadata(), smc);
     }
 
 
@@ -133,10 +118,6 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      */
     @JsonIgnore
     public Map<String, TypedValue> getRecordMetadataVariables() {
-        //        Map<String, TypedValue> res = this.recordMetadata.getValue().getVariables();
-        //        Map<String, Datatype> datatypeMap = new HashMap<>();
-        //        res.forEach((key, val) -> datatypeMap.put(key, val.getDataType()));
-        //        return datatypeMap;
         return this.recordMetadata.getValue().getVariables();
     }
 
@@ -149,7 +130,6 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         Map<String, TypedValue> typedValueMap = new HashMap<>();
         recordMetadata.forEach((key, val) -> typedValueMap.put(key, TypedValueFactory.createSafe(val, "")));
         this.recordMetadata.getValue().setVariables(typedValueMap);
-        //        this.recordMetadata.getValue().variables.setValue(recordMetadata);
     }
 
 
@@ -162,7 +142,6 @@ public class Metadata extends ExtendableSubmodelElementCollection {
     @JsonIgnore
     void setRecordMetadataVariables(String key, Datatype value) {
         this.recordMetadata.getValue().addVariables(key, TypedValueFactory.createSafe(value, ""));
-        //        this.recordMetadata.getValue().variables.setValue(recordMetadata);
     }
 
 

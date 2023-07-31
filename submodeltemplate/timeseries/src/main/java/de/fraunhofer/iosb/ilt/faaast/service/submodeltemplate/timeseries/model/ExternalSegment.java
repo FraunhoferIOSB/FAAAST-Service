@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class ExternalSegment extends Segment {
 
     @JsonIgnore
-    private Wrapper<File, File> file = new ValueWrapper<File, File>(
+    private Wrapper<File, File> file = new ValueWrapper<>(
             values,
             null,
             true,
@@ -51,7 +51,7 @@ public class ExternalSegment extends Segment {
             x -> x);
 
     @JsonIgnore
-    private Wrapper<Blob, Blob> blob = new ValueWrapper<Blob, Blob>(
+    private Wrapper<Blob, Blob> blob = new ValueWrapper<>(
             values,
             null,
             true,
@@ -79,8 +79,7 @@ public class ExternalSegment extends Segment {
         ExternalSegment target = new ExternalSegment();
         Optional<File> smcFile = createDataObject(smc, File.class);
         Optional<Blob> smcBlob = createDataObject(smc, Blob.class);
-        SubmodelElementCollection toParse = smc;
-        toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
+        SubmodelElementCollection toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
         if (smcFile.isPresent()) {
             target.setData(smcFile.get());
             toParse.setValues(smc.getValues().stream()
@@ -100,13 +99,12 @@ public class ExternalSegment extends Segment {
 
     private static <T extends DataElement> Optional<T> createDataObject(SubmodelElementCollection smc, Class<T> type) {
         String semanticID = type.equals(File.class) ? Constants.FILE_SEMANTIC_ID : Constants.BLOB_SEMANTIC_ID;
-        Optional<T> smcObj = smc.getValues().stream()
+        return smc.getValues().stream()
                 .filter(Objects::nonNull)
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .map(type::cast)
                 .filter(x -> Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(semanticID)))
                 .findFirst();
-        return smcObj;
     }
 
 
@@ -126,22 +124,6 @@ public class ExternalSegment extends Segment {
     public DataElement getData() {
         return data.getValue();
     }
-
-    //    /**
-    //     * Sets the data.
-    //     *
-    //     * @param data the data to set. Either File or Blob. Other data is ignored.
-    //     */
-    //        public void setData(DataElement data) {
-    //            if (data instanceof File) {
-    //                this.file.setValue((File) data);
-    //                this.data = this.file;
-    //            }
-    //            else if (data instanceof Blob) {
-    //                this.blob.setValue((Blob) data);
-    //                this.data = this.blob;
-    //            }
-    //        }
 
 
     /**

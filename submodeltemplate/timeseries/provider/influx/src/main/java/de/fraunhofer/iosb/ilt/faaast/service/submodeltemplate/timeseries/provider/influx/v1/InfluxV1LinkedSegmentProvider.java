@@ -90,6 +90,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         x -> x.getValues().stream()
                                 .map(LambdaExceptionHelper.rethrowFunction(
                                         y -> toRecord(metadata, x.getColumns(), y)))))
+                .map(Record.class::cast)
                 .collect(Collectors.toList());
     }
 

@@ -67,7 +67,7 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
     @Override
     public List<Record> getRecords(Metadata metadata, ExternalSegment segment, Timespan timespan) throws SegmentProviderException {
         if (!isInTimeRange(segment, timespan)) {
-            return new ArrayList<Record>();
+            return new ArrayList<>();
         }
 
         List<Record> resultRecords = new ArrayList<>();
@@ -95,10 +95,7 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
 
     private boolean isInTimeRange(ExternalSegment segment, Timespan timespan) {
         Timespan segmentTimespan = new Timespan(segment.getStart(), segment.getEnd());
-        if (timespan.overlaps(segmentTimespan)) {
-            return true;
-        }
-        return false;
+        return timespan.overlaps(segmentTimespan);
     }
 
 
@@ -154,10 +151,9 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
             throw new SegmentProviderException(message);
         }
 
-        List<Record> recordRows = new ArrayList<>();
         String blobData = new String(Base64.getDecoder().decode(data.getValue())); //TODO check correctness
         StringReader reader = new StringReader(blobData);
-        recordRows = readCsvToRecords(metadata, reader, timespan);
+        List<Record> recordRows = readCsvToRecords(metadata, reader, timespan);
 
         return recordRows;
     }
@@ -171,13 +167,10 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
                 ZonedDateTime timestamp = ZonedDateTime.parse(values.get(config.getTimeColumns().get(0))); //TODO: determine which timestamp to use
 
                 if (timespan != null) {
-                    if (timespan.getStart().isPresent() && timespan.getStart().get().isAfter(timestamp)) {
-                        continue;
-                    }
-                    else if (timespan.getEnd().isPresent() && timespan.getEnd().get().isBefore(timestamp)) {
+                    if (timespan.getEnd().isPresent() && timespan.getEnd().get().isBefore(timestamp)) {
                         break;
                     }
-                    else {
+                    else if (!(timespan.getStart().isPresent() && timespan.getStart().get().isAfter(timestamp))) {
                         recordRows.add(toRecord(metadata, values));
                     }
                 }
@@ -204,25 +197,23 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
 
 
     private Record toRecord(Metadata metadata, Map<String, String> row) throws SegmentProviderException {
-        Record record = new Record();
+        Record newRecord = new Record();
         for (Entry<String, String> columnEntry: row.entrySet()) {
             String columnName = columnEntry.getKey().trim();
-            if (config.getTimeColumns().contains(columnName)) {//(columnName.equalsIgnoreCase(config.getTimeColumn())) {
-                //record.setTime(ZonedDateTime.parse(columnEntry.getValue()));
-                record.getTime().put(columnName, ZonedDateTime.parse(columnEntry.getValue()));
+            if (config.getTimeColumns().contains(columnName)) {
+                newRecord.getTime().put(columnName, ZonedDateTime.parse(columnEntry.getValue()));
             }
             else if (metadata.getRecordMetadataVariables().containsKey(columnName)) {
                 try {
-                    record.getVariables().put(columnName,
-                            parseValue(columnEntry.getValue(), metadata.getRecordMetadataVariables().get(columnName).getDataType())); //TODO: check correct
+                    newRecord.getVariables().put(columnName,
+                            parseValue(columnEntry.getValue(), metadata.getRecordMetadataVariables().get(columnName).getDataType()));
                 }
                 catch (ValueFormatException e) {
-                    LOGGER.debug("Error reading from CSV - conversion error: " + e.getMessage());
                     throw new SegmentProviderException("Error reading from CSV - conversion error", e);
                 }
             }
         }
-        return record;
+        return newRecord;
     }
 
 }

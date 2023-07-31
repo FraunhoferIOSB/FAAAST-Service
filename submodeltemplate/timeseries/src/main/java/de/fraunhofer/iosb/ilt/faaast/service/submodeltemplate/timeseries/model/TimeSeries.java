@@ -113,7 +113,7 @@ public class TimeSeries extends ExtendableSubmodel {
                 SubmodelElementCollection.class,
                 x -> x,
                 x -> Constants.SEGMENTS_SEMANTIC_IDS.contains(x.getSemanticId()),
-                x -> Segment.of(x));
+                Segment::of);
         segmentsList.withAdditionalValues(segments);
         submodelElements.add(segmentsList);
         this.idShort = Constants.TIMESERIES_SUBMODEL_ID_SHORT;

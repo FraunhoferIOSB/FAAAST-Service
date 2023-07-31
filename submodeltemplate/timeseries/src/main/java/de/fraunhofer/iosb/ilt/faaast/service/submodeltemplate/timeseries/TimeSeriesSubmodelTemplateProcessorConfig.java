@@ -57,7 +57,7 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
     }
 
 
-    public void setLinkedSegmentProviders(List<LinkedSegmentProviderConfig> externalSegmentProviders) {
+    public void setLinkedSegmentProviders(List<LinkedSegmentProviderConfig> linkedSegmentProviders) {
         this.linkedSegmentProviders = linkedSegmentProviders;
     }
 

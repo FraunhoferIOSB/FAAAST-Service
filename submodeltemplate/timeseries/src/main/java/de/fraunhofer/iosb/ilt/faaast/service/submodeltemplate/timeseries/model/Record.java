@@ -44,35 +44,13 @@ import java.util.Optional;
  */
 public class Record extends ExtendableSubmodelElementCollection {
 
-    //    @JsonIgnore
-    //    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<>(
-    //            values,
-    //            null,
-    //            false,
-    //            Property.class,
-    //            x -> Objects.nonNull(x)
-    //                    ? new DefaultProperty.Builder()
-    //                            .idShort(Constants.RECORD_TIME_ID_SHORT)
-    //                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-    //                            .valueType(Datatype.DATE_TIME.getName())
-    //                            .value(x.toString())
-    //                            .build()
-    //                    : null,
-    //            x -> Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-    //            x -> ZonedDateTime.parse(x.getValue()));
-
-    //    @JsonIgnore
-    //    private ListWrapper<String, SubmodelElementCollection> timeList;
-    //    
-    //    @JsonIgnore
-    //    private ExtendableSubmodelElementCollection timeCollection;
     @JsonIgnore
     private Wrapper<Map<String, ZonedDateTime>, Property> time = new MapWrapper<>(
             values,
             new LinkedHashMap<>(),
             Property.class,
             x -> new DefaultProperty.Builder()
-                    .idShort(x.getKey()) //Time{xx}
+                    .idShort(x.getKey())
                     .valueType(Datatype.DATE_TIME.getName())
                     .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x.getValue()))
                     .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))

@@ -54,16 +54,16 @@ public class Constants {
     public static final String RECORD_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Record/1/1";
     // Operation: ReadRecords
     public static final String READ_RECORDS_ID_SHORT = "ReadRecords";
-    public static final String READ_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadRecords";
+    public static final String READ_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadRecords/1/1";
     public static final String READ_RECORDS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
     public static final String READ_RECORDS_OUTPUT_RECORDS_ID_SHORT = "Records";
-    public static final String READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/TimeSeries/ReadRecords/Records"; //TODO: check correctness and use
+    public static final String READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID = " https://admin-shell.io/idta/TimeSeries/Records/1/1";
     // Operation: ReadSegments
     public static final String READ_SEGMENTS_ID_SHORT = "ReadSegments";
-    public static final String READ_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadSegments";
+    public static final String READ_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadSegments/1/1";
     public static final String READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
     public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT = "Segments";
-    public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/TimeSeries /ReadSegments/Segments/1/1"; //TODO: check correctness and use
+    public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = " https://admin-shell.io/idta/TimeSeries/Segments/1/1";
     // Time
     public static final String TIME_UTC = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
     public static final String TIME_TAI = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";
