@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -98,6 +99,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         x -> x.getValues().stream()
                                 .map(LambdaExceptionHelper.rethrowFunction(
                                         y -> toRecord(metadata, x.getColumns(), y.getValues())))))
+                .map(Record.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -174,7 +176,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         catch (ValueFormatException ex) {
                             LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                         }
-                        newRecord.getTime().put(fieldName, record.getTime().atZone(ZoneOffset.UTC));
+                        newRecord.getTime().put(TIME_FIELD, record.getTime().atZone(ZoneOffset.UTC)); //TODO: get fieldName for time
                         result[j] = newRecord;
                     }
                 }
