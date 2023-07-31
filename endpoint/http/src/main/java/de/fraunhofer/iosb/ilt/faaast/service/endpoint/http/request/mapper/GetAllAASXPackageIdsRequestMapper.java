@@ -20,10 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAASXPackageIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -47,9 +45,7 @@ public class GetAllAASXPackageIdsRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAASXPackageIdsRequest.builder()
-                .aasIds(Stream.of(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(","))
-                        .map(x -> IdentifierHelper.parseIdentifier(x))
-                        .collect(Collectors.toList()))
+                .aasIds(Arrays.asList(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(",")))
                 .build();
     }
 }

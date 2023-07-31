@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import java.util.Objects;
@@ -126,9 +125,9 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
                     : removeSubmodelPath(httpRequest.getPath()));
             AbstractSubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
             if (withAasContext) {
-                result.setAasId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))));
+                result.setAasId(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)));
             }
-            result.setSubmodelId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))));
+            result.setSubmodelId(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)));
             return result;
         }
         throw new InvalidRequestException(String.format("request does neither satisfy URL pattern '%s' nor contextualized URL pattern '%s'", urlPattern, contextualizedUrlPattern));

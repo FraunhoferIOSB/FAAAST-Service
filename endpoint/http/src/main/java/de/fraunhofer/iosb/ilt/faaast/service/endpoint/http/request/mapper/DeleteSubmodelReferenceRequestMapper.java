@@ -20,11 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
@@ -47,10 +45,9 @@ public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
-                .submodelRef(ReferenceHelper.toReference(
+                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
+                .submodelRef(ReferenceHelper.build(
                         EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)),
-                        KeyType.IRI,
                         Submodel.class))
                 .build();
     }

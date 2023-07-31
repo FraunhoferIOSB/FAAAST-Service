@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import static org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils.keyTypeToClass;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,12 +26,16 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +43,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
  */
 public class ReferenceHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceHelper.class);
     private static final String BRACKET_LEFT = "(";
     private static final String BRACKET_RIGHT = ")";
     private static final String KEY_SEPARATOR = ", ";
@@ -70,14 +76,57 @@ public class ReferenceHelper {
 
 
     /**
-     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable} with KeyType IRI.
+     * Converst a list of key to a reference. If possible, the key type is automatically determined or set to null if
+     * this not possible.
+     *
+     * @param keys which are converted to a reference
+     * @return the reference with the keys
+     */
+    public static Reference build(Key... keys) {
+        return build(Arrays.asList(keys));
+    }
+
+
+    /**
+     * Create a reference for an {@link Identifiable}.
      *
      * @param id of the identifiable
      * @param clazz of the identifiable
      * @return reference of the identifiable
      */
     public static Reference build(String id, Class<?> clazz) {
-        return build(List.of(newKey(toKeyType(clazz), id)));
+        return build(id, toKeyType(clazz));
+    }
+
+
+    /**
+     * Create a reference for an {@link Identifiable}.
+     *
+     * @param id of the identifiable
+     * @param keyType the key type
+     * @return reference of the identifiable
+     */
+    public static Reference build(String id, KeyTypes keyType) {
+        return build(List.of(newKey(keyType, id)));
+    }
+
+
+    /**
+     * Builds a reference identifying a submodel within an AAS.
+     *
+     * @param aasIdentifier the AAS identifier, set to null if not AAS should be included
+     * @param submodelIdentifier the submodel identifier
+     * @return a reference to the submodel element
+     */
+    public static Reference build(String aasIdentifier, String submodelIdentifier) {
+        List<Key> keys = new ArrayList<>();
+        if (!StringHelper.isEmpty(aasIdentifier)) {
+            keys.add(newKey(KeyTypes.ASSET_ADMINISTRATION_SHELL, aasIdentifier));
+        }
+        if (!StringHelper.isEmpty(submodelIdentifier)) {
+            keys.add(newKey(KeyTypes.SUBMODEL, submodelIdentifier));
+        }
+        return build(keys);
     }
 
 
@@ -121,6 +170,34 @@ public class ReferenceHelper {
                 Stream.of(submodelElementIdshorts)
                         .map(x -> newKey(KeyTypes.SUBMODEL_ELEMENT, x))
                         .collect(Collectors.toList()));
+    }
+
+
+    /**
+     * TODO.
+     *
+     * @param reference TODO
+     * @return TODO
+     */
+    public static Reference normalize(Reference reference) {
+        if (Objects.isNull(reference)
+                || Objects.isNull(reference.getKeys())
+                || reference.getKeys().size() < 2) {
+            return reference;
+        }
+        // AAS -> Submodel      2
+        // SUbmodel             1
+        // Property             0
+        int i = 1;
+        for (; i < reference.getKeys().size(); i++) {
+            Class<?> type = keyTypeToClass(reference.getKeys().get(i).getType());
+            if (Objects.isNull(type) || !Identifiable.class.isAssignableFrom(type)) {
+                break;
+            }
+        }
+        Reference result = clone(reference);
+        result.getKeys().subList(0, i - 1).clear();
+        return result;
     }
 
 
@@ -190,6 +267,20 @@ public class ReferenceHelper {
         Reference result = AasUtils.clone(reference);
         result.getKeys().remove(result.getKeys().size() - 1);
         return result;
+    }
+
+
+    /**
+     * Gets the root key of the reference.
+     *
+     * @param reference the reference to the get the root key for
+     * @return The root key of the reference or null is reference does not contain at least one key
+     */
+    public static Key getRoot(Reference reference) {
+        if (Objects.isNull(reference) || Objects.isNull(reference.getKeys()) || reference.getKeys().isEmpty()) {
+            return null;
+        }
+        return reference.getKeys().get(0);
     }
 
 
@@ -380,12 +471,19 @@ public class ReferenceHelper {
         if (!Objects.equals(key1.getValue(), key2.getValue())) {
             return false;
         }
+        if (Objects.equals(key1.getType(), key2.getType())) {
+            return true;
+        }
         Class<?> type1 = keyTypeToClass(key1.getType());
         Class<?> type2 = keyTypeToClass(key2.getType());
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
-            return false;
+            LOGGER.warn(String.format(
+                    "encountered reference keys with same value but incompatible types (key value: %s, key type 1: %s, key type 2: %s)",
+                    key1.getValue(),
+                    type1,
+                    type2));
         }
         return true;
     }

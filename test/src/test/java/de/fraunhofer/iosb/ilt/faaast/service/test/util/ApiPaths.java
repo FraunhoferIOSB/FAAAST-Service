@@ -30,7 +30,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifierKeyValuePair;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
 public class ApiPaths {
@@ -80,7 +80,7 @@ public class ApiPaths {
 
 
     public AASInterface aasInterface(AssetAdministrationShell aas) {
-        return new AASInterface(aas.getIdentification().getIdentifier());
+        return new AASInterface(aas.getId());
     }
 
     public class AASRespositoryInterface {
@@ -98,7 +98,7 @@ public class ApiPaths {
 
 
         public String assetAdministrationShell(AssetAdministrationShell aas) {
-            return assetAdministrationShell(aas.getIdentification().getIdentifier());
+            return assetAdministrationShell(aas.getId());
         }
     }
 
@@ -117,12 +117,12 @@ public class ApiPaths {
 
 
         public String submodel(Submodel submodel) {
-            return submodel(submodel.getIdentification().getIdentifier());
+            return submodel(submodel.getId());
         }
 
 
         public SubmodelInterface submodelInterface(Submodel submodel) {
-            return submodelInterface(submodel.getIdentification().getIdentifier());
+            return submodelInterface(submodel.getId());
         }
 
 
@@ -146,7 +146,7 @@ public class ApiPaths {
 
 
         public String conceptDescription(ConceptDescription conceptDescription) {
-            return conceptDescription(conceptDescription.getIdentification().getIdentifier());
+            return conceptDescription(conceptDescription.getId());
         }
     }
 
@@ -162,8 +162,8 @@ public class ApiPaths {
                     assetAdministrationShells(),
                     EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
                             assetIds.entrySet().stream()
-                                    .map(x -> new DefaultIdentifierKeyValuePair.Builder()
-                                            .key(x.getKey())
+                                    .map(x -> new DefaultSpecificAssetID.Builder()
+                                            .name(x.getKey())
                                             .value(x.getValue())
                                             .build())
                                     .collect(Collectors.toList()))));
@@ -178,7 +178,7 @@ public class ApiPaths {
 
 
         public String assetAdministrationShell(AssetAdministrationShell aas) {
-            return assetAdministrationShell(aas.getIdentification().getIdentifier());
+            return assetAdministrationShell(aas.getId());
         }
     }
 
@@ -195,14 +195,14 @@ public class ApiPaths {
                 queryElements.put(QueryParameters.AAS_IDS,
                         EncodingHelper.base64UrlEncode(
                                 aasIds.stream()
-                                        .map(x -> x.getIdentification().getIdentifier())
+                                        .map(x -> x.getId())
                                         .collect(Collectors.joining(","))));
             }
             if (submodelIds != null && !submodelIds.isEmpty()) {
                 queryElements.put(QueryParameters.SUBMODEL_IDS,
                         EncodingHelper.base64UrlEncode(
                                 submodelIds.stream()
-                                        .map(x -> x.getIdentification().getIdentifier())
+                                        .map(x -> x.getId())
                                         .collect(Collectors.joining(","))));
             }
             queryElements.put(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, Boolean.toString(includeConceptDescriptions));
@@ -250,7 +250,7 @@ public class ApiPaths {
 
 
         public String submodel(Submodel submodel) {
-            return submodel(submodel.getIdentification().getIdentifier());
+            return submodel(submodel.getId());
         }
 
 

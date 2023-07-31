@@ -26,12 +26,12 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import org.eclipse.digitaltwin.aas4j.v3.model.Constraint;
-import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import java.util.List;
 import opc.i4aas.AASQualifierList;
 import opc.i4aas.AASQualifierType;
 import opc.i4aas.AASSubmodelElementType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class QualifierCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addQualifiers(AASQualifierList listNode, List<Constraint> qualifiers, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addQualifiers(AASQualifierList listNode, List<Qualifier> qualifiers, AasServiceNodeManager nodeManager) throws StatusException {
         if (listNode == null) {
             throw new IllegalArgumentException("listNode = null");
         }
@@ -82,9 +82,9 @@ public class QualifierCreator {
         }
 
         int index = 1;
-        for (Constraint constraint: qualifiers) {
-            if ((constraint != null) && (Qualifier.class.isAssignableFrom(constraint.getClass()))) {
-                addQualifier(listNode, (Qualifier) constraint, "Qualifier " + index, nodeManager);
+        for (Qualifier qualifier: qualifiers) {
+            if (qualifier != null) {
+                addQualifier(listNode, qualifier, "Qualifier " + index, nodeManager);
             }
 
             index++;
@@ -118,7 +118,7 @@ public class QualifierCreator {
         qualifierNode.setType(qualifier.getType());
 
         // ValueType
-        qualifierNode.setValueType(ValueConverter.stringToValueType(qualifier.getValueType()));
+        qualifierNode.setValueType(ValueConverter.dataTypeXsdToValueType(qualifier.getValueType()));
 
         // Value
         if (qualifier.getValue() != null) {
@@ -130,8 +130,8 @@ public class QualifierCreator {
         }
 
         // ValueId
-        if (qualifier.getValueId() != null) {
-            AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
+        if (qualifier.getValueID() != null) {
+            AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueID(), AASQualifierType.VALUE_ID, nodeManager);
         }
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {

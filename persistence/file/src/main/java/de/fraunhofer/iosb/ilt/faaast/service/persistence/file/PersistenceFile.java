@@ -37,10 +37,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -72,7 +71,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+    public <T extends Identifiable> T get(String id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
         return persistence.get(id, modifier, type);
     }
 
@@ -108,13 +107,13 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public List<PackageDescription> getAasxPackages(Identifier aasId) {
+    public List<PackageDescription> getAasxPackages(String aasId) {
         return persistence.getAasxPackages(aasId);
     }
 
 
     @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
+    public Environment getEnvironment() {
         return persistence.getEnvironment();
     }
 
@@ -148,7 +147,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         this.config = config;
         try {
             config.init();
-            AssetAdministrationShellEnvironment aasEnvironment = config.loadInitialModel();
+            Environment aasEnvironment = config.loadInitialModel();
             persistence = PersistenceInMemoryConfig.builder()
                     .initialModel(aasEnvironment)
                     .build()
@@ -162,7 +161,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public AASXPackage put(String packageId, Set<Identifier> aasIds, AASXPackage file, String fileName) {
+    public AASXPackage put(String packageId, Set<String> aasIds, AASXPackage file, String fileName) {
         AASXPackage result = persistence.put(packageId, aasIds, file, fileName);
         save();
         return result;
@@ -170,7 +169,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public String putAasxPackage(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+    public String putAasxPackage(Set<String> aasIds, AASXPackage file, String fileName) {
         String result = persistence.putAasxPackage(aasIds, file, fileName);
         save();
         return result;
@@ -214,7 +213,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public void remove(Identifier id) throws ResourceNotFoundException {
+    public void remove(String id) throws ResourceNotFoundException {
         persistence.remove(id);
         save();
     }

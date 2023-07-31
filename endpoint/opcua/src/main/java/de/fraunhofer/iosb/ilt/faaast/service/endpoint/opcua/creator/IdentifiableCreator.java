@@ -17,10 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import opc.i4aas.AASIdentifiableType;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
 
 /**
@@ -45,12 +43,11 @@ public class IdentifiableCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException if an error occurs
      */
-    public static void addIdentifiable(AASIdentifiableType identifiableNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
+    public static void addIdentifiable(AASIdentifiableType identifiableNode, String identifier, AdministrativeInformation adminInfo, String category,
                                        AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            identifiableNode.getIdentificationNode().setId(identifier.getIdentifier());
-            identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+            identifiableNode.getIdentificationNode().setId(identifier);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);

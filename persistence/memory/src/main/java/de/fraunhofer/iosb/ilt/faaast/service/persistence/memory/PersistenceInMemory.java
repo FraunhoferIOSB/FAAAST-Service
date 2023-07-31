@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +45,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -69,7 +69,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 
     protected static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
-    protected AssetAdministrationShellEnvironment model;
+    protected Environment model;
     protected CoreConfig coreConfig;
     protected PersistenceInMemoryConfig config;
     protected ServiceContext context;
@@ -115,13 +115,13 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
+    public Environment getEnvironment() {
         return model;
     }
 
 
     @Override
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+    public <T extends Identifiable> T get(String id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
         Ensure.requireNonNull(id, "id must be non-null");
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(type, "type must be non-null");
@@ -153,7 +153,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return null;
         }
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        ReferenceHelper.fixKeyTypes(reference, model);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElement(reference, modifier),
                 modifier);
@@ -197,7 +196,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<PackageDescription> getAasxPackages(Identifier aasId) {
+    public List<PackageDescription> getAasxPackages(String aasId) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -215,7 +214,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
         ensureInitialized();
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        ReferenceHelper.fixKeyTypes(reference, model);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElements(reference, semanticId),
                 modifier);
@@ -227,12 +225,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         ensureInitialized();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Ensure.require(parent != null || referenceToSubmodelElement != null, "either parent or referenceToSubmodelElement must be non-null");
-        if (parent != null) {
-            ReferenceHelper.fixKeyTypes(parent, model);
-        }
-        if (referenceToSubmodelElement != null) {
-            ReferenceHelper.fixKeyTypes(referenceToSubmodelElement, model);
-        }
         return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
     }
 
@@ -244,7 +236,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public String putAasxPackage(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+    public String putAasxPackage(Set<String> aasIds, AASXPackage file, String fileName) {
         throw new UnsupportedOperationException();
     }
 
@@ -278,7 +270,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void remove(Identifier id) throws ResourceNotFoundException {
+    public void remove(String id) throws ResourceNotFoundException {
         if (id != null) {
             identifiablePersistenceManager.remove(id);
         }
@@ -288,7 +280,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public void remove(Reference reference) throws ResourceNotFoundException {
         if (reference != null) {
-            ReferenceHelper.fixKeyTypes(reference, model);
             referablePersistenceManager.remove(reference);
         }
     }
@@ -302,7 +293,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public TypeInfo<?> getTypeInfo(Reference reference) {
-        return TypeExtractor.extractTypeInfo(AasUtils.resolve(reference, getEnvironment()));
+        return TypeExtractor.extractTypeInfo(EnvironmentHelper.resolve(reference, getEnvironment()));
     }
 
 
@@ -311,7 +302,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null) {
             throw new IllegalArgumentException("reference must be non-null");
         }
-        Referable referable = AasUtils.resolve(reference, getEnvironment());
+        Referable referable = EnvironmentHelper.resolve(reference, getEnvironment());
         if (referable == null) {
             throw new IllegalArgumentException(String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
         }

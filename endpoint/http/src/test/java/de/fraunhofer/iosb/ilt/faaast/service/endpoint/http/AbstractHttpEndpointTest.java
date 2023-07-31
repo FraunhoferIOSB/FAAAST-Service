@@ -42,22 +42,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultRange;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
@@ -259,11 +257,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testParamContentNormal() throws Exception {
-        Identifier id = new DefaultIdentifier();
+        String id = "foo";
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=normal");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=normal");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -271,33 +269,33 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     @Ignore("content=trimmed currently under discussion")
     public void testParamContentTrimmed() throws Exception {
-        Identifier id = new DefaultIdentifier();
+        String id = "";
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=trimmed");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
 
     @Test
     public void testParamContentReference() throws Exception {
-        Identifier id = new DefaultIdentifier();
+        String id = "foo";
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=reference");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=reference");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
 
     @Test
     public void testParamContentLevelBogus() throws Exception {
-        Identifier id = new DefaultIdentifier();
+        String id = "foo";
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=bogus&level=bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
         String actual = response.getContentAsString();
         String expected = new HttpJsonApiSerializer().write(Result.error("invalid output modifier"));
@@ -425,7 +423,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testSerializationJson() throws Exception {
-        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(AASFull.AAS_2)
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
@@ -440,10 +438,10 @@ public abstract class AbstractHttpEndpointTest {
                 "/serialization",
                 Map.of(
                         "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getIdentification().getIdentifier())
+                                .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
-                                .map(x -> x.getIdentification().getIdentifier())
+                                .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
                 null,
@@ -453,14 +451,14 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", response.getContentAsString());
-        AssetAdministrationShellEnvironment actual = deserializer.read(response.getContentAsString(), AssetAdministrationShellEnvironment.class);
+        Environment actual = deserializer.read(response.getContentAsString(), Environment.class);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
     public void testSerializationWildcard() throws Exception {
-        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(AASFull.AAS_2)
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
@@ -476,10 +474,10 @@ public abstract class AbstractHttpEndpointTest {
                 "/serialization",
                 Map.of(
                         "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
-                                .map(x -> x.getIdentification().getIdentifier())
+                                .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
-                                .map(x -> x.getIdentification().getIdentifier())
+                                .map(x -> x.getId())
                                 .collect(Collectors.joining(","))),
                         QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
                 null,
@@ -489,7 +487,7 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", response.getContentAsString());
-        AssetAdministrationShellEnvironment actual = deserializer.read(response.getContentAsString(), AssetAdministrationShellEnvironment.class);
+        Environment actual = deserializer.read(response.getContentAsString(), Environment.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -517,13 +515,13 @@ public abstract class AbstractHttpEndpointTest {
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType("string")
+                        .valueType(DataTypeDefXSD.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType("double")
+                        .valueType(DataTypeDefXSD.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -547,13 +545,13 @@ public abstract class AbstractHttpEndpointTest {
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType("string")
+                        .valueType(DataTypeDefXSD.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType("double")
+                        .valueType(DataTypeDefXSD.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -574,23 +572,20 @@ public abstract class AbstractHttpEndpointTest {
         String submodelId = "submodelId";
         Reference submodelRef = ReferenceHelper.build(aasId, submodelId);
         AssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(aasId)
-                        .build())
-                .submodel(submodelRef)
+                .id(aasId)
+                .submodels(submodelRef)
                 .build();
         List<SubmodelElement> expected = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType("string")
+                        .valueType(DataTypeDefXSD.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType("double")
+                        .valueType(DataTypeDefXSD.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(
                 GetAllSubmodelElementsResponse.builder()
@@ -598,7 +593,7 @@ public abstract class AbstractHttpEndpointTest {
                         .payload(expected)
                         .build());
         when(persistence.get(
-                aas.getIdentification(),
+                aas.getId(),
                 new OutputModifier.Builder()
                         .level(Level.CORE)
                         .build(),
@@ -620,11 +615,9 @@ public abstract class AbstractHttpEndpointTest {
 
 
     private void mockAasContext(ServiceContext serviceContext, String aasId) {
-        when(serviceContext.getAASEnvironment()).thenReturn(new DefaultAssetAdministrationShellEnvironment.Builder()
+        when(serviceContext.getAASEnvironment()).thenReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .identification(new DefaultIdentifier.Builder()
-                                .identifier(aasId)
-                                .build())
+                        .id(aasId)
                         .build())
                 .build());
     }
@@ -670,8 +663,8 @@ public abstract class AbstractHttpEndpointTest {
                 .payload(null)
                 .result(expected)
                 .build());
-        Identifier id = new DefaultIdentifier();
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id.toString()) + "/submodel/submodel-elements/Invalid");
+        String id = "foo";
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }

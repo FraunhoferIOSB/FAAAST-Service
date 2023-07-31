@@ -26,28 +26,29 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.File;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
 import opc.i4aas.AASIdentifierKeyValuePairList;
 import opc.i4aas.AASReferenceList;
 import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create AssetAdministrationShells and integrate them into the
- * OPC UA address space.
+ * Helper class to create AssetAdministrationShells and integrate them into the OPC UA address space.
  */
 public class AssetAdministrationShellCreator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellCreator.class);
 
     private AssetAdministrationShellCreator() {
@@ -57,7 +58,7 @@ public class AssetAdministrationShellCreator {
 
     /**
      * Adds the given AssetAdministrationShell.
-     * 
+     *
      * @param node The UA node in which the IdentifierKeyValuePair should be created
      * @param aas The desirted AssetAdministrationShell.
      * @param nodeManager The corresponding Node Manager
@@ -83,7 +84,7 @@ public class AssetAdministrationShellCreator {
         }
 
         AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellTypeNode.class, nid, browseName, LocalizedText.english(displayName));
-        IdentifiableCreator.addIdentifiable(aasShell, aas.getIdentification(), aas.getAdministration(), aas.getCategory(), nodeManager);
+        IdentifiableCreator.addIdentifiable(aasShell, aas.getId(), aas.getAdministration(), aas.getCategory(), nodeManager);
 
         // DataSpecifications
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), nodeManager);
@@ -152,27 +153,20 @@ public class AssetAdministrationShellCreator {
         AssetKind assetKind = assetInformation.getAssetKind();
         assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
 
-        // BillOfMaterials
-        List<Reference> assetBills = assetInformation.getBillOfMaterials();
-        if ((assetBills != null) && (!assetBills.isEmpty())) {
-            AASReferenceList assetBillsNode = assetInfoNode.getBillOfMaterialNode();
-            addBillOfMaterials(assetBillsNode, assetBills, nodeManager);
-        }
-
         // DefaultThumbnail
-        File thumbnail = assetInformation.getDefaultThumbnail();
+        Resource thumbnail = assetInformation.getDefaultThumbnail();
         if (thumbnail != null) {
             FileCreator.addAasFile(assetInfoNode, thumbnail, null, null, false, AASAssetInformationType.DEFAULT_THUMBNAIL, nodeManager);
         }
 
         // GlobalAssetId
-        Reference globalAssetId = assetInformation.getGlobalAssetId();
+        Reference globalAssetId = assetInformation.getGlobalAssetID();
         if (globalAssetId != null) {
             AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, nodeManager);
         }
 
         // SpecificAssetIds
-        List<IdentifierKeyValuePair> specificAssetIds = assetInformation.getSpecificAssetIds();
+        List<SpecificAssetID> specificAssetIds = assetInformation.getSpecificAssetIds();
         if ((specificAssetIds != null) && (!specificAssetIds.isEmpty())) {
             addSpecificAssetIds(assetInfoNode, specificAssetIds, "SpecificAssetIds", nodeManager);
         }
@@ -180,36 +174,15 @@ public class AssetAdministrationShellCreator {
 
 
     /**
-     * Adds the list of BillOfMaterial objects to the given Node.
-     *
-     * @param node The desired node where the BillOfMaterials should be added
-     * @param billOfMaterials The desired list of BillOfMaterials
-     * @param nodeManager The corresponding Node Manager
-     * @throws StatusException If the operation fails
-     */
-    private static void addBillOfMaterials(UaNode node, List<Reference> billOfMaterials, AasServiceNodeManager nodeManager) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
-        }
-        else if (billOfMaterials == null) {
-            throw new IllegalArgumentException("billOfMaterials = null");
-        }
-
-        AasReferenceCreator.addAasReferenceList(node, billOfMaterials, "BillOfMaterial", nodeManager);
-    }
-
-
-    /**
      * Adds a list of IdentifierKeyValuePairs to the given Node.
      *
-     * @param assetInfoNode The AssetInformation node in which the
-     *            IdentifierKeyValuePairs should be created or added
+     * @param assetInfoNode The AssetInformation node in which the IdentifierKeyValuePairs should be created or added
      * @param list The desired list of IdentifierKeyValuePairs
      * @param name The desired name of the Node
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<IdentifierKeyValuePair> list, String name, AasServiceNodeManager nodeManager)
+    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetID> list, String name, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (assetInfoNode == null) {
             throw new IllegalArgumentException("assetInfoNode = null");
@@ -230,9 +203,9 @@ public class AssetAdministrationShellCreator {
             created = true;
         }
 
-        for (IdentifierKeyValuePair ikv: list) {
+        for (SpecificAssetID ikv: list) {
             if (ikv != null) {
-                IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getKey(), nodeManager);
+                SpecificAssetIdCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getName(), nodeManager);
             }
         }
 

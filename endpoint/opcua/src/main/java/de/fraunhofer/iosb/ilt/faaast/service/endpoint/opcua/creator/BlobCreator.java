@@ -27,11 +27,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.i4aas.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASBlobType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class BlobCreator extends SubmodelElementCreator {
             addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
             // MimeType
-            blobNode.setMimeType(aasBlob.getMimeType());
+            blobNode.setMimeType(aasBlob.getContentType());
 
             Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
 

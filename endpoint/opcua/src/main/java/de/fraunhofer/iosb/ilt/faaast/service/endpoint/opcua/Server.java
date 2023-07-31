@@ -41,7 +41,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertific
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -53,6 +52,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class Server {
     private static final String ISSUERS_PATH = "issuers";
 
     private final int tcpPort;
-    private final AssetAdministrationShellEnvironment aasEnvironment;
+    private final Environment aasEnvironment;
     private final OpcUaEndpoint endpoint;
     private final OpcUaEndpointConfig config;
 
@@ -88,7 +88,7 @@ public class Server {
      * @throws IllegalArgumentException if environment is null
      * @throws IllegalArgumentException if endpoint is null
      */
-    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
+    public Server(int portTcp, Environment environment, OpcUaEndpoint endpoint) {
         Ensure.requireNonNull(environment, "environment most be non-null");
         Ensure.requireNonNull(endpoint, "endpoint most be non-null");
         this.tcpPort = portTcp;

@@ -31,7 +31,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -39,8 +41,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
     private ServiceContext service;
-    private AssetAdministrationShellEnvironment aasEnvironment;
+    private Environment aasEnvironment;
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
@@ -154,14 +154,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             List<Key> path = new ArrayList<>();
             path.addAll(refElement.getKeys());
 
-            request.setSubmodelId(submodel.getIdentification());
+            request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
-                if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
-                    for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
+                if ((mlp.getValue() != null) && (mlp.getValue().size() > 1)) {
+                    for (int i = 0; i < mlp.getValue().size(); i++) {
+                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
                     }
                 }
             }
@@ -178,7 +178,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
+            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getId(), element.getIdShort(), response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
@@ -208,7 +208,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         List<Key> path = new ArrayList<>();
         path.addAll(refElement.getKeys());
 
-        request.setSubmodelId(submodel.getIdentification());
+        request.setSubmodelId(submodel.getId());
         request.setPath(path);
         request.setInputArguments(inputVariables);
 

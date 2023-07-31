@@ -26,13 +26,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import java.util.List;
+import opc.i4aas.AASMultiLanguagePropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import java.util.List;
-import opc.i4aas.AASMultiLanguagePropertyType;
 
 
 /**
@@ -64,7 +64,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
             AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
-            List<LangString> values = aasMultiLang.getValues();
+            List<LangStringTextType> values = aasMultiLang.getValue();
             if (values != null) {
                 if (multiLangNode.getValueNode() == null) {
                     AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size(), nodeManager);
@@ -73,8 +73,8 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
             }
 
-            if (aasMultiLang.getValueId() != null) {
-                AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
+            if (aasMultiLang.getValueID() != null) {
+                AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueID(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
             }
 
             Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);

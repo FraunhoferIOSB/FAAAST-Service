@@ -30,7 +30,6 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
@@ -51,20 +50,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.Asset;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Constraint;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +68,19 @@ import opc.i4aas.AASReferenceElementType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +139,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * The AAS environment associated with this Node Manager
      */
-    private final AssetAdministrationShellEnvironment aasEnvironment;
+    private final Environment aasEnvironment;
 
     /**
      * The associated Endpoint
@@ -196,7 +194,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasEnvironment the AAS environment
      * @param endpoint the associated endpoint
      */
-    public AasServiceNodeManager(UaServer server, String namespaceUri, AssetAdministrationShellEnvironment aasEnvironment, OpcUaEndpoint endpoint) {
+    public AasServiceNodeManager(UaServer server, String namespaceUri, Environment aasEnvironment, OpcUaEndpoint endpoint) {
         super(server, namespaceUri);
         Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
         Ensure.requireNonNull(endpoint, "endpoint must not be null");
@@ -295,13 +293,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         addAasEnvironmentNode();
 
         ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
-
-        List<Asset> assets = aasEnvironment.getAssets();
-        if (assets != null) {
-            for (Asset asset: assets) {
-                AssetCreator.addAsset(aasEnvironmentNode, asset, this);
-            }
-        }
 
         List<Submodel> submodels = aasEnvironment.getSubmodels();
         if (submodels != null) {
@@ -407,9 +398,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         if (value instanceof ConceptDescription) {
             ConceptDescriptionCreator.addConceptDescriptions(List.of((ConceptDescription) value), this);
         }
-        else if (value instanceof Asset) {
-            AssetCreator.addAsset(aasEnvironmentNode, (Asset) value, this);
-        }
         else if (value instanceof Submodel) {
             SubmodelCreator.addSubmodel(aasEnvironmentNode, (Submodel) value, this);
         }
@@ -435,12 +423,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
                 }
             }
-            else if (value instanceof Constraint) {
+            else if (value instanceof Qualifier) {
                 if (parent.getNode() instanceof AASSubmodelType) {
-                    QualifierCreator.addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Constraint) value), this);
+                    QualifierCreator.addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
                 }
                 else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Constraint) value), this);
+                    QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
                 }
                 else {
                     LOG.debug("elementCreated: Constraint parent class not found");
@@ -758,7 +746,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         else if (referable instanceof SubmodelElementCollection) {
             SubmodelElementCollection sec = (SubmodelElementCollection) referable;
-            for (SubmodelElement se: sec.getValues()) {
+            for (SubmodelElement se: sec.getValue()) {
                 doRemoveFromMaps(reference, se);
             }
         }

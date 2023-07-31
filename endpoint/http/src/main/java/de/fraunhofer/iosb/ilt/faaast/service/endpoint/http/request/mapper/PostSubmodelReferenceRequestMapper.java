@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -43,7 +42,7 @@ public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostSubmodelReferenceRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
+                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
                 .submodelRef(parseBody(httpRequest, Reference.class))
                 .build();
     }

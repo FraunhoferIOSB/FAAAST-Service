@@ -28,11 +28,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.i4aas.AASPropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASPropertyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             Reference propRef = AasUtils.toReference(parentRef, aasProperty);
 
             // ValueId
-            Reference ref = aasProperty.getValueId();
+            Reference ref = aasProperty.getValueID();
             if (ref != null) {
                 AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
             }

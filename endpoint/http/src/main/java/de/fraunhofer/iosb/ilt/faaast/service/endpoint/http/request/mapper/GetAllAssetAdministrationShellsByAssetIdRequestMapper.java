@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdmin
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 
 
 /**
@@ -52,7 +52,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
                     .assetIds(deserializer.readList(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
-                            IdentifierKeyValuePair.class))
+                            SpecificAssetID.class))
                     .build();
         }
         catch (DeserializationException e) {

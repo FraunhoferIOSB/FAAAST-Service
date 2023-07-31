@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
@@ -42,7 +43,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -50,6 +50,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -82,7 +83,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public TemporaryFolder tempDir = new TemporaryFolder();
     private File fullModelFile;
     private File minimalModelFile;
-    private Environment model;
+    private Environment environment;
     private T persistence;
 
     /**
@@ -100,8 +101,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void init() throws Exception {
         fullModelFile = copyResourceToTempDir(FULL_MODEL_FILENAME);
         minimalModelFile = copyResourceToTempDir(MINIMAL_MODEL_FILENAME);
-        model = AASFull.createEnvironment();
-        persistence = getPersistenceConfig(null, model).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        environment = AASFull.createEnvironment();
+        persistence = getPersistenceConfig(null, environment).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
     }
 
 
@@ -116,7 +117,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getEnvironmentTest() {
-        Assert.assertEquals(model, persistence.getEnvironment());
+        Assert.assertEquals(environment, persistence.getEnvironment());
     }
 
 
@@ -125,7 +126,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         PersistenceConfig<T> config = getPersistenceConfig(fullModelFile, null);
         persistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         String id = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
-        AssetAdministrationShell expected = model.getAssetAdministrationShells().stream()
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
         AssetAdministrationShell actual = persistence.get(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
@@ -135,10 +136,10 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void withInitialModelAndModelFileTest() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
-        PersistenceConfig<T> config = getPersistenceConfig(minimalModelFile, model);
+        PersistenceConfig<T> config = getPersistenceConfig(minimalModelFile, environment);
         persistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         String id = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
-        AssetAdministrationShell expected = model.getAssetAdministrationShells().stream()
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
         AssetAdministrationShell actual = persistence.get(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
@@ -155,7 +156,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 assId,
                 submodelId,
                 submodelElementIdShort);
-        SubmodelElement expected = model.getSubmodels().stream()
+        SubmodelElement expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
@@ -171,6 +172,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String submodelElementIdShort = "ExampleEntity2";
         Reference reference = ReferenceHelper.build(
+                null,
                 submodelId,
                 submodelElementIdShort);
         ConceptDescription conceptDescription = new DefaultConceptDescription.Builder()
@@ -184,7 +186,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .build();
         persistence.put(shell);
         persistence.put(conceptDescription);
-        SubmodelElement expected = model.getSubmodels().stream()
+        SubmodelElement expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
@@ -199,7 +201,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getSubmodelElementTestWithBlob() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         String submodelElementIdShort = "ExampleBlob";
         Reference reference = ReferenceHelper.build(
                 aasId,
@@ -207,7 +209,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 submodelElementCollectionIdShort,
                 submodelElementIdShort);
         QueryModifier queryModifier = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
-        SubmodelElement expected = ((SubmodelElementCollection) model.getSubmodels().stream()
+        SubmodelElement expected = ((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
@@ -234,14 +236,14 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .build())
                 .keys(new DefaultKey.Builder()
                         .type(KeyTypes.SUBMODEL_ELEMENT)
-                        .value("ExampleSubmodelCollectionUnordered")
+                        .value("ExampleSubmodelElementCollection")
                         .build())
                 .keys(new DefaultKey.Builder()
                         .type(KeyTypes.BLOB)
                         .value("ExampleBlob")
                         .build())
                 .build();
-        Blob expected = DeepCopyHelper.deepCopy(AasUtils.resolve(reference, model, Blob.class), Blob.class);
+        Blob expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(reference, environment, Blob.class), Blob.class);
         expected.setValue(null);
         SubmodelElement actual = persistence.get(reference, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
@@ -251,7 +253,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void getIdentifiableAASTest() throws ResourceNotFoundException {
         String id = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
-        AssetAdministrationShell expected = model.getAssetAdministrationShells().stream()
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
         AssetAdministrationShell actual = persistence.get(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
@@ -263,7 +265,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getIdentifiableSubmodelTest() throws ResourceNotFoundException {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String id = submodelId;
-        Submodel expected = model.getSubmodels().stream()
+        Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
         Submodel actual = persistence.get(id, QueryModifier.DEFAULT, Submodel.class);
@@ -274,7 +276,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void getIdentifiableConceptDescriptionTest() throws ResourceNotFoundException {
         String id = "https://acplt.org/Test_ConceptDescription";
-        ConceptDescription expected = model.getConceptDescriptions().stream()
+        ConceptDescription expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getId().equals(id))
                 .findFirst().get();
         ConceptDescription actual = persistence.get(id, QueryModifier.DEFAULT, ConceptDescription.class);
@@ -298,7 +300,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getShellsAllTest() {
-        List<AssetAdministrationShell> expected = model.getAssetAdministrationShells();
+        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         List<AssetAdministrationShell> actual = persistence.get("", (List<AssetIdentification>) null, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
@@ -307,7 +309,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void getShellsWithIdShortTest() {
         String aasIdShort = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> expected = model.getAssetAdministrationShells().stream()
+        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(aasIdShort))
                 .collect(Collectors.toList());
         List<AssetAdministrationShell> actual = persistence.get(aasIdShort, (List<AssetIdentification>) null, QueryModifier.DEFAULT);
@@ -319,7 +321,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getShellsWithGlobalAssetIdentificationTest() {
         GlobalAssetIdentification globalAssetIdentification = new GlobalAssetIdentification();
         globalAssetIdentification.setValue("https://acplt.org/Test_Asset_Mandatory");
-        List<AssetAdministrationShell> expected = model.getAssetAdministrationShells().stream()
+        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getAssetInformation().getGlobalAssetID().equals(globalAssetIdentification.getValue()))
                 .collect(Collectors.toList());
         List<AssetAdministrationShell> actual = persistence.get(null, List.of(globalAssetIdentification), QueryModifier.DEFAULT);
@@ -338,7 +340,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getSubmodelsAllTest() {
-        List<Submodel> expected = model.getSubmodels();
+        List<Submodel> expected = environment.getSubmodels();
         ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence.get(null, (Reference) null, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
@@ -348,7 +350,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void getSubmodelsWithIdShortTest() {
         String submodelIdShort = "TestSubmodel";
-        List<Submodel> expected = model.getSubmodels().stream()
+        List<Submodel> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(submodelIdShort))
                 .collect(Collectors.toList());
         List<Submodel> actual = persistence.get(submodelIdShort, (Reference) null, QueryModifier.DEFAULT);
@@ -364,8 +366,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .value("http://acplt.org/SubmodelTemplates/ExampleSubmodel")
                         .build())
                 .build();
-        List<Submodel> expected = model.getSubmodels().stream()
-                .filter(x -> x.getSemanticID() != null && x.getSemanticID().equals(semanticId))
+        List<Submodel> expected = environment.getSubmodels().stream()
+                .filter(Objects::nonNull)
+                .filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId))
                 .collect(Collectors.toList());
         ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence.get("", semanticId, QueryModifier.DEFAULT);
@@ -375,10 +378,10 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getSubmodelElementsTest() throws ResourceNotFoundException {
-        String aasIdShort = "TestAssetAdministrationShell";
+        String aasId = "https://acplt.org/Test_AssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = ReferenceHelper.build(aasIdShort, submodelId);
-        List<SubmodelElement> expected = model.getSubmodels().stream()
+        Reference submodelReference = ReferenceHelper.build(aasId, submodelId);
+        List<SubmodelElement> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements();
@@ -389,19 +392,21 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getSubmodelElementsWithSemanticIdTest() throws ResourceNotFoundException {
-        String aasIdShort = "TestAssetAdministrationShell";
+        String aasId = "https://acplt.org/Test_AssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = ReferenceHelper.build(aasIdShort, submodelId);
+        Reference submodelReference = ReferenceHelper.build(aasId, submodelId);
         Reference semanticIdReference = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
                         .type(KeyTypes.GLOBAL_REFERENCE)
                         .value("0173-1#02-AAO677#002")
                         .build())
                 .build();
-        List<SubmodelElement> expected = model.getSubmodels().stream()
+        List<SubmodelElement> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
-                .getSubmodelElements().stream().filter(x -> x.getSemanticID().equals(semanticIdReference)).collect(Collectors.toList());
+                .getSubmodelElements().stream()
+                .filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticIdReference))
+                .collect(Collectors.toList());
         List<SubmodelElement> actual = persistence.getSubmodelElements(submodelReference, semanticIdReference, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
@@ -411,9 +416,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getSubmodelElementsFromSubmodelElementCollectionTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
-        List<SubmodelElement> expected = List.copyOf(((SubmodelElementCollection) model.getSubmodels().stream()
+        List<SubmodelElement> expected = List.copyOf(((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
@@ -427,7 +432,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void getConceptDescriptionsAllTest() {
-        List<ConceptDescription> expected = model.getConceptDescriptions();
+        List<ConceptDescription> expected = environment.getConceptDescriptions();
         List<ConceptDescription> actual = persistence.get(null, null, (Reference) null, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
@@ -437,7 +442,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getConceptDescriptionsWithIdShortTest() {
         String conceptDescriptionIdShort = "TestConceptDescription";
         List<ConceptDescription> actual = persistence.get(conceptDescriptionIdShort, null, (Reference) null, QueryModifier.DEFAULT);
-        List<ConceptDescription> expected = model.getConceptDescriptions().stream()
+        List<ConceptDescription> expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(conceptDescriptionIdShort))
                 .collect(Collectors.toList());
         Assert.assertEquals(expected, actual);
@@ -449,11 +454,12 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String conceptDescriptionIdShort = "TestConceptDescription";
         Reference isCaseOf = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
-                        .type(null)
-                        .value("http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription")
+                        .type(KeyTypes.GLOBAL_REFERENCE)
+                        .value("http://acplt.org/DataSpecifications/Conceptdescription/TestConceptDescription")
                         .build())
+                .type(ReferenceTypes.EXTERNAL_REFERENCE)
                 .build();
-        List<ConceptDescription> expected = model.getConceptDescriptions().stream()
+        List<ConceptDescription> expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(conceptDescriptionIdShort))
                 .collect(Collectors.toList());
         List<ConceptDescription> actual = persistence.get(null, isCaseOf, (Reference) null, QueryModifier.DEFAULT);
@@ -469,7 +475,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .value("http://acplt.org/ReferenceElements/DataSpecificationX")
                         .build())
                 .build();
-        List<ConceptDescription> expected = model.getConceptDescriptions().stream()
+        List<ConceptDescription> expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getEmbeddedDataSpecifications() != null
                         && x.getEmbeddedDataSpecifications().stream()
                                 .anyMatch(y -> y.getDataSpecification() != null && y.getDataSpecification().equals(dataSpecification)))
@@ -485,10 +491,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference isCaseOf = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
                         .type(KeyTypes.GLOBAL_REFERENCE)
-                        .value("http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription")
+                        .value("http://acplt.org/DataSpecifications/Conceptdescription/TestConceptDescription")
                         .build())
+                .type(ReferenceTypes.EXTERNAL_REFERENCE)
                 .build();
-        List<ConceptDescription> expected = model.getConceptDescriptions().stream()
+        List<ConceptDescription> expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(conceptDescriptionIdShort))
                 .collect(Collectors.toList());
         List<ConceptDescription> actual = persistence.get(conceptDescriptionIdShort, isCaseOf, null, QueryModifier.DEFAULT);
@@ -498,8 +505,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void putSubmodelElementNewInSubmodelTest() throws ResourceNotFoundException {
-        SubmodelElement expected = DeepCopyHelper.deepCopy(model.getSubmodels().get(0).getSubmodelElements().get(0),
-                model.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
+        SubmodelElement expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0).getSubmodelElements().get(0),
+                environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
         String idShort = "NewIdShort";
         expected.setIdShort(idShort);
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
@@ -516,7 +523,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void putSubmodelElementChangeInSubmodelTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Submodel submodel = model.getSubmodels().stream()
+        Submodel submodel = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId)).findFirst().get();
         int idxExpected = 0;
         SubmodelElement submodelElement = submodel.getSubmodelElements().get(idxExpected);
@@ -535,15 +542,15 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void putSubmodelElementNewInSubmodelElementCollectionTest() throws ResourceNotFoundException {
-        SubmodelElement expected = DeepCopyHelper.deepCopy(model.getSubmodels().get(0).getSubmodelElements().get(0),
-                model.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
+        SubmodelElement expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0).getSubmodelElements().get(0),
+                environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
         String idShort = "NewIdShort";
         expected.setIdShort(idShort);
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         Reference parent = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
-        Assert.assertNull(((SubmodelElementCollection) Objects.requireNonNull(model.getSubmodels().stream()
+        Assert.assertNull(((SubmodelElementCollection) Objects.requireNonNull(environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionIdShort))
@@ -560,15 +567,16 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void putSubmodelElementChangeInSubmodelElementCollectionTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
-        SubmodelElement submodelElement = ((SubmodelElementCollection) model.getSubmodels().stream()
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
+        SubmodelElement submodelElement = ((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionIdShort))
                 .findFirst().orElse(null))
                         .getValue().stream()
-                        .findFirst().orElse(null);
+                        .findFirst()
+                        .orElse(null);
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
@@ -601,7 +609,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void removeByReferenceTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
         Assert.assertNotNull(persistence.get(reference, QueryModifier.DEFAULT));
         persistence.remove(reference);
@@ -613,7 +621,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void removeByReferencePropertyInSubmodelElementCollectionTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         String submodelElementIdShort = "ExampleFile";
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
         Assert.assertNotNull(persistence.get(reference, new OutputModifier()));
@@ -636,8 +644,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     @Test
     public void putIdentifiableNewTest() throws ResourceNotFoundException {
-        Submodel expected = DeepCopyHelper.deepCopy(model.getSubmodels().get(0),
-                model.getSubmodels().get(0).getClass());
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0),
+                environment.getSubmodels().get(0).getClass());
         String idShort = "NewIdShort";
         expected.setIdShort(idShort);
         expected.setId("http://newIdentifier.org");
@@ -650,8 +658,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     @Test
     public void putIdentifiableChangeTest() throws ResourceNotFoundException {
         int expectedIndex = 0;
-        ConceptDescription expected = DeepCopyHelper.deepCopy(model.getConceptDescriptions().get(expectedIndex),
-                model.getConceptDescriptions().get(expectedIndex).getClass());
+        ConceptDescription expected = DeepCopyHelper.deepCopy(environment.getConceptDescriptions().get(expectedIndex),
+                environment.getConceptDescriptions().get(expectedIndex).getClass());
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.put(expected);
@@ -666,11 +674,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void testQueryModifierExtend() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
+        String submodelElementCollectionIdShort = "ExampleSubmodelElementCollection";
         String submodelElementIdShort = "ExampleBlob";
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
         QueryModifier queryModifier = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
-        SubmodelElement expected = ((SubmodelElementCollection) model.getSubmodels().stream()
+        SubmodelElement expected = ((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getId().equals(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
@@ -694,7 +702,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void testQueryModifierLevel() throws ResourceNotFoundException {
         QueryModifier queryModifier = new QueryModifier.Builder().level(Level.DEEP).build();
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Submodel expected = model.getSubmodels().stream()
+        Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equals(submodelId)).findFirst().get();
         Submodel actual = persistence.get(submodelId, queryModifier, Submodel.class);
         Assert.assertEquals(expected, actual);

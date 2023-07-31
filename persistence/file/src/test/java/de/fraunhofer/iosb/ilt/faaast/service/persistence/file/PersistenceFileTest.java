@@ -33,8 +33,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,11 +49,11 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
 
     private File modelFileJson;
     private File modelFileXml;
-    private AssetAdministrationShellEnvironment model;
+    private Environment model;
     private static Path tempDir;
 
     @Override
-    public PersistenceFileConfig getPersistenceConfig(File initialModelFile, AssetAdministrationShellEnvironment initialModel) throws ConfigurationInitializationException {
+    public PersistenceFileConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
         PersistenceFileConfig result = PersistenceFileConfig
                 .builder()
                 .initialModel(initialModel)
@@ -137,7 +136,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .keepInitial(false)
                 .build();
         PersistenceFile persistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-        Identifier identifier = model.getAssetAdministrationShells().get(0).getIdentification();
+        String identifier = model.getAssetAdministrationShells().get(0).getId();
         persistence.remove(identifier);
         PersistenceFile newPersistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         Assert.assertEquals(1,
@@ -172,11 +171,11 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .initialModelFile(modelFileXml)
                 .dataDir(tempDir.toString())
                 .keepInitial(true)
-                .dataformat(DataFormat.JSONLD)
+                .dataformat(DataFormat.JSON)
                 .build()
                 .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         File persistenceModelFile = Paths
-                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".jsonld")
+                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".json")
                 .toFile();
         Assert.assertTrue(persistenceModelFile.exists());
     }
@@ -188,5 +187,12 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
+    }
+
+
+    @Test
+    @Override
+    public void withInitialModelAndModelFileTest() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
+        super.withInitialModelAndModelFileTest();
     }
 }

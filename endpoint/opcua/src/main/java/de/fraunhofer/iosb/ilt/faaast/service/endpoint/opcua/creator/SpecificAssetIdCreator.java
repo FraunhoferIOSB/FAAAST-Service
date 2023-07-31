@@ -23,10 +23,10 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import opc.i4aas.AASIdentifierKeyValuePairType;
 import opc.i4aas.AASReferenceType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,10 @@ import org.slf4j.LoggerFactory;
  * Helper class to create IdentifierKeyValuePairs and integrate them into the
  * OPC UA address space.
  */
-public class IdentifierKeyValuePairCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IdentifierKeyValuePairCreator.class);
+public class SpecificAssetIdCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpecificAssetIdCreator.class);
 
-    private IdentifierKeyValuePairCreator() {
+    private SpecificAssetIdCreator() {
         throw new IllegalStateException("Class not instantiable");
     }
 
@@ -52,7 +52,7 @@ public class IdentifierKeyValuePairCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, AasServiceNodeManager nodeManager) throws StatusException {
         addIdentifierKeyValuePair(node, identifierPair, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
@@ -65,7 +65,7 @@ public class IdentifierKeyValuePairCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, AasServiceNodeManager nodeManager)
+    public static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, AasServiceNodeManager nodeManager)
             throws StatusException {
         setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
@@ -81,7 +81,7 @@ public class IdentifierKeyValuePairCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, boolean readOnly, AasServiceNodeManager nodeManager)
+    private static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, boolean readOnly, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
@@ -111,11 +111,11 @@ public class IdentifierKeyValuePairCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, boolean readOnly,
+    private static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, boolean readOnly,
                                                       AasServiceNodeManager nodeManager)
             throws StatusException {
         // ExternalSubjectId
-        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
+        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectID();
         if (externalSubjectId != null) {
             AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
             if (extSubjectNode == null) {
@@ -127,7 +127,7 @@ public class IdentifierKeyValuePairCreator {
         }
 
         // Key
-        identifierPairNode.setKey(aasIdentifierPair.getKey());
+        identifierPairNode.setKey(aasIdentifierPair.getName());
 
         // Value
         identifierPairNode.setValue(aasIdentifierPair.getValue());

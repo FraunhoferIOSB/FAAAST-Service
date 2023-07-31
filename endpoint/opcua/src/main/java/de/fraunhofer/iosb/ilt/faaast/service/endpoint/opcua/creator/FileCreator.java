@@ -28,11 +28,11 @@ import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.i4aas.AASFileType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASFileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,8 +90,8 @@ public class FileCreator extends SubmodelElementCreator {
 
     private static void setFileData(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) throws StatusException {
         // MimeType
-        if (!aasFile.getMimeType().isEmpty()) {
-            fileNode.setMimeType(aasFile.getMimeType());
+        if (!aasFile.getContentType().isEmpty()) {
+            fileNode.setMimeType(aasFile.getContentType());
         }
 
         // Value

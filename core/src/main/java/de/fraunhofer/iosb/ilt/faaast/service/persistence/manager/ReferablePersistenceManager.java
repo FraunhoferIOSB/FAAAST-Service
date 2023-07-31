@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministr
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
@@ -56,8 +57,11 @@ public class ReferablePersistenceManager extends PersistenceManager {
             return null;
         }
         try {
-            SubmodelElement result = DeepCopyHelper.deepCopy(AasUtils.resolve(reference, aasEnvironment, SubmodelElement.class), SubmodelElement.class);
-            if (result != null && modifier.getExtent() == Extent.WITHOUT_BLOB_VALUE && Blob.class.isAssignableFrom(result.getClass())) {
+            SubmodelElement result = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(reference, aasEnvironment, SubmodelElement.class), SubmodelElement.class);
+            if (Objects.isNull(result)) {
+                throw new ResourceNotFoundException(reference);
+            }
+            if (modifier.getExtent() == Extent.WITHOUT_BLOB_VALUE && Blob.class.isAssignableFrom(result.getClass())) {
                 ((Blob) result).setValue(null);
             }
             return result;
@@ -87,7 +91,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         if (reference == null || reference.getKeys() == null || reference.getKeys().isEmpty()) {
             return List.of();
         }
-        Referable referable = AasUtils.resolve(reference, aasEnvironment);
+        Referable referable = EnvironmentHelper.resolve(reference, aasEnvironment);
         if (referable == null) {
             throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));
         }
@@ -99,7 +103,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             result = ((SubmodelElementCollection) referable).getValue();
         }
         if (semanticId != null) {
-            result.removeIf(x -> !Objects.equals(x.getSemanticID(), semanticId));
+            result.removeIf(x -> !ReferenceHelper.equals(x.getSemanticID(), semanticId));
         }
         return DeepCopyHelper.deepCopy(result, SubmodelElement.class);
     }
@@ -129,7 +133,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
                 ? ReferenceHelper.getParent(reference)
                 : parent;
         Ensure.requireNonNull(parentRef, "could not determine parent reference");
-        Referable referable = AasUtils.resolve(parentRef, aasEnvironment);
+        Referable referable = EnvironmentHelper.resolve(parentRef, aasEnvironment);
         if (referable == null) {
             throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(parentRef)));
         }
@@ -164,7 +168,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      */
     public void remove(Reference reference) throws ResourceNotFoundException {
         Ensure.require(!ReferenceHelper.isNullOrEmpty(reference), "reference must be non-empty");
-        final Referable referable = AasUtils.resolve(reference, aasEnvironment);
+        final Referable referable = EnvironmentHelper.resolve(reference, aasEnvironment);
         if (referable == null) {
             throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));
         }
@@ -187,7 +191,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
                     .walk(referable);
             return;
         }
-        Referable parent = AasUtils.resolve(parentRef, aasEnvironment);
+        Referable parent = EnvironmentHelper.resolve(parentRef, aasEnvironment);
         Ensure.requireNonNull(parent, String.format("unable to resolve parent reference: %s", AasUtils.asString(parentRef)));
         AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {

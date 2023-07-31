@@ -42,7 +42,6 @@ import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -58,6 +57,7 @@ import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASQualifierType;
 import opc.i4aas.AASValueTypeDataType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
 
 

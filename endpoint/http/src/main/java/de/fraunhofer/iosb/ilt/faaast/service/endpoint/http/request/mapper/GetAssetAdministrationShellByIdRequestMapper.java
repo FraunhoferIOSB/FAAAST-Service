@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class GetAssetAdministrationShellByIdRequestMapper
     @Override
     public GetAssetAdministrationShellByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
+                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
                 .build();
     }
 }

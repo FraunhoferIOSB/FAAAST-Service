@@ -29,12 +29,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import java.util.List;
+import opc.i4aas.AASEntityType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASEntityType;
 
 
 /**
@@ -76,12 +77,12 @@ public class EntityCreator extends SubmodelElementCreator {
                     new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
 
             // GlobalAssetId
-            if (aasEntity.getGlobalAssetId() != null) {
+            if (aasEntity.getGlobalAssetID() != null) {
                 setGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
             }
 
             // SpecificAssetIds
-            IdentifierKeyValuePair specificAssetId = aasEntity.getSpecificAssetId();
+            List<SpecificAssetID> specificAssetId = aasEntity.getSpecificAssetIds();
             if (specificAssetId != null) {
                 setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
             }
@@ -103,12 +104,12 @@ public class EntityCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setSpecificAssetIdData(AASEntityType entityNode, IdentifierKeyValuePair specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
+    private static void setSpecificAssetIdData(AASEntityType entityNode, SpecificAssetID specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
         if (entityNode.getSpecificAssetIdNode() == null) {
-            IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID, nodeManager);
+            SpecificAssetIdCreator.addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID, nodeManager);
         }
         else {
-            IdentifierKeyValuePairCreator.setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId, nodeManager);
+            SpecificAssetIdCreator.setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId, nodeManager);
         }
     }
 
@@ -116,10 +117,10 @@ public class EntityCreator extends SubmodelElementCreator {
     private static void setGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
             throws StatusException {
         if (entityNode.getGlobalAssetIdNode() == null) {
-            AasReferenceCreator.addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID, false, nodeManager);
+            AasReferenceCreator.addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetID(), AASEntityType.GLOBAL_ASSET_ID, false, nodeManager);
         }
         else {
-            AasSubmodelElementHelper.setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
+            AasSubmodelElementHelper.setAasReferenceData(aasEntity.getGlobalAssetID(), entityNode.getGlobalAssetIdNode(), false);
         }
 
         nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),

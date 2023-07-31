@@ -22,10 +22,10 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.List;
 import opc.i4aas.AASReferenceList;
 import opc.i4aas.AASReferenceType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

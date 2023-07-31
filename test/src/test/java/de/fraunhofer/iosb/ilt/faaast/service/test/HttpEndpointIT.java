@@ -49,6 +49,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -67,28 +68,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
-import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierType;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
-import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifierKeyValuePair;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.junit.After;
 import org.junit.Assert;
@@ -106,7 +102,7 @@ public class HttpEndpointIT {
     private static final String HOST = "http://localhost";
     private static int PORT;
     private static ApiPaths API_PATHS;
-    private static AssetAdministrationShellEnvironment environment;
+    private static Environment environment;
     private static Service service;
     private final ObjectMapper mapper;
     private static final Path pathForTestSubmodel3 = Path.builder()
@@ -173,16 +169,16 @@ public class HttpEndpointIT {
     @Test
     public void testAASBasicDiscoveryCreate() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        IdentifierKeyValuePair newIdentifier = new DefaultIdentifierKeyValuePair.Builder()
-                .key("foo")
+        SpecificAssetID newIdentifier = new DefaultSpecificAssetID.Builder()
+                .name("foo")
                 .value("bar")
                 .build();
-        List<IdentifierKeyValuePair> expected = new ArrayList<>();
+        List<SpecificAssetID> expected = new ArrayList<>();
         expected.add(newIdentifier);
         expected.addAll(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultIdentifierKeyValuePair.Builder()
-                .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+        expected.add(new DefaultSpecificAssetID.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(aas.getAssetInformation().getGlobalAssetID())
                 .build());
         assertExecuteMultiple(
                 HttpMethod.POST,
@@ -190,7 +186,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS_CREATED,
                 List.of(newIdentifier),
                 expected,
-                IdentifierKeyValuePair.class);
+                SpecificAssetID.class);
     }
 
 
@@ -198,7 +194,7 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryDelete() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.getAssetInformation().getSpecificAssetIds().clear();
-        aas.getAssetInformation().setGlobalAssetId(null);
+        aas.getAssetInformation().setGlobalAssetID(null);
         assertExecute(
                 HttpMethod.DELETE,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
@@ -209,7 +205,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS,
                 null,
                 List.of(),
-                IdentifierKeyValuePair.class);
+                SpecificAssetID.class);
     }
 
 
@@ -217,7 +213,7 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryGetAssetAdministrationShells()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getAssetAdministrationShells().stream()
-                .map(x -> x.getIdentification())
+                .map(x -> x.getId())
                 .collect(Collectors.toList());
         assertExecuteMultiple(
                 HttpMethod.GET,
@@ -225,7 +221,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS,
                 null,
                 expected,
-                Identifier.class);
+                String.class);
     }
 
 
@@ -233,17 +229,16 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryGetAssetAdministrationShellsByGlobalAssetId()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         String assetIdValue = "https://acplt.org/Test_Asset";
-        List<Identifier> expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getAssetInformation().getGlobalAssetId().getKeys().stream()
-                        .anyMatch(y -> y.getValue().equalsIgnoreCase(assetIdValue)))
-                .map(x -> x.getIdentification())
+        List<String> expected = environment.getAssetAdministrationShells().stream()
+                .filter(x -> x.getAssetInformation().getGlobalAssetID().equalsIgnoreCase(assetIdValue))
+                .map(x -> x.getId())
                 .collect(Collectors.toList());
         assertExecuteMultiple(HttpMethod.GET,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShells(Map.of(FaaastConstants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
                 StatusCode.SUCCESS,
                 null,
                 expected,
-                Identifier.class);
+                String.class);
     }
 
 
@@ -251,10 +246,10 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryGetAssetLinks()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        List<IdentifierKeyValuePair> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultIdentifierKeyValuePair.Builder()
-                .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+        List<SpecificAssetID> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        expected.add(new DefaultSpecificAssetID.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(aas.getAssetInformation().getGlobalAssetID())
                 .build());
         assertExecuteMultiple(
                 HttpMethod.GET,
@@ -262,7 +257,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS,
                 null,
                 expected,
-                IdentifierKeyValuePair.class);
+                SpecificAssetID.class);
     }
 
 
@@ -270,12 +265,11 @@ public class HttpEndpointIT {
     public void testAASRepositoryCreateAssetAdministrationShells()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell expected = new DefaultAssetAdministrationShell.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .identifier("http://newOne")
-                        .idType(IdentifierType.IRI)
-                        .build())
+                .id("http://newOne")
                 .idShort("newOne")
-                .description(new LangString("Täst"))
+                .description(new DefaultLangStringTextType.Builder()
+                        .text("Täst")
+                        .build())
                 .build();
         assertEvent(
                 messageBus,
@@ -349,7 +343,7 @@ public class HttpEndpointIT {
     @Test
     public void testAASRepositoryGetAssetAdministrationShellUsingSubmodelIdReturnsResourceNotFound()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        String submodelId = environment.getSubmodels().get(1).getIdentification().getIdentifier();
+        String submodelId = environment.getSubmodels().get(1).getId();
         assertExecuteSingle(HttpMethod.GET,
                 API_PATHS.aasRepository().assetAdministrationShell(submodelId),
                 StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
@@ -473,10 +467,10 @@ public class HttpEndpointIT {
 
     private void assertSerialization(List<AssetAdministrationShell> aass, boolean includeConceptDescriptions, MediaType contentType, DataFormat expectedFormat)
             throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException {
-        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(aass)
                 .submodels(aass.stream().flatMap(x -> x.getSubmodels().stream())
-                        .map(x -> AasUtils.resolve(x, environment, Submodel.class))
+                        .map(x -> EnvironmentHelper.resolve(x, environment, Submodel.class))
                         .filter(Objects::nonNull)
                         .distinct()
                         .collect(Collectors.toList()))
@@ -497,7 +491,7 @@ public class HttpEndpointIT {
                 .orElseThrow());
         Assert.assertTrue("content-type out of range", responseContentType.is(contentType));
         try (InputStream in = new ByteArrayInputStream(response.body())) {
-            AssetAdministrationShellEnvironment actual = EnvironmentSerializationManager
+            Environment actual = EnvironmentSerializationManager
                     .deserializerFor(expectedFormat)
                     .read(in, responseContentType.charset().or(StandardCharsets.UTF_8))
                     .getEnvironment();
@@ -511,7 +505,11 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         List<Reference> expected = aas.getSubmodels();
-        Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
+        Reference newReference = new DefaultReference.Builder()
+                .keys(new DefaultKey.Builder()
+                        .value("test")
+                        .build())
+                .build();
         expected.add(newReference);
         assertEvent(
                 messageBus,
@@ -644,8 +642,8 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
-        expected.getSpecificAssetIds().add(new DefaultIdentifierKeyValuePair.Builder()
-                .key("foo")
+        expected.getSpecificAssetIds().add(new DefaultSpecificAssetID.Builder()
+                .name("foo")
                 .value("bar")
                 .build());
         // TODO does this trigger any message bus event?
@@ -663,10 +661,7 @@ public class HttpEndpointIT {
     public void testConceptDescriptionRepositoryCreateConceptDescription()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         ConceptDescription expected = new DefaultConceptDescription.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.CUSTOM)
-                        .identifier("http://example.org/foo")
-                        .build())
+                .id("http://example.org/foo")
                 .idShort("created")
                 .build();
         assertEvent(
@@ -1038,7 +1033,10 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        expected.getDescriptions().add(new LangString("foo", "en"));
+        expected.getDescription().add(new DefaultLangStringTextType.Builder()
+                .language("en")
+                .text("foo")
+                .build());
         assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
@@ -1062,7 +1060,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceCreateSubmodelElementInAasContext()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
@@ -1089,7 +1087,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceCreateSubmodelElementWithIdInUrlInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
@@ -1116,7 +1114,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceDeleteSubmodelElementInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         List<SubmodelElement> before = HttpHelper.getWithMultipleResult(
                 API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
@@ -1142,7 +1140,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel expected = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel expected = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
@@ -1162,7 +1160,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelElementInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         assertEvent(
                 messageBus,
@@ -1183,7 +1181,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelElementsInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
         assertExecuteMultiple(
                 HttpMethod.GET,
@@ -1199,7 +1197,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelContentValueInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
@@ -1221,7 +1219,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelCoreInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel expected = DeepCopyHelper.deepCopy(AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
+        Submodel expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
         clearSubmodelElementCollections(expected);
         assertEvent(
                 messageBus,
@@ -1282,7 +1280,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelDeepInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel expected = DeepCopyHelper.deepCopy(AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
+        Submodel expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
         ExtendHelper.withoutBlobValue(expected);
         assertEvent(
                 messageBus,
@@ -1303,7 +1301,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceUpdateSubmodelInAasContext()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel expected = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel expected = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         expected.setIdShort("changed");
         assertEvent(
                 messageBus,
@@ -1324,9 +1322,12 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceUpdateSubmodelElementInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        expected.getDescriptions().add(new LangString("foo", "en"));
+        expected.getDescription().add(new DefaultLangStringTextType.Builder()
+                .language("en")
+                .text("foo")
+                .build());
         assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
@@ -1350,10 +1351,7 @@ public class HttpEndpointIT {
     public void testSubmodelRepositoryCreateSubmodel()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = new DefaultSubmodel.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier("newSubmodel")
-                        .build())
+                .id("newSubmodel")
                 .build();
         assertEvent(
                 messageBus,
@@ -1457,7 +1455,7 @@ public class HttpEndpointIT {
         assertExecuteMultiple(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
                         API_PATHS.submodelRepository().submodels(),
-                        EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticId()))),
+                        EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticID()))),
                 StatusCode.SUCCESS,
                 null,
                 List.of(expected),
@@ -1523,7 +1521,7 @@ public class HttpEndpointIT {
     private static void clearSubmodelElementCollections(Submodel submodel) {
         submodel.getSubmodelElements().forEach(x -> {
             if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                ((SubmodelElementCollection) x).getValues().clear();
+                ((SubmodelElementCollection) x).getValue().clear();
             }
         });
     }

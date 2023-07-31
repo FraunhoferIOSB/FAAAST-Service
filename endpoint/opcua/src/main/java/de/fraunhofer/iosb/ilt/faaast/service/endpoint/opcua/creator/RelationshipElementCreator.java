@@ -25,14 +25,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import opc.i4aas.AASAnnotatedRelationshipElementType;
+import opc.i4aas.AASRelationshipElementType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASAnnotatedRelationshipElementType;
-import opc.i4aas.AASRelationshipElementType;
 
 
 /**

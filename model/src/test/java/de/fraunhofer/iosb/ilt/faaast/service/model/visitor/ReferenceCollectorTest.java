@@ -15,12 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
@@ -60,14 +66,49 @@ public class ReferenceCollectorTest {
                 .submodelElements(collection1)
                 .submodelElements(list1)
                 .build();
-        Map<Reference, Referable> expected = Map.of(
-                ReferenceHelper.build(submodel.getId(), Submodel.class), submodel,
-                ReferenceHelper.build(null, submodel.getId(), property1.getIdShort()), property1,
-                ReferenceHelper.build(null, submodel.getId(), collection1.getIdShort()), collection1,
-                ReferenceHelper.build(null, submodel.getId(), collection1.getIdShort(), property2.getIdShort()), property2,
-                ReferenceHelper.build(null, submodel.getId(), list1.getIdShort()), list1,
-                ReferenceHelper.build(null, submodel.getId(), list1.getIdShort(), "0"), property3);
-        Map<Reference, Referable> actual = ReferenceCollector.collect(submodel);
+        AssetAdministrationShell aas1 = new DefaultAssetAdministrationShell.Builder()
+                .id("aas1")
+                .submodels(ReferenceHelper.build(submodel.getId(), Submodel.class))
+                .build();
+        AssetAdministrationShell aas2 = new DefaultAssetAdministrationShell.Builder()
+                .id("aas2")
+                .submodels(ReferenceHelper.build(submodel.getId(), Submodel.class))
+                .build();
+        Environment environment = new DefaultEnvironment.Builder()
+                .assetAdministrationShells(aas1)
+                .assetAdministrationShells(aas2)
+                .submodels(submodel)
+                .build();
+        Reference aas1Ref = ReferenceHelper.build(aas1.getId(), KeyTypes.ASSET_ADMINISTRATION_SHELL);
+        Reference aas2Ref = ReferenceHelper.build(aas2.getId(), KeyTypes.ASSET_ADMINISTRATION_SHELL);
+        Reference submodelRef = ReferenceHelper.build(submodel.getId(), KeyTypes.SUBMODEL);
+        Reference property1Ref = ReferenceHelper.build(null, submodel.getId(), property1.getIdShort());
+        Reference collection1Ref = ReferenceHelper.build(null, submodel.getId(), collection1.getIdShort());
+        Reference property2Ref = ReferenceHelper.build(null, submodel.getId(), collection1.getIdShort(), property2.getIdShort());
+        Reference list1Ref = ReferenceHelper.build(null, submodel.getId(), list1.getIdShort());
+        Reference property3Ref = ReferenceHelper.build(null, submodel.getId(), list1.getIdShort(), "0");
+        Map<Reference, Referable> expected = new HashMap<>();
+        expected.put(submodelRef, submodel);
+        expected.put(property1Ref, property1);
+        expected.put(collection1Ref, collection1);
+        expected.put(property2Ref, property2);
+        expected.put(list1Ref, list1);
+        expected.put(property3Ref, property3);
+        expected.put(aas1Ref, aas1);
+        expected.put(ReferenceHelper.toReference(aas1Ref, submodelRef), submodel);
+        expected.put(ReferenceHelper.toReference(aas1Ref, property1Ref), property1);
+        expected.put(ReferenceHelper.toReference(aas1Ref, collection1Ref), collection1);
+        expected.put(ReferenceHelper.toReference(aas1Ref, property2Ref), property2);
+        expected.put(ReferenceHelper.toReference(aas1Ref, list1Ref), list1);
+        expected.put(ReferenceHelper.toReference(aas1Ref, property3Ref), property3);
+        expected.put(aas2Ref, aas2);
+        expected.put(ReferenceHelper.toReference(aas2Ref, submodelRef), submodel);
+        expected.put(ReferenceHelper.toReference(aas2Ref, property1Ref), property1);
+        expected.put(ReferenceHelper.toReference(aas2Ref, collection1Ref), collection1);
+        expected.put(ReferenceHelper.toReference(aas2Ref, property2Ref), property2);
+        expected.put(ReferenceHelper.toReference(aas2Ref, list1Ref), list1);
+        expected.put(ReferenceHelper.toReference(aas2Ref, property3Ref), property3);
+        Map<Reference, Referable> actual = ReferenceCollector.collect(environment);
         Assert.assertEquals(expected.size(), actual.size());
         // cannot compare using .equals on references as keyTypes do not match
         for (var reference: expected.keySet()) {

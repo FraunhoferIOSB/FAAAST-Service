@@ -40,14 +40,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
-import org.eclipse.digitaltwin.aas4j.v3.model.Property;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +62,11 @@ import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementList;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASValueTypeDataType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,8 +111,8 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        setAasReferenceData(new DefaultReference.Builder().keys(value.getFirst()).build(), aasElement.getFirstNode(), false);
-        setAasReferenceData(new DefaultReference.Builder().keys(value.getSecond()).build(), aasElement.getSecondNode(), false);
+        setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
+        setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
 
         if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
             AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
@@ -234,14 +236,13 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            AASValueTypeDataType valueDataType;
-
-            PropertyValue typedValue = PropertyValue.of(aasProperty.getValueType(), aasProperty.getValue());
+            AASValueTypeDataType valueDataType;            
+            PropertyValue typedValue = ElementValueMapper.toValue(aasProperty);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
                 valueDataType = ValueConverter.datatypeToValueType(typedValue.getValue().getDataType());
             }
             else {
-                valueDataType = ValueConverter.stringToValueType(aasProperty.getValueType());
+                valueDataType = ValueConverter.dataTypeXsdToValueType(aasProperty.getValueType());
             }
 
             prop.setValueType(valueDataType);
@@ -456,7 +457,7 @@ public class AasSubmodelElementHelper {
     }
 
 
-    public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+    public static void setRangeValueAndType(DataTypeDefXSD valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
         try {
@@ -467,7 +468,7 @@ public class AasSubmodelElementHelper {
                 valueDataType = ValueConverter.datatypeToValueType(minTypedValue.getDataType());
             }
             else {
-                valueDataType = ValueConverter.stringToValueType(valueType);
+                valueDataType = ValueConverter.dataTypeXsdToValueType(valueType);
             }
 
             range.setValueType(valueDataType);
@@ -668,7 +669,6 @@ public class AasSubmodelElementHelper {
 
         AASKeyDataType[] keys = ref.getKeys().stream().map(k -> {
             AASKeyDataType keyValue = new AASKeyDataType();
-            keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
             keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
             keyValue.setValue(k.getValue());
             return keyValue;
@@ -819,8 +819,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
-        setAasReferenceData(ref, refElement.getValueNode());
+        setAasReferenceData(value.getValue(), refElement.getValueNode());
     }
 
 
@@ -851,7 +850,7 @@ public class AasSubmodelElementHelper {
      */
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
-        List<LangString> values = new ArrayList<>(value.getLangStringSet());
+        List<LangStringTextType> values = new ArrayList<>(value.getLangStringSet());
         if (multiLangProp.getValueNode() == null) {
             addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
         }

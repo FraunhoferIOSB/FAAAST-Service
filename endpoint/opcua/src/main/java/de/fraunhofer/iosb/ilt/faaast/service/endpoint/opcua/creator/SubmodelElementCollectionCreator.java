@@ -30,17 +30,15 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import opc.i4aas.AASOrderedSubmodelElementCollectionType;
+import opc.i4aas.AASSubmodelElementCollectionType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import opc.i4aas.AASOrderedSubmodelElementCollectionType;
-import opc.i4aas.AASSubmodelElementCollectionType;
-
 
 /**
- * Helper class to create SubmodelElementCollections and integrate them into the
- * OPC UA address space.
+ * Helper class to create SubmodelElementCollections and integrate them into the OPC UA address space.
  */
 public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
 
@@ -51,8 +49,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @param aasColl The corresponding SubmodelElementCollection to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
@@ -60,7 +57,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @throws ServiceResultException If the operation fails
      */
     public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Submodel submodel, Reference parentRef, boolean ordered,
-                                                       AasServiceNodeManager nodeManager)
+            AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         if ((node != null) && (aasColl != null)) {
             String name = aasColl.getIdShort();
@@ -68,12 +65,8 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             AASSubmodelElementCollectionType collNode;
-            if (aasColl.getOrdered()) {
-                collNode = createAasOrderedSubmodelElementCollection(name, nid, nodeManager);
-            }
-            else {
-                collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, LocalizedText.english(name));
-            }
+
+            collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, LocalizedText.english(name));
 
             addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
@@ -93,24 +86,20 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
                 collNode.addProperty(myProperty);
             }
 
-            collNode.setAllowDuplicates(aasColl.getAllowDuplicates());
-
             Reference collRef = AasUtils.toReference(parentRef, aasColl);
 
             // SubmodelElements 
-            addSubmodelElements(collNode, aasColl.getValues(), submodel, collRef, aasColl.getOrdered(), nodeManager);
+            addSubmodelElements(collNode, aasColl.getValue(), submodel, collRef, false, nodeManager);
 
             if (ordered) {
                 node.addReference(collNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
+            } else {
                 node.addComponent(collNode);
             }
 
             nodeManager.addReferable(collRef, new ObjectData(aasColl, collNode, submodel));
         }
     }
-
 
     /**
      * Creates an AAS Ordered Submodel Element Collection.

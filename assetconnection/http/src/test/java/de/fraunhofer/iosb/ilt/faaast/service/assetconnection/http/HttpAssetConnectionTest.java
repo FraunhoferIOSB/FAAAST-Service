@@ -730,7 +730,7 @@ public class HttpAssetConnectionTest {
                         .value(new DefaultProperty.Builder()
                                 .idShort(x.getKey())
                                 .value(x.getValue().asString())
-                                .valueType(x.getValue().getDataType().getName())
+                                .valueType(x.getValue().getDataType().getAas4jDatatype())
                                 .build())
                         .build())
                 .toArray(OperationVariable[]::new);

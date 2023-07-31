@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 
 
@@ -28,7 +27,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 public abstract class InvokeOperationRequestMixin {
 
     @JsonIgnore
-    protected Identifier id;
+    protected String id;
     @JsonIgnore
     protected Content content;
     @JsonIgnore

@@ -27,14 +27,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import java.util.Locale;
+import opc.i4aas.AASOperationType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import java.util.Locale;
-import opc.i4aas.AASOperationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class OperationCreator extends SubmodelElementCreator {
             arg.setArrayDimensions(null);
 
             // Description
-            DescriptionCreator.addDescriptions(arg, prop.getDescriptions());
+            DescriptionCreator.addDescriptions(arg, prop.getDescription());
 
             NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
             if (type.isNullNodeId()) {

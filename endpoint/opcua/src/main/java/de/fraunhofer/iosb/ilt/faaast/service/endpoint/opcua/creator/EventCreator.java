@@ -23,12 +23,13 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import opc.i4aas.AASEventType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.BasicEvent;
-import org.eclipse.digitaltwin.aas4j.v3.model.Event;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import opc.i4aas.AASEventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class EventCreator extends SubmodelElementCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasEvent(UaNode node, Event aasEvent, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasEvent(UaNode node, EventElement aasEvent, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasEvent != null)) {
             String name = aasEvent.getIdShort();
@@ -61,8 +62,8 @@ public class EventCreator extends SubmodelElementCreator {
             AASEventType eventNode = nodeManager.createInstance(AASEventType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
-            if (aasEvent instanceof BasicEvent) {
-                setBasicEventData(eventNode, (BasicEvent) aasEvent);
+            if (aasEvent instanceof BasicEventElement) {
+                setBasicEventData(eventNode, (BasicEventElement) aasEvent);
             }
 
             Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
@@ -85,7 +86,7 @@ public class EventCreator extends SubmodelElementCreator {
      * @param eventNode The desired UA event node
      * @param aasEvent The corresponding AAS BasicEvent
      */
-    private static void setBasicEventData(AASEventType eventNode, BasicEvent aasEvent) {
+    private static void setBasicEventData(AASEventType eventNode, BasicEventElement aasEvent) {
         if (aasEvent.getObserved() != null) {
             LOGGER.warn("setBasicEventData: not implemented! Event: {}", eventNode.getBrowseName().getName());
         }

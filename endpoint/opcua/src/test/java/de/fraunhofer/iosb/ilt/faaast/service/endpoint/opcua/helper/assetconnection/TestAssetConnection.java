@@ -21,11 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

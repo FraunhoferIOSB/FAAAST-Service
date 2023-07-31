@@ -25,14 +25,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 
 
 /**
@@ -82,10 +80,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
     }
 
 
-    private List<Identifier> parseAndDecodeQueryParameter(String input) {
-        return HttpHelper.parseCommaSeparatedList(EncodingHelper.base64UrlDecode(input))
-                .stream()
-                .map(IdentifierHelper::parseIdentifier)
-                .collect(Collectors.toList());
+    private List<String> parseAndDecodeQueryParameter(String input) {
+        return HttpHelper.parseCommaSeparatedList(EncodingHelper.base64UrlDecode(input));
     }
 }

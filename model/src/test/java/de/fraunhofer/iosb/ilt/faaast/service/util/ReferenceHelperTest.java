@@ -84,26 +84,63 @@ public class ReferenceHelperTest {
                     "(Submodel)https://example.com/aas/1/1/1234859590, (SubmodelElementList)Documents, (SubmodelElementCollection)0, (MultiLanguageProperty)Title"));
 
     @Test
-    public void testSerializeReference() {
-        TEST_CASES.forEach(this::assertReferenceSerialization);
+    public void testEquals() {
+        Assert.assertTrue(ReferenceHelper.equals(
+                ReferenceHelper.parse("(GlobalReference)0173-1#01-ADS698#010, (GlobalReference)0173-1#01-ADS700#010"),
+                ReferenceHelper.parse("(GlobalReference)0173-1#01-ADS698#010, (FragmentReference)0173-1#01-ADS700#010")));
+        Assert.assertTrue(ReferenceHelper.equals(
+                ReferenceHelper.parse("(Submodel)https://example.com/aas/1/1/1234859590"),
+                ReferenceHelper.parse("(GlobalReference)https://example.com/aas/1/1/1234859590")));
+        Assert.assertTrue(ReferenceHelper.equals(
+                ReferenceHelper.parse("(Submodel)https://example.com/aas/1/1/1234859590, (File)Specification, (FragmentReference)Bibliography"),
+                ReferenceHelper.parse("(GlobalReference)https://example.com/aas/1/1/1234859590, (FragmentReference)Specification, (FragmentReference)Bibliography")));
+        // should return true but not possible in reality because of duplicate usage of idShort
+        Assert.assertTrue(ReferenceHelper.equals(
+                ReferenceHelper.parse("(Submodel)https://example.com/aas/1/1/1234859590, (File)Specification"),
+                ReferenceHelper.parse("(Submodel)https://example.com/aas/1/1/1234859590, (Blob)Specification")));
     }
 
 
     @Test
-    public void testParseReference() {
-        TEST_CASES.forEach(this::assertParseReference);
+    public void testNotEquals() {
+        Assert.assertFalse(ReferenceHelper.equals(
+                ReferenceHelper.parse("(GlobalReference)https://example.com/aas/1/1/1234859590, (FragmentReference)Specification, (FragmentReference)Bibliography"),
+                ReferenceHelper.parse("(GlobalReference)https://example.com/aas/1/1/1234859590, (FragmentReference)Specification, (FragmentReference)Bibliographie")));
+    }
+
+
+    @Test
+    public void testNormalize() {
+        assertNormalize(
+                "(AssetAdministrationShell)AAS, (Submodel)Submodel, (Property)Property",
+                "(Submodel)Submodel, (Property)Property");
+        assertNormalize(
+                "(Submodel)Submodel, (Property)Property",
+                "(Submodel)Submodel, (Property)Property");
+    }
+
+
+    @Test
+    public void testSerialize() {
+        TEST_CASES.forEach(this::asserSerialize);
+    }
+
+
+    @Test
+    public void testParse() {
+        TEST_CASES.forEach(this::assertParse);
     }
 
 
     @Test
     public void testCombineReferences() {
-        assertCombineReference("(Submodel)1", "(Property)2", "(Submodel)1, (Property)2");
-        assertCombineReference(null, "(Property)2", "(Property)2");
-        assertCombineReference("(Submodel)1", null, "(Submodel)1");
+        assertCombine("(Submodel)1", "(Property)2", "(Submodel)1, (Property)2");
+        assertCombine(null, "(Property)2", "(Property)2");
+        assertCombine("(Submodel)1", null, "(Submodel)1");
     }
 
 
-    private void assertCombineReference(String parent, String child, String expected) {
+    private void assertCombine(String parent, String child, String expected) {
         Reference actual = ReferenceHelper.toReference(
                 ReferenceHelper.parse(parent),
                 ReferenceHelper.parse(child));
@@ -111,30 +148,38 @@ public class ReferenceHelperTest {
     }
 
 
-    private void assertReferenceSerialization(ReferenceSerializationInfo referenceSerializationInfo) {
-        assertReferenceSerialization(referenceSerializationInfo, true, true);
-        assertReferenceSerialization(referenceSerializationInfo, true, false);
-        assertReferenceSerialization(referenceSerializationInfo, false, true);
-        assertReferenceSerialization(referenceSerializationInfo, false, false);
+    private void assertNormalize(String reference, String expected) {
+        Assert.assertTrue(ReferenceHelper.equals(
+                ReferenceHelper.normalize(
+                        ReferenceHelper.parse(reference)),
+                ReferenceHelper.parse(expected)));
     }
 
 
-    private void assertParseReference(ReferenceSerializationInfo referenceSerializationInfo) {
-        assertParseReference(referenceSerializationInfo, true, true);
-        assertParseReference(referenceSerializationInfo, true, false);
-        assertParseReference(referenceSerializationInfo, false, true);
-        assertParseReference(referenceSerializationInfo, false, false);
+    private void asserSerialize(ReferenceSerializationInfo referenceSerializationInfo) {
+        assertSerialize(referenceSerializationInfo, true, true);
+        assertSerialize(referenceSerializationInfo, true, false);
+        assertSerialize(referenceSerializationInfo, false, true);
+        assertSerialize(referenceSerializationInfo, false, false);
     }
 
 
-    private void assertReferenceSerialization(ReferenceSerializationInfo referenceSerializationInfo, boolean includeReferenceType, boolean includeReferredSemanticId) {
+    private void assertParse(ReferenceSerializationInfo referenceSerializationInfo) {
+        assertParse(referenceSerializationInfo, true, true);
+        assertParse(referenceSerializationInfo, true, false);
+        assertParse(referenceSerializationInfo, false, true);
+        assertParse(referenceSerializationInfo, false, false);
+    }
+
+
+    private void assertSerialize(ReferenceSerializationInfo referenceSerializationInfo, boolean includeReferenceType, boolean includeReferredSemanticId) {
         String expected = referenceSerializationInfo.getStringRepresentation(includeReferenceType, includeReferredSemanticId);
         String actual = ReferenceHelper.toString(referenceSerializationInfo.reference, includeReferenceType, includeReferredSemanticId);
         Assert.assertEquals(expected, actual);
     }
 
 
-    private void assertParseReference(ReferenceSerializationInfo referenceSerializationInfo, boolean includeReferenceType, boolean includeReferredSemanticId) {
+    private void assertParse(ReferenceSerializationInfo referenceSerializationInfo, boolean includeReferenceType, boolean includeReferredSemanticId) {
         Reference expected = ReferenceHelper.clone(referenceSerializationInfo.reference);
         if (!includeReferenceType || !includeReferredSemanticId) {
             expected.setReferredSemanticID(null);

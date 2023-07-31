@@ -23,8 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.ReflectionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -46,7 +47,7 @@ public class CustomOperationProvider implements AssetOperationProvider {
         this.config = config;
         this.reference = reference;
         this.serviceContext = serviceContext;
-        Operation operation = AasUtils.resolve(reference, serviceContext.getAASEnvironment(), Operation.class);
+        Operation operation = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment(), Operation.class);
         if (operation == null) {
             throw new ConfigurationInitializationException(String.format("%s - reference could not be resolved or does not point to an operation (reference: %s)",
                     BASE_ERROR_MSG,
@@ -69,7 +70,7 @@ public class CustomOperationProvider implements AssetOperationProvider {
         for (int i = 0; i < outputVariables.length; i++) {
             if (outputVariables[i] != null && outputVariables[i].getValue() != null) {
                 Property property = DeepCopyHelper.deepCopy(outputVariables[i].getValue(), Property.class);
-                property.setValue(RandomValueGenerator.generateRandomValue(Datatype.fromName(property.getValueType())).toString());
+                property.setValue(RandomValueGenerator.generateRandomValue(Datatype.fromAas4jDatatype(property.getValueType())).toString());
                 result[i] = new DefaultOperationVariable.Builder()
                         .value(property)
                         .build();

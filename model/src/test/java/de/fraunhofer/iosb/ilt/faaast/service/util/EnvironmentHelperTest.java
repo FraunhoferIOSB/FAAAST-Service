@@ -48,7 +48,6 @@ public class EnvironmentHelperTest {
 
     private void assertResolve(Referable expected, Environment environment) {
         Reference reference = EnvironmentHelper.asReference(expected, environment);
-        System.out.println(ReferenceHelper.toString(reference));
         Referable actual = EnvironmentHelper.resolve(reference, environment);
         Assert.assertEquals(expected, actual);
     }

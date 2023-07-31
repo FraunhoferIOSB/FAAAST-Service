@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.ReferenceCollector;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -27,8 +26,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  * Helper class for working with {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}.
  */
 public class EnvironmentHelper {
-
-    private static final Map<Environment, Map<Reference, Referable>> CACHE = new ConcurrentHashMap<>();
 
     private EnvironmentHelper() {}
 
@@ -54,13 +51,11 @@ public class EnvironmentHelper {
         Ensure.require(!reference.getKeys().isEmpty(), "reference must contain at least one key");
         Ensure.requireNonNull(environment, "environment must be non-null");
         Ensure.requireNonNull(returnType, "type must be non-null");
-        ensureCache(environment);
-        Referable result = CACHE.get(environment).getOrDefault(reference,
-                CACHE.get(environment).entrySet().stream()
-                        .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
-                        .map(Map.Entry::getValue)
-                        .findFirst()
-                        .orElse(null));
+        Referable result = ReferenceCollector.collect(environment).entrySet().stream()
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
         if (Objects.nonNull(result) && !returnType.isAssignableFrom(result.getClass())) {
             throw new IllegalArgumentException(String.format(
                     "unable to resolve reference as actual type does not match expected type (reference: %s, actual type: %s, expected type: %s)",
@@ -102,20 +97,12 @@ public class EnvironmentHelper {
     public static Reference asReference(Referable referable, Environment environment) {
         Ensure.requireNonNull(referable, "referable must be non-null");
         Ensure.requireNonNull(environment, "environment must be non-null");
-        ensureCache(environment);
-        return CACHE.get(environment).entrySet().stream()
+        return ReferenceCollector.collect(environment).entrySet().stream()
                 .filter(x -> Objects.equals(referable, x.getValue()))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format(
                         "referable not present in environment (idShort: %s)",
                         referable.getIdShort())));
-    }
-
-
-    private static void ensureCache(Environment environment) {
-        if (!CACHE.containsKey(environment)) {
-            CACHE.put(environment, ReferenceCollector.collect(environment));
-        }
     }
 }

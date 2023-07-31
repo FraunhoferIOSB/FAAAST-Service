@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))))
+                .id(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
                 .build();
     }
 }

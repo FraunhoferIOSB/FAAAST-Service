@@ -34,7 +34,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
@@ -44,8 +43,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,8 +61,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -256,7 +253,7 @@ public class App implements Runnable {
             config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
         }
         try {
-            AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+            Environment model = config.getPersistence().getInitialModel() == null
                     ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
                     : config.getPersistence().getInitialModel();
             if (!config.getCore().getValidationOnLoad().isEnabled()) {
@@ -490,7 +487,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
-        config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
+        config.getPersistence().setInitialModel(new DefaultEnvironment.Builder().build());
     }
 
 
@@ -512,9 +509,10 @@ public class App implements Runnable {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
                 }
-                else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
-                    LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());
-                }
+                // TODO re-add once OPC UA Endpoint is updated to AAS4j
+                //else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
+                //    LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());
+                //}
             });
         }
     }

@@ -25,14 +25,8 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +36,10 @@ import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASReferenceType;
 import opc.i4aas.server.AASReferenceTypeNode;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -80,10 +78,10 @@ public class ConceptDescriptionCreator {
             String name = c.getIdShort();
             NodeId nid = nodeManager.createNodeId(dictionariesFolder, name);
             DictionaryEntryType dictNode;
-            switch (c.getIdentification().getIdType()) {
+            switch (c.getId().getIdType()) {
                 case IRDI:
                     AASIrdiConceptDescriptionType irdiNode = nodeManager.createInstance(AASIrdiConceptDescriptionType.class, name, nid);
-                    addIdentifiable(irdiNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addIdentifiable(irdiNode, c.getId(), c.getAdministration(), name, nodeManager);
                     addConceptDescriptionReference(irdiNode, AasUtils.toReference(c), nodeManager);
                     dictEntriesFolder.addComponent(irdiNode);
                     dictionaryMap.put(AasUtils.toReference(c), irdiNode);
@@ -92,7 +90,7 @@ public class ConceptDescriptionCreator {
 
                 case IRI:
                     AASIriConceptDescriptionType iriNode = nodeManager.createInstance(AASIriConceptDescriptionType.class, name, nid);
-                    addIdentifiable(iriNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addIdentifiable(iriNode, c.getId(), c.getAdministration(), name, nodeManager);
                     addConceptDescriptionReference(iriNode, AasUtils.toReference(c), nodeManager);
                     dictEntriesFolder.addComponent(iriNode);
                     dictionaryMap.put(AasUtils.toReference(c), iriNode);
@@ -101,7 +99,7 @@ public class ConceptDescriptionCreator {
 
                 default:
                     AASCustomConceptDescriptionType customNode = nodeManager.createInstance(AASCustomConceptDescriptionType.class, name, nid);
-                    addIdentifiable(customNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addIdentifiable(customNode, c.getId(), c.getAdministration(), name, nodeManager);
                     addConceptDescriptionReference(customNode, AasUtils.toReference(c), nodeManager);
                     dictEntriesFolder.addComponent(customNode);
                     dictionaryMap.put(AasUtils.toReference(c), customNode);
@@ -160,7 +158,7 @@ public class ConceptDescriptionCreator {
      * @param category The desired category
      * @param nodeManager The corresponding Node Manager
      */
-    private static void addIdentifiable(AASIrdiConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
+    private static void addIdentifiable(AASIrdiConceptDescriptionType conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
@@ -185,7 +183,7 @@ public class ConceptDescriptionCreator {
      * @param category The desired category
      * @param nodeManager The corresponding Node Manager
      */
-    private static void addIdentifiable(AASIriConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
+    private static void addIdentifiable(AASIriConceptDescriptionType conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
@@ -211,7 +209,7 @@ public class ConceptDescriptionCreator {
      * @param category The desired category
      * @param nodeManager The corresponding Node Manager
      */
-    private static void addIdentifiable(AASCustomConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
+    private static void addIdentifiable(AASCustomConceptDescriptionType conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
@@ -228,10 +226,8 @@ public class ConceptDescriptionCreator {
     }
 
 
-    private static void setIdentifierData(AASIdentifierType identifierNode, Identifier identifier, boolean readOnly) throws StatusException {
-        identifierNode.setId(identifier.getIdentifier());
-        identifierNode.setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-
+    private static void setIdentifierData(AASIdentifierType identifierNode, String identifier, boolean readOnly) throws StatusException {
+        identifierNode.setId(identifier);
         if (readOnly) {
             identifierNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
             identifierNode.getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);

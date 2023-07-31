@@ -27,12 +27,12 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Constraint;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import java.util.List;
 import opc.i4aas.AASSubmodelType;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,22 +82,22 @@ public class SubmodelCreator {
 
             // ModelingKind
             smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
-            IdentifiableCreator.addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+            IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
             // DataSpecifications
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
 
             // Qualifiers
-            List<Constraint> qualifiers = submodel.getQualifiers();
+            List<Qualifier> qualifiers = submodel.getQualifiers();
             setQualifierData(qualifiers, smNode, nodeManager);
 
             // SemanticId
-            if (submodel.getSemanticId() != null) {
-                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
+            if (submodel.getSemanticID() != null) {
+                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticID());
             }
 
             // Description
-            DescriptionCreator.addDescriptions(smNode, submodel.getDescriptions());
+            DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
 
             Reference refSubmodel = AasUtils.toReference(submodel);
 
@@ -120,7 +120,7 @@ public class SubmodelCreator {
     }
 
 
-    private static void setQualifierData(List<Constraint> qualifiers, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
+    private static void setQualifierData(List<Qualifier> qualifiers, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
         if ((qualifiers != null) && (!qualifiers.isEmpty())) {
             if (smNode.getQualifierNode() == null) {
                 QualifierCreator.addQualifierNode(smNode, nodeManager);

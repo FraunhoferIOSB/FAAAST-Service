@@ -19,8 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.ReflectionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -40,7 +41,7 @@ public class AasHelper {
 
 
     public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) {
-        Referable element = AasUtils.resolve(reference, serviceContext.getAASEnvironment());
+        Referable element = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
         if (element == null) {
             throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", AasUtils.asString(reference)));
         }

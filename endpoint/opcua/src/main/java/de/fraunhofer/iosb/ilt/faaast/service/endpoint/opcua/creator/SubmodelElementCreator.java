@@ -22,20 +22,20 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import java.util.Collection;
+import java.util.List;
+import opc.i4aas.AASSubmodelElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
-import org.eclipse.digitaltwin.aas4j.v3.model.Constraint;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
-import org.eclipse.digitaltwin.aas4j.v3.model.Event;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import java.util.Collection;
-import java.util.List;
-import opc.i4aas.AASSubmodelElementType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,8 +103,8 @@ public class SubmodelElementCreator {
                 else if (elem instanceof Operation) {
                     OperationCreator.addAasOperation(node, (Operation) elem, submodel, parentRef, ordered, nodeManager);
                 }
-                else if (elem instanceof Event) {
-                    EventCreator.addAasEvent(node, (Event) elem, submodel, parentRef, ordered, nodeManager);
+                else if (elem instanceof EventElement) {
+                    EventCreator.addAasEvent(node, (EventElement) elem, submodel, parentRef, ordered, nodeManager);
                 }
                 else if (elem instanceof RelationshipElement) {
                     RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, submodel, parentRef, ordered, nodeManager);
@@ -135,18 +135,16 @@ public class SubmodelElementCreator {
             String category = element.getCategory();
             node.setCategory(category != null ? category : "");
 
-            node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
-
             // DataSpecifications
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // SemanticId
-            if (element.getSemanticId() != null) {
-                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+            if (element.getSemanticID() != null) {
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticID());
             }
 
             // Qualifiers
-            List<Constraint> qualifiers = element.getQualifiers();
+            List<Qualifier> qualifiers = element.getQualifiers();
             if ((qualifiers != null) && (!qualifiers.isEmpty())) {
                 if (node.getQualifierNode() == null) {
                     QualifierCreator.addQualifierNode(node, nodeManager);
@@ -156,7 +154,7 @@ public class SubmodelElementCreator {
             }
 
             // Description
-            DescriptionCreator.addDescriptions(node, element.getDescriptions());
+            DescriptionCreator.addDescriptions(node, element.getDescription());
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
                 node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);

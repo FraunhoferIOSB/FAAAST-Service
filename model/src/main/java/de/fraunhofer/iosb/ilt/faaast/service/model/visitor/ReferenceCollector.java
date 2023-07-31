@@ -16,14 +16,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -38,10 +41,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
  */
 public class ReferenceCollector extends AssetAdministrationShellElementWalker {
 
+    private Map<Reference, List<Reference>> aasContext;
     private Reference parent;
     private Map<Reference, Referable> result;
 
     private void init() {
+        aasContext = new HashMap<>();
         parent = null;
         result = new HashMap<>();
     }
@@ -50,10 +55,9 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
     /**
      * Collects a map of all referables and their corresponding references.
      *
-     * @param obj the object to search, e.g., an
-     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment},
-     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable},
-     *            or {@link org.eclipse.digitaltwin.aas4j.v3.model.Identifiable}
+     * @param obj the object to search, e.g., an null {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment},
+     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable}, or
+     *            {@link org.eclipse.digitaltwin.aas4j.v3.model.Identifiable}
      * @return a map of all referables contained in any depth with their corresponding reference
      */
     public static Map<Reference, Referable> collect(Object obj) {
@@ -75,6 +79,15 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
         this.visitor = new DefaultAssetAdministrationShellElementVisitor() {
 
             @Override
+            public void visit(AssetAdministrationShell aas) {
+                aasContext.put(
+                        ReferenceHelper.build(aas.getId(), AssetAdministrationShell.class),
+                        aas.getSubmodels());
+                DefaultAssetAdministrationShellElementVisitor.super.visit(aas);
+            }
+
+
+            @Override
             public void visit(Referable referable) {
                 if (referable == null) {
                     return;
@@ -88,6 +101,14 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
                 }
                 Reference reference = ReferenceHelper.toReference(parent, ReferenceHelper.build(id, referable.getClass()));
                 result.put(reference, referable);
+                Key root = ReferenceHelper.getRoot(reference);
+                if (Objects.nonNull(root) && root.getType() == KeyTypes.SUBMODEL) {
+                    result.putAll(aasContext.entrySet().stream()
+                            .filter(x -> x.getValue().stream().anyMatch(y -> ReferenceHelper.equals(y, ReferenceHelper.build(root))))
+                            .collect(Collectors.toMap(
+                                    x -> ReferenceHelper.toReference(x.getKey(), reference),
+                                    x -> referable)));
+                }
                 if (isContainerElement(referable)) {
                     parent = reference;
                 }

@@ -16,13 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import java.io.File;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 public class PersistenceInMemoryTest extends AbstractPersistenceTest<PersistenceInMemory, PersistenceInMemoryConfig> {
 
     @Override
-    public PersistenceInMemoryConfig getPersistenceConfig(File initialModelFile, AssetAdministrationShellEnvironment initialModel) {
+    public PersistenceInMemoryConfig getPersistenceConfig(File initialModelFile, Environment initialModel) {
         return PersistenceInMemoryConfig.builder()
                 .initialModel(initialModel)
                 .initialModelFile(initialModelFile)
