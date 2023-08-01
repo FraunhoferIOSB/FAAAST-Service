@@ -41,6 +41,8 @@ public class Constants {
     public static final String SEGMENT_DURATION_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/Duration/1/1 ";
     public static final String SEGMENT_STATE_ID_SHORT = "State";
     public static final String SEGMENT_STATE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1";
+    public static final String SEGMENT_STATE_COMPLETED_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/Completed/1/1";
+    public static final String SEGMENT_STATE_IN_PROGRESS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/State/InProgress/1/1";
     public static final String SEGMENT_LAST_UPDATE_ID_SHORT = "LastUpdate";
     public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segments/ExternalSegment/1/1";
     public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/File/1/1";

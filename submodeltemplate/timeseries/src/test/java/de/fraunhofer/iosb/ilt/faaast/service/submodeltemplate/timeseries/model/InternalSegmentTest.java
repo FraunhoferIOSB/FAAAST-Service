@@ -26,6 +26,7 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class InternalSegmentTest extends BaseModelTest {
             .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
             .valueType(Datatype.DATE_TIME.getName())
-            .value(INTERNAL_SEGMENT_WITH_TIMES.getStart().toString())
+            .value(DateTimeFormatter.ISO_DATE_TIME.format(INTERNAL_SEGMENT_WITH_TIMES.getStart()))
             .build();
 
     private static final Property RECORD_COUNT = new DefaultProperty.Builder()
@@ -79,6 +80,9 @@ public class InternalSegmentTest extends BaseModelTest {
         actual.setCalculatePropertiesIfNotPresent(true);
         assertAASNotEquals(expected, actual);
         Assert.assertNotEquals(expected, actual);
+        Assert.assertEquals(actual.getStart(), TimeSeriesData.RECORD_00.getTime().get("Time00"));
+        Assert.assertEquals(actual.getEnd(), TimeSeriesData.RECORD_09.getTime().get("Time00"));
+        Assert.assertEquals(actual.getRecordCount().intValue(), TimeSeriesData.RECORDS.size());
     }
 
 

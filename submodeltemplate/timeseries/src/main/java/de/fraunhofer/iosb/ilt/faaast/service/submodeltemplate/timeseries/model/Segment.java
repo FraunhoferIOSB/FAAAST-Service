@@ -25,14 +25,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.time.ZonedDateTime;
-import java.util.Collection;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.Optional;
 
 
 /**
@@ -41,20 +39,27 @@ import java.util.Optional;
 public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private boolean calculatePropertiesIfNotPresent;
-
-    @JsonIgnore
-    private Wrapper<String, Property> duration = new ValueWrapper<>( //TODO: depending on semantic id property in ISO 8601 format in string or as long
+    private Wrapper<String, Property> duration = new ValueWrapper<>( //TODO: depending on semantic id property in ISO 8601 (duration) format in string or as long
             values,
             null,
             false,
             Property.class,
-            x -> new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_DURATION_ID_SHORT)
-                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID))
-                    .valueType(Datatype.STRING.getName())
-                    .value(x)
-                    .build(),
+            x -> {
+                String valueType;
+                try {
+                    Long.parseLong(x);
+                    valueType = Datatype.LONG.getName();
+                }
+                catch (NumberFormatException e) {
+                    valueType = Datatype.STRING.getName();
+                }
+                return new DefaultProperty.Builder()
+                        .idShort(Constants.SEGMENT_DURATION_ID_SHORT)
+                        .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID))
+                        .valueType(valueType)
+                        .value(x)
+                        .build();
+            },
             x -> Objects.equals(Constants.SEGMENT_DURATION_ID_SHORT, x.getIdShort()),
             Property::getValue);
 
@@ -64,17 +69,16 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
+            x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_LAST_UPDATE_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
-                            .value(Objects.toString(
-                                    Optional.ofNullable(x).orElse(null))) //TODO: get better default value or def calculation in subclass
+                            .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x)) //TODO: get better default value or def calculation in subclass
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_LAST_UPDATE_ID_SHORT, x.getIdShort()),
-            x -> ZonedDateTime.parse(x.getValue()));
+            x -> ZonedDateTime.parse(x.getValue(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
 
     @JsonIgnore
     private Wrapper<String, Property> state = new ValueWrapper<>(
@@ -82,12 +86,21 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             false,
             Property.class,
-            x -> new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_STATE_ID_SHORT)
-                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_STATE_SEMANTIC_ID))
-                    .valueType(Datatype.STRING.getName())
-                    .value(x)
-                    .build(),
+            x -> {
+                String stateSemanticID;
+                if (x != null) {
+                    stateSemanticID = x.equalsIgnoreCase("completed") ? Constants.SEGMENT_STATE_COMPLETED_SEMANTIC_ID : Constants.SEGMENT_STATE_IN_PROGRESS_SEMANTIC_ID;
+                }
+                else {
+                    stateSemanticID = Constants.SEGMENT_STATE_SEMANTIC_ID;
+                }
+                return new DefaultProperty.Builder()
+                        .idShort(Constants.SEGMENT_STATE_ID_SHORT)
+                        .semanticId(ReferenceHelper.globalReference(stateSemanticID))
+                        .valueType(Datatype.STRING.getName())
+                        .value(x)
+                        .build();
+            },
             x -> Objects.equals(Constants.SEGMENT_STATE_ID_SHORT, x.getIdShort()),
             Property::getValue);
 
@@ -97,13 +110,11 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || calculatePropertiesIfNotPresent
+            x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
                             .valueType(Datatype.LONG.getName())
-                            .value(Long.toString(Optional
-                                    .ofNullable(x)
-                                    .orElse(Long.valueOf(0)))) //TODO: get better default value
+                            .value(Long.toString(x)) //TODO: get better default value
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_RECORD_COUNT_ID_SHORT, x.getIdShort()),
@@ -115,17 +126,16 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
+            x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
-                            .value(Objects.toString(
-                                    Optional.ofNullable(x).orElse(null))) //TODO: get better default value
+                            .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x))
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_END_TIME_ID_SHORT, x.getIdShort()),
-            x -> ZonedDateTime.parse(x.getValue()));
+            x -> ZonedDateTime.parse(x.getValue(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
 
     @JsonIgnore
     private final Wrapper<IntervalWithUnit, Property> samplingInterval = new ValueWrapper<>(
@@ -158,28 +168,25 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             x -> new IntervalWithUnit(Long.parseLong(x.getValue()), TimeUnitHelper.fromSemanticId(x.getSemanticId())));
 
     @JsonIgnore
-    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>( //TODO: is enum [completed, in progress]
+    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>(
             values,
             null,
             true,
             Property.class,
-            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent)
+            x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
-                            .value(Objects.toString(
-                                    Optional.ofNullable(x)
-                                            .orElse(null))) //TODO: get better default value
+                            .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x))
                             .build()
                     : null,
             x -> Objects.equals(Constants.SEGMENT_START_TIME_ID_SHORT, x.getIdShort()),
-            x -> ZonedDateTime.parse(x.getValue()));
+            x -> ZonedDateTime.parse(x.getValue(), DateTimeFormatter.ISO_ZONED_DATE_TIME));
 
     protected Segment() {
         withAdditionalValues(recordCount, start, end, duration, samplingInterval, samplingRate, state, lastUpdate);
-        this.idShort = IdentifierHelper.randomId("Segment");
-        this.calculatePropertiesIfNotPresent = false;
+        this.idShort = IdentifierHelper.randomId("Segment");;
     }
 
 
@@ -197,25 +204,21 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
         else {
             Segment other = (Segment) obj;
             return super.equals(obj)
-                    && Objects.equals(this.calculatePropertiesIfNotPresent, other.calculatePropertiesIfNotPresent);
-            //TODO: compare other variables
+                    && Objects.equals(this.duration, other.duration)
+                    && Objects.equals(this.lastUpdate, other.lastUpdate)
+                    && Objects.equals(this.state, other.state)
+                    && Objects.equals(this.start, other.start)
+                    && Objects.equals(this.end, other.end)
+                    && Objects.equals(this.samplingInterval, other.samplingInterval)
+                    && Objects.equals(this.samplingRate, other.samplingRate)
+                    && Objects.equals(this.recordCount, other.recordCount);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), calculatePropertiesIfNotPresent);
-    }
-
-
-    public boolean getCalculatePropertiesIfNotPresent() {
-        return calculatePropertiesIfNotPresent;
-    }
-
-
-    public void setCalculatePropertiesIfNotPresent(boolean calculatePropertiesIfNotPresent) {
-        this.calculatePropertiesIfNotPresent = calculatePropertiesIfNotPresent;
+        return Objects.hash(super.hashCode(), duration, lastUpdate, state, start, end, samplingInterval, samplingRate, recordCount);
     }
 
 
@@ -339,20 +342,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
     }
 
 
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        updateCalculatedProperties();
-        return super.getValues();
-    }
-
-
-    private void updateCalculatedProperties() { //TODO: really update values -> subclass-specific?
-        start.setValue(start.getValue());
-        end.setValue(end.getValue());
-        recordCount.setValue(recordCount.getValue());
-    }
-
-
     /**
      * Parses a given {@link io.adminshell.aas.v3.model.SubmodelElementCollection} into a {@link Segment}. Which
      * concrete {@link Segment} implementation will be used depends on the semanticId of the input.
@@ -437,18 +426,6 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
         public B state(String value) {
             getBuildingInstance().setState(value);
-            return getSelf();
-        }
-
-
-        public B calculatePropertiesIfNotPresent(boolean value) {
-            getBuildingInstance().setCalculatePropertiesIfNotPresent(value);
-            return getSelf();
-        }
-
-
-        public B dontCalculatePropertiesIfNotPresent() {
-            getBuildingInstance().setCalculatePropertiesIfNotPresent(false);
             return getSelf();
         }
 

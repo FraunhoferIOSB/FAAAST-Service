@@ -175,7 +175,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         catch (ValueFormatException ex) {
                             LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                         }
-                        newRecord.getTime().put(TIME_FIELD, record.getTime().atZone(ZoneOffset.UTC)); //TODO: get fieldName for time
+                        newRecord.getTime().put(TIME_FIELD, record.getTime().atZone(ZoneOffset.UTC));
                         result[j] = newRecord;
                     }
                 }

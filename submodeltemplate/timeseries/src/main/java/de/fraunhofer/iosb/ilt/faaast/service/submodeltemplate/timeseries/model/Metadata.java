@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
  */
 public class Metadata extends ExtendableSubmodelElementCollection {
 
-    // TODO change to optional field (currently empty metadatarecord is needed or will be created?
     @JsonIgnore
     private Wrapper<Record, SubmodelElementCollection> recordMetadata = new ValueWrapper<>(
             values,

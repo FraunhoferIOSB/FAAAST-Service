@@ -227,7 +227,6 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .build())
                 .metadata(TimeSeriesData.METADATA)
                 .segment(LinkedSegment.builder()
-                        .dontCalculatePropertiesIfNotPresent()
                         .endpoint(endpoint)
                         .build())
                 .build();

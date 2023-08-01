@@ -93,7 +93,7 @@ public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationPro
                     timeSeries.getSegments(ExternalSegment.class).stream()
                             .filter(x -> externalSegmentProviders.containsKey(x.toString())) //TODO don't use toString, use different identifier for externalSegments
                             .flatMap(LambdaExceptionHelper.rethrowFunction(
-                                    x -> (Stream<Record>) linkedSegmentProviders.get(x.toString()).getRecords( //TODO see above
+                                    x -> (Stream<Record>) externalSegmentProviders.get(x.toString()).getRecords( //TODO see above
                                             timeSeries.getMetadata(),
                                             x,
                                             timespan).stream())))

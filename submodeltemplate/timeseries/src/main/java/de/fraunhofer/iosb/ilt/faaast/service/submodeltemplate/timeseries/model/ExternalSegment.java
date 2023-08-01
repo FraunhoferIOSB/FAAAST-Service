@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Represents a linked segment according to SMT TimeSeries.
+ * Represents an external segment according to SMT TimeSeries.
  */
 public class ExternalSegment extends Segment {
 
@@ -86,7 +86,7 @@ public class ExternalSegment extends Segment {
                     .filter(x -> !Objects.equals(smcFile.get(), x))
                     .collect(Collectors.toList()));
         }
-        else if (smcBlob.isPresent()) { //TODO: remove ranking of File over Blob
+        else if (smcBlob.isPresent()) {
             target.setData(smcBlob.get());
             toParse.setValues(smc.getValues().stream()
                     .filter(x -> !Objects.equals(smcBlob.get(), x))
@@ -111,7 +111,7 @@ public class ExternalSegment extends Segment {
     public ExternalSegment() {
         this.idShort = IdentifierHelper.randomId("ExternalSegment");
         this.semanticId = ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID);
-        if (file != null) { //TODO: ranking file over blob. Think about different impl. of OR
+        if (file != null) {
             data = file;
         }
         else {

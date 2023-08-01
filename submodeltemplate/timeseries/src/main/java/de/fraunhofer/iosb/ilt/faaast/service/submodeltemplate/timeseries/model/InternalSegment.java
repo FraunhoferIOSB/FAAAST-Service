@@ -22,8 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.w
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,6 +36,9 @@ import java.util.stream.Collectors;
  * Represents an internal segment according to SMT TimeSeries.
  */
 public class InternalSegment extends Segment {
+
+    @JsonIgnore
+    private boolean calculatePropertiesIfNotPresent;
 
     @JsonIgnore
     private ListWrapper<Record, SubmodelElementCollection> records;
@@ -59,10 +64,7 @@ public class InternalSegment extends Segment {
         this.semanticId = ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID);
 
         if (getCalculatePropertiesIfNotPresent() && !records.isEmpty()) {
-            this.setRecordCount(records.getValue().size());
-            // TODO: Hardcoded to use one (random) timestamp. See where to define which one to use
-            this.setStart(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).min(new ZonedDateTimeComparator()).orElse(null));
-            this.setEnd(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).max(new ZonedDateTimeComparator()).orElse(null));
+            setPropertiesIfNotPresent();
         }
     }
 
@@ -91,8 +93,6 @@ public class InternalSegment extends Segment {
                     .collect(Collectors.toList()));
         }
         return Segment.of(target, toParse);
-        // return Segment.of(new InternalSegment(), smc);
-        // return ExtendableSubmodelElementCollection.genericOf(target, toParse);
     }
 
 
@@ -119,11 +119,6 @@ public class InternalSegment extends Segment {
     }
 
 
-    public List<Record> getRecords() {
-        return records.getValue();
-    }
-
-
     /**
      * Sets the records of this segment.
      *
@@ -131,6 +126,54 @@ public class InternalSegment extends Segment {
      */
     public void setRecords(List<Record> records) {
         this.records.setValue(records);
+    }
+
+
+    public List<Record> getRecords() {
+        return records.getValue();
+    }
+
+
+    /**
+     * Sets whether properties should be calculated, if not already set.
+     *
+     * @param value the boolean value to set
+     */
+    public void setCalculatePropertiesIfNotPresent(boolean value) {
+        this.calculatePropertiesIfNotPresent = value;
+    }
+
+
+    public boolean getCalculatePropertiesIfNotPresent() {
+        return calculatePropertiesIfNotPresent;
+    }
+
+
+    @Override
+    public Collection<SubmodelElement> getValues() {
+        if (this.getCalculatePropertiesIfNotPresent()) {
+            this.setPropertiesIfNotPresent();
+        }
+        return super.getValues();
+    }
+
+
+    private void setPropertiesIfNotPresent() {
+        if (this.getRecordCount() == null) {
+            this.setRecordCount(records.getValue().size());
+        }
+        if (this.getRecordCount() == 0) {
+            return;
+        }
+
+        // TODO: Hardcoded to use one (random) timestamp. See where to define which one to use
+        if (this.getStart() == null) {
+            this.setStart(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).min(new ZonedDateTimeComparator()).orElse(null));
+        }
+
+        if (this.getEnd() == null) {
+            this.setEnd(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).max(new ZonedDateTimeComparator()).orElse(null));
+        }
     }
 
 
@@ -149,6 +192,18 @@ public class InternalSegment extends Segment {
 
         public B record(Record value) {
             getBuildingInstance().getRecords().add(value);
+            return getSelf();
+        }
+
+
+        public B calculatePropertiesIfNotPresent(boolean value) {
+            getBuildingInstance().setCalculatePropertiesIfNotPresent(value);
+            return getSelf();
+        }
+
+
+        public B dontCalculatePropertiesIfNotPresent() {
+            getBuildingInstance().setCalculatePropertiesIfNotPresent(false);
             return getSelf();
         }
     }

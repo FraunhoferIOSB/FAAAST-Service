@@ -82,7 +82,7 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
                             .rethrowConsumer(x -> linkedSegmentProviders.put(x.getEndpoint(), (LinkedSegmentProvider) x.newInstance(coreConfig, serviceContext))));
             config.getExternalSegmentProviders()
                     .forEach(LambdaExceptionHelper
-                            .rethrowConsumer(x -> externalSegmentProviders.put(x.toString(), (ExternalSegmentProvider) x.newInstance(coreConfig, serviceContext)))); // TODO what to use as key for map?
+                            .rethrowConsumer(x -> externalSegmentProviders.put(x.toString(), (ExternalSegmentProvider) x.newInstance(coreConfig, serviceContext)))); //TODO: change toString 
             internalSegmentProvider = (SegmentProvider) config.getInternalSegmentProvider().newInstance(coreConfig, serviceContext);
 
         }
