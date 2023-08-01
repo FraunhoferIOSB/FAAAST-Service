@@ -82,7 +82,7 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.15</equalsverifier.version>
-        <guava.version>32.1.1-jre</guava.version>
+        <guava.version>32.1.2-jre</guava.version>
         <jackson.databind.version>2.15.2</jackson.databind.version>
         <jackson.version>2.15.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
