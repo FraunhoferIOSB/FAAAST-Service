@@ -25,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -45,7 +47,14 @@ public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandle
     public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
         AssetAdministrationShell aas = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
-        aas.getSubmodels().remove(request.getSubmodelRef());
+        Reference submodelRefToDelete = aas.getSubmodels().stream()
+                .filter(x -> ReferenceHelper.equals(request.getSubmodelRef(), x))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(
+                        "SubmodelReference '%s' not found in AAS with id '%s'",
+                        ReferenceHelper.toString(request.getSubmodelRef()),
+                        request.getId())));
+        aas.getSubmodels().remove(submodelRefToDelete);
         persistence.put(aas);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementUpdateEventMessage.builder()

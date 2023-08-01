@@ -66,6 +66,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+
 public class AssetConnectionIT {
 
     private static final String HOST = "http://localhost";
@@ -108,10 +109,12 @@ public class AssetConnectionIT {
                 .build();
     }
 
+
     @After
     public void shutdown() {
         service.stop();
     }
+
 
     @Test
     public void testServiceStartInvalidAssetConnection() throws Exception {
@@ -125,6 +128,7 @@ public class AssetConnectionIT {
         service.start();
         assertServiceAvailabilityHttp(http);
     }
+
 
     @Test
     // TODO re-add once OPC UA Endpoint is updated to AAS4j
@@ -142,6 +146,7 @@ public class AssetConnectionIT {
         assertServiceAvailabilityHttp(http);
         assertTargetValue(http, SOURCE_VALUE);
     }
+
 
     @Test
     // TODO re-add once OPC UA Endpoint is updated to AAS4j
@@ -166,6 +171,7 @@ public class AssetConnectionIT {
         service2.stop();
     }
 
+
     private static ServiceConfig serviceConfig(int portHttp, int portOpcUa) {
         return ServiceConfig.builder()
                 .core(CoreConfig.DEFAULT)
@@ -185,6 +191,7 @@ public class AssetConnectionIT {
                 .build();
     }
 
+
     private static ServiceConfig withAssetConnection(ServiceConfig config, String nodeIdSource, int port) throws IOException {
         config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
                 .host("opc.tcp://" + "localhost:" + port)
@@ -197,6 +204,7 @@ public class AssetConnectionIT {
         return config;
     }
 
+
     private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getAssetAdministrationShells();
         assertExecuteMultiple(
@@ -208,6 +216,7 @@ public class AssetConnectionIT {
                 AssetAdministrationShell.class);
     }
 
+
     private void assertServiceAvailabilityOpcUa(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException,
             AssetConnectionException, ConfigurationInitializationException, UaException, ExecutionException {
         OpcUaClient client = OpcUaHelper.connect(OpcUaAssetConnectionConfig.builder()
@@ -217,6 +226,7 @@ public class AssetConnectionIT {
         DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE);
         assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
     }
+
 
     private void assertTargetValue(int port, int expectedValue)
             throws IOException, InterruptedException, URISyntaxException, JSONException {
@@ -230,6 +240,7 @@ public class AssetConnectionIT {
         JSONAssert.assertEquals(expected, response.body(), false);
     }
 
+
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
         HttpResponse response = HttpHelper.execute(method, url, input);
@@ -239,6 +250,7 @@ public class AssetConnectionIT {
             assertEquals(expected, actual);
         }
     }
+
 
     private void awaitAssetConnected(Service service) {
         await().atMost(30, TimeUnit.SECONDS)

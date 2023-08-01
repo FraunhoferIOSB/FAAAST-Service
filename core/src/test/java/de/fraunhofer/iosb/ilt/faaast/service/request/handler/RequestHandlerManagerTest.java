@@ -181,7 +181,7 @@ public class RequestHandlerManagerTest {
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
     private static final Submodel SUBMODEL = AASFull.SUBMODEL_1;
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_1.getSubmodelElements().get(0);
-    private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
+    private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(ReferenceHelper.build(SUBMODEL.getId(), Submodel.class), SUBMODEL_ELEMENT);
 
     private static final CoreConfig coreConfigWithConstraintValidation = CoreConfig.builder()
             .validateConstraints(true)
@@ -470,9 +470,10 @@ public class RequestHandlerManagerTest {
     public void testDeleteSubmodelReferenceRequest() throws ResourceNotFoundException, Exception {
         when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
+
         DeleteSubmodelReferenceRequest request = new DeleteSubmodelReferenceRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
-                .submodelRef(SUBMODEL_ELEMENT_REF)
+                .submodelRef(environment.getAssetAdministrationShells().get(0).getSubmodels().get(0))
                 .build();
         DeleteSubmodelReferenceResponse actual = manager.execute(request);
         DeleteSubmodelReferenceResponse expected = new DeleteSubmodelReferenceResponse.Builder()
