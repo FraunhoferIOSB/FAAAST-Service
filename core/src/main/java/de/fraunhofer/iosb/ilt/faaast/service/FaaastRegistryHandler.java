@@ -26,9 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -69,7 +69,7 @@ public class FaaastRegistryHandler {
         this.coreConfig = coreConfig;
         httpClient = HttpClient.newBuilder().build();
         messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent));
-        messageBus.subscribe(SubscriptionInfo.create(ElementChangeEventMessage.class, this::handleChangeEvent));
+        messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleChangeEvent));
         messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent));
         aasEnv = persistence.getEnvironment();
 
@@ -109,7 +109,7 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void handleCreateEvent(ElementCreateEventMessage eventMessage) {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
             try {
@@ -123,7 +123,7 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void handleChangeEvent(ElementChangeEventMessage eventMessage) {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
             try {
@@ -136,7 +136,7 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void handleDeleteEvent(ElementDeleteEventMessage eventMessage) {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
             try {
