@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.E
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.AbstractCSVExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.TimeSeriesTestData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -44,6 +43,7 @@ import org.junit.Test;
 public class CSVExternalSegmentProviderTest {
 
     private CSVExternalSegmentProviderConfig config;
+    private CSVExternalSegmentProvider provider;
     private ExternalSegment fileSegment;
     private ExternalSegment blobSegment;
 
@@ -54,7 +54,6 @@ public class CSVExternalSegmentProviderTest {
             .idShort("Data")
             .build();
 
-    //    byte[] base64Blob = "dGltZSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiw5LDAuOSxpdA=="
     byte[] base64Blob = "VGltZTAwLFRpbWUwMSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDIwMjItMDItMDFUMDE6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMjAyMi0wMi0wMVQwMjowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyMDIyLTAyLTAxVDAzOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMjAyMi0wMi0wMVQwNDowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosMjAyMi0wMi0wMVQwNTowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosMjAyMi0wMi0wMlQwMjowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDIwMjItMDItMDJUMDM6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDIwMjItMDItMDJUMDQ6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDIwMjItMDItMDNUMDI6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiwyMDIyLTAyLTAzVDAzOjAwOjAwWiw5LDAuOSxpdA=="
             .getBytes();
     private final Blob dataBlob = new DefaultBlob.Builder()
@@ -65,31 +64,97 @@ public class CSVExternalSegmentProviderTest {
             .build();
 
     @Before
-    public void setUp() {
+    public void setUp() throws ConfigurationException {
         fileSegment = ExternalSegment.builder().data(dataFile).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
         blobSegment = ExternalSegment.builder().data(dataBlob).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
         config = CSVExternalSegmentProviderConfig.builder().timeColumns(List.of("Time00", "Time01")).build();
+        provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
     }
 
 
     @Test
-    public void testExternalSegmentWithFile() throws SegmentProviderException, ConfigurationException {
-        testRecords(fileSegment);
+    public void testAllRecordsExternalSegmentWithFile() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                TimeSeriesTestData.RECORDS,
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment,
+                        Timespan.EMPTY));
     }
 
 
     @Test
-    public void testExternalSegmentWithBlob() throws SegmentProviderException, ConfigurationException {
-        testRecords(blobSegment);
+    public void testAllRecordsExternalSegmentWithBlob() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                TimeSeriesTestData.RECORDS,
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment,
+                        Timespan.EMPTY));
+    }
+
+
+    @Test
+    public void testAllRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                TimeSeriesTestData.RECORDS,
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_00.getSingleTime(),
+                        TimeSeriesTestData.RECORD_09.getSingleTime())));
+    }
+
+
+    @Test
+    public void testAllRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                TimeSeriesTestData.RECORDS,
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_00.getSingleTime(),
+                        TimeSeriesTestData.RECORD_09.getSingleTime())));
+    }
+
+
+    @Test
+    public void testNoRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                List.of(),
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
+    }
+
+
+    @Test
+    public void testNoRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                List.of(),
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
+                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
+    }
+
+
+    @Test
+    public void testRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_03.getSingleTime(),
+                        TimeSeriesTestData.RECORD_04.getSingleTime())));
+    }
+
+
+    @Test
+    public void testRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
+        assertEqualsIgnoringIdShort(
+                List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeSeriesTestData.RECORD_03.getSingleTime(),
+                        TimeSeriesTestData.RECORD_04.getSingleTime())));
     }
 
 
     @Test
     public void testWithoutTimespanFile() throws SegmentProviderException, ConfigurationException {
-        AbstractCSVExternalSegmentProvider<?> provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
         // fetch all records
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
@@ -114,8 +179,6 @@ public class CSVExternalSegmentProviderTest {
         ExternalSegment segment = ExternalSegment.builder().data(dataFileShort).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
-        AbstractCSVExternalSegmentProvider<?> provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
-
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, segment,
@@ -135,39 +198,8 @@ public class CSVExternalSegmentProviderTest {
         ExternalSegment segment = ExternalSegment.builder().data(dataFileShort).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
-        AbstractCSVExternalSegmentProvider<?> provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
-
         SegmentProviderException exc = assertThrows(SegmentProviderException.class, () -> provider.getRecords(TimeSeriesTestData.METADATA, segment, Timespan.EMPTY));
         assertEquals("Error reading from File (file: src/test/resources/testCSV.csv, expected type: text/csv, actual type: application/json)", exc.getMessage());
-    }
-
-
-    private void testRecords(ExternalSegment segmentUnderTest) throws SegmentProviderException, ConfigurationException {
-        AbstractCSVExternalSegmentProvider<?> provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
-        // fetch all records
-        assertEqualsIgnoringIdShort(
-                TimeSeriesTestData.RECORDS,
-                provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest,
-                        Timespan.EMPTY));
-        // fetch exactly all records
-        assertEqualsIgnoringIdShort(
-                TimeSeriesTestData.RECORDS,
-                provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime(),
-                        TimeSeriesTestData.RECORD_09.getSingleTime())));
-        // fetch nothing
-        assertEqualsIgnoringIdShort(
-                List.of(),
-                provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
-        // fetch partially
-        assertEqualsIgnoringIdShort(
-                List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
-                provider.getRecords(TimeSeriesTestData.METADATA, segmentUnderTest, Timespan.of(
-                        TimeSeriesTestData.RECORD_03.getSingleTime(),
-                        TimeSeriesTestData.RECORD_04.getSingleTime())));
-
     }
 
 

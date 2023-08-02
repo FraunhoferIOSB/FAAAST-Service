@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.AbstractCSVExternalSegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProviderConfig;
 import java.util.List;
 
 
@@ -22,7 +22,7 @@ import java.util.List;
  * Configuration for external segment providers referencing a file or blob containing CSV data
  * ({@link CSVExternalSegmentProvider}).
  */
-public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
+public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderConfig<CSVExternalSegmentProvider> {//extends AbstractCSVExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
 
     private String baseDir;
     private List<String> timeColumns;
@@ -46,8 +46,8 @@ public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegment
         this.timeColumns = timeColumns;
     }
 
-    protected abstract static class AbstractBuilder<T extends CSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractCSVExternalSegmentProviderConfig.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends CSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
+            extends ExternalSegmentProviderConfig.AbstractBuilder<T, B> {
 
         public B baseDir(String value) {
             getBuildingInstance().setBaseDir(value);
@@ -79,4 +79,5 @@ public class CSVExternalSegmentProviderConfig extends AbstractCSVExternalSegment
             return new CSVExternalSegmentProviderConfig();
         }
     }
+
 }

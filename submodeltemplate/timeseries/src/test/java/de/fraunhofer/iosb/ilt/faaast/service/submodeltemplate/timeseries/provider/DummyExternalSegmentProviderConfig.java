@@ -12,21 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider;
 
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProviderConfig;
+public class DummyExternalSegmentProviderConfig extends ExternalSegmentProviderConfig<DummyExternalSegmentProvider> {
 
-
-/**
- * Base config class for external segment providers with CSV files.
- *
- * @param <T> type of actual segment provider
- */
-public abstract class AbstractCSVExternalSegmentProviderConfig<T extends AbstractCSVExternalSegmentProvider> extends ExternalSegmentProviderConfig<T> {
-
-    protected abstract static class AbstractBuilder<T extends AbstractCSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
-            extends ExternalSegmentProviderConfig.AbstractBuilder<T, B> {
-
+    public static Builder builder() {
+        return new Builder();
     }
 
+    public static class Builder extends ExternalSegmentProviderConfig.AbstractBuilder<DummyExternalSegmentProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected DummyExternalSegmentProviderConfig newBuildingInstance() {
+            return new DummyExternalSegmentProviderConfig();
+        }
+
+    }
 }

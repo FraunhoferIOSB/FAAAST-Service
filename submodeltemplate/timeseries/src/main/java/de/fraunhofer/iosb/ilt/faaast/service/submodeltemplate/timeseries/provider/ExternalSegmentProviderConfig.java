@@ -24,19 +24,24 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
  */
 public abstract class ExternalSegmentProviderConfig<T extends ExternalSegmentProvider> extends SegmentProviderConfig<T> {
 
-    protected String data;
+    protected String segmentShortID;
 
-    public void setData(String data) {
-        this.data = data;
+    public void setSegmentShortID(String segmentShortID) {
+        this.segmentShortID = segmentShortID;
     }
 
 
-    public String getData() {
-        return this.data;
+    public String getSegmentShortID() {
+        return this.segmentShortID;
     }
 
     protected abstract static class AbstractBuilder<T extends ExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
             extends ExtendableBuilder<T, B> {
+
+        public B segmentShortID(String value) {
+            getBuildingInstance().setSegmentShortID(value);
+            return getSelf();
+        }
 
     }
 }

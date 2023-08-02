@@ -19,13 +19,16 @@ import com.opencsv.exceptions.CsvValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.AbstractCSVExternalSegmentProvider;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.File;
 import java.io.FileNotFoundException;
@@ -39,6 +42,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +50,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Data provider for external segments referencing CSV data in file or BLOB.
  */
-public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvider<CSVExternalSegmentProviderConfig> {
+public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVExternalSegmentProviderConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVExternalSegmentProvider.class);
+    private static final String ACCEPTED_MIMETYPE = "text/csv";
+
     private CSVExternalSegmentProviderConfig config;
 
     @Override
@@ -214,6 +220,33 @@ public class CSVExternalSegmentProvider extends AbstractCSVExternalSegmentProvid
             }
         }
         return newRecord;
+    }
+
+
+    /**
+     * Parse a value to AAS {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
+     *
+     * @param value the value to parse
+     * @param datatype the datatype
+     * @return the parse value
+     * @throws ValueFormatException if parsign fails
+     */
+    protected static TypedValue parseValue(Object value, Datatype datatype) throws ValueFormatException {
+        Object valuePreprocessed = value;
+        switch (datatype) {
+            case BYTE:
+            case INT:
+            case INTEGER:
+            case SHORT: {
+                if (value instanceof Number) {
+                    valuePreprocessed = ((Number) value).intValue();
+                }
+                break;
+            }
+            default:
+                // intentionally left empty
+        }
+        return TypedValueFactory.create(datatype, Objects.toString(valuePreprocessed));
     }
 
 }

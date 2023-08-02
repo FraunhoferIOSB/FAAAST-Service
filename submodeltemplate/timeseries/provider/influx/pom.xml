@@ -35,6 +35,12 @@
             <artifactId>influxdb-client-java</artifactId>
             <version>${influxdb.client.java.version}</version>
         </dependency>
+        <!-- include version 3.4.0 for influxdb-java to avoid CVE-2023-3635 -->
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio-jvm</artifactId>
+            <version>3.4.0</version>
+        </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>

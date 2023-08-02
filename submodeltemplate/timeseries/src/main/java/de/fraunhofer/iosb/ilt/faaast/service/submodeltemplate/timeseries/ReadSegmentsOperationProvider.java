@@ -99,7 +99,7 @@ public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationPr
                                     x -> linkedSegmentProviders.get(x.getEndpoint())))),
                     timeSeries.getSegments(ExternalSegment.class).stream()
                             .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(),
-                                    x -> externalSegmentProviders.get(x.toString()))) // TODO fix here: use defining string instead of toString(see TimeSeriesSubmodelTemplateProcessor)
+                                    x -> externalSegmentProviders.get(x.getIdShort()))) // TODO fix here: use defining string instead of toString(see TimeSeriesSubmodelTemplateProcessor)
             )
                     .collect(Collectors.toList());
             return new OperationVariable[] {

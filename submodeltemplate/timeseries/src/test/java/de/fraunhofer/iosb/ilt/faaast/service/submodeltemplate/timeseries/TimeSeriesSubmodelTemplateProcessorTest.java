@@ -43,10 +43,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationS
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyExternalSegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyExternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProvider;
@@ -54,6 +57,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -61,6 +65,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
@@ -244,6 +249,39 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 null,
                 null,
                 DummyLinkedSegmentProvider.RECORDS);
+        service.stop();
+    }
+
+
+    @Test
+    public void testDummyExternalSegmentProvider()
+            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException {
+        File defaultFile = new DefaultFile();
+        String segmentShortID = IdentifierHelper.randomId("ExternalSegment");
+        TimeSeries timeSeries = TimeSeries.builder()
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier(IdentifierHelper.randomId("TimeSeries"))
+                        .build())
+                .metadata(TimeSeriesData.METADATA)
+                .segment(ExternalSegment.builder()
+                        .data(defaultFile)
+                        .idShort(segmentShortID)
+                        .build())
+                .build();
+        Service service = startNewService(
+                new DefaultAssetAdministrationShellEnvironment.Builder()
+                        .submodels(timeSeries)
+                        .build(),
+                TimeSeriesSubmodelTemplateProcessorConfig.builder()
+                        .useSegmentTimestamps(false)
+                        .externalSegmentProvider(DummyExternalSegmentProviderConfig.builder().segmentShortID(segmentShortID)
+                                .build())
+                        .build());
+        assertReturnedRecords(service, timeSeries,
+                null,
+                null,
+                DummyExternalSegmentProvider.RECORDS);
         service.stop();
     }
 

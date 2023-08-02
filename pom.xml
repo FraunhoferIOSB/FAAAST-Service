@@ -87,7 +87,7 @@
         <equalsverifier.version>3.15</equalsverifier.version>
         <guava.version>32.1.1-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <influxdb.client.java.version>6.7.0</influxdb.client.java.version>
+        <influxdb.client.java.version>6.10.0</influxdb.client.java.version>
         <influxdb.java.version>2.23</influxdb.java.version>
         <influxdb.version>6.7.0</influxdb.version>
         <jackson.databind.version>2.15.2</jackson.databind.version>
@@ -129,6 +129,7 @@
         <mockito.version>5.4.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.94.Final</netty.version>
+        <opencsv.version>5.8</opencsv.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.4</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
