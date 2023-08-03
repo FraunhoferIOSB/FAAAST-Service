@@ -14,10 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.mockito.Mockito.*;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -28,9 +33,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,13 +50,18 @@ import org.mockito.stubbing.Answer;
 
 
 public class FaaastRegistryHandlerTest {
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(options().dynamicPort());
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+    public WireMockClassRule instanceRule = wireMockRule;
 
     private static MessageBus MESSAGE_BUS;
     private static final Persistence PERSISTENCE = Mockito.mock(Persistence.class);
     private static FaaastRegistryHandler faaastRegistryHandler;
     private static AssetAdministrationShellEnvironment environment;
+
+    private final PrintStream originalOut = System.out;
+    private final ByteArrayOutputStream consoleContent = new ByteArrayOutputStream();
 
     @BeforeClass
     public static void init() throws Exception {
@@ -53,14 +69,32 @@ public class FaaastRegistryHandlerTest {
         setupMockedMessagebus();
         setupMockedPersistence();
 
-        faaastRegistryHandler = new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE, CoreConfig.builder().build());
+        faaastRegistryHandler = new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE,
+                CoreConfig.builder()
+                        .registryPort(wireMockRule.port())
+                        .registryHost("localhost")
+                        .build());
 
     }
 
 
+    @Before
+    public void setUpStream() {
+        // Redirect System.out to our custom output stream (consoleContent)
+        System.setOut(new PrintStream(consoleContent));
+    }
+
+
+    @After
+    public void restoreStream() {
+        // Restore the original System.out after the test
+        System.setOut(originalOut);
+    }
+
+
     private static void setupMockedMessagebus() throws Exception {
-        Answer answer = new Answer() {
-            public Integer answer(InvocationOnMock invocation) {
+        Answer<Void> answer = new Answer<>() {
+            public Void answer(InvocationOnMock invocation) {
                 ElementCreateEventMessage eventMessage = invocation.getArgument(0);
                 faaastRegistryHandler.handleCreateEvent(eventMessage);
                 return null;
@@ -68,8 +102,8 @@ public class FaaastRegistryHandlerTest {
         };
         doAnswer(answer).when(MESSAGE_BUS).publish(any(ElementCreateEventMessage.class));
 
-        answer = new Answer() {
-            public Integer answer(InvocationOnMock invocation) {
+        answer = new Answer<>() {
+            public Void answer(InvocationOnMock invocation) {
                 ElementUpdateEventMessage eventMessage = invocation.getArgument(0);
                 faaastRegistryHandler.handleChangeEvent(eventMessage);
                 return null;
@@ -77,8 +111,8 @@ public class FaaastRegistryHandlerTest {
         };
         doAnswer(answer).when(MESSAGE_BUS).publish(any(ElementUpdateEventMessage.class));
 
-        answer = new Answer() {
-            public Integer answer(InvocationOnMock invocation) {
+        answer = new Answer<>() {
+            public Void answer(InvocationOnMock invocation) {
                 ElementDeleteEventMessage eventMessage = invocation.getArgument(0);
                 faaastRegistryHandler.handleDeleteEvent(eventMessage);
                 return null;
@@ -99,13 +133,40 @@ public class FaaastRegistryHandlerTest {
 
 
     @Test
-    public void testMessagebusEvent() throws Exception {
+    public void testAasCreation() throws Exception {
+        stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+                .willReturn(ok()));
+
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
+    }
+
+
+    @Test
+    public void testAasUpdate() throws Exception {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+
+        stubFor(put(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+                .willReturn(ok()));
+
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
+    }
+
+
+    @Test
+    public void testAasDeletion() throws Exception {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+
+        stubFor(delete(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+                .willReturn(ok()));
+
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
-                .element(environment.getAssetAdministrationShells().get(0)).build());
-        //verify(MESSAGE_BUS).publish(any(ChangeEventMessage.class));
+                .element(aas).build());
+    }
+
+
+    private String getEncodedAasIdentifier(AssetAdministrationShell aas) {
+        return Base64.getEncoder().encodeToString(aas.getIdentification().getIdentifier().getBytes());
     }
 }

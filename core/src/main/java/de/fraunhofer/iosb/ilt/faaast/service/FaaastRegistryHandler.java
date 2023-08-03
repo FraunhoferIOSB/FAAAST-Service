@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class FaaastRegistryHandler {
-    private static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
+    public static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
     private static final Logger LOGGER = LoggerFactory.getLogger(FaaastRegistryHandler.class);
 
     private final MessageBus messageBus;
