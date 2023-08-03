@@ -15,18 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -53,6 +65,10 @@ public class FaaastRegistryHandlerTest {
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
+    private final ObjectMapper mapper = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private static MessageBus MESSAGE_BUS;
     private static final Persistence PERSISTENCE = Mockito.mock(Persistence.class);
     private static FaaastRegistryHandler faaastRegistryHandler;
@@ -122,9 +138,26 @@ public class FaaastRegistryHandlerTest {
         environment = new DefaultAssetAdministrationShellEnvironment();
         List<AssetAdministrationShell> aasList = new ArrayList<>();
         aasList.add(AASFull.createAAS1());
+        aasList.add(AASFull.createAAS2());
         environment.setAssetAdministrationShells(aasList);
 
         when(PERSISTENCE.getEnvironment()).thenReturn(environment);
+    }
+
+
+    @Test
+    public void testInitialRegistration() throws Exception {
+        stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+                .willReturn(ok()));
+
+        new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE,
+                CoreConfig.builder()
+                        .registryPort(wireMockRule.port())
+                        .registryHost("localhost")
+                        .build());
+
+        verify(2, postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH)));
+        //.withRequestBody(equalToJson(getDescriptorBody(aas)));
     }
 
 
@@ -135,6 +168,8 @@ public class FaaastRegistryHandlerTest {
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
+
+        verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH)));
     }
 
 
@@ -147,6 +182,8 @@ public class FaaastRegistryHandlerTest {
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
+
+        verify(putRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
     }
 
 
@@ -159,10 +196,17 @@ public class FaaastRegistryHandlerTest {
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
+
+        verify(deleteRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
     }
 
 
     private String getEncodedAasIdentifier(AssetAdministrationShell aas) {
         return Base64.getEncoder().encodeToString(aas.getIdentification().getIdentifier().getBytes());
+    }
+
+
+    private String getDescriptorBody(AssetAdministrationShell aas) throws Exception {
+        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder().from(aas).build());
     }
 }
