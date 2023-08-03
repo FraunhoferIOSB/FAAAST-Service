@@ -33,13 +33,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -60,9 +56,6 @@ public class FaaastRegistryHandlerTest {
     private static FaaastRegistryHandler faaastRegistryHandler;
     private static AssetAdministrationShellEnvironment environment;
 
-    private final PrintStream originalOut = System.out;
-    private final ByteArrayOutputStream consoleContent = new ByteArrayOutputStream();
-
     @BeforeClass
     public static void init() throws Exception {
         MESSAGE_BUS = Mockito.mock(MessageBus.class);
@@ -75,20 +68,6 @@ public class FaaastRegistryHandlerTest {
                         .registryHost("localhost")
                         .build());
 
-    }
-
-
-    @Before
-    public void setUpStream() {
-        // Redirect System.out to our custom output stream (consoleContent)
-        System.setOut(new PrintStream(consoleContent));
-    }
-
-
-    @After
-    public void restoreStream() {
-        // Restore the original System.out after the test
-        System.setOut(originalOut);
     }
 
 
