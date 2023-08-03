@@ -68,15 +68,36 @@ public class FaaastRegistryHandler {
         this.persistence = persistence;
         this.coreConfig = coreConfig;
         httpClient = HttpClient.newBuilder().build();
-        messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent));
-        messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleChangeEvent));
-        messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent));
+        messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, m -> {
+            try {
+                handleCreateEvent(m);
+            }
+            catch (Exception e) {
+                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+            }
+        }));
+        messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, m -> {
+            try {
+                handleChangeEvent(m);
+            }
+            catch (Exception e) {
+                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+            }
+        }));
+        messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, m -> {
+            try {
+                handleDeleteEvent(m);
+            }
+            catch (Exception e) {
+                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+            }
+        }));
         aasEnv = persistence.getEnvironment();
 
         try {
             createAllAasInRegistry();
         }
-        catch (RegistryException e) {
+        catch (Exception e) {
             LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
         }
     }
@@ -109,42 +130,27 @@ public class FaaastRegistryHandler {
     }
 
 
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            try {
-                //TODO check if there is a race condition
-                createAasInRegistry(getAasFromIdentifier(identifier));
-            }
-            catch (RegistryException | IllegalArgumentException e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
-            }
+            //TODO check if there is a race condition
+            createAasInRegistry(getAasFromIdentifier(identifier));
         }
     }
 
 
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            try {
-                updateAasInRegistry(getAasFromIdentifier(identifier));
-            }
-            catch (RegistryException | IllegalArgumentException e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
-            }
+            updateAasInRegistry(getAasFromIdentifier(identifier));
         }
     }
 
 
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            try {
-                deleteAasInRegistry(identifier);
-            }
-            catch (RegistryException e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
-            }
+            deleteAasInRegistry(identifier);
         }
     }
 

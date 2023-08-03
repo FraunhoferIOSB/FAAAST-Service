@@ -20,12 +20,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -75,7 +77,12 @@ public class FaaastRegistryHandlerTest {
         Answer<Void> answer = new Answer<>() {
             public Void answer(InvocationOnMock invocation) {
                 ElementCreateEventMessage eventMessage = invocation.getArgument(0);
-                faaastRegistryHandler.handleCreateEvent(eventMessage);
+                try {
+                    faaastRegistryHandler.handleCreateEvent(eventMessage);
+                }
+                catch (RegistryException e) {
+                    fail();
+                }
                 return null;
             }
         };
@@ -84,7 +91,12 @@ public class FaaastRegistryHandlerTest {
         answer = new Answer<>() {
             public Void answer(InvocationOnMock invocation) {
                 ElementUpdateEventMessage eventMessage = invocation.getArgument(0);
-                faaastRegistryHandler.handleChangeEvent(eventMessage);
+                try {
+                    faaastRegistryHandler.handleChangeEvent(eventMessage);
+                }
+                catch (RegistryException e) {
+                    fail();
+                }
                 return null;
             }
         };
@@ -93,7 +105,12 @@ public class FaaastRegistryHandlerTest {
         answer = new Answer<>() {
             public Void answer(InvocationOnMock invocation) {
                 ElementDeleteEventMessage eventMessage = invocation.getArgument(0);
-                faaastRegistryHandler.handleDeleteEvent(eventMessage);
+                try {
+                    faaastRegistryHandler.handleDeleteEvent(eventMessage);
+                }
+                catch (RegistryException e) {
+                    fail();
+                }
                 return null;
             }
         };
