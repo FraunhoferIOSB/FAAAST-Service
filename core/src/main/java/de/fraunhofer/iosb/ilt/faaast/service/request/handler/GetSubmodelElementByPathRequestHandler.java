@@ -29,11 +29,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -53,7 +52,10 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
     @Override
     public GetSubmodelElementByPathResponse doProcess(GetSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
+        Reference reference = new ReferenceBuilder()
+                .submodel(request.getSubmodelId())
+                .idShortPath(request.getPath())
+                .build();
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
         Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
         if (valueFromAssetConnection.isPresent()) {

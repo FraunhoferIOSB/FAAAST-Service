@@ -32,10 +32,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -56,7 +55,10 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
     public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException {
         ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnUpdate());
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
+        Reference reference = new ReferenceBuilder()
+                .submodel(request.getSubmodelId())
+                .idShortPath(request.getPath())
+                .build();
         //Check if submodelelement does exist
         SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();

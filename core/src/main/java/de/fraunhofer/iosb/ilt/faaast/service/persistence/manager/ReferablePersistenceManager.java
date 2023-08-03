@@ -35,6 +35,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -102,6 +103,9 @@ public class ReferablePersistenceManager extends PersistenceManager {
         else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
             result = ((SubmodelElementCollection) referable).getValue();
         }
+        else if (SubmodelElementList.class.isAssignableFrom(referable.getClass())) {
+            result = ((SubmodelElementList) referable).getValue();
+        }
         if (semanticId != null) {
             result.removeIf(x -> !ReferenceHelper.equals(x.getSemanticID(), semanticId));
         }
@@ -112,7 +116,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
     /**
      * Create or update a submodel element. Parent reference and reference of the submodel element must not both be
      * null. Otherwise the location of the submodel element cannot be determined.
-     * 
+     *
      * <p>Supported parent references could be references to a
      * <ul>
      * <li>{@link Submodel} or to a
@@ -143,6 +147,9 @@ public class ReferablePersistenceManager extends PersistenceManager {
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
             submodelElements = ((SubmodelElementCollection) referable).getValue();
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(referable.getClass())) {
+            submodelElements = ((SubmodelElementList) referable).getValue();
         }
         else {
             throw new IllegalArgumentException(String.format("illegal parent type %s, must be one of %s, %s",
@@ -197,14 +204,18 @@ public class ReferablePersistenceManager extends PersistenceManager {
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(SubmodelElementCollection submodelElementCollection) {
-                        // type-safety guaranteed
                         submodelElementCollection.getValue().remove(referable);
                     }
 
 
                     @Override
+                    public void visit(SubmodelElementList submodelElementList) {
+                        submodelElementList.getValue().remove(referable);
+                    }
+
+
+                    @Override
                     public void visit(Submodel submodel) {
-                        // type-safety guaranteed
                         submodel.getSubmodelElements().remove(referable);
                     }
                 })

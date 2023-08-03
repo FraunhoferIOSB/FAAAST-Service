@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -51,7 +51,7 @@ public class CustomOperationProvider implements AssetOperationProvider {
         if (operation == null) {
             throw new ConfigurationInitializationException(String.format("%s - reference could not be resolved or does not point to an operation (reference: %s)",
                     BASE_ERROR_MSG,
-                    AasUtils.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
         for (OperationVariable outputVariable: operation.getOutputVariables()) {
             if (outputVariable != null && outputVariable.getValue() != null && !Property.class.isAssignableFrom(outputVariable.getValue().getClass())) {

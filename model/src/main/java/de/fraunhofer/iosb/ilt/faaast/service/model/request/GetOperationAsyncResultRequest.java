@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 
 
 /**
@@ -26,20 +23,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
  */
 public class GetOperationAsyncResultRequest extends AbstractSubmodelInterfaceRequest<GetOperationAsyncResultResponse> {
 
-    private List<Key> path;
+    private String path;
     private String handleId;
 
-    public GetOperationAsyncResultRequest() {
-        this.path = new ArrayList<>();
-    }
-
-
-    public List<Key> getPath() {
+    public String getPath() {
         return path;
     }
 
 
-    public void setPath(List<Key> path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -88,7 +80,7 @@ public class GetOperationAsyncResultRequest extends AbstractSubmodelInterfaceReq
         }
 
 
-        public B path(List<Key> value) {
+        public B path(String value) {
             getBuildingInstance().setPath(value);
             return getSelf();
         }

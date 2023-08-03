@@ -16,10 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 
 
 /**
@@ -27,24 +24,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
  */
 public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInterfaceRequest<SetSubmodelElementValueByPathResponse> {
 
-    private List<Key> path;
+    private String path;
     private T rawValue;
     private ElementValueParser valueParser;
     private boolean internal;
 
     public SetSubmodelElementValueByPathRequest() {
         this.internal = false;
-        this.path = new ArrayList<>();
+        this.path = "";
         this.valueParser = ElementValueParser.DEFAULT;
     }
 
 
-    public List<Key> getPath() {
+    public String getPath() {
         return path;
     }
 
 
-    public void setPath(List<Key> path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -108,7 +105,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
     public abstract static class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>>
             extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
-        public B path(List<Key> value) {
+        public B path(String value) {
             getBuildingInstance().setPath(value);
             return getSelf();
         }

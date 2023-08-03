@@ -26,12 +26,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
@@ -65,139 +64,13 @@ public class ReferenceHelper {
      * @param keys which are converted to a reference
      * @return the reference with the keys
      */
-    public static Reference build(List<Key> keys) {
+    public static Reference fromKeys(Key... keys) {
         return new DefaultReference.Builder()
-                .type((Objects.nonNull(keys) && !keys.isEmpty())
-                        ? determineReferenceType(keys.get(0))
+                .type((Objects.nonNull(keys) && keys.length > 0)
+                        ? determineReferenceType(keys[0])
                         : null)
-                .keys(keys)
+                .keys(new ArrayList<>(Arrays.asList(keys)))
                 .build();
-    }
-
-
-    /**
-     * Converst a list of key to a reference. If possible, the key type is automatically determined or set to null if
-     * this not possible.
-     *
-     * @param keys which are converted to a reference
-     * @return the reference with the keys
-     */
-    public static Reference build(Key... keys) {
-        return build(Arrays.asList(keys));
-    }
-
-
-    /**
-     * Create a reference for an {@link Identifiable}.
-     *
-     * @param id of the identifiable
-     * @param clazz of the identifiable
-     * @return reference of the identifiable
-     */
-    public static Reference build(String id, Class<?> clazz) {
-        return build(id, toKeyType(clazz));
-    }
-
-
-    /**
-     * Create a reference for an {@link Identifiable}.
-     *
-     * @param id of the identifiable
-     * @param keyType the key type
-     * @return reference of the identifiable
-     */
-    public static Reference build(String id, KeyTypes keyType) {
-        return build(List.of(newKey(keyType, id)));
-    }
-
-
-    /**
-     * Builds a reference identifying a submodel within an AAS.
-     *
-     * @param aasIdentifier the AAS identifier, set to null if not AAS should be included
-     * @param submodelIdentifier the submodel identifier
-     * @return a reference to the submodel element
-     */
-    public static Reference build(String aasIdentifier, String submodelIdentifier) {
-        List<Key> keys = new ArrayList<>();
-        if (!StringHelper.isEmpty(aasIdentifier)) {
-            keys.add(newKey(KeyTypes.ASSET_ADMINISTRATION_SHELL, aasIdentifier));
-        }
-        if (!StringHelper.isEmpty(submodelIdentifier)) {
-            keys.add(newKey(KeyTypes.SUBMODEL, submodelIdentifier));
-        }
-        return build(keys);
-    }
-
-
-    /**
-     * Builds a reference identifying a submodel element.
-     *
-     * @param aasIdentifier the AAS identifier, set to null if not AAS should be included
-     * @param submodelIdentifier the submodel identifier
-     * @param submodelElements the types and idShort of the submodel elements
-     * @return a reference to the submodel element
-     */
-    public static Reference build(String aasIdentifier, String submodelIdentifier, List<Key> submodelElements) {
-        List<Key> keys = new ArrayList<>();
-        if (!StringHelper.isEmpty(aasIdentifier)) {
-            keys.add(newKey(KeyTypes.ASSET_ADMINISTRATION_SHELL, aasIdentifier));
-        }
-        if (!StringHelper.isEmpty(submodelIdentifier)) {
-            keys.add(newKey(KeyTypes.SUBMODEL, submodelIdentifier));
-        }
-        keys.addAll(submodelElements);
-        return build(keys);
-    }
-
-
-    /**
-     * Builds a reference identifying a submodel element. The retured reference will use
-     * {@link KeyTypes#SUBMODEL_ELEMENT} for all elements.
-     *
-     * <p>ATTENTION! This might build incorrect references as elements within a {@link SubmodelElementList} require the
-     * key.value to be set to the index instead of idShort. However, this method is not able to do this as it does not
-     * know the concrete types of the submodel elements. Therefore, it is up to the user to provide the index instead of
-     * idShort in these cases.
-     *
-     * @param aasIdentifier the AAS identifier
-     * @param submodelIdentifier the submodel identifier
-     * @param submodelElementIdshorts the submodel element idShort path
-     * @return a reference to the submodel element
-     */
-    public static Reference build(String aasIdentifier, String submodelIdentifier, String... submodelElementIdshorts) {
-        return ReferenceHelper.build(aasIdentifier, submodelIdentifier,
-                Stream.of(submodelElementIdshorts)
-                        .map(x -> newKey(KeyTypes.SUBMODEL_ELEMENT, x))
-                        .collect(Collectors.toList()));
-    }
-
-
-    /**
-     * TODO.
-     *
-     * @param reference TODO
-     * @return TODO
-     */
-    public static Reference normalize(Reference reference) {
-        if (Objects.isNull(reference)
-                || Objects.isNull(reference.getKeys())
-                || reference.getKeys().size() < 2) {
-            return reference;
-        }
-        // AAS -> Submodel      2
-        // SUbmodel             1
-        // Property             0
-        int i = 1;
-        for (; i < reference.getKeys().size(); i++) {
-            Class<?> type = keyTypeToClass(reference.getKeys().get(i).getType());
-            if (Objects.isNull(type) || !Identifiable.class.isAssignableFrom(type)) {
-                break;
-            }
-        }
-        Reference result = clone(reference);
-        result.getKeys().subList(0, i - 1).clear();
-        return result;
     }
 
 
@@ -355,19 +228,45 @@ public class ReferenceHelper {
 
 
     /**
-     * Combines a list of keys of a child element with a parent to a reference.
+     * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference} to a
+     * {@link io.adminshell.aas.v3.model.SubmodelElement}.
      *
-     * @param keys of the child
-     * @param parentId of the parent
-     * @param parentClass type of the parent
-     * @return the full reference to the child element
+     * @param reference reference to the submodel element
+     * @return values of the keys of the reference separated by a "."
      */
-    public static Reference toReference(List<Key> keys, String parentId, Class<?> parentClass) {
-        Reference parentReference = ReferenceHelper.build(parentId, parentClass);
-        Reference childReference = new DefaultReference.Builder()
-                .keys(keys)
-                .build();
-        return toReference(parentReference, childReference);
+    public static String toPath(Reference reference) {
+        if (reference == null || reference.getKeys().isEmpty()) {
+            return "";
+        }
+        return toPath(reference.getKeys());
+    }
+
+
+    /**
+     * Create an element path from key elements.
+     *
+     * @param keys the key element
+     * @return values of the keys of the reference separated by a "."
+     */
+    public static String toPath(Key... keys) {
+        return toPath(Arrays.asList(keys));
+    }
+
+
+    /**
+     * Create an element path from key elements.
+     *
+     * @param keys the key element
+     * @return values of the keys of the reference separated by a "."
+     */
+    public static String toPath(List<Key> keys) {
+        if (Objects.isNull(keys) || keys.isEmpty()) {
+            return "";
+        }
+        return keys.stream()
+                .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
+                .map(x -> x.getValue())
+                .collect(Collectors.joining("."));
     }
 
 
@@ -378,7 +277,7 @@ public class ReferenceHelper {
      * @param child reference of the child
      * @return the combined reference
      */
-    public static Reference toReference(Reference parent, Reference child) {
+    public static Reference combine(Reference parent, Reference child) {
         List<Key> keys = new ArrayList<>();
         ReferenceTypes referenceType = null;
         if (Objects.nonNull(parent) && Objects.nonNull(parent.getKeys())) {
@@ -447,10 +346,28 @@ public class ReferenceHelper {
     }
 
 
-    private static ReferenceTypes determineReferenceType(Key key) {
-        if (Objects.isNull(key)) {
+    /**
+     * Tries to automatically determine the reference type of a reference. If reference type is set, this is returned.
+     * If reference type is null it is automatically determinde if possible, otherwise is null is returned.
+     *
+     * @param reference the reference
+     * @return the determined reference type
+     */
+    public static ReferenceTypes determineReferenceType(Reference reference) {
+        if (Objects.isNull(reference)) {
             return null;
         }
+        if (Objects.nonNull(reference.getType())) {
+            return reference.getType();
+        }
+        if (Objects.isNull(reference.getKeys()) || reference.getKeys().isEmpty() || Objects.isNull(reference.getKeys().get(0))) {
+            return null;
+        }
+        return determineReferenceType(reference.getKeys().get(0));
+    }
+
+
+    private static ReferenceTypes determineReferenceType(Key key) {
         switch (key.getType()) {
             case FRAGMENT_REFERENCE:
             case GLOBAL_REFERENCE:
@@ -489,7 +406,7 @@ public class ReferenceHelper {
     }
 
 
-    private static Key newKey(KeyTypes type, String value) {
+    static Key newKey(KeyTypes type, String value) {
         return new DefaultKey.Builder()
                 .type(type)
                 .value(value)

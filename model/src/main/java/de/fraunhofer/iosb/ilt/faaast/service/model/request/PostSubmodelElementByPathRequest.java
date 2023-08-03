@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -27,20 +24,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PostSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<PostSubmodelElementByPathResponse> {
 
-    private List<Key> path;
+    private String path;
     private SubmodelElement submodelElement;
 
-    public PostSubmodelElementByPathRequest() {
-        this.path = new ArrayList<>();
-    }
-
-
-    public List<Key> getPath() {
+    public String getPath() {
         return path;
     }
 
 
-    public void setPath(List<Key> key) {
+    public void setPath(String key) {
         this.path = key;
     }
 
@@ -83,7 +75,7 @@ public class PostSubmodelElementByPathRequest extends AbstractSubmodelInterfaceR
     public abstract static class AbstractBuilder<T extends PostSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>>
             extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
-        public B path(List<Key> value) {
+        public B path(String value) {
             getBuildingInstance().setPath(value);
             return getSelf();
         }

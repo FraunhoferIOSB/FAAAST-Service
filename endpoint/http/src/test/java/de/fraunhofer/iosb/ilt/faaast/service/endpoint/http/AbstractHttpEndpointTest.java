@@ -40,7 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.util.Arrays;
 import java.util.List;
@@ -570,7 +570,10 @@ public abstract class AbstractHttpEndpointTest {
     public void testGetAllSubmodelElementsInAasContext() throws Exception {
         String aasId = "aasId";
         String submodelId = "submodelId";
-        Reference submodelRef = ReferenceHelper.build(aasId, submodelId);
+        Reference submodelRef = new ReferenceBuilder()
+                .aas(aasId)
+                .submodel(submodelId)
+                .build();
         AssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
                 .id(aasId)
                 .submodels(submodelRef)

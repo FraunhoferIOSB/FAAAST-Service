@@ -134,6 +134,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.util.ArrayList;
@@ -142,13 +143,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -181,7 +180,7 @@ public class RequestHandlerManagerTest {
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
     private static final Submodel SUBMODEL = AASFull.SUBMODEL_1;
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_1.getSubmodelElements().get(0);
-    private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(ReferenceHelper.build(SUBMODEL.getId(), Submodel.class), SUBMODEL_ELEMENT);
+    private static final Reference SUBMODEL_ELEMENT_REF = ReferenceBuilder.forSubmodel(SUBMODEL, SUBMODEL_ELEMENT);
 
     private static final CoreConfig coreConfigWithConstraintValidation = CoreConfig.builder()
             .validateConstraints(true)
@@ -290,7 +289,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    @Ignore("Failing after update to AAS4j")
+    @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
         PostAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PostAssetAdministrationShellRequest.Builder()
@@ -386,7 +385,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    @Ignore("Failing after update to AAS4j")
+    @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
         PutAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PutAssetAdministrationShellRequest.Builder()
@@ -653,7 +652,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
-        Reference reference = ReferenceHelper.build(environment.getSubmodels().get(0).getId(), Submodel.class);
+        Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
         when(persistence.getSubmodelElements(reference, (Reference) null, OutputModifier.DEFAULT))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
@@ -671,7 +670,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementRequest() throws ResourceNotFoundException, Exception {
-        Reference reference = ReferenceHelper.build(environment.getSubmodels().get(0).getId(), Submodel.class);
+        Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
         when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
@@ -703,7 +702,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
                 .submodelId(submodel.getId())
                 .outputModifier(OutputModifier.DEFAULT)
-                .path(toKeys(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
 
@@ -727,7 +726,7 @@ public class RequestHandlerManagerTest {
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
-                .path(toKeys(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
@@ -787,7 +786,7 @@ public class RequestHandlerManagerTest {
                         return (U) raw;
                     }
                 })
-                .path(toKeys(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
 
         Response actual = manager.execute(request);
@@ -802,14 +801,15 @@ public class RequestHandlerManagerTest {
     @Test
     public void testDeleteSubmodelElementByPathRequest() throws ResourceNotFoundException, Exception {
         Submodel submodel = environment.getSubmodels().get(0);
-        Reference reference = ReferenceHelper.toReference(toKeys(SUBMODEL_ELEMENT_REF),
-                submodel.getId(),
-                Submodel.class);
+        Reference reference = new ReferenceBuilder()
+                .submodel(submodel)
+                .idShortPath(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .build();
         when(persistence.get(reference, QueryModifier.DEFAULT))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
                 .submodelId(submodel.getId())
-                .path(toKeys(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
         DeleteSubmodelElementByPathResponse actual = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
@@ -965,7 +965,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByIsCaseOfRequest() throws ResourceNotFoundException, Exception {
-        Reference reference = ReferenceHelper.build(environment.getConceptDescriptions().get(0).getId(), ConceptDescription.class);
+        Reference reference = ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0));
         when(persistence.get(null, reference, null, OutputModifier.DEFAULT))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
@@ -983,7 +983,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByDataSpecificationReferenceRequest() throws ResourceNotFoundException, Exception {
-        Reference reference = ReferenceHelper.build(environment.getConceptDescriptions().get(0).getId(), ConceptDescription.class);
+        Reference reference = ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0));
         when(persistence.get(null, null, reference, OutputModifier.DEFAULT))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()
@@ -1016,7 +1016,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    @Ignore("Failing after update to AAS4j")
+    @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
         PostConceptDescriptionResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
                 .execute(new PostConceptDescriptionRequest.Builder()
@@ -1130,10 +1130,7 @@ public class RequestHandlerManagerTest {
 
     private GetSubmodelElementByPathRequest getExampleGetSubmodelElementByPathRequest() {
         return new GetSubmodelElementByPathRequest.Builder()
-                .path(List.of(new DefaultKey.Builder()
-                        .value("testProperty")
-                        .type(KeyTypes.PROPERTY)
-                        .build()))
+                .path("testProperty")
                 .submodelId("test")
                 .build();
     }
@@ -1225,16 +1222,5 @@ public class RequestHandlerManagerTest {
 
         Assert.assertEquals(propertyExpected, propertyUpdated);
         Assert.assertEquals(rangeExpected, rangeUpdated);
-    }
-
-
-    private static List<Key> toKeys(Reference reference) {
-        return reference.getKeys().stream()
-                .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
-                .map(x -> {
-                    x.setType(KeyTypes.SUBMODEL_ELEMENT);
-                    return x;
-                })
-                .collect(Collectors.toList());
     }
 }

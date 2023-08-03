@@ -189,10 +189,4 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .forEach(File::delete);
     }
 
-
-    @Test
-    @Override
-    public void withInitialModelAndModelFileTest() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
-        super.withInitialModelAndModelFileTest();
-    }
 }

@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +41,6 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -59,7 +58,10 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
 
     @Override
     public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
+        Reference reference = new ReferenceBuilder()
+                .submodel(request.getSubmodelId())
+                .idShortPath(request.getPath())
+                .build();
         messageBus.publish(OperationInvokeEventMessage.builder()
                 .element(reference)
                 .input(ElementValueHelper.toValues(request.getInputArguments()))

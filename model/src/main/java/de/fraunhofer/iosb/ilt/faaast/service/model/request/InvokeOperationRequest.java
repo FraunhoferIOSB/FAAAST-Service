@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
@@ -33,7 +32,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
     private static final long DEFAULT_TIMEOUT = 1000;
-    protected List<Key> path;
+    protected String path;
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
     protected long timeout;
@@ -45,7 +44,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
                 .supportsLevel(false)
                 .supportedContentModifiers(Content.NORMAL, Content.VALUE)
                 .build());
-        this.path = new ArrayList<>();
+        this.path = "";
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
         this.timeout = DEFAULT_TIMEOUT;
@@ -53,12 +52,12 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     }
 
 
-    public List<Key> getPath() {
+    public String getPath() {
         return path;
     }
 
 
-    public void setPath(List<Key> path) {
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -176,7 +175,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         }
 
 
-        public B path(List<Key> value) {
+        public B path(String value) {
             getBuildingInstance().setPath(value);
             return getSelf();
         }

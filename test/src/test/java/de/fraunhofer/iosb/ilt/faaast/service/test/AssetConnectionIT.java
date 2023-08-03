@@ -38,7 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
@@ -103,7 +103,7 @@ public class AssetConnectionIT {
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
                         .idShort("AAS1")
                         .id("https://example.org/aas/1")
-                        .submodels(ReferenceHelper.build(submodel.getId(), Submodel.class))
+                        .submodels(ReferenceBuilder.forSubmodel(submodel))
                         .build())
                 .submodels(submodel)
                 .build();

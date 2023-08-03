@@ -24,10 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -62,7 +62,7 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
      */
     protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
         if (request.getAasId() != null) {
-            Reference submodelRef = ReferenceHelper.build(request.getSubmodelId(), Submodel.class);
+            Reference submodelRef = ReferenceBuilder.forSubmodel(request.getSubmodelId());
             if ((persistence.get(
                     request.getAasId(),
                     new OutputModifier.Builder()

@@ -23,9 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelEl
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -45,7 +44,10 @@ public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelI
     @Override
     protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
+        Reference reference = new ReferenceBuilder()
+                .submodel(request.getSubmodelId())
+                .idShortPath(request.getPath())
+                .build();
         SubmodelElement submodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         persistence.remove(reference);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);

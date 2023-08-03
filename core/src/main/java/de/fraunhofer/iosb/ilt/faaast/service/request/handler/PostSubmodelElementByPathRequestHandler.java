@@ -26,10 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -49,7 +48,7 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
     @Override
     public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
         ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnCreate());
-        Reference parentReference = ReferenceHelper.build(request.getSubmodelId(), Submodel.class);
+        Reference parentReference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
         SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {

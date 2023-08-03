@@ -27,15 +27,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementVal
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -64,7 +60,7 @@ public class SetSubmodelElementValueByPathRequestMapper
 
     @Override
     public SetSubmodelElementValueByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)));
+        final String path = EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH));
         final String identifier = EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID));
         return SetSubmodelElementValueByPathRequest.builder()
                 .path(path)
@@ -73,7 +69,13 @@ public class SetSubmodelElementValueByPathRequestMapper
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
                         if (ElementValue.class.isAssignableFrom(type)) {
-                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ReferenceHelper.toReference(path, identifier, Submodel.class)));
+                            return deserializer.readValue(
+                                    raw.toString(),
+                                    serviceContext.getTypeInfo(
+                                            new ReferenceBuilder()
+                                                    .submodel(identifier)
+                                                    .idShortPath(path)
+                                                    .build()));
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);

@@ -110,17 +110,6 @@ public class ReferenceHelperTest {
 
 
     @Test
-    public void testNormalize() {
-        assertNormalize(
-                "(AssetAdministrationShell)AAS, (Submodel)Submodel, (Property)Property",
-                "(Submodel)Submodel, (Property)Property");
-        assertNormalize(
-                "(Submodel)Submodel, (Property)Property",
-                "(Submodel)Submodel, (Property)Property");
-    }
-
-
-    @Test
     public void testSerialize() {
         TEST_CASES.forEach(this::asserSerialize);
     }
@@ -141,18 +130,10 @@ public class ReferenceHelperTest {
 
 
     private void assertCombine(String parent, String child, String expected) {
-        Reference actual = ReferenceHelper.toReference(
+        Reference actual = ReferenceHelper.combine(
                 ReferenceHelper.parse(parent),
                 ReferenceHelper.parse(child));
         Assert.assertEquals(ReferenceHelper.parse(expected), actual);
-    }
-
-
-    private void assertNormalize(String reference, String expected) {
-        Assert.assertTrue(ReferenceHelper.equals(
-                ReferenceHelper.normalize(
-                        ReferenceHelper.parse(reference)),
-                ReferenceHelper.parse(expected)));
     }
 
 

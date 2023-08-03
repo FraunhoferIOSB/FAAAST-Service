@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.List;
@@ -80,9 +81,7 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
 
             @Override
             public void visit(AssetAdministrationShell aas) {
-                aasContext.put(
-                        ReferenceHelper.build(aas.getId(), AssetAdministrationShell.class),
-                        aas.getSubmodels());
+                aasContext.put(ReferenceBuilder.forAas(aas), aas.getSubmodels());
                 DefaultAssetAdministrationShellElementVisitor.super.visit(aas);
             }
 
@@ -99,14 +98,19 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
                 if (Objects.nonNull(parent) && parent.getKeys().get(parent.getKeys().size() - 1).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST) {
                     id = Integer.toString(((SubmodelElementList) result.get(parent)).getValue().indexOf(referable));
                 }
-                Reference reference = ReferenceHelper.toReference(parent, ReferenceHelper.build(id, referable.getClass()));
+
+                Reference reference = ReferenceHelper.combine(
+                        parent,
+                        new ReferenceBuilder()
+                                .element(id, referable.getClass())
+                                .build());
                 result.put(reference, referable);
                 Key root = ReferenceHelper.getRoot(reference);
                 if (Objects.nonNull(root) && root.getType() == KeyTypes.SUBMODEL) {
                     result.putAll(aasContext.entrySet().stream()
-                            .filter(x -> x.getValue().stream().anyMatch(y -> ReferenceHelper.equals(y, ReferenceHelper.build(root))))
+                            .filter(x -> x.getValue().stream().anyMatch(y -> ReferenceHelper.equals(y, ReferenceHelper.fromKeys(root))))
                             .collect(Collectors.toMap(
-                                    x -> ReferenceHelper.toReference(x.getKey(), reference),
+                                    x -> ReferenceHelper.combine(x.getKey(), reference),
                                     x -> referable)));
                 }
                 if (isContainerElement(referable)) {

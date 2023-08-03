@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -248,7 +248,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
             from(aas);
             if (submodels != null) {
                 List<Submodel> submodelsNotPresentInAAS = submodels.stream()
-                        .filter(x -> !aas.getSubmodels().contains(ReferenceHelper.build(x.getId(), Submodel.class)))
+                        .filter(x -> !aas.getSubmodels().contains(ReferenceBuilder.forSubmodel(x)))
                         .collect(Collectors.toList());
                 if (!submodelsNotPresentInAAS.isEmpty()) {
                     throw new IllegalArgumentException(String.format("Submodel(s) not found in AAS (id: %s) ",
