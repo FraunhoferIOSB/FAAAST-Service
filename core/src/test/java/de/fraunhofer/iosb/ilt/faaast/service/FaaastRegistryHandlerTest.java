@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -73,9 +74,14 @@ public class FaaastRegistryHandlerTest {
     private static final Persistence PERSISTENCE = Mockito.mock(Persistence.class);
     private static FaaastRegistryHandler faaastRegistryHandler;
     private static AssetAdministrationShellEnvironment environment;
+    private static CoreConfig coreConfig;
 
     @BeforeClass
     public static void init() throws Exception {
+        coreConfig = CoreConfig.builder()
+                .registryPort(wireMockRule.port())
+                .registryHost("localhost")
+                .build();
         MESSAGE_BUS = Mockito.mock(MessageBus.class);
         setupMockedMessagebus();
         setupMockedPersistence();
@@ -147,29 +153,54 @@ public class FaaastRegistryHandlerTest {
 
     @Test
     public void testInitialRegistration() throws Exception {
-        stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
-                .willReturn(ok()));
+        Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
-        new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE,
-                CoreConfig.builder()
-                        .registryPort(wireMockRule.port())
-                        .registryHost("localhost")
-                        .build());
+        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
+            stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+                    .withRequestBody(equalToJson(getDescriptorBody(aas)))
+                    .willReturn(ok()));
+        }
 
-        verify(2, postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH)));
-        //.withRequestBody(equalToJson(getDescriptorBody(aas)));
+        service.start();
+
+        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
+            verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH))
+                    .withRequestBody(equalToJson(getDescriptorBody(aas))));
+        }
+    }
+
+
+    @Test
+    public void testUnregistrationOnExit() throws Exception {
+        Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
+
+        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
+            stubFor(delete(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+                    .willReturn(ok()));
+        }
+
+        service.start(); // this call sends requests that aren't stubbed
+        service.stop();
+
+        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
+            verify(deleteRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
+        }
     }
 
 
     @Test
     public void testAasCreation() throws Exception {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+
         stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+                .withRequestBody(equalToJson(getDescriptorBody(aas)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
-                .element(environment.getAssetAdministrationShells().get(0)).build());
+                .element(aas).build());
 
-        verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH)));
+        verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH))
+                .withRequestBody(equalToJson(getDescriptorBody(aas))));
     }
 
 

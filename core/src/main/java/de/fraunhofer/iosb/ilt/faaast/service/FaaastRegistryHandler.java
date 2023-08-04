@@ -49,6 +49,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Class to handle the synchronisation of assetAdministrationShells and submodels
+ * with the Fa³st Registry
+ */
 public class FaaastRegistryHandler {
     public static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
     private static final Logger LOGGER = LoggerFactory.getLogger(FaaastRegistryHandler.class);
@@ -130,6 +134,12 @@ public class FaaastRegistryHandler {
     }
 
 
+    /**
+     * Sends the request for creating new aas or submodels in the registry.
+     *
+     * @param eventMessage Event that signals the creation of an element.
+     * @throws RegistryException
+     */
     protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
@@ -139,6 +149,12 @@ public class FaaastRegistryHandler {
     }
 
 
+    /**
+     * Sends the request for updating an aas or submodel in the registry.
+     *
+     * @param eventMessage Event that signals the update of an element.
+     * @throws RegistryException
+     */
     protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
@@ -147,6 +163,12 @@ public class FaaastRegistryHandler {
     }
 
 
+    /**
+     * Sends the request for deleting an aas or submodel in the registry.
+     *
+     * @param eventMessage Event that signals the deletion of an element.
+     * @throws RegistryException
+     */
     protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
