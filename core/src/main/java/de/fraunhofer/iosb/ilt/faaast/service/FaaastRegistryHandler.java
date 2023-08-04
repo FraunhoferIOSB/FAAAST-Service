@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class to handle the synchronisation of assetAdministrationShells and submodels
- * with the Fa³st Registry
+ * with the Fa³st Registry.
  */
 public class FaaastRegistryHandler {
     public static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
@@ -310,7 +310,7 @@ public class FaaastRegistryHandler {
     }
 
 
-    public static boolean is2xxSuccessful(int statusCode) {
+    private static boolean is2xxSuccessful(int statusCode) {
         return statusCode >= 200 && statusCode <= 299;
     }
 
