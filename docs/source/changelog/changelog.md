@@ -8,6 +8,12 @@
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
+*   Validation
+	*   More fine-grained configuration of validation via configuration file
+	*   Enabled validation for API calls creating or updating elements (basic validation enabled by default)
+	*   Renamed CLI argument `--no-modelValidation` to `--no-validation`. It now enables any validation when used (overriding validation configuration in configuration file is present).
+*   Other
+	*   Environment variables use "_" as a separator
 
 **Internal changes & bugfixes**
 *   General

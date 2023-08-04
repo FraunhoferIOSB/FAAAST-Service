@@ -131,19 +131,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>validator</artifactId>
-            <version>${aas.dataformat.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>${json-smart.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-shacl</artifactId>
-            <version>${jena.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>

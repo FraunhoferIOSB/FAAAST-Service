@@ -16,12 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -36,13 +38,14 @@ import io.adminshell.aas.v3.model.Submodel;
  */
 public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmodelRequest, PostSubmodelResponse> {
 
-    public PostSubmodelRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PostSubmodelRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
+        ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnCreate());
         Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());

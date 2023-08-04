@@ -15,13 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
@@ -34,13 +37,14 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  */
 public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<PutConceptDescriptionByIdRequest, PutConceptDescriptionByIdResponse> {
 
-    public PutConceptDescriptionByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(persistence, messageBus, assetConnectionManager);
+    public PutConceptDescriptionByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+        super(coreConfig, persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
+    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
+        ModelValidator.validate(request.getConceptDescription(), coreConfig.getValidationOnUpdate());
         persistence.get(request.getConceptDescription().getIdentification(), QueryModifier.DEFAULT, ConceptDescription.class);
         ConceptDescription conceptDescription = persistence.put(request.getConceptDescription());
         messageBus.publish(ElementUpdateEventMessage.builder()

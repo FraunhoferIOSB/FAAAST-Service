@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
@@ -24,15 +26,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import picocli.CommandLine;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
@@ -45,13 +47,23 @@ public class AppTest {
     private App application;
     private CommandLine cmd;
     private Path modelPath;
+    private static ServiceConfig dummyMessageBusConfig;
+
+    @BeforeClass
+    public static void init() {
+        DummyMessageBusConfig messageBusConfig = new DummyMessageBusConfig();
+        dummyMessageBusConfig = ServiceConfig.builder()
+                .messageBus(messageBusConfig)
+                .build();
+    }
+
 
     @Before
     public void prepareResources() throws IOException {
-        modelPath = Paths.get("." + MODEL_RESOURCE_PATH);
+        modelPath = Files.createTempFile("faaast-app-test-model", ".json");
+        modelPath.toFile().deleteOnExit();
         InputStream modelResourceAsStream = AppTest.class.getResourceAsStream(MODEL_RESOURCE_PATH);
-
-        Files.copy(modelResourceAsStream, modelPath);
+        Files.copy(modelResourceAsStream, modelPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
 
@@ -65,13 +77,7 @@ public class AppTest {
     }
 
 
-    @After
-    public void cleanUpResources() throws IOException {
-        Files.deleteIfExists(modelPath);
-    }
-
-
-    private EnvironmentVariables withEnv(Map<String, String> variables) {
+    protected EnvironmentVariables withEnv(Map<String, String> variables) {
         return withEnv(variables.entrySet().stream()
                 .map(x -> new String[] {
                         x.getKey(),
@@ -82,7 +88,7 @@ public class AppTest {
     }
 
 
-    private EnvironmentVariables withEnv(String... variables) {
+    protected EnvironmentVariables withEnv(String... variables) {
         Ensure.requireNonNull(variables, "variables must be non-null");
         Ensure.require(variables.length >= 2, "variables must contain at least one element");
         Ensure.require(variables.length % 2 == 0, "variables must contain an even number of elements");
@@ -90,10 +96,13 @@ public class AppTest {
         EnvironmentVariables result = null;
         for (int i = 0; i < variables.length; i += 2) {
             String key = variables[i];
-            if (!Objects.equals(App.ENV_CONFIG_FILE_PATH, key) && !Objects.equals(App.ENV_MODEL_FILE_PATH, key)) {
-                key = key.startsWith(App.ENV_CONFIG_EXTENSION_PREFIX)
+            if (!Objects.equals(App.ENV_PATH_CONFIG_FILE, key)
+                    && !Objects.equals(App.ENV_PATH_MODEL_FILE, key)
+                    && !Objects.equals(App.envPathWithAlternativeSeparator(App.ENV_PATH_CONFIG_FILE), key)
+                    && !Objects.equals(App.envPathWithAlternativeSeparator(App.ENV_PATH_MODEL_FILE), key)) {
+                key = key.startsWith(App.ENV_PREFIX_CONFIG_EXTENSION)
                         ? key
-                        : String.format("%s%s", App.ENV_CONFIG_EXTENSION_PREFIX, key);
+                        : String.format("%s%s", App.ENV_PREFIX_CONFIG_EXTENSION, key);
             }
             String value = variables[i + 1];
             result = result == null
@@ -126,6 +135,68 @@ public class AppTest {
 
 
     @Test
+    public void testSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testNestedSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPraefixSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_PREFIX_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_PREFIX_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            return application.getConfigOverrides(dummyMessageBusConfig);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAmbiguitySeparatorReplacement() throws Exception {
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_AMBIGUITY_BEFORE, "1");
+
+        Assert.assertThrows(InitializationException.class, () -> {
+            withEnv(envProperties).execute(() -> {
+                application.getConfigOverrides(dummyMessageBusConfig);
+            });
+        });
+    }
+
+
+    @Test
     public void testConfigFileCLI() {
         executeAssertSuccess("-c", CONFIG);
         Assert.assertEquals(new File(CONFIG), application.configFile);
@@ -140,8 +211,19 @@ public class AppTest {
 
 
     @Test
-    public void testConfigFileENV() throws Exception {
-        File actual = withEnv(App.ENV_CONFIG_FILE_PATH, CONFIG)
+    public void testConfigFileENV_DotSeparated() throws Exception {
+        File actual = withEnv("faaast.config", CONFIG)
+                .execute(() -> {
+                    executeAssertSuccess();
+                    return application.configFile;
+                });
+        Assert.assertEquals(new File(CONFIG), actual);
+    }
+
+
+    @Test
+    public void testConfigFileENV_UnderscoreSeparated() throws Exception {
+        File actual = withEnv("faaast_config", CONFIG)
                 .execute(() -> {
                     executeAssertSuccess();
                     return application.configFile;
@@ -158,8 +240,19 @@ public class AppTest {
 
 
     @Test
-    public void testModelFileENV() throws Exception {
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPath.toString())
+    public void testModelFileENV_DotSeparated() throws Exception {
+        File actual = withEnv("faaast.model", modelPath.toString())
+                .execute(() -> {
+                    new CommandLine(application).execute();
+                    return application.modelFile;
+                });
+        Assert.assertEquals(modelPath.toFile(), actual);
+    }
+
+
+    @Test
+    public void testModelFileENV_UnderscoreSeparated() throws Exception {
+        File actual = withEnv("faaast_model", modelPath.toString())
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.modelFile;
@@ -170,7 +263,7 @@ public class AppTest {
 
     @Test
     public void testModelFilePrio() throws Exception {
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
+        File actual = withEnv(App.ENV_PATH_MODEL_FILE, "env.json")
                 .execute(() -> {
                     new CommandLine(application).execute("-m", modelPath.toString());
                     return application.modelFile;
@@ -209,15 +302,15 @@ public class AppTest {
 
     @Test
     public void testModelValidationCLI() {
-        executeAssertSuccess("--no-modelValidation");
-        Assert.assertFalse(application.validateModel);
+        executeAssertSuccess("--no-validation");
+        Assert.assertTrue(application.noValidation);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
         executeAssertSuccess("-m", modelPath.toString());
-        Assert.assertTrue(application.validateModel);
+        Assert.assertFalse(application.noValidation);
     }
 
 
