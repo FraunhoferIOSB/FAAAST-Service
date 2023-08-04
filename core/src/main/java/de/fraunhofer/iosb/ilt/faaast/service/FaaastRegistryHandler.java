@@ -57,7 +57,6 @@ public class FaaastRegistryHandler {
     public static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
     private static final Logger LOGGER = LoggerFactory.getLogger(FaaastRegistryHandler.class);
 
-    private final MessageBus messageBus;
     private final Persistence persistence;
     private final CoreConfig coreConfig;
     private final HttpClient httpClient;
@@ -68,7 +67,6 @@ public class FaaastRegistryHandler {
     private final AssetAdministrationShellEnvironment aasEnv;
 
     FaaastRegistryHandler(MessageBus messageBus, Persistence persistence, CoreConfig coreConfig) throws MessageBusException {
-        this.messageBus = messageBus;
         this.persistence = persistence;
         this.coreConfig = coreConfig;
         httpClient = HttpClient.newBuilder().build();
@@ -196,12 +194,12 @@ public class FaaastRegistryHandler {
         }
 
         try {
-            java.net.http.HttpResponse<String> response = execute(
+            HttpResponse<String> response = execute(
                     url,
                     "",
                     "POST",
                     HttpRequest.BodyPublishers.ofString(body),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    HttpResponse.BodyHandlers.ofString(),
                     null);
 
             if (!is2xxSuccessful(response)) {
@@ -231,12 +229,12 @@ public class FaaastRegistryHandler {
         }
 
         try {
-            java.net.http.HttpResponse<String> response = execute(
+            HttpResponse<String> response = execute(
                     url,
                     "",
                     "PUT",
                     HttpRequest.BodyPublishers.ofString(body),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    HttpResponse.BodyHandlers.ofString(),
                     null);
 
             if (!is2xxSuccessful(response)) {
@@ -260,12 +258,12 @@ public class FaaastRegistryHandler {
         }
 
         try {
-            java.net.http.HttpResponse<String> response = execute(
+            HttpResponse<String> response = execute(
                     url,
                     "",
                     "DELETE",
                     HttpRequest.BodyPublishers.noBody(),
-                    java.net.http.HttpResponse.BodyHandlers.ofString(),
+                    HttpResponse.BodyHandlers.ofString(),
                     null);
 
             if (!is2xxSuccessful(response)) {

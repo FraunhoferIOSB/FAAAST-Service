@@ -175,11 +175,17 @@ public class FaaastRegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
+            stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+                    .withRequestBody(equalToJson(getDescriptorBody(aas)))
+                    .willReturn(ok()));
+        }
+
+        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
             stubFor(delete(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
                     .willReturn(ok()));
         }
 
-        service.start(); // this call sends requests that aren't stubbed
+        service.start();
         service.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
