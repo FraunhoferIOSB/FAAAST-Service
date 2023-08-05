@@ -206,11 +206,8 @@ public class Service implements ServiceContext {
         try {
             registryHandler.deleteAllAasInRegistry();
         }
-        catch (RegistryException e) {
+        catch (RegistryException | InterruptedException e) {
             LOGGER.error(String.format("Unregistration in Fa³st-Registry failed: %s", e.getMessage()), e);
-        }
-        catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
