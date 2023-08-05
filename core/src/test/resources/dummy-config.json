@@ -24,7 +24,9 @@
                             "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
-                        }
+                        },
+              "registryHost" : "localhost",
+              "registryPort" : 8090
             },
     "assetConnections": [
         {

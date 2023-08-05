@@ -29,6 +29,8 @@ public class CoreConfig {
 
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
+    private static final String DEFAULT_REGISTRY_HOST = "localhost";
+    private static final int DEFAULT_REGISTRY_PORT = 8090;
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
@@ -59,6 +61,8 @@ public class CoreConfig {
                 .validateIdentifierUniqueness(true)
                 .validateValueTypes(true)
                 .build();
+        this.registryHost = DEFAULT_REGISTRY_HOST;
+        this.registryPort = DEFAULT_REGISTRY_PORT;
     }
 
 
