@@ -54,7 +54,10 @@ import org.slf4j.LoggerFactory;
  * with the Fa³st Registry.
  */
 public class FaaastRegistryHandler {
-    public static final String REGISTRY_BASE_PATH = "/registry/shell-descriptors";
+    private static final String SYNC_ERROR_FORMAT_STRING = "Synchronisation with Fa³st-Registry failed: %s";
+    private static final String REGISTRY_CONNECTION_ERROR = "Connection to FA³ST-Registry failed!";
+    private static final String REQUEST_ERROR_FORMAT_STRING = "HTTP request failed with %d";
+    private static final String REQUEST_INTERRUPTION_ERROR = "HTTP request failed";
     private static final Logger LOGGER = LoggerFactory.getLogger(FaaastRegistryHandler.class);
 
     private final Persistence persistence;
@@ -75,7 +78,7 @@ public class FaaastRegistryHandler {
                 handleCreateEvent(m);
             }
             catch (Exception e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+                LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
             }
         }));
         messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, m -> {
@@ -83,7 +86,7 @@ public class FaaastRegistryHandler {
                 handleChangeEvent(m);
             }
             catch (Exception e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+                LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
             }
         }));
         messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, m -> {
@@ -91,7 +94,7 @@ public class FaaastRegistryHandler {
                 handleDeleteEvent(m);
             }
             catch (Exception e) {
-                LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+                LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
             }
         }));
         aasEnv = persistence.getEnvironment();
@@ -100,12 +103,12 @@ public class FaaastRegistryHandler {
             createAllAasInRegistry();
         }
         catch (Exception e) {
-            LOGGER.error(String.format("Synchronisation with Fa³st-Registry failed: %s", e.getMessage()), e);
+            LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
         }
     }
 
 
-    private void createAllAasInRegistry() throws RegistryException {
+    private void createAllAasInRegistry() throws RegistryException, InterruptedException {
         if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
             return;
 
@@ -121,7 +124,7 @@ public class FaaastRegistryHandler {
      *
      * @throws RegistryException
      */
-    public void deleteAllAasInRegistry() throws RegistryException {
+    public void deleteAllAasInRegistry() throws RegistryException, InterruptedException {
         if (aasEnv == null || aasEnv.getAssetAdministrationShells().isEmpty())
             return;
 
@@ -138,10 +141,9 @@ public class FaaastRegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            //TODO check if there is a race condition
             createAasInRegistry(getAasFromIdentifier(identifier));
         }
     }
@@ -153,7 +155,7 @@ public class FaaastRegistryHandler {
      * @param eventMessage Event that signals the update of an element.
      * @throws RegistryException
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException, InterruptedException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
             updateAasInRegistry(getAasFromIdentifier(identifier));
@@ -167,7 +169,7 @@ public class FaaastRegistryHandler {
      * @param eventMessage Event that signals the deletion of an element.
      * @throws RegistryException
      */
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException, InterruptedException {
         if (referenceIsAas(eventMessage.getElement())) {
             String identifier = eventMessage.getElement().getKeys().get(0).getValue();
             deleteAasInRegistry(identifier);
@@ -180,14 +182,14 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void createAasInRegistry(AssetAdministrationShell aas) throws RegistryException {
+    private void createAasInRegistry(AssetAdministrationShell aas) throws RegistryException, InterruptedException {
         AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
 
         String body;
         URL url;
         try {
             body = mapper.writeValueAsString(descriptor);
-            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), REGISTRY_BASE_PATH);
+            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), coreConfig.getRegistryBasePath());
         }
         catch (JsonProcessingException | MalformedURLException e) {
             throw new RegistryException(e);
@@ -202,17 +204,24 @@ public class FaaastRegistryHandler {
                     HttpResponse.BodyHandlers.ofString(),
                     null);
 
+            if (response == null) {
+                throw new RegistryException(REQUEST_INTERRUPTION_ERROR);
+            }
+
             if (!is2xxSuccessful(response)) {
-                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
+                throw new RegistryException(String.format(REQUEST_ERROR_FORMAT_STRING, response.statusCode()));
             }
         }
+        catch (InterruptedException e) {
+            throw e;
+        }
         catch (Exception e) {
-            throw new RegistryException("Connection to FA³ST-Registry failed!");
+            throw new RegistryException(REGISTRY_CONNECTION_ERROR);
         }
     }
 
 
-    private void updateAasInRegistry(AssetAdministrationShell aas) throws RegistryException {
+    private void updateAasInRegistry(AssetAdministrationShell aas) throws RegistryException, InterruptedException {
         String body;
         URL url;
 
@@ -222,7 +231,7 @@ public class FaaastRegistryHandler {
         try {
             body = mapper.writeValueAsString(descriptor);
             url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                    REGISTRY_BASE_PATH + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+                    coreConfig.getRegistryBasePath() + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
         }
         catch (MalformedURLException | JsonProcessingException e) {
             throw new RegistryException(e);
@@ -237,21 +246,28 @@ public class FaaastRegistryHandler {
                     HttpResponse.BodyHandlers.ofString(),
                     null);
 
+            if (response == null) {
+                throw new RegistryException(REQUEST_INTERRUPTION_ERROR);
+            }
+
             if (!is2xxSuccessful(response)) {
-                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
+                throw new RegistryException(String.format(REQUEST_ERROR_FORMAT_STRING, response.statusCode()));
             }
         }
+        catch (InterruptedException e) {
+            throw e;
+        }
         catch (Exception e) {
-            throw new RegistryException("Connection to FA³ST-Registry failed!");
+            throw new RegistryException(REGISTRY_CONNECTION_ERROR);
         }
     }
 
 
-    private void deleteAasInRegistry(String aasIdentifier) throws RegistryException {
+    private void deleteAasInRegistry(String aasIdentifier) throws RegistryException, InterruptedException {
         URL url;
         try {
             url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                    REGISTRY_BASE_PATH + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+                    coreConfig.getRegistryBasePath() + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
         }
         catch (MalformedURLException e) {
             throw new RegistryException(e);
@@ -266,12 +282,19 @@ public class FaaastRegistryHandler {
                     HttpResponse.BodyHandlers.ofString(),
                     null);
 
+            if (response == null) {
+                throw new RegistryException(REQUEST_INTERRUPTION_ERROR);
+            }
+
             if (!is2xxSuccessful(response)) {
-                throw new RegistryException(String.format("HTTP request failed with %d", response.statusCode()));
+                throw new RegistryException(String.format(REQUEST_ERROR_FORMAT_STRING, response.statusCode()));
             }
         }
+        catch (InterruptedException e) {
+            throw e;
+        }
         catch (Exception e) {
-            throw new RegistryException("Connection to FA³ST-Registry failed!");
+            throw new RegistryException(REGISTRY_CONNECTION_ERROR);
         }
     }
 

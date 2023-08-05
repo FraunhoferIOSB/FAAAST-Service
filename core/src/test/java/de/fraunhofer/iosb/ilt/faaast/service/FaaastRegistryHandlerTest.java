@@ -40,7 +40,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -102,7 +101,7 @@ public class FaaastRegistryHandlerTest {
                 try {
                     faaastRegistryHandler.handleCreateEvent(eventMessage);
                 }
-                catch (RegistryException e) {
+                catch (Exception e) {
                     fail();
                 }
                 return null;
@@ -116,7 +115,7 @@ public class FaaastRegistryHandlerTest {
                 try {
                     faaastRegistryHandler.handleChangeEvent(eventMessage);
                 }
-                catch (RegistryException e) {
+                catch (Exception e) {
                     fail();
                 }
                 return null;
@@ -130,7 +129,7 @@ public class FaaastRegistryHandlerTest {
                 try {
                     faaastRegistryHandler.handleDeleteEvent(eventMessage);
                 }
-                catch (RegistryException e) {
+                catch (Exception e) {
                     fail();
                 }
                 return null;
@@ -156,7 +155,7 @@ public class FaaastRegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+            stubFor(post(coreConfig.getRegistryBasePath())
                     .withRequestBody(equalToJson(getDescriptorBody(aas)))
                     .willReturn(ok()));
         }
@@ -164,7 +163,7 @@ public class FaaastRegistryHandlerTest {
         service.start();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH))
+            verify(postRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath()))
                     .withRequestBody(equalToJson(getDescriptorBody(aas))));
         }
     }
@@ -175,13 +174,13 @@ public class FaaastRegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+            stubFor(post(coreConfig.getRegistryBasePath())
                     .withRequestBody(equalToJson(getDescriptorBody(aas)))
                     .willReturn(ok()));
         }
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(delete(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+            stubFor(delete(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                     .willReturn(ok()));
         }
 
@@ -189,7 +188,7 @@ public class FaaastRegistryHandlerTest {
         service.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(deleteRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
+            verify(deleteRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
         }
     }
 
@@ -198,14 +197,14 @@ public class FaaastRegistryHandlerTest {
     public void testAasCreation() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(post(FaaastRegistryHandler.REGISTRY_BASE_PATH)
+        stubFor(post(coreConfig.getRegistryBasePath())
                 .withRequestBody(equalToJson(getDescriptorBody(aas)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
 
-        verify(postRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH))
+        verify(postRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath()))
                 .withRequestBody(equalToJson(getDescriptorBody(aas))));
     }
 
@@ -214,13 +213,13 @@ public class FaaastRegistryHandlerTest {
     public void testAasUpdate() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(put(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+        stubFor(put(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
 
-        verify(putRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
+        verify(putRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
     }
 
 
@@ -228,13 +227,13 @@ public class FaaastRegistryHandlerTest {
     public void testAasDeletion() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(delete(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))
+        stubFor(delete(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
 
-        verify(deleteRequestedFor(urlEqualTo(FaaastRegistryHandler.REGISTRY_BASE_PATH + "/" + getEncodedAasIdentifier(aas))));
+        verify(deleteRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
     }
 
 

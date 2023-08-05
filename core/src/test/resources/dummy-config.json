@@ -26,7 +26,8 @@
                             "identifierUniqueness": true
                         },
               "registryHost" : "localhost",
-              "registryPort" : 8090
+              "registryPort" : 8090,
+              "registryBasePath" : "/registry/shell-descriptors"
             },
     "assetConnections": [
         {

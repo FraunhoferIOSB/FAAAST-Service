@@ -31,6 +31,7 @@ public class CoreConfig {
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
     private static final String DEFAULT_REGISTRY_HOST = "localhost";
     private static final int DEFAULT_REGISTRY_PORT = 8090;
+    private static final String DEFAULT_REGISTRY_BASE_PATH = "/registry/shell-descriptors";
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
@@ -39,6 +40,7 @@ public class CoreConfig {
     private ModelValidatorConfig validationOnUpdate;
     private String registryHost;
     private int registryPort;
+    private String registryBasePath;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -63,6 +65,7 @@ public class CoreConfig {
                 .build();
         this.registryHost = DEFAULT_REGISTRY_HOST;
         this.registryPort = DEFAULT_REGISTRY_PORT;
+        this.registryBasePath = DEFAULT_REGISTRY_BASE_PATH;
     }
 
 
@@ -138,6 +141,16 @@ public class CoreConfig {
 
     public void setRegistryPort(int registryPort) {
         this.registryPort = registryPort;
+    }
+
+
+    public String getRegistryBasePath() {
+        return registryBasePath;
+    }
+
+
+    public void setDefaultRegistryBasePath(String registryBasePath) {
+        this.registryBasePath = registryBasePath;
     }
 
 
