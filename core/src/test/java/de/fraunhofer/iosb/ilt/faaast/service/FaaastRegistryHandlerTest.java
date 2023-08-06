@@ -39,14 +39,17 @@ import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -140,12 +143,7 @@ public class FaaastRegistryHandlerTest {
 
 
     private static void setupMockedPersistence() {
-        environment = new DefaultAssetAdministrationShellEnvironment();
-        List<AssetAdministrationShell> aasList = new ArrayList<>();
-        aasList.add(AASFull.createAAS1());
-        aasList.add(AASFull.createAAS2());
-        environment.setAssetAdministrationShells(aasList);
-
+        environment = AASFull.createEnvironment();
         when(PERSISTENCE.getEnvironment()).thenReturn(environment);
     }
 
@@ -243,6 +241,30 @@ public class FaaastRegistryHandlerTest {
 
 
     private String getDescriptorBody(AssetAdministrationShell aas) throws Exception {
-        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder().from(aas).build());
+        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
+                .from(aas)
+                .submodels(getSubmodelDescriptorsFromAas(aas))
+                .build());
     }
+
+
+    private List<SubmodelDescriptor> getSubmodelDescriptorsFromAas(AssetAdministrationShell aas) {
+        List<SubmodelDescriptor> submodelDescriptors = new ArrayList<>();
+        for (Reference submodelReference: aas.getSubmodels())
+            submodelDescriptors.add(DefaultSubmodelDescriptor.builder().from(
+                    getSubmodelFromIdentifier(submodelReference.getKeys().get(0).getValue())).build());
+        return submodelDescriptors;
+    }
+
+
+    private Submodel getSubmodelFromIdentifier(String identifier) {
+        System.out.println("Search: " + identifier);
+        for (Submodel submodel: environment.getSubmodels()) {
+            System.out.println(submodel.getIdentification().getIdentifier());
+            if (submodel.getIdentification().getIdentifier().equals(identifier))
+                return submodel;
+        }
+        throw new IllegalArgumentException("Identifier not found!");
+    }
+
 }
