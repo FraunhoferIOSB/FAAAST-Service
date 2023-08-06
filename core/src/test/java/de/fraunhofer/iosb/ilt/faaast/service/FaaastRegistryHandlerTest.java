@@ -155,7 +155,7 @@ public class FaaastRegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(coreConfig.getRegistryBasePath())
+            stubFor(post(coreConfig.getAasRegistryBasePath())
                     .withRequestBody(equalToJson(getDescriptorBody(aas)))
                     .willReturn(ok()));
         }
@@ -163,7 +163,7 @@ public class FaaastRegistryHandlerTest {
         service.start();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(postRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath()))
+            verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
                     .withRequestBody(equalToJson(getDescriptorBody(aas))));
         }
     }
@@ -174,13 +174,13 @@ public class FaaastRegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(coreConfig.getRegistryBasePath())
+            stubFor(post(coreConfig.getAasRegistryBasePath())
                     .withRequestBody(equalToJson(getDescriptorBody(aas)))
                     .willReturn(ok()));
         }
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(delete(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+            stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                     .willReturn(ok()));
         }
 
@@ -188,7 +188,7 @@ public class FaaastRegistryHandlerTest {
         service.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(deleteRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+            verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
         }
     }
 
@@ -197,14 +197,14 @@ public class FaaastRegistryHandlerTest {
     public void testAasCreation() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(post(coreConfig.getRegistryBasePath())
+        stubFor(post(coreConfig.getAasRegistryBasePath())
                 .withRequestBody(equalToJson(getDescriptorBody(aas)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
 
-        verify(postRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath()))
+        verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
                 .withRequestBody(equalToJson(getDescriptorBody(aas))));
     }
 
@@ -213,13 +213,13 @@ public class FaaastRegistryHandlerTest {
     public void testAasUpdate() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(put(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+        stubFor(put(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(environment.getAssetAdministrationShells().get(0)).build());
 
-        verify(putRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
     }
 
 
@@ -227,13 +227,13 @@ public class FaaastRegistryHandlerTest {
     public void testAasDeletion() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(delete(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+        stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
 
-        verify(deleteRequestedFor(urlEqualTo(coreConfig.getRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+        verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
     }
 
 

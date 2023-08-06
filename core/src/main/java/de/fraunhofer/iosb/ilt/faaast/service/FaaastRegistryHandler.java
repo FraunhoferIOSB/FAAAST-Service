@@ -23,7 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -35,6 +37,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -113,7 +116,10 @@ public class FaaastRegistryHandler {
             return;
 
         for (AssetAdministrationShell aas: aasEnv.getAssetAdministrationShells()) {
-            createAasInRegistry(aas);
+            AbstractIdentifiableDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder()
+                    .from(aas)
+                    .build();
+            createIdentifiableInRegistry(descriptor, coreConfig.getAasRegistryBasePath());
         }
 
     }
@@ -130,7 +136,7 @@ public class FaaastRegistryHandler {
 
         for (AssetAdministrationShell aas: aasEnv.getAssetAdministrationShells()) {
             AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
-            deleteAasInRegistry(descriptor.getIdentification().getIdentifier());
+            deleteIdentifiableInRegistry(descriptor.getIdentification().getIdentifier(), coreConfig.getAasRegistryBasePath());
         }
     }
 
@@ -142,9 +148,24 @@ public class FaaastRegistryHandler {
      * @throws RegistryException
      */
     protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
-        if (referenceIsAas(eventMessage.getElement())) {
-            String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            createAasInRegistry(getAasFromIdentifier(identifier));
+        String identifier = eventMessage.getElement().getKeys().get(0).getValue();
+        if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
+            /*
+             * List<SubmodelDescriptor> submodelDescriptors = new ArrayList<>();
+             * for (Reference submodel: aas.getSubmodels())
+             * submodelDescriptors.add(DefaultSubmodelDescriptor.builder().from((Submodel) submodel).build());
+             */
+            AbstractIdentifiableDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder()
+                    .from(getAasFromIdentifier(identifier))
+                    //        .submodels(submodelDescriptors)
+                    .build();
+            createIdentifiableInRegistry(descriptor, coreConfig.getAasRegistryBasePath());
+        }
+        else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
+            AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
+                    .from(getSubmodelFromIdentifier(identifier))
+                    .build();
+            createIdentifiableInRegistry(descriptor, coreConfig.getSubmodelRegistryBasePath());
         }
     }
 
@@ -156,9 +177,18 @@ public class FaaastRegistryHandler {
      * @throws RegistryException
      */
     protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException, InterruptedException {
-        if (referenceIsAas(eventMessage.getElement())) {
-            String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            updateAasInRegistry(getAasFromIdentifier(identifier));
+        String identifier = eventMessage.getElement().getKeys().get(0).getValue();
+        if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
+            AbstractIdentifiableDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder()
+                    .from(getAasFromIdentifier(identifier))
+                    .build();
+            updateAasInRegistry(identifier, descriptor, coreConfig.getAasRegistryBasePath());
+        }
+        else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
+            AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
+                    .from(getSubmodelFromIdentifier(identifier))
+                    .build();
+            updateAasInRegistry(identifier, descriptor, coreConfig.getSubmodelRegistryBasePath());
         }
     }
 
@@ -170,26 +200,27 @@ public class FaaastRegistryHandler {
      * @throws RegistryException
      */
     protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException, InterruptedException {
-        if (referenceIsAas(eventMessage.getElement())) {
-            String identifier = eventMessage.getElement().getKeys().get(0).getValue();
-            deleteAasInRegistry(identifier);
+        String identifier = eventMessage.getElement().getKeys().get(0).getValue();
+        if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
+            deleteIdentifiableInRegistry(identifier, coreConfig.getAasRegistryBasePath());
+        }
+        else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
+            deleteIdentifiableInRegistry(identifier, coreConfig.getSubmodelRegistryBasePath());
         }
     }
 
 
-    private boolean referenceIsAas(Reference reference) {
-        return !reference.getKeys().isEmpty() && reference.getKeys().get(0).getType() == KeyElements.ASSET_ADMINISTRATION_SHELL;
+    private boolean referenceIsKeyElement(Reference reference, KeyElements keyElement) {
+        return !reference.getKeys().isEmpty() && reference.getKeys().get(0).getType() == keyElement;
     }
 
 
-    private void createAasInRegistry(AssetAdministrationShell aas) throws RegistryException, InterruptedException {
-        AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
-
+    private void createIdentifiableInRegistry(AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
         String body;
         URL url;
         try {
             body = mapper.writeValueAsString(descriptor);
-            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), coreConfig.getRegistryBasePath());
+            url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), basePath);
         }
         catch (JsonProcessingException | MalformedURLException e) {
             throw new RegistryException(e);
@@ -221,17 +252,14 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void updateAasInRegistry(AssetAdministrationShell aas) throws RegistryException, InterruptedException {
+    private void updateAasInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
         String body;
         URL url;
-
-        AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
-        String aasIdentifier = descriptor.getIdentification().getIdentifier();
 
         try {
             body = mapper.writeValueAsString(descriptor);
             url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                    coreConfig.getRegistryBasePath() + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+                    basePath + "/" + Base64.getEncoder().encodeToString(identifier.getBytes()));
         }
         catch (MalformedURLException | JsonProcessingException e) {
             throw new RegistryException(e);
@@ -263,11 +291,11 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void deleteAasInRegistry(String aasIdentifier) throws RegistryException, InterruptedException {
+    private void deleteIdentifiableInRegistry(String identifier, String basePath) throws RegistryException, InterruptedException {
         URL url;
         try {
             url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                    coreConfig.getRegistryBasePath() + "/" + Base64.getEncoder().encodeToString(aasIdentifier.getBytes()));
+                    basePath + "/" + Base64.getEncoder().encodeToString(identifier.getBytes()));
         }
         catch (MalformedURLException e) {
             throw new RegistryException(e);
@@ -340,6 +368,15 @@ public class FaaastRegistryHandler {
         for (AssetAdministrationShell aas: persistence.getEnvironment().getAssetAdministrationShells()) {
             if (aas.getIdentification().getIdentifier().equals(identifier))
                 return aas;
+        }
+        throw new IllegalArgumentException("Identifier not found!");
+    }
+
+
+    private Submodel getSubmodelFromIdentifier(String identifier) {
+        for (Submodel submodel: persistence.getEnvironment().getSubmodels()) {
+            if (submodel.getIdentification().getIdentifier().equals(identifier))
+                return submodel;
         }
         throw new IllegalArgumentException("Identifier not found!");
     }

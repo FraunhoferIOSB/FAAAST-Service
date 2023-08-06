@@ -27,7 +27,8 @@
                         },
               "registryHost" : "localhost",
               "registryPort" : 8090,
-              "registryBasePath" : "/registry/shell-descriptors"
+              "aasRegistryBasePath" : "/registry/shell-descriptors",
+              "submodelRegistryBasePath" : "/registry/submodel-descriptors"
             },
     "assetConnections": [
         {
