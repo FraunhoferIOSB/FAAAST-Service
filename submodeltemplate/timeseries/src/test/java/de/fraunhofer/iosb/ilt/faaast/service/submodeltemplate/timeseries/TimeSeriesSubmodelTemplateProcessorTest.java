@@ -407,7 +407,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         assertThat(operationResult.getOutputArguments(), hasSize(1));
         assertThat(operationResult.getOutputArguments().get(0).getValue(), instanceOf(SubmodelElementCollection.class));
         assertThat(((SubmodelElementCollection) operationResult.getOutputArguments().get(0).getValue()).getValues(), hasSize(records.size()));
-        //        assertEquals(expected, operationResult.getOutputArguments().get(0).getValue());
+        assertEquals(expected, operationResult.getOutputArguments().get(0).getValue());
     }
 
 

@@ -59,6 +59,7 @@ public class TimeFactory {
             case Constants.TIME_RELATIVE_DURATION:
                 return new RelativeTimeDuration(value);
             default:
+                LOGGER.info(String.format("TimeFactory: No matching semantic ID and class for %s", semanticID));
                 return new UnsupportedTime(value, semanticID, valueType);
         }
         //        for (Entry<String, String> entry: supported_semanticIds.entrySet()) {
