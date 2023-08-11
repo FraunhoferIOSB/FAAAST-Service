@@ -30,7 +30,7 @@
         <Alias Alias="EnumValueType">i=7594</Alias>
         <Alias Alias="HasInterface">i=17603</Alias>
         <Alias Alias="HasAddIn">i=17604</Alias>
-        <Alias Alias="AASKeyTypeDataType">ns=1;i=3002</Alias>
+        <Alias Alias="AASKeyTypesDataType">ns=1;i=3002</Alias>
         <Alias Alias="AASAssetKindDataType">ns=1;i=3003</Alias>
         <Alias Alias="AASValueTypeDataType">ns=1;i=3004</Alias>
         <Alias Alias="AASPathDataType">ns=1;i=3005</Alias>
@@ -41,7 +41,7 @@
         <Alias Alias="AASKeyDataType">ns=1;i=3011</Alias>
         <Alias Alias="AASKeyElementsDataType">ns=1;i=3012</Alias>
         <Alias Alias="AASQualifierDataType">ns=1;i=3013</Alias>
-        <Alias Alias="AASModelingKindDataType">ns=1;i=3015</Alias>
+        <Alias Alias="AASModellingKindDataType">ns=1;i=3015</Alias>
         <Alias Alias="AASMimeDataType">ns=1;i=3016</Alias>
     </Aliases>
     <Extensions>
@@ -924,28 +924,85 @@ Note: In an object-oriented view, an instance denotes an object of a class (of a
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UADataType NodeId="ns=1;i=3002" BrowseName="1:AASKeyTypeDataType">
-        <DisplayName>AASKeyTypeDataType</DisplayName>
+    <UADataType NodeId="ns=1;i=3002" BrowseName="1:AASKeyTypesDataType">
+        <DisplayName>AASKeyTypesDataType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/7.5</Documentation>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6108</Reference>
         </References>
-        <Definition Name="1:AASKeyTypeDataType">
-            <Field Name="IdShort" Value="0">
-                <Description>...</Description>
+        <Definition Name="1:AASKeyTypesDataType">
+            <Field Name="AnnotatedRelationshipElement" Value="0">
+                <Description>“AnnotatedRelationshipElement”</Description>
             </Field>
-            <Field Name="FragmentId" Value="1">
-                <Description>...</Description>
+            <Field Name="AssetAdministrationShell" Value="1">
+                <Description>"AssetAdministrationShell"</Description>
             </Field>
-            <Field Name="Custom" Value="2">
-                <Description>...</Description>
+            <Field Name="BasicEventElement" Value="2">
+                <Description>"BasicEventElement"</Description>
             </Field>
-            <Field Name="IRDI" Value="3">
-                <Description>...</Description>
+            <Field Name="Blob" Value="3">
+                <Description>"Blob"</Description>
             </Field>
-            <Field Name="IRI" Value="4">
-                <Description>...</Description>
+            <Field Name="Capability" Value="4">
+                <Description>"Capability"</Description>
+            </Field>
+            <Field Name="ConceptDescription" Value="5">
+                <Description>"ConceptDescription"</Description>
+            </Field>
+            <Field Name="DataElement" Value="6">
+                <Description>"DataElement"</Description>
+            </Field>
+            <Field Name="Entity" Value="7">
+                <Description>"Entity"</Description>
+            </Field>
+            <Field Name="EventElement" Value="8">
+                <Description>"EventElement"</Description>
+            </Field>
+            <Field Name="File" Value="9">
+                <Description>"File"</Description>
+            </Field>
+            <Field Name="FragmentReference" Value="10">
+                <Description>"FragmentReference"</Description>
+            </Field>
+            <Field Name="GlobalReference" Value="11">
+                <Description>"GlobalReference"</Description>
+            </Field>
+            <Field Name="Identifiable" Value="12">
+                <Description>"Identifiable"</Description>
+            </Field>
+            <Field Name="MultiLanguageProperty" Value="13">
+                <Description>"MultiLanguageProperty"</Description>
+            </Field>
+            <Field Name="Operation" Value="14">
+                <Description>"Operation"</Description>
+            </Field>
+            <Field Name="Property" Value="15">
+                <Description>"Property"</Description>
+            </Field>
+            <Field Name="Range" Value="16">
+                <Description>"Range"</Description>
+            </Field>
+            <Field Name="Referable" Value="17">
+                <Description>"Referable"</Description>
+            </Field>
+            <Field Name="ReferenceElement" Value="18">
+                <Description>"ReferenceElement"</Description>
+            </Field>
+            <Field Name="RelationshipElement" Value="19">
+                <Description>"RelationshipElement"</Description>
+            </Field>
+            <Field Name="Submodel" Value="20">
+                <Description>"Submodel"</Description>
+            </Field>
+            <Field Name="SubmodelElement" Value="21">
+                <Description>"SubmodelElement"</Description>
+            </Field>
+            <Field Name="SubmodelElementCollection" Value="22">
+                <Description>"SubmodelElementCollection"</Description>
+            </Field>
+            <Field Name="SubmodelElementList" Value="23">
+                <Description>"SubmodelElementList"</Description>
             </Field>
         </Definition>
     </UADataType>
@@ -1139,14 +1196,14 @@ Note: In an object-oriented view, an instance denotes an object of a class (of a
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UADataType NodeId="ns=1;i=3015" BrowseName="1:AASModelingKindDataType">
-        <DisplayName>AASModelingKindDataType</DisplayName>
+    <UADataType NodeId="ns=1;i=3015" BrowseName="1:AASModellingKindDataType">
+        <DisplayName>AASModellingKindDataType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/7.2</Documentation>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6125</Reference>
         </References>
-        <Definition Name="1:AASModelingKindDataType">
+        <Definition Name="1:AASModellingKindDataType">
             <Field Name="Template" Value="0">
                 <Description>Hardware or software element which specifies the common attributes shared by all instances of the type
 [SOURCE: IEC TR 62390:2005-01, 3.1.25]
@@ -1341,7 +1398,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <Definition Name="1:AASKeyDataType">
             <Field DataType="AASKeyElementsDataType" Name="Type"/>
             <Field DataType="String" Name="Value"/>
-            <Field DataType="AASKeyTypeDataType" Name="IdType"/>
+            <Field DataType="AASKeyTypesDataType" Name="IdType"/>
         </Definition>
     </UADataType>
     <UAVariable DataType="String" ParentNodeId="ns=1;i=6094" NodeId="ns=1;i=6098" BrowseName="1:AASKeyDataType">
@@ -1793,7 +1850,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <uax:String></uax:String>
         </Value>
     </UAVariable>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=6446" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=6446" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -2382,7 +2439,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5010" NodeId="ns=1;i=6014" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5010" NodeId="ns=1;i=6014" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -2409,7 +2466,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=6009" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=6009" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -2456,7 +2513,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=1009" NodeId="ns=1;i=6013" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=1009" NodeId="ns=1;i=6013" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -3288,7 +3345,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5012" NodeId="ns=1;i=6016" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5012" NodeId="ns=1;i=6016" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -3354,7 +3411,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5042" NodeId="ns=1;i=6104" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5042" NodeId="ns=1;i=6104" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -3957,7 +4014,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <uax:Int32>0</uax:Int32>
         </Value>
     </UAVariable>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=6142" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=6142" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -4125,7 +4182,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModelingKindDataType" ParentNodeId="ns=1;i=5615" NodeId="ns=1;i=6463" BrowseName="1:ModelingKind" AccessLevel="3">
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5615" NodeId="ns=1;i=6463" BrowseName="1:ModelingKind" AccessLevel="3">
         <DisplayName>ModelingKind</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>

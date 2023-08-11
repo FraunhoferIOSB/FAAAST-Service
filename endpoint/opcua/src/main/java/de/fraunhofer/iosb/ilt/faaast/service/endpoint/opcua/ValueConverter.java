@@ -48,9 +48,7 @@ import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASKeyTypesDataType;
-import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASValueTypeDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -153,7 +151,7 @@ public class ValueConverter {
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.CONCEPT_DESCRIPTION, AASKeyTypesDataType.ConceptDescription));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.DATA_ELEMENT, AASKeyTypesDataType.DataElement));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.ENTITY, AASKeyTypesDataType.Entity));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.EVENT_ELEMENT, AASKeyTypesDataType.Event));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.EVENT_ELEMENT, AASKeyTypesDataType.EventElement));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.FILE, AASKeyTypesDataType.File));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.FRAGMENT_REFERENCE, AASKeyTypesDataType.FragmentReference));
         KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.GLOBAL_REFERENCE, AASKeyTypesDataType.GlobalReference));
@@ -434,44 +432,44 @@ public class ValueConverter {
     }
 
 
-    /**
-     * Gets the corresponding AASKeyTypeDataType from the given KeyType.
-     *
-     * @param value The desired KeyType
-     * @return The corresponding AASKeyTypeDataType
-     */
-    public static AASKeyTypeDataType getAasKeyType(KeyType value) {
-        AASKeyTypeDataType retval;
-        var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("getAasKeyType: unknown value {}", value);
-            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-        }
-        else {
-            retval = rv.get().opcuaObject;
-        }
-        return retval;
-    }
+//    /**
+//     * Gets the corresponding AASKeyTypesDataType from the given KeyType.
+//     *
+//     * @param value The desired KeyType
+//     * @return The corresponding AASKeyTypesDataType
+//     */
+//    public static AASKeyTypesDataType getAasKeyType(KeyType value) {
+//        AASKeyTypesDataType retval;
+//        var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
+//        if (rv.isEmpty()) {
+//            LOGGER.warn("getAasKeyType: unknown value {}", value);
+//            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+//        }
+//        else {
+//            retval = rv.get().opcuaObject;
+//        }
+//        return retval;
+//    }
 
 
-    /**
-     * Gets the corresponding KeyType from the given AASKeyTypeDataType.
-     *
-     * @param value The desired AASKeyTypeDataType
-     * @return The corresponding KeyType
-     */
-    public static KeyType getKeyType(AASKeyTypeDataType value) {
-        KeyType retval;
-        var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("getKeyType: unknown value {}", value);
-            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-        }
-        else {
-            retval = rv.get().aasObject;
-        }
-        return retval;
-    }
+//    /**
+//     * Gets the corresponding KeyType from the given AASKeyTypesDataType.
+//     *
+//     * @param value The desired AASKeyTypesDataType
+//     * @return The corresponding KeyType
+//     */
+//    public static KeyType getKeyType(AASKeyTypesDataType value) {
+//        KeyType retval;
+//        var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
+//        if (rv.isEmpty()) {
+//            LOGGER.warn("getKeyType: unknown value {}", value);
+//            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+//        }
+//        else {
+//            retval = rv.get().aasObject;
+//        }
+//        return retval;
+//    }
 
 
     /**
@@ -487,7 +485,7 @@ public class ValueConverter {
 
         List<Key> keys = new ArrayList<>();
         for (AASKeyDataType key: value) {
-            keys.add(new DefaultKey.Builder().type(getKeyTypes(key.getType())).idType(getKeyType(key.getIdType())).value(key.getValue()).build());
+            keys.add(new DefaultKey.Builder().type(getKeyTypes(key.getType())).value(key.getValue()).build());
         }
         retval = new DefaultReference.Builder().keys(keys).build();
 
