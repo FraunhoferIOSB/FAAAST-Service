@@ -1739,6 +1739,19 @@ public class AASFull {
     }
 
 
+    public static Submodel createSubmodel8() {
+        return new DefaultSubmodel.Builder()
+                .idShort("TestSubmodel8")
+                .description(new LangString("An example submodel for the test application", "en-us"))
+                .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("https://acplt.org/Test_Submodel")
+                        .build())
+                .build();
+    }
+
+
     public static ConceptDescription createConceptDescription1() {
         return new DefaultConceptDescription.Builder()
                 .idShort("TestConceptDescription")
@@ -1875,6 +1888,7 @@ public class AASFull {
                 .submodels(createSubmodel5())
                 .submodels(createSubmodel6())
                 .submodels(createSubmodel7())
+                .submodels(createSubmodel8())
                 .conceptDescriptions(createConceptDescription1())
                 .conceptDescriptions(createConceptDescription2())
                 .conceptDescriptions(createConceptDescription3())

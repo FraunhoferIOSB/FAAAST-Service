@@ -83,6 +83,10 @@ public class FaaastRegistryHandler {
             try {
                 handleCreateEvent(m);
             }
+            catch (InterruptedException e) {
+                LOGGER.warn("Registry handler interrupted!");
+                Thread.currentThread().interrupt();
+            }
             catch (Exception e) {
                 LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
             }
@@ -91,6 +95,10 @@ public class FaaastRegistryHandler {
             try {
                 handleChangeEvent(m);
             }
+            catch (InterruptedException e) {
+                LOGGER.warn("Registry handler interrupted!");
+                Thread.currentThread().interrupt();
+            }
             catch (Exception e) {
                 LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
             }
@@ -98,6 +106,10 @@ public class FaaastRegistryHandler {
         messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, m -> {
             try {
                 handleDeleteEvent(m);
+            }
+            catch (InterruptedException e) {
+                LOGGER.warn("Registry handler interrupted!");
+                Thread.currentThread().interrupt();
             }
             catch (Exception e) {
                 LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
@@ -150,6 +162,7 @@ public class FaaastRegistryHandler {
     protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
+            // TODO Check for race condition because aas may not be in the environment yet
             createIdentifiableInRegistry(getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
         }
         else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
@@ -170,13 +183,13 @@ public class FaaastRegistryHandler {
     protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException, InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
-            updateAasInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
+            updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
         }
         else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
             AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
                     .from(getSubmodelFromIdentifier(identifier))
                     .build();
-            updateAasInRegistry(identifier, descriptor, coreConfig.getSubmodelRegistryBasePath());
+            updateIdentifiableInRegistry(identifier, descriptor, coreConfig.getSubmodelRegistryBasePath());
         }
     }
 
@@ -240,7 +253,7 @@ public class FaaastRegistryHandler {
     }
 
 
-    private void updateAasInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
+    private void updateIdentifiableInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
         String body;
         URL url;
 

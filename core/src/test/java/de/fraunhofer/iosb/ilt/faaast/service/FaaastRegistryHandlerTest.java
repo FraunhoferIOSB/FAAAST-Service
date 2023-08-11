@@ -88,6 +88,7 @@ public class FaaastRegistryHandlerTest {
         setupMockedMessagebus();
         setupMockedPersistence();
 
+        // Throws registry exception because http request for creation is not mocked
         faaastRegistryHandler = new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE,
                 CoreConfig.builder()
                         .registryPort(wireMockRule.port())
@@ -210,14 +211,19 @@ public class FaaastRegistryHandlerTest {
     @Test
     public void testAasUpdate() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        String oldIdShort = aas.getIdShort();
+        aas.setIdShort("Changed Id Short");
 
         stubFor(put(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
-                .element(environment.getAssetAdministrationShells().get(0)).build());
+                .element(aas).build());
 
-        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas)))
+                .withRequestBody(equalToJson(getDescriptorBody(aas))));
+
+        aas.setIdShort(oldIdShort);
     }
 
 
@@ -258,9 +264,7 @@ public class FaaastRegistryHandlerTest {
 
 
     private Submodel getSubmodelFromIdentifier(String identifier) {
-        System.out.println("Search: " + identifier);
         for (Submodel submodel: environment.getSubmodels()) {
-            System.out.println(submodel.getIdentification().getIdentifier());
             if (submodel.getIdentification().getIdentifier().equals(identifier))
                 return submodel;
         }
