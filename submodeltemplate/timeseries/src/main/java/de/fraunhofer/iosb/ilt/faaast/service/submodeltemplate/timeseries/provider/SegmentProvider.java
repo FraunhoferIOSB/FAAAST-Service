@@ -19,8 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.M
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Segment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -44,7 +46,7 @@ public interface SegmentProvider<T extends Segment, C extends SegmentProviderCon
 
 
     /**
-     * Reads records of a segment from underlying datasource filtered by time.If start or end is null, this means there
+     * Reads records of a segment from underlying datasource filtered by time. If start or end is null, this means there
      * is no restriction on start/end, e.g.if only start is defined, all records with a time >= start should be
      * returned.
      *
@@ -56,8 +58,26 @@ public interface SegmentProvider<T extends Segment, C extends SegmentProviderCon
      *             fetching the data fails
      */
     public default List<Record> getRecords(Metadata metadata, T segment, Timespan timespan) throws SegmentProviderException {
-        return getRecords(metadata, segment).stream()
-                .filter(x -> timespan.includes(x.getTime().get(x.getTime().keySet().stream().findFirst().get())))
-                .collect(Collectors.toList());
+        //TODO ensure getRecord sorted by time
+        List<Record> records = getRecords(metadata, segment);
+        List<Record> filteredRecord = new ArrayList<>();
+
+        ZonedDateTime previousEndTime = segment.getStart();
+        for (Record currentRecord: records) {
+            TimeType recordTime = currentRecord.getSingleTime();
+            ZonedDateTime startTime = recordTime.isIncrementalToPrevious() ? previousEndTime : segment.getStart();
+            ZonedDateTime currentEnd = recordTime.getEndAsZonedDateTime(startTime);
+            previousEndTime = currentEnd;
+
+            if (timespan.overlaps(new Timespan(recordTime.getStartAsZonedDateTime(startTime), currentEnd))) {
+                filteredRecord.add(currentRecord);
+            }
+        }
+        return filteredRecord;
+
+        //        return getRecords(metadata, segment).stream()
+        //                //                .filter(x -> (timespan.includes(x.getSingleTime().getStartAsZonedDateTime(segment.getStart())))
+        //                //                        || (timespan.includes(x.getSingleTime().getEndAsZonedDateTime(segment.getStart()))))
+        //                .collect(Collectors.toList());
     }
 }

@@ -36,6 +36,7 @@ import io.adminshell.aas.v3.model.impl.DefaultBlob;
 import io.adminshell.aas.v3.model.impl.DefaultFile;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -98,8 +99,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime(),
-                        TimeSeriesTestData.RECORD_09.getSingleTime())));
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                        TimeSeriesTestData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
     }
 
 
@@ -108,8 +109,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime(),
-                        TimeSeriesTestData.RECORD_09.getSingleTime())));
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                        TimeSeriesTestData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
     }
 
 
@@ -118,8 +119,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 List.of(),
                 provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1))));
     }
 
 
@@ -128,8 +129,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 List.of(),
                 provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusHours(1),
-                        TimeSeriesTestData.RECORD_00.getSingleTime().minusMinutes(1))));
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
+                        TimeSeriesTestData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1))));
     }
 
 
@@ -138,8 +139,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
                 provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_03.getSingleTime(),
-                        TimeSeriesTestData.RECORD_04.getSingleTime())));
+                        TimeSeriesTestData.RECORD_03.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                        TimeSeriesTestData.RECORD_04.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
     }
 
 
@@ -148,8 +149,8 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
                 provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
-                        TimeSeriesTestData.RECORD_03.getSingleTime(),
-                        TimeSeriesTestData.RECORD_04.getSingleTime())));
+                        TimeSeriesTestData.RECORD_03.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                        TimeSeriesTestData.RECORD_04.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
     }
 
 

@@ -27,6 +27,7 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -80,8 +81,8 @@ public class InternalSegmentTest extends BaseModelTest {
         actual.setCalculatePropertiesIfNotPresent(true);
         assertAASNotEquals(expected, actual);
         Assert.assertNotEquals(expected, actual);
-        Assert.assertEquals(actual.getStart(), TimeSeriesData.RECORD_00.getTime().get("Time00"));
-        Assert.assertEquals(actual.getEnd(), TimeSeriesData.RECORD_09.getTime().get("Time00"));
+        Assert.assertEquals(actual.getStart(), TimeSeriesData.RECORD_00.getTimes().get("Time00").getStartAsZonedDateTime(Optional.empty()));
+        Assert.assertEquals(actual.getEnd(), TimeSeriesData.RECORD_09.getTimes().get("Time00").getEndAsZonedDateTime(Optional.empty()));
         Assert.assertEquals(actual.getRecordCount().intValue(), TimeSeriesData.RECORDS.size());
     }
 

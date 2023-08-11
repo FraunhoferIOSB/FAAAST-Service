@@ -49,6 +49,11 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threeten-extra</artifactId>
+            <version>${threeten-extra.version}</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

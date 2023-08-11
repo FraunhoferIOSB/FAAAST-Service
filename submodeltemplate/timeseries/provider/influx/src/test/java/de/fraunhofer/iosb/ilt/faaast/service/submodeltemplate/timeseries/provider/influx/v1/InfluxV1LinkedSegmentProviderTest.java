@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest.InfluxInitializer;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.InfluxServerConfig;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.influxdb.InfluxDB;
@@ -49,7 +50,7 @@ public class InfluxV1LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 .database(serverConfig.getDatabase())
                 .points(records.stream().map(record -> Point
                         .measurement(measurement)
-                        .time(record.getSingleTime().toEpochSecond(), TimeUnit.SECONDS)
+                        .time(record.getSingleTime().getStartAsZonedDateTime(Optional.empty()).toEpochSecond(), TimeUnit.SECONDS)
                         .fields(record.getVariables().entrySet().stream()
                                 .collect(Collectors.toMap(
                                         x -> x.getKey(),

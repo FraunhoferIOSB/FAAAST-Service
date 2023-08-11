@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFac
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
@@ -33,7 +34,6 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,7 +55,7 @@ public class TimeSeriesTest extends BaseModelTest {
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
                         .record(Record.builder()
-                                .time("Time00", ZonedDateTime.parse("2022-01-01T00:00:00Z"))
+                                .times("Time00", new UtcTime("2022-01-01T00:00:00Z"))
                                 .variable(TimeSeriesData.FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
                                 .variable(TimeSeriesData.FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
                                 .idShort("Record01")

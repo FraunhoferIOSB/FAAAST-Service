@@ -34,7 +34,9 @@ public class Constants {
     public static final String METADATA_RECORD_METADATA_ID_SHORT = "RecordMetadata";
     public static final String SEGMENT_RECORD_COUNT_ID_SHORT = "RecordCount";
     public static final String SEGMENT_START_TIME_ID_SHORT = "StartTime";
+    public static final String SEGMENT_START_TIME_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/StartTime/1/1";
     public static final String SEGMENT_END_TIME_ID_SHORT = "EndTime";
+    public static final String SEGMENT_END_TIME_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Segment/EndTime/1/1";
     public static final String SEGMENT_SAMPLING_INTERVAL_ID_SHORT = "SamplingInterval";
     public static final String SEGMENT_SAMPLING_RATE_ID_SHORT = "SamplingRate";
     public static final String SEGMENT_DURATION_ID_SHORT = "Duration";
@@ -71,6 +73,7 @@ public class Constants {
     public static final String TIME_TAI = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";
     public static final String TIME_RELATIVE_POINT_IN_TIME = "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1";
     public static final String TIME_RELATIVE_DURATION = "https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1";
+    public static final String TIME_UNIX = "https://admin-shell.io/idta/TimeSeries/UnixTime/1/1"; //TODO: find semantic id for unix timestamp
     // Time Unit
     public static final String TIMEUNIT_MILLISECOND = "millisecond";
     public static final String TIMEUNIT_SECOND = "second";

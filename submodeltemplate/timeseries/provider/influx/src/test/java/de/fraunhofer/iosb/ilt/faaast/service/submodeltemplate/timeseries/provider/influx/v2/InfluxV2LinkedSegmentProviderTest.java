@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.InfluxServerConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -46,7 +47,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 serverConfig.getToken())) {
             client.getWriteApiBlocking().writePoints(records.stream().map(record -> Point
                     .measurement(measurement)
-                    .time(record.getSingleTime().toEpochSecond(), WritePrecision.S)
+                    .time(record.getSingleTime().getStartAsZonedDateTime(Optional.empty()).toEpochSecond(), WritePrecision.S)
                     .addFields(record.getVariables().entrySet().stream()
                             .collect(Collectors.toMap(
                                     x -> x.getKey(),

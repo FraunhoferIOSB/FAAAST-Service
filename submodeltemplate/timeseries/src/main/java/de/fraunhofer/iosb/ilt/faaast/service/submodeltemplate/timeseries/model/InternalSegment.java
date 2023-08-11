@@ -167,12 +167,14 @@ public class InternalSegment extends Segment {
         }
 
         // TODO: Hardcoded to use one (random) timestamp. See where to define which one to use
-        if (this.getStart() == null) {
-            this.setStart(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).min(new ZonedDateTimeComparator()).orElse(null));
-        }
+        if (records.stream().anyMatch(e -> e.getSingleTime().isParseable())) {
+            if (this.getStart() == null) {
+                this.setStart(records.stream().map(e -> e.getSingleTime().getStartAsZonedDateTime(Optional.empty())).min(new ZonedDateTimeComparator()).orElse(null));
+            }
 
-        if (this.getEnd() == null) {
-            this.setEnd(records.stream().map(e -> e.getTime().get(e.getTime().keySet().stream().findFirst().get())).max(new ZonedDateTimeComparator()).orElse(null));
+            if (this.getEnd() == null) {
+                this.setEnd(records.stream().map(e -> e.getSingleTime().getEndAsZonedDateTime(Optional.empty())).max(new ZonedDateTimeComparator()).orElse(null));
+            }
         }
     }
 

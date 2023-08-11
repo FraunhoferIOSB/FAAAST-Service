@@ -27,6 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.E
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import io.adminshell.aas.v3.model.Blob;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +64,10 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     public List<Record> getRecords(Metadata metadata, ExternalSegment segment) throws SegmentProviderException {
         List<Record> resultRecords = new ArrayList<>();
         if (segment.getData() instanceof File) {
-            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), null);
+            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), null, segment.getStart());
         }
         else if (segment.getData() instanceof Blob) {
-            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), null);
+            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), null, segment.getStart());
         }
         return resultRecords;
     }
@@ -78,10 +81,10 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
         List<Record> resultRecords = new ArrayList<>();
         if (segment.getData() instanceof File) {
-            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), timespan);
+            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), timespan, segment.getStart());
         }
         else if (segment.getData() instanceof Blob) {
-            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), timespan);
+            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), timespan, segment.getStart());
         }
         return resultRecords;
     }
@@ -105,7 +108,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     }
 
 
-    private List<Record> getRecordFromFile(Metadata metadata, File data, Timespan timespan) throws SegmentProviderException {
+    private List<Record> getRecordFromFile(Metadata metadata, File data, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
         if (!data.getMimeType().equals(ACCEPTED_MIMETYPE)) {
             String message = String.format("Error reading from File (file: %s, expected type: %s, actual type: %s)",
                     data.getValue(),
@@ -124,7 +127,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             csvFile = new java.io.File(data.getValue());
         }
         try (FileReader reader = new FileReader(csvFile)) {
-            recordRows = readCsvToRecords(metadata, reader, timespan);
+            recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
         }
         catch (FileNotFoundException e) {
             String message = String.format("Error reading from File (file: %s, full path: %s): FileNotFoundException: %s",
@@ -147,7 +150,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     }
 
 
-    private List<Record> getRecordFromBlob(Metadata metadata, Blob data, Timespan timespan) throws SegmentProviderException {
+    private List<Record> getRecordFromBlob(Metadata metadata, Blob data, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
         if (!data.getMimeType().equals(ACCEPTED_MIMETYPE)) {
             String message = String.format("Error reading from Blob (Blob ShortID: %s, expected type: %s, actual type: %s)",
                     data.getIdShort(),
@@ -159,18 +162,37 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
         String blobData = new String(Base64.getDecoder().decode(data.getValue())); //TODO check correctness
         StringReader reader = new StringReader(blobData);
-        List<Record> recordRows = readCsvToRecords(metadata, reader, timespan);
+        List<Record> recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
 
         return recordRows;
     }
 
 
-    private List<Record> readCsvToRecords(Metadata metadata, Reader inputReader, Timespan timespan) throws SegmentProviderException {
+    private List<Record> readCsvToRecords(Metadata metadata, Reader inputReader, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
         ArrayList<Record> recordRows = new ArrayList<>();
         try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(inputReader)) {
+            TimeType timetype = null;
+            String timecol = "";
+
+            for (String currentColumn: config.getTimeColumns()) {
+                if (metadata.getRecordMetadataTime().get(currentColumn) != null) {
+                    timetype = metadata.getRecordMetadataTime().get(currentColumn);
+                    timecol = currentColumn;
+                    break;
+                }
+            }
+
+            if (timetype == null) {
+                LOGGER.error(String.format(
+                        "NO TIMESTAMP FOUND IN CSV: no time columns defined by the config matched in metadata. Time-Columns in metadata: %s /n Timecolumns in config: %s",
+                        metadata.getRecordMetadataTime().keySet(), config.getTimeColumns()));
+                return recordRows;
+            }
+
             Map<String, String> values;
             while ((values = reader.readMap()) != null) {
-                ZonedDateTime timestamp = ZonedDateTime.parse(values.get(config.getTimeColumns().get(0))); //TODO: determine which timestamp to use
+                TimeType currentTimetype = TimeFactory.getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecol), Optional.of(timetype.getDataValueType()));
+                ZonedDateTime timestamp = currentTimetype.getStartAsZonedDateTime(startTime);
 
                 if (timespan != null) {
                     if (timespan.getEnd().isPresent() && timespan.getEnd().get().isBefore(timestamp)) {
@@ -207,9 +229,13 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
         for (Entry<String, String> columnEntry: row.entrySet()) {
             String columnName = columnEntry.getKey().trim();
             if (config.getTimeColumns().contains(columnName)) {
-                newRecord.getTime().put(columnName, ZonedDateTime.parse(columnEntry.getValue()));
+                TimeType typeInfo = metadata.getRecordMetadataTime().get(columnName);
+                if (typeInfo != null) {
+                    newRecord.getTimes().put(columnName,
+                            TimeFactory.getTimeTypeFrom(typeInfo.getTimeSemanticID(), columnEntry.getValue(), Optional.of(typeInfo.getDataValueType())));
+                }
             }
-            else if (metadata.getRecordMetadataVariables().containsKey(columnName)) {
+            if (metadata.getRecordMetadataVariables().containsKey(columnName)) {
                 try {
                     newRecord.getVariables().put(columnName,
                             parseValue(columnEntry.getValue(), metadata.getRecordMetadataVariables().get(columnName).getDataType()));

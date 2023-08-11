@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
@@ -35,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,12 +112,13 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                     Object fieldValue = values[index];
                     if (fieldValue != null) {
                         if (TIME_FIELD.equals(fieldName)) {
-                            result.getTime().put(fieldName, ZonedDateTime.ofInstant(
+                            UtcTime utcTime = new UtcTime(ZonedDateTime.ofInstant(
                                     Instant.ofEpochMilli(
                                             TimeUnit.MILLISECONDS.convert(
                                                     Long.parseLong(fieldValue.toString()),
                                                     TimeUnit.NANOSECONDS)),
-                                    ZoneOffset.UTC));
+                                    ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                            result.getTimes().put(fieldName, utcTime);
                         }
                         else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                             try {
@@ -175,7 +178,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         catch (ValueFormatException ex) {
                             LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                         }
-                        newRecord.getTime().put(TIME_FIELD, record.getTime().atZone(ZoneOffset.UTC));
+                        newRecord.getTimes().put(TIME_FIELD, new UtcTime(record.getTime().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
                         result[j] = newRecord;
                     }
                 }

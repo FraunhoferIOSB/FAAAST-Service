@@ -22,10 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,7 +101,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
             String fieldName = fields.get(i);
             Object fieldValue = values.get(i);
             if (TIME_FIELD.equals(fieldName)) {
-                result.getTime().put(fieldName, ZonedDateTime.parse(fieldValue.toString()));
+                result.getTimes().put(fieldName, new UtcTime(fieldValue.toString()));//ZonedDateTime.parse(fieldValue.toString()));
             }
             else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                 try {

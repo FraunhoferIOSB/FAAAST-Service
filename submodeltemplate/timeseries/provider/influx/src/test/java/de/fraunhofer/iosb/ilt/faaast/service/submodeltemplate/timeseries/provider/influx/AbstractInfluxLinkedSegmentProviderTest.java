@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -120,20 +121,20 @@ public abstract class AbstractInfluxLinkedSegmentProviderTest {
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getSingleTime(),
-                            TimeSeriesData.RECORD_09.getSingleTime())));
+                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                            TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
             // fetch nothing
             assertEqualsIgnoringIdShort(
                     List.of(),
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getSingleTime().minusHours(1),
-                            TimeSeriesData.RECORD_00.getSingleTime().minusMinutes(1))));
+                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
+                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1))));
             // fetch partially
             assertEqualsIgnoringIdShort(
                     List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_03.getSingleTime(),
-                            TimeSeriesData.RECORD_04.getSingleTime())));
+                            TimeSeriesData.RECORD_03.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
+                            TimeSeriesData.RECORD_04.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
         }
         finally {
             server.stop();

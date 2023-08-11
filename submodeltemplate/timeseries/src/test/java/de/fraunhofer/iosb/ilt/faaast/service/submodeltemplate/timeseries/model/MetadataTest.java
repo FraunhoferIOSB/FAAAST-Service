@@ -20,6 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFac
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UnsupportedTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.LangString;
@@ -27,8 +29,10 @@ import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,7 +73,12 @@ public class MetadataTest extends BaseModelTest {
                     .idShort(TimeSeriesData.FIELD_2)
                     .valueType(Datatype.DOUBLE.getName())
                     .build())
-
+            .value(new DefaultProperty.Builder()
+                    .idShort("Time01")
+                    .valueType(Datatype.DATE_TIME.getName())
+                    .value("2021-01-01T00:00:00Z")
+                    .semanticId(ReferenceHelper.globalReference("UNKNOWN"))
+                    .build())
             .build();
 
     private static final SubmodelElementCollection METADATA_RECORD_FIELD1_FIELD2 = new DefaultSubmodelElementCollection.Builder()
@@ -96,7 +105,7 @@ public class MetadataTest extends BaseModelTest {
         Metadata expected = Metadata.builder()
                 .recordMetadataVariables(TimeSeriesData.FIELD_1, Datatype.INT)
                 .recordMetadataVariables(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
-                .recordMetadataTime(Constants.RECORD_TIME_ID_SHORT, TIME)
+                .recordMetadataTime(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))
                 .build();
         Metadata actual = Metadata.of(expected);
         assertAASEquals(expected, actual);
@@ -169,7 +178,7 @@ public class MetadataTest extends BaseModelTest {
         Metadata metadata = new Metadata();
         assertAASElements(metadata, METADATA_RECORD_EMPTY);
 
-        metadata.getRecordMetadataTime().put(Constants.RECORD_TIME_ID_SHORT, TIME);
+        metadata.getRecordMetadataTime().put(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
 
         metadata.getRecordMetadata().setVariables(new HashMap<String, TypedValue>(Map.of(TimeSeriesData.FIELD_1, TypedValueFactory.createSafe(Datatype.INT, null))));
         assertAASElements(metadata, METADATA_RECORD_FIELD1);
@@ -178,6 +187,7 @@ public class MetadataTest extends BaseModelTest {
         assertAASElements(metadata, METADATA_RECORD_FIELD1_FIELD2);
 
         metadata.getRecordMetadata().getVariables().remove(TimeSeriesData.FIELD_1);
+        metadata.getRecordMetadataTime().put("Time01", new UnsupportedTime("2021-01-01T00:00:00Z", "UNKNOWN", Optional.of(Datatype.DATE_TIME.getName())));
         assertAASElements(metadata, METADATA_RECORD_FIELD2);
 
         metadata.getRecordMetadata().getVariables().clear();

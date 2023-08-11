@@ -18,7 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import java.time.ZonedDateTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UnixTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import java.util.List;
 
 
@@ -34,63 +35,76 @@ public class TimeSeriesData {
             .build();
 
     public static final Record RECORD_00 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T00:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T00:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
             .build();
 
     public static final Record RECORD_01 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T01:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T01:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "1"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
             .build();
 
     public static final Record RECORD_02 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T02:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T02:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "2"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.2"))
             .build();
 
     public static final Record RECORD_03 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T03:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T03:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "3"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.3"))
             .build();
 
     public static final Record RECORD_04 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T04:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T04:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "4"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.4"))
             .build();
 
     public static final Record RECORD_05 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-01T05:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-01T05:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "5"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.5"))
             .build();
 
     public static final Record RECORD_06 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-02T06:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-02T06:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "6"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.6"))
             .build();
 
     public static final Record RECORD_07 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-02T07:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-02T07:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "7"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.7"))
             .build();
 
     public static final Record RECORD_08 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-03T08:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-03T08:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "8"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.8"))
             .build();
 
     public static final Record RECORD_09 = Record.builder()
-            .time("Time00", ZonedDateTime.parse("2022-01-03T09:00:00Z"))
+            .times("Time00", new UtcTime("2022-01-03T09:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "9"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.9"))
+            .build();
+
+    public static final Record RECORD_10 = Record.builder()
+            .times("Time00", new UnixTime("1641045600"))//new UnsupportedTime("2022-01-01T00:00:00Z", "UNSUPPORTED_ID", Optional.of(Datatype.DATE_TIME.getName())))
+            .times("Time01", new UnixTime("1641045600"))//new UnsupportedTime("2022-01-01T00:00:00Z", "UNSUPPORTED_ID", Optional.of(Datatype.DATE_TIME.getName())))
+            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
+            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
+            .build();
+
+    public static final Record RECORD_11 = Record.builder()
+            .times("Time01", new UtcTime("2022-01-03T09:00:00Z"))
+            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "1"))
+            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "1.0"))
             .build();
 
     public static final List<Record> RECORDS = List.of(
@@ -103,6 +117,8 @@ public class TimeSeriesData {
             RECORD_06,
             RECORD_07,
             RECORD_08,
-            RECORD_09);
+            RECORD_09,
+            RECORD_10,
+            RECORD_11);
 
 }
