@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Optional;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
-import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypesDataType;
@@ -69,6 +68,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,23 +274,23 @@ public class ValueConverter {
     }
 
 
-    /**
-     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
-     *
-     * @param value The desired IdentifierType
-     * @return The corresponding AASIdentifierTypeDataType.
-     */
-    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
-        AASIdentifierTypeDataType retval;
-        if (IDENTIFIER_TYPE_MAP.containsKey(value)) {
-            retval = IDENTIFIER_TYPE_MAP.get(value);
-        }
-        else {
-            LOGGER.warn("convertIdentifierType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown IdentifierType: " + value);
-        }
-        return retval;
-    }
+//    /**
+//     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
+//     *
+//     * @param value The desired IdentifierType
+//     * @return The corresponding AASIdentifierTypeDataType.
+//     */
+//    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
+//        AASIdentifierTypeDataType retval;
+//        if (IDENTIFIER_TYPE_MAP.containsKey(value)) {
+//            retval = IDENTIFIER_TYPE_MAP.get(value);
+//        }
+//        else {
+//            LOGGER.warn("convertIdentifierType: unknown value {}", value);
+//            throw new IllegalArgumentException("unknown IdentifierType: " + value);
+//        }
+//        return retval;
+//    }
 
 
     /**
@@ -377,13 +377,13 @@ public class ValueConverter {
      * @param value The desired Lang String Set
      * @return The corresponding LocalizedText array
      */
-    public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
+    public static List<LangStringTextType> getLangStringSetFromLocalizedText(LocalizedText[] value) {
         Ensure.requireNonNull(value, "value must not be null");
 
-        List<LangString> retval = new ArrayList<>();
+        List<LangStringTextType> retval = new ArrayList<>();
 
         for (LocalizedText lt: value) {
-            retval.add(new LangString(lt.getText(), lt.getLocaleId()));
+            retval.add(new DefaultLangStringTextType.Builder().text(lt.getText()).language(lt.getLocaleId()).build());
         }
 
         return retval;
@@ -543,10 +543,10 @@ public class ValueConverter {
             case MULTI_LANGUAGE_VALUE: {
                 MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
                 if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                    aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                    aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
                 }
                 else if (variant.isEmpty()) {
-                    aasMultiProp.setValues(new ArrayList<>());
+                    aasMultiProp.setValue(new ArrayList<>());
                 }
                 break;
             }
@@ -582,7 +582,7 @@ public class ValueConverter {
             }
             case ENTITY_GLOBAL_ASSET_ID: {
                 Entity aasEntity = (Entity) submodelElement;
-                aasEntity.setGlobalAssetId(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                aasEntity.setGlobalAssetID(convertVariantValueToString(variant));
                 break;
             }
             case ENTITY_TYPE: {
@@ -761,27 +761,27 @@ public class ValueConverter {
         return retval;
     }
     
-    /**
-     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
-     *
-     * @param value The desired KeyElements value.
-     * @return The converted AASKeyElementsDataType.
-     */
-    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyTypes value) {
-        AASKeyElementsDataType retval = null;
-        var rv = KEY_ELEMENTS_LIST.stream()
-                .filter(m -> m.aasObject == value)
-                .findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
-        }
-        else {
-            retval = rv.get().opcuaObject;
-        }
-
-        return retval;
-    }
+//    /**
+//     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+//     *
+//     * @param value The desired KeyElements value.
+//     * @return The converted AASKeyElementsDataType.
+//     */
+//    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyTypes value) {
+//        AASKeyElementsDataType retval = null;
+//        var rv = KEY_ELEMENTS_LIST.stream()
+//                .filter(m -> m.aasObject == value)
+//                .findAny();
+//        if (rv.isEmpty()) {
+//            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
+//            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
+//        }
+//        else {
+//            retval = rv.get().opcuaObject;
+//        }
+//
+//        return retval;
+//    }
     
     /**
      * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
@@ -789,12 +789,12 @@ public class ValueConverter {
      * @param value the desired ModelingKind
      * @return The corresponding AASModelingKindDataType
      */
-    public static AASModelingKindDataType convertModelingKind(ModellingKind value) {
-        AASModelingKindDataType retval;
+    public static AASModellingKindDataType convertModelingKind(ModellingKind value) {
+        AASModellingKindDataType retval;
 
         if (value == null) {
             LOGGER.warn("convertModelingKind: value == null");
-            retval = AASModelingKindDataType.Instance;
+            retval = AASModellingKindDataType.Instance;
         }
         else if (MODELING_KIND_MAP.containsKey(value)) {
             retval = MODELING_KIND_MAP.get(value);

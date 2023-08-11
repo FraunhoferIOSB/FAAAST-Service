@@ -1396,9 +1396,9 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasEncoding">ns=1;i=5039</Reference>
         </References>
         <Definition Name="1:AASKeyDataType">
-            <Field DataType="AASKeyElementsDataType" Name="Type"/>
+            <Field DataType="AASKeyTypesDataType" Name="Type"/>
             <Field DataType="String" Name="Value"/>
-            <Field DataType="AASKeyTypesDataType" Name="IdType"/>
+            <!-- <Field DataType="AASKeyTypesDataType" Name="IdType"/>-->
         </Definition>
     </UADataType>
     <UAVariable DataType="String" ParentNodeId="ns=1;i=6094" NodeId="ns=1;i=6098" BrowseName="1:AASKeyDataType">

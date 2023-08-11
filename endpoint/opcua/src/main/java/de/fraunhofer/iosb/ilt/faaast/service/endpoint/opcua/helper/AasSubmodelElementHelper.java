@@ -669,7 +669,7 @@ public class AasSubmodelElementHelper {
 
         AASKeyDataType[] keys = ref.getKeys().stream().map(k -> {
             AASKeyDataType keyValue = new AASKeyDataType();
-            keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
+            keyValue.setType(ValueConverter.getAasKeyTypesDataType(k.getType()));
             keyValue.setValue(k.getValue());
             return keyValue;
         }).toArray(AASKeyDataType[]::new);
