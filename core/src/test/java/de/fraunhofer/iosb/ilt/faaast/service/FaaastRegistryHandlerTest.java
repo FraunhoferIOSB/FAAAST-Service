@@ -46,10 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -155,7 +152,7 @@ public class FaaastRegistryHandlerTest {
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
             stubFor(post(coreConfig.getAasRegistryBasePath())
-                    .withRequestBody(equalToJson(getDescriptorBody(aas)))
+                    .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                     .willReturn(ok()));
         }
 
@@ -163,7 +160,7 @@ public class FaaastRegistryHandlerTest {
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
             verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
-                    .withRequestBody(equalToJson(getDescriptorBody(aas))));
+                    .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
         }
     }
 
@@ -174,12 +171,12 @@ public class FaaastRegistryHandlerTest {
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
             stubFor(post(coreConfig.getAasRegistryBasePath())
-                    .withRequestBody(equalToJson(getDescriptorBody(aas)))
+                    .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                     .willReturn(ok()));
         }
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+            stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
                     .willReturn(ok()));
         }
 
@@ -187,7 +184,7 @@ public class FaaastRegistryHandlerTest {
         service.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+            verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))));
         }
     }
 
@@ -197,14 +194,14 @@ public class FaaastRegistryHandlerTest {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
         stubFor(post(coreConfig.getAasRegistryBasePath())
-                .withRequestBody(equalToJson(getDescriptorBody(aas)))
+                .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
 
         verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
-                .withRequestBody(equalToJson(getDescriptorBody(aas))));
+                .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
     }
 
 
@@ -214,14 +211,14 @@ public class FaaastRegistryHandlerTest {
         String oldIdShort = aas.getIdShort();
         aas.setIdShort("Changed Id Short");
 
-        stubFor(put(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+        stubFor(put(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(aas).build());
 
-        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas)))
-                .withRequestBody(equalToJson(getDescriptorBody(aas))));
+        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas)))
+                .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
 
         aas.setIdShort(oldIdShort);
     }
@@ -231,25 +228,81 @@ public class FaaastRegistryHandlerTest {
     public void testAasDeletion() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))
+        stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
 
-        verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedAasIdentifier(aas))));
+        verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))));
     }
 
 
-    private String getEncodedAasIdentifier(AssetAdministrationShell aas) {
-        return Base64.getEncoder().encodeToString(aas.getIdentification().getIdentifier().getBytes());
+    @Test
+    public void testSubmodelCreation() throws Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
+
+        stubFor(post(coreConfig.getSubmodelRegistryBasePath())
+                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel)))
+                .willReturn(ok()));
+
+        MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
+                .element(submodel).build());
+
+        verify(postRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath()))
+                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
     }
 
 
-    private String getDescriptorBody(AssetAdministrationShell aas) throws Exception {
+    @Test
+    public void testSubmodelUpdate() throws Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
+        String oldIdShort = submodel.getIdShort();
+        submodel.setIdShort("Changed Id Short");
+
+        stubFor(put(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))
+                .willReturn(ok()));
+
+        MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
+                .element(submodel).build());
+
+        verify(putRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel)))
+                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
+
+        submodel.setIdShort(oldIdShort);
+    }
+
+
+    @Test
+    public void testSubmodelDeletion() throws Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
+
+        stubFor(delete(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))
+                .willReturn(ok()));
+
+        MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
+                .element(submodel).build());
+
+        verify(deleteRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))));
+    }
+
+
+    private String getEncodedIdentifier(Identifiable identifiable) {
+        return Base64.getEncoder().encodeToString(identifiable.getIdentification().getIdentifier().getBytes());
+    }
+
+
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws Exception {
         return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
                 .from(aas)
                 .submodels(getSubmodelDescriptorsFromAas(aas))
+                .build());
+    }
+
+
+    private String getSubmodelDescriptorBody(Submodel submodel) throws Exception {
+        return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
+                .from(submodel)
                 .build());
     }
 

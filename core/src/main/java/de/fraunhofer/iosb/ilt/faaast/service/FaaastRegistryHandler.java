@@ -261,7 +261,6 @@ public class FaaastRegistryHandler {
     private void updateIdentifiableInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
         String body;
         URL url;
-
         try {
             body = mapper.writeValueAsString(descriptor);
             url = new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
