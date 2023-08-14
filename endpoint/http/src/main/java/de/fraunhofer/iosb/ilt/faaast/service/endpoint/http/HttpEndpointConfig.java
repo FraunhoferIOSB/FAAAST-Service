@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import java.util.Objects;
 
@@ -27,11 +28,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private int port;
     private boolean corsEnabled;
     private boolean httpsEnabled;
-    private String keystorePath;
-    private String keystorePassword;
+    private CertificateConfig certificate;
 
     public HttpEndpointConfig() {
         this.port = DEFAULT_PORT;
+        this.certificate = CertificateConfig.builder()
+                .build();
     }
 
 
@@ -65,23 +67,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
-    public String getKeystorePath() {
-        return keystorePath;
+    public CertificateConfig getCertificate() {
+        return certificate;
     }
 
 
-    public void setKeystorePath(String keystorePath) {
-        this.keystorePath = keystorePath;
-    }
-
-
-    public String getKeystorePassword() {
-        return keystorePassword;
-    }
-
-
-    public void setKeystorePassword(String keystorePassword) {
-        this.keystorePassword = keystorePassword;
+    public void setCertificate(CertificateConfig certificate) {
+        this.certificate = certificate;
     }
 
 
@@ -97,14 +89,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return Objects.equals(port, that.port)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(httpsEnabled, that.httpsEnabled)
-                && Objects.equals(keystorePath, that.keystorePath)
-                && Objects.equals(keystorePassword, that.keystorePassword);
+                && Objects.equals(certificate, that.certificate);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port, corsEnabled, httpsEnabled, keystorePath, keystorePassword);
+        return Objects.hash(port, corsEnabled, httpsEnabled, certificate);
     }
 
 
@@ -132,14 +123,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
 
 
-        public B keystorePath(String value) {
-            getBuildingInstance().setKeystorePath(value);
-            return getSelf();
-        }
-
-
-        public B keystorePassword(String value) {
-            getBuildingInstance().setKeystorePassword(value);
+        public B certificate(CertificateConfig value) {
+            getBuildingInstance().setCertificate(value);
             return getSelf();
         }
     }

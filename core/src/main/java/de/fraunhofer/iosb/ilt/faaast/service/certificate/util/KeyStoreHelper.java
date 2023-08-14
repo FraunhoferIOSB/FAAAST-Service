@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.certificate.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
-import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,7 +43,6 @@ import java.util.Objects;
  */
 public class KeyStoreHelper {
 
-    public static final String KEYSTORE_TYPE = "PKCS12";
     public static final String DEFAULT_ALIAS = "faaast";
 
     /**
@@ -55,34 +54,29 @@ public class KeyStoreHelper {
 
 
     /**
-     * Create a key store of type {@code KEYSTORE_TYPE} with the given certificate data.
-     *
-     * @param certificateData the certificate data to use
-     * @param password the password to use
-     * @return a key store containing the given certificate data
-     * @throws IOException if creation of the key store fails
-     * @throws GeneralSecurityException if creation of the key store fails
-     */
-    public static KeyStore createKeyStore(CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
-        return createKeyStore(KEYSTORE_TYPE, certificateData, password);
-    }
-
-
-    /**
      * Create a key store of given type with the given certificate data.
      *
      * @param keyStoreType the type of key store to create
      * @param certificateData the certificate data to use
-     * @param password the password to use
+     * @param keyAlias the alias of the key; if null, default alias will be used
+     * @param keyPassword the password for the key entry
+     * @param keyStorePassword the password for the keyStore
      * @return a key store containing the given certificate data
      * @throws IOException if creation of the key store fails
      * @throws GeneralSecurityException if creation of the key store fails
      */
-    public static KeyStore createKeyStore(String keyStoreType, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
+    public static KeyStore create(
+                                  CertificateData certificateData,
+                                  String keyStoreType,
+                                  String keyAlias,
+                                  String keyPassword,
+                                  String keyStorePassword)
+            throws IOException, GeneralSecurityException {
         KeyStore result = KeyStore.getInstance(keyStoreType);
-        result.load(null, passwordToChar(password));
-        result.setCertificateEntry(DEFAULT_ALIAS, certificateData.getCertificate());
-        result.setKeyEntry(DEFAULT_ALIAS, certificateData.getKeyPair().getPrivate(), passwordToChar(password), certificateData.getCertificateChain());
+        result.load(null, passwordToChar(keyStorePassword));
+        String alias = Objects.nonNull(keyAlias) ? keyAlias : DEFAULT_ALIAS;
+        result.setCertificateEntry(alias, certificateData.getCertificate());
+        result.setKeyEntry(alias, certificateData.getKeyPair().getPrivate(), passwordToChar(keyPassword), certificateData.getCertificateChain());
         return result;
     }
 
@@ -90,36 +84,60 @@ public class KeyStoreHelper {
     /**
      * Save the given file to the key store.
      *
+     * @param keyStoreType the type of key store
      * @param file the file to write to
      * @param certificateData the certificate data
-     * @param password the password to set
+     * @param keyAlias the alias of the key; if null, default alias will be used
+     * @param keyPassword the password for the key entry
+     * @param keyStorePassword the password for the keyStore
      * @throws IOException if writing to the file fails
      * @throws GeneralSecurityException if generating the certificate fails
      */
-    public static void save(File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
-        save(file, createKeyStore(certificateData, password), password);
+    public static void save(
+                            CertificateData certificateData,
+                            File file,
+                            String keyStoreType,
+                            String keyAlias,
+                            String keyPassword,
+                            String keyStorePassword)
+            throws IOException, GeneralSecurityException {
+        save(KeyStoreHelper.create(certificateData, keyStoreType, keyAlias, keyPassword, keyStorePassword), file, keyStorePassword);
     }
 
 
     /**
-     * Save the given key store to file.
+     * Loads certificate data from a keystore.
      *
-     * @param file the file to write to
-     * @param keyStore the key store to save
-     * @param password the password to set
-     * @throws IOException if writing to the file fails
-     * @throws GeneralSecurityException if generating the certificate fails
+     * @param keyStoreType the type of the keyStore to load, e.g. PKCS12
+     * @param file keystore file
+     * @param keyStorePassword keystore password
+     * @return loaded keyStore
+     * @throws IOException if accessing the keystore fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
      */
-    public static void save(File file, KeyStore keyStore, String password) throws IOException, GeneralSecurityException {
-        Ensure.requireNonNull(keyStore, "keyStore must be non-null");
-        try (OutputStream out = new FileOutputStream(file)) {
-            keyStore.store(out, passwordToChar(password));
+    public static KeyStore load(File file, String keyStoreType, String keyStorePassword) throws IOException, GeneralSecurityException {
+        try (InputStream inputStream = new FileInputStream(file)) {
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+            keyStore.load(inputStream, passwordToChar(keyStorePassword));
+            return keyStore;
         }
     }
 
 
-    private static char[] passwordToChar(String password) {
-        return StringHelper.isEmpty(password) ? new char[0] : password.toCharArray();
+    /**
+     * Save the given keyStore to file.
+     *
+     * @param file the file to write to
+     * @param keyStore the key store to save
+     * @param keyStorePassword the keyStore password
+     * @throws IOException if writing to the file fails
+     * @throws GeneralSecurityException if generating the certificate fails
+     */
+    public static void save(KeyStore keyStore, File file, String keyStorePassword) throws IOException, GeneralSecurityException {
+        Ensure.requireNonNull(keyStore, "keyStore must be non-null");
+        try (OutputStream out = new FileOutputStream(file)) {
+            keyStore.store(out, passwordToChar(keyStorePassword));
+        }
     }
 
 
@@ -168,25 +186,77 @@ public class KeyStoreHelper {
      * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
      * @param file the keystore file
-     * @param password the password to use
-     * @param certificateInformation certificate information used when creating a new key store
+     * @param keyStoreType the keyStore type
+     * @param keyPassword the password for the key entry
+     * @param keyAlias the alias of the key; if null, default alias will be used
+     * @param keyStorePassword the password for the keyStore
+     * @param defaultValue certificate information used when creating a new key store
      * @return relevant information from the key store
-     * @throws java.io.IOException if file access fails
-     * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
+     * @throws IOException if file access fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
      * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
      *             null
      */
-    public static CertificateData loadOrCreate(File file, String password, CertificateInformation certificateInformation)
-            throws IOException,
-            GeneralSecurityException {
+    public static CertificateData loadOrCreateCertificateData(
+                                                              File file,
+                                                              String keyStoreType,
+                                                              String keyAlias,
+                                                              String keyPassword,
+                                                              String keyStorePassword,
+                                                              CertificateInformation defaultValue)
+            throws IOException, GeneralSecurityException {
         Ensure.requireNonNull(file, "file must be non-null");
         if (file.exists()) {
             try (InputStream inputStream = new FileInputStream(file)) {
-                return loadOrDefault(inputStream, password, certificateInformation);
+                return loadOrDefaultCertificateData(inputStream, keyStoreType, keyAlias, keyPassword, keyStorePassword, defaultValue);
             }
         }
-        CertificateData result = loadOrDefault(null, password, certificateInformation);
-        save(file, result, password);
+        CertificateData result = loadOrDefaultCertificateData(null, keyStoreType, keyAlias, keyPassword, keyStorePassword, defaultValue);
+        save(result, file, keyStoreType, keyAlias, keyPassword, keyStorePassword);
+        return result;
+    }
+
+
+    /**
+     * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
+     *
+     * @param certificate the certificate info
+     * @param defaultValue certificate information used when creating a new key store
+     * @return relevant information from the key store
+     * @throws IOException if file access fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
+     * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
+     *             null
+     */
+    public static CertificateData loadOrCreateCertificateData(CertificateConfig certificate, CertificateInformation defaultValue)
+            throws IOException, GeneralSecurityException {
+        Ensure.requireNonNull(certificate, "certificate must be non-null");
+        File file = new File(certificate.getKeyStorePath());
+        if (file.exists()) {
+            try (InputStream inputStream = new FileInputStream(file)) {
+                return loadOrDefaultCertificateData(
+                        inputStream,
+                        certificate.getKeyStoreType(),
+                        certificate.getKeyAlias(),
+                        certificate.getKeyPassword(),
+                        certificate.getKeyStorePassword(),
+                        defaultValue);
+            }
+        }
+        CertificateData result = loadOrDefaultCertificateData(
+                null,
+                certificate.getKeyStoreType(),
+                certificate.getKeyAlias(),
+                certificate.getKeyPassword(),
+                certificate.getKeyStorePassword(),
+                defaultValue);
+        save(
+                result,
+                file,
+                certificate.getKeyStoreType(),
+                certificate.getKeyAlias(),
+                certificate.getKeyPassword(),
+                certificate.getKeyStorePassword());
         return result;
     }
 
@@ -195,45 +265,86 @@ public class KeyStoreHelper {
      * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
      * @param file the keystore file
-     * @param password the password to use
+     * @param keyStoreType the keyStore type
+     * @param keyAlias the alias of the key; if null, default alias will be used
+     * @param keyPassword the key password
+     * @param keyStorePassword the password to use for the key entry and keyStore
      * @return relevant information from the key store
-     * @throws java.io.IOException if file access fails
-     * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
+     * @throws IOException if file access fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
      * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
      *             null
      */
-    public static CertificateData load(File file, String password)
-            throws IOException,
-            GeneralSecurityException {
+    public static CertificateData loadCertificateData(
+                                                      File file,
+                                                      String keyStoreType,
+                                                      String keyAlias,
+                                                      String keyPassword,
+                                                      String keyStorePassword)
+            throws IOException, GeneralSecurityException {
         Ensure.requireNonNull(file, "file must be non-null");
         try (InputStream inputStream = new FileInputStream(file)) {
-            return load(inputStream, password);
+            return KeyStoreHelper.loadCertificateData(inputStream, keyStoreType, keyAlias, keyPassword, keyStorePassword);
         }
     }
 
 
     /**
-     * Loads certificate data from a PKCS12 keystore.
+     * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
+     * @param certificate the certificate information
+     * @return relevant information from the key store
+     * @throws IOException if file access fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
+     * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
+     *             null
+     */
+    public static CertificateData loadCertificateData(CertificateConfig certificate)
+            throws IOException, GeneralSecurityException {
+        Ensure.requireNonNull(certificate.getKeyStorePath(), "file must be non-null");
+        try (InputStream inputStream = new FileInputStream(certificate.getKeyStorePath())) {
+            return KeyStoreHelper.loadCertificateData(
+                    inputStream,
+                    certificate.getKeyStoreType(),
+                    certificate.getKeyAlias(),
+                    certificate.getKeyPassword(),
+                    certificate.getKeyStorePassword());
+        }
+    }
+
+
+    /**
+     * Loads certificate data from a keystore.
+     *
+     * @param keyStoreType the keyStoreType
      * @param keystoreInputStream input stream containing the keystore. If it is null, new certificate data willl be
      *            generated.
-     * @param password the password to use
+     * @param keyAlias the alias of the key; if null, first alias present in keyStore will be used
+     * @param keyPassword the password for the key entry
+     * @param keyStorePassword the password for the keyStore
      * @return certificate data contained in the keystore
      * @throws java.io.IOException if accessing the keystore fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
      * @throws IllegalArgumentException input stream of keystore is null
      */
-    public static CertificateData load(InputStream keystoreInputStream, String password)
-            throws IOException,
-            GeneralSecurityException {
+    public static CertificateData loadCertificateData(
+                                                      InputStream keystoreInputStream,
+                                                      String keyStoreType,
+                                                      String keyAlias,
+                                                      String keyPassword,
+                                                      String keyStorePassword)
+            throws IOException, GeneralSecurityException {
         Ensure.requireNonNull(keystoreInputStream, "keystoreInputStream must be non-null");
-        KeyStore keystore = KeyStore.getInstance(KEYSTORE_TYPE);
-        keystore.load(keystoreInputStream, passwordToChar(password));
-        if (!keystore.aliases().hasMoreElements()) {
-            throw new KeyStoreException("keystore must contain exactly one alias (found: 0)");
+        KeyStore keystore = KeyStore.getInstance(keyStoreType);
+        keystore.load(keystoreInputStream, passwordToChar(keyStorePassword));
+        String alias = keyAlias;
+        if (Objects.isNull(alias)) {
+            if (!keystore.aliases().hasMoreElements()) {
+                throw new KeyStoreException("keystore must contain at least one alias (found: 0)");
+            }
+            alias = keystore.aliases().nextElement();
         }
-        String alias = keystore.aliases().nextElement();
-        Key privateKey = keystore.getKey(alias, passwordToChar(password));
+        Key privateKey = keystore.getKey(alias, passwordToChar(keyPassword));
         if (Objects.isNull(privateKey) || !PrivateKey.class.isAssignableFrom(privateKey.getClass())) {
             throw new KeyStoreException("keystore must contain private key");
         }
@@ -260,20 +371,34 @@ public class KeyStoreHelper {
      *
      * @param keystoreInputStream input stream containing the keystore. If it is null, new certificate data willl be
      *            generated.
-     * @param password the password to use
-     * @param certificateInformation certificate information used when creating a new key store
+     * @param keyStoreType the keyStore type
+     * @param keyPassword the password for the key entry
+     * @param keyAlias the alias of the key; if null, first alias present in keyStore will be used
+     * @param keyStorePassword the password for the keyStore
+     * @param defaultValue certificate information used when creating a new key store
      * @return relevant information from the key store
      * @throws java.io.IOException if file access fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
      * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
      *             null
      */
-    public static CertificateData loadOrDefault(InputStream keystoreInputStream, String password, CertificateInformation certificateInformation)
+    public static CertificateData loadOrDefaultCertificateData(
+                                                               InputStream keystoreInputStream,
+                                                               String keyStoreType,
+                                                               String keyAlias,
+                                                               String keyPassword,
+                                                               String keyStorePassword,
+                                                               CertificateInformation defaultValue)
             throws IOException,
             GeneralSecurityException {
         if (Objects.isNull(keystoreInputStream)) {
-            return generateSelfSigned(certificateInformation);
+            return generateSelfSigned(defaultValue);
         }
-        return load(keystoreInputStream, password);
+        return KeyStoreHelper.loadCertificateData(keystoreInputStream, keyStoreType, keyAlias, keyPassword, keyStorePassword);
+    }
+
+
+    private static char[] passwordToChar(String password) {
+        return Objects.nonNull(password) ? password.toCharArray() : new char[0];
     }
 }
