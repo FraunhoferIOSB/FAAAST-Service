@@ -3,6 +3,7 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+* Automatic synchronisation of asset administration shells and submodels with the FA³ST Registry
 * HTTP Endpoint
 	*   Now supports HTTPS
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one

@@ -64,6 +64,7 @@ public class FaaastRegistryHandler {
     private static final String REGISTRY_CONNECTION_ERROR = "Connection to FA³ST-Registry failed!";
     private static final String REQUEST_ERROR_FORMAT_STRING = "HTTP request failed with %d";
     private static final String REQUEST_INTERRUPTION_ERROR = "HTTP request failed";
+    public static final String THREAD_INTERRUPTION_ERROR = "Registry handler interrupted!";
     private static final Logger LOGGER = LoggerFactory.getLogger(FaaastRegistryHandler.class);
 
     private final Persistence persistence;
@@ -84,7 +85,7 @@ public class FaaastRegistryHandler {
                 handleCreateEvent(m);
             }
             catch (InterruptedException e) {
-                LOGGER.warn("Registry handler interrupted!");
+                LOGGER.warn(THREAD_INTERRUPTION_ERROR);
                 Thread.currentThread().interrupt();
             }
             catch (Exception e) {
@@ -96,7 +97,7 @@ public class FaaastRegistryHandler {
                 handleChangeEvent(m);
             }
             catch (InterruptedException e) {
-                LOGGER.warn("Registry handler interrupted!");
+                LOGGER.warn(THREAD_INTERRUPTION_ERROR);
                 Thread.currentThread().interrupt();
             }
             catch (Exception e) {
@@ -108,7 +109,7 @@ public class FaaastRegistryHandler {
                 handleDeleteEvent(m);
             }
             catch (InterruptedException e) {
-                LOGGER.warn("Registry handler interrupted!");
+                LOGGER.warn(THREAD_INTERRUPTION_ERROR);
                 Thread.currentThread().interrupt();
             }
             catch (Exception e) {
@@ -119,6 +120,10 @@ public class FaaastRegistryHandler {
 
         try {
             createAllAasInRegistry();
+        }
+        catch (InterruptedException e) {
+            LOGGER.warn(THREAD_INTERRUPTION_ERROR);
+            Thread.currentThread().interrupt();
         }
         catch (Exception e) {
             LOGGER.error(String.format(SYNC_ERROR_FORMAT_STRING, e.getMessage()), e);
