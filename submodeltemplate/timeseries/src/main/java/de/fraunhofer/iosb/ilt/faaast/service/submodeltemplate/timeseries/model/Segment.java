@@ -186,7 +186,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     protected Segment() {
         withAdditionalValues(recordCount, start, end, duration, samplingInterval, samplingRate, state, lastUpdate);
-        this.idShort = IdentifierHelper.randomId("Segment");;
+        this.idShort = IdentifierHelper.randomId("Segment");
     }
 
 

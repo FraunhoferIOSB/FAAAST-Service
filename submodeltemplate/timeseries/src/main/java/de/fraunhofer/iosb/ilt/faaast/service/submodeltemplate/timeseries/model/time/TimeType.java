@@ -24,12 +24,10 @@ import java.util.Optional;
  * duration of length 0.
  */
 public abstract class TimeType {
-    //    public long getStartAsUnixEpochMillis(Optional<TimeType> startTime);
-    //    public long getEndAsUnixEpochMillis(Optional<TimeType> startTime);
 
     protected String timestamp;
-    public final ZonedDateTime DEFAULT_START_TIME = ZonedDateTime.parse("0000-01-01T00:00:00Z", DateTimeFormatter.ISO_ZONED_DATE_TIME);
-    public final ZonedDateTime DEFAULT_END_TIME = ZonedDateTime.parse("9999-12-31T00:00:00Z", DateTimeFormatter.ISO_ZONED_DATE_TIME);
+    public static final ZonedDateTime DEFAULT_START_TIME = ZonedDateTime.parse("0000-01-01T00:00:00Z", DateTimeFormatter.ISO_ZONED_DATE_TIME);
+    public static final ZonedDateTime DEFAULT_END_TIME = ZonedDateTime.parse("9999-12-31T00:00:00Z", DateTimeFormatter.ISO_ZONED_DATE_TIME);
 
     protected TimeType(String timestamp) {
         this.timestamp = timestamp;
@@ -149,6 +147,6 @@ public abstract class TimeType {
      */
     public String getOriginalTimestamp() {
         return this.timestamp;
-    };
+    }
 
 }

@@ -34,8 +34,8 @@ public class UtcTime extends TimeType {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UtcTime.class);
 
-    private final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
-    private final String VALUE_TYPE = Datatype.DATE_TIME.getName();
+    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
+    private static final String VALUE_TYPE = Datatype.DATE_TIME.getName();
     private boolean isIncremental = false;
 
     public UtcTime(String value) {
@@ -45,13 +45,13 @@ public class UtcTime extends TimeType {
 
     @Override
     public String getTimeSemanticID() {
-        return this.SEMANTIC_ID;
+        return SEMANTIC_ID;
     }
 
 
     @Override
     public String getDataValueType() {
-        return this.VALUE_TYPE;
+        return VALUE_TYPE;
     }
 
 
@@ -98,11 +98,15 @@ public class UtcTime extends TimeType {
         }
         else {
             UtcTime other = (UtcTime) obj;
-            return Objects.equals(this.SEMANTIC_ID, other.SEMANTIC_ID)
-                    && Objects.equals(this.VALUE_TYPE, other.VALUE_TYPE)
-                    && Objects.equals(this.timestamp, other.timestamp)
+            return Objects.equals(this.timestamp, other.timestamp)
                     && Objects.equals(this.isIncrementalToPrevious(), other.isIncremental);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

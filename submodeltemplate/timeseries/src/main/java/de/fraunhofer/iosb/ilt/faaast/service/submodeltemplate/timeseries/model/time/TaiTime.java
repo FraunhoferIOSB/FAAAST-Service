@@ -37,9 +37,9 @@ public class TaiTime extends TimeType {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaiTime.class);
 
-    private final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";
-    private final String VALUE_TYPE = Datatype.DATE_TIME.getName();
-    public boolean isIncremental = false;
+    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";
+    private static final String VALUE_TYPE = Datatype.DATE_TIME.getName();
+    private boolean isIncremental = false;
 
     public TaiTime(String value) {
         super(value);
@@ -48,7 +48,7 @@ public class TaiTime extends TimeType {
 
     @Override
     public String getTimeSemanticID() {
-        return this.SEMANTIC_ID;
+        return SEMANTIC_ID;
     }
 
 
@@ -60,7 +60,7 @@ public class TaiTime extends TimeType {
 
     @Override
     public String getDataValueType() {
-        return this.VALUE_TYPE;
+        return VALUE_TYPE;
     }
 
 
@@ -110,11 +110,15 @@ public class TaiTime extends TimeType {
         }
         else {
             TaiTime other = (TaiTime) obj;
-            return Objects.equals(this.SEMANTIC_ID, other.SEMANTIC_ID)
-                    && Objects.equals(this.VALUE_TYPE, other.VALUE_TYPE)
-                    && Objects.equals(this.timestamp, other.timestamp)
+            return Objects.equals(this.timestamp, other.timestamp)
                     && Objects.equals(this.isIncremental, other.isIncremental);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

@@ -175,29 +175,44 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
 
     private List<Record> readCsvToRecords(Metadata metadata, Reader inputReader, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
-        ArrayList<Record> recordRows = new ArrayList<>();
+        List<Record> recordRows = new ArrayList<>();
         try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(inputReader)) {
-            TimeType timetype = null;
-            String timecol = "";
+            String timeColumnForFilter = "";
+            TimeType timeColumnsTimeType = null;
 
             for (String currentColumn: config.getTimeColumns()) {
                 if (metadata.getRecordMetadataTime().get(currentColumn) != null) {
-                    timetype = metadata.getRecordMetadataTime().get(currentColumn);
-                    timecol = currentColumn;
+                    timeColumnForFilter = currentColumn;
+                    timeColumnsTimeType = metadata.getRecordMetadataTime().get(currentColumn);
                     break;
                 }
             }
-
-            if (timetype == null) {
-                LOGGER.error(String.format(
-                        "NO TIMESTAMP FOUND IN CSV: no time columns defined by the config matched in metadata. Time-Columns in metadata: %s /n Timecolumns in config: %s",
-                        metadata.getRecordMetadataTime().keySet(), config.getTimeColumns()));
-                return recordRows;
+            if (timeColumnsTimeType == null) {
+                LOGGER.error("NO TIMESTAMP FOUND IN CSV: no time columns defined by the config matched in metadata. Time-Columns in metadata: {} /n Timecolumns in config: {}",
+                        metadata.getRecordMetadataTime().keySet(), config.getTimeColumns());
+                return new ArrayList<>();
             }
 
-            Map<String, String> values;
+            recordRows = readAndExtractRecords(reader, metadata, timeColumnsTimeType, timeColumnForFilter, startTime, timespan);
+        }
+        catch (IOException e) {
+            String message = String.format("Error reading from CSV File: Header not parsable: %s",
+                    e.getMessage());
+            LOGGER.error(message);
+            throw new SegmentProviderException(message);
+        }
+        return recordRows;
+    }
+
+
+    private List<Record> readAndExtractRecords(CSVReaderHeaderAware reader, Metadata metadata, TimeType timetype, String timecolumnName, ZonedDateTime startTime, Timespan timespan)
+            throws SegmentProviderException {
+        ArrayList<Record> recordRows = new ArrayList<>();
+        Map<String, String> values;
+        try {
             while ((values = reader.readMap()) != null) {
-                TimeType currentTimetype = TimeFactory.getInstance().getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecol), Optional.of(timetype.getDataValueType()));
+                TimeType currentTimetype = TimeFactory.getInstance().getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecolumnName),
+                        Optional.of(timetype.getDataValueType()));
                 ZonedDateTime timestamp = currentTimetype.getStartAsZonedDateTime(startTime);
 
                 if (timespan != null) {
@@ -214,15 +229,15 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             }
         }
         catch (IOException e) {
-            String message = String.format("Error reading from CSV File: Header not parsable: %s",
+            String message = String.format("Error reading from CSV File: Number of header items does not match number of columns: %s",
                     e.getMessage());
-            LOGGER.debug(message);
+            LOGGER.error(message);
             throw new SegmentProviderException(message);
         }
         catch (CsvValidationException e) {
             String message = String.format("Error reading from CSV File: CSV not valid: %s",
                     e.getMessage());
-            LOGGER.debug(message);
+            LOGGER.error(message);
             throw new SegmentProviderException(message);
         }
 

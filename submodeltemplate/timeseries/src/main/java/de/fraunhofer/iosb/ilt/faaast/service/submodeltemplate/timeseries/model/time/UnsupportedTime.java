@@ -137,6 +137,12 @@ public class UnsupportedTime extends TimeType {
 
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+
+    @Override
     public void setIsIncrementalToPrevious(boolean isIncremental) {
         this.isIncremental = isIncremental;
     }

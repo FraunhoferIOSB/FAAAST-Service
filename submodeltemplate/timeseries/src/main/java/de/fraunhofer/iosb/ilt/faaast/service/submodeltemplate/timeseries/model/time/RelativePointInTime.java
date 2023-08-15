@@ -30,8 +30,8 @@ public class RelativePointInTime extends TimeType {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RelativePointInTime.class);
 
-    private final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1";
-    private final String VALUE_TYPE = Datatype.FLOAT.getName();
+    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1";
+    private static final String VALUE_TYPE = Datatype.FLOAT.getName();
     private boolean isIncremental = false;
 
     public RelativePointInTime(String value) {
@@ -47,13 +47,13 @@ public class RelativePointInTime extends TimeType {
 
     @Override
     public String getTimeSemanticID() {
-        return this.SEMANTIC_ID;
+        return SEMANTIC_ID;
     }
 
 
     @Override
     public String getDataValueType() {
-        return this.VALUE_TYPE;
+        return VALUE_TYPE;
     }
 
 
@@ -64,8 +64,7 @@ public class RelativePointInTime extends TimeType {
             relativePoint = (long) Float.parseFloat(timestamp);
         }
         catch (NumberFormatException e) {
-            LOGGER.error(String.format("RelativePointInTime [%s] not parseable: %s", timestamp, e.getMessage()));
-            LOGGER.error(String.format("Using zero instead."));
+            LOGGER.error(String.format("RelativePointInTime [%s] not parseable: %s. \n Using zero instead.", timestamp, e.getMessage()));
         }
         if (startTime.isPresent()) {
             return startTime.get().getStartAsZonedDateTime(Optional.empty()).plusSeconds(relativePoint);
@@ -105,11 +104,15 @@ public class RelativePointInTime extends TimeType {
         }
         else {
             RelativePointInTime other = (RelativePointInTime) obj;
-            return Objects.equals(this.SEMANTIC_ID, other.SEMANTIC_ID)
-                    && Objects.equals(this.VALUE_TYPE, other.VALUE_TYPE)
-                    && Objects.equals(this.timestamp, other.timestamp)
+            return Objects.equals(this.timestamp, other.timestamp)
                     && Objects.equals(this.isIncremental, other.isIncremental);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

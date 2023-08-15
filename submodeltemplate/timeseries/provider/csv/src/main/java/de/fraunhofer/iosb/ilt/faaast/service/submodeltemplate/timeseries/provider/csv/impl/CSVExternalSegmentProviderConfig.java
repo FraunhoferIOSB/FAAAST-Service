@@ -22,7 +22,7 @@ import java.util.List;
  * Configuration for external segment providers referencing a file or blob containing CSV data
  * ({@link CSVExternalSegmentProvider}).
  */
-public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderConfig<CSVExternalSegmentProvider> {//extends AbstractCSVExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
+public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
 
     private String baseDir;
     private List<String> timeColumns;

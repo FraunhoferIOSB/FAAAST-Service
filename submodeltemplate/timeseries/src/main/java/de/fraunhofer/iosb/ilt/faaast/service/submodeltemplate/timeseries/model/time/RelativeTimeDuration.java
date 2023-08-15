@@ -30,8 +30,8 @@ public class RelativeTimeDuration extends TimeType {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RelativeTimeDuration.class);
 
-    private final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1";
-    private final String VALUE_TYPE = Datatype.FLOAT.getName();
+    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1";
+    private static final String VALUE_TYPE = Datatype.FLOAT.getName();
 
     private boolean isIncremental = true;
 
@@ -42,13 +42,13 @@ public class RelativeTimeDuration extends TimeType {
 
     @Override
     public String getTimeSemanticID() {
-        return this.SEMANTIC_ID;
+        return SEMANTIC_ID;
     }
 
 
     @Override
     public String getDataValueType() {
-        return this.VALUE_TYPE;
+        return VALUE_TYPE;
     }
 
 
@@ -69,7 +69,7 @@ public class RelativeTimeDuration extends TimeType {
         }
         catch (NumberFormatException e) {
             LOGGER.error(String.format("RelativeTimeDuration [%s] not parseable: %s", timestamp, e.getMessage()));
-            LOGGER.error(String.format("Using duration of 1s instead."));
+            LOGGER.error("Using duration of 1s instead.");
         }
         if (startTime.isPresent()) {
             return startTime.get().getStartAsZonedDateTime(Optional.empty()).plusSeconds(relativeEndPoint);
@@ -103,11 +103,15 @@ public class RelativeTimeDuration extends TimeType {
         }
         else {
             RelativeTimeDuration other = (RelativeTimeDuration) obj;
-            return Objects.equals(this.SEMANTIC_ID, other.SEMANTIC_ID)
-                    && Objects.equals(this.VALUE_TYPE, other.VALUE_TYPE)
-                    && Objects.equals(this.timestamp, other.timestamp)
+            return Objects.equals(this.timestamp, other.timestamp)
                     && Objects.equals(this.isIncremental, other.isIncremental);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 
