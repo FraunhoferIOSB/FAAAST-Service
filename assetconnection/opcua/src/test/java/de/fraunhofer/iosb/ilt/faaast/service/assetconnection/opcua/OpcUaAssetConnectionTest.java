@@ -36,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.Security
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -90,6 +91,7 @@ import org.junit.Test;
 
 public class OpcUaAssetConnectionTest {
 
+    public static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
     public static final String CLIENT_APPLICATION_CERTIFICATE_FILE = "client-application.p12";
     public static final String CLIENT_APPLICATION_CERTIFICATE_PASSWORD = "";
     public static final String CLIENT_AUTHENTICATION_CERTIFICATE_FILE = "client-authentication.p12";
@@ -450,6 +452,9 @@ public class OpcUaAssetConnectionTest {
     private static CertificateData loadServerApplicationCertificate() throws IOException, GeneralSecurityException {
         return KeyStoreHelper.loadCertificateData(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream(SERVER_APPLICATION_CERTIFICATE_FILE),
+                DEFAULT_KEY_STORE_TYPE,
+                null,
+                SERVER_APPLICATION_CERTIFICATE_PASSWORD,
                 SERVER_APPLICATION_CERTIFICATE_PASSWORD);
     }
 
@@ -532,8 +537,19 @@ public class OpcUaAssetConnectionTest {
             OpcUaAssetConnectionConfig actualConfig = OpcUaAssetConnectionConfig.builder()
                     .of(config)
                     .securityBaseDir(clientBaseSecurityDir)
-                    .applicationCertificateFile(clientBaseSecurityDir.resolve(CLIENT_APPLICATION_CERTIFICATE_FILE).toFile())
-                    .applicationCertificatePassword(CLIENT_APPLICATION_CERTIFICATE_PASSWORD)
+                    .applicationCertificate(
+                            CertificateConfig.builder()
+                                    .keyStoreType(DEFAULT_KEY_STORE_TYPE)
+                                    .keyStorePath(clientBaseSecurityDir.resolve(CLIENT_APPLICATION_CERTIFICATE_FILE).toFile())
+                                    .keyStorePassword(CLIENT_APPLICATION_CERTIFICATE_PASSWORD)
+                                    .keyPassword(CLIENT_APPLICATION_CERTIFICATE_PASSWORD)
+                                    .build())
+                    .authenticationCertificate(CertificateConfig.builder()
+                            .keyStoreType(DEFAULT_KEY_STORE_TYPE)
+                            .keyStorePath(clientBaseSecurityDir.resolve(CLIENT_AUTHENTICATION_CERTIFICATE_FILE).toFile())
+                            .keyStorePassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD)
+                            .keyPassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD)
+                            .build())
                     .securityMode(securityConfiguration.getSecurityMode())
                     .securityPolicy(securityConfiguration.getPolicy())
                     .transportProfile(EmbeddedOpcUaServer.getTransportProfile(securityConfiguration.getProtocol()))
@@ -563,13 +579,21 @@ public class OpcUaAssetConnectionTest {
                         X509Certificate certificate = OpcUaHelper.loadAuthenticationCertificate(
                                 x.getSecurityBaseDir(),
                                 new File(CLIENT_AUTHENTICATION_CERTIFICATE_FILE),
+                                DEFAULT_KEY_STORE_TYPE,
+                                null,
+                                CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD,
                                 CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD)
                                 .getCertificate();
                         server.allowClient(certificate);
                         clientCertificate.add(certificate);
                         x.setUserTokenType(UserTokenType.Certificate);
-                        x.setAuthenticationCertificateFile(new File(CLIENT_AUTHENTICATION_CERTIFICATE_FILE));
-                        x.setAuthenticationCertificatePassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD);
+                        x.setAuthenticationCertificate(
+                                CertificateConfig.builder()
+                                        .keyStoreType(DEFAULT_KEY_STORE_TYPE)
+                                        .keyStorePath(CLIENT_AUTHENTICATION_CERTIFICATE_FILE)
+                                        .keyStorePassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD)
+                                        .keyPassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD)
+                                        .build());
                     }));
         }
         finally {
@@ -830,6 +854,9 @@ public class OpcUaAssetConnectionTest {
                 KeyStoreHelper
                         .loadOrDefaultCertificateData(
                                 Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
+                                DEFAULT_KEY_STORE_TYPE,
+                                null,
+                                CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
                                 CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
                                 CertificateInformation.builder().build())
                         .getCertificate()
@@ -843,8 +870,11 @@ public class OpcUaAssetConnectionTest {
                 .resolve("../../src/test/resources/")
                 .resolve(filename)
                 .toFile();
-        KeyStoreHelper.save(file,
-                KeyStoreHelper.generateSelfSigned(certificateInformation),
+        KeyStoreHelper.save(KeyStoreHelper.generateSelfSigned(certificateInformation),
+                file,
+                DEFAULT_KEY_STORE_TYPE,
+                null,
+                password,
                 password);
         Assert.assertTrue(file.exists());
     }

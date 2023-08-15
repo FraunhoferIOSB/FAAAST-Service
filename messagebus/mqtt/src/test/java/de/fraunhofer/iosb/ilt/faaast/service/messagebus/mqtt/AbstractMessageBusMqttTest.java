@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -79,13 +80,14 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static final long DEFAULT_TIMEOUT = 1000;
+    private static final String DEFAULT_KEY_STORE_TYPE = "JKS";
 
     protected static final String PASSWORD_FILE = "src/test/resources/password_file.conf";
-    protected static final String SERVER_KEYSTORE_PASSWORD = "password";
-    protected static final String CLIENT_KEYSTORE_PASSWORD = "password";
+    protected static final String KEYSTORE_PASSWORD = "keystore-password";
+    protected static final String KEY_PASSWORD = "key-password";
     protected static final String USER = "user";
-    protected static final String USER_PASSWORD_VALID = "password";
-    protected static final String USER_PASSWORD_INVALID = "wrong_password";
+    protected static final String USER_PASSWORD_VALID = "user-password";
+    protected static final String USER_PASSWORD_INVALID = "user-password-wrong";
 
     private static final Property PROPERTY = new DefaultProperty.Builder()
             .idShort("ExampleProperty")
@@ -236,18 +238,27 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     @BeforeClass
     public static void createCertificates() throws IOException, GeneralSecurityException {
-        File serverKeyStoreFile = File.createTempFile("faaast-", "-keystore-server");
+        File serverKeyStoreFile = File.createTempFile("faaast-", "-keystore-server.p12");
         serverKeyStoreFile.deleteOnExit();
         CertificateData serverCertificateData = KeyStoreHelper.generateSelfSigned(SERVER_CERTIFICATE_INFORMATION);
-        KeyStoreHelper.save(serverKeyStoreFile, serverCertificateData, SERVER_KEYSTORE_PASSWORD);
+        KeyStoreHelper.save(serverCertificateData,
+                serverKeyStoreFile,
+                DEFAULT_KEY_STORE_TYPE,
+                "server-cert",
+                KEY_PASSWORD,
+                KEYSTORE_PASSWORD);
         serverKeyStorePath = serverKeyStoreFile.getAbsolutePath();
 
-        File clientKeyStoreFile = File.createTempFile("faaast-", "-keystore-client");
+        File clientKeyStoreFile = File.createTempFile("faaast-", "-keystore-client.p12");
         clientKeyStoreFile.deleteOnExit();
         CertificateData clientCertificateData = KeyStoreHelper.generateSelfSigned(CLIENT_CERTIFICATE_INFORMATION);
-        KeyStore clientKeyStore = KeyStoreHelper.create(clientCertificateData, CLIENT_KEYSTORE_PASSWORD);
+        KeyStore clientKeyStore = KeyStoreHelper.create(clientCertificateData,
+                DEFAULT_KEY_STORE_TYPE,
+                "client-cert",
+                KEY_PASSWORD,
+                KEYSTORE_PASSWORD);
         clientKeyStore.setCertificateEntry("server-key", serverCertificateData.getCertificate());
-        KeyStoreHelper.save(clientKeyStoreFile, clientKeyStore, CLIENT_KEYSTORE_PASSWORD);
+        KeyStoreHelper.save(clientKeyStore, clientKeyStoreFile, KEYSTORE_PASSWORD);
         clientKeyStorePath = clientKeyStoreFile.getAbsolutePath();
     }
 
@@ -379,10 +390,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
     protected MessageBusMqttConfig configureWithSslAsAnonymousSuccess() {
         return MessageBusMqttConfig.builder()
                 .from(getBaseConfig())
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -391,10 +408,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
         return MessageBusMqttConfig.builder()
                 .from(getBaseConfig())
                 .useWebsocket(true)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -420,10 +443,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
         return MessageBusMqttConfig.builder()
                 .from(getBaseConfig())
                 .user(USER, USER_PASSWORD_VALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -433,10 +462,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 .from(getBaseConfig())
                 .useWebsocket(true)
                 .user(USER, USER_PASSWORD_VALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -468,10 +503,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 .user(USER, USER_PASSWORD_VALID)
                 .username(USER)
                 .password(USER_PASSWORD_INVALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -483,10 +524,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 .user(USER, USER_PASSWORD_VALID)
                 .username(USER)
                 .password(USER_PASSWORD_INVALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -518,10 +565,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 .user(USER, USER_PASSWORD_VALID)
                 .username(USER)
                 .password(USER_PASSWORD_VALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 
@@ -533,10 +586,16 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 .user(USER, USER_PASSWORD_VALID)
                 .username(USER)
                 .password(USER_PASSWORD_VALID)
-                .serverKeystorePath(serverKeyStorePath)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(clientKeyStorePath)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .serverCertificate(CertificateConfig.builder()
+                        .keyStorePath(serverKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
+                .clientCertificate(CertificateConfig.builder()
+                        .keyStorePath(clientKeyStorePath)
+                        .keyStorePassword(KEYSTORE_PASSWORD)
+                        .keyPassword(KEY_PASSWORD)
+                        .build())
                 .build();
     }
 

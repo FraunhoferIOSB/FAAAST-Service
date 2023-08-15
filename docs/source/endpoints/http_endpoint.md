@@ -3,10 +3,7 @@
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
 The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
 Exchanging Information via Application
-Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-Interface-Collection/V1.0RC01), Apr, 26th 2022
-
-For detailed information on the REST API see
-[DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-Interface-Collection/V1.0RC01), Apr, 26th 2022
+Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02), Apr, 26th 2022
 
 ## Configuration Parameters
 
@@ -15,8 +12,7 @@ For detailed information on the REST API see
 | port | Integer |  _optional_ The port to use, default: 8080 |
 | corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false |
 | httpsEnabled | Boolean | _optional_ If true, the endpoint will only be available via HTTPS; if false, it will only be available via HTTP, default: false |
-| keystorePath | String | _optional_ The path to a keystore file to be used for HTTPS. If this value is not set and `httpsEnabled` is true, a self-signed certificate is generated |
-| keystorePassword | String | _optional_ The password file the keystore file provided by `keystorePath` |
+| certificate; | Object | _optional_  The certificate to use when `httpsEnabled` is true, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 
 ### Example
 
@@ -29,8 +25,13 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 			"port": 8080,
 			"corsEnabled": true,
 			"httpsEnabled": true,
-			"keystorePath": "/tmp/my_keystore.jks",
-			"keystorePassword": "my_password"
+			"certificate": {
+				"keyStoreType": "PKCS12",
+				"keyStorePath": "C:\faaast\MyKeyStore.p12",
+				"keyStorePassword": "changeit",
+				"keyAlias": "server-key",
+				"keyPassword": "changeit"
+			}
 		}
 	]
 }

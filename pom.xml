@@ -77,11 +77,11 @@
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
         <bouncycastle.version>1.70</bouncycastle.version>
-        <checkstyle.version>10.12.1</checkstyle.version>
-        <classgraph.version>4.8.161</classgraph.version>
+        <checkstyle.version>10.12.2</checkstyle.version>
+        <classgraph.version>4.8.162</classgraph.version>
         <commons.codec.version>1.16.0</commons.codec.version>
         <commons.io.version>2.13.0</commons.io.version>
-        <commons.lang3.version>3.12.0</commons.lang3.version>
+        <commons.lang3.version>3.13.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.15.1</equalsverifier.version>
@@ -124,7 +124,7 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.5.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.37.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.38.0</maven.plugin.spotless.version>
         <milo.version>0.6.10</milo.version>
         <mockito.version>5.4.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
@@ -137,7 +137,7 @@
         <proguard.version>7.3.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.10.6-24</prosys.sdk.version>
-        <protobuf.version>3.23.4</protobuf.version>
+        <protobuf.version>3.24.0</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>

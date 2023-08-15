@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,15 +60,15 @@ public class PahoClient {
     private String buildEndpoint() {
         int port = config.getPort();
         String protocolPrefix = PROTOCOL_PREFIX;
-        if (config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
+        if (config.getClientCertificate().getKeyStorePath().isEmpty() && config.getUseWebsocket()) {
             port = config.getWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET;
         }
-        else if (!config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
+        else if (!config.getClientCertificate().getKeyStorePath().isEmpty() && config.getUseWebsocket()) {
             port = config.getSslWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET_SSL;
         }
-        else if (!config.getClientKeystorePath().isEmpty() && !config.getUseWebsocket()) {
+        else if (!config.getClientCertificate().getKeyStorePath().isEmpty() && !config.getUseWebsocket()) {
             port = config.getSslPort();
             protocolPrefix = PROTOCOL_PREFIX_SSL;
         }
@@ -84,8 +85,10 @@ public class PahoClient {
         String endpoint = buildEndpoint();
         MqttConnectOptions options = new MqttConnectOptions();
         try {
-            if (Objects.nonNull(config.getClientKeystorePath()) && !config.getClientKeystorePath().isEmpty()) {
-                options.setSocketFactory(getSSLSocketFactory(config.getClientKeystorePath(), config.getClientKeystorePassword()));
+            if (Objects.nonNull(config.getClientCertificate())
+                    && Objects.nonNull(config.getClientCertificate().getKeyStorePath())
+                    && !config.getClientCertificate().getKeyStorePath().isEmpty()) {
+                options.setSocketFactory(getSSLSocketFactory(config.getClientCertificate()));
             }
         }
         catch (GeneralSecurityException | IOException e) {
@@ -164,13 +167,13 @@ public class PahoClient {
     }
 
 
-    private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) throws GeneralSecurityException, IOException {
-        try (InputStream jksInputStream = new FileInputStream(keyStorePath)) {
-            KeyStore keystore = KeyStore.getInstance("JKS");
-            keystore.load(jksInputStream, password.toCharArray());
+    private SSLSocketFactory getSSLSocketFactory(CertificateConfig certificate) throws GeneralSecurityException, IOException {
+        try (InputStream keyStoreInputStream = new FileInputStream(certificate.getKeyStorePath())) {
+            KeyStore keystore = KeyStore.getInstance(certificate.getKeyStoreType());
+            keystore.load(keyStoreInputStream, certificate.getKeyStorePassword().toCharArray());
 
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keystore, password.toCharArray());
+            keyManagerFactory.init(keystore, Objects.nonNull(certificate.getKeyPassword()) ? certificate.getKeyPassword().toCharArray() : new char[0]);
 
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keystore);
