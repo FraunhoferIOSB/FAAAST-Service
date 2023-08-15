@@ -24,10 +24,8 @@
 | securityMode | Enum | _optional_ Security Mode for the connection to the OPC UA server. Possible values are: None, Sign and SignAndEncrypt. Default value is None. |
 | transportProfile | Enum | _optional_ Transport Profile for the connection to the OPC UA server. Possible values are: TCP_UASC_UABINARY, HTTPS_UABINARY, HTTPS_UAXML, HTTPS_UAJSON, WSS_UASC_UABINARY, WSS_UAJSON. Default value is TCP_UASC_UABINARY |
 | securityBaseDir | String | _optional_ Base directory for the certificate handling. Default value is the current directory ("."). |
-| applicationCertificateFile | File | _optional_ File name for the application certificate file. The format must be PKCS12. The file must contain exaxctly one alias. Default value is "application.p12". |
-| applicationCertificatePassword | String | _optional_ Password for the application certificate file. Default value is an empty string ("") |
-| authenticationCertificateFile | File | _optional_ File name for the authentication certificate file. The format must be PKCS12. This value is required if userTokenType Certificate is selected. Default value is "authentication.p12" |
-| authenticationCertificatePassword | String | _optional_ Password for the authentication certificate file. Default value is an empty string (""). This value is required if userTokenType Certificate is selected |
+| applicationCertificate | Object | _optional_  The application certificate [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
+| authenticationCertificate | Object | _optional_  The authentication certificate [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 
 #### Remarks on certificate management
 In OPC UA , certificates can be used for two purposes:
@@ -42,9 +40,9 @@ If using both, you can use different or the same certificates.
 An application certificate is required if the property `securityMode` is set to `Sign` or `SignAndEncrypt`.
 
 Which application certificate to use is determined by the following steps:
-- `applicationCertificateFile` if it is an absolute file path and the file exists (default: application.p12)
-- `{securityBaseDir}/{applicationCertificateFile}` if the file exists (default: `./{applicationCertificateFile}`)
-- otherwise generate self-signed certificate and store it at `applicationCertificateFile` (if `applicationCertificateFile` is an absolute file path) or else `{securityBaseDir}/{applicationCertificateFile}`. The generated keystore will not be password protected.
+- `applicationCertificate.keyStorePath` if it is an absolute file path and the file exists (default: application.p12)
+- `{securityBaseDir}/{applicationCertificate.keyStorePath}` if the file exists (default: `./{applicationCertificate.keyStorePath}`)
+- otherwise generate self-signed certificate and store it at `applicationCertificate.keyStorePath` (if `applicationCertificate.keyStorePath` is an absolute file path) or else `{securityBaseDir}/{applicationCertificate.keyStorePath}`. The generated keystore will not be password protected.
 
 You also need to make sure that the OPC UA client (which in this case is the FA³ST Service OPC UA asset connection) knwos and trusts the server certificate and vice versa.
 
@@ -60,8 +58,8 @@ For the server to trust your client application certificate please refer to the 
 
 #### Authentication Certificate
 Which authentification certificate is used is determined by a similar logic as for the application certificate besides that this certificate is not auto-generated if not present:
-- `authenticationCertificateFile` if it is an absolute file path and the file exists (default: application.p12)
-- `{securityBaseDir}/{authenticationCertificateFile}` if the file exists (default: `./{authenticationCertificateFile}`)
+- `authenticationCertificate.keyStorePath` if it is an absolute file path and the file exists (default: application.p12)
+- `{securityBaseDir}/{authenticationCertificate.keyStorePath}` if the file exists (default: `./{authenticationCertificate.keyStorePath}`)
 
 
 ### Value Provider
@@ -156,6 +154,20 @@ A complete example for OPC UA asset connection could look like this
 	"host": "opc.tcp://localhost:4840",
 	"securityPolicy": "None",
 	"securityMode" : "None",
+	"applicationCertificate": {
+		"keyStoreType": "PKCS12",
+		"keyStorePath": "C:\faaast\MyKeyStore.p12",
+		"keyStorePassword": "changeit",
+		"keyAlias": "app-cert",
+		"keyPassword": "changeit"
+	},
+	"authenticationCertificate": {
+		"keyStoreType": "PKCS12",
+		"keyStorePath": "C:\faaast\MyKeyStore.p12",
+		"keyStorePassword": "changeit",
+		"keyAlias": "auth-cert",
+		"keyPassword": "changeit"
+	},
 	"valueProviders":
 	{
 		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":

@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcU
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
-import java.io.File;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
@@ -42,8 +42,8 @@ public class OpcUaAssetConnectionConfig
     public static final Path DEFAULT_SECURITY_BASEDIR = Path.of(".");
     public static final SecurityPolicy DEFAULT_SECURITY_POLICY = SecurityPolicy.None;
     public static final MessageSecurityMode DEFAULT_SECURITY_MODE = MessageSecurityMode.None;
-    public static final File DEFAULT_APPLICATION_CERTIFICATE_FILE = new File("application.p12");
-    public static final File DEFAULT_AUTHENTICATION_CERTIFICATE_FILE = new File("authentication.p12");
+    public static final String DEFAULT_APPLICATION_CERTIFICATE_FILE = "application.p12";
+    public static final String DEFAULT_AUTHENTICATION_CERTIFICATE_FILE = "authentication.p12";
     public static final TransportProfile DEFAULT_TRANSPORT_PROFILE = TransportProfile.TCP_UASC_UABINARY;
     public static final UserTokenType DEFAULT_USER_TOKEN = UserTokenType.Anonymous;
 
@@ -56,10 +56,8 @@ public class OpcUaAssetConnectionConfig
     private Path securityBaseDir;
     private SecurityPolicy securityPolicy;
     private MessageSecurityMode securityMode;
-    private File applicationCertificateFile;
-    private String applicationCertificatePassword;
-    private File authenticationCertificateFile;
-    private String authenticationCertificatePassword;
+    private CertificateConfig applicationCertificate;
+    private CertificateConfig authenticationCertificate;
     private TransportProfile transportProfile;
     private UserTokenType userTokenType;
 
@@ -70,8 +68,12 @@ public class OpcUaAssetConnectionConfig
         this.securityBaseDir = DEFAULT_SECURITY_BASEDIR;
         this.securityPolicy = DEFAULT_SECURITY_POLICY;
         this.securityMode = DEFAULT_SECURITY_MODE;
-        this.applicationCertificateFile = DEFAULT_APPLICATION_CERTIFICATE_FILE;
-        this.authenticationCertificateFile = DEFAULT_AUTHENTICATION_CERTIFICATE_FILE;
+        this.applicationCertificate = CertificateConfig.builder()
+                .keyStorePath(DEFAULT_APPLICATION_CERTIFICATE_FILE)
+                .build();
+        this.authenticationCertificate = CertificateConfig.builder()
+                .keyStorePath(DEFAULT_AUTHENTICATION_CERTIFICATE_FILE)
+                .build();
         this.transportProfile = DEFAULT_TRANSPORT_PROFILE;
         this.userTokenType = DEFAULT_USER_TOKEN;
     }
@@ -96,12 +98,29 @@ public class OpcUaAssetConnectionConfig
                 && Objects.equals(securityBaseDir, that.securityBaseDir)
                 && Objects.equals(securityPolicy, that.securityPolicy)
                 && Objects.equals(securityMode, that.securityMode)
-                && Objects.equals(applicationCertificateFile, that.applicationCertificateFile)
-                && Objects.equals(applicationCertificatePassword, that.applicationCertificatePassword)
-                && Objects.equals(authenticationCertificateFile, that.authenticationCertificateFile)
-                && Objects.equals(authenticationCertificatePassword, that.authenticationCertificatePassword)
+                && Objects.equals(applicationCertificate, that.applicationCertificate)
+                && Objects.equals(authenticationCertificate, that.authenticationCertificate)
                 && Objects.equals(transportProfile, that.transportProfile)
                 && Objects.equals(userTokenType, that.userTokenType);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                host,
+                username,
+                password,
+                requestTimeout,
+                acknowledgeTimeout,
+                retries,
+                securityBaseDir,
+                securityPolicy,
+                securityMode,
+                applicationCertificate,
+                authenticationCertificate,
+                transportProfile,
+                userTokenType);
     }
 
 
@@ -195,43 +214,23 @@ public class OpcUaAssetConnectionConfig
     }
 
 
-    public File getApplicationCertificateFile() {
-        return applicationCertificateFile;
+    public CertificateConfig getApplicationCertificate() {
+        return applicationCertificate;
     }
 
 
-    public void setApplicationCertificateFile(File applicationCertificateFile) {
-        this.applicationCertificateFile = applicationCertificateFile;
+    public void setApplicationCertificate(CertificateConfig applicationCertificate) {
+        this.applicationCertificate = applicationCertificate;
     }
 
 
-    public String getApplicationCertificatePassword() {
-        return applicationCertificatePassword;
+    public CertificateConfig getAuthenticationCertificate() {
+        return authenticationCertificate;
     }
 
 
-    public void setApplicationCertificatePassword(String applicationCertificatePassword) {
-        this.applicationCertificatePassword = applicationCertificatePassword;
-    }
-
-
-    public File getAuthenticationCertificateFile() {
-        return authenticationCertificateFile;
-    }
-
-
-    public void setAuthenticationCertificateFile(File authenticationCertificateFile) {
-        this.authenticationCertificateFile = authenticationCertificateFile;
-    }
-
-
-    public String getAuthenticationCertificatePassword() {
-        return authenticationCertificatePassword;
-    }
-
-
-    public void setAuthenticationCertificatePassword(String authenticationCertificatePassword) {
-        this.authenticationCertificatePassword = authenticationCertificatePassword;
+    public void setAuthenticationCertificate(CertificateConfig authenticationCertificate) {
+        this.authenticationCertificate = authenticationCertificate;
     }
 
 
@@ -255,27 +254,6 @@ public class OpcUaAssetConnectionConfig
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                host,
-                username,
-                password,
-                requestTimeout,
-                acknowledgeTimeout,
-                retries,
-                securityBaseDir,
-                securityPolicy,
-                securityMode,
-                applicationCertificateFile,
-                applicationCertificatePassword,
-                authenticationCertificateFile,
-                authenticationCertificatePassword,
-                transportProfile,
-                userTokenType);
-    }
-
-
     public static Builder builder() {
         return new Builder();
     }
@@ -288,10 +266,8 @@ public class OpcUaAssetConnectionConfig
         public B of(OpcUaAssetConnectionConfig other) {
             super.of(other);
             acknowledgeTimeout(other.acknowledgeTimeout);
-            applicationCertificateFile(other.applicationCertificateFile);
-            applicationCertificatePassword(other.applicationCertificatePassword);
-            authenticationCertificateFile(other.authenticationCertificateFile);
-            authenticationCertificatePassword(other.authenticationCertificatePassword);
+            applicationCertificate(other.applicationCertificate);
+            authenticationCertificate(other.authenticationCertificate);
             host(other.host);
             password(other.password);
             requestTimeout(other.requestTimeout);
@@ -360,26 +336,14 @@ public class OpcUaAssetConnectionConfig
         }
 
 
-        public B applicationCertificateFile(File value) {
-            getBuildingInstance().setApplicationCertificateFile(value);
+        public B applicationCertificate(CertificateConfig value) {
+            getBuildingInstance().setApplicationCertificate(value);
             return getSelf();
         }
 
 
-        public B applicationCertificatePassword(String value) {
-            getBuildingInstance().setApplicationCertificatePassword(value);
-            return getSelf();
-        }
-
-
-        public B authenticationCertificateFile(File value) {
-            getBuildingInstance().setAuthenticationCertificateFile(value);
-            return getSelf();
-        }
-
-
-        public B authenticationCertificatePassword(String value) {
-            getBuildingInstance().setAuthenticationCertificatePassword(value);
+        public B authenticationCertificate(CertificateConfig value) {
+            getBuildingInstance().setAuthenticationCertificate(value);
             return getSelf();
         }
 

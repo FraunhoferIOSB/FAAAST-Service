@@ -59,13 +59,18 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
         if (config.getUseWebsocket()) {
             result.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
-        if (Objects.nonNull(config.getServerKeystorePath())) {
-            result.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerKeystorePath());
-            if (Objects.nonNull(config.getServerKeystorePassword())) {
-                result.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
-                result.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
-            }
+        if (Objects.nonNull(config.getServerCertificate())
+                && Objects.nonNull(config.getServerCertificate().getKeyStorePath())) {
             result.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
+            result.setProperty(BrokerConstants.SSL_PROVIDER, "JDK");
+            result.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
+            result.setProperty(BrokerConstants.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
+            if (Objects.nonNull(config.getServerCertificate().getKeyStorePassword())) {
+                result.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
+            }
+            if (Objects.nonNull(config.getServerCertificate().getKeyPassword())) {
+                result.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
+            }
             if (config.getUseWebsocket()) {
                 result.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
             }
@@ -73,5 +78,4 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
 
         return result;
     }
-
 }
