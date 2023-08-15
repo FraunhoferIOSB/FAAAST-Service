@@ -31,12 +31,17 @@ public class UnsupportedTime extends TimeType {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnsupportedTime.class);
 
-    private String valueType = Datatype.DATE_TIME.getName(); //TODO get valueType for unsupported time stamp
+    private String valueType = Datatype.DATE_TIME.getName();
     private String semanticID;
     private boolean isIncremental;
 
-    public UnsupportedTime(String value, String semanticID, Optional<String> valueType) {
-        super(value);
+    public UnsupportedTime() {
+        super(null);
+    }
+
+
+    public UnsupportedTime(String timestamp, String semanticID, Optional<String> valueType) {
+        super(timestamp);
         this.semanticID = semanticID;
 
         if (valueType.isPresent()) {

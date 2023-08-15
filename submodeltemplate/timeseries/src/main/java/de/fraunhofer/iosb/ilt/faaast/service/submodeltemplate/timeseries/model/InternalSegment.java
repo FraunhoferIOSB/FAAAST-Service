@@ -49,6 +49,8 @@ public class InternalSegment extends Segment {
     public InternalSegment() {
         recordsList = new ExtendableSubmodelElementCollection.Builder()
                 .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+                .ordered(true)
+                .allowDuplicates(true)
                 .build();
         records = new ListWrapper<>(
                 recordsList.getValues(),

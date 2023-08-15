@@ -22,12 +22,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
@@ -101,7 +104,12 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
             String fieldName = fields.get(i);
             Object fieldValue = values.get(i);
             if (TIME_FIELD.equals(fieldName)) {
-                result.getTimes().put(fieldName, new UtcTime(fieldValue.toString()));//ZonedDateTime.parse(fieldValue.toString()));
+                result.getTimes().put(fieldName, new UtcTime(fieldValue.toString()));
+            }
+            else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
+                TimeType metaType = metadata.getRecordMetadataTime().get(fieldName);
+                result.getTimes().put(fieldName,
+                        TimeFactory.getInstance().getTimeTypeFrom(metaType.getTimeSemanticID(), fieldValue.toString(), Optional.of(metaType.getDataValueType())));
             }
             else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                 try {

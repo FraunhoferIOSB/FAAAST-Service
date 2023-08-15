@@ -55,8 +55,8 @@ public class Record extends ExtendableSubmodelElementCollection {
                     .value(x.getValue().getOriginalTimestamp())
                     .semanticId(ReferenceHelper.globalReference(x.getValue().getTimeSemanticID()))
                     .build(),
-            x -> TimeFactory.hasClassFor(x.getSemanticId()), //Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue(), Optional.ofNullable(x.getValueType()))));
+            x -> TimeFactory.getInstance().hasClassFor(x.getSemanticId()), //Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getInstance().getTimeTypeFrom(x.getSemanticId(), x.getValue(), Optional.ofNullable(x.getValueType()))));
 
     @JsonIgnore
     private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<>(
@@ -68,7 +68,7 @@ public class Record extends ExtendableSubmodelElementCollection {
                     .valueType(x.getValue().getDataType().getName())
                     .value(x.getValue().asString())
                     .build(),
-            x -> !TimeFactory.hasClassFor(x.getSemanticId()), //!Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+            x -> !TimeFactory.getInstance().hasClassFor(x.getSemanticId()), //!Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
             x -> {
                 try {
                     return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
@@ -137,16 +137,13 @@ public class Record extends ExtendableSubmodelElementCollection {
         Optional<Entry<String, TimeType>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue().isParseable() && !e.getValue().isIncrementalToPrevious())
                 .findFirst();
 
-        if (timeOpt.isPresent()) {
-            return timeOpt.get().getValue();
-        }
-        else {
+        if (timeOpt.isEmpty()) {
             timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue().isParseable()).findFirst();
             if (timeOpt.isEmpty()) {
                 timeOpt = this.times.getValue().entrySet().stream().findFirst();
             }
-            return timeOpt.isPresent() ? timeOpt.get().getValue() : null;
         }
+        return timeOpt.isPresent() ? timeOpt.get().getValue() : null;
 
     }
 

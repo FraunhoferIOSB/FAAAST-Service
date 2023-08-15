@@ -49,11 +49,15 @@ public class InternalSegmentTest extends BaseModelTest {
 
     private static final SubmodelElementCollection EMPTY_RECORDS = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+            .ordered(true)
+            .allowDuplicates(true)
             .build();
 
     private static final SubmodelElementCollection RECORDS = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
             .value(TimeSeriesData.RECORD_00)
+            .ordered(true)
+            .allowDuplicates(true)
             .build();
 
     @Test

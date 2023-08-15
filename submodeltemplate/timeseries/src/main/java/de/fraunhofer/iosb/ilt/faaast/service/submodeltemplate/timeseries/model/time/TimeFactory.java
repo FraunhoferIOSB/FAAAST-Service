@@ -17,7 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import io.adminshell.aas.v3.model.Reference;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +36,33 @@ import org.slf4j.LoggerFactory;
 public class TimeFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeFactory.class);
 
-    public static Map<String, String> supported_semanticIds = Map.of(
-            Constants.TIME_UTC, UtcTime.class.getName(),
-            Constants.TIME_TAI, TaiTime.class.getName(),
-            Constants.TIME_RELATIVE_DURATION, RelativeTimeDuration.class.getName(),
-            Constants.TIME_RELATIVE_POINT_IN_TIME, RelativePointInTime.class.getName(),
-            Constants.TIME_UNIX, UnixTime.class.getName());
+    private Map<String, Class<? extends TimeType>> supported_semanticIds = Map.of(
+            Constants.TIME_UTC, UtcTime.class,
+            Constants.TIME_TAI, TaiTime.class,
+            Constants.TIME_RELATIVE_DURATION, RelativeTimeDuration.class,
+            Constants.TIME_RELATIVE_POINT_IN_TIME, RelativePointInTime.class,
+            Constants.TIME_UNIX, UnixTime.class);
+
+    private static TimeFactory timefactory; //TODO Enum singleton for threadsafe impl.?
+
+    private TimeFactory() {
+        init();
+    }
+
+
+    /**
+     * Get instance of the TimeFactory. First call of this method calls the init() method of this class to
+     * create the list of supported semanticIDs.
+     *
+     * @return Current Instance of the {@link TimeFactory}.
+     */
+    public static TimeFactory getInstance() {
+        if (timefactory == null) {
+            timefactory = new TimeFactory();
+        }
+        return timefactory;
+    }
+
 
     /**
      * Create a {@link TimeType} object depending on the given semantic ID, that contains the value given as timestamp.
@@ -45,72 +73,14 @@ public class TimeFactory {
      * @return {@link TimeType} defined by the semanticID or {@link UnsupportedTime} if no matching class for semantic
      *         ID found.
      */
-    public static TimeType getTimeTypeFrom(String semanticID, String value, Optional<String> valueType) {
-        //TODO: implement matching strategies for semantic ids
-        switch (semanticID) {
-            case Constants.TIME_UTC:
-                return new UtcTime(value);
-            case Constants.TIME_UNIX:
-                return new UnixTime(value);
-            case Constants.TIME_TAI:
-                return new TaiTime(value);
-            case Constants.TIME_RELATIVE_POINT_IN_TIME:
-                return new RelativePointInTime(value);
-            case Constants.TIME_RELATIVE_DURATION:
-                return new RelativeTimeDuration(value);
-            default:
-                LOGGER.info(String.format("TimeFactory: No matching semantic ID and class for %s", semanticID));
-                return new UnsupportedTime(value, semanticID, valueType);
+    public TimeType getTimeTypeFrom(String semanticID, String value, Optional<String> valueType) {
+        for (Entry<String, Class<? extends TimeType>> entry: supported_semanticIds.entrySet()) {
+            if (entry.getKey().equals(semanticID)) {
+                return this.createInstanceOf(entry.getValue(), value, semanticID, valueType);
+            }
         }
-        //        for (Entry<String, String> entry: supported_semanticIds.entrySet()) {
-        //            if (entry.getKey().equals(semanticID)) {
-        //                try {
-        //                    Class<?> timeClass = Class.forName(entry.getValue());
-        //                    if (timeClass.getSuperclass().equals(TimeType.class)) {//(timeClass.isAssignableFrom(TimeType.class)) {
-        //                        for (Constructor<?> constr: timeClass.getConstructors()) {
-        //                            if (constr.getParameterCount() == 1) {
-        //                                return (TimeType) constr.newInstance(value);
-        //                            }
-        //                            else if (constr.getParameterCount() == 0) {
-        //                                TimeType tt = (TimeType) constr.newInstance();
-        //                                tt.init(value, semanticID, (valueType.isPresent() ? valueType.get() : null));
-        //                                return tt;
-        //                            }
-        //                        }
-        //                        LOGGER.error(String.format("TimeFactory: No fitting constructor found in class [%s]. Should either have 1 String argument for value or none.",
-        //                                entry.getKey(), entry.getValue()));
-        //                        return new UnsupportedTime(value, semanticID, valueType);
-        //                    }
-        //                    else {
-        //                        LOGGER.error(String.format("TimeFactory: Class [%s] found for semanticID [%s] should extend TimeType class.", entry.getKey(), entry.getValue()));
-        //                    }
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //
-        //                }
-        //                catch (ClassNotFoundException e) {
-        //                    LOGGER.error(String.format("TimeFactory: No class [%s] found for semanticID [%s].", entry.getKey(), entry.getValue()));
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //                }
-        //                catch (InstantiationException e) {
-        //                    LOGGER.error(String.format("TimeFactory: Unable to instantiate class [%s].", entry.getValue()));
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //                }
-        //                catch (IllegalAccessException e) {
-        //                    LOGGER.error(String.format("TimeFactory: Constructor of class [%s] not accessible.", entry.getValue()));
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //                }
-        //                catch (IllegalArgumentException e) {
-        //                    LOGGER.error(String.format("TimeFactory: Constructor of class [%s] not in correct form. First parameter should be value as String.", entry.getValue()));
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //                }
-        //                catch (InvocationTargetException e) {
-        //                    LOGGER.error(String.format("TimeFactory:Error constructing instance of class [%s]. Error: %s", entry.getValue(), e.getMessage()));
-        //                    return new UnsupportedTime(value, semanticID, valueType);
-        //                }
-        //            }
-        //        }
-        //        LOGGER.info(String.format("TimeFactory: No class defined for semantic ID: %s", semanticID));
-        //        return new UnsupportedTime(value, semanticID, valueType);
+        LOGGER.info(String.format("TimeFactory: No class defined for semantic ID: %s", semanticID));
+        return new UnsupportedTime(value, semanticID, valueType);
     }
 
 
@@ -123,7 +93,7 @@ public class TimeFactory {
      * @return {@link TimeType} defined by the semanticID or {@link UnsupportedTime} if no matching class for semantic
      *         ID found.
      */
-    public static TimeType getTimeTypeFrom(Reference semanticID, String value, Optional<String> valueType) {
+    public TimeType getTimeTypeFrom(Reference semanticID, String value, Optional<String> valueType) {
         String stringID = semanticID.getKeys().get(0).getValue();
         return getTimeTypeFrom(stringID, value, valueType);
     }
@@ -135,7 +105,7 @@ public class TimeFactory {
      * @param semanticID Semantic ID to test.
      * @return true if the TimeFactory has a class defined for the semantic ID.
      */
-    public static boolean hasClassFor(Reference semanticID) {
+    public boolean hasClassFor(Reference semanticID) {
         //TODO if with init: create instance, init instance use instances supported IDs
         if (semanticID == null || semanticID.getKeys().isEmpty()) {
             return false;
@@ -146,10 +116,72 @@ public class TimeFactory {
 
 
     /**
-     * Check for and register new semanticID and class combinations.
+     * Check for and register semanticID and class combinations, by searching for classes extending the {@link TimeType}
+     * class in the package "de.fraunhofer.iosb.ilt.faaast.service".
      */
     public void init() {
-        // TODO: register user defined time options to the already implemented ones --> other methods non-static! Singleton?
+        try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service").scan()) { //TODO set which packages to accept
+            ClassInfoList timeSubclasses = scanResult.getSubclasses(TimeType.class);
+            for (ClassInfo classInfo: timeSubclasses) {
+                Class<? extends TimeType> currentClass = (Class<? extends TimeType>) classInfo.loadClass();
+                if (!supported_semanticIds.containsValue(currentClass)) { //TODO: check what if n classes classes for semanticID or n semanticIDs per class?
+                    TimeType testType = createInstanceOf(currentClass, "00", "ToFind", Optional.empty()); //TODO: what if semanticID dependant on input?
+                    if (testType instanceof UnsupportedTime) {
+                        LOGGER.error(String.format("TimeFactory: Failed to add class %s to supported semantic IDs. Could not instantiate.", currentClass.getName()));
+                    }
+                    else if (testType.getTimeSemanticID() == "ToFind" || testType.getTimeSemanticID() == null) {
+                        LOGGER.error(String.format(
+                                "TimeFactory: Failed to add class %s to supported semantic IDs. Could not find or overwrote semanticID during initiating of the class instance.",
+                                currentClass.getName()));
+                    }
+                    else {
+                        supported_semanticIds.put(testType.getTimeSemanticID(), currentClass);
+                    }
+                }
+            }
+        }
+    }
+
+
+    private TimeType createInstanceOf(Class<? extends TimeType> timeClass, String value, String semanticID, Optional<String> valueType) {
+        try {
+            if (timeClass.getSuperclass().equals(TimeType.class)) {//(timeClass.isAssignableFrom(TimeType.class)) {
+                for (Constructor<?> constr: timeClass.getConstructors()) {
+                    if (constr.getParameterCount() == 1 && (constr.getParameterTypes()[0] == String.class)) {
+                        return (TimeType) constr.newInstance(value);
+                    }
+                    else if (constr.getParameterCount() == 0) {
+                        TimeType timeType = (TimeType) constr.newInstance();
+                        timeType.init(value, semanticID, (valueType.isPresent() ? valueType.get() : null));
+                        return timeType;
+                    }
+                }
+                LOGGER.error(String.format("TimeFactory: No fitting constructor found in class [%s]. Should either have 1 String argument for the time value or none.",
+                        timeClass.getName()));
+                return new UnsupportedTime(value, semanticID, valueType);
+            }
+            else {
+                LOGGER.error(String.format("TimeFactory: Class [%s] found for semanticID [%s] should extend TimeType class.", semanticID, timeClass.getName()));
+            }
+            return new UnsupportedTime(value, semanticID, valueType);
+
+        }
+        catch (InstantiationException e) {
+            LOGGER.error(String.format("TimeFactory: Unable to instantiate class [%s].", timeClass.getName()));
+            return new UnsupportedTime(value, semanticID, valueType);
+        }
+        catch (IllegalAccessException e) {
+            LOGGER.error(String.format("TimeFactory: Constructor of class [%s] not accessible.", timeClass.getName()));
+            return new UnsupportedTime(value, semanticID, valueType);
+        }
+        catch (IllegalArgumentException e) {
+            LOGGER.error(String.format("TimeFactory: Constructor of class [%s] not in correct form. First parameter should be value as String.", timeClass.getName()));
+            return new UnsupportedTime(value, semanticID, valueType);
+        }
+        catch (InvocationTargetException e) {
+            LOGGER.error(String.format("TimeFactory:Error constructing instance of class [%s]. Error: %s", timeClass.getName(), e.getMessage()));
+            return new UnsupportedTime(value, semanticID, valueType);
+        }
     }
 
 }

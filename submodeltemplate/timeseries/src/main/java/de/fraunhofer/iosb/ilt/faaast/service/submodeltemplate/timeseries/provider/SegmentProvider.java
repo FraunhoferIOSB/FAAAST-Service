@@ -53,31 +53,25 @@ public interface SegmentProvider<T extends Segment, C extends SegmentProviderCon
      * @param metadata the metadata of the time series
      * @param segment the segment to read from
      * @param timespan the timespan to search
-     * @return all records of the segment within given time interval
+     * @return all records of the segment within given time interval sorted by time
      * @throws de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException if
      *             fetching the data fails
      */
     public default List<Record> getRecords(Metadata metadata, T segment, Timespan timespan) throws SegmentProviderException {
-        //TODO ensure getRecord sorted by time
         List<Record> records = getRecords(metadata, segment);
         List<Record> filteredRecord = new ArrayList<>();
 
         ZonedDateTime previousEndTime = segment.getStart();
         for (Record currentRecord: records) {
             TimeType recordTime = currentRecord.getSingleTime();
-            ZonedDateTime startTime = recordTime.isIncrementalToPrevious() ? previousEndTime : segment.getStart();
-            ZonedDateTime currentEnd = recordTime.getEndAsZonedDateTime(startTime);
+            ZonedDateTime currentStartTime = recordTime.isIncrementalToPrevious() ? previousEndTime : segment.getStart();
+            ZonedDateTime currentEnd = recordTime.getEndAsZonedDateTime(currentStartTime);
             previousEndTime = currentEnd;
 
-            if (timespan.overlaps(new Timespan(recordTime.getStartAsZonedDateTime(startTime), currentEnd))) {
+            if (timespan.overlaps(new Timespan(recordTime.getStartAsZonedDateTime(currentStartTime), currentEnd))) {
                 filteredRecord.add(currentRecord);
             }
         }
         return filteredRecord;
-
-        //        return getRecords(metadata, segment).stream()
-        //                //                .filter(x -> (timespan.includes(x.getSingleTime().getStartAsZonedDateTime(segment.getStart())))
-        //                //                        || (timespan.includes(x.getSingleTime().getEndAsZonedDateTime(segment.getStart()))))
-        //                .collect(Collectors.toList());
     }
 }

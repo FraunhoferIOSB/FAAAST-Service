@@ -105,6 +105,8 @@
 					"value": [
 						{
 							"idShort": "Records",
+							"ordered": true,
+							"allowDuplicates": true,
 							"modelType":
 							{
 								"name": "SubmodelElementCollection"

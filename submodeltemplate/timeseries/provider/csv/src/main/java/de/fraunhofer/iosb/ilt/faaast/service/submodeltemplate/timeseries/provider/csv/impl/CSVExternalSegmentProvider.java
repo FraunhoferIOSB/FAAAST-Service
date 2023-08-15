@@ -19,8 +19,6 @@ import com.opencsv.exceptions.CsvValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
@@ -44,7 +42,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,9 +157,18 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             throw new SegmentProviderException(message);
         }
 
-        String blobData = new String(Base64.getDecoder().decode(data.getValue())); //TODO check correctness
-        StringReader reader = new StringReader(blobData);
-        List<Record> recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
+        List<Record> recordRows = new ArrayList<>();
+        try {
+            String blobData = new String(Base64.getDecoder().decode(data.getValue())); //TODO check correctness
+            StringReader reader = new StringReader(blobData);
+            recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
+        }
+        catch (IllegalArgumentException e) {
+            String message = String.format("Error reading from Blob (Blob ShortID: %s): Not a Base64 encoded scheme",
+                    data.getIdShort());
+            LOGGER.debug(message);
+            throw new SegmentProviderException(message);
+        }
 
         return recordRows;
     }
@@ -191,7 +197,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
             Map<String, String> values;
             while ((values = reader.readMap()) != null) {
-                TimeType currentTimetype = TimeFactory.getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecol), Optional.of(timetype.getDataValueType()));
+                TimeType currentTimetype = TimeFactory.getInstance().getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecol), Optional.of(timetype.getDataValueType()));
                 ZonedDateTime timestamp = currentTimetype.getStartAsZonedDateTime(startTime);
 
                 if (timespan != null) {
@@ -232,13 +238,13 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
                 TimeType typeInfo = metadata.getRecordMetadataTime().get(columnName);
                 if (typeInfo != null) {
                     newRecord.getTimes().put(columnName,
-                            TimeFactory.getTimeTypeFrom(typeInfo.getTimeSemanticID(), columnEntry.getValue(), Optional.of(typeInfo.getDataValueType())));
+                            TimeFactory.getInstance().getTimeTypeFrom(typeInfo.getTimeSemanticID(), columnEntry.getValue(), Optional.of(typeInfo.getDataValueType())));
                 }
             }
             if (metadata.getRecordMetadataVariables().containsKey(columnName)) {
                 try {
                     newRecord.getVariables().put(columnName,
-                            parseValue(columnEntry.getValue(), metadata.getRecordMetadataVariables().get(columnName).getDataType()));
+                            TypedValueFactory.create(metadata.getRecordMetadataVariables().get(columnName).getDataType(), columnEntry.getValue()));
                 }
                 catch (ValueFormatException e) {
                     throw new SegmentProviderException("Error reading from CSV - conversion error", e);
@@ -246,33 +252,6 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             }
         }
         return newRecord;
-    }
-
-
-    /**
-     * Parse a value to AAS {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
-     *
-     * @param value the value to parse
-     * @param datatype the datatype
-     * @return the parse value
-     * @throws ValueFormatException if parsign fails
-     */
-    protected static TypedValue parseValue(Object value, Datatype datatype) throws ValueFormatException {
-        Object valuePreprocessed = value;
-        switch (datatype) {
-            case BYTE:
-            case INT:
-            case INTEGER:
-            case SHORT: {
-                if (value instanceof Number) {
-                    valuePreprocessed = ((Number) value).intValue();
-                }
-                break;
-            }
-            default:
-                // intentionally left empty
-        }
-        return TypedValueFactory.create(datatype, Objects.toString(valuePreprocessed));
     }
 
 }

@@ -28,6 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -119,6 +122,11 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                                                     TimeUnit.NANOSECONDS)),
                                     ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
                             result.getTimes().put(fieldName, utcTime);
+                        }
+                        else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
+                            TimeType metaType = metadata.getRecordMetadataTime().get(fieldName);
+                            result.getTimes().put(fieldName,
+                                    TimeFactory.getInstance().getTimeTypeFrom(metaType.getTimeSemanticID(), fieldValue.toString(), Optional.of(metaType.getDataValueType())));
                         }
                         else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                             try {
