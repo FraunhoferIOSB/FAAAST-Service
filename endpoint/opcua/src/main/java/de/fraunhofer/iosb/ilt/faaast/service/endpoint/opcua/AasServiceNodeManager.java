@@ -48,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
@@ -226,7 +227,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getServiceResult(), ex);
         }
-        catch (AddressSpaceException | MessageBusException ex) {
+        catch (AddressSpaceException | MessageBusException | ValueFormatException ex) {
             LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getMessage(), ex);
         }
@@ -270,7 +271,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Creates the address space of the OPC UA Server.
      */
-    private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException {
+    private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException, ValueFormatException {
         LOG.trace("createAddressSpace");
 
         MethodManagerUaNode methodManager = (MethodManagerUaNode) getMethodManager();
@@ -288,8 +289,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
+    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
         addAasEnvironmentNode();
 
         ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
@@ -334,7 +336,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             try {
                 updateSubmodelElementValue(x.getElement(), x.getNewValue(), x.getOldValue());
             }
-            catch (StatusException e) {
+            catch (StatusException | ValueFormatException e) {
                 LOG.error("valueChanged Exception", e);
             }
         });
@@ -381,8 +383,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceResultException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
+    private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
@@ -489,8 +492,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceResultException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
+    private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
@@ -537,8 +541,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param newValue The new value of the SubmodelElement
      * @param oldValue The old value of the SubmodelElement
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException {
+    public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException, ValueFormatException {
         Ensure.requireNonNull(reference, "reference must not be null");
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
@@ -731,8 +736,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         else if (element instanceof AASEntityType) {
             AASEntityType ent = (AASEntityType) element;
-            if ((ent.getGlobalAssetIdNode() != null) && (ent.getGlobalAssetIdNode().getKeysNode() != null)) {
-                NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
+            if ((ent.getGlobalAssetIdNode() != null)) {
+                NodeId nid = ent.getGlobalAssetIdNode().getNodeId();
                 if (submodelElementAasMap.containsKey(nid)) {
                     submodelElementAasMap.remove(nid);
                     LOG.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId {}", nid);

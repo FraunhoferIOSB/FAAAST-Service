@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data;
 
+import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -30,7 +31,7 @@ public class ValueData {
 
     private final LocalizedText displayName;
 
-    private final AasServiceNodeManager nodeManager;
+    private final NodeManagerUaNode nodeManager;
 
     /**
      * Creates a new instance of ValueHelper.
@@ -40,7 +41,7 @@ public class ValueData {
      * @param displayName The desired Display Name.
      * @param nodeManager The corresponding Node Manager
      */
-    public ValueData(NodeId nodeId, QualifiedName browseName, LocalizedText displayName, AasServiceNodeManager nodeManager) {
+    public ValueData(NodeId nodeId, QualifiedName browseName, LocalizedText displayName, NodeManagerUaNode nodeManager) {
         this.browseName = browseName;
         this.displayName = displayName;
         this.nodeId = nodeId;
@@ -83,7 +84,7 @@ public class ValueData {
      * 
      * @return The Node Manager.
      */
-    public AasServiceNodeManager getNodeManager() {
+    public NodeManagerUaNode getNodeManager() {
         return nodeManager;
     }
 }

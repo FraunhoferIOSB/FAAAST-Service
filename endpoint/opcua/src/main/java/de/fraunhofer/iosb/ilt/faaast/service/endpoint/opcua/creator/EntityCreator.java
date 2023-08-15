@@ -19,6 +19,7 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -28,9 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
 import opc.i4aas.AASEntityType;
+import opc.i4aas.AASSpecificAssetIDList;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -58,9 +61,10 @@ public class EntityCreator extends SubmodelElementCreator {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addAasEntity(UaNode node, Entity aasEntity, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasEntity != null)) {
             String name = aasEntity.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
@@ -78,7 +82,7 @@ public class EntityCreator extends SubmodelElementCreator {
 
             // GlobalAssetId
             if (aasEntity.getGlobalAssetID() != null) {
-                setGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
+                addGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
             }
 
             // SpecificAssetIds
@@ -103,28 +107,36 @@ public class EntityCreator extends SubmodelElementCreator {
         }
     }
 
-
-    private static void setSpecificAssetIdData(AASEntityType entityNode, SpecificAssetID specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
-        if (entityNode.getSpecificAssetIdNode() == null) {
-            SpecificAssetIdCreator.addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID, nodeManager);
+    
+    public static void setGlobalAssetIdData(AASEntityType entityNode, String value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
+        if (entityNode.getGlobalAssetIdNode() == null) {
+            // create node
+            UaHelper.addStringUaProperty(entityNode, nodeManager, AASEntityType.GLOBAL_ASSET_ID, value);
         }
         else {
-            SpecificAssetIdCreator.setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId, nodeManager);
+            entityNode.setGlobalAssetId(value);
         }
     }
 
 
-    private static void setGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
-            throws StatusException {
-        if (entityNode.getGlobalAssetIdNode() == null) {
-            AasReferenceCreator.addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetID(), AASEntityType.GLOBAL_ASSET_ID, false, nodeManager);
+    private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetID> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
+        AASSpecificAssetIDList listNode = entityNode.getSpecificAssetIdNode();
+        if (listNode == null) {
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDList.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(entityNode, browseName);
+            listNode = nodeManager.createInstance(AASSpecificAssetIDList.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
         }
-        else {
-            AasSubmodelElementHelper.setAasReferenceData(aasEntity.getGlobalAssetID(), entityNode.getGlobalAssetIdNode(), false);
-        }
+        
+        SpecificAssetIdCreator.addSpecificAssetIDList(listNode, specificAssetId, nodeManager);
+    }
 
-        nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),
+
+    private static void addGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
+            throws StatusException, ValueFormatException {
+
+        setGlobalAssetIdData(entityNode, aasEntity.getGlobalAssetID(), nodeManager);
+        nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getNodeId(),
                 new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_GLOBAL_ASSET_ID, entityRef));
     }
-
 }
