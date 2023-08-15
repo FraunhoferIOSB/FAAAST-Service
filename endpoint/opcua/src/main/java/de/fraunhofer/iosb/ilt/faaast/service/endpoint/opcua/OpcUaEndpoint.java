@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -151,11 +152,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
-            List<Key> path = new ArrayList<>();
-            path.addAll(refElement.getKeys());
-
             request.setSubmodelId(submodel.getId());
-            request.setPath(path);
+            request.setPath(ReferenceHelper.toPath(refElement));
             request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
@@ -205,11 +203,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         List<OperationVariable> outputArguments;
         InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
-        List<Key> path = new ArrayList<>();
-        path.addAll(refElement.getKeys());
-
         request.setSubmodelId(submodel.getId());
-        request.setPath(path);
+        request.setPath(ReferenceHelper.toPath(refElement));
         request.setInputArguments(inputVariables);
 
         requestCounter++;
