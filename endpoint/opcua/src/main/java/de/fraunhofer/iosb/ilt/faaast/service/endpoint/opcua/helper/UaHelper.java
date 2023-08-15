@@ -1,0 +1,73 @@
+/*
+ * Copyright 2023 Fraunhofer IOSB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
+
+import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.UaQualifiedName;
+import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.server.NodeManagerUaNode;
+import com.prosysopc.ua.server.nodes.PlainProperty;
+import com.prosysopc.ua.stack.builtintypes.LocalizedText;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.core.Identifiers;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+
+/**
+ * Helper class with general OPC UA helper methods.
+ */
+public class UaHelper {
+    
+    /**
+     * Creates an OPC UA String property.
+     * 
+     * @param valueData The desired Value Data
+     * @param typedValue The desired value
+     * @return The created OPC UA property
+     * @throws StatusException If an error occurs
+     */
+    public static PlainProperty<String> createStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<String> stringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        stringProperty.setDataTypeId(Identifiers.String);
+        stringProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            stringProperty.setValue(typedValue.getValue());
+        }
+        return stringProperty;
+    }
+
+
+    /**
+     * Adds an OPC UA String property to the given node.
+     * 
+     * @param parentNode The node where the property should be added.
+     * @param nodeManager The corresponding NodeManager.
+     * @param name The name of the desired property.
+     * @param value The value of the desired property.
+     * @throws StatusException If an error occurs
+     * @throws ValueFormatException The data format of the value is invalid
+     */
+    public static void addStringUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value) throws StatusException, ValueFormatException {
+        NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
+        QualifiedName browseName = UaQualifiedName.from(nodeManager.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        LocalizedText displayName = LocalizedText.english(name);
+        parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
+    }
+}

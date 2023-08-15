@@ -28,6 +28,7 @@ import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
@@ -44,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,8 +145,9 @@ public class AasSubmodelElementHelper {
      * @param value The new value
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
+    public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
@@ -334,18 +336,7 @@ public class AasSubmodelElementHelper {
 
 
     private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static PlainProperty<String> createStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<String> stringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        stringProperty.setDataTypeId(Identifiers.String);
-        stringProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            stringProperty.setValue(typedValue.getValue());
-        }
-        return stringProperty;
+        prop.addProperty(UaHelper.createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
 
@@ -513,11 +504,11 @@ public class AasSubmodelElementHelper {
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
                     if (minValue != null) {
-                        range.addProperty(createStringProperty(minData, minTypedValue));
+                        range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
                     }
 
                     if (maxValue != null) {
-                        range.addProperty(createStringProperty(maxData, maxTypedValue));
+                        range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
                     }
                     break;
             }
@@ -532,11 +523,11 @@ public class AasSubmodelElementHelper {
                                              TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            range.addProperty(createStringProperty(minData, minTypedValue));
+            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            range.addProperty(createStringProperty(maxData, maxTypedValue));
+            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
         }
     }
 
@@ -739,14 +730,13 @@ public class AasSubmodelElementHelper {
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
      */
-    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException {
+    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
         // GlobalAssetId
         if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
-            DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
-            setAasReferenceData(ref, entity.getGlobalAssetIdNode());
+            EntityCreator.setGlobalAssetIdData(entity, value.getGlobalAssetId(), nodeManager);
         }
 
         // Statements

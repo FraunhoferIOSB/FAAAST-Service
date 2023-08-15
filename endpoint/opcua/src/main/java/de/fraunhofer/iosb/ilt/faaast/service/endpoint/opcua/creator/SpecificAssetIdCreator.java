@@ -23,8 +23,11 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import java.util.List;
+import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierKeyValuePairType;
 import opc.i4aas.AASReferenceType;
+import opc.i4aas.AASSpecificAssetIDType;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -43,83 +46,200 @@ public class SpecificAssetIdCreator {
     }
 
 
+//    /**
+//     * Adds an IdentifierKeyValuePair to the given Node.
+//     *
+//     * @param node The UA node in which the IdentifierKeyValuePair should be created
+//     * @param identifierPair The desired IdentifierKeyValuePair
+//     * @param name The desired name of the IdentifierKeyValuePair node
+//     * @param nodeManager The corresponding Node Manager
+//     * @throws StatusException If the operation fails
+//     */
+//    public static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, AasServiceNodeManager nodeManager) throws StatusException {
+//        addIdentifierKeyValuePair(node, identifierPair, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+//    }
+
+
     /**
-     * Adds an IdentifierKeyValuePair to the given Node.
-     *
-     * @param node The UA node in which the IdentifierKeyValuePair should be created
-     * @param identifierPair The desired IdentifierKeyValuePair
-     * @param name The desired name of the IdentifierKeyValuePair node
+     * Adds a list of SpecificAssetIDs to the given Node.
+     * 
+     * @param node The UA node in which the SpecificAssetID should be created
+     * @param specificAssetIDs The desired list of SpecificAssetIDs
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, AasServiceNodeManager nodeManager) throws StatusException {
-        addIdentifierKeyValuePair(node, identifierPair, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+    public static void addSpecificAssetIDList(UaNode node, List<SpecificAssetID> specificAssetIDs, AasServiceNodeManager nodeManager) throws StatusException {
+        
+        int index = 1;
+        for (var specificAssetID : specificAssetIDs) {
+            String name = String.format("%s %d", AASEntityType.SPECIFIC_ASSET_ID, index);
+            if ((specificAssetID.getName() != null) && (!specificAssetID.getName().isEmpty())) {
+                name = specificAssetID.getName();
+            }
+            
+            addSpecificAssetID(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+        }
     }
+    
+    /**
+     * Adds a SpecificAssetID to the given Node.
+     *
+     * @param node The UA node in which the SpecificAssetID should be created
+     * @param specificAssetID The desired SpecificAssetID
+     * @param name The desired name of the SpecificAssetID node
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     */
+    public static void addSpecificAssetID(UaNode node, SpecificAssetID specificAssetID, String name, AasServiceNodeManager nodeManager) throws StatusException {
+        addSpecificAssetID(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+    }
+
+
+////    /**
+////     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
+////     * 
+////     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+////     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
+////     * @param nodeManager The corresponding Node Manager
+////     * @throws StatusException If the operation fails
+////     */
+////    public static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, AasServiceNodeManager nodeManager)
+////            throws StatusException {
+////        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+////    }
 
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
      * 
-     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+     * @param specificAssetIDNode The desired SpecificAssetID Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, AasServiceNodeManager nodeManager)
+    public static void setSpecificAssetIDData(AASSpecificAssetIDType specificAssetIDNode, SpecificAssetID aasIdentifierPair, AasServiceNodeManager nodeManager)
             throws StatusException {
-        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+        setSpecificAssetIDData(specificAssetIDNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
 
+//    /**
+//     * Adds an IdentifierKeyValuePair to the given Node.
+//     *
+//     * @param node The UA node in which the IdentifierKeyValuePair should be created
+//     * @param identifierPair The desired IdentifierKeyValuePair
+//     * @param name The desired name of the IdentifierKeyValuePair node
+//     * @param readOnly True if the value should be read-only
+//     * @param nodeManager The corresponding Node Manager
+//     * @throws StatusException If the operation fails
+//     */
+//    private static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, boolean readOnly, AasServiceNodeManager nodeManager)
+//            throws StatusException {
+//        if (node == null) {
+//            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
+//        }
+//        else if (identifierPair == null) {
+//            throw new IllegalArgumentException("identifierPair = null");
+//        }
+//
+//        LOGGER.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
+//        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name)
+//                .toQualifiedName(nodeManager.getNamespaceTable());
+//        NodeId nid = nodeManager.createNodeId(node, browseName);
+//        AASIdentifierKeyValuePairType identifierPairNode = nodeManager.createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
+//
+//        setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly, nodeManager);
+//
+//        node.addComponent(identifierPairNode);
+//    }
+
+
     /**
-     * Adds an IdentifierKeyValuePair to the given Node.
+     * Adds an SpecificAssetID to the given Node.
      *
-     * @param node The UA node in which the IdentifierKeyValuePair should be created
-     * @param identifierPair The desired IdentifierKeyValuePair
-     * @param name The desired name of the IdentifierKeyValuePair node
+     * @param node The UA node in which the SpecificAssetID should be created
+     * @param specificAssetID The desired SpecificAssetID
+     * @param name The desired name of the SpecificAssetID node
      * @param readOnly True if the value should be read-only
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addIdentifierKeyValuePair(UaNode node, SpecificAssetID identifierPair, String name, boolean readOnly, AasServiceNodeManager nodeManager)
+    private static void addSpecificAssetID(UaNode node, SpecificAssetID specificAssetID, String name, boolean readOnly, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
-        else if (identifierPair == null) {
-            throw new IllegalArgumentException("identifierPair = null");
+        else if (specificAssetID == null) {
+            throw new IllegalArgumentException("specificAssetID = null");
         }
 
-        LOGGER.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name)
+        LOGGER.debug("addSpecificAssetID {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDType.getNamespaceUri(), name)
                 .toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
-        AASIdentifierKeyValuePairType identifierPairNode = nodeManager.createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
+        AASSpecificAssetIDType specificAssetIDNode = nodeManager.createInstance(AASSpecificAssetIDType.class, nid, browseName, LocalizedText.english(name));
 
-        setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly, nodeManager);
+        setSpecificAssetIDData(specificAssetIDNode, specificAssetID, readOnly, nodeManager);
 
-        node.addComponent(identifierPairNode);
+        node.addComponent(specificAssetIDNode);
     }
+
+
+////    /**
+////     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
+////     * 
+////     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+////     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
+////     * @param readOnly True if the value should be read-only
+////     * @param nodeManager The corresponding Node Manager
+////     * @throws StatusException If the operation fails
+////     */
+////    private static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, boolean readOnly,
+////                                                      AasServiceNodeManager nodeManager)
+////            throws StatusException {
+////        // ExternalSubjectId
+////        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectID();
+////        if (externalSubjectId != null) {
+////            AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
+////            if (extSubjectNode == null) {
+////                AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
+////            }
+////            else {
+////                AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
+////            }
+////        }
+////
+////        // Key
+////        identifierPairNode.setKey(aasIdentifierPair.getName());
+////
+////        // Value
+////        identifierPairNode.setValue(aasIdentifierPair.getValue());
+////
+////        if (readOnly) {
+////            identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
+////            identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+////        }
+////    }
 
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
      * 
-     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+     * @param specificAssetIDNode The desired IdentifierKeyValuePair Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param readOnly True if the value should be read-only
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, SpecificAssetID aasIdentifierPair, boolean readOnly,
+    private static void setSpecificAssetIDData(AASSpecificAssetIDType specificAssetIDNode, SpecificAssetID aasIdentifierPair, boolean readOnly,
                                                       AasServiceNodeManager nodeManager)
             throws StatusException {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectID();
         if (externalSubjectId != null) {
-            AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
+            AASReferenceType extSubjectNode = specificAssetIDNode.getExternalSubjectIDNode();
             if (extSubjectNode == null) {
-                AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
+                AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
             }
             else {
                 AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
@@ -127,14 +247,14 @@ public class SpecificAssetIdCreator {
         }
 
         // Key
-        identifierPairNode.setKey(aasIdentifierPair.getName());
+        specificAssetIDNode.setName(aasIdentifierPair.getName());
 
         // Value
-        identifierPairNode.setValue(aasIdentifierPair.getValue());
+        specificAssetIDNode.setValue(aasIdentifierPair.getValue());
 
         if (readOnly) {
-            identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            specificAssetIDNode.getNameNode().setAccessLevel(AccessLevelType.CurrentRead);
+            specificAssetIDNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 

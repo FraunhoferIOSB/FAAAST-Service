@@ -21,7 +21,7 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.Collection;
 import java.util.List;
 import opc.i4aas.AASSubmodelElementType;
@@ -64,9 +64,10 @@ public class SubmodelElementCreator {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addSubmodelElements(UaNode node, List<SubmodelElement> elements, Submodel submodel, Reference parentRef, AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         addSubmodelElements(node, elements, submodel, parentRef, false, nodeManager);
     }
 
@@ -85,10 +86,11 @@ public class SubmodelElementCreator {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addSubmodelElements(UaNode node, Collection<SubmodelElement> elements, Submodel submodel, Reference parentRef, boolean ordered,
                                            AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (SubmodelElement elem: elements) {
                 if (elem instanceof DataElement) {
