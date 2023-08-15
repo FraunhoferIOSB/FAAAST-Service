@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
@@ -50,16 +49,16 @@ public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterface
         ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnCreate());
         Reference parentReference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
-        SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
-        if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {
-            assetConnectionManager.setValue(childReference, ElementValueMapper.toValue(submodelElement));
+        persistence.save(parentReference, request.getSubmodelElement());
+        if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
+            assetConnectionManager.setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
         }
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(parentReference)
-                .value(submodelElement)
+                .value(request.getSubmodelElement())
                 .build());
         return PostSubmodelElementResponse.builder()
-                .payload(submodelElement)
+                .payload(request.getSubmodelElement())
                 .created()
                 .build();
     }

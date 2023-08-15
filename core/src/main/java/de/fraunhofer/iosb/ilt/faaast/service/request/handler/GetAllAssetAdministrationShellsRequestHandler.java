@@ -19,9 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
@@ -43,7 +44,7 @@ public class GetAllAssetAdministrationShellsRequestHandler extends AbstractReque
 
     @Override
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) throws MessageBusException {
-        List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
+        List<AssetAdministrationShell> shells = persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, request.getOutputModifier(), PagingInfo.ALL);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()

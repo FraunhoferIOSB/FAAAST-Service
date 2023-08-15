@@ -24,6 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentificati
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.ArrayList;
@@ -67,7 +69,12 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
             }
             assetIdentifications.add(id);
         }
-        List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
+        List<AssetAdministrationShell> shells = new ArrayList<>(persistence.findAssetAdministrationShells(
+                AssetAdministrationShellSearchCriteria.builder()
+                        .assetIds(assetIdentifications)
+                        .build(),
+                request.getOutputModifier(),
+                PagingInfo.ALL));
         shells.forEach(LambdaExceptionHelper.rethrowConsumer(
                 x -> messageBus.publish(ElementReadEventMessage.builder()
                         .element(x)

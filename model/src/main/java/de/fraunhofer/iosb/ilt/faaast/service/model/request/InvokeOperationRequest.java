@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
@@ -36,7 +35,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
     protected long timeout;
-    protected String requestId;
 
     protected InvokeOperationRequest() {
         super(OutputModifierConstraints.builder()
@@ -48,7 +46,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
         this.timeout = DEFAULT_TIMEOUT;
-        this.requestId = UUID.randomUUID().toString();
     }
 
 
@@ -82,16 +79,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     }
 
 
-    public String getRequestId() {
-        return requestId;
-    }
-
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,14 +92,13 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
                 && Objects.equals(path, that.path)
                 && Objects.equals(inputArguments, that.inputArguments)
                 && Objects.equals(inoutputArguments, that.inoutputArguments)
-                && Objects.equals(timeout, that.timeout)
-                && Objects.equals(requestId, that.requestId);
+                && Objects.equals(timeout, that.timeout);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, inputArguments, inoutputArguments, timeout, requestId);
+        return Objects.hash(super.hashCode(), path, inputArguments, inoutputArguments, timeout);
     }
 
 
@@ -135,12 +121,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
             }
             builder.content(value);
             getBuildingInstance().outputModifier = builder.build();
-            return getSelf();
-        }
-
-
-        public B requestId(String value) {
-            getBuildingInstance().setRequestId(value);
             return getSelf();
         }
 

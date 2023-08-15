@@ -21,9 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
@@ -33,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -53,17 +56,25 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
 
     @Override
     public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
         ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnUpdate());
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
         //Check if submodelelement does exist
-        SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
+        SubmodelElement oldSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
-        if (ElementValueHelper.isSerializableAsValue(currentSubmodelElement.getClass())) {
-            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+        persistence.save(ReferenceHelper.getParent(reference), newSubmodelElement);
+        if (Objects.isNull(oldSubmodelElement)) {
+            messageBus.publish(ElementCreateEventMessage.builder()
+                    .element(reference)
+                    .value(newSubmodelElement)
+                    .build());
+        }
+        else if (Objects.equals(oldSubmodelElement.getClass(), newSubmodelElement.getClass())
+                && ElementValueHelper.isSerializableAsValue(oldSubmodelElement.getClass())) {
+            ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
             ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
             if (!Objects.equals(oldValue, newValue)) {
                 assetConnectionManager.setValue(reference, newValue);
@@ -74,13 +85,12 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                         .build());
             }
         }
-        currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(reference)
-                .value(currentSubmodelElement)
+                .value(newSubmodelElement)
                 .build());
         return PutSubmodelElementByPathResponse.builder()
-                .payload(currentSubmodelElement)
+                .payload(newSubmodelElement)
                 .success()
                 .build();
     }

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -48,9 +49,9 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
 
     @Override
     public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
-            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException {
+            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
+        List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, request.getOutputModifier());
         syncWithAsset(reference, submodelElements);
         if (submodelElements != null) {
             submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(

@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -55,9 +56,11 @@ public class SetSubmodelElementValueByPathRequestHandler
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
-                .extend(Extent.WITH_BLOB_VALUE)
-                .build());
+        SubmodelElement submodelElement = persistence.getSubmodelElement(
+                reference,
+                new OutputModifier.Builder()
+                        .extend(Extent.WITH_BLOB_VALUE)
+                        .build());
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
@@ -65,7 +68,7 @@ public class SetSubmodelElementValueByPathRequestHandler
             assetConnectionManager.setValue(reference, newValue);
         }
         try {
-            persistence.put(null, reference, submodelElement);
+            persistence.save(ReferenceHelper.getParent(reference), submodelElement);
         }
         catch (IllegalArgumentException e) {
             // empty on purpose

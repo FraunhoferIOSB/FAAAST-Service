@@ -19,9 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
@@ -46,7 +47,12 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
 
     @Override
     public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request) throws MessageBusException {
-        List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (List<AssetIdentification>) null, request.getOutputModifier());
+        List<AssetAdministrationShell> shells = persistence.findAssetAdministrationShells(
+                AssetAdministrationShellSearchCriteria.builder()
+                        .idShort(request.getIdShort())
+                        .build(),
+                request.getOutputModifier(),
+                PagingInfo.ALL);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()

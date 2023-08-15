@@ -41,7 +41,7 @@ public class GetAssetAdministrationShellRequestHandler extends AbstractRequestHa
 
     @Override
     public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = persistence.get(request.getId(), request.getOutputModifier(), AssetAdministrationShell.class);
+        AssetAdministrationShell shell = persistence.getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(shell)
                 .value(shell)

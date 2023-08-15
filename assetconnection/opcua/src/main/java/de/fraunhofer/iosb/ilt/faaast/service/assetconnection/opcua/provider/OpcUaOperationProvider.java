@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -31,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -171,9 +173,16 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         outputArgumentMappingList = providerConfig.getOutputArgumentMapping() != null ? providerConfig.getOutputArgumentMapping() : new ArrayList<>();
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
-        outputVariables = serviceContext.getOperationOutputVariables(reference) != null
-                ? serviceContext.getOperationOutputVariables(reference)
-                : new OperationVariable[0];
+        try {
+            outputVariables = serviceContext.getOperationOutputVariables(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new AssetConnectionException(
+                    String.format(
+                            "Operation could not be found in AAS model (reference: %s)",
+                            ReferenceHelper.toString(reference)),
+                    e);
+        }
         for (var outputVariable: outputVariables) {
             if (outputVariable == null) {
                 throw new AssetConnectionException(String.format("Output variable must be non-null (nodeId: %s)",

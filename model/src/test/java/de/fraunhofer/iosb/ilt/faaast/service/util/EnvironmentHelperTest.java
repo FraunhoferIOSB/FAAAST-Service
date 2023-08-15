@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -37,7 +38,12 @@ public class EnvironmentHelperTest {
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(Referable referable) {
-                        assertResolve(referable, environment);
+                        try {
+                            assertResolve(referable, environment);
+                        }
+                        catch (ResourceNotFoundException e) {
+                            Assert.fail();
+                        }
                     }
                 })
                 .build()
@@ -46,7 +52,7 @@ public class EnvironmentHelperTest {
     }
 
 
-    private void assertResolve(Referable expected, Environment environment) {
+    private void assertResolve(Referable expected, Environment environment) throws ResourceNotFoundException {
         Reference reference = EnvironmentHelper.asReference(expected, environment);
         Referable actual = EnvironmentHelper.resolve(reference, environment);
         Assert.assertEquals(expected, actual);

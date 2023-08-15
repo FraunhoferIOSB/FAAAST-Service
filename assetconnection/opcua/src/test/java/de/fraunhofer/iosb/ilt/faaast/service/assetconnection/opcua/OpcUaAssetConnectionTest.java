@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -631,7 +632,7 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> inoutput,
                                        Map<String, PropertyValue> expectedInoutput,
                                        Map<String, PropertyValue> expectedOutput)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException {
         assertInvokeOperation(server, nodeId, sync, input, inoutput, expectedInoutput, expectedOutput, null, null);
     }
 
@@ -646,7 +647,7 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> expectedOutput,
                                        List<ArgumentMapping> inputMapping,
                                        List<ArgumentMapping> outputMapping)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(server.getEndpoint(Protocol.TCP))

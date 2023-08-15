@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
@@ -31,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -155,7 +157,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             path.addAll(refElement.getKeys());
 
             request.setSubmodelId(submodel.getId());
-            request.setPath(path);
+            request.setPath(ReferenceHelper.toPath(path));
             request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
@@ -209,10 +211,11 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         path.addAll(refElement.getKeys());
 
         request.setSubmodelId(submodel.getId());
-        request.setPath(path);
+        request.setPath(ReferenceHelper.toPath(path));
         request.setInputArguments(inputVariables);
 
         requestCounter++;
+        // TODO requestId no longer exists
         request.setRequestId(Integer.toString(requestCounter));
 
         // execute method

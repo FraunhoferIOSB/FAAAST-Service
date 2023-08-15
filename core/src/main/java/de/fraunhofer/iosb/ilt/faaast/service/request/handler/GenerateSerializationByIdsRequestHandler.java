@@ -24,12 +24,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
@@ -59,13 +59,13 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .payload(new DefaultEnvironment.Builder()
                         .assetAdministrationShells(
                                 request.getAasIds().stream()
-                                        .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.get(x, OUTPUT_MODIFIER, AssetAdministrationShell.class)))
+                                        .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
                                         .collect(Collectors.toList()))
                         .submodels(request.getSubmodelIds().stream()
-                                .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.get(x, OUTPUT_MODIFIER, Submodel.class)))
+                                .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.getSubmodel(x, OUTPUT_MODIFIER)))
                                 .collect(Collectors.toList()))
                         .conceptDescriptions(request.getIncludeConceptDescriptions()
-                                ? persistence.getEnvironment().getConceptDescriptions()
+                                ? persistence.findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
                                 : List.of())
                         .build())
                 .success()

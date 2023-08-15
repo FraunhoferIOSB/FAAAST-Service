@@ -21,6 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
@@ -44,7 +46,12 @@ public class GetAllConceptDescriptionsByIdShortRequestHandler
 
     @Override
     public GetAllConceptDescriptionsByIdShortResponse process(GetAllConceptDescriptionsByIdShortRequest request) throws MessageBusException {
-        List<ConceptDescription> conceptDescriptions = persistence.get(request.getIdShort(), null, null, request.getOutputModifier());
+        List<ConceptDescription> conceptDescriptions = persistence.findConceptDescriptions(
+                ConceptDescriptionSearchCriteria.builder()
+                        .idShort(request.getIdShort())
+                        .build(),
+                request.getOutputModifier(),
+                PagingInfo.ALL);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()

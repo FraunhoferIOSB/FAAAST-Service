@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -51,18 +52,18 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
 
     @Override
     public GetSubmodelElementByPathResponse doProcess(GetSubmodelElementByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
+        SubmodelElement submodelElement = persistence.getSubmodelElement(reference, request.getOutputModifier());
         Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
         if (valueFromAssetConnection.isPresent()) {
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
             if (!Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
-                persistence.put(null, reference, submodelElement);
+                persistence.save(reference, submodelElement);
                 messageBus.publish(ValueChangeEventMessage.builder()
                         .element(reference)
                         .oldValue(oldValue)

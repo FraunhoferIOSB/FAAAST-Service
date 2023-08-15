@@ -41,7 +41,7 @@ public class GetConceptDescriptionByIdRequestHandler extends AbstractRequestHand
 
     @Override
     public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
-        ConceptDescription conceptDescription = persistence.get(request.getId(), request.getOutputModifier(), ConceptDescription.class);
+        ConceptDescription conceptDescription = persistence.getConceptDescription(request.getId(), request.getOutputModifier());
         if (conceptDescription != null) {
             messageBus.publish(ElementReadEventMessage.builder()
                     .element(conceptDescription)

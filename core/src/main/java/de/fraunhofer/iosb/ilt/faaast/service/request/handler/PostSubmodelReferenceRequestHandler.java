@@ -42,11 +42,11 @@ public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<
 
     @Override
     public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell aas = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        AssetAdministrationShell aas = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (!aas.getSubmodels().contains(request.getSubmodelRef())) {
             aas.getSubmodels().add(request.getSubmodelRef());
         }
-        persistence.put(aas);
+        persistence.save(aas);
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(aas)
                 .value(aas)

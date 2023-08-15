@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
@@ -29,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -98,13 +100,14 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @param parent of the SubmodelElement List
      * @param submodelElements List of SubmodelElements which should be considered and updated
      * @throws ResourceNotFoundException if reference does not point to valid element
+     * @throws ResourceNotAContainerElementException if reference does not point to valid element
      * @throws AssetConnectionException if reading value from asset connection fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if mapping value read from
      *             asset connection fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
+            throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException {
         if (parent == null || submodelElements == null) {
             return;
         }
@@ -126,12 +129,9 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         for (var update: updatedSubmodelElements.entrySet()) {
             Reference reference = AasUtils.toReference(parent, update.getKey());
             SubmodelElement oldElement = update.getKey();
-            SubmodelElement newElement = persistence.put(
-                    null,
-                    reference,
-                    ElementValueMapper.setValue(
-                            oldElement,
-                            update.getValue()));
+            SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
+            ElementValueMapper.setValue(newElement, update.getValue());
+            persistence.save(parent, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
             messageBus.publish(ValueChangeEventMessage.builder()

@@ -30,17 +30,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +128,7 @@ public class Service implements ServiceContext {
     @Override
     public Response execute(Request request) {
         try {
-            return this.requestHandler.execute(request);
+            return requestHandler.execute(request);
         }
         catch (Exception e) {
             LOGGER.trace("Error executing request", e);
@@ -127,20 +138,44 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) {
-        return persistence.getOperationOutputVariables(reference);
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        SubmodelElement element = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        if (element == null) {
+            throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+        }
+        if (!Operation.class.isAssignableFrom(element.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    ReferenceHelper.toString(reference),
+                    element.getClass()));
+        }
+        return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
     }
 
 
     @Override
     public TypeInfo getTypeInfo(Reference reference) {
-        return persistence.getTypeInfo(reference);
+        Referable referable;
+        try {
+            referable = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        }
+        catch (ResourceNotFoundException e) {
+            // TODO could also be submodel?
+            throw new RuntimeException();
+        }
+        return TypeExtractor.extractTypeInfo(referable);
     }
 
 
     @Override
     public Environment getAASEnvironment() {
-        return DeepCopyHelper.deepCopy(persistence.getEnvironment());
+        return new DefaultEnvironment.Builder()
+                .assetAdministrationShells(persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
+                .submodels(persistence.findSubmodels(SubmodelSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
+                .conceptDescriptions(persistence.findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
+                .build();
     }
 
 

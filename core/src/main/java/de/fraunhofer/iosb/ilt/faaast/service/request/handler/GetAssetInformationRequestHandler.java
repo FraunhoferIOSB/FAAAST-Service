@@ -42,7 +42,7 @@ public class GetAssetInformationRequestHandler extends AbstractRequestHandler<Ge
 
     @Override
     public GetAssetInformationResponse process(GetAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        AssetAdministrationShell shell = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(shell)
                 .value(shell)
