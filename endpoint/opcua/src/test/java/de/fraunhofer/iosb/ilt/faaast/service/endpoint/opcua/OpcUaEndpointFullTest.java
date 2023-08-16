@@ -60,16 +60,14 @@ import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
-import opc.i4aas.AASModelingKindDataType;
+import opc.i4aas.AASKeyTypesDataType;
+import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
-import org.eclipse.digitaltwin.aas4j.v3.model.ModelingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -117,16 +115,17 @@ public class OpcUaEndpointFullTest {
 
         // register Test Operation
         List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyElements.SUBMODEL).idType(KeyType.IRI).value("https://acplt.org/Test_Submodel3").build());
-        keys.add(new DefaultKey.Builder().type(KeyElements.OPERATION).idType(KeyType.ID_SHORT).value("ExampleOperation").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
         Reference ref = new DefaultReference.Builder().keys(keys).build();
         List<OperationVariable> outputArgs = new ArrayList<>();
-        outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType("string").value("XYZ1").build()).build());
+        outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType(DataTypeDefXSD.STRING).value("XYZ1").build())
+                .build());
 
         // register another Operation 
         keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyElements.SUBMODEL).idType(KeyType.IRI).value("https://acplt.org/Test_Submodel_Mandatory").build());
-        keys.add(new DefaultKey.Builder().type(KeyElements.OPERATION).idType(KeyType.ID_SHORT).value("ExampleOperation").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Mandatory").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
         Reference ref2 = new DefaultReference.Builder().keys(keys).build();
 
         assetConnectionConfig.setOperationProviders(new HashMap<Reference, TestOperationProviderConfig>() {
@@ -244,15 +243,15 @@ public class OpcUaEndpointFullTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory", AASKeyTypeDataType.IRI));
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered", AASKeyTypeDataType.IdShort));
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty", AASKeyTypeDataType.IdShort));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered"));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory", AASKeyTypeDataType.IRI));
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered", AASKeyTypeDataType.IdShort));
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Range, "ExampleRange", AASKeyTypeDataType.IdShort));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered"));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Range, "ExampleRange"));
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
@@ -295,7 +294,7 @@ public class OpcUaEndpointFullTest {
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1", AASKeyTypeDataType.IRI));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
 
         TestUtils.writeNewValueArray(client, writeNode, null, newValue.toArray(AASKeyDataType[]::new));
 
@@ -401,8 +400,8 @@ public class OpcUaEndpointFullTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_2_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_ENTITY2_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASEntityType.GLOBAL_ASSET_ID)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASEntityType.GLOBAL_ASSET_ID)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -416,13 +415,14 @@ public class OpcUaEndpointFullTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "https://acplt.org/Test_Asset2", AASKeyTypeDataType.IRI));
+        //List<AASKeyDataType> oldValue = new ArrayList<>();
+        String oldValue = "https://acplt.org/Test_Asset2";
 
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "https://acplt2.org/Test_Asset3", AASKeyTypeDataType.IRI));
+        //List<AASKeyDataType> newValue = new ArrayList<>();
+        String newValue = "https://acplt2.org/Test_Asset3";
 
-        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
+        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
+        //TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -571,15 +571,15 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
-                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.FULL_SM_ELEM_COLL_O_NAME).build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.FULL_SM_ELEM_COLL_O_NAME).build())
                 .build());
         msg.setValue(new DefaultProperty.Builder()
-                .kind(ModelingKind.INSTANCE)
+                //.kind(ModelingKind.INSTANCE)
                 .idShort(propName)
                 .category("Variable")
                 .value("3465")
-                .valueType("int")
+                .valueType(DataTypeDefXSD.INT)
                 .build());
         service.getMessageBus().publish(msg);
 
@@ -628,7 +628,7 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
                 .build());
         service.getMessageBus().publish(msg);
 
@@ -678,8 +678,8 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
-                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.CAPABILITY).value(TestConstants.FULL_CAPABILITY_NAME).build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.CAPABILITY).value(TestConstants.FULL_CAPABILITY_NAME).build())
                 .build());
         service.getMessageBus().publish(msg);
 
@@ -818,7 +818,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
 
         DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getTimeZone("UTC"));
-        TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, AASModelingKindDataType.Instance, "Parameter",
+        TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, AASModellingKindDataType.Instance, "Parameter",
                 AASValueTypeDataType.DateTime, dt, new ArrayList<>());
 
         ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE));
@@ -889,7 +889,7 @@ public class OpcUaEndpointFullTest {
 
         TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.FULL_SUBMODEL_1_ID);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0.9", "0");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
 
@@ -898,15 +898,15 @@ public class OpcUaEndpointFullTest {
         ArrayList<Qualifier> list = new ArrayList<>();
         list.add(new DefaultQualifier.Builder()
                 .value("100")
-                .valueType("int")
+                .valueType(DataTypeDefXSD.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier")
                 .build());
         list.add(new DefaultQualifier.Builder()
                 .value("50")
-                .valueType("int")
+                .valueType(DataTypeDefXSD.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
-        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", AASModelingKindDataType.Instance, "", AASValueTypeDataType.String,
+        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", AASModellingKindDataType.Instance, "", AASValueTypeDataType.String,
                 "http://acplt.org/ValueId/ACPLT", list);
     }
 }
