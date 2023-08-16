@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
@@ -45,14 +44,14 @@ public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHa
     @Override
     public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
         ModelValidator.validate(request.getAas(), coreConfig.getValidationOnUpdate());
-        persistence.get(request.getAas().getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
-        AssetAdministrationShell shell = persistence.put(request.getAas());
+        persistence.getAssetAdministrationShell(request.getAas().getId(), QueryModifier.DEFAULT);
+        persistence.save(request.getAas());
         messageBus.publish(ElementUpdateEventMessage.builder()
-                .element(shell)
-                .value(shell)
+                .element(request.getAas())
+                .value(request.getAas())
                 .build());
         return PutAssetAdministrationShellResponse.builder()
-                .payload(shell)
+                .payload(request.getAas())
                 .success()
                 .build();
     }

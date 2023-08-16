@@ -45,7 +45,7 @@ public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<G
 
     @Override
     public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
-        AssetAdministrationShell aas = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        AssetAdministrationShell aas = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         if (aas.getAssetInformation().getGlobalAssetID() != null) {
             result.add(new DefaultSpecificAssetID.Builder()

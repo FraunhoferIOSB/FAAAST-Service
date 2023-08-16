@@ -17,8 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.List;
@@ -54,7 +57,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         List<SpecificAssetID> specificAssetIds = request.getAssetIdentifierPairs().stream()
                 .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());
-        List<String> result = persistence.getEnvironment().getAssetAdministrationShells().stream()
+        List<String> result = persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL).stream()
                 .filter(aas -> {
                     boolean globalMatch = aas.getAssetInformation().getGlobalAssetID() != null
                             && globalAssetIds.contains(aas.getAssetInformation().getGlobalAssetID());

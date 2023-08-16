@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -70,9 +71,10 @@ public interface ServiceContext {
      *
      * @param reference the reference identifying the operation
      * @return output variables of the operation identified by the reference
+     * @throws ResourceNotFoundException if reference cannot be resolved or does not point to an operation
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if reference cannot be resolved
      * @throws IllegalArgumentException if reference does not point to an operation
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference);
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException;
 }

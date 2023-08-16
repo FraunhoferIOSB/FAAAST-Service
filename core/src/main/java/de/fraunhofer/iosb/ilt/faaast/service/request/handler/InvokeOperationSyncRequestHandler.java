@@ -90,9 +90,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
     public OperationResult executeOperationSync(Reference reference, InvokeOperationSyncRequest request) {
         if (!assetConnectionManager.hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
-                    "error executing operation - no operation provider defined for reference '%s' (requestId: %s)",
-                    AasUtils.asString(reference),
-                    request.getRequestId()));
+                    "error executing operation - no operation provider defined for reference '%s'",
+                    AasUtils.asString(reference)));
         }
         AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -108,7 +107,6 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         try {
             OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
             result = OperationResult.builder()
-                    .requestId(request.getRequestId())
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
@@ -117,7 +115,6 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         catch (TimeoutException e) {
             future.cancel(true);
             result = OperationResult.builder()
-                    .requestId(request.getRequestId())
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
                     .build();
@@ -125,7 +122,6 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         }
         catch (InterruptedException | ExecutionException e) {
             result = OperationResult.builder()
-                    .requestId(request.getRequestId())
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
                     .build();

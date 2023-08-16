@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException;
@@ -52,6 +53,22 @@ public class DeepCopyHelper {
         catch (SerializationException | DeserializationException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
         }
+    }
+
+
+    /**
+     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable} object.
+     *
+     * @param referable which should be deep copied
+     * @param <T> type of the referable
+     * @return the deep copied referable
+     * @throws RuntimeException when operation fails
+     */
+    public static <T extends Referable> T deepCopy(T referable) {
+        if (Objects.isNull(referable)) {
+            return null;
+        }
+        return (T) deepCopy(referable, referable.getClass());
     }
 
 

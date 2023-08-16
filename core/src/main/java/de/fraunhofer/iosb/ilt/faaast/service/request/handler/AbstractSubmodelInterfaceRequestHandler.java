@@ -63,14 +63,12 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
     protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
         if (request.getAasId() != null) {
             Reference submodelRef = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-            if ((persistence.get(
+            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(
                     request.getAasId(),
                     new OutputModifier.Builder()
                             .level(Level.CORE)
-                            .build(),
-                    AssetAdministrationShell.class))
-                            .getSubmodels().stream()
-                            .noneMatch(x -> ReferenceHelper.equals(x, submodelRef))) {
+                            .build());
+            if (aas.getSubmodels().stream().noneMatch(x -> ReferenceHelper.equals(x, submodelRef))) {
                 throw new ResourceNotFoundException(String.format(
                         "AAS does not contain requested submodel (aasId: %s, submodelId: %s)",
                         request.getAasId(),

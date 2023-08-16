@@ -17,8 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 
@@ -37,8 +39,11 @@ public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandle
 
 
     @Override
-    public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) {
-        OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
+    public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) throws ResourceNotFoundException {
+        OperationResult operationResult = persistence.getOperationResult(
+                OperationHandle.builder()
+                        .handleId(request.getHandleId())
+                        .build());
         return GetOperationAsyncResultResponse.builder()
                 .payload(operationResult)
                 .success()

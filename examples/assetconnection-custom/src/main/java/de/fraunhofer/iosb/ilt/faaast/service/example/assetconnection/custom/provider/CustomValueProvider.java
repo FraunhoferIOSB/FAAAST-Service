@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -38,7 +39,7 @@ public class CustomValueProvider implements AssetValueProvider {
     private final Reference reference;
     private final Datatype datatype;
 
-    public CustomValueProvider(Reference reference, CustomValueProviderConfig config, ServiceContext serviceContext) throws ValueMappingException {
+    public CustomValueProvider(Reference reference, CustomValueProviderConfig config, ServiceContext serviceContext) throws ValueMappingException, ResourceNotFoundException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");

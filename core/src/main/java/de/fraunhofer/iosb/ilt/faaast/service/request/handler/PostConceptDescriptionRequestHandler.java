@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
@@ -41,13 +40,13 @@ public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler
     @Override
     public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) throws Exception {
         ModelValidator.validate(request.getConceptDescription(), coreConfig.getValidationOnCreate());
-        ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
+        persistence.save(request.getConceptDescription());
         messageBus.publish(ElementCreateEventMessage.builder()
-                .element(conceptDescription)
-                .value(conceptDescription)
+                .element(request.getConceptDescription())
+                .value(request.getConceptDescription())
                 .build());
         return PostConceptDescriptionResponse.builder()
-                .payload(conceptDescription)
+                .payload(request.getConceptDescription())
                 .created()
                 .build();
     }

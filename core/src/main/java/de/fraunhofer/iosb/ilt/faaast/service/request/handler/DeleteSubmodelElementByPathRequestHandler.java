@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
@@ -44,12 +45,13 @@ public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelI
     @Override
     protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
+
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.get(reference, QueryModifier.DEFAULT);
-        persistence.remove(reference);
+        SubmodelElement submodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        persistence.deleteSubmodelElement(IdShortPath.fromReference(reference));
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(reference)

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
@@ -40,7 +41,7 @@ public class AasHelper {
     }
 
 
-    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) {
+    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) throws ResourceNotFoundException {
         Referable element = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
         if (element == null) {
             throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));

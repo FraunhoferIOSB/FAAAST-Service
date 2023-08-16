@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.ReferenceCollector;
 import java.util.Map;
 import java.util.Objects;
@@ -39,14 +40,15 @@ public class EnvironmentHelper {
      *
      * @param <T> return type of the element
      * @param reference the reference to resolve
-     * @param environment the eenvironment to resolve the reference in
+     * @param environment the environment to resolve the reference in
      * @param returnType return type of the element
      * @return the resolved element
      * @throws IllegalArgumentException if reference is null or empty
      * @throws IllegalArgumentException if environment is null
-     * @throws IllegalArgumentException if returnType is null or resolved element does not match the return type
+     * @throws IllegalArgumentException if resolved element does not match the return type
+     * @throws ResourceNotFoundException if reference cannot be resolved because element does not exist in environment
      */
-    public static <T extends Referable> T resolve(Reference reference, Environment environment, Class<T> returnType) {
+    public static <T extends Referable> T resolve(Reference reference, Environment environment, Class<T> returnType) throws ResourceNotFoundException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.require(!reference.getKeys().isEmpty(), "reference must contain at least one key");
         Ensure.requireNonNull(environment, "environment must be non-null");
@@ -55,8 +57,8 @@ public class EnvironmentHelper {
                 .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
                 .map(Map.Entry::getValue)
                 .findFirst()
-                .orElse(null);
-        if (Objects.nonNull(result) && !returnType.isAssignableFrom(result.getClass())) {
+                .orElseThrow(() -> new ResourceNotFoundException(reference));
+        if (!returnType.isAssignableFrom(result.getClass())) {
             throw new IllegalArgumentException(String.format(
                     "unable to resolve reference as actual type does not match expected type (reference: %s, actual type: %s, expected type: %s)",
                     ReferenceHelper.toString(reference),
@@ -77,8 +79,9 @@ public class EnvironmentHelper {
      * @throws IllegalArgumentException if reference is null or empty
      * @throws IllegalArgumentException if environment is null
      * @throws IllegalArgumentException if returnType is null
+     * @throws ResourceNotFoundException if reference cannot be resolved because element does not exist in environment
      */
-    public static Referable resolve(Reference reference, Environment environment) {
+    public static Referable resolve(Reference reference, Environment environment) throws ResourceNotFoundException {
         return resolve(reference, environment, Referable.class);
     }
 

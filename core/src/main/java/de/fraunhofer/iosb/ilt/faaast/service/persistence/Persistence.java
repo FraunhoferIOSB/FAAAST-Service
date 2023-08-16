@@ -15,273 +15,414 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
- * delete actions with the element in the corresponding
- * {@link io.adminshell.aas.v3.model.Environment}. Each persistence instance needs one instance
- * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
+ * Interface used for managing AAS-related data, i.e. everything that is part of a
+ * {@code org.eclipse.digitaltwin.aas4j.v3.model.Environment}. Additionally manages to storing of oepration execution
+ * states and results.
+ *
+ * <p>Implement this interface if you wish to create a custom persistence, e.g. backed by a specific database or to
+ * connect
+ * to legacy systems.
  *
  * @param <C> type of the corresponding configuration class
  */
 public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
 
     /**
-     * Gets an Identifiable by id and type.
+     * Gets an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} by id.
      *
-     * @param <T> defines the type of the requested Identifiable
-     * @param id the Identifier of the requested Identifiable
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @param type the expected type of the Identifiable
-     * @return the Identifiable with the given Identifier
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if no resource can be found
-     *             for
-     *             id or type of found resource does not match requeste type
-     * @throws IllegalArgumentException if id is null
-     * @throws IllegalArgumentException if modifier is null
-     * @throws IllegalArgumentException if type is null
+     * @param id the id
+     * @param modifier the modifier
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
+     * @throws ResourceNotFoundException if there is no
+     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
      */
-    public <T extends Identifiable> T get(String id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException;
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
-     * Get a Submodel Element by a Reference.
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} by id.
      *
-     * @param reference of the requested Submodel Element
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @return the Submodel Element with the given Reference
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if reference does not point
-     *             to
-     *             valid resource
-     * @throws IllegalArgumentException if modifier is null
+     * @param id the id
+     * @param modifier the modifier
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} with the given id
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} with the
+     *             given id
      */
-    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException;
+    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
-     * All Asset Administration Shell that are linked to a globally unique asset identifier, to specific asset ids or
-     * with a specific idShort.
-     * 
-     * <p>If idShort and assetId are null, all AssetAdministrationShells will be returned.
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} by id.
      *
-     * @param idShort of the AssetAdministrationShells which should be considered. This parameter is optional and may be
-     *            null
-     * @param assetIds A List of Global asset ids (use GlobalAssetIdentification.class) which refers to
-     *            AssetInformation/globalAssetId of a shell and specific asset ids (use SpecificAssetIdentification.class)
-     *            which
-     *            refers to IdentifierKeyValuePair/key of a shell. The given asset ids are combined with a logical "or".
-     *            This
-     *            parameter is optional and may be null
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @return List of AssetAdministrationShells
-     * @throws IllegalArgumentException if modifier is null
+     * @param id the id
+     * @param modifier the modifier
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} with the given id
+     * @throws ResourceNotFoundException if there is no
+     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} with the given id
      */
-    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier);
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
-     * All Submodels with a specific semanticId or a specific idShort. If semanticId and idShort are null, all Submodels
-     * will be returned.
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
      *
-     * @param idShort of the Submodels which should be considered. This parameter is optional and may be null
-     * @param semanticId of the Submodels which should be considered. This parameter is optional and may be null
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @return List of Submodels
-     * @throws IllegalArgumentException if modifier is null
+     * @param path the idShortPath
+     * @param modifier the modifier
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     *             with the given path
      */
-    public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier);
+    public SubmodelElement getSubmodelElement(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
-     * All Submodel Elements including their hierarchy.
+     * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
      *
-     * @param reference of the Submodel or of the parent Submodel Element
-     * @param semanticId of the Submodel Elements which should be considered. This parameter is optional and may be null
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @return List of Submodel Elements
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if reference does not point
-     *             to
-     *             valid resource
-     * @throws IllegalArgumentException if modifier is null
+     * @param path the idShortPath to the parent/container element
+     * @param modifier the modifier
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
+     *         identified by path
+     * @throws ResourceNotFoundException if there is no element with the given path
+     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
+     *             i.e. cannot have any child elements
      */
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException;
+    public default List<SubmodelElement> getSubmodelElements(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        return findSubmodelElements(
+                SubmodelElementSearchCriteria.builder()
+                        .parent(path)
+                        .build(),
+                modifier,
+                PagingInfo.ALL);
+    }
 
 
     /**
-     * All Concept Descriptions with a specific idShort, isCaseOf-reference or dataSpecification-reference. If idShort,
-     * isCaseOf and dataSpecification are null, all Concept Descriptions will be returned.
+     * Gets an {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult} by its handle.
      *
-     * @param idShort of the Concept Description which should considered. This parameter is optional and may be null
-     * @param isCaseOf of the Concept Description which should considered. This parameter is optional and may be null
-     * @param dataSpecification of the Concept Description which should considered. This parameter is optional and may
-     *            be null
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @return List of Concept Descriptions
-     * @throws IllegalArgumentException if modifier is null
+     * @param handle the handle
+     * @return the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult}
+     * @throws ResourceNotFoundException if the handle does not exist
      */
-    public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier);
+    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException;
 
 
     /**
-     * Get a specific AASX package by its packageId.
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s by search criteria.
      *
-     * @param packageId of the desired AASX package
-     * @return a AASX package
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      */
-    public AASXPackage get(String packageId);
+    public List<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
-     * Get the Environment.
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s by search criteria.
      *
-     * @return Environment
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      */
-    public Environment getEnvironment();
+    public List<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
-     * Create or Update an Identifiable.
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s by search criteria.
      *
-     * @param identifiable to save
-     * @param <T> the type of the Identifiable
-     * @return the saved Identifiable as confirmation
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public <T extends Identifiable> T put(T identifiable);
+    public List<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException;
 
 
     /**
-     * Create or Update the Submodel Element on the given reference.
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s by search criteria.
      *
-     * @param parent of the new Submodel Element. Could be null if a direct reference to the submodelelement is set.
-     * @param referenceToSubmodelElement reference to the submodelelement which should be updated
-     * @param submodelElement which should be added to the parent
-     * @return the created Submodel Element
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if parent and reference does
-     *             not point to valid resource
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      */
-    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException;
+    public List<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
-     * Create or Update an AASX package.
+     * Save an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
-     * @param packageId of the existing AASX package
-     * @param aasIds the included AAS Ids
-     * @param file the AASX package
-     * @param fileName of the AASX package
-     * @return the updated AASX package
+     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to
+     *            save
      */
-    public AASXPackage put(String packageId, Set<String> aasIds, AASXPackage file, String fileName);
+    public void save(AssetAdministrationShell assetAdministrationShell);
 
 
     /**
-     * Remove an Identifiable.
+     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}.
      *
-     * @param id of the Identifiable
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if resource is not found
+     * @param conceptDescription the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} to save
      */
-    public void remove(String id) throws ResourceNotFoundException;
+    public void save(ConceptDescription conceptDescription);
 
 
     /**
-     * Remove a Referable.
+     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}.
      *
-     * @param reference to the Referable
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException if resource is not found
+     * @param submodel the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} to save
      */
-    public void remove(Reference reference) throws ResourceNotFoundException;
+    public void save(Submodel submodel);
 
 
     /**
-     * Remove an AASX package.
+     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
      *
-     * @param packageId of the AASX package to be removed
+     * @param parent the parent of the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to save
+     * @throws ResourceNotFoundException if the parent cannot be found
+     * @throws ResourceNotAContainerElementException if the parent is not a valid container element, i.e. cannot contain
+     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public void removeAasxPackage(String packageId);
+    public void save(IdShortPath parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException;
 
 
     /**
-     * Get a list of available AASX package descriptions. If aasId is null, all AASX package descriptions will be
-     * returned
+     * Save a {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult}.
      *
-     * @param aasId of AASX packages which should be considered. This parameter is optional and may be null
-     * @return List of package descriptions
+     * @param handle the handle of the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult}
+     * @param result the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult} to save
      */
-    public List<PackageDescription> getAasxPackages(String aasId);
+    public void save(OperationHandle handle, OperationResult result);
 
 
     /**
-     * Save an AASX package.
+     * Deletes an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} by id.
      *
-     * @param aasIds the included AAS Ids
-     * @param file the AASX package
-     * @param fileName of the AASX package
-     * @return the package id of the created AASX package
+     * @param id the id
+     * @throws ResourceNotFoundException if the resource does not exist
      */
-    public String putAasxPackage(Set<String> aasIds, AASXPackage file, String fileName);
+    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException;
 
 
     /**
-     * Get an OperationResult of an Operation if available. If not available returns null.
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} by id.
      *
-     * @param handleId of the OperationResult
-     * @return the OperationResult if available else null
+     * @param id the id
+     * @throws ResourceNotFoundException if the resource does not exist
      */
-    public OperationResult getOperationResult(String handleId);
+    public void deleteSubmodel(String id) throws ResourceNotFoundException;
 
 
     /**
-     * Creates a new OperationHandle instance with a unique id. If handleId is empty or null Otherwise updates the
-     * existing OperationHandle / OperationResult combination
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} by id.
      *
-     * @param handleId of the OperationRequest - could be null if the OperationHandle still not exists
-     * @param requestId of the client
-     * @param operationResult of the Operation - if null a initial OperationResult will be created
-     * @return the belonging OperationHandleInstance or create a new one
+     * @param id the id
+     * @throws ResourceNotFoundException if the resource does not exist
      */
-    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult);
+    public void deleteConceptDescription(String id) throws ResourceNotFoundException;
 
 
     /**
-     * Provides type information about an element identified by reference.
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
      *
-     * @param reference reference identifying the element
-     * @return type information of the referenced element, empty
-     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
-     *         reference is null
-     * @throws IllegalArgumentException if reference can not be resolved on AAS environment of the service
+     * @param path the idShort path
+     * @throws ResourceNotFoundException if the resource does not exist
      */
-    public TypeInfo<?> getTypeInfo(Reference reference);
+    public void deleteSubmodelElement(IdShortPath path) throws ResourceNotFoundException;
 
 
     /**
-     * Returns the output variables of an operation identified by a reference.
+     * Deletes an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
-     * @param reference the reference identifying the operation
-     * @return output variables of the operation identified by the reference
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if reference cannot be resolved
-     * @throws IllegalArgumentException if reference does not point to an operation
+     * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to
+     *            delete
+     * @throws ResourceNotFoundException if the resource does not exist
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference);
+    public default void deleteAssetAdministrationShell(AssetAdministrationShell assetAdministrationShell) throws ResourceNotFoundException {
+        Ensure.requireNonNull(assetAdministrationShell, "assetAdministrationShell must be non-null");
+        deleteAssetAdministrationShell(assetAdministrationShell.getId());
+    }
 
+
+    /**
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}.
+     *
+     * @param submodel the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} to delete
+     * @throws ResourceNotFoundException if the resource does not exist
+     */
+    public default void deleteSubmodel(Submodel submodel) throws ResourceNotFoundException {
+        Ensure.requireNonNull(submodel, "submodel must be non-null");
+        deleteSubmodel(submodel.getId());
+    }
+
+
+    /**
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}.
+     *
+     * @param conceptDescription the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} to delete
+     * @throws ResourceNotFoundException if the resource does not exist
+     */
+    public default void deleteConceptDescription(ConceptDescription conceptDescription) throws ResourceNotFoundException {
+        Ensure.requireNonNull(conceptDescription, "conceptDescription must be non-null");
+        deleteConceptDescription(conceptDescription.getId());
+    }
+
+
+    /**
+     * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by reference.
+     *
+     * @param reference the reference
+     * @throws ResourceNotFoundException if the resource does not exist
+     */
+    public default void deleteSubmodelElement(Reference reference) throws ResourceNotFoundException {
+        deleteSubmodelElement(IdShortPath.fromReference(reference));
+    }
+
+
+    /**
+     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
+     *
+     * @param parent the parent of the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to save
+     * @throws ResourceNotFoundException if the parent cannot be found
+     * @throws ResourceNotAContainerElementException if the parent is not a valid container element, i.e. cannot contain
+     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
+     */
+    public default void save(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        save(IdShortPath.fromReference(parent), submodelElement);
+    }
+
+
+    /**
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
+     *
+     * @param <T> the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param path the idShortPath
+     * @param modifier the modifier
+     * @param type the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     *             with the given path
+     */
+    public default <T extends SubmodelElement> T getSubmodelElement(IdShortPath path, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+        // TODO improve stability
+        return type.cast(getSubmodelElement(path, modifier));
+    }
+
+
+    /**
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by reference.
+     *
+     * @param reference the reference
+     * @param modifier the modifier
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     *             with the given path
+     */
+    public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
+        return getSubmodelElement(IdShortPath.fromReference(reference), modifier);
+    }
+
+
+    /**
+     * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by reference.
+     *
+     * @param <T> the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param reference the reference
+     * @param modifier the modifier
+     * @param type the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
+     * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     *             with the given reference
+     */
+    public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+        return getSubmodelElement(IdShortPath.fromReference(reference), modifier, type);
+    }
+
+
+    /**
+     * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
+     *
+     * @param reference the reference to the parent/container element
+     * @param modifier the modifier
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
+     *         identified by reference
+     * @throws ResourceNotFoundException if there is no element with the given reference
+     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
+     *             element, i.e. cannot have any child elements
+     */
+    public default List<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        return getSubmodelElements(IdShortPath.fromReference(reference), modifier);
+    }
+
+
+    /**
+     * Gets all {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s.
+     *
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
+     */
+    public default List<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) {
+        return findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, paging);
+    }
+
+
+    /**
+     * Gets all {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s.
+     *
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
+     */
+    public default List<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) {
+        return findSubmodels(SubmodelSearchCriteria.NONE, modifier, paging);
+    }
+
+
+    /**
+     * Gets all {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s.
+     *
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
+     */
+    public default List<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) {
+        return findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, paging);
+    }
+
+
+    /**
+     * Gets all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s.
+     *
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
+     */
+    public default List<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+        return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
+    }
 }

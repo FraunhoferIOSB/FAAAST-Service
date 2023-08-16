@@ -27,7 +27,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class OperationResult {
 
-    private String requestId;
     private List<OperationVariable> outputArguments;
     private List<OperationVariable> inoutputArguments;
     private Result executionResult;
@@ -36,16 +35,6 @@ public class OperationResult {
     public OperationResult() {
         this.outputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
-    }
-
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
     }
 
 
@@ -98,14 +87,16 @@ public class OperationResult {
             return false;
         }
         OperationResult that = (OperationResult) o;
-        return Objects.equals(requestId, that.requestId) && Objects.equals(outputArguments, that.outputArguments) && Objects.equals(inoutputArguments, that.inoutputArguments)
-                && Objects.equals(executionResult, that.executionResult) && executionState == that.executionState;
+        return Objects.equals(outputArguments, that.outputArguments)
+                && Objects.equals(inoutputArguments, that.inoutputArguments)
+                && Objects.equals(executionResult, that.executionResult)
+                && executionState == that.executionState;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(requestId, outputArguments, inoutputArguments, executionResult, executionState);
+        return Objects.hash(outputArguments, inoutputArguments, executionResult, executionState);
     }
 
 
@@ -114,12 +105,6 @@ public class OperationResult {
     }
 
     private abstract static class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B requestId(String value) {
-            getBuildingInstance().setRequestId(value);
-            return getSelf();
-        }
-
 
         public B outputArguments(List<OperationVariable> value) {
             getBuildingInstance().setOutputArguments(value);

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -52,7 +53,8 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
     private ScheduledFuture<?> executorHandler;
     protected final List<NewDataListener> listeners;
 
-    public CustomSubscriptionProvider(Reference reference, CustomSubscriptionProviderConfig config, ServiceContext serviceContext) throws ValueMappingException {
+    public CustomSubscriptionProvider(Reference reference, CustomSubscriptionProviderConfig config, ServiceContext serviceContext)
+            throws ValueMappingException, ResourceNotFoundException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");

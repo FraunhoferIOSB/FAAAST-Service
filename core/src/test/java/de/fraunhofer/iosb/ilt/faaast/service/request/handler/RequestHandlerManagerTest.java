@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -82,9 +83,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdR
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
@@ -132,7 +133,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -145,10 +149,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -159,7 +161,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
@@ -210,7 +211,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellRequest() throws Exception {
-        when(persistence.get(any(), argThat((List<AssetIdentification> t) -> true), any()))
+        when(persistence.findAssetAdministrationShells(any(), any(), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         GetAllAssetAdministrationShellsResponse actual = manager.execute(request);
@@ -231,8 +232,16 @@ public class RequestHandlerManagerTest {
                 .value("TestValue")
                 .key("TestKey")
                 .build();
-        when(persistence.get(eq(null), eq(List.of(globalAssetIdentification, specificAssetIdentification)), any()))
-                .thenReturn(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)));
+
+        when(persistence.findAssetAdministrationShells(eq(
+                AssetAdministrationShellSearchCriteria.builder()
+                        .assetIds(List.of(globalAssetIdentification, specificAssetIdentification))
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(List.of(
+                                environment.getAssetAdministrationShells().get(0),
+                                environment.getAssetAdministrationShells().get(1)));
 
         List<SpecificAssetID> assetIds = List.of(
                 new DefaultSpecificAssetID.Builder()
@@ -258,8 +267,14 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellsByIdShortRequest() throws Exception {
-        when(persistence.get(eq("Test"), argThat((List<AssetIdentification> t) -> true), any()))
-                .thenReturn(environment.getAssetAdministrationShells());
+        when(persistence.findAssetAdministrationShells(eq(
+                AssetAdministrationShellSearchCriteria.builder()
+                        .idShort("Test")
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getAssetAdministrationShells());
+
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
                 .build();
@@ -274,8 +289,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostAssetAdministrationShellRequest() throws Exception {
-        when(persistence.put(environment.getAssetAdministrationShells().get(0)))
-                .thenReturn(environment.getAssetAdministrationShells().get(0));
         PostAssetAdministrationShellRequest request = new PostAssetAdministrationShellRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
@@ -285,6 +298,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence, times(1)).save(eq(environment.getAssetAdministrationShells().get(0)));
     }
 
 
@@ -302,7 +316,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAssetAdministrationShellByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), OutputModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAssetAdministrationShellByIdRequest request = GetAssetAdministrationShellByIdRequest.builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
@@ -319,8 +333,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutAssetAdministrationShellByIdRequest() throws Exception {
-        when(persistence.put(environment.getAssetAdministrationShells().get(0)))
-                .thenReturn(environment.getAssetAdministrationShells().get(0));
         PutAssetAdministrationShellByIdRequest request = new PutAssetAdministrationShellByIdRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
@@ -330,12 +342,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence, times(1)).save(eq(environment.getAssetAdministrationShells().get(0)));
     }
 
 
     @Test
     public void testDeleteAssetAdministrationShellByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         DeleteAssetAdministrationShellByIdRequest request = new DeleteAssetAdministrationShellByIdRequest().builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
@@ -345,13 +358,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).remove(environment.getAssetAdministrationShells().get(0).getId());
+        verify(persistence).deleteAssetAdministrationShell(environment.getAssetAdministrationShells().get(0).getId());
     }
 
 
     @Test
     public void testGetAssetAdministrationShellRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), OutputModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAssetAdministrationShellRequest request = new GetAssetAdministrationShellRequest.Builder()
                 .id(AAS.getId())
@@ -369,8 +382,6 @@ public class RequestHandlerManagerTest {
     public void testPutAssetAdministrationShellRequest() throws ResourceNotFoundException, Exception {
         // @TODO: open/unclear
         // expected Identifiable
-        when(persistence.put(environment.getAssetAdministrationShells().get(0)))
-                .thenReturn(environment.getAssetAdministrationShells().get(0));
         PutAssetAdministrationShellRequest request = new PutAssetAdministrationShellRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .id(AAS.getId())
@@ -381,6 +392,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getAssetAdministrationShells().get(0));
     }
 
 
@@ -397,7 +409,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAssetInformationRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAssetInformationRequest request = new GetAssetInformationRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
@@ -413,9 +425,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutAssetInformationRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
-                .thenReturn(environment.getAssetAdministrationShells().get(0));
-        when(persistence.put(environment.getAssetAdministrationShells().get(0)))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         PutAssetInformationRequest request = new PutAssetInformationRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
@@ -426,12 +436,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getAssetAdministrationShells().get(0));
     }
 
 
     @Test
     public void testGetAllSubmodelReferencesRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), OutputModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAllSubmodelReferencesRequest request = new GetAllSubmodelReferencesRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
@@ -448,10 +459,8 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelReferenceRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
-        when(persistence.put(environment.getSubmodels().get(0)))
-                .thenReturn(environment.getSubmodels().get(0));
         PostSubmodelReferenceRequest request = new PostSubmodelReferenceRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .submodelRef(SUBMODEL_ELEMENT_REF)
@@ -462,12 +471,13 @@ public class RequestHandlerManagerTest {
                 .payload(SUBMODEL_ELEMENT_REF)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getAssetAdministrationShells().get(0));
     }
 
 
     @Test
     public void testDeleteSubmodelReferenceRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class))
+        when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
 
         DeleteSubmodelReferenceRequest request = new DeleteSubmodelReferenceRequest.Builder()
@@ -484,8 +494,11 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelsRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(null, (Reference) null, OutputModifier.DEFAULT))
-                .thenReturn(environment.getSubmodels());
+        when(persistence.findSubmodels(
+                eq(SubmodelSearchCriteria.NONE),
+                any(),
+                any()))
+                        .thenReturn(environment.getSubmodels());
 
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
@@ -501,8 +514,13 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelsBySemanticIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(null, SUBMODEL_ELEMENT_REF, OutputModifier.DEFAULT))
-                .thenReturn(environment.getSubmodels());
+        when(persistence.findSubmodels(
+                eq(SubmodelSearchCriteria.builder()
+                        .semanticId(SUBMODEL_ELEMENT_REF)
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getSubmodels());
         GetAllSubmodelsBySemanticIdRequest request = new GetAllSubmodelsBySemanticIdRequest.Builder()
                 .semanticId(SUBMODEL_ELEMENT_REF)
                 .outputModifier(OutputModifier.DEFAULT)
@@ -518,8 +536,13 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelsByIdShortRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get("Test", (Reference) null, OutputModifier.DEFAULT))
-                .thenReturn(environment.getSubmodels());
+        when(persistence.findSubmodels(
+                eq(SubmodelSearchCriteria.builder()
+                        .idShort("Test")
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getSubmodels());
         GetAllSubmodelsByIdShortRequest request = new GetAllSubmodelsByIdShortRequest.Builder()
                 .idShort("Test")
                 .outputModifier(OutputModifier.DEFAULT)
@@ -535,8 +558,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(environment.getSubmodels().get(0)))
-                .thenReturn(environment.getSubmodels().get(0));
         PostSubmodelRequest request = new PostSubmodelRequest.Builder()
                 .submodel(environment.getSubmodels().get(0))
                 .build();
@@ -546,6 +567,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getSubmodels().get(0));
     }
 
 
@@ -566,7 +588,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetSubmodelByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getSubmodels().get(0).getId(), OutputModifier.DEFAULT, Submodel.class))
+        when(persistence.getSubmodel(eq(environment.getSubmodels().get(0).getId()), any()))
                 .thenReturn(environment.getSubmodels().get(0));
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder()
                 .id(environment.getSubmodels().get(0).getId())
@@ -583,8 +605,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutSubmodelByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(environment.getSubmodels().get(0)))
-                .thenReturn(environment.getSubmodels().get(0));
         PutSubmodelByIdRequest request = new PutSubmodelByIdRequest.Builder()
                 .id(environment.getSubmodels().get(0).getId())
                 .submodel(environment.getSubmodels().get(0))
@@ -595,12 +615,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getSubmodels().get(0));
     }
 
 
     @Test
     public void testDeleteSubmodelByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getSubmodels().get(0).getId(), QueryModifier.DEFAULT, Submodel.class))
+        when(persistence.getSubmodel(eq(environment.getSubmodels().get(0).getId()), any()))
                 .thenReturn(environment.getSubmodels().get(0));
         DeleteSubmodelByIdRequest request = new DeleteSubmodelByIdRequest.Builder()
                 .id(environment.getSubmodels().get(0).getId())
@@ -610,13 +631,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).remove(environment.getSubmodels().get(0).getId());
+        verify(persistence).deleteSubmodel(environment.getSubmodels().get(0).getId());
     }
 
 
     @Test
     public void testGetSubmodelRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getSubmodels().get(0).getId(), OutputModifier.DEFAULT, Submodel.class))
+        when(persistence.getSubmodel(eq(environment.getSubmodels().get(0).getId()), any()))
                 .thenReturn(environment.getSubmodels().get(0));
         GetSubmodelRequest request = new GetSubmodelRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
@@ -633,8 +654,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutSubmodelRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(environment.getSubmodels().get(0)))
-                .thenReturn(environment.getSubmodels().get(0));
         PutSubmodelRequest request = new PutSubmodelRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .submodel(environment.getSubmodels().get(0))
@@ -647,13 +666,14 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getSubmodels().get(0));
     }
 
 
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
-        when(persistence.getSubmodelElements(reference, (Reference) null, OutputModifier.DEFAULT))
+        when(persistence.getSubmodelElements(eq(reference), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
@@ -671,8 +691,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPostSubmodelElementRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
-        when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
@@ -683,6 +701,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(reference, environment.getSubmodels().get(0).getSubmodelElements().get(0));
     }
 
 
@@ -694,7 +713,7 @@ public class RequestHandlerManagerTest {
                 .value("testValue")
                 .build();
         PropertyValue propertyValue = new PropertyValue.Builder().value(new StringValue("test")).build();
-        when(persistence.get(argThat((Reference t) -> true), eq(OutputModifier.DEFAULT)))
+        when(persistence.getSubmodelElement(argThat((Reference t) -> true), eq(OutputModifier.DEFAULT)))
                 .thenReturn(cur_submodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         when(assetValueProvider.getValue()).thenReturn(propertyValue);
@@ -721,8 +740,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementByPathRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(any(), argThat((Reference t) -> true), any()))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
@@ -734,6 +751,9 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(
+                ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)),
+                environment.getSubmodels().get(0).getSubmodelElements().get(0));
     }
 
 
@@ -749,10 +769,8 @@ public class RequestHandlerManagerTest {
                 .valueType(DataTypeDefXSD.STRING)
                 .value("NewTestValue")
                 .build();
-        when(persistence.get(argThat((Reference t) -> true), any()))
+        when(persistence.getSubmodelElement((Reference) any(), any()))
                 .thenReturn(currentSubmodelElement);
-        when(persistence.put(any(), argThat((Reference t) -> true), any()))
-                .thenReturn(newSubmodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
 
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
@@ -766,12 +784,13 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
+        verify(persistence).save(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId())), eq(newSubmodelElement));
     }
 
 
     @Test
     public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
-        when(persistence.get((Reference) any(), any()))
+        when(persistence.getSubmodelElement((Reference) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         PropertyValue propertyValue = new PropertyValue.Builder()
@@ -805,7 +824,7 @@ public class RequestHandlerManagerTest {
                 .submodel(submodel)
                 .idShortPath(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        when(persistence.get(reference, QueryModifier.DEFAULT))
+        when(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
                 .submodelId(submodel.getId())
@@ -816,7 +835,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).remove(reference);
+        verify(persistence).deleteSubmodelElement(IdShortPath.fromReference(reference));
     }
 
 
@@ -857,22 +876,21 @@ public class RequestHandlerManagerTest {
 
         Operation operation = getTestOperation();
 
-        OperationHandle expectedOperationHandle = new OperationHandle.Builder().handleId("1").requestId("1").build();
-        when(persistence.putOperationContext(any(), any(), any())).thenReturn(expectedOperationHandle);
-        when(persistence.getOperationResult(any())).thenReturn(new OperationResult.Builder().requestId("1").build());
+        when(persistence.getOperationResult(any())).thenReturn(new OperationResult.Builder().build());
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenReturn(assetOperationProvider);
 
         InvokeOperationAsyncRequest invokeOperationAsyncRequest = new InvokeOperationAsyncRequest.Builder()
-                .requestId("1")
                 .submodelId("http://example.org")
                 .inoutputArguments(operation.getInoutputVariables())
                 .inputArguments(operation.getInputVariables())
                 .build();
 
         InvokeOperationAsyncResponse response = manager.execute(invokeOperationAsyncRequest);
-        OperationHandle actualOperationHandle = response.getPayload();
-        Assert.assertEquals(expectedOperationHandle, actualOperationHandle);
+        OperationHandle handle = response.getPayload();
+        verify(persistence).save(
+                eq(handle),
+                any());
     }
 
 
@@ -889,7 +907,6 @@ public class RequestHandlerManagerTest {
         Operation operation = getTestOperation();
 
         InvokeOperationSyncRequest invokeOperationSyncRequest = new InvokeOperationSyncRequest.Builder()
-                .requestId("1")
                 .inoutputArguments(operation.getInoutputVariables())
                 .inputArguments(operation.getInputVariables())
                 .submodelId("http://example.org")
@@ -899,7 +916,6 @@ public class RequestHandlerManagerTest {
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(new OperationResult.Builder()
-                        .requestId("1")
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                                 .value(new DefaultProperty.Builder()
                                         .idShort("TestProp")
@@ -932,8 +948,11 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(null, null, null, OutputModifier.DEFAULT))
-                .thenReturn(environment.getConceptDescriptions());
+        when(persistence.findConceptDescriptions(
+                eq(ConceptDescriptionSearchCriteria.NONE),
+                any(),
+                any()))
+                        .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
@@ -948,8 +967,13 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByIdShortRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getConceptDescriptions().get(0).getIdShort(), null, null, OutputModifier.DEFAULT))
-                .thenReturn(environment.getConceptDescriptions());
+        when(persistence.findConceptDescriptions(
+                eq(ConceptDescriptionSearchCriteria.builder()
+                        .idShort(environment.getConceptDescriptions().get(0).getIdShort())
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIdShortRequest request = new GetAllConceptDescriptionsByIdShortRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .idShort(environment.getConceptDescriptions().get(0).getIdShort())
@@ -966,8 +990,13 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllConceptDescriptionsByIsCaseOfRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0));
-        when(persistence.get(null, reference, null, OutputModifier.DEFAULT))
-                .thenReturn(environment.getConceptDescriptions());
+        when(persistence.findConceptDescriptions(
+                eq(ConceptDescriptionSearchCriteria.builder()
+                        .isCaseOf(reference)
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .isCaseOf(reference)
@@ -984,8 +1013,13 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllConceptDescriptionsByDataSpecificationReferenceRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forConceptDescription(environment.getConceptDescriptions().get(0));
-        when(persistence.get(null, null, reference, OutputModifier.DEFAULT))
-                .thenReturn(environment.getConceptDescriptions());
+        when(persistence.findConceptDescriptions(
+                eq(ConceptDescriptionSearchCriteria.builder()
+                        .dataSpecification(reference)
+                        .build()),
+                any(),
+                any()))
+                        .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .dataSpecification(reference)
@@ -1001,8 +1035,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostConceptDescriptionRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(environment.getConceptDescriptions().get(0)))
-                .thenReturn(environment.getConceptDescriptions().get(0));
         PostConceptDescriptionRequest request = new PostConceptDescriptionRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
@@ -1012,6 +1044,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getConceptDescriptions().get(0));
     }
 
 
@@ -1028,7 +1061,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetConceptDescriptionByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getConceptDescriptions().get(0).getId(), OutputModifier.DEFAULT, ConceptDescription.class))
+        when(persistence.getConceptDescription(eq(environment.getConceptDescriptions().get(0).getId()), any()))
                 .thenReturn(environment.getConceptDescriptions().get(0));
         GetConceptDescriptionByIdRequest request = new GetConceptDescriptionByIdRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
@@ -1045,8 +1078,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutConceptDescriptionByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.put(environment.getConceptDescriptions().get(0)))
-                .thenReturn(environment.getConceptDescriptions().get(0));
         PutConceptDescriptionByIdRequest request = new PutConceptDescriptionByIdRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
@@ -1056,12 +1087,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        verify(persistence).save(environment.getConceptDescriptions().get(0));
     }
 
 
     @Test
     public void testDeleteConceptDescriptionByIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(environment.getConceptDescriptions().get(0).getId(), QueryModifier.DEFAULT, ConceptDescription.class))
+        when(persistence.getConceptDescription(eq(environment.getConceptDescriptions().get(0).getId()), any()))
                 .thenReturn(environment.getConceptDescriptions().get(0));
         DeleteConceptDescriptionByIdRequest request = new DeleteConceptDescriptionByIdRequest.Builder()
                 .id(environment.getConceptDescriptions().get(0).getId())
@@ -1071,13 +1103,13 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).remove(environment.getConceptDescriptions().get(0).getId());
+        verify(persistence).deleteConceptDescription(environment.getConceptDescriptions().get(0).getId());
     }
 
 
     @Test
     public void testGetIdentifiableWithInvalidIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(argThat((String t) -> true), (QueryModifier) any(), any()))
+        when(persistence.getSubmodel(any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
         GetSubmodelByIdResponse actual = manager.execute(request);
@@ -1091,7 +1123,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetReferableWithInvalidIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.get(argThat((Reference r) -> true), any()))
+        when(persistence.getSubmodelElement((Reference) any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
@@ -1105,7 +1137,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetReferableWithMessageBusExceptionRequest() throws ResourceNotFoundException, MessageBusException, Exception {
-        when(persistence.get(argThat((Reference r) -> true), any()))
+        when(persistence.getSubmodelElement((IdShortPath) any(), any()))
                 .thenReturn(new DefaultProperty());
         doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
@@ -1116,7 +1148,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetValueWithInvalidAssetConnectionRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
-        when(persistence.get(argThat((Reference r) -> true), any()))
+        when(persistence.getSubmodelElement((IdShortPath) any(), any()))
                 .thenReturn(new DefaultProperty());
         AssetValueProvider assetValueProvider = mock(AssetValueProvider.class);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
@@ -1138,7 +1170,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
-        when(persistence.get(any(), argThat((List<AssetIdentification> t) -> true), any()))
+        when(persistence.findAssetAdministrationShells(eq(AssetAdministrationShellSearchCriteria.NONE), any(), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
@@ -1150,14 +1182,10 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
+    public void testReadValueFromAssetConnectionAndUpdatePersistence()
+            throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
         AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(coreConfig, persistence, messageBus, assetConnectionManager);
-        Reference parentRef = new DefaultReference.Builder()
-                .keys(new DefaultKey.Builder()
-                        .value("sub")
-                        .type(KeyTypes.SUBMODEL)
-                        .build())
-                .build();
+        Reference parentRef = ReferenceBuilder.forSubmodel("sub");
         SubmodelElement propertyUpdated = new DefaultProperty.Builder()
                 .idShort("propertyUpdated")
                 .value("test")
@@ -1211,16 +1239,17 @@ public class RequestHandlerManagerTest {
         when(assetConnectionManager.getValueProvider(rangeUpdatedRef)).thenReturn(rangeUpdatedProvider);
         when(rangeUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected));
 
-        when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
-        when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
-        when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
-
+        // TODO fix
+        //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
+        //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
+        //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
         requestHandler.syncWithAsset(parentRef, submodelElements);
-        verify(persistence).put(null, propertyUpdatedRef, propertyExpected);
-        verify(persistence).put(null, rangeUpdatedRef, rangeExpected);
-        verify(persistence, times(0)).put(null, propertyStaticRef, propertyStatic);
-
-        Assert.assertEquals(propertyExpected, propertyUpdated);
-        Assert.assertEquals(rangeExpected, rangeUpdated);
+        verify(persistence).save(parentRef, propertyExpected);
+        verify(persistence).save(parentRef, rangeExpected);
+        verify(persistence, times(0)).save(parentRef, propertyStatic);
+        List<SubmodelElement> expectedSubmodelElements = List.of(propertyExpected, rangeExpected, collection);
+        Assert.assertTrue(expectedSubmodelElements.size() == submodelElements.size()
+                && expectedSubmodelElements.containsAll(submodelElements)
+                && submodelElements.containsAll(expectedSubmodelElements));
     }
 }

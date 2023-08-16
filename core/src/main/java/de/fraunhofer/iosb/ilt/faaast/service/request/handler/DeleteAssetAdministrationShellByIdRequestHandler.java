@@ -46,8 +46,8 @@ public class DeleteAssetAdministrationShellByIdRequestHandler
     @Override
     public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
-        AssetAdministrationShell shell = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
-        persistence.remove(request.getId());
+        AssetAdministrationShell shell = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        persistence.deleteAssetAdministrationShell(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(shell)

@@ -207,6 +207,19 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
 
 
     /**
+     * Creates a global reference.
+     *
+     * @param value the value
+     * @return the reference
+     */
+    public static Reference global(String value) {
+        return new ReferenceBuilder()
+                .element(value, KeyTypes.GLOBAL_REFERENCE)
+                .build();
+    }
+
+
+    /**
      * Create a builder with an existing Reference as base, i.e. the builder will only add to the existing reference
      *
      * @param reference the base reference

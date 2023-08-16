@@ -20,7 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.Mul
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -63,7 +65,16 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     @Override
     protected OperationVariable[] getOutputParameters() {
-        return serviceContext.getOperationOutputVariables(reference);
+        try {
+            return serviceContext.getOperationOutputVariables(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(
+                    String.format(
+                            "operation not defined in AAS model (reference: %s)",
+                            ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 

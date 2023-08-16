@@ -595,13 +595,12 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
                         .build());
-        when(persistence.get(
+        when(persistence.getAssetAdministrationShell(
                 aas.getId(),
                 new OutputModifier.Builder()
                         .level(Level.CORE)
-                        .build(),
-                AssetAdministrationShell.class))
-                        .thenReturn(aas);
+                        .build()))
+                                .thenReturn(aas);
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,

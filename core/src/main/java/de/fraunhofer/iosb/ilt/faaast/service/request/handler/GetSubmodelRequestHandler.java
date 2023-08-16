@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -44,8 +45,9 @@ public class GetSubmodelRequestHandler extends AbstractSubmodelInterfaceRequestH
 
 
     @Override
-    public GetSubmodelResponse doProcess(GetSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        Submodel submodel = persistence.get(request.getSubmodelId(), request.getOutputModifier(), Submodel.class);
+    public GetSubmodelResponse doProcess(GetSubmodelRequest request)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
+        Submodel submodel = persistence.getSubmodel(request.getSubmodelId(), request.getOutputModifier());
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementReadEventMessage.builder()

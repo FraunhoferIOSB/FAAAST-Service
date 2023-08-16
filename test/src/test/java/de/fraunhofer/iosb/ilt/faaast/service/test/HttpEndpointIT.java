@@ -37,6 +37,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -397,7 +398,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationJSON()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -408,7 +409,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationXML()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -420,7 +421,7 @@ public class HttpEndpointIT {
     @Ignore("Failing because of charset issues, probably caused by admin-shell.io library not respecting charset for de-/serialization")
     @Test
     public void testAASSerializationRDF()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -431,7 +432,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationAASX()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 // requires AAS without file elements, otherwise AASX de-/serialization fails
                 List.of(environment.getAssetAdministrationShells().get(2)),
@@ -443,7 +444,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationWildcard()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -467,11 +468,18 @@ public class HttpEndpointIT {
 
 
     private void assertSerialization(List<AssetAdministrationShell> aass, boolean includeConceptDescriptions, MediaType contentType, DataFormat expectedFormat)
-            throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException {
+            throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException, ResourceNotFoundException {
         Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(aass)
                 .submodels(aass.stream().flatMap(x -> x.getSubmodels().stream())
-                        .map(x -> EnvironmentHelper.resolve(x, environment, Submodel.class))
+                        .map(x -> {
+                            try {
+                                return EnvironmentHelper.resolve(x, environment, Submodel.class);
+                            }
+                            catch (ResourceNotFoundException ex) {
+                                return null;
+                            }
+                        })
                         .filter(Objects::nonNull)
                         .distinct()
                         .collect(Collectors.toList()))
@@ -1059,7 +1067,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInAasContext()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = new DefaultProperty.Builder()
@@ -1086,7 +1094,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementWithIdInUrlInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = new DefaultProperty.Builder()
@@ -1113,7 +1121,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceDeleteSubmodelElementInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
@@ -1139,7 +1147,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel expected = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         assertEvent(
@@ -1159,7 +1167,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElementInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
@@ -1180,7 +1188,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElementsInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
@@ -1196,7 +1204,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelContentValueInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
@@ -1218,7 +1226,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelLevelCoreInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
         clearSubmodelElementCollections(expected);
@@ -1279,7 +1287,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelLevelDeepInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
         ExtendHelper.withoutBlobValue(expected);
@@ -1300,7 +1308,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceUpdateSubmodelInAasContext()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel expected = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         expected.setIdShort("changed");
@@ -1321,7 +1329,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceUpdateSubmodelElementInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);

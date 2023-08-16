@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
@@ -284,7 +285,8 @@ public class HttpAssetConnectionTest {
 
     @Test
     public void testOperationProviderPropertyJsonPOSTNoParameters() throws AssetConnectionException,
-            ConfigurationInitializationException {
+            ConfigurationInitializationException,
+            ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -300,7 +302,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1} }}",
@@ -316,7 +319,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTOutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTOutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -332,7 +336,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInputOutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"in2\": ${in2} }}",
@@ -349,7 +354,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInoutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInoutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"inout1\": ${inout1}}}",
@@ -365,7 +371,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
@@ -667,7 +673,7 @@ public class HttpAssetConnectionTest {
                                                      Map<String, TypedValue> expectedOutput,
                                                      Map<String, TypedValue> expectedInoutput,
                                                      boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         OperationVariable[] output = toOperationVariables(expectedOutput);
         doReturn(output)

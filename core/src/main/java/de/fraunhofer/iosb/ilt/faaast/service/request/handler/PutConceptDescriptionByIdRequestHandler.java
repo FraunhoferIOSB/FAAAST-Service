@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
@@ -45,14 +44,14 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
     @Override
     public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
         ModelValidator.validate(request.getConceptDescription(), coreConfig.getValidationOnUpdate());
-        persistence.get(request.getConceptDescription().getId(), QueryModifier.DEFAULT, ConceptDescription.class);
-        ConceptDescription conceptDescription = persistence.put(request.getConceptDescription());
+        persistence.getConceptDescription(request.getConceptDescription().getId(), QueryModifier.DEFAULT);
+        persistence.save(request.getConceptDescription());
         messageBus.publish(ElementUpdateEventMessage.builder()
-                .element(conceptDescription)
-                .value(conceptDescription)
+                .element(request.getConceptDescription())
+                .value(request.getConceptDescription())
                 .build());
         return PutConceptDescriptionByIdResponse.builder()
-                .payload(conceptDescription)
+                .payload(request.getConceptDescription())
                 .success()
                 .build();
     }

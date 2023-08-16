@@ -88,25 +88,23 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     public OperationHandle executeOperationAsync(Reference reference, InvokeOperationAsyncRequest request) throws MessageBusException, Exception {
         if (!assetConnectionManager.hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
-                    "error executing operation - no operation provider defined for reference '%s' (requestId: %s)",
-                    AasUtils.asString(reference),
-                    request.getRequestId()));
+                    "error executing operation - no operation provider defined for reference '%s'",
+                    AasUtils.asString(reference)));
         }
-        OperationHandle operationHandle = this.persistence.putOperationContext(
-                null,
-                request.getRequestId(),
+        OperationHandle operationHandle = new OperationHandle();
+        persistence.save(
+                operationHandle,
                 new OperationResult.Builder()
-                        .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.RUNNING)
                         .build());
         try {
             BiConsumer<OperationVariable[], OperationVariable[]> callback = LambdaExceptionHelper.rethrowBiConsumer((x, y) -> {
-                OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
+                OperationResult operationResult = persistence.getOperationResult(operationHandle);
                 operationResult.setExecutionState(ExecutionState.COMPLETED);
                 operationResult.setOutputArguments(Arrays.asList(x));
                 operationResult.setInoutputArguments(Arrays.asList(y));
-                persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
+                persistence.save(operationHandle, operationResult);
                 messageBus.publish(OperationFinishEventMessage.builder()
                         .element(reference)
                         .inoutput(ElementValueHelper.toValues(Arrays.asList(x)))
@@ -120,10 +118,10 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                     callback);
         }
         catch (AssetConnectionException | ValueMappingException e) {
-            OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
+            OperationResult operationResult = persistence.getOperationResult(operationHandle);
             operationResult.setExecutionState(ExecutionState.FAILED);
             operationResult.setInoutputArguments(request.getInoutputArguments());
-            persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
+            persistence.save(operationHandle, operationResult);
             try {
                 messageBus.publish(OperationFinishEventMessage.builder()
                         .element(reference)

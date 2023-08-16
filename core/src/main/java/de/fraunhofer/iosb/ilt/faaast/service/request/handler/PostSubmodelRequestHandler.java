@@ -27,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -46,15 +45,15 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
         ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnCreate());
-        Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
-        Reference reference = AasUtils.toReference(submodel);
-        syncWithAsset(reference, submodel.getSubmodelElements());
+        persistence.save(request.getSubmodel());
+        Reference reference = AasUtils.toReference(request.getSubmodel());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements());
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(reference)
-                .value(submodel)
+                .value(request.getSubmodel())
                 .build());
         return PostSubmodelResponse.builder()
-                .payload(submodel)
+                .payload(request.getSubmodel())
                 .created()
                 .build();
     }
