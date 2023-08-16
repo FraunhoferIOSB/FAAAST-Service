@@ -57,7 +57,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
-    private int requestCounter;
+    //private int requestCounter;
 
     /**
      * Creates a new instance of OpcUaEndpoint
@@ -205,8 +205,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         request.setPath(ReferenceHelper.toPath(refElement));
         request.setInputArguments(inputVariables);
 
-        requestCounter++;
-        request.setRequestId(Integer.toString(requestCounter));
+        //requestCounter++;
+        //request.setRequestId(Integer.toString(requestCounter));
 
         // execute method
         InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
