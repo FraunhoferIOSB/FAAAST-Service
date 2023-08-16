@@ -52,7 +52,7 @@ public class AasReferenceCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceList(UaNode node, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addAasReferenceListNode(UaNode node, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
@@ -65,12 +65,26 @@ public class AasReferenceCreator {
         NodeId nid = nodeManager.getDefaultNodeId();
         AASReferenceList referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
 
+        addAasReferencesToList(referenceListNode, list, name, nodeManager);
+
+        node.addComponent(referenceListNode);
+    }
+
+
+    /**
+     * Adds a given list of references to the desired node.
+     * 
+     * @param referenceListNode The node where the references are added
+     * @param list The list of references
+     * @param name The desired name
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     */
+    public static void addAasReferencesToList(AASReferenceList referenceListNode, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
         int counter = 1;
         for (Reference ref: list) {
             addAasReferenceAasNS(referenceListNode, ref, name + counter++, nodeManager);
         }
-
-        node.addComponent(referenceListNode);
     }
 
 

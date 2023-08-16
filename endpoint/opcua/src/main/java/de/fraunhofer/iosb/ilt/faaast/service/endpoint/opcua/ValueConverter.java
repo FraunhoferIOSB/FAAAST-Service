@@ -46,7 +46,6 @@ import java.util.Optional;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASValueTypeDataType;
@@ -273,24 +272,23 @@ public class ValueConverter {
         return retval;
     }
 
-
-//    /**
-//     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
-//     *
-//     * @param value The desired IdentifierType
-//     * @return The corresponding AASIdentifierTypeDataType.
-//     */
-//    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
-//        AASIdentifierTypeDataType retval;
-//        if (IDENTIFIER_TYPE_MAP.containsKey(value)) {
-//            retval = IDENTIFIER_TYPE_MAP.get(value);
-//        }
-//        else {
-//            LOGGER.warn("convertIdentifierType: unknown value {}", value);
-//            throw new IllegalArgumentException("unknown IdentifierType: " + value);
-//        }
-//        return retval;
-//    }
+    //    /**
+    //     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
+    //     *
+    //     * @param value The desired IdentifierType
+    //     * @return The corresponding AASIdentifierTypeDataType.
+    //     */
+    //    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
+    //        AASIdentifierTypeDataType retval;
+    //        if (IDENTIFIER_TYPE_MAP.containsKey(value)) {
+    //            retval = IDENTIFIER_TYPE_MAP.get(value);
+    //        }
+    //        else {
+    //            LOGGER.warn("convertIdentifierType: unknown value {}", value);
+    //            throw new IllegalArgumentException("unknown IdentifierType: " + value);
+    //        }
+    //        return retval;
+    //    }
 
 
     /**
@@ -431,45 +429,43 @@ public class ValueConverter {
         return retval;
     }
 
+    //    /**
+    //     * Gets the corresponding AASKeyTypesDataType from the given KeyType.
+    //     *
+    //     * @param value The desired KeyType
+    //     * @return The corresponding AASKeyTypesDataType
+    //     */
+    //    public static AASKeyTypesDataType getAasKeyType(KeyType value) {
+    //        AASKeyTypesDataType retval;
+    //        var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
+    //        if (rv.isEmpty()) {
+    //            LOGGER.warn("getAasKeyType: unknown value {}", value);
+    //            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+    //        }
+    //        else {
+    //            retval = rv.get().opcuaObject;
+    //        }
+    //        return retval;
+    //    }
 
-//    /**
-//     * Gets the corresponding AASKeyTypesDataType from the given KeyType.
-//     *
-//     * @param value The desired KeyType
-//     * @return The corresponding AASKeyTypesDataType
-//     */
-//    public static AASKeyTypesDataType getAasKeyType(KeyType value) {
-//        AASKeyTypesDataType retval;
-//        var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
-//        if (rv.isEmpty()) {
-//            LOGGER.warn("getAasKeyType: unknown value {}", value);
-//            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-//        }
-//        else {
-//            retval = rv.get().opcuaObject;
-//        }
-//        return retval;
-//    }
-
-
-//    /**
-//     * Gets the corresponding KeyType from the given AASKeyTypesDataType.
-//     *
-//     * @param value The desired AASKeyTypesDataType
-//     * @return The corresponding KeyType
-//     */
-//    public static KeyType getKeyType(AASKeyTypesDataType value) {
-//        KeyType retval;
-//        var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
-//        if (rv.isEmpty()) {
-//            LOGGER.warn("getKeyType: unknown value {}", value);
-//            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-//        }
-//        else {
-//            retval = rv.get().aasObject;
-//        }
-//        return retval;
-//    }
+    //    /**
+    //     * Gets the corresponding KeyType from the given AASKeyTypesDataType.
+    //     *
+    //     * @param value The desired AASKeyTypesDataType
+    //     * @return The corresponding KeyType
+    //     */
+    //    public static KeyType getKeyType(AASKeyTypesDataType value) {
+    //        KeyType retval;
+    //        var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
+    //        if (rv.isEmpty()) {
+    //            LOGGER.warn("getKeyType: unknown value {}", value);
+    //            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
+    //        }
+    //        else {
+    //            retval = rv.get().aasObject;
+    //        }
+    //        return retval;
+    //    }
 
 
     /**
@@ -760,29 +756,30 @@ public class ValueConverter {
         }
         return retval;
     }
-    
-//    /**
-//     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
-//     *
-//     * @param value The desired KeyElements value.
-//     * @return The converted AASKeyElementsDataType.
-//     */
-//    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyTypes value) {
-//        AASKeyElementsDataType retval = null;
-//        var rv = KEY_ELEMENTS_LIST.stream()
-//                .filter(m -> m.aasObject == value)
-//                .findAny();
-//        if (rv.isEmpty()) {
-//            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
-//            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
-//        }
-//        else {
-//            retval = rv.get().opcuaObject;
-//        }
-//
-//        return retval;
-//    }
-    
+
+    //    /**
+    //     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+    //     *
+    //     * @param value The desired KeyElements value.
+    //     * @return The converted AASKeyElementsDataType.
+    //     */
+    //    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyTypes value) {
+    //        AASKeyElementsDataType retval = null;
+    //        var rv = KEY_ELEMENTS_LIST.stream()
+    //                .filter(m -> m.aasObject == value)
+    //                .findAny();
+    //        if (rv.isEmpty()) {
+    //            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
+    //            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
+    //        }
+    //        else {
+    //            retval = rv.get().opcuaObject;
+    //        }
+    //
+    //        return retval;
+    //    }
+
+
     /**
      * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
      *

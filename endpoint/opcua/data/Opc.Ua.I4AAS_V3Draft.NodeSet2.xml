@@ -10,8 +10,6 @@
     </Models>
     <Aliases>
         <Alias Alias="Boolean">i=1</Alias>
-        <Alias Alias="UInt16">i=5</Alias>
-        <Alias Alias="UInt64">i=9</Alias>
         <Alias Alias="String">i=12</Alias>
         <Alias Alias="DateTime">i=13</Alias>
         <Alias Alias="ByteString">i=15</Alias>
@@ -26,10 +24,8 @@
         <Alias Alias="HasOrderedComponent">i=49</Alias>
         <Alias Alias="IdType">i=256</Alias>
         <Alias Alias="NumericRange">i=291</Alias>
-        <Alias Alias="Argument">i=296</Alias>
         <Alias Alias="EnumValueType">i=7594</Alias>
         <Alias Alias="HasInterface">i=17603</Alias>
-        <Alias Alias="HasAddIn">i=17604</Alias>
         <Alias Alias="AASKeyTypesDataType">ns=1;i=3002</Alias>
         <Alias Alias="AASAssetKindDataType">ns=1;i=3003</Alias>
         <Alias Alias="AASValueTypeDataType">ns=1;i=3004</Alias>
@@ -41,11 +37,11 @@
         <Alias Alias="AASKeyDataType">ns=1;i=3011</Alias>
         <Alias Alias="AASQualifierDataType">ns=1;i=3013</Alias>
         <Alias Alias="AASModellingKindDataType">ns=1;i=3015</Alias>
-        <Alias Alias="AASMimeDataType">ns=1;i=3016</Alias>
+        <Alias Alias="AASContentTypeDataType">ns=1;i=3016</Alias>
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Hash="1vQuU++crtuSXx4scU1VSA==" Version="1.6.9"/>
+            <ua:ModelInfo Tool="UaModeler" Hash="S8W4BVLQx71DMEVCYWZD1A==" Version="1.6.9"/>
         </Extension>
     </Extensions>
     <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASAssetKindDataType">
@@ -1349,8 +1345,8 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             </uax:ListOfLocalizedText>
         </Value>
     </UAVariable>
-    <UADataType NodeId="ns=1;i=3016" BrowseName="1:AASMimeDataType">
-        <DisplayName>AASMimeDataType</DisplayName>
+    <UADataType NodeId="ns=1;i=3016" BrowseName="1:AASContentTypeDataType">
+        <DisplayName>AASContentTypeDataType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/7.9</Documentation>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=12</Reference>
@@ -1811,11 +1807,11 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <DisplayName>AASAssetInformationType</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6441</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5005</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5362</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5359</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5049</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6036</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5016</Reference>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6035</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5049</Reference>
         </References>
     </UAObjectType>
     <UAVariable DataType="AASAssetKindDataType" ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=6441" BrowseName="1:AssetKind" AccessLevel="3">
@@ -1826,103 +1822,50 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1031</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=5005" BrowseName="1:BillOfMaterial">
-        <DisplayName>BillOfMaterial</DisplayName>
+    <UAVariable ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=6036" BrowseName="1:AssetType" AccessLevel="3">
+        <DisplayName>AssetType</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1031</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1031</Reference>
         </References>
-    </UAObject>
-    <UAObject ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=5362" BrowseName="1:DefaultThumbnail">
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=5016" BrowseName="1:DefaultThumbnail">
         <DisplayName>DefaultThumbnail</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1017</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1044</Reference>
             <Reference ReferenceType="HasModellingRule">i=80</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6445</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5371</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1031</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6444</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6446</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5384</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6034</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="String" ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=6445" BrowseName="1:Category" AccessLevel="3">
-        <DisplayName>Category</DisplayName>
+    <UAVariable DataType="AASPathDataType" ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=6034" BrowseName="1:Path" AccessLevel="3">
+        <DisplayName>Path</DisplayName>
         <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5362</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5016</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=5371" BrowseName="1:DataSpecification">
-        <DisplayName>DataSpecification</DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5362</Reference>
-        </References>
-    </UAObject>
-    <UAVariable DataType="AASMimeDataType" ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=6444" BrowseName="1:MimeType" AccessLevel="3">
-        <DisplayName>MimeType</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5362</Reference>
-        </References>
-        <Value>
-            <uax:String></uax:String>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=6446" BrowseName="1:ModelingKind" AccessLevel="3">
-        <DisplayName>ModelingKind</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5362</Reference>
-        </References>
-        <Value>
-            <uax:Int32>0</uax:Int32>
-        </Value>
-    </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=5362" NodeId="ns=1;i=5384" BrowseName="1:Qualifier">
-        <DisplayName>Qualifier</DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1037</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5362</Reference>
-        </References>
-    </UAObject>
-    <UAObject ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=5359" BrowseName="1:GlobalAssetId">
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=6035" BrowseName="1:GlobalAssetId" AccessLevel="3">
         <DisplayName>GlobalAssetId</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1004</Reference>
-            <Reference ReferenceType="HasModellingRule">i=80</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1031</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6442</Reference>
-        </References>
-    </UAObject>
-    <UAVariable DataType="AASKeyDataType" ParentNodeId="ns=1;i=5359" ValueRank="1" NodeId="ns=1;i=6442" ArrayDimensions="0" BrowseName="1:Keys" AccessLevel="3">
-        <DisplayName>Keys</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5359</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1031</Reference>
         </References>
     </UAVariable>
     <UAObject ParentNodeId="ns=1;i=1031" NodeId="ns=1;i=5049" BrowseName="1:SpecificAssetId">
         <DisplayName>SpecificAssetId</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1039</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1043</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1031</Reference>
         </References>
     </UAObject>
-    <UAObjectType IsAbstract="true" NodeId="ns=1;i=1027" BrowseName="1:AASDataSpecificationType">
-        <DisplayName>AASDataSpecificationType</DisplayName>
-        <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.10.1</Documentation>
+    <UAObjectType NodeId="ns=1;i=1042" BrowseName="1:AASDataSpecificationContentType">
+        <DisplayName>AASDataSpecificationContentType</DisplayName>
         <References>
-            <Reference ReferenceType="HasInterface">ns=1;i=1034</Reference>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
         </References>
     </UAObjectType>
@@ -1930,7 +1873,6 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <DisplayName>AASDataSpecificationIEC61360Type</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.10.2</Documentation>
         <References>
-            <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1027</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6072</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6063</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6073</Reference>
@@ -1946,6 +1888,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty">ns=1;i=6070</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5030</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5029</Reference>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1042</Reference>
         </References>
     </UAObjectType>
     <UAVariable DataType="AASDataTypeIEC61360DataType" ParentNodeId="ns=1;i=1028" NodeId="ns=1;i=6072" BrowseName="1:DataType" AccessLevel="3">
@@ -2129,6 +2072,47 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasTypeDefinition">i=58</Reference>
             <Reference ReferenceType="HasModellingRule">i=80</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1028</Reference>
+        </References>
+    </UAObject>
+    <UAObjectType IsAbstract="true" NodeId="ns=1;i=1027" BrowseName="1:AASDataSpecificationType">
+        <DisplayName>AASDataSpecificationType</DisplayName>
+        <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.10.1</Documentation>
+        <References>
+            <Reference ReferenceType="HasInterface">ns=1;i=1034</Reference>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType NodeId="ns=1;i=1047" BrowseName="1:AASEmbeddedDataSpecificationType">
+        <DisplayName>AASEmbeddedDataSpecificationType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5005</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5045</Reference>
+        </References>
+    </UAObjectType>
+    <UAObject ParentNodeId="ns=1;i=1047" NodeId="ns=1;i=5005" BrowseName="1:DataSpecification">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1004</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1047</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6040</Reference>
+        </References>
+    </UAObject>
+    <UAVariable DataType="AASKeyDataType" ParentNodeId="ns=1;i=5005" ValueRank="1" NodeId="ns=1;i=6040" ArrayDimensions="0" BrowseName="1:Keys" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5005</Reference>
+        </References>
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=1047" NodeId="ns=1;i=5045" BrowseName="1:DataSpecificationContent">
+        <DisplayName>DataSpecificationContent</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1042</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1047</Reference>
         </References>
     </UAObject>
     <UAObjectType NodeId="ns=1;i=1035" BrowseName="1:AASIdentifierKeyValuePairType">
@@ -2345,7 +2329,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1002</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6120</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5045</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6038</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5050</Reference>
         </References>
     </UAObject>
@@ -2357,19 +2341,19 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5156</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=5156" NodeId="ns=1;i=5045" BrowseName="1:BillOfMaterial">
-        <DisplayName>BillOfMaterial</DisplayName>
+    <UAVariable ParentNodeId="ns=1;i=5156" NodeId="ns=1;i=6038" BrowseName="1:AssetType" AccessLevel="3">
+        <DisplayName>AssetType</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5156</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5156</Reference>
         </References>
-    </UAObject>
+    </UAVariable>
     <UAObject ParentNodeId="ns=1;i=5156" NodeId="ns=1;i=5050" BrowseName="1:SpecificAssetId">
         <DisplayName>SpecificAssetId</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1039</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1043</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5156</Reference>
         </References>
     </UAObject>
@@ -2565,7 +2549,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty">ns=1;i=6024</Reference>
         </References>
     </UAObjectType>
-    <UAVariable DataType="AASMimeDataType" ParentNodeId="ns=1;i=1016" NodeId="ns=1;i=6023" BrowseName="1:MimeType" AccessLevel="3">
+    <UAVariable DataType="AASContentTypeDataType" ParentNodeId="ns=1;i=1016" NodeId="ns=1;i=6023" BrowseName="1:MimeType" AccessLevel="3">
         <DisplayName>MimeType</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
@@ -2646,414 +2630,12 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.8.9</Documentation>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1009</Reference>
-            <Reference ReferenceType="HasAddIn">ns=1;i=5016</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6037</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6132</Reference>
         </References>
     </UAObjectType>
-    <UAObject ParentNodeId="ns=1;i=1017" NodeId="ns=1;i=5016" BrowseName="1:File">
-        <DisplayName>File</DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">i=11575</Reference>
-            <Reference ReferenceType="HasModellingRule">i=80</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7008</Reference>
-            <Reference ReferenceType="HasAddIn" IsForward="false">ns=1;i=1017</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7009</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7010</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6043</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7011</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7012</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6047</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6048</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6049</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=7013</Reference>
-        </References>
-    </UAObject>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7008" BrowseName="Close" MethodDeclarationId="i=11583">
-        <DisplayName>Close</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6038</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7008" ValueRank="1" NodeId="ns=1;i=6038" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7008</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7009" BrowseName="GetPosition" MethodDeclarationId="i=11590">
-        <DisplayName>GetPosition</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6039</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6040</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7009" ValueRank="1" NodeId="ns=1;i=6039" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7009</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7009" ValueRank="1" NodeId="ns=1;i=6040" ArrayDimensions="0" BrowseName="OutputArguments">
-        <DisplayName>OutputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7009</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Position</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=9</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7010" BrowseName="Open" MethodDeclarationId="i=11580">
-        <DisplayName>Open</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6041</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6042</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7010" ValueRank="1" NodeId="ns=1;i=6041" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7010</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Mode</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=3</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7010" ValueRank="1" NodeId="ns=1;i=6042" ArrayDimensions="0" BrowseName="OutputArguments">
-        <DisplayName>OutputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7010</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="UInt16" ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=6043" BrowseName="OpenCount">
-        <DisplayName>OpenCount</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7011" BrowseName="Read" MethodDeclarationId="i=11585">
-        <DisplayName>Read</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6044</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6045</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7011" ValueRank="1" NodeId="ns=1;i=6044" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7011</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Length</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=6</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7011" ValueRank="1" NodeId="ns=1;i=6045" ArrayDimensions="0" BrowseName="OutputArguments">
-        <DisplayName>OutputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7011</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Data</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=15</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7012" BrowseName="SetPosition" MethodDeclarationId="i=11593">
-        <DisplayName>SetPosition</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6046</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7012" ValueRank="1" NodeId="ns=1;i=6046" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7012</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Position</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=9</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="UInt64" ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=6047" BrowseName="Size">
-        <DisplayName>Size</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=6048" BrowseName="UserWritable">
-        <DisplayName>UserWritable</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=6049" BrowseName="Writable">
-        <DisplayName>Writable</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=5016" NodeId="ns=1;i=7013" BrowseName="Write" MethodDeclarationId="i=11588">
-        <DisplayName>Write</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6050</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5016</Reference>
-        </References>
-    </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7013" ValueRank="1" NodeId="ns=1;i=6050" ArrayDimensions="0" BrowseName="InputArguments">
-        <DisplayName>InputArguments</DisplayName>
-        <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7013</Reference>
-        </References>
-        <Value>
-            <uax:ListOfExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>FileHandle</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=7</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-                <uax:ExtensionObject>
-                    <uax:TypeId>
-                        <uax:Identifier>i=297</uax:Identifier>
-                    </uax:TypeId>
-                    <uax:Body>
-                        <uax:Argument>
-                            <uax:Name>Data</uax:Name>
-                            <uax:DataType>
-                                <uax:Identifier>i=15</uax:Identifier>
-                            </uax:DataType>
-                            <uax:ValueRank>-1</uax:ValueRank>
-                            <uax:ArrayDimensions/>
-                            <uax:Description/>
-                        </uax:Argument>
-                    </uax:Body>
-                </uax:ExtensionObject>
-            </uax:ListOfExtensionObject>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="AASMimeDataType" ParentNodeId="ns=1;i=1017" NodeId="ns=1;i=6037" BrowseName="1:MimeType" AccessLevel="3">
-        <DisplayName>MimeType</DisplayName>
+    <UAVariable DataType="AASContentTypeDataType" ParentNodeId="ns=1;i=1017" NodeId="ns=1;i=6037" BrowseName="1:ContentType" AccessLevel="3">
+        <DisplayName>ContentType</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
@@ -3425,6 +3007,30 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1004</Reference>
         </References>
     </UAVariable>
+    <UAObjectType NodeId="ns=1;i=1044" BrowseName="1:AASResourceType">
+        <DisplayName>AASResourceType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6032</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6033</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable DataType="AASContentTypeDataType" ParentNodeId="ns=1;i=1044" NodeId="ns=1;i=6032" BrowseName="1:ContentType" AccessLevel="3">
+        <DisplayName>ContentType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1044</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="AASPathDataType" ParentNodeId="ns=1;i=1044" NodeId="ns=1;i=6033" BrowseName="1:Path" AccessLevel="3">
+        <DisplayName>Path</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1044</Reference>
+        </References>
+    </UAVariable>
     <UAObjectType NodeId="ns=1;i=1041" BrowseName="1:AASSpecificAssetIDType">
         <DisplayName>AASSpecificAssetIDType</DisplayName>
         <References>
@@ -3544,15 +3150,15 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <uax:Int32>0</uax:Int32>
         </Value>
     </UAVariable>
-    <UAObjectType NodeId="ns=1;i=1026" BrowseName="1:AASCustomConceptDescriptionType">
-        <DisplayName>AASCustomConceptDescriptionType</DisplayName>
+    <UAObjectType NodeId="ns=1;i=1026" BrowseName="1:AASConceptDescriptionType">
+        <DisplayName>AASConceptDescriptionType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.9.3</Documentation>
         <References>
             <Reference ReferenceType="HasComponent">ns=1;i=5015</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6025</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5043</Reference>
             <Reference ReferenceType="HasInterface">ns=1;i=1034</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5155</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6026</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5048</Reference>
             <Reference ReferenceType="HasSubtype" IsForward="false">i=17589</Reference>
         </References>
@@ -3573,45 +3179,21 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1026</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=1026" NodeId="ns=1;i=5043" BrowseName="1:DataSpecification">
-        <DisplayName>DataSpecification</DisplayName>
+    <UAObject ParentNodeId="ns=1;i=1026" NodeId="ns=1;i=5043" BrowseName="1:EmbeddedDataSpecification">
+        <DisplayName>EmbeddedDataSpecification</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1050</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1026</Reference>
         </References>
     </UAObject>
-    <UAObject ParentNodeId="ns=1;i=1026" NodeId="ns=1;i=5155" BrowseName="1:Identification">
-        <DisplayName>Identification</DisplayName>
-        <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1029</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6026</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1026</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6027</Reference>
-        </References>
-    </UAObject>
-    <UAVariable DataType="String" ParentNodeId="ns=1;i=5155" NodeId="ns=1;i=6026" BrowseName="1:Id" AccessLevel="3">
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1026" NodeId="ns=1;i=6026" BrowseName="1:Id" AccessLevel="3">
         <DisplayName>Id</DisplayName>
         <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5155</Reference>
-        </References>
-        <Value>
-            <uax:String></uax:String>
-        </Value>
-    </UAVariable>
-    <UAVariable DataType="AASIdentifierTypeDataType" ParentNodeId="ns=1;i=5155" NodeId="ns=1;i=6027" BrowseName="1:IdType" AccessLevel="3">
-        <DisplayName>IdType</DisplayName>
-        <References>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5155</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1026</Reference>
         </References>
-        <Value>
-            <uax:Int32>0</uax:Int32>
-        </Value>
     </UAVariable>
     <UAObject ParentNodeId="ns=1;i=1026" NodeId="ns=1;i=5048" BrowseName="1:IsCaseOf">
         <DisplayName>IsCaseOf</DisplayName>
@@ -3775,6 +3357,30 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1025</Reference>
         </References>
     </UAObject>
+    <UAObjectType NodeId="ns=1;i=1050" BrowseName="1:AASEmbeddedDataSpecificationList">
+        <DisplayName>AASEmbeddedDataSpecificationList</DisplayName>
+        <References>
+            <Reference ReferenceType="HasComponent">ns=1;i=5047</Reference>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=61</Reference>
+        </References>
+    </UAObjectType>
+    <UAObject SymbolicName="AASEmbeddedDataSpecification" ParentNodeId="ns=1;i=1050" NodeId="ns=1;i=5047" BrowseName="1:&lt;AASEmbeddedDataSpecification>">
+        <DisplayName>&lt;AASEmbeddedDataSpecification></DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1047</Reference>
+            <Reference ReferenceType="HasModellingRule">i=11508</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1050</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5053</Reference>
+        </References>
+    </UAObject>
+    <UAObject ParentNodeId="ns=1;i=5047" NodeId="ns=1;i=5053" BrowseName="1:DataSpecificationContent">
+        <DisplayName>DataSpecificationContent</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1042</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5047</Reference>
+        </References>
+    </UAObject>
     <UAObjectType NodeId="ns=1;i=1008" BrowseName="1:AASEnvironmentType">
         <DisplayName>AASEnvironmentType</DisplayName>
         <References>
@@ -3813,8 +3419,8 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5002</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6121</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5047</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5360</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6039</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5052</Reference>
         </References>
     </UAObject>
     <UAVariable DataType="AASAssetKindDataType" ParentNodeId="ns=1;i=5610" NodeId="ns=1;i=6121" BrowseName="1:AssetKind" AccessLevel="3">
@@ -3825,19 +3431,19 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5610</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=5610" NodeId="ns=1;i=5047" BrowseName="1:BillOfMaterial">
-        <DisplayName>BillOfMaterial</DisplayName>
+    <UAVariable ParentNodeId="ns=1;i=5610" NodeId="ns=1;i=6039" BrowseName="1:AssetType" AccessLevel="3">
+        <DisplayName>AssetType</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5610</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5610</Reference>
         </References>
-    </UAObject>
-    <UAObject ParentNodeId="ns=1;i=5610" NodeId="ns=1;i=5360" BrowseName="1:SpecificAssetId">
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=5610" NodeId="ns=1;i=5052" BrowseName="1:SpecificAssetId">
         <DisplayName>SpecificAssetId</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1039</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1043</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5610</Reference>
         </References>
     </UAObject>

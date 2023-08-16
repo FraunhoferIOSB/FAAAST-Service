@@ -26,11 +26,13 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
-import opc.i4aas.AASIdentifierKeyValuePairList;
 import opc.i4aas.AASReferenceList;
+import opc.i4aas.AASSpecificAssetIDList;
 import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -39,7 +41,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +64,9 @@ public class AssetAdministrationShellCreator {
      * @param aas The desirted AssetAdministrationShell.
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
@@ -117,7 +119,7 @@ public class AssetAdministrationShellCreator {
      * @throws StatusException If the operation fails
      */
     private static void addAssetInformation(AASAssetAdministrationShellType aasNode, AssetInformation assetInformation, AasServiceNodeManager nodeManager)
-            throws StatusException {
+            throws StatusException, ValueFormatException {
         if (aasNode == null) {
             throw new IllegalArgumentException("aasNode = null");
         }
@@ -148,21 +150,38 @@ public class AssetAdministrationShellCreator {
 
 
     private static void setAssetInformationData(AssetInformation assetInformation, AASAssetInformationType assetInfoNode, AasServiceNodeManager nodeManager)
-            throws StatusException {
+            throws StatusException, ValueFormatException {
         // AssetKind
         AssetKind assetKind = assetInformation.getAssetKind();
         assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
 
+        // AssetType 
+        String assetType = assetInformation.getAssetType();
+        if (assetType != null) {
+            if (assetInfoNode.getAssetTypeNode() == null) {
+                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType);
+            }
+            else {
+                assetInfoNode.setAssetType(assetType);
+            }
+        }
+
         // DefaultThumbnail
         Resource thumbnail = assetInformation.getDefaultThumbnail();
         if (thumbnail != null) {
-            FileCreator.addAasFile(assetInfoNode, thumbnail, null, null, false, AASAssetInformationType.DEFAULT_THUMBNAIL, nodeManager);
+            ResourceCreator.addAasResource(assetInfoNode, thumbnail, AASAssetInformationType.DEFAULT_THUMBNAIL, nodeManager);
         }
 
         // GlobalAssetId
-        Reference globalAssetId = assetInformation.getGlobalAssetID();
+        String globalAssetId = assetInformation.getGlobalAssetID();
         if (globalAssetId != null) {
-            AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, nodeManager);
+            //AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, nodeManager);
+            if (assetInfoNode.getGlobalAssetIdNode() == null) {
+                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId);
+            }
+            else {
+                assetInfoNode.setGlobalAssetId(globalAssetId);
+            }
         }
 
         // SpecificAssetIds
@@ -192,22 +211,18 @@ public class AssetAdministrationShellCreator {
         }
 
         LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
-        AASIdentifierKeyValuePairList listNode = assetInfoNode.getSpecificAssetIdNode();
+        AASSpecificAssetIDList listNode = assetInfoNode.getSpecificAssetIdNode();
         boolean created = false;
 
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairList.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDList.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
-            listNode = nodeManager.createInstance(AASIdentifierKeyValuePairList.class, nid, browseName, LocalizedText.english(name));
+            listNode = nodeManager.createInstance(AASSpecificAssetIDList.class, nid, browseName, LocalizedText.english(name));
             created = true;
         }
 
-        for (SpecificAssetID ikv: list) {
-            if (ikv != null) {
-                SpecificAssetIdCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getName(), nodeManager);
-            }
-        }
+        SpecificAssetIdCreator.addSpecificAssetIDList(listNode, list, nodeManager);
 
         if (created) {
             assetInfoNode.addComponent(listNode);

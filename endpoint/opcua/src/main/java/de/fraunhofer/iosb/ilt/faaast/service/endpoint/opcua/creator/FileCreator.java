@@ -24,7 +24,6 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
-import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
@@ -33,8 +32,6 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class FileCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileCreator.class);
 
     /**
      * Adds an AAS file to the given node.
@@ -91,7 +87,7 @@ public class FileCreator extends SubmodelElementCreator {
     private static void setFileData(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) throws StatusException {
         // MimeType
         if (!aasFile.getContentType().isEmpty()) {
-            fileNode.setMimeType(aasFile.getContentType());
+            fileNode.setContentType(aasFile.getContentType());
         }
 
         // Value
@@ -100,7 +96,7 @@ public class FileCreator extends SubmodelElementCreator {
         }
 
         if (VALUES_READ_ONLY) {
-            fileNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 
@@ -112,27 +108,27 @@ public class FileCreator extends SubmodelElementCreator {
 
         fileNode.setValue(aasFile.getValue());
 
-        if (!aasFile.getValue().isEmpty()) {
-            java.io.File f = new java.io.File(aasFile.getValue());
-            if (!f.exists()) {
-                LOGGER.warn("addAasFile: File '{}' does not exist!", f.getAbsolutePath());
-            }
-            else {
-                // File Object: include only when the file exists
-                QualifiedName fileBrowseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.FILE)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId fileId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.FILE);
-                FileTypeNode fileType = nodeManager.createInstance(FileTypeNode.class, fileId, fileBrowseName, LocalizedText.english(AASFileType.FILE));
-                fileType.setFile(new java.io.File(aasFile.getValue()));
-                fileType.setWritable(false);
-                fileType.setUserWritable(false);
-                if (fileType.getNodeVersion() != null) {
-                    fileType.getNodeVersion().setDescription(new LocalizedText("", ""));
-                }
-
-                fileNode.addReference(fileType, Identifiers.HasAddIn, false);
-            }
-        }
+        //        if (!aasFile.getValue().isEmpty()) {
+        //            java.io.File f = new java.io.File(aasFile.getValue());
+        //            if (!f.exists()) {
+        //                LOGGER.warn("addAasFile: File '{}' does not exist!", f.getAbsolutePath());
+        //            }
+        //            else {
+        //                // File Object: include only when the file exists
+        //                QualifiedName fileBrowseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.FILE)
+        //                        .toQualifiedName(nodeManager.getNamespaceTable());
+        //                NodeId fileId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.FILE);
+        //                FileTypeNode fileType = nodeManager.createInstance(FileTypeNode.class, fileId, fileBrowseName, LocalizedText.english(AASFileType.FILE));
+        //                fileType.setFile(new java.io.File(aasFile.getValue()));
+        //                fileType.setWritable(false);
+        //                fileType.setUserWritable(false);
+        //                if (fileType.getNodeVersion() != null) {
+        //                    fileType.getNodeVersion().setDescription(new LocalizedText("", ""));
+        //                }
+        //
+        //                fileNode.addReference(fileType, Identifiers.HasAddIn, false);
+        //            }
+        //        }
     }
 
 }

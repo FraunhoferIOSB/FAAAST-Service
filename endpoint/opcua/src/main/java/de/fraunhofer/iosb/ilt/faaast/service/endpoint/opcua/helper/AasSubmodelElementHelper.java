@@ -238,7 +238,7 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            AASValueTypeDataType valueDataType;            
+            AASValueTypeDataType valueDataType;
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
                 valueDataType = ValueConverter.datatypeToValueType(typedValue.getValue().getDataType());
@@ -729,6 +729,7 @@ public class AasSubmodelElementHelper {
      * @param value The new value.
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
     private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         // EntityType
@@ -767,7 +768,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        file.setMimeType(value.getContentType());
+        file.setContentType(value.getContentType());
         if (value.getValue() != null) {
             if (file.getValueNode() == null) {
                 addFileValueNode(file, nodeManager);

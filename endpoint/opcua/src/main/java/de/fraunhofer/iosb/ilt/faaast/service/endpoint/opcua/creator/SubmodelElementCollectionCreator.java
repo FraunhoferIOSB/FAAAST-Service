@@ -30,12 +30,13 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import opc.i4aas.AASOrderedSubmodelElementCollectionType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import opc.i4aas.AASSubmodelElementCollectionType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+
 
 /**
  * Helper class to create SubmodelElementCollections and integrate them into the OPC UA address space.
@@ -55,10 +56,11 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
     public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Submodel submodel, Reference parentRef, boolean ordered,
-            AasServiceNodeManager nodeManager)
-            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+                                                       AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasColl != null)) {
             String name = aasColl.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), name)
@@ -93,7 +95,8 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
 
             if (ordered) {
                 node.addReference(collNode, Identifiers.HasOrderedComponent, false);
-            } else {
+            }
+            else {
                 node.addComponent(collNode);
             }
 
@@ -101,24 +104,24 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
         }
     }
 
-    /**
-     * Creates an AAS Ordered Submodel Element Collection.
-     *
-     * @param name The desired name
-     * @param nid The desired NodeId
-     * @param nodeManager The corresponding Node Manager
-     * @return The created Ordered Submodel Element Collection object
-     */
-    private static AASSubmodelElementCollectionType createAasOrderedSubmodelElementCollection(String name, NodeId nid, AasServiceNodeManager nodeManager) {
-        AASSubmodelElementCollectionType retval = null;
-
-        AASOrderedSubmodelElementCollectionType orderedNode = nodeManager.createInstance(AASOrderedSubmodelElementCollectionType.class, nid,
-                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOrderedSubmodelElementCollectionType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable()),
-                LocalizedText.english(name));
-
-        retval = orderedNode;
-
-        return retval;
-    }
+    //    /**
+    //     * Creates an AAS Ordered Submodel Element Collection.
+    //     *
+    //     * @param name The desired name
+    //     * @param nid The desired NodeId
+    //     * @param nodeManager The corresponding Node Manager
+    //     * @return The created Ordered Submodel Element Collection object
+    //     */
+    //    private static AASSubmodelElementCollectionType createAasOrderedSubmodelElementCollection(String name, NodeId nid, AasServiceNodeManager nodeManager) {
+    //        AASSubmodelElementCollectionType retval = null;
+    //
+    //        AASOrderedSubmodelElementCollectionType orderedNode = nodeManager.createInstance(AASOrderedSubmodelElementCollectionType.class, nid,
+    //                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOrderedSubmodelElementCollectionType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable()),
+    //                LocalizedText.english(name));
+    //
+    //        retval = orderedNode;
+    //
+    //        return retval;
+    //    }
 
 }
