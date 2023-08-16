@@ -57,6 +57,7 @@ import opc.i4aas.VariableIds;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
@@ -165,6 +166,7 @@ public class OpcUaEndpoint2Test {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(AASSimple.SUBMODEL_TECHNICAL_DATA_ID).build())
                 .build());
         service.getMessageBus().publish(msg);
@@ -225,6 +227,7 @@ public class OpcUaEndpoint2Test {
         CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(AASSimple.SUBMODEL_OPERATIONAL_DATA_ID).build())
                 .build());
         msg.setValue(new DefaultSubmodel.Builder()
@@ -241,12 +244,14 @@ public class OpcUaEndpoint2Test {
                         .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
                         .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
                         .semanticID(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
                                         .build())
                                 .build())
                         .first(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.SUBMODEL)
                                         .value("https://acplt.org/Test_Submodel")
@@ -261,6 +266,7 @@ public class OpcUaEndpoint2Test {
                                         .build())
                                 .build())
                         .second(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.SUBMODEL)
                                         .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
@@ -356,6 +362,7 @@ public class OpcUaEndpoint2Test {
         CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_DOC_NAME).build())
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.OPERATING_MANUAL_NAME).build())
                 .build());

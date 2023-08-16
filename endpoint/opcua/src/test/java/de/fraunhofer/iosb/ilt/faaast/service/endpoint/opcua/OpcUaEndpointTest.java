@@ -61,7 +61,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import opc.i4aas.AASEntityType;
-import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
@@ -73,6 +72,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
@@ -164,7 +164,7 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("Browse Environment Refs Null", refs);
         Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
         NodeId aasNode = null;
-        NodeId assetNode = null;
+        //NodeId assetNode = null;
         NodeId submodelDocNode = null;
         NodeId submodelTechDataNode = null;
         NodeId submodelOperDataNode = null;
@@ -173,9 +173,9 @@ public class OpcUaEndpointTest {
                 case TestConstants.SIMPLE_AAS_NAME:
                     aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                case TestConstants.SIMPLE_ASSET_NAME:
-                    assetNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
+                //case TestConstants.SIMPLE_ASSET_NAME:
+                //    assetNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
+                //    break;
                 case TestConstants.SUBMODEL_DOC_NODE_NAME:
                     submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
@@ -191,7 +191,7 @@ public class OpcUaEndpointTest {
         }
 
         Assert.assertNotNull("AAS Node not found", aasNode);
-        Assert.assertNotNull("Asset Node not found", assetNode);
+        //Assert.assertNotNull("Asset Node not found", assetNode);
         Assert.assertNotNull("Submodel Documentation Node not found", submodelDocNode);
         Assert.assertNotNull("Submodel TechnicalData Node not found", submodelTechDataNode);
         Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
@@ -203,8 +203,8 @@ public class OpcUaEndpointTest {
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
-        // Asset
-        testAsset(client, assetNode);
+        //// Asset
+        //testAsset(client, assetNode);
 
         // Submodels
         testSubmodelDoc(client, submodelDocNode);
@@ -267,7 +267,10 @@ public class OpcUaEndpointTest {
         List<Key> keys = new ArrayList<>();
         keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_OPER_DATA_NAME).build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value(TestConstants.ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder().keys(keys).build();
+        Reference propRef = new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(keys)
+                .build();
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
         //PropertyValue propertyValue = new PropertyValue();
@@ -357,7 +360,10 @@ public class OpcUaEndpointTest {
         List<Key> keys = new ArrayList<>();
         keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_TECH_DATA_NAME).build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder().keys(keys).build();
+        Reference propRef = new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(keys)
+                .build();
 
         CountDownLatch condition = new CountDownLatch(1);
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
@@ -649,7 +655,9 @@ public class OpcUaEndpointTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build()).build());
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build())
+                .build());
         msg.setValue(new DefaultProperty.Builder()
                 //.kind(ModelingKind.INSTANCE)
                 .idShort(propName)
@@ -703,6 +711,7 @@ public class OpcUaEndpointTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
                 .build());
         msg.setValue(new DefaultSubmodel.Builder()
@@ -719,12 +728,14 @@ public class OpcUaEndpointTest {
                         .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
                         .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
                         .semanticID(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
                                         .build())
                                 .build())
                         .first(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.SUBMODEL)
                                         .value("https://acplt.org/Test_Submodel")
@@ -739,6 +750,7 @@ public class OpcUaEndpointTest {
                                         .build())
                                 .build())
                         .second(new DefaultReference.Builder()
+                                .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.SUBMODEL)
                                         .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
@@ -894,7 +906,7 @@ public class OpcUaEndpointTest {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkType(client, aasNode, new NodeId(aasns, TestConstants.AAS_AAS_TYPE_ID));
-        TestUtils.checkIdentificationNode(client, aasNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/aas/9175_7013_7091_9168");
+        TestUtils.checkIdentification(client, aasNode, aasns, "http://customer.com/aas/9175_7013_7091_9168");
         TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
         TestUtils.checkCategoryNode(client, aasNode, aasns, "");
         TestUtils.checkDataSpecificationNode(client, aasNode, aasns);
@@ -902,15 +914,14 @@ public class OpcUaEndpointTest {
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
 
-
-    private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
-        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
-        TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
-        TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
-        TestUtils.checkCategoryNode(client, assetNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, assetNode, aasns);
-    }
+    //    private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+    //        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
+    //        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
+    //        TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
+    //        TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
+    //        TestUtils.checkCategoryNode(client, assetNode, aasns, "");
+    //        TestUtils.checkDataSpecificationNode(client, assetNode, aasns);
+    //    }
 
 
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
@@ -938,7 +949,7 @@ public class OpcUaEndpointTest {
 
         Assert.assertNotNull(submodelName + " OperatingManual Node not found", operatingManualNode);
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_DOC_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_DOC_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
@@ -952,7 +963,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_OPER_DATA_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
@@ -967,7 +978,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_TECH_DATA_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);

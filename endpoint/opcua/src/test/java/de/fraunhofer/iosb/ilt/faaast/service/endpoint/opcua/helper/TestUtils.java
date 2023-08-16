@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import opc.i4aas.AASAssetKindDataType;
-import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
@@ -101,24 +100,23 @@ public class TestUtils {
         Assert.assertEquals(desiredName, lt.getText());
     }
 
-
-    public static void checkIdentificationNode(UaClient client, NodeId baseNode, int aasns, AASIdentifierTypeDataType idType, String id)
-            throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentificationNode Browse Result: size doesn't match", 1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentificationNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkIdentificationNode Browse targets empty", targets.length > 0);
-
-        checkIdentification(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), aasns, idType, id);
-    }
+    //    public static void checkIdentificationNode(UaClient client, NodeId baseNode, int aasns, AASIdentifierTypeDataType idType, String id)
+    //            throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
+    //        Assert.assertEquals("checkIdentificationNode Browse Result: size doesn't match", 1, bpres.length);
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("checkIdentificationNode Browse Target Node Null", targets);
+    //        Assert.assertTrue("checkIdentificationNode Browse targets empty", targets.length > 0);
+    //
+    //        checkIdentification(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), aasns, idType, id);
+    //    }
 
 
     public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModellingKindDataType modelingKind)
@@ -656,33 +654,33 @@ public class TestUtils {
     }
 
 
-    private static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, AASIdentifierTypeDataType idType, String id)
+    public static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, String id)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
-        checkType(client, identificationNode, new NodeId(aasns, TestConstants.AAS_IDENTIFIER_TYPE_ID));
+        //checkType(client, identificationNode, new NodeId(aasns, TestConstants.AAS_IDENTIFIER_TYPE_ID));
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "IdType")));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        browsePath.clear();
+        //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "IdType")));
+        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //        browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 2, bpres.length);
+        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentification IdType Null", targets);
-        Assert.assertTrue("checkIdentification IdType empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals(idType.ordinal(), value.getValue().intValue());
-
-        targets = bpres[1].getTargets();
+        //        Assert.assertNotNull("checkIdentification IdType Null", targets);
+        //        Assert.assertTrue("checkIdentification IdType empty", targets.length > 0);
+        //        DataValue value = client.readValue(targets[0].getTargetId());
+        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        //        Assert.assertEquals(idType.ordinal(), value.getValue().intValue());
+        //
+        //        targets = bpres[1].getTargets();
         Assert.assertNotNull("checkIdentification Id Null", targets);
         Assert.assertTrue("checkIdentification Id empty", targets.length > 0);
-        value = client.readValue(targets[0].getTargetId());
+        DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(id, value.getValue().toString());
     }

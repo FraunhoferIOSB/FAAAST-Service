@@ -58,7 +58,6 @@ import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASEntityType;
-import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
@@ -71,6 +70,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
@@ -117,7 +117,10 @@ public class OpcUaEndpointFullTest {
         List<Key> keys = new ArrayList<>();
         keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
-        Reference ref = new DefaultReference.Builder().keys(keys).build();
+        Reference ref = new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(keys)
+                .build();
         List<OperationVariable> outputArgs = new ArrayList<>();
         outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType(DataTypeDefXSD.STRING).value("XYZ1").build())
                 .build());
@@ -126,7 +129,10 @@ public class OpcUaEndpointFullTest {
         keys = new ArrayList<>();
         keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Mandatory").build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
-        Reference ref2 = new DefaultReference.Builder().keys(keys).build();
+        Reference ref2 = new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(keys)
+                .build();
 
         assetConnectionConfig.setOperationProviders(new HashMap<Reference, TestOperationProviderConfig>() {
             {
@@ -571,6 +577,7 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.FULL_SM_ELEM_COLL_O_NAME).build())
                 .build());
@@ -628,6 +635,7 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
                 .build());
         service.getMessageBus().publish(msg);
@@ -678,6 +686,7 @@ public class OpcUaEndpointFullTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
                 .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
                 .keys(new DefaultKey.Builder().type(KeyTypes.CAPABILITY).value(TestConstants.FULL_CAPABILITY_NAME).build())
                 .build());
@@ -887,7 +896,7 @@ public class OpcUaEndpointFullTest {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.FULL_SUBMODEL_1_ID);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0.9", "0");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
