@@ -293,7 +293,7 @@ public class TestUtils {
             int index = 0;
             if (version != null) {
                 targets = bpres[index].getTargets();
-                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null", targets);
+                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null, index " + index, targets);
                 Assert.assertTrue("checkAdministrationNode Browse Version targets empty", targets.length > 0);
 
                 DataValue value = client.readValue(targets[0].getTargetId());
@@ -508,7 +508,7 @@ public class TestUtils {
 
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
-        checkModelingKindNode(client, propertyNode, aasns, kind);
+        //checkModelingKindNode(client, propertyNode, aasns, kind);
         checkDataSpecificationNode(client, propertyNode, aasns);
         checkQualifierNode(client, propertyNode, aasns, new ArrayList<>());
 

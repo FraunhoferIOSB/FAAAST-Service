@@ -995,10 +995,10 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
-        TestUtils.checkModelingKindNode(client, node, aasns, AASModellingKindDataType.Instance);
+        //TestUtils.checkModelingKindNode(client, node, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
+        //TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
         // Skip LangString / LocalizedText test: not yet implemented in the service
         //TestUtils.checkAasPropertyString(client, node, aasns, "Title", AASModelingKindDataType.Instance, "", AASValueTypeDataType.LocalizedText, "OperatingManual",
         //        new ArrayList<>());

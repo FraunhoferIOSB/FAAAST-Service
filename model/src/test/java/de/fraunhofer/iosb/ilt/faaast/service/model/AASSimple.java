@@ -402,6 +402,7 @@ public class AASSimple {
                 .kind(ModellingKind.INSTANCE)
                 .idShort(SUBMODEL_DOCUMENTATION_ID_SHORT)
                 .id(SUBMODEL_DOCUMENTATION_ID)
+                .administration(new DefaultAdministrativeInformation.Builder().version("11").revision("159").build())
                 .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .semanticID(new DefaultReference.Builder()
                                 .keys(new DefaultKey.Builder()
