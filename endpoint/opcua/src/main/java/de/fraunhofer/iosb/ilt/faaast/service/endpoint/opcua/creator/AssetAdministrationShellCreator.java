@@ -39,6 +39,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.slf4j.Logger;
@@ -159,7 +160,8 @@ public class AssetAdministrationShellCreator {
         String assetType = assetInformation.getAssetType();
         if (assetType != null) {
             if (assetInfoNode.getAssetTypeNode() == null) {
-                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType);
+                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.ASSET_TYPE, assetType,
+                        opc.i4aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setAssetType(assetType);
@@ -177,7 +179,8 @@ public class AssetAdministrationShellCreator {
         if (globalAssetId != null) {
             //AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, nodeManager);
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
-                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId);
+                UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
+                        opc.i4aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
             }
             else {
                 assetInfoNode.setGlobalAssetId(globalAssetId);
@@ -254,7 +257,7 @@ public class AssetAdministrationShellCreator {
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(node, browseName);
             referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
-            LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
+            LOGGER.info("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
             added = true;
         }
 
@@ -266,6 +269,8 @@ public class AssetAdministrationShellCreator {
                 submodelName = name + counter++;
             }
 
+            // change reference to model reference here
+            ref.setType(ReferenceTypes.MODEL_REFERENCE);
             submodelNode = nodeManager.getSubmodelNode(ref);
 
             UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);
@@ -276,7 +281,7 @@ public class AssetAdministrationShellCreator {
                     refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
                 }
                 else {
-                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ref);
+                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", AasUtils.asString(ref));
                 }
             }
         }

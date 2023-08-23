@@ -61,12 +61,14 @@ public class UaHelper {
      * @param nodeManager The corresponding NodeManager.
      * @param name The name of the desired property.
      * @param value The value of the desired property.
+     * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addStringUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value) throws StatusException, ValueFormatException {
+    public static void addStringUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value, String namespaceUri)
+            throws StatusException, ValueFormatException {
         NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
-        QualifiedName browseName = UaQualifiedName.from(nodeManager.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
         LocalizedText displayName = LocalizedText.english(name);
         parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
     }

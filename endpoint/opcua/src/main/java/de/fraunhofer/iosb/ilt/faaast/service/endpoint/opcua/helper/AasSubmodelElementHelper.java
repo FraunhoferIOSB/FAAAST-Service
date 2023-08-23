@@ -247,6 +247,7 @@ public class AasSubmodelElementHelper {
                 valueDataType = ValueConverter.dataTypeXsdToValueType(aasProperty.getValueType());
             }
 
+            //LOG.info("AAS ValueType: {}; valueDataType: {}", aasProperty.getValueType(), valueDataType);
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {

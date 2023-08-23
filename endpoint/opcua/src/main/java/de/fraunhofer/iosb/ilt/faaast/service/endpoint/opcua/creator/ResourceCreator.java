@@ -36,7 +36,7 @@ public class ResourceCreator {
     public static void addAasResource(UaNode node, Resource aasResource, String name, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);
-            QualifiedName browseName = UaQualifiedName.from(nodeManager.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             AASResourceType resourceNode = nodeManager.createInstance(AASResourceType.class, nodeId, browseName, LocalizedText.english(name));
 
             setResourceData(aasResource, resourceNode, nodeManager);
@@ -48,7 +48,8 @@ public class ResourceCreator {
     private static void setResourceData(Resource aasResource, AASResourceType resourceNode, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if (!aasResource.getContentType().isEmpty()) {
             if (resourceNode.getContentTypeNode() == null) {
-                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType());
+                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.CONTENT_TYPE, aasResource.getContentType(),
+                        opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
             }
             else {
                 resourceNode.setContentType(aasResource.getContentType());
@@ -57,7 +58,7 @@ public class ResourceCreator {
 
         if (aasResource.getPath() != null) {
             if (resourceNode.getPathNode() == null) {
-                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath());
+                UaHelper.addStringUaProperty(resourceNode, nodeManager, AASResourceType.PATH, aasResource.getPath(), opc.i4aas.ObjectTypeIds.AASResourceType.getNamespaceUri());
             }
             else {
                 resourceNode.setPath(aasResource.getPath());

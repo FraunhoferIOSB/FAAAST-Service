@@ -174,7 +174,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getId(), element.getIdShort(), response.getStatusCode());
+            LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+                    response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }

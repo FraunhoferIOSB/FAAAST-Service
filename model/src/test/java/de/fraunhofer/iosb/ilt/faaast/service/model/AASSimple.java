@@ -157,6 +157,7 @@ public class AASSimple {
         return new DefaultAssetAdministrationShell.Builder()
                 .idShort(AAS_ID)
                 .id(AAS_IDENTIFIER)
+                .administration(new DefaultAdministrativeInformation.Builder().version("1").revision("2").build())
                 .assetInformation(new DefaultAssetInformation.Builder()
                         .assetKind(AssetKind.INSTANCE)
                         .globalAssetID(HTTP_CUSTOMER_COM_ASSETS_KHBVZJSQKIY)

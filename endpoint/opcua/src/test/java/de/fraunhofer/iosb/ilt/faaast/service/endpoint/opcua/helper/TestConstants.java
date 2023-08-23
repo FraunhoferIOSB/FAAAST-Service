@@ -63,13 +63,14 @@ public class TestConstants {
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
-    public static final String IDENTIFICATION_NAME = "Identification";
+    //public static final String IDENTIFICATION_NAME = "Identification";
     public static final String ADMINISTRATION_NAME = "Administration";
     public static final String DATA_SPECIFICATION_NAME = "DataSpecification";
     public static final String QUALIFIER_NAME = "Qualifier";
     public static final String PROPERTY_VALUE_NAME = "Value";
+    public static final String PROPERTY_PATH_NAME = "Path";
     public static final String PROPERTY_VALUE_TYPE_NAME = "ValueType";
-    public static final String PROPERTY_MIME_TYPE_NAME = "MimeType";
+    public static final String PROPERTY_CONTENT_TYPE_NAME = "ContentType";
     public static final String PROPERTY_FILE_NAME = "File";
     public static final String PROPERTY_SIZE_NAME = "Size";
     public static final String VERSION_NAME = "Version";
@@ -99,6 +100,8 @@ public class TestConstants {
     public static final int AAS_REFERENCE_LIST_ID = 1036;
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
+    public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
+    public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
 
     public static final String SERVER_CERT_PATH = "PKI/CA";
