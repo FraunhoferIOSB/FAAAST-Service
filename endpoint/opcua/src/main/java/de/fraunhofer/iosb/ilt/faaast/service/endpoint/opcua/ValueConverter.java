@@ -186,8 +186,9 @@ public class ValueConverter {
     public static NodeId convertValueTypeStringToNodeId(DataTypeDefXSD valueType) {
         NodeId retval;
 
+        //LOGGER.info("convertValueTypeStringToNodeId: {}", valueType);
         Optional<DatatypeMapper> rv = typeList.stream()
-                .filter(t -> Objects.equal(t.datatype.getAas4jDatatype(), valueType))
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), valueType))
                 .findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
@@ -211,7 +212,7 @@ public class ValueConverter {
         AASValueTypeDataType retval = null;
 
         Optional<DatatypeMapper> rv = typeList.stream()
-                .filter(t -> Objects.equal(t.datatype.getAas4jDatatype(), value))
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
                 .findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("stringToValueType: unknown value: {}", value);

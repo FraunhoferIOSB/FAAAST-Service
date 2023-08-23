@@ -50,11 +50,12 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
-    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodel7";
+    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
-    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelCollectionUnordered";
+    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
     public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
-    public static final String FULL_SMEC_REL_ELEM_NAME = "ExampleReferenceElement";
+    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelCollection";
+    public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";

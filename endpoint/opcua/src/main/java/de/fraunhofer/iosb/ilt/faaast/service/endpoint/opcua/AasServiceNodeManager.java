@@ -396,6 +396,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         // The element is the parent object where the value is added
         ObjectData parent = null;
         if (referableMap.containsKey(element)) {
+            //LOG.info("Parent not found: {}", AasUtils.asString(element));
             parent = referableMap.get(element);
         }
 
@@ -576,6 +577,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referableData The data of the desired referable.
      */
     public void addReferable(Reference reference, ObjectData referableData) {
+        //LOG.info("addReferable: Reference {}", AasUtils.asString(reference));
         referableMap.put(reference, referableData);
     }
 
@@ -696,7 +698,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         else if (element instanceof AASBlobType) {
             AASBlobType blob = (AASBlobType) element;
-            if (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId())) {
+            if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
                 submodelElementAasMap.remove(blob.getValueNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
             }

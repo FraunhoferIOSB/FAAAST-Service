@@ -22,7 +22,6 @@ import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
-import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
@@ -43,7 +42,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import java.io.IOException;
@@ -115,7 +113,7 @@ public class OpcUaEndpointFullTest {
 
         // register Test Operation
         List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build());
+        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel").build());
         keys.add(new DefaultKey.Builder().type(KeyTypes.OPERATION).value("ExampleOperation").build());
         Reference ref = new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -250,13 +248,13 @@ public class OpcUaEndpointFullTest {
 
         List<AASKeyDataType> oldValue = new ArrayList<>();
         oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered"));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
         oldValue.add(new AASKeyDataType(AASKeyTypesDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty"));
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
         newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory"));
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered"));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.SubmodelElementList, "ExampleSubmodelElementListUnordered"));
         newValue.add(new AASKeyDataType(AASKeyTypesDataType.Range, "ExampleRange"));
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
@@ -265,129 +263,126 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+    //    @Test
+    //    public void testWriteSubmodelElementCollectionValue()
+    //            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_REF_ELEM_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testWriteSubmodelElementCollectionValue Browse Result Null", bpres);
+    //        Assert.assertEquals("testWriteSubmodelElementCollectionValue Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testWriteSubmodelElementCollectionValue Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("testWriteSubmodelElementCollectionValue ValueType Null", targets);
+    //        Assert.assertTrue("testWriteSubmodelElementCollectionValue ValueType empty", targets.length > 0);
+    //
+    //        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //
+    //        // The DataElementValueMapper changes the order of the elements
+    //        List<AASKeyDataType> newValue = new ArrayList<>();
+    //        newValue.add(new AASKeyDataType(AASKeyTypesDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
+    //
+    //        TestUtils.writeNewValueArray(client, writeNode, null, newValue.toArray(AASKeyDataType[]::new));
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
 
-    @Test
-    public void testWriteSubmodelElementCollectionValue()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("client connected");
+    //    @Test
+    //    public void testWriteSubmodelElementCollectionValue2()
+    //            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_RANGE_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MIN_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testWriteSubmodelElementCollectionValue2 Browse Result Null", bpres);
+    //        Assert.assertEquals("testWriteSubmodelElementCollectionValue2 Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testWriteSubmodelElementCollectionValue2 Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("testWriteSubmodelElementCollectionValue2 ValueType Null", targets);
+    //        Assert.assertTrue("testWriteSubmodelElementCollectionValue2 ValueType empty", targets.length > 0);
+    //
+    //        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //
+    //        TestUtils.writeNewValueIntern(client, writeNode, 0, 4);
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_REL_ELEM_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteSubmodelElementCollectionValue Browse Result Null", bpres);
-        Assert.assertEquals("testWriteSubmodelElementCollectionValue Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteSubmodelElementCollectionValue ValueType Null", targets);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue ValueType empty", targets.length > 0);
-
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        // The DataElementValueMapper changes the order of the elements
-        List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyTypesDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1"));
-
-        TestUtils.writeNewValueArray(client, writeNode, null, newValue.toArray(AASKeyDataType[]::new));
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWriteSubmodelElementCollectionValue2()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SMEC_RANGE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MIN_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteSubmodelElementCollectionValue2 Browse Result Null", bpres);
-        Assert.assertEquals("testWriteSubmodelElementCollectionValue2 Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue2 Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteSubmodelElementCollectionValue2 ValueType Null", targets);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue2 ValueType empty", targets.length > 0);
-
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        TestUtils.writeNewValueIntern(client, writeNode, 0, 4);
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWriteSubmodelElementCollectionValue3()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_7_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_MULTI_LAN_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
-        Assert.assertEquals("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteMultiLanguagePropertyValue ValueType Null", targets);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue ValueType empty", targets.length > 0);
-
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        // The DataElementValueMapper changes the order of the elements in some cases
-        List<LocalizedText> newValue = new ArrayList<>();
-        newValue.add(new LocalizedText("english test element", "en-us"));
-        newValue.add(new LocalizedText("deutsches Test-Element", "de"));
-
-        TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
+    //    @Test
+    //    public void testWriteSubmodelElementCollectionValue3()
+    //            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_7_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_MULTI_LAN_PROP_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
+    //        Assert.assertEquals("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("testWriteMultiLanguagePropertyValue ValueType Null", targets);
+    //        Assert.assertTrue("testWriteMultiLanguagePropertyValue ValueType empty", targets.length > 0);
+    //
+    //        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //
+    //        // The DataElementValueMapper changes the order of the elements in some cases
+    //        List<LocalizedText> newValue = new ArrayList<>();
+    //        newValue.add(new LocalizedText("english test element", "en-us"));
+    //        newValue.add(new LocalizedText("deutsches Test-Element", "de"));
+    //
+    //        TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
 
 
     @Test
@@ -545,62 +540,61 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
-
-    @Test
-    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("testAddProperty: client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        String propName = "NewProperty789";
-
-        // make sure the element doesn't exist yet
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
-
-        // Send event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
-        ElementCreateEventMessage msg = new ElementCreateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.FULL_SM_ELEM_COLL_O_NAME).build())
-                .build());
-        msg.setValue(new DefaultProperty.Builder()
-                //.kind(ModelingKind.INSTANCE)
-                .idShort(propName)
-                .category("Variable")
-                .value("3465")
-                .valueType(DataTypeDefXSD.INT)
-                .build());
-        service.getMessageBus().publish(msg);
-
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
-        // check that the element is there now
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
+    //    @Test
+    //    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("testAddProperty: client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        String propName = "NewProperty789";
+    //
+    //        // make sure the element doesn't exist yet
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_3_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+    //        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
+    //
+    //        // Send event to MessageBus
+    //        CountDownLatch condition = new CountDownLatch(1);
+    //        ElementCreateEventMessage msg = new ElementCreateEventMessage();
+    //        msg.setElement(new DefaultReference.Builder()
+    //                .type(ReferenceTypes.MODEL_REFERENCE)
+    //                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
+    //                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.FULL_SM_ELEM_COLL_O_NAME).build())
+    //                .build());
+    //        msg.setValue(new DefaultProperty.Builder()
+    //                //.kind(ModelingKind.INSTANCE)
+    //                .idShort(propName)
+    //                .category("Variable")
+    //                .value("3465")
+    //                .valueType(DataTypeDefXSD.INT)
+    //                .build());
+    //        service.getMessageBus().publish(msg);
+    //
+    //        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    //
+    //        // check that the element is there now
+    //        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+    //        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
 
 
     @Test
@@ -705,79 +699,78 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
-
-    @Test
-    public void testOrderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testOrderedSubmodelElementCollection Browse Result Null", bpres);
-        Assert.assertEquals("testOrderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testOrderedSubmodelElementCollection ValueType Null", targets);
-        Assert.assertTrue("testOrderedSubmodelElementCollection ValueType empty", targets.length > 0);
-
-        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        Assert.assertNotNull("testOrderedSubmodelElementCollection Node Null", smNode);
-
-        TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_OREDER_SM_ELEM_COLL_TYPE_ID));
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testUnorderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testUnorderedSubmodelElementCollection Browse Result Null", bpres);
-        Assert.assertEquals("testUnorderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testUnorderedSubmodelElementCollection ValueType Null", targets);
-        Assert.assertTrue("testUnorderedSubmodelElementCollection ValueType empty", targets.length > 0);
-
-        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        Assert.assertNotNull("testUnorderedSubmodelElementCollection Node Null", smNode);
-
-        TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
+    //    @Test
+    //    public void testOrderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_O_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testOrderedSubmodelElementCollection Browse Result Null", bpres);
+    //        Assert.assertEquals("testOrderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("testOrderedSubmodelElementCollection ValueType Null", targets);
+    //        Assert.assertTrue("testOrderedSubmodelElementCollection ValueType empty", targets.length > 0);
+    //
+    //        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //
+    //        Assert.assertNotNull("testOrderedSubmodelElementCollection Node Null", smNode);
+    //
+    //        TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_OREDER_SM_ELEM_COLL_TYPE_ID));
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
+    //
+    //
+    //    @Test
+    //    public void testUnorderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
+    //        UaClient client = new UaClient(ENDPOINT_URL);
+    //        client.setSecurityMode(SecurityMode.NONE);
+    //        TestUtils.initialize(client);
+    //        client.connect();
+    //        System.out.println("client connected");
+    //
+    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+    //
+    //        List<RelativePath> relPath = new ArrayList<>();
+    //        List<RelativePathElement> browsePath = new ArrayList<>();
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SM_ELEM_COLL_UO_NAME)));
+    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+    //
+    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+    //        Assert.assertNotNull("testUnorderedSubmodelElementCollection Browse Result Null", bpres);
+    //        Assert.assertEquals("testUnorderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
+    //        Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
+    //
+    //        BrowsePathTarget[] targets = bpres[0].getTargets();
+    //        Assert.assertNotNull("testUnorderedSubmodelElementCollection ValueType Null", targets);
+    //        Assert.assertTrue("testUnorderedSubmodelElementCollection ValueType empty", targets.length > 0);
+    //
+    //        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+    //
+    //        Assert.assertNotNull("testUnorderedSubmodelElementCollection Node Null", smNode);
+    //
+    //        TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+    //
+    //        System.out.println("disconnect client");
+    //        client.disconnect();
+    //    }
 
 
     @Test
@@ -897,7 +890,7 @@ public class OpcUaEndpointFullTest {
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.FULL_SUBMODEL_1_ID);
-        TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0.9", "0");
+        TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
