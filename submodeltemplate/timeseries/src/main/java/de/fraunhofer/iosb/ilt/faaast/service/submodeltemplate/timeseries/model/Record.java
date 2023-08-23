@@ -19,8 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.RelativeTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
@@ -45,18 +47,18 @@ import java.util.Optional;
 public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private Wrapper<Map<String, TimeType>, Property> times = new MapWrapper<>(
+    private Wrapper<Map<String, Time>, Property> times = new MapWrapper<>(
             values,
             new LinkedHashMap<>(),
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(x.getKey())
                     .valueType(x.getValue().getDataValueType())
-                    .value(x.getValue().getOriginalTimestamp())
+                    .value(x.getValue().getTimestampString())
                     .semanticId(ReferenceHelper.globalReference(x.getValue().getTimeSemanticID()))
                     .build(),
-            x -> TimeFactory.getInstance().hasClassFor(x.getSemanticId()), //Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getInstance().getTimeTypeFrom(x.getSemanticId(), x.getValue(), Optional.ofNullable(x.getValueType()))));
+            x -> TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
+            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue()).get()));
 
     @JsonIgnore
     private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<>(
@@ -68,7 +70,7 @@ public class Record extends ExtendableSubmodelElementCollection {
                     .valueType(x.getValue().getDataType().getName())
                     .value(x.getValue().asString())
                     .build(),
-            x -> !TimeFactory.getInstance().hasClassFor(x.getSemanticId()), //!Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+            x -> !TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
             x -> {
                 try {
                     return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
@@ -123,7 +125,7 @@ public class Record extends ExtendableSubmodelElementCollection {
     }
 
 
-    public Map<String, TimeType> getTimes() {
+    public Map<String, Time> getTimes() {
         return times.getValue();
     }
 
@@ -133,12 +135,13 @@ public class Record extends ExtendableSubmodelElementCollection {
      *
      * @return timestamp of the record or null, if no time is set.
      */
-    public TimeType getSingleTime() {
-        Optional<Entry<String, TimeType>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue().isParseable() && !e.getValue().isIncrementalToPrevious())
-                .findFirst();
+    @JsonIgnore
+    public Time getSingleTime() {
+        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof AbsoluteTime).findFirst();
 
         if (timeOpt.isEmpty()) {
-            timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue().isParseable()).findFirst();
+            timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof RelativeTime && !(((RelativeTime) e.getValue()).isIncrementalToPrevious()))
+                    .findFirst();
             if (timeOpt.isEmpty()) {
                 timeOpt = this.times.getValue().entrySet().stream().findFirst();
             }
@@ -149,11 +152,35 @@ public class Record extends ExtendableSubmodelElementCollection {
 
 
     /**
+     * Get a single absolute timestamp from the timestamps of the record.
+     *
+     * @return timestamp of the record or null, if no absolute time is set.
+     */
+    @JsonIgnore
+    public AbsoluteTime getAbsoluteTime() {
+        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof AbsoluteTime).findFirst();
+        return timeOpt.isPresent() ? (AbsoluteTime) timeOpt.get().getValue() : null;
+    }
+
+
+    /**
+     * Get a single relative timestamp from the timestamps of the record.
+     *
+     * @return timestamp of the record or null, if no relative time is set.
+     */
+    @JsonIgnore
+    public RelativeTime getRelativeTime() {
+        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof RelativeTime).findFirst();
+        return timeOpt.isPresent() ? (RelativeTime) timeOpt.get().getValue() : null;
+    }
+
+
+    /**
      * Sets the time.
      *
      * @param time the time to set
      */
-    public void setTimes(Map<String, TimeType> time) {
+    public void setTimes(Map<String, Time> time) {
         this.times.setValue(time);
     }
 
@@ -190,13 +217,13 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     public abstract static class AbstractBuilder<T extends Record, B extends AbstractBuilder<T, B>> extends SubmodelElementCollectionBuilder<T, B> {
 
-        public B times(Map<String, TimeType> value) {
+        public B times(Map<String, Time> value) {
             getBuildingInstance().setTimes(value);
             return getSelf();
         }
 
 
-        public B times(String key, TimeType value) {
+        public B times(String key, Time value) {
             getBuildingInstance().getTimes().put(key, value);
             return getSelf();
         }

@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.ZonedDateTimeComparator;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.ZonedDateTimeHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class InternalSegment extends Segment {
 
     @JsonIgnore
-    private boolean calculatePropertiesIfNotPresent;
+    private boolean calculateProperties;
 
     @JsonIgnore
     private ListWrapper<Record, SubmodelElementCollection> records;
@@ -65,8 +65,8 @@ public class InternalSegment extends Segment {
         this.idShort = IdentifierHelper.randomId("InternalSegment");
         this.semanticId = ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID);
 
-        if (getCalculatePropertiesIfNotPresent() && !records.isEmpty()) {
-            setPropertiesIfNotPresent();
+        if (getCalculateProperties() && !records.isEmpty()) {
+            setDerivedProperties();
         }
     }
 
@@ -137,47 +137,48 @@ public class InternalSegment extends Segment {
 
 
     /**
-     * Sets whether properties should be calculated, if not already set.
+     * Sets whether properties should be calculated.
      *
      * @param value the boolean value to set
      */
-    public void setCalculatePropertiesIfNotPresent(boolean value) {
-        this.calculatePropertiesIfNotPresent = value;
+    public void setCalculateProperties(boolean value) {
+        this.calculateProperties = value;
     }
 
 
-    public boolean getCalculatePropertiesIfNotPresent() {
-        return calculatePropertiesIfNotPresent;
+    public boolean getCalculateProperties() {
+        return calculateProperties;
     }
 
 
     @Override
     public Collection<SubmodelElement> getValues() {
-        if (this.getCalculatePropertiesIfNotPresent()) {
-            this.setPropertiesIfNotPresent();
+        if (this.getCalculateProperties()) {
+            this.setDerivedProperties();
         }
         return super.getValues();
     }
 
 
-    private void setPropertiesIfNotPresent() {
-        if (this.getRecordCount() == null) {
-            this.setRecordCount(records.getValue().size());
-        }
+    private void setDerivedProperties() {
+        this.setRecordCount(records.getValue().size());
         if (this.getRecordCount() == 0) {
             return;
         }
+        // TODO test cases with no absolute time
+        // TODO set start/end to null, if no valid time was found
+        this.setStart(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(records.stream().map(e -> getLongStartTime(e)).min((a, b) -> Long.compare(a, b)).orElse(null)));
+        this.setEnd(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(records.stream().map(e -> getLongEndTime(e)).max((a, b) -> Long.compare(a, b)).orElse(null)));
+    }
 
-        // TODO: Hardcoded to use one (random) timestamp. See where to define which one to use
-        if (records.stream().anyMatch(e -> e.getSingleTime().isParseable())) {
-            if (this.getStart() == null) {
-                this.setStart(records.stream().map(e -> e.getSingleTime().getStartAsZonedDateTime(Optional.empty())).min(new ZonedDateTimeComparator()).orElse(null));
-            }
 
-            if (this.getEnd() == null) {
-                this.setEnd(records.stream().map(e -> e.getSingleTime().getEndAsZonedDateTime(Optional.empty())).max(new ZonedDateTimeComparator()).orElse(null));
-            }
-        }
+    private long getLongStartTime(Record e) {
+        return e.getAbsoluteTime() != null ? e.getAbsoluteTime().getStartAsEpochMillis().orElse(Long.MAX_VALUE) : Long.MAX_VALUE;
+    }
+
+
+    private long getLongEndTime(Record e) {
+        return e.getAbsoluteTime() != null ? e.getAbsoluteTime().getEndAsEpochMillis().orElse(Long.MIN_VALUE) : Long.MIN_VALUE;
     }
 
 
@@ -200,14 +201,14 @@ public class InternalSegment extends Segment {
         }
 
 
-        public B calculatePropertiesIfNotPresent(boolean value) {
-            getBuildingInstance().setCalculatePropertiesIfNotPresent(value);
+        public B calculateProperties(boolean value) {
+            getBuildingInstance().setCalculateProperties(value);
             return getSelf();
         }
 
 
-        public B dontCalculatePropertiesIfNotPresent() {
-            getBuildingInstance().setCalculatePropertiesIfNotPresent(false);
+        public B dontCalculateProperties() {
+            getBuildingInstance().setCalculateProperties(false);
             return getSelf();
         }
     }

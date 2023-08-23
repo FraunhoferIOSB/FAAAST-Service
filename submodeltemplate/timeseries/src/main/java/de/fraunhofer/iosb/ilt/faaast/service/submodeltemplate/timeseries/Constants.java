@@ -68,6 +68,14 @@ public class Constants {
     public static final String READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
     public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT = "Segments";
     public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = " https://admin-shell.io/idta/TimeSeries/Segments/1/1";
+    // Operation: DeriveSegments
+    public static final String DERIVE_SEGMENTS_ID_SHORT = "DeriveSegments";
+    public static final String DERIVE_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/DeriveSegments/1/1";
+    public static final String DERIVE_SEGMENTS_INPUT_TIMESPAN_ID_SHORT = "Timespan";
+    public static final String DERIVE_SEGMENTS_INPUT_SAMPLING_INTERVAL_ID_SHORT = "SamplingInterval";
+    public static final String DERIVE_SEGMENTS_INPUT_AGGREGATION_METHOD_ID_SHORT = "AggregationMethod";
+    public static final String DERIVE_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT = "Segments";
+    public static final String DERIVE_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = " https://admin-shell.io/idta/TimeSeries/Segment/1/1";
     // Time
     public static final String TIME_UTC = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
     public static final String TIME_TAI = "https://admin-shell.io/idta/TimeSeries/TaiTime/1/1";

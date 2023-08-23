@@ -73,6 +73,25 @@
 							{
 								"name": "Property"
 							}
+						},
+						{
+							"idShort": "Time00",
+							"valueType": "datetime",
+							"modelType":
+							{
+								"name": "Property"
+							},
+							"semanticId":
+							{
+								"keys": [
+									{
+										"type": "GlobalReference",
+										"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1",
+										"idType": "Iri"
+									}
+								]
+							}
+
 						}
 					]
 				}

@@ -21,13 +21,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -110,31 +111,32 @@ public abstract class AbstractInfluxLinkedSegmentProviderTest {
                 .query(query)
                 .build();
         providerConfig.setEndpoint(endpoint);
+        providerConfig.setColumnToPropertyName(Map.of("foo", "FOO"));
         AbstractInfluxLinkedSegmentProvider<?> provider = (AbstractInfluxLinkedSegmentProvider<?>) providerConfig.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
         try {
             // fetch all records
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment,
-                            Timespan.EMPTY));
+                            LongTimespan.EMPTY));
             // fetch exactly all records
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                            TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
+                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().orElse(0L),
+                            ((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().orElse(Long.MAX_VALUE))));
             // fetch nothing
             assertEqualsIgnoringIdShort(
                     List.of(),
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
-                            TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1))));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
+                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 3600000L,
+                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 60000L)));
             // fetch partially
             assertEqualsIgnoringIdShort(
                     List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                            TimeSeriesData.RECORD_03.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                            TimeSeriesData.RECORD_04.getSingleTime().getEndAsZonedDateTime(Optional.empty()))));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
+                            ((AbsoluteTime) TimeSeriesData.RECORD_03.getSingleTime()).getStartAsEpochMillis().getAsLong(),
+                            ((AbsoluteTime) TimeSeriesData.RECORD_04.getSingleTime()).getEndAsEpochMillis().getAsLong())));
         }
         finally {
             server.stop();

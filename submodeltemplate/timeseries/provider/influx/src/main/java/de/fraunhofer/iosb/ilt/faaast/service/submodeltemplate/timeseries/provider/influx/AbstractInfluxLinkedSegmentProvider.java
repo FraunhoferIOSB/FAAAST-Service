@@ -22,11 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.ZonedDateTimeHelper;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -68,7 +69,7 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, LongTimespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
@@ -104,7 +105,7 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
      * @param timespan the timespan to filter
      * @return the updated query
      */
-    protected static String withTimeFilterInfluxQL(String query, Timespan timespan) {
+    protected static String withTimeFilterInfluxQL(String query, LongTimespan timespan) {
         String result = query;
         if (timespan == null) {
             return result;
@@ -114,14 +115,14 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
                     result,
                     result.toLowerCase().contains(" where ") ? "AND" : "WHERE",
                     TIME_FIELD,
-                    TimeUnit.NANOSECONDS.convert(timespan.getStart().get().toInstant().toEpochMilli(), TimeUnit.MILLISECONDS));
+                    TimeUnit.NANOSECONDS.convert(timespan.getStart().getAsLong(), TimeUnit.MILLISECONDS));
         }
         if (timespan.getEnd().isPresent()) {
             result = String.format("%s %s %s <= %s",
                     result,
                     result.toLowerCase().contains(" where ") ? "AND" : "WHERE",
                     TIME_FIELD,
-                    TimeUnit.NANOSECONDS.convert(timespan.getEnd().get().toInstant().toEpochMilli(), TimeUnit.MILLISECONDS));
+                    TimeUnit.NANOSECONDS.convert(timespan.getEnd().getAsLong(), TimeUnit.MILLISECONDS));
         }
         return result;
     }
@@ -134,7 +135,7 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
      * @param timespan the timespan to filter
      * @return the updated query
      */
-    public static String withTimeFilter(String query, Timespan timespan) {
+    public static String withTimeFilter(String query, LongTimespan timespan) {
         return isInfluxQL(query)
                 ? withTimeFilterInfluxQL(query, timespan)
                 : withTimeFilterFlux(query, timespan);
@@ -148,17 +149,18 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
      * @param timespan the timespan to filter
      * @return the updated query
      */
-    protected static String withTimeFilterFlux(String query, Timespan timespan) {
+    protected static String withTimeFilterFlux(String query, LongTimespan timespan) {
         if (timespan.getStart().isPresent() || timespan.getEnd().isPresent()) {
             String filter = "";
             if (timespan.getStart().isPresent()) {
-                filter = String.format("%s: %s", FLUX_RANGE_START, timespan.getStart().get().format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                filter = String.format("%s: %s", FLUX_RANGE_START,
+                        ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(timespan.getStart().getAsLong()).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
             }
             if (timespan.getEnd().isPresent()) {
                 filter += String.format("%s%s: %s",
                         (filter.length() > 0 ? ", " : ""),
                         FLUX_RANGE_STOP,
-                        timespan.getEnd().get().plusNanos(1).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                        ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(timespan.getEnd().getAsLong()).plusNanos(1).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
             }
             return String.format("%s %s %s(%s)",
                     query,

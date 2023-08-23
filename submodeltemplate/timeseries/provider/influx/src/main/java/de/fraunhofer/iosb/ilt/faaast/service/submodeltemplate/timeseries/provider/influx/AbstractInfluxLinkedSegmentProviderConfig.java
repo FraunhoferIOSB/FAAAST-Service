@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -26,6 +28,8 @@ public abstract class AbstractInfluxLinkedSegmentProviderConfig<T extends Abstra
 
     private String username;
     private String password;
+
+    private Map<String, String> columnToPropertyName = new HashMap<>();
 
     public String getUsername() {
         return username;
@@ -46,6 +50,16 @@ public abstract class AbstractInfluxLinkedSegmentProviderConfig<T extends Abstra
         this.password = password;
     }
 
+
+    public Map<String, String> getColumnNameToPropertyName() {
+        return columnToPropertyName;
+    }
+
+
+    public void setColumnToPropertyName(Map<String, String> columnToPropertyName) {
+        this.columnToPropertyName = columnToPropertyName;
+    }
+
     protected abstract static class AbstractBuilder<T extends AbstractInfluxLinkedSegmentProviderConfig, B extends AbstractBuilder<T, B>>
             extends LinkedSegmentProviderConfig.AbstractBuilder<T, B> {
 
@@ -57,6 +71,12 @@ public abstract class AbstractInfluxLinkedSegmentProviderConfig<T extends Abstra
 
         public B password(String value) {
             getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+
+
+        public B columnToPropertyName(Map<String, String> value) {
+            getBuildingInstance().setColumnToPropertyName(value);
             return getSelf();
         }
 

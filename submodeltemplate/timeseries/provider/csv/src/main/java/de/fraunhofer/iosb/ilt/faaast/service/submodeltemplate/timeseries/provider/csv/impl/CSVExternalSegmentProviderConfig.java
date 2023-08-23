@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProviderConfig;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -26,6 +28,8 @@ public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderCon
 
     private String baseDir;
     private List<String> timeColumns;
+
+    private Map<String, String> columnToVariableNames = new HashMap<>();
 
     public String getBaseDir() {
         return baseDir;
@@ -46,6 +50,16 @@ public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderCon
         this.timeColumns = timeColumns;
     }
 
+
+    public Map<String, String> getColumnToVariableNames() {
+        return columnToVariableNames;
+    }
+
+
+    public void setColumnToVariableNames(Map<String, String> columnToVariableNames) {
+        this.columnToVariableNames = columnToVariableNames;
+    }
+
     public abstract static class AbstractBuilder<T extends CSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
             extends ExternalSegmentProviderConfig.AbstractBuilder<T, B> {
 
@@ -57,6 +71,12 @@ public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderCon
 
         public B timeColumns(List<String> value) {
             getBuildingInstance().setTimeColumns(value);
+            return getSelf();
+        }
+
+
+        public B columnToVariableNames(Map<String, String> value) {
+            getBuildingInstance().setColumnToVariableNames(value);
             return getSelf();
         }
 

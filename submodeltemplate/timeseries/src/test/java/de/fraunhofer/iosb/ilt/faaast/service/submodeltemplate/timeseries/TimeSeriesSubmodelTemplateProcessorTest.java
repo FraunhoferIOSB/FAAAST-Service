@@ -48,12 +48,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.I
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyExternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.ZonedDateTimeHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -74,7 +76,6 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -86,9 +87,9 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
     private static final long OPERATION_TIMEOUT = 500000;
 
     public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
-            .dontCalculatePropertiesIfNotPresent()
-            .start(TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()))
-            .end(TimeSeriesData.RECORD_05.getSingleTime().getEndAsZonedDateTime(Optional.empty()))
+            .dontCalculateProperties()
+            .start(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().orElse(0L)))
+            .end(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getEndAsEpochMillis().orElse(Long.MAX_VALUE)))
             .record(TimeSeriesData.RECORD_00)
             .record(TimeSeriesData.RECORD_01)
             .record(TimeSeriesData.RECORD_02)
@@ -98,23 +99,23 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             .build();
 
     public static final InternalSegment INTERNAL_SEGMENT_WITHOUT_TIMES = InternalSegment.builder()
-            .dontCalculatePropertiesIfNotPresent()
+            .dontCalculateProperties()
             .record(TimeSeriesData.RECORD_06)
             .record(TimeSeriesData.RECORD_07)
             .build();
 
     public static final InternalSegment INTERNAL_SEGMENT_WITH_WRONG_TIMES = InternalSegment.builder()
-            .dontCalculatePropertiesIfNotPresent()
-            .start(TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()))
-            .end(TimeSeriesData.RECORD_05.getSingleTime().getEndAsZonedDateTime(Optional.empty()))
+            .dontCalculateProperties()
+            .start(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().orElse(Long.MIN_VALUE)))
+            .end(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getEndAsEpochMillis().orElse(Long.MAX_VALUE)))
             .record(TimeSeriesData.RECORD_08)
             .record(TimeSeriesData.RECORD_09)
             .build();
 
-    public static final InternalSegment INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS = InternalSegment.builder()
-            .dontCalculatePropertiesIfNotPresent()
-            .start(TimeSeriesData.RECORD_05.getSingleTime().getStartAsZonedDateTime(Optional.empty()))
-            .end(TimeSeriesData.RECORD_05.getSingleTime().getStartAsZonedDateTime(Optional.empty()))
+    public static final InternalSegment INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS = InternalSegment.builder()
+            .dontCalculateProperties()
+            .start(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getStartAsEpochMillis().orElse(Long.MIN_VALUE)))
+            .end(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getStartAsEpochMillis().orElse(Long.MAX_VALUE)))
             .record(TimeSeriesData.RECORD_10)
             .record(TimeSeriesData.RECORD_11)
             .build();
@@ -128,7 +129,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             .segment(INTERNAL_SEGMENT)
             .segment(INTERNAL_SEGMENT_WITHOUT_TIMES)
             .segment(INTERNAL_SEGMENT_WITH_WRONG_TIMES)
-            .segment(INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS)
+            .segment(INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS)
             .build();
     public static final AssetAdministrationShellEnvironment ENVIRONMENT = new DefaultAssetAdministrationShellEnvironment.Builder()
             .submodels(TIME_SERIES)
@@ -211,7 +212,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .build())
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
-                        .dontCalculatePropertiesIfNotPresent()
+                        .dontCalculateProperties()
                         .build())
                 .build();
         Service service = startNewService(
@@ -304,25 +305,29 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 TimeSeriesData.RECORDS);
         // fetch exactly all records
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 TimeSeriesData.RECORDS);
         // fetch nothing
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()).minusHours(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong())
+                        .minusMinutes(1));
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusMinutes(1),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusHours(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusMinutes(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusHours(1));
         // fetch records from only one segment        
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                INTERNAL_SEGMENT.getRecords().get(0).getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) INTERNAL_SEGMENT.getRecords().get(0).getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(
+                        ((AbsoluteTime) INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 INTERNAL_SEGMENT.getRecords());
         // fetch partialy records from multiple segment
         assertReturnedRecords(serviceUsingSegmentTimestamps, TIME_SERIES,
-                INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                INTERNAL_SEGMENT_WITHOUT_TIMES.getRecords().get(0).getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(
+                        ((AbsoluteTime) INTERNAL_SEGMENT.getRecords().get(INTERNAL_SEGMENT.getRecords().size() - 1).getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper
+                        .convertEpochMillisToZonedDateTime(((AbsoluteTime) INTERNAL_SEGMENT_WITHOUT_TIMES.getRecords().get(0).getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 List.of(TimeSeriesData.RECORD_05, TimeSeriesData.RECORD_06, TimeSeriesData.RECORD_10));
     }
 
@@ -336,52 +341,54 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES,
-                INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS);
+                INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
                 null, null,
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES,
-                INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS);
+                INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS);
         // fetch exactly all records
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES,
-                INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS);
+                INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITHOUT_TIMES,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES,
-                INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS);
+                INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS);
         // fetch nothing
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()).minusHours(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong())
+                        .minusMinutes(1));
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusHours(1),
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()).minusMinutes(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()).minusHours(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong())
+                        .minusMinutes(1));
 
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusMinutes(1),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusHours(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusMinutes(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusHours(1));
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusMinutes(1),
-                TimeSeriesData.RECORD_09.getSingleTime().getEndAsZonedDateTime(Optional.empty()).plusHours(1));
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusMinutes(1),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong()).plusHours(1));
         // fetch partial 
         assertReturnedSegments(serviceUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                TimeSeriesData.RECORD_05.getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 INTERNAL_SEGMENT,
                 INTERNAL_SEGMENT_WITH_WRONG_TIMES,
-                INTERNAL_SEGMENT_WITH_UNSUPPORTED_TIMESTAMPS);
+                INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, TIME_SERIES,
-                TimeSeriesData.RECORD_00.getSingleTime().getStartAsZonedDateTime(Optional.empty()),
-                TimeSeriesData.RECORD_05.getSingleTime().getEndAsZonedDateTime(Optional.empty()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong()),
+                ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(((AbsoluteTime) TimeSeriesData.RECORD_05.getSingleTime()).getEndAsEpochMillis().getAsLong()),
                 INTERNAL_SEGMENT);
     }
 

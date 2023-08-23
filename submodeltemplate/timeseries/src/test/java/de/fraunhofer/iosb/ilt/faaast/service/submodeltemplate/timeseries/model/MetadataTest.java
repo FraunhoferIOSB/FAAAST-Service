@@ -20,8 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFac
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UnsupportedTime;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.LangString;
@@ -32,7 +31,6 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -72,12 +70,6 @@ public class MetadataTest extends BaseModelTest {
             .value(new DefaultProperty.Builder()
                     .idShort(TimeSeriesData.FIELD_2)
                     .valueType(Datatype.DOUBLE.getName())
-                    .build())
-            .value(new DefaultProperty.Builder()
-                    .idShort("Time01")
-                    .valueType(Datatype.DATE_TIME.getName())
-                    .value("2021-01-01T00:00:00Z")
-                    .semanticId(ReferenceHelper.globalReference("UNKNOWN"))
                     .build())
             .build();
 
@@ -154,7 +146,7 @@ public class MetadataTest extends BaseModelTest {
     @Test
     public void testParseSMC() throws ValueFormatException {
         SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
-                .value(METADATA_RECORD_EMPTY) // NEEDED since always created by new Metadata
+                .value(METADATA_RECORD_EMPTY)
                 .value(ADDITIONAL_ELEMENT)
                 .build();
         Metadata actual = Metadata.of(expected);
@@ -187,7 +179,6 @@ public class MetadataTest extends BaseModelTest {
         assertAASElements(metadata, METADATA_RECORD_FIELD1_FIELD2);
 
         metadata.getRecordMetadata().getVariables().remove(TimeSeriesData.FIELD_1);
-        metadata.getRecordMetadataTime().put("Time01", new UnsupportedTime("2021-01-01T00:00:00Z", "UNKNOWN", Optional.of(Datatype.DATE_TIME.getName())));
         assertAASElements(metadata, METADATA_RECORD_FIELD2);
 
         metadata.getRecordMetadata().getVariables().clear();

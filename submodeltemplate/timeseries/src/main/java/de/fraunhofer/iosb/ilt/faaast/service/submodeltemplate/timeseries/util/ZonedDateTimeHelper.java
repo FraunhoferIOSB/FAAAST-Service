@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -38,6 +40,38 @@ public class ZonedDateTimeHelper {
         }
         catch (ValueFormatException ex) {
             return Optional.empty();
+        }
+    }
+
+
+    /**
+     * Convert epoch milliseconds to UTC ZonedDateTime.
+     *
+     * @param epochMillis timestamp expressed in milliseconds since 01.01.1970.
+     * @return Equivalent ZonedDateTime value.
+     */
+    public static ZonedDateTime convertEpochMillisToZonedDateTime(Long epochMillis) {
+        if (epochMillis != null) {
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneOffset.UTC);
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Convert ZonedDateTime to epoch milliseconds.
+     *
+     * @param dateTime ZonedDateTime value
+     * @return Equivalent timestamp expressed in milliseconds since 01.01.1970
+     */
+    public static Long convertZonedDateTimeToEpochMillis(ZonedDateTime dateTime) {
+        if (dateTime != null) {
+            return dateTime.toInstant().toEpochMilli();
+        }
+        else {
+            return null;
         }
     }
 

@@ -25,12 +25,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, LongTimespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
@@ -112,6 +111,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
         Record result = new Record();
         fields.forEach(LambdaExceptionHelper.rethrowBiConsumer(
                 (fieldName, index) -> {
+                    fieldName = getPropertyName(fieldName);
                     Object fieldValue = values[index];
                     if (fieldValue != null) {
                         if (TIME_FIELD.equals(fieldName)) {
@@ -124,9 +124,9 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                             result.getTimes().put(fieldName, utcTime);
                         }
                         else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
-                            TimeType metaType = metadata.getRecordMetadataTime().get(fieldName);
+                            Time metaType = metadata.getRecordMetadataTime().get(fieldName);
                             result.getTimes().put(fieldName,
-                                    TimeFactory.getInstance().getTimeTypeFrom(metaType.getTimeSemanticID(), fieldValue.toString(), Optional.of(metaType.getDataValueType())));
+                                    TimeFactory.getTimeTypeFrom(metaType.getTimeSemanticID(), fieldValue.toString()).orElse(null));
                         }
                         else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                             try {
@@ -176,7 +176,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                 FluxTable table = tables.get(i);
                 for (int j = 0; j < table.getRecords().size(); j++) {
                     FluxRecord record = table.getRecords().get(j);
-                    String fieldName = record.getField();
+                    String fieldName = getPropertyName(record.getField());
                     if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                         Object fieldValue = record.getValue();
                         Record newRecord = result[j] == null ? new Record() : result[j];
@@ -196,6 +196,12 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
         catch (Exception e) {
             throw new SegmentProviderException("error reading data from influx", e);
         }
+    }
+
+
+    private String getPropertyName(String columnName) {
+        String variableName = config.getColumnNameToPropertyName().get(columnName);
+        return variableName != null ? variableName : columnName;
     }
 
 

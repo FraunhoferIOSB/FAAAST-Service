@@ -22,12 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest.InfluxInitializer;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.InfluxServerConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 serverConfig.getToken())) {
             client.getWriteApiBlocking().writePoints(records.stream().map(record -> Point
                     .measurement(measurement)
-                    .time(record.getSingleTime().getStartAsZonedDateTime(Optional.empty()).toEpochSecond(), WritePrecision.S)
+                    .time(record.getAbsoluteTime() != null ? (((AbsoluteTime) record.getAbsoluteTime()).getStartAsEpochMillis().getAsLong() / 1000L) : 0L, WritePrecision.S)
                     .addFields(record.getVariables().entrySet().stream()
                             .collect(Collectors.toMap(
                                     x -> x.getKey(),
@@ -90,6 +91,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                         .build(),
                 this,
                 InfluxV2LinkedSegmentProviderConfig.builder()
+                        .columnToPropertyName(Map.of("foo", "FOO"))
                         .bucket(BUCKET)
                         .organization(ORGANIZATION)
                         .token(TOKEN)
@@ -116,6 +118,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                         .build(),
                 this,
                 InfluxV2LinkedSegmentProviderConfig.builder()
+                        .columnToPropertyName(Map.of("foo", "FOO"))
                         .bucket(BUCKET)
                         .organization(ORGANIZATION)
                         .username(USERNAME)

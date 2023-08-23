@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
@@ -150,7 +150,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      * @return metadata of the timestamps.
      */
     @JsonIgnore
-    public Map<String, TimeType> getRecordMetadataTime() {
+    public Map<String, Time> getRecordMetadataTime() {
         return this.recordMetadata.getValue().getTimes();
     }
 
@@ -159,7 +159,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      * TransformDatatype to TypedValues and sets the record matadata accordingly.
      */
     @JsonIgnore
-    void setRecordMetadataTime(Map<String, TimeType> timeMetadata) {
+    void setRecordMetadataTime(Map<String, Time> timeMetadata) {
         this.recordMetadata.getValue().setTimes(timeMetadata);
     }
 
@@ -206,7 +206,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         }
 
 
-        public B recordMetadataTime(String name, TimeType value) {
+        public B recordMetadataTime(String name, Time value) {
             getBuildingInstance().getRecordMetadataTime().put(name, value);
             return getSelf();
         }

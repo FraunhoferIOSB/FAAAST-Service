@@ -18,8 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UnixTime;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.TaiTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UnixTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import java.util.List;
 
 
@@ -32,6 +33,7 @@ public class TimeSeriesData {
     public static final Metadata METADATA = Metadata.builder()
             .recordMetadataVariables(FIELD_1, Datatype.INT)
             .recordMetadataVariables(FIELD_2, Datatype.DOUBLE)
+            .recordMetadataTime("Time00", new UtcTime())
             .build();
 
     public static final Record RECORD_00 = Record.builder()
@@ -95,14 +97,15 @@ public class TimeSeriesData {
             .build();
 
     public static final Record RECORD_10 = Record.builder()
-            .times("Time00", new UnixTime("1641045600"))//new UnsupportedTime("2022-01-01T00:00:00Z", "UNSUPPORTED_ID", Optional.of(Datatype.DATE_TIME.getName())))
-            .times("Time01", new UnixTime("1641045600"))//new UnsupportedTime("2022-01-01T00:00:00Z", "UNSUPPORTED_ID", Optional.of(Datatype.DATE_TIME.getName())))
+            .times("Time00", new UtcTime("2022-01-01T14:00:00Z"))
+            .times("Time01", new UnixTime("1641045600"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
             .build();
 
     public static final Record RECORD_11 = Record.builder()
-            .times("Time01", new UtcTime("2022-01-03T09:00:00Z"))
+            .times("Time01", new TaiTime("2022-01-03T09:00:37Z"))
+            .times("Time00", new UtcTime("2022-01-03T09:00:00Z"))
             .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "1"))
             .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "1.0"))
             .build();

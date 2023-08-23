@@ -18,13 +18,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import java.util.List;
 
 
 public class TimeSeriesData {
 
-    public static final String FIELD_1 = "foo";
+    public static final String FIELD_1 = "FOO";
     public static final String FIELD_2 = "bar";
     public static final List<String> FIELDS = List.of(FIELD_1, FIELD_2);
 

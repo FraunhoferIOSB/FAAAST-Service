@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
@@ -27,7 +28,6 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -82,11 +82,13 @@ public class InternalSegmentTest extends BaseModelTest {
     public void testConversionRoundTripWithAutoCompleteProperties() throws ValueFormatException {
         InternalSegment expected = INTERNAL_SEGMENT_WITHOUT_TIMES;
         InternalSegment actual = InternalSegment.of(expected);
-        actual.setCalculatePropertiesIfNotPresent(true);
+        actual.setCalculateProperties(true);
         assertAASNotEquals(expected, actual);
         Assert.assertNotEquals(expected, actual);
-        Assert.assertEquals(actual.getStart(), TimeSeriesData.RECORD_00.getTimes().get("Time00").getStartAsZonedDateTime(Optional.empty()));
-        Assert.assertEquals(actual.getEnd(), TimeSeriesData.RECORD_09.getTimes().get("Time00").getEndAsZonedDateTime(Optional.empty()));
+        Assert.assertNotEquals(null, actual.getStart());
+        Assert.assertNotEquals(null, actual.getEnd());
+        Assert.assertEquals(actual.getStart().toInstant().toEpochMilli(), ((AbsoluteTime) TimeSeriesData.RECORD_00.getTimes().get("Time00")).getStartAsEpochMillis().getAsLong());
+        Assert.assertEquals(actual.getEnd().toInstant().toEpochMilli(), ((AbsoluteTime) TimeSeriesData.RECORD_09.getTimes().get("Time00")).getEndAsEpochMillis().getAsLong());
         Assert.assertEquals(actual.getRecordCount().intValue(), TimeSeriesData.RECORDS.size());
     }
 

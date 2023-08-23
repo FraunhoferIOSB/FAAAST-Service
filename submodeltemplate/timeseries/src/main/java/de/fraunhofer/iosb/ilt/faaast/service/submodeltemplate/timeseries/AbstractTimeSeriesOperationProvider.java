@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
@@ -173,16 +174,41 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      * @return the parsed Timespan
      * @throws IllegalArgumentException if Timespan parameter is not present or does not match requirements
      */
-    protected Timespan getTimespanFromInput(OperationVariable[] input, String idShort) {
+    protected LongTimespan getLongTimespanFromInput(OperationVariable[] input, String idShort) {
         Range timespan = getParameter(input, idShort, Range.class);
-        if (!Datatype.DATE_TIME.getName().equals(timespan.getValueType())) {
+        if (Datatype.LONG.getName().equals(timespan.getValueType()) || Datatype.DATE_TIME.getName().equals(timespan.getValueType())) {
+            return LongTimespan.fromString(timespan.getMin(), timespan.getMax());
+        }
+        else {
             throw new IllegalArgumentException(String.format("%s - required valuedType for property with idShort '%s' is '%s' but found '%s'",
                     validationBaseErrorMessage,
                     idShort,
                     Datatype.DATE_TIME.getName(),
                     timespan.getValueType()));
         }
-        return Timespan.fromString(timespan.getMin(), timespan.getMax());
+    }
+
+
+    /**
+     * Extract Timespan parameter from input variables.
+     *
+     * @param input the input parameters
+     * @param idShort idShort identifying the Timespan
+     * @return the parsed Timespan
+     * @throws IllegalArgumentException if Timespan parameter is not present or does not match requirements
+     */
+    protected Timespan getTimespanFromInput(OperationVariable[] input, String idShort) {
+        Range timespan = getParameter(input, idShort, Range.class);
+        if (Datatype.DATE_TIME.getName().equals(timespan.getValueType())) {
+            return Timespan.fromString(timespan.getMin(), timespan.getMax());
+        }
+        else {
+            throw new IllegalArgumentException(String.format("%s - required valuedType for property with idShort '%s' is '%s' but found '%s'",
+                    validationBaseErrorMessage,
+                    idShort,
+                    Datatype.DATE_TIME.getName(),
+                    timespan.getValueType()));
+        }
     }
 
 

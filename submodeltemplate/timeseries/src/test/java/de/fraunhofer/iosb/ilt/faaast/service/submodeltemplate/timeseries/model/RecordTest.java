@@ -22,8 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFac
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeType;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
@@ -95,7 +95,7 @@ public class RecordTest extends BaseModelTest {
         Record record = new Record();
         assertAASElements(record);
 
-        record.setTimes(new LinkedHashMap<String, TimeType>(Map.of(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))));
+        record.setTimes(new LinkedHashMap<String, Time>(Map.of(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))));
         assertAASElements(record, PROPERTY_TIME);
 
         record.getVariables().put(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"));
