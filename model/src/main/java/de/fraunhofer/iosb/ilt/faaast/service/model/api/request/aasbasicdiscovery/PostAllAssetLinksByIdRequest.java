@@ -1,0 +1,116 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+
+
+/**
+ * Request class for PostAllAssetLinksById requests.
+ */
+public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksByIdResponse> {
+
+    private String id;
+    private List<SpecificAssetID> assetLinks;
+
+    public PostAllAssetLinksByIdRequest() {
+        this.assetLinks = new ArrayList<>();
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
+    public List<SpecificAssetID> getAssetLinks() {
+        return assetLinks;
+    }
+
+
+    public void setAssetLinks(List<SpecificAssetID> assetLinks) {
+        this.assetLinks = assetLinks;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PostAllAssetLinksByIdRequest that = (PostAllAssetLinksByIdRequest) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(assetLinks, that.assetLinks);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, assetLinks);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B assetLink(SpecificAssetID value) {
+            getBuildingInstance().getAssetLinks().add(value);
+            return getSelf();
+        }
+
+
+        public B assetLinks(List<SpecificAssetID> value) {
+            getBuildingInstance().setAssetLinks(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<PostAllAssetLinksByIdRequest, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected PostAllAssetLinksByIdRequest newBuildingInstance() {
+            return new PostAllAssetLinksByIdRequest();
+        }
+    }
+}

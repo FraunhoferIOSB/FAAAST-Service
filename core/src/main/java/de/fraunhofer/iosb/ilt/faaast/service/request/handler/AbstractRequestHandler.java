@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
@@ -31,6 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import jakarta.json.JsonMergePatch;
+import jakarta.json.JsonValue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -140,5 +143,22 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                     .newValue(ElementValueMapper.toValue(newElement))
                     .build());
         }
+    }
+
+
+    /**
+     * Creates an updated element based on a JSON merge patch.
+     *
+     * @param <T> the type of the element to update
+     * @param changes the JSON merge patch containing the changes to apply
+     * @param targetBean the original element to apply the update to
+     * @param type the type information
+     * @return the updated element
+     */
+    protected <T> T mergePatch(JsonMergePatch changes, T targetBean, Class<T> type) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonValue target = mapper.convertValue(targetBean, JsonValue.class);
+        JsonValue result = changes.apply(target);
+        return mapper.convertValue(result, type);
     }
 }

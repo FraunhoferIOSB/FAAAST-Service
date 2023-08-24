@@ -23,7 +23,6 @@ public class QueryParameters {
     public static final String AAS_IDS = "aasIds";
     public static final String ASSET_IDS = "assetIds";
     public static final String ASYNC = "async";
-    public static final String CONTENT = "content";
     public static final String DATA_SPECIFICATION_REF = "dataSpecificationRef";
     public static final String EXTENT = "extend";
     public static final String ID_SHORT = "idShort";

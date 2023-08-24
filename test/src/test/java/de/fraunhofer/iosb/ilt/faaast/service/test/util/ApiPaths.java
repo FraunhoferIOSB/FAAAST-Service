@@ -286,7 +286,7 @@ public class ApiPaths {
 
 
         private String content(Content content) {
-            return String.format("content=%s", content.name().toLowerCase());
+            return String.format("/$%s", content.name().toLowerCase());
         }
 
 
@@ -308,15 +308,15 @@ public class ApiPaths {
 
 
         public String submodel(Level level, Content content) {
-            return String.format("%s/submodel?%s&%s",
+            return String.format("%s/submodel%s?%s",
                     root,
-                    level(level),
-                    content(content));
+                    content(content),
+                    level(level));
         }
 
 
         public String submodel(Content content) {
-            return String.format("%s/submodel?%s",
+            return String.format("%s/submodel%s",
                     root,
                     content(content));
         }
@@ -336,15 +336,15 @@ public class ApiPaths {
 
 
         public String submodelElements(Level level, Content content) {
-            return String.format("%s?%s&%s",
+            return String.format("%s%s?%s",
                     submodelElements(),
-                    level(level),
-                    content(content));
+                    content(content),
+                    level(level));
         }
 
 
         public String submodelElements(Content content) {
-            return String.format("%s?%s",
+            return String.format("%s%s",
                     submodelElements(),
                     content(content));
         }
@@ -365,17 +365,17 @@ public class ApiPaths {
 
 
         public String submodelElement(String idShortPath, Content content) {
-            return String.format("%s?%s",
+            return String.format("%s%s",
                     submodelElement(idShortPath),
                     content(content));
         }
 
 
         public String submodelElement(String idShortPath, Level level, Content content) {
-            return String.format("%s?%s&%s",
+            return String.format("%s%s?%s",
                     submodelElement(idShortPath),
-                    level(level),
-                    content(content));
+                    content(content),
+                    level(level));
         }
 
 

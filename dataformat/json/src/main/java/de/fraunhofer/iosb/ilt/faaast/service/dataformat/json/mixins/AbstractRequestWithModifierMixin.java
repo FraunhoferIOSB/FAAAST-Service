@@ -16,11 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.OutputModifierConstraints;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier}.
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier}.
  */
 public abstract class AbstractRequestWithModifierMixin {
 

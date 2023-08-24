@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
+import com.github.curiousoddman.rgxgen.RgxGen;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -24,9 +24,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
@@ -38,8 +45,41 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
  */
 public abstract class AbstractRequestMapperWithOutputModifier<T extends AbstractRequestWithModifier<R>, R extends Response> extends AbstractRequestMapper {
 
+    private static final String CONTENT_MODIFIER_REGEX = "\\$(\\w*)";
+    private static final Pattern HAS_CONTENT_MODIFIER_PATTERN = Pattern.compile(String.format("^%s|.+/%s$", CONTENT_MODIFIER_REGEX, CONTENT_MODIFIER_REGEX));
+
     protected AbstractRequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
-        super(serviceContext, method, urlPattern);
+        super(serviceContext, method, ensureUrlPatternAllowsContentModifier(urlPattern));
+    }
+
+
+    /**
+     * Ensures that the provided url pattern accepts content modifier.
+     *
+     * @param urlPattern the url pattern
+     * @return the potentially modified url pattern accepting content modifier
+     */
+    protected static String ensureUrlPatternAllowsContentModifier(String urlPattern) {
+        String exampleUrl = new RgxGen(RegExHelper.removeGroupNames(urlPattern)).generate();
+        if (HAS_CONTENT_MODIFIER_PATTERN.matcher(exampleUrl).matches()) {
+            return urlPattern;
+        }
+        exampleUrl += "/$" + Content.DEFAULT.name().toLowerCase();
+        if (exampleUrl.matches(urlPattern)) {
+            return urlPattern;
+        }
+        String updatedUrlPattern = urlPattern;
+        boolean regexContainsEndline = false;
+        if (updatedUrlPattern.endsWith("$")) {
+            updatedUrlPattern = updatedUrlPattern.substring(0, updatedUrlPattern.length() - 1);
+            regexContainsEndline = true;
+        }
+        updatedUrlPattern = String.format("%s(%s%s)?%s",
+                updatedUrlPattern,
+                StringHelper.isBlank(urlPattern) ? "" : "/",
+                CONTENT_MODIFIER_REGEX,
+                regexContainsEndline ? "$" : "");
+        return updatedUrlPattern;
     }
 
 
@@ -55,6 +95,15 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
     public abstract T doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException;
 
 
+    private static Content parseContentModifier(String urlPath) throws UnsupportedContentModifierException {
+        Matcher matcher = HAS_CONTENT_MODIFIER_PATTERN.matcher(urlPath);
+        if (matcher.find()) {
+            return Content.fromString(Objects.nonNull(matcher.group(1)) ? matcher.group(1) : matcher.group(2));
+        }
+        return Content.DEFAULT;
+    }
+
+
     @Override
     public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         Class<AbstractRequestWithModifier<R>> rawType = (Class<AbstractRequestWithModifier<R>>) TypeToken.of(getClass())
@@ -63,11 +112,9 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
         try {
             AbstractRequestWithModifier<R> request = ConstructorUtils.invokeConstructor(rawType);
             OutputModifier.Builder outputModifierBuilder = new OutputModifier.Builder();
-            if (httpRequest.hasQueryParameter(QueryParameters.CONTENT)) {
-                Content content = Content.fromString(httpRequest.getQueryParameter(QueryParameters.CONTENT));
-                request.checkContenModifierValid(content);
-                outputModifierBuilder.content(content);
-            }
+            Content content = parseContentModifier(httpRequest.getPath());
+            request.checkContenModifierValid(content);
+            outputModifierBuilder.content(content);
             if (httpRequest.hasQueryParameter(QueryParameters.LEVEL)) {
                 Level level = Level.fromString(httpRequest.getQueryParameter(QueryParameters.LEVEL));
                 request.checkLevelModifierValid(level);

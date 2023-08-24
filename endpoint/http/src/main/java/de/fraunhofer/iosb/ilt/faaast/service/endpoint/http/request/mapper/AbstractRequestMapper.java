@@ -16,11 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.List;
@@ -47,7 +47,7 @@ public abstract class AbstractRequestMapper {
         this.serviceContext = serviceContext;
         this.method = method;
         this.urlPattern = urlPattern;
-        deserializer = new HttpJsonApiDeserializer();
+        this.deserializer = new HttpJsonApiDeserializer();
         init();
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractRequestMapper {
      * @return a string representation of a named regex group with given {@code name}
      */
     protected static final String pathElement(String name) {
-        return String.format("(?<%s>[^/]*)", name);
+        return String.format("(?<%s>[^/$]*)", name);
     }
 
 

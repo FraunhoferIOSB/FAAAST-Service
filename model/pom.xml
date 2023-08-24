@@ -34,6 +34,12 @@
             <artifactId>jena-shacl</artifactId>
             <version>${jena.version}</version>
         </dependency>
+        <!-- TODO replace with API definition only, no implementation required here -->
+        <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>dataformat-core</artifactId>

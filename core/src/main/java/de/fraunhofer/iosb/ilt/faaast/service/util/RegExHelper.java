@@ -121,6 +121,18 @@ public class RegExHelper {
     }
 
 
+    /**
+     * Removes named groups from a regular expression, e.g. the regex {@literal a+(?<mygroup>b+)c+} becomes
+     * {@literal a+(b+)c+}
+     *
+     * @param pattern the input pattern
+     * @return the processed pattern
+     */
+    public static String removeGroupNames(String pattern) {
+        return pattern.replaceAll("(\\?<[^>]*>)", "");
+    }
+
+
     private static Set<String> getNamedGroupCandidates(String pattern) {
         Set<String> result = new TreeSet<>();
         Matcher m = PATTERN_NAMED_GROUP.matcher(pattern);

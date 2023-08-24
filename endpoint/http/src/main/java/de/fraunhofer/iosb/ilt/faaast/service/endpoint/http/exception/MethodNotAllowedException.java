@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StreamHelper;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Exception to indicate a given method is not allowed for the URL.
  */
-public class MethodNotAllowedException extends Exception {
+public class MethodNotAllowedException extends InvalidRequestException {
 
     public MethodNotAllowedException(HttpRequest request, HttpMethod... allowedMethods) {
         super(String.format("method '%s' not allowed for URL '%s' (allowed methods: %s)",

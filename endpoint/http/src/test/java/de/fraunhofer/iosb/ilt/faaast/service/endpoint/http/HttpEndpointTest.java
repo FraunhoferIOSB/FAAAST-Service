@@ -28,6 +28,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.server.Server;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class HttpEndpointTest extends AbstractHttpEndpointTest {
@@ -63,5 +64,11 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
     private static void startClient() throws Exception {
         client = new HttpClient();
         client.start();
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElementsValueOnly() throws Exception {
+        super.testGetAllSubmodelElementsValueOnly();
     }
 }

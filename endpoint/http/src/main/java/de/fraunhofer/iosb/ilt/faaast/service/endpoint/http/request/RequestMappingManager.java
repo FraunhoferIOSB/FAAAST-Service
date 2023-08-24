@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
         }
         if (mappersByUrlAndMethod.size() > 1) {
             throw new IllegalStateException(String.format(
-                    "found multiple request mapper matching HTTP method and URL (HTTP method: %s, url: %s",
+                    "found multiple request mapper matching HTTP method and URL (HTTP method: %s, url: %s)",
                     httpRequest.getMethod(),
                     httpRequest.getPath()));
         }

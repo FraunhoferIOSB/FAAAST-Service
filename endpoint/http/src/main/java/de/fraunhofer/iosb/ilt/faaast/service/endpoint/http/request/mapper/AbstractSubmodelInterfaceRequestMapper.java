@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -57,8 +57,9 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
      * @param urlPattern the URL pattern, but only the part after ".../submodel/"
      */
     protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
-        super(serviceContext, method, addSubmodelPath(urlPattern));
-        this.contextualizedUrlPattern = RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern)));
+        super(serviceContext, method, ensureUrlPatternAllowsContentModifier(addSubmodelPath(urlPattern)));
+        this.contextualizedUrlPattern = ensureUrlPatternAllowsContentModifier(
+                RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern))));
     }
 
 

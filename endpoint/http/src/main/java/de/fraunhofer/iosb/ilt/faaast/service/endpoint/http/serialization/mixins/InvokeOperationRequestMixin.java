@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 
