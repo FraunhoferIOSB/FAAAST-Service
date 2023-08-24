@@ -15,14 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.ArrayList;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetType;
+import opc.i4aas.AASConceptDescriptionType;
+import opc.i4aas.AASDataSpecificationContentType;
+import opc.i4aas.AASEmbeddedDataSpecificationList;
+import opc.i4aas.AASEmbeddedDataSpecificationType;
 import opc.i4aas.AASReferenceList;
+import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -39,7 +48,7 @@ public class EmbeddedDataSpecificationCreator {
 
 
     /**
-     * Adds the references to the given Embedded Data Specifications.
+     * Adds the given Embedded Data Specifications to the desired node.
      *
      * @param aasNode The desired object where the DataSpecifications should be added
      * @param list The list of the desired Data Specifications
@@ -57,11 +66,44 @@ public class EmbeddedDataSpecificationCreator {
             AASReferenceList listNode = aasNode.getDataSpecificationNode();
 
             if (listNode == null) {
-                AasReferenceCreator.addAasReferenceList(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION, nodeManager);
+                AasReferenceCreator.addAasReferenceListNode(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION, nodeManager);
             }
             else {
                 addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
             }
+        }
+    }
+
+
+    /**
+     * Adds the given Embedded Data Specifications to the desired node.
+     *
+     * @param aasNode The desired object where the DataSpecifications should be added
+     * @param list The list of the desired Data Specifications
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     */
+    public static void addEmbeddedDataSpecifications(AASConceptDescriptionType aasNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if ((list != null) && (!list.isEmpty())) {
+            //            List<Reference> refList = new ArrayList<>();
+            //            for (EmbeddedDataSpecification eds: list) {
+            //                refList.add(eds.getDataSpecification());
+            //            }
+
+            AASEmbeddedDataSpecificationList listNode = aasNode.getEmbeddedDataSpecificationNode();
+
+            int counter = 1;
+            for (var embedDataSpec: list) {
+                addEmbeddedDataSpecificationNode(listNode, embedDataSpec, AASConceptDescriptionType.EMBEDDED_DATA_SPECIFICATION + counter++, nodeManager);
+            }
+
+            //            if (listNode == null) {
+            //                AasReferenceCreator.addAasReferenceListNode(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION, nodeManager);
+            //            }
+            //            else {
+            //                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
+            //            }
         }
     }
 
@@ -110,7 +152,7 @@ public class EmbeddedDataSpecificationCreator {
             AASReferenceList listNode = submodelElementNode.getDataSpecificationNode();
 
             if (listNode == null) {
-                AasReferenceCreator.addAasReferenceList(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION, nodeManager);
+                AasReferenceCreator.addAasReferenceListNode(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION, nodeManager);
             }
             else {
                 addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
@@ -137,7 +179,7 @@ public class EmbeddedDataSpecificationCreator {
             AASReferenceList listNode = submodelNode.getDataSpecificationNode();
 
             if (listNode == null) {
-                AasReferenceCreator.addAasReferenceList(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION, nodeManager);
+                AasReferenceCreator.addAasReferenceListNode(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION, nodeManager);
             }
             else {
                 addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
@@ -164,7 +206,7 @@ public class EmbeddedDataSpecificationCreator {
             AASReferenceList listNode = assetNode.getDataSpecificationNode();
 
             if (listNode == null) {
-                AasReferenceCreator.addAasReferenceList(assetNode, refList, AASAssetType.DATA_SPECIFICATION, nodeManager);
+                AasReferenceCreator.addAasReferenceListNode(assetNode, refList, AASAssetType.DATA_SPECIFICATION, nodeManager);
             }
             else {
                 addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
@@ -172,4 +214,34 @@ public class EmbeddedDataSpecificationCreator {
         }
     }
 
+
+    private static void addEmbeddedDataSpecificationNode(UaNode node, EmbeddedDataSpecification embeddedDataSpecification, String name, AasServiceNodeManager nodeManager)
+            throws StatusException {
+        NodeId nid = nodeManager.getDefaultNodeId();
+        AASEmbeddedDataSpecificationType dataSpecNode = nodeManager.createInstance(AASEmbeddedDataSpecificationType.class, name, nid);
+
+        if (embeddedDataSpecification.getDataSpecification() != null) {
+            AASReferenceType refNode = dataSpecNode.getDataSpecificationNode();
+            if (refNode == null) {
+                AasReferenceCreator.addAasReferenceAasNS(node, embeddedDataSpecification.getDataSpecification(), AASEmbeddedDataSpecificationType.DATA_SPECIFICATION, nodeManager);
+            }
+            else {
+                AasSubmodelElementHelper.setAasReferenceData(embeddedDataSpecification.getDataSpecification(), refNode);
+            }
+        }
+
+        addDataSpecificationContent(dataSpecNode, embeddedDataSpecification.getDataSpecificationContent(), nodeManager);
+    }
+
+
+    private static void addDataSpecificationContent(AASEmbeddedDataSpecificationType dataSpecNode, DataSpecificationContent content, AasServiceNodeManager nodeManager) {
+        if (content != null) {
+            if (dataSpecNode.getDataSpecificationContentNode() == null) {
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASDataSpecificationContentType contentNode = nodeManager.createInstance(AASDataSpecificationContentType.class,
+                        AASEmbeddedDataSpecificationType.DATA_SPECIFICATION_CONTENT, nid);
+                dataSpecNode.addComponent(contentNode);
+            }
+        }
+    }
 }

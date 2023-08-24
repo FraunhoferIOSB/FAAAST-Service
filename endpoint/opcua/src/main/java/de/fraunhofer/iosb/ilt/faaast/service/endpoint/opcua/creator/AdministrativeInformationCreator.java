@@ -46,7 +46,7 @@ public class AdministrativeInformationCreator {
      * @param adminInfNode The desired AdminInformation node
      * @param nodeManager The corresponding Node Manager
      * @param info The corresponding AAS AdministrativeInformation object
-     * @throws StatusException Ifd an error occurs
+     * @throws StatusException If an error occurs
      */
     public static void addAdminInformationProperties(AASAdministrativeInformationType adminInfNode, AdministrativeInformation info, AasServiceNodeManager nodeManager)
             throws StatusException {

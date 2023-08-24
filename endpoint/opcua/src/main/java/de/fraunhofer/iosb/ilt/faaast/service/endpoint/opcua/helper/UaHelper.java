@@ -1,12 +1,11 @@
 /*
- * Copyright 2023 Fraunhofer IOSB.
- *
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,11 +29,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 
+
 /**
  * Helper class with general OPC UA helper methods.
  */
 public class UaHelper {
-    
+
     /**
      * Creates an OPC UA String property.
      * 
@@ -61,12 +61,14 @@ public class UaHelper {
      * @param nodeManager The corresponding NodeManager.
      * @param name The name of the desired property.
      * @param value The value of the desired property.
+     * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addStringUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value) throws StatusException, ValueFormatException {
+    public static void addStringUaProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String value, String namespaceUri)
+            throws StatusException, ValueFormatException {
         NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
-        QualifiedName browseName = UaQualifiedName.from(nodeManager.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
         LocalizedText displayName = LocalizedText.english(name);
         parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
     }

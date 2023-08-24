@@ -47,7 +47,7 @@ public class IdentifiableCreator {
                                        AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            identifiableNode.getIdentificationNode().setId(identifier);
+            identifiableNode.setId(identifier);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -55,8 +55,7 @@ public class IdentifiableCreator {
         identifiableNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            identifiableNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifiableNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
             identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }

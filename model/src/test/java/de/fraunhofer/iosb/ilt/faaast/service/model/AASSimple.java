@@ -131,7 +131,7 @@ public class AASSimple {
 
     // SUBMODEL_OPERATIONAL_DATA
     private static final String SUBMODEL_OPERATIONAL_DATA_ID_SHORT = "OperationalData";
-    private static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
+    public static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     private static final String SUBMODEL_OPERATIONAL_DATA_SEMANTIC_ID_PROPERTY = HTTP_CUSTOMER_COM_CD_1_1_18EBD56F6B43D895;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_ID_SHORT = ROTATION_SPEED;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY = "VARIABLE";
@@ -157,6 +157,7 @@ public class AASSimple {
         return new DefaultAssetAdministrationShell.Builder()
                 .idShort(AAS_ID)
                 .id(AAS_IDENTIFIER)
+                .administration(new DefaultAdministrativeInformation.Builder().version("1").revision("2").build())
                 .assetInformation(new DefaultAssetInformation.Builder()
                         .assetKind(AssetKind.INSTANCE)
                         .globalAssetID(HTTP_CUSTOMER_COM_ASSETS_KHBVZJSQKIY)
@@ -402,6 +403,7 @@ public class AASSimple {
                 .kind(ModellingKind.INSTANCE)
                 .idShort(SUBMODEL_DOCUMENTATION_ID_SHORT)
                 .id(SUBMODEL_DOCUMENTATION_ID)
+                .administration(new DefaultAdministrativeInformation.Builder().version("11").revision("159").build())
                 .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .semanticID(new DefaultReference.Builder()
                                 .keys(new DefaultKey.Builder()

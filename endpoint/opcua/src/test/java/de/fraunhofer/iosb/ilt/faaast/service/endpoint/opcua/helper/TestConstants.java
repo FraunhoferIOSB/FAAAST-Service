@@ -50,11 +50,12 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
-    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodel7";
+    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
-    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelCollectionUnordered";
+    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
     public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
-    public static final String FULL_SMEC_REL_ELEM_NAME = "ExampleReferenceElement";
+    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelCollection";
+    public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
@@ -63,13 +64,14 @@ public class TestConstants {
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
-    public static final String IDENTIFICATION_NAME = "Identification";
+    //public static final String IDENTIFICATION_NAME = "Identification";
     public static final String ADMINISTRATION_NAME = "Administration";
     public static final String DATA_SPECIFICATION_NAME = "DataSpecification";
     public static final String QUALIFIER_NAME = "Qualifier";
     public static final String PROPERTY_VALUE_NAME = "Value";
+    public static final String PROPERTY_PATH_NAME = "Path";
     public static final String PROPERTY_VALUE_TYPE_NAME = "ValueType";
-    public static final String PROPERTY_MIME_TYPE_NAME = "MimeType";
+    public static final String PROPERTY_CONTENT_TYPE_NAME = "ContentType";
     public static final String PROPERTY_FILE_NAME = "File";
     public static final String PROPERTY_SIZE_NAME = "Size";
     public static final String VERSION_NAME = "Version";
@@ -99,6 +101,8 @@ public class TestConstants {
     public static final int AAS_REFERENCE_LIST_ID = 1036;
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
+    public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
+    public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
 
     public static final String SERVER_CERT_PATH = "PKI/CA";

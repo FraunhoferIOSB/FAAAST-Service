@@ -57,7 +57,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
-    private int requestCounter;
+    //private int requestCounter;
 
     /**
      * Creates a new instance of OpcUaEndpoint
@@ -174,7 +174,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getId(), element.getIdShort(), response.getStatusCode());
+            LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+                    response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
@@ -205,8 +206,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         request.setPath(ReferenceHelper.toPath(refElement));
         request.setInputArguments(inputVariables);
 
-        requestCounter++;
-        request.setRequestId(Integer.toString(requestCounter));
+        //requestCounter++;
+        //request.setRequestId(Integer.toString(requestCounter));
 
         // execute method
         InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);

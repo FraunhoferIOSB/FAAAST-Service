@@ -30,7 +30,6 @@ import java.util.List;
 import opc.i4aas.AASQualifierList;
 import opc.i4aas.AASQualifierType;
 import opc.i4aas.AASSubmodelElementType;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
