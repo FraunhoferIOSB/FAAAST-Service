@@ -54,6 +54,7 @@ import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASQualifierType;
+import opc.i4aas.AASSpecificAssetIDType;
 import opc.i4aas.AASValueTypeDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
@@ -1013,10 +1014,45 @@ public class TestUtils {
             nodeList.add(nid);
         }
 
-        // TODO: add SpecificAssetID check
-        //for (NodeId node: nodeList) {
-        //    checkIdentifierKeyValuePairNode(client, node, aasns, map);
-        //}
+        for (NodeId node: nodeList) {
+            checkSpecificAssetIdNode(client, node, aasns, map);
+        }
     }
 
+
+    private static void checkSpecificAssetIdNode(UaClient client, NodeId node, int aasns, Map<String, String> map)
+            throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
+        checkType(client, node, new NodeId(aasns, TestConstants.AAS_SPECIFIC_ASSET_ID_TYPE_ID));
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIDType.NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIDType.VALUE)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Result Null", bpres);
+        Assert.assertEquals("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", 2, bpres.length);
+
+        // Name
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Name Null", targets);
+        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Name empty", targets.length > 0);
+        DataValue dataValue = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, dataValue.getStatusCode());
+        String key = dataValue.getValue().toString();
+
+        // Value
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Value Null", targets);
+        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Value empty", targets.length > 0);
+        dataValue = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, dataValue.getStatusCode());
+        String value = dataValue.getValue().toString();
+
+        Assert.assertTrue("Key not found in Map", map.containsKey(key));
+        Assert.assertEquals("Value not equal", map.get(key), value);
+    }
 }
