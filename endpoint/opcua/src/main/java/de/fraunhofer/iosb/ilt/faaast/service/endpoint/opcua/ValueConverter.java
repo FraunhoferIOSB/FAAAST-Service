@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import opc.i4aas.AASAssetKindDataType;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
@@ -90,11 +91,13 @@ public class ValueConverter {
         private final NodeId typeNode;
         private final AASValueTypeDataType valueType;
         private final Datatype datatype;
+        private final AASDataTypeDefXsd dataTypeDefXsd;
 
-        public DatatypeMapper(NodeId typeNode, AASValueTypeDataType valueType, Datatype datatype) {
+        public DatatypeMapper(NodeId typeNode, AASValueTypeDataType valueType, Datatype datatype, AASDataTypeDefXsd dataTypeDefXsd) {
             this.typeNode = typeNode;
             this.valueType = valueType;
             this.datatype = datatype;
+            this.dataTypeDefXsd = dataTypeDefXsd;
         }
     }
 
@@ -110,24 +113,24 @@ public class ValueConverter {
 
     static {
         typeList = new ArrayList<>();
-        typeList.add(new DatatypeMapper(Identifiers.ByteString, AASValueTypeDataType.ByteString, null));
-        typeList.add(new DatatypeMapper(Identifiers.Boolean, AASValueTypeDataType.Boolean, Datatype.BOOLEAN));
-        typeList.add(new DatatypeMapper(Identifiers.DateTime, AASValueTypeDataType.DateTime, Datatype.DATE_TIME));
-        typeList.add(new DatatypeMapper(Identifiers.Decimal, AASValueTypeDataType.Int64, Datatype.DECIMAL));
-        typeList.add(new DatatypeMapper(Identifiers.Integer, AASValueTypeDataType.Int64, Datatype.INTEGER));
-        typeList.add(new DatatypeMapper(Identifiers.Int32, AASValueTypeDataType.Int32, Datatype.INT));
-        typeList.add(new DatatypeMapper(Identifiers.UInt32, AASValueTypeDataType.UInt32, null));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, AASValueTypeDataType.Int64, Datatype.LONG));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, AASValueTypeDataType.UInt64, null));
-        typeList.add(new DatatypeMapper(Identifiers.Int16, AASValueTypeDataType.Int16, Datatype.SHORT));
-        typeList.add(new DatatypeMapper(Identifiers.UInt16, AASValueTypeDataType.UInt16, null));
-        typeList.add(new DatatypeMapper(Identifiers.SByte, AASValueTypeDataType.SByte, Datatype.BYTE));
-        typeList.add(new DatatypeMapper(Identifiers.Byte, AASValueTypeDataType.Byte, null));
-        typeList.add(new DatatypeMapper(Identifiers.Double, AASValueTypeDataType.Double, Datatype.DOUBLE));
-        typeList.add(new DatatypeMapper(Identifiers.Float, AASValueTypeDataType.Float, Datatype.FLOAT));
-        typeList.add(new DatatypeMapper(Identifiers.LocalizedText, AASValueTypeDataType.LocalizedText, null));
-        typeList.add(new DatatypeMapper(Identifiers.String, AASValueTypeDataType.String, Datatype.STRING));
-        typeList.add(new DatatypeMapper(Identifiers.UtcTime, AASValueTypeDataType.UtcTime, null));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, AASValueTypeDataType.ByteString, null, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.Boolean, AASValueTypeDataType.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
+        typeList.add(new DatatypeMapper(Identifiers.DateTime, AASValueTypeDataType.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
+        typeList.add(new DatatypeMapper(Identifiers.Decimal, AASValueTypeDataType.Int64, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
+        typeList.add(new DatatypeMapper(Identifiers.Integer, AASValueTypeDataType.Int64, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        typeList.add(new DatatypeMapper(Identifiers.Int32, AASValueTypeDataType.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
+        typeList.add(new DatatypeMapper(Identifiers.UInt32, AASValueTypeDataType.UInt32, null, AASDataTypeDefXsd.UnsignedInt));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, AASValueTypeDataType.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, AASValueTypeDataType.UInt64, null, AASDataTypeDefXsd.UnsignedLong));
+        typeList.add(new DatatypeMapper(Identifiers.Int16, AASValueTypeDataType.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
+        typeList.add(new DatatypeMapper(Identifiers.UInt16, AASValueTypeDataType.UInt16, null, AASDataTypeDefXsd.UnsignedShort));
+        typeList.add(new DatatypeMapper(Identifiers.SByte, AASValueTypeDataType.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
+        typeList.add(new DatatypeMapper(Identifiers.Byte, AASValueTypeDataType.Byte, null, AASDataTypeDefXsd.UnsignedByte));
+        typeList.add(new DatatypeMapper(Identifiers.Double, AASValueTypeDataType.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
+        typeList.add(new DatatypeMapper(Identifiers.Float, AASValueTypeDataType.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
+        //typeList.add(new DatatypeMapper(Identifiers.LocalizedText, AASValueTypeDataType.LocalizedText, null));
+        typeList.add(new DatatypeMapper(Identifiers.String, AASValueTypeDataType.String, Datatype.STRING, AASDataTypeDefXsd.String));
+        //typeList.add(new DatatypeMapper(Identifiers.UtcTime, AASValueTypeDataType.UtcTime, null));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
@@ -215,7 +218,7 @@ public class ValueConverter {
                 .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
                 .findAny();
         if (rv.isEmpty()) {
-            LOGGER.warn("stringToValueType: unknown value: {}", value);
+            LOGGER.warn("dataTypeXsdToValueType: unknown value: {}", value);
             throw new IllegalArgumentException("unknown value: " + value);
         }
         else {
@@ -243,6 +246,30 @@ public class ValueConverter {
         }
         else {
             retval = rv.get().valueType;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given DataTypeDefXSD to the corresponding AASValueTypeDataType
+     *
+     * @param value The desired value.
+     * @return The corresponding AASValueTypeDataType
+     */
+    public static AASDataTypeDefXsd convertDataTypeDefXsd(DataTypeDefXSD value) {
+        AASDataTypeDefXsd retval = null;
+
+        Optional<DatatypeMapper> rv = typeList.stream()
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
+                .findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertDataTypeDefXsd: unknown value: {}", value);
+            throw new IllegalArgumentException("unknown value: " + value);
+        }
+        else {
+            retval = rv.get().dataTypeDefXsd;
         }
 
         return retval;
