@@ -160,7 +160,7 @@ public class SubmodelElementCreator {
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
                 node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-                node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+                //node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
         }
     }
