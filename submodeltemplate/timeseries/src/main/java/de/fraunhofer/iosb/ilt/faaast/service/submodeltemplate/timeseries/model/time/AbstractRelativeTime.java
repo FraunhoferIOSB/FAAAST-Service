@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
+import java.util.Objects;
 import java.util.OptionalLong;
 
 
@@ -23,32 +24,15 @@ import java.util.OptionalLong;
  * Extending classes should set the startOffsetInEpochMillis and endOffsetInEpochMillis variables in the init method,
  * and should call the constructor of the abstract class in a parameterless constructor.
  */
-public abstract class AbstractRelativeTime implements RelativeTime {
-
-    protected final String semanticID;
-    protected final String datatype;
+public abstract class AbstractRelativeTime extends AbstractTime implements RelativeTime {
 
     protected boolean isInitialized = false;
     protected long startOffsetInEpochMillis;
     protected long endOffsetInEpochMillis;
 
-    public AbstractRelativeTime(String semanticID, String datatype) {
-        this.semanticID = semanticID;
-        this.datatype = datatype;
+    public AbstractRelativeTime(String datatype) {
+        super(datatype);
     }
-
-
-    @Override
-    public String getTimeSemanticID() {
-        return this.semanticID;
-    }
-
-
-    @Override
-    public String getDataValueType() {
-        return this.datatype;
-    }
-
 
     @Override
     public OptionalLong getStartAsEpochMillis(Long startTime) {
@@ -65,5 +49,32 @@ public abstract class AbstractRelativeTime implements RelativeTime {
             return OptionalLong.of(startTime + this.endOffsetInEpochMillis);
         }
         return OptionalLong.empty();
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            AbstractRelativeTime other = (AbstractRelativeTime) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.isInitialized, other.isInitialized)
+                    && Objects.equals(this.startOffsetInEpochMillis, other.startOffsetInEpochMillis)
+                    && Objects.equals(this.endOffsetInEpochMillis, other.endOffsetInEpochMillis);
+        }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.startOffsetInEpochMillis, this.endOffsetInEpochMillis);
     }
 }

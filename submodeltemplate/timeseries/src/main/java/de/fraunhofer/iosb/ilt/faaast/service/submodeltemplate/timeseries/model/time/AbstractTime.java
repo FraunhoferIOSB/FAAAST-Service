@@ -15,9 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
 import java.util.Objects;
-import java.util.OptionalLong;
-
-
 
 /**
  * Abstract class implementing the AbsoluteTime interface. Contains the semanticID, datatype and methods to get the
@@ -25,31 +22,19 @@ import java.util.OptionalLong;
  * Extending classes should set the startTimestampInEpochMillis and endTimestampInEpochMillis variables in the init
  * method, and should call the constructor of the abstract class in a parameterless constructor.
  */
-public abstract class AbstractAbsoluteTime extends AbstractTime implements AbsoluteTime {
+public abstract class AbstractTime implements Time {
 
-    protected boolean isInitialized = false;
-    protected long startTimestampInEpochMillis;
-    protected long endTimestampInEpochMillis;
+    protected final String datatype;
 
-    public AbstractAbsoluteTime(String datatype) {
-        super(datatype);
-    }
-
-    @Override
-    public OptionalLong getStartAsEpochMillis() {
-        if (this.isInitialized) {
-            return OptionalLong.of(this.startTimestampInEpochMillis);
-        }
-        return OptionalLong.empty();
+    
+    public AbstractTime(String datatype) {
+        this.datatype = datatype;
     }
 
 
     @Override
-    public OptionalLong getEndAsEpochMillis() {
-        if (this.isInitialized) {
-            return OptionalLong.of(this.endTimestampInEpochMillis);
-        }
-        return OptionalLong.empty();
+    public String getDataValueType() {
+        return this.datatype;
     }
 
 
@@ -65,18 +50,15 @@ public abstract class AbstractAbsoluteTime extends AbstractTime implements Absol
             return false;
         }
         else {
-            AbstractAbsoluteTime other = (AbstractAbsoluteTime) obj;
-            return super.equals(obj)
-                    && Objects.equals(this.isInitialized, other.isInitialized)
-                    && Objects.equals(this.startTimestampInEpochMillis, other.startTimestampInEpochMillis)
-                    && Objects.equals(this.endTimestampInEpochMillis, other.endTimestampInEpochMillis);
+            AbstractTime other = (AbstractTime) obj;
+            return Objects.equals(this.datatype, other.datatype);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.isInitialized, this.startTimestampInEpochMillis, this.endTimestampInEpochMillis);
+        return Objects.hash(super.hashCode(), this.datatype);
     }
 
 }

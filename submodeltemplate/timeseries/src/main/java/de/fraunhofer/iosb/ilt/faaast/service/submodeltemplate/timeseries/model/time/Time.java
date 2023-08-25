@@ -33,14 +33,6 @@ public interface Time {
 
 
     /**
-     * Get the semantic ID represented by this class.
-     *
-     * @return String containing the semantic ID represented by this class.
-     */
-    public String getTimeSemanticID();
-
-
-    /**
      * Get the the {@link Datatype} used for the timestamp.
      *
      * @return {@link Datatype} name for the AAS property of the time.

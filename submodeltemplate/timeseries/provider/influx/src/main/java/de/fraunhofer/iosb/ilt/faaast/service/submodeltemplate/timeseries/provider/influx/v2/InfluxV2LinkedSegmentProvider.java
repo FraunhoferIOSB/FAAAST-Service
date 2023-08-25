@@ -126,7 +126,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
                             Time metaType = metadata.getRecordMetadataTime().get(fieldName);
                             result.getTimes().put(fieldName,
-                                    TimeFactory.getTimeTypeFrom(metaType.getTimeSemanticID(), fieldValue.toString()).orElse(null));
+                                    TimeFactory.getTimeTypeFrom(TimeFactory.getSemanticIDForClass(metaType.getClass()), fieldValue.toString()).orElse(null));
                         }
                         else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
                             try {

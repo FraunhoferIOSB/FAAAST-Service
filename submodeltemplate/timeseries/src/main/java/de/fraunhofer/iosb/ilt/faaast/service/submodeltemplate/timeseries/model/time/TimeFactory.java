@@ -22,12 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import io.adminshell.aas.v3.model.Reference;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +127,15 @@ public class TimeFactory {
         }
         return false;
     }
+    
+    
+    public static String getSemanticIDForClass(Class<? extends Time> timeClass) {
+        return supportedSemanticIDs.entrySet().stream()
+                      .filter(entry -> Objects.equals(entry.getValue(), timeClass))
+                      .map(Map.Entry::getKey)
+                      .findFirst()
+                      .orElse(null);
+    }
 
 
     /**
@@ -137,25 +146,16 @@ public class TimeFactory {
         if (isInitialized) {
             return;
         }
-        try (ScanResult scanResult = new ClassGraph().enableAllInfo().scan()) {
-            ClassInfoList timeSubclasses = scanResult.getClassesImplementing(Time.class).getStandardClasses();
-            for (ClassInfo classInfo: timeSubclasses) {
-                if (classInfo.isAbstract()) {
-                    continue;
-                }
-                Class<? extends Time> currentClass = (Class<? extends Time>) classInfo.loadClass();
-                if (!supportedSemanticIDs.containsValue(currentClass)) { //TODO: check what if n classes classes for semanticID or n semanticIDs per class?
-                    Time testType = createUninitializedInstantOf(currentClass); //TODO: what if semanticID dependant on input?
-                    if (testType == null) {
-                        LOGGER.error("TimeFactory: Failed to add class {} to supported semantic IDs. Could not instantiate.", currentClass.getName());
-                    }
-                    else if (testType.getTimeSemanticID() == null) {
-                        LOGGER.error(
-                                "TimeFactory: Failed to add class {} to supported semantic IDs. Could not find semantic ID.",
-                                currentClass.getName());
+        try (ScanResult scanResult = new ClassGraph().enableClassInfo().enableAnnotationInfo().scan()) {
+            for (ClassInfo classInfo: scanResult.getClassesWithAnnotation(SupportedSemanticID.class)) {
+                String semanticID = ((SupportedSemanticID)classInfo.getAnnotationInfo(SupportedSemanticID.class).loadClassAndInstantiate()).value();
+                if (!supportedSemanticIDs.containsKey(semanticID)) {
+                    if (classInfo.implementsInterface(Time.class)) {
+                        Class<? extends Time> currentClass = (Class<? extends Time>) classInfo.loadClass();
+                        supportedSemanticIDs.put(semanticID, currentClass);
                     }
                     else {
-                        supportedSemanticIDs.put(testType.getTimeSemanticID(), currentClass);
+                        LOGGER.warn("TimeFactory: Class {} has SupportedSemanticID annotation but does not implement a Time interface", classInfo.getName());
                     }
                 }
             }

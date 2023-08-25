@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -29,18 +31,18 @@ import java.util.Objects;
  * TimeType implementation of UTC time as defined in TimeSeriesSubmodel. Timestamp according to ISO 8601 on the
  * timescale ccordinated universal time (UTC).
  */
+@SupportedSemanticID("https://admin-shell.io/idta/TimeSeries/UtcTime/1/1")
 public class UtcTime extends AbstractAbsoluteTime {
 
-    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1";
     private static final String VALUE_TYPE = Datatype.DATE_TIME.getName();
 
     public UtcTime() {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
     }
 
 
     public UtcTime(String value) {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
         init(value);
     }
 
@@ -81,15 +83,14 @@ public class UtcTime extends AbstractAbsoluteTime {
             return false;
         }
         else {
-            UtcTime other = (UtcTime) obj;
-            return Objects.equals(this.startTimestampInEpochMillis, other.startTimestampInEpochMillis);
+            return super.equals(obj);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode());
+        return Objects.hash(super.hashCode(), VALUE_TYPE);
     }
 
 }

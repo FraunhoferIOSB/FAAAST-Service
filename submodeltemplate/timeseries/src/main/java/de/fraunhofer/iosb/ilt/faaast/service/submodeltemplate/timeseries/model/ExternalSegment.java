@@ -67,6 +67,7 @@ public class ExternalSegment extends Segment {
 
     @JsonIgnore
     private Wrapper<? extends DataElement, ? extends DataElement> data;
+    
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.

@@ -18,24 +18,26 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.LongValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
+
 import java.util.Objects;
 
 
 /**
  * TimeType implementation for UNIX Timestamps (seconds since 01.01.1970).
  */
+@SupportedSemanticID("https://admin-shell.io/idta/TimeSeries/UnixTime/1/1")
 public class UnixTime extends AbstractAbsoluteTime {
 
-    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/UnixTime/1/1";
     private static final String VALUE_TYPE = Datatype.LONG.getName();
 
     public UnixTime() {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
     }
 
 
     public UnixTime(String value) {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
         init(value);
     }
 
@@ -76,14 +78,13 @@ public class UnixTime extends AbstractAbsoluteTime {
             return false;
         }
         else {
-            UnixTime other = (UnixTime) obj;
-            return Objects.equals(this.startTimestampInEpochMillis, other.startTimestampInEpochMillis);
+            return super.equals(obj);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode());
+        return Objects.hash(super.hashCode(), VALUE_TYPE);
     }
 }

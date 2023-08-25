@@ -55,13 +55,13 @@ public class Record extends ExtendableSubmodelElementCollection {
                     .idShort(x.getKey())
                     .valueType(x.getValue().getDataValueType())
                     .value(x.getValue().getTimestampString())
-                    .semanticId(ReferenceHelper.globalReference(x.getValue().getTimeSemanticID()))
+                    .semanticId(ReferenceHelper.globalReference(TimeFactory.getSemanticIDForClass(x.getValue().getClass())))
                     .build(),
             x -> TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
             x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue()).get()));
 
     @JsonIgnore
-    private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<>(
+    private Wrapper<Map<String, TypedValue>, Property> variablesAndTimes = new MapWrapper<>(
             values,
             new HashMap<>(),
             Property.class,
@@ -81,7 +81,7 @@ public class Record extends ExtendableSubmodelElementCollection {
             });
 
     public Record() {
-        withAdditionalValues(times, variables);
+        withAdditionalValues(times, variablesAndTimes);
         this.idShort = IdentifierHelper.randomId("Record");
         this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
     }
@@ -102,14 +102,14 @@ public class Record extends ExtendableSubmodelElementCollection {
             Record other = (Record) obj;
             return super.equals(obj)
                     && Objects.equals(this.times, other.times)
-                    && Objects.equals(this.variables, other.variables);
+                    && Objects.equals(this.variablesAndTimes, other.variablesAndTimes);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), times, variables);
+        return Objects.hash(super.hashCode(), times, variablesAndTimes);
     }
 
 
@@ -186,7 +186,7 @@ public class Record extends ExtendableSubmodelElementCollection {
 
 
     public Map<String, TypedValue> getVariables() {
-        return variables.getValue();
+        return variablesAndTimes.getValue();
     }
 
 
@@ -196,7 +196,7 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param variables the variables to set
      */
     public void setVariables(Map<String, TypedValue> variables) {
-        this.variables.setValue(variables);
+        this.variablesAndTimes.setValue(variables);
     }
 
 
@@ -207,7 +207,7 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param value {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue} of the variable
      */
     public void addVariables(String variableName, TypedValue value) {
-        this.variables.getValue().put(variableName, value);
+        this.variablesAndTimes.getValue().put(variableName, value);
     }
 
 

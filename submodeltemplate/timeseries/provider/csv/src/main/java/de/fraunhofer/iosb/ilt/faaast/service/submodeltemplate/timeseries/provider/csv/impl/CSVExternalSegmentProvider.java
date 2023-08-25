@@ -220,7 +220,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             try {
                 long currentStartTime = startTime.toInstant().toEpochMilli();
                 while ((values = reader.readMap()) != null) {
-                    Optional<Time> currentTime = TimeFactory.getTimeTypeFrom(timetype.getTimeSemanticID(), values.get(timecolumnName));
+                    Optional<Time> currentTime = TimeFactory.getTimeTypeFrom(TimeFactory.getSemanticIDForClass(timetype.getClass()), values.get(timecolumnName));
                     if (currentTime.isEmpty()) {
                         continue;
                     }
@@ -277,7 +277,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
                 Time typeInfo = metadata.getRecordMetadataTime().get(getVariableName(columnName));
                 if (typeInfo != null) {
                     newRecord.getTimes().put(getVariableName(columnName),
-                            TimeFactory.getTimeTypeFrom(typeInfo.getTimeSemanticID(), columnEntry.getValue()).orElse(null));
+                            TimeFactory.getTimeTypeFrom(TimeFactory.getSemanticIDForClass(typeInfo.getClass()), columnEntry.getValue()).orElse(null));
                 }
             }
             if (metadata.getRecordMetadataVariables().containsKey(getVariableName(columnName))) {

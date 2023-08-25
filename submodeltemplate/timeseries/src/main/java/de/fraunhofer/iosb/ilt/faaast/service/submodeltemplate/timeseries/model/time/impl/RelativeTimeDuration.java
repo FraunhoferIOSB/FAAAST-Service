@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.FloatValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractRelativeTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
+
 import java.util.Objects;
 
 
@@ -25,18 +27,18 @@ import java.util.Objects;
  * Relative time duration in seconds as defined in TimeSeriesSubmodel. Time durations are relative to the previous entry
  * in the time series segment.
  */
+@SupportedSemanticID("https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1")
 public class RelativeTimeDuration extends AbstractRelativeTime {
 
-    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativeTimeDuration/1/1";
     private static final String VALUE_TYPE = Datatype.FLOAT.getName();
 
     public RelativeTimeDuration() {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
     }
 
 
     public RelativeTimeDuration(String value) {
-        super(SEMANTIC_ID, VALUE_TYPE);
+        super(VALUE_TYPE);
         init(value);
     }
 
@@ -83,16 +85,14 @@ public class RelativeTimeDuration extends AbstractRelativeTime {
             return false;
         }
         else {
-            RelativeTimeDuration other = (RelativeTimeDuration) obj;
-            return Objects.equals(this.startOffsetInEpochMillis, other.startOffsetInEpochMillis)
-                    && Objects.equals(this.endOffsetInEpochMillis, other.endOffsetInEpochMillis);
+            return super.equals(obj);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode());
+        return Objects.hash(super.hashCode(), VALUE_TYPE);
     }
 
 }

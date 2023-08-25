@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.FloatValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractRelativeTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
+
 import java.util.Objects;
 
 
@@ -25,18 +27,18 @@ import java.util.Objects;
  * Relative point in time in seconds as defined in TimeSeriesSubmodel. Time points refer to the start time of the time
  * series segment.
  */
+@SupportedSemanticID("https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1")
 public class RelativePointInTime extends AbstractRelativeTime {
 
-    private static final String SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1";
     private static final String DATA_TYPE = Datatype.FLOAT.getName();
 
     public RelativePointInTime() {
-        super(SEMANTIC_ID, DATA_TYPE);
+        super(DATA_TYPE);
     }
 
 
     public RelativePointInTime(String value) {
-        super(SEMANTIC_ID, DATA_TYPE);
+        super(DATA_TYPE);
         this.init(value);
     }
 
@@ -83,16 +85,14 @@ public class RelativePointInTime extends AbstractRelativeTime {
             return false;
         }
         else {
-            RelativePointInTime other = (RelativePointInTime) obj;
-            return Objects.equals(this.startOffsetInEpochMillis, other.startOffsetInEpochMillis)
-                    && Objects.equals(this.endOffsetInEpochMillis, other.endOffsetInEpochMillis);
+            return super.equals(obj);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode());
+        return Objects.hash(super.hashCode(), DATA_TYPE);
     }
 
 }
