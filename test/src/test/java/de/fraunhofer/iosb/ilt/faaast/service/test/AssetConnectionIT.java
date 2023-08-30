@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -178,6 +179,7 @@ public class AssetConnectionIT {
                 .persistence(PersistenceInMemoryConfig.builder()
                         .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
+                .fileStorage(new FileStorageInMemoryConfig())
                 // TODO re-add once OPC UA Endpoint is updated to AAS4j
                 //.endpoint(OpcUaEndpointConfig.builder()
                 //        .tcpPort(portOpcUa)

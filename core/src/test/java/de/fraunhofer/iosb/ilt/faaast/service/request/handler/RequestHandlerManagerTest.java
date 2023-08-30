@@ -444,7 +444,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
-        InMemoryFile file = new InMemoryFile.Builder()
+        InMemoryFile file = InMemoryFile.builder()
                 .contentType("foo/bar")
                 .path("my/path")
                 .content("foo".getBytes())

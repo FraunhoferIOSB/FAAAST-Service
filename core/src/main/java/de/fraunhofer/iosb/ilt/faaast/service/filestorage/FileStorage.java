@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -21,8 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 
 /**
  * Generic interface for file storage implementations.
+ *
+ * @param <C> type of the corresponding configuration class
  */
-public interface FileStorage {
+public interface FileStorage<C extends FileStorageConfig> extends Configurable<C> {
 
     /**
      * Gets a file from the storage.
@@ -58,6 +61,6 @@ public interface FileStorage {
      * @param file the file to save
      */
     public default void save(InMemoryFile file) {
-        save(file.getPath(), file);
+        save(file.getPath(), file.asFileContent());
     }
 }

@@ -46,6 +46,11 @@
             <artifactId>endpoint-http</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>filestorage-memory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- TODO re-add once OPC UA Endpoint is updated to AAS4j -->
         <!--<dependency>
             <groupId>${project.groupId}</groupId>

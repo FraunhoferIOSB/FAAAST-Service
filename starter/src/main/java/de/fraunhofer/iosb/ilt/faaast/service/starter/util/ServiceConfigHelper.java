@@ -33,6 +33,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
@@ -77,6 +79,7 @@ public class ServiceConfigHelper {
         return new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
                 .persistence(new PersistenceInMemoryConfig())
+                .fileStorage(new FileStorageInMemoryConfig())
                 .endpoint(new HttpEndpointConfig())
                 .messageBus(new MessageBusInternalConfig())
                 .build();
@@ -125,6 +128,10 @@ public class ServiceConfigHelper {
         if (serviceConfig.getPersistence() == null) {
             serviceConfig.setPersistence(defaultConfig.getPersistence());
             LOGGER.debug("No configuration for persistence found - using default");
+        }
+        if (serviceConfig.getFileStorage() == null) {
+            serviceConfig.setFileStorage(defaultConfig.getFileStorage());
+            LOGGER.debug("No configuration for file storage found - using default");
         }
         if (serviceConfig.getMessageBus() == null) {
             serviceConfig.setMessageBus(defaultConfig.getMessageBus());
@@ -199,6 +206,7 @@ public class ServiceConfigHelper {
         if (config != null && configs != null) {
             applyMultiple(configs, EndpointConfig.class, config::setEndpoints);
             applySingle(configs, PersistenceConfig.class, config::setPersistence);
+            applySingle(configs, FileStorageConfig.class, config::setFileStorage);
             applySingle(configs, MessageBusConfig.class, config::setMessageBus);
             applyMultiple(configs, AssetConnectionConfig.class, x -> config.getAssetConnections().addAll(x));
         }

@@ -244,13 +244,11 @@ public class Service implements ServiceContext {
 
 
     private void init() throws ConfigurationException {
-        if (config.getPersistence() == null) {
-            throw new InvalidConfigurationException("config.persistence must be non-null");
-        }
+        Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
-        if (config.getMessageBus() == null) {
-            throw new InvalidConfigurationException("config.messagebus must be non-null");
-        }
+        Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
+        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
+        Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();

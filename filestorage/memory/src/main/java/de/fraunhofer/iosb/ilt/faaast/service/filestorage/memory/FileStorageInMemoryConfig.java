@@ -12,18 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model;
+package de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory;
+
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
+
 
 /**
- * Represents the content of a file.
+ * Configuration class for {@link FileStorageInMemory}.
  */
-public class FileContent extends AbstractFileContent {
+public class FileStorageInMemoryConfig extends FileStorageConfig<FileStorageInMemory> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<FileContent, Builder> {
+    private abstract static class AbstractBuilder<T extends FileStorageInMemoryConfig, B extends AbstractBuilder<T, B>>
+            extends FileStorageConfig.AbstractBuilder<FileStorageInMemory, T, B> {
+
+    }
+
+    public static class Builder extends AbstractBuilder<FileStorageInMemoryConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -32,9 +40,8 @@ public class FileContent extends AbstractFileContent {
 
 
         @Override
-        protected FileContent newBuildingInstance() {
-            return new FileContent();
+        protected FileStorageInMemoryConfig newBuildingInstance() {
+            return new FileStorageInMemoryConfig();
         }
     }
-
 }

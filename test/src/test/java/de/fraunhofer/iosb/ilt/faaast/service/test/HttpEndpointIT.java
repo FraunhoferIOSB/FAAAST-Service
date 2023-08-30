@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -149,6 +150,7 @@ public class HttpEndpointIT {
                 .persistence(PersistenceInMemoryConfig.builder()
                         .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
+                .fileStorage(new FileStorageInMemoryConfig())
                 .endpoints(List.of(HttpEndpointConfig.builder()
                         .port(PORT)
                         .build()))

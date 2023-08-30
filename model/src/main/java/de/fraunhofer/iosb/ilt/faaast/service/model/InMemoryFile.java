@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Represents a file loaded to memory.
  */
-public class InMemoryFile extends FileContent {
+public class InMemoryFile extends AbstractFileContent {
 
     private String path;
 
@@ -31,6 +31,19 @@ public class InMemoryFile extends FileContent {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+
+    /**
+     * Returns a {@link FileContent} with the same values as this instance.
+     *
+     * @return a {@link FileContent} representation of this instance
+     */
+    public FileContent asFileContent() {
+        return FileContent.builder()
+                .contentType(getContentType())
+                .content(getContent())
+                .build();
     }
 
 
@@ -53,7 +66,12 @@ public class InMemoryFile extends FileContent {
         return Objects.hash(super.hashCode(), path);
     }
 
-    public abstract static class AbstractBuilder<T extends InMemoryFile, B extends AbstractBuilder<T, B>> extends FileContent.AbstractBuilder<T, B> {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends InMemoryFile, B extends AbstractBuilder<T, B>> extends AbstractFileContent.AbstractBuilder<T, B> {
 
         public B path(String value) {
             getBuildingInstance().setPath(value);
