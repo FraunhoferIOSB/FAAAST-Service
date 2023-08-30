@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.List;
 import opc.i4aas.AASEntityType;
-import opc.i4aas.AASIdentifierKeyValuePairType;
 import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASSpecificAssetIDType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -234,9 +233,9 @@ public class SpecificAssetIdCreator {
         // ExternalSubjectId
         Reference externalSubjectId = aasIdentifierPair.getExternalSubjectID();
         if (externalSubjectId != null) {
-            AASReferenceType extSubjectNode = specificAssetIDNode.getExternalSubjectIDNode();
+            AASReferenceType extSubjectNode = specificAssetIDNode.getExternalSubjectIdNode();
             if (extSubjectNode == null) {
-                AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
+                AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASSpecificAssetIDType.EXTERNAL_SUBJECT_ID, nodeManager);
             }
             else {
                 AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);

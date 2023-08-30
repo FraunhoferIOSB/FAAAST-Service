@@ -117,7 +117,7 @@ public class QualifierCreator {
         qualifierNode.setType(qualifier.getType());
 
         // ValueType
-        qualifierNode.setValueType(ValueConverter.dataTypeXsdToValueType(qualifier.getValueType()));
+        qualifierNode.setValueType(ValueConverter.convertDataTypeDefXsd(qualifier.getValueType()));
 
         // Value
         if (qualifier.getValue() != null) {
