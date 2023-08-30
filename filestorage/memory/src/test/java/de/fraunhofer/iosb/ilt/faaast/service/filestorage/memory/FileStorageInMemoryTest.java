@@ -35,4 +35,10 @@ public class FileStorageInMemoryTest extends AbstractFileStorageTest<FileStorage
         super.save();
     }
 
+
+    @Test
+    public void delete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
+        super.delete();
+    }
+
 }

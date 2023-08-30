@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConf
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.File;
@@ -452,6 +453,10 @@ public class App implements Runnable {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
             config.getPersistence().setInitialModelFile(modelFile);
+            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
+            if (fileExtension.equals("aasx")) {
+                config.getFileStorage().setInitialModelFile(modelFile);
+            }
             return;
 
         }
@@ -463,6 +468,10 @@ public class App implements Runnable {
                         getEnvValue(ENV_PATH_MODEL_FILE));
             }
             config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
+            if (fileExtension.equals("aasx")) {
+                config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            }
             modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
             return;
         }
@@ -476,6 +485,10 @@ public class App implements Runnable {
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
             config.getPersistence().setInitialModelFile(defaultModel.get());
+            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
+            if (fileExtension.equals("aasx")) {
+                config.getFileStorage().setInitialModelFile(defaultModel.get());
+            }
             modelFile = new File(defaultModel.get().getAbsolutePath());
             return;
         }

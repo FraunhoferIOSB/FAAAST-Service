@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithFile;
 
 
 /**
  * Response class for GetThumbnail requests.
  */
-public class GetThumbnailResponse extends AbstractResponseWithPayload<InMemoryFile> {
+public class GetThumbnailResponse extends AbstractResponseWithFile<InMemoryFile> {
 
     public static Builder builder() {
         return new Builder();

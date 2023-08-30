@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -46,8 +47,11 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        // save request.getContent() to persistence with key file.getValue()
-        // maybe publish on MessageBus
+        context.getFileStorage().save(file.getValue(),
+                FileContent.builder()
+                        .content(request.getContent().getContent())
+                        .build());
+        // @TODO maybe publish on MessageBus
         //    context.getMessageBus()publish(...);
         return PutFileByPathResponse.builder()
                 .success()

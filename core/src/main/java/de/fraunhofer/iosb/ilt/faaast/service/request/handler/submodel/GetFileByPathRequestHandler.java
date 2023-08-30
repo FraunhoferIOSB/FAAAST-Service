@@ -47,8 +47,8 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        FileContent fileContent = null; // get from persistence based on file.getValue()
-        // maybe publish on MessageBus
+        FileContent fileContent = context.getFileStorage().get(file.getValue());
+        // @TODO maybe publish on MessageBus
         //    context.getMessageBus()publish(...);
         return GetFileByPathResponse.builder()
                 .payload(fileContent)

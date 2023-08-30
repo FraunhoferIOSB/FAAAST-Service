@@ -15,8 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import java.io.File;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
 /**
@@ -26,6 +32,44 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  * @param <T> type of the file storage
  */
 public abstract class FileStorageConfig<T extends FileStorage> extends Config<T> {
+    public File getInitialModelFile() {
+        return initialModelFile;
+    }
+
+
+    public void setInitialModelFile(File initialModelFile) {
+        this.initialModelFile = initialModelFile;
+    }
+
+    protected File initialModelFile;
+
+    /**
+     * Loads the initial model and files from code/memory if present, otherwise from file.
+     *
+     * @return the loaded initial model with files or an empty model if neither an initial in-memory model nor an initial
+     *         model
+     *         file is specified.
+     * @throws InvalidConfigurationException if initial model file should be used and file does not exist or is not a
+     *             file
+     * @throws DeserializationException if deserialization fails
+     */
+    public EnvironmentContext loadInitialModelAndFiles() throws InvalidConfigurationException, DeserializationException {
+        if (Objects.nonNull(initialModelFile)) {
+            if (!initialModelFile.exists()) {
+                throw new InvalidConfigurationException(String.format("model file not found (file: %s)", initialModelFile));
+            }
+            if (!initialModelFile.isFile()) {
+                throw new InvalidConfigurationException(String.format("model file is not file (file: %s)", initialModelFile));
+            }
+            return EnvironmentSerializationManager
+                    .deserialize(initialModelFile);
+        }
+        DefaultEnvironment defaultEnvironment = new DefaultEnvironment.Builder().build();
+        EnvironmentContext defaultEnvironmentContext = new EnvironmentContext();
+        defaultEnvironmentContext.setEnvironment(defaultEnvironment);
+        return defaultEnvironmentContext;
+    }
+
 
     @Override
     public boolean equals(Object obj) {

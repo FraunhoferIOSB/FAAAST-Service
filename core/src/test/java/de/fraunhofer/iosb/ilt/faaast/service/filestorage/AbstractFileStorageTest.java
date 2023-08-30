@@ -60,4 +60,21 @@ public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extend
         FileContent actual = fileStorage.get(expected.getPath());
         Assert.assertEquals(expected.asFileContent(), actual);
     }
+
+
+    @Test
+    public void delete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
+        FileStorageConfig<T> config = getFileStorageConfig();
+        fileStorage = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        InMemoryFile expected = InMemoryFile.builder()
+                .path("my/path/file.txt")
+                .contentType("text/plain")
+                .content("foo".getBytes())
+                .build();
+        fileStorage.save(expected);
+        FileContent actual = fileStorage.get(expected.getPath());
+        Assert.assertEquals(expected.asFileContent(), actual);
+        fileStorage.delete(expected.getPath());
+        Assert.assertThrows(ResourceNotFoundException.class, () -> fileStorage.get(expected.getPath()));
+    }
 }
