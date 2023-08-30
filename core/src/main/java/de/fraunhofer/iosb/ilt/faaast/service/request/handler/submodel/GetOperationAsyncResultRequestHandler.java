@@ -14,34 +14,31 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest} in
- * the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest} in the
+ * service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
-    public GetOperationAsyncResultRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetOperationAsyncResultRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) throws ResourceNotFoundException {
-        OperationResult operationResult = persistence.getOperationResult(request.getHandle());
+        OperationResult operationResult = context.getPersistence().getOperationResult(request.getHandle());
         return GetOperationAsyncResultResponse.builder()
                 .payload(operationResult)
                 .success()

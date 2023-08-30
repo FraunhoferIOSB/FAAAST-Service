@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,13 +23,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 public class Path {
 
-    private String id;
+    private String id = "";
     private List<Path> children = new ArrayList<>();
     private boolean isList = false;
 
     public List<String> getPaths() {
         List<String> result = new ArrayList<>();
-        result.add(id);
+        if (!StringHelper.isBlank(id)) {
+            result.add(id);
+        }
         result.addAll(isList ? computeBracetsPaths() : computeDotPaths());
         return result;
     }
@@ -36,7 +39,7 @@ public class Path {
 
     private List<String> computeDotPaths() {
         return children.stream().flatMap(x -> x.getPaths().stream()
-                .map(y -> String.format("%s.%s", id, y)))
+                .map(y -> StringHelper.isBlank(id) ? y : String.format("%s.%s", id, y)))
                 .collect(Collectors.toList());
     }
 
@@ -48,7 +51,7 @@ public class Path {
             final Path current = children.get(i);
             result.addAll(builder()
                     .from(current)
-                    .id(String.format("%s[%d]", id, counter))
+                    .id(StringHelper.isBlank(id) ? "[" + counter + "]" : String.format("%s[%d]", id, counter))
                     .build()
                     .getPaths());
         }

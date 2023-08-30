@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -139,9 +139,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void deleteSubmodelElement(IdShortPath path) throws ResourceNotFoundException {
-        Ensure.requireNonNull(path, "path must be non-null");
-        final Reference reference = path.toReference();
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
+        Ensure.requireNonNull(identifier, "path must be non-null");
+        final Reference reference = identifier.toReference();
         final SubmodelElement element = EnvironmentHelper.resolve(reference, environment, SubmodelElement.class);
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(reference), environment);
         final AtomicBoolean deleted = new AtomicBoolean(false);
@@ -301,9 +301,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public SubmodelElement getSubmodelElement(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
         return prepareResult(
-                EnvironmentHelper.resolve(path.toReference(), environment, SubmodelElement.class),
+                EnvironmentHelper.resolve(identifier.toReference(), environment, SubmodelElement.class),
                 modifier);
     }
 
@@ -329,10 +329,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void save(IdShortPath parentPath, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        Ensure.requireNonNull(parentPath, "parent must be non-null");
+    public void save(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
-        Referable parent = EnvironmentHelper.resolve(parentPath.toReference(), environment);
+        Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), environment);
 
         Collection<SubmodelElement> container;
         if (Submodel.class.isAssignableFrom(parent.getClass())) {

@@ -26,7 +26,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
 
+    private String id;
     private FileContent content;
+
+    public String getId() {
+        return id;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public FileContent getContent() {
         return content;
@@ -47,13 +58,14 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
             return false;
         }
         PutThumbnailRequest that = (PutThumbnailRequest) o;
-        return Objects.equals(content, that.content);
+        return Objects.equals(id, that.id)
+                && Objects.equals(content, that.content);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(content);
+        return Objects.hash(id, content);
     }
 
 
@@ -62,6 +74,12 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
     }
 
     public abstract static class AbstractBuilder<T extends PutThumbnailRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
 
         public B content(FileContent value) {
             getBuildingInstance().setContent(value);

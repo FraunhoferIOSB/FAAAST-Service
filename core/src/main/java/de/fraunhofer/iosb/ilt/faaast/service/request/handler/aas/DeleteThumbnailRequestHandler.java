@@ -14,15 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
@@ -30,8 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  */
 public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<DeleteThumbnailRequest, DeleteThumbnailResponse> {
 
-    public DeleteThumbnailRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public DeleteThumbnailRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -39,7 +36,7 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
     public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
         // delete file via persistence
         // maybe publish event on messageBus
-        //     messageBus.publish();
+        //     context.getMessageBus()publish();
         return DeleteThumbnailResponse.builder()
                 .success()
                 .build();

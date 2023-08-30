@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasserialization;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -26,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,8 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest} in
  * the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse}.
- * Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
 
@@ -50,8 +46,8 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
             .level(Level.DEEP)
             .build();
 
-    public GenerateSerializationByIdsRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GenerateSerializationByIdsRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -62,13 +58,13 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .payload(new DefaultEnvironment.Builder()
                         .assetAdministrationShells(
                                 request.getAasIds().stream()
-                                        .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
+                                        .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
                                         .collect(Collectors.toList()))
                         .submodels(request.getSubmodelIds().stream()
-                                .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.getSubmodel(x, OUTPUT_MODIFIER)))
+                                .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
                                 .collect(Collectors.toList()))
                         .conceptDescriptions(request.getIncludeConceptDescriptions()
-                                ? persistence.findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
+                                ? context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
                                 : List.of())
                         .build())
                 .success()

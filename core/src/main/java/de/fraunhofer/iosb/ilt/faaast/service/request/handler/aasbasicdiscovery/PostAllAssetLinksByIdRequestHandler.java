@@ -14,16 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +36,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest} in the
  * service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse}. Is
- * responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<PostAllAssetLinksByIdRequest, PostAllAssetLinksByIdResponse> {
 
-    public PostAllAssetLinksByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PostAllAssetLinksByIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
-        AssetAdministrationShell aas = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         List<SpecificAssetID> globalKeys = request.getAssetLinks().stream()
                 .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getName()))
                 .collect(Collectors.toList());
@@ -91,7 +87,7 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                         .build();
             }
         }
-        persistence.save(aas);
+        context.getPersistence().save(aas);
         List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         if (aas.getAssetInformation().getGlobalAssetID() != null) {
             result.add(new DefaultSpecificAssetID.Builder()

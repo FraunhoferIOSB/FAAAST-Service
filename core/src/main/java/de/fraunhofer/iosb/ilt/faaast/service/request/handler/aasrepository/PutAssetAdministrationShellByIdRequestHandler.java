@@ -14,10 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PutAssetAdministrationShellByIdResponse;
@@ -25,8 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
@@ -34,23 +31,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PutAssetAdministrationShellByIdResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PutAssetAdministrationShellByIdRequestHandler extends AbstractRequestHandler<PutAssetAdministrationShellByIdRequest, PutAssetAdministrationShellByIdResponse> {
 
-    public PutAssetAdministrationShellByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PutAssetAdministrationShellByIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PutAssetAdministrationShellByIdResponse process(PutAssetAdministrationShellByIdRequest request)
             throws ResourceNotFoundException, MessageBusException, ValidationException {
-        ModelValidator.validate(request.getAas(), coreConfig.getValidationOnUpdate());
-        persistence.getAssetAdministrationShell(request.getAas().getId(), QueryModifier.DEFAULT);
-        persistence.save(request.getAas());
-        messageBus.publish(ElementUpdateEventMessage.builder()
+        ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
+        context.getPersistence().getAssetAdministrationShell(request.getAas().getId(), QueryModifier.DEFAULT);
+        context.getPersistence().save(request.getAas());
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(request.getAas())
                 .value(request.getAas())
                 .build());

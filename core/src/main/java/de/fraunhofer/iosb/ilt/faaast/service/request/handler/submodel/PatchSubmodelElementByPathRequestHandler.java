@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelElementByPathResponse;
@@ -31,8 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -48,17 +45,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PatchSubmodelElementByPathRequest, PatchSubmodelElementByPathResponse> {
 
-    public PatchSubmodelElementByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PatchSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
-        Submodel current = persistence.getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
-        persistence.save(updated);
+        context.getPersistence().save(updated);
 
         // TODO how to do validation on JSON merge patch?
         // ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnUpdate());
@@ -67,11 +64,11 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
                 .idShortPath(request.getPath())
                 .build();
         //Check if submodelelement does exist
-        SubmodelElement oldSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = mergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
-        persistence.save(ReferenceHelper.getParent(reference), newSubmodelElement);
+        context.getPersistence().save(ReferenceHelper.getParent(reference), newSubmodelElement);
         if (Objects.isNull(oldSubmodelElement)) {
-            messageBus.publish(ElementCreateEventMessage.builder()
+            context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)
                     .value(newSubmodelElement)
                     .build());
@@ -81,15 +78,15 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
             ElementValue oldValue = ElementValueMapper.toValue(oldSubmodelElement);
             ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
             if (!Objects.equals(oldValue, newValue)) {
-                assetConnectionManager.setValue(reference, newValue);
-                messageBus.publish(ValueChangeEventMessage.builder()
+                context.getAssetConnectionManager().setValue(reference, newValue);
+                context.getMessageBus().publish(ValueChangeEventMessage.builder()
                         .element(reference)
                         .oldValue(oldValue)
                         .newValue(newValue)
                         .build());
             }
         }
-        messageBus.publish(ElementUpdateEventMessage.builder()
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(newSubmodelElement)
                 .build());

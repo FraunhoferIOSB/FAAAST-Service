@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
@@ -27,9 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -39,23 +36,21 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest}
- * in
- * the service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse}.
- * Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHandler<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
-    public GetAllSubmodelsBySemanticIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllSubmodelsBySemanticIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
-        List<Submodel> submodels = persistence.findSubmodels(
+        List<Submodel> submodels = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.builder()
                         .semanticId(request.getSemanticId())
                         .build(),
@@ -65,7 +60,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);
                 syncWithAsset(reference, submodel.getSubmodelElements());
-                messageBus.publish(ElementReadEventMessage.builder()
+                context.getMessageBus().publish(ElementReadEventMessage.builder()
                         .element(reference)
                         .value(submodel)
                         .build());

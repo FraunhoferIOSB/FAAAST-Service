@@ -24,7 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAl
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -32,12 +34,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.DeleteAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetLinksByIdRequest;
@@ -61,15 +66,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.DeleteSubmodelByIdRequest;
@@ -77,6 +88,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -85,9 +97,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import jakarta.json.Json;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -135,7 +149,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteAASXPackageByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testDeleteAASXPackageById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteAASXPackageByIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -148,7 +162,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteAllAssetLinksByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testDeleteAllAssetLinksById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteAllAssetLinksByIdRequest.builder()
                 .id(AAS.getId())
                 .build();
@@ -181,6 +195,21 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testDeleteFileByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Request expected = DeleteFileByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.DELETE)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
+                        + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -231,7 +260,20 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAASXByPackageIdRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testDeleteThumbnail() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = DeleteThumbnailRequest.builder()
+                .id(AAS.getId())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.DELETE)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAASXByPackageId() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -244,7 +286,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAASXPackageIdsRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetAllAASXPackageIds() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAASXPackageIdsRequest.builder()
                 .aasId(AAS.getId())
                 .build();
@@ -258,7 +300,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellIdsByAssetLinkRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testGetAllAssetAdministrationShellIdsByAssetLink() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
                 .assetIdentifierPairs(ASSET_IDENTIFIERS)
                 .build();
@@ -266,6 +308,19 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.GET)
                 .path("lookup/shells")
                 .query("assetIds=" + EncodingHelper.base64UrlEncode(serializer.write(ASSET_IDENTIFIERS)))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllAssetAdministrationShells() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = GetAllAssetAdministrationShellsRequest.builder()
+                .outputModifier(OutputModifier.DEFAULT)
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -308,20 +363,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsRequest() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAllAssetAdministrationShellsRequest.builder()
-                .outputModifier(OutputModifier.DEFAULT)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("shells")
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testGetAllAssetLinksByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetAllAssetLinksById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAssetLinksByIdRequest.builder()
                 .id(AAS.getId())
                 .build();
@@ -407,6 +449,19 @@ public class RequestMappingManagerTest {
 
 
     @Test
+    public void testGetAllSubmodelReferences() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = GetAllSubmodelReferencesRequest.builder()
+                .id(AAS.getId())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
     public void testGetAllSubmodels() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllSubmodelsRequest.builder()
                 .build();
@@ -477,7 +532,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAssetInformationRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetAssetInformation() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAssetInformationRequest.builder()
                 .id(AAS.getId())
                 .build();
@@ -497,6 +552,21 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetFileByPath() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = GetFileByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
+                        + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -523,6 +593,18 @@ public class RequestMappingManagerTest {
 
 
     @Test
+    public void testGetSelfDescription() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = GetSelfDescriptionRequest.builder()
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("description")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
     public void testGetSubmodel() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getId())
@@ -536,7 +618,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetSubmodelByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetSubmodelById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getId())
                 .build();
@@ -564,6 +646,28 @@ public class RequestMappingManagerTest {
                 .query("level=deep")
                 .build());
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetThumbnail() throws InvalidRequestException, MethodNotAllowedException {
+        Request expected = GetThumbnailRequest.builder()
+                .id(AAS.getId())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testInvalidSubURL() {
+        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/bogus")
+                .build()));
     }
 
 
@@ -652,13 +756,53 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testMappingGetAllSubmodelReferences() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAllSubmodelReferencesRequest.builder()
-                .id(AAS.getId())
+    public void testPatchSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Request expected = PatchSubmodelRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .changes(Json.createMergePatch(Json.createObjectBuilder()
+                        .add("category", "NewCategory")
+                        .build()))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
+                .method(HttpMethod.PATCH)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel")
+                .body("{\"category\": \"NewCategory\"}")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPatchSubmodelById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Request expected = PatchSubmodelByIdRequest.builder()
+                .id(SUBMODEL.getId())
+                .changes(Json.createMergePatch(Json.createObjectBuilder()
+                        .add("category", "NewCategory")
+                        .build()))
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PATCH)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()))
+                .body("{\"category\": \"NewCategory\"}")
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPatchSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Request expected = PatchSubmodelElementByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .changes(Json.createMergePatch(Json.createObjectBuilder()
+                        .add("category", "NewCategory")
+                        .build()))
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PATCH)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
+                        + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .body("{\"category\": \"NewCategory\"}")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -666,7 +810,7 @@ public class RequestMappingManagerTest {
 
     @Test
     @Ignore("AASX not implemented yet")
-    public void testPostAASXPackageRequest() throws IOException, InvalidRequestException, MethodNotAllowedException {
+    public void testPostAASXPackage() throws IOException, InvalidRequestException, MethodNotAllowedException {
         Assert.fail("not implemented (multipart HTTP message");
         Request expected = PostAASXPackageRequest.builder()
                 .aasId(AAS.getId())
@@ -687,7 +831,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostAllAssetLinksByIdRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testPostAllAssetLinksById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostAllAssetLinksByIdRequest.builder()
                 .id(AAS.getId())
                 .assetLinks(ASSET_IDENTIFIERS)
@@ -793,7 +937,7 @@ public class RequestMappingManagerTest {
 
     @Test
     @Ignore("AASX not implemented yet")
-    public void testPutAASXPackageByIdRequest() throws IOException, InvalidRequestException, MethodNotAllowedException {
+    public void testPutAASXPackageById() throws IOException, InvalidRequestException, MethodNotAllowedException {
         Assert.fail("not implemented (requires multipart HTTP)");
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
@@ -837,7 +981,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutAssetInformationRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testPutAssetInformation() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutAssetInformationRequest.builder()
                 .id(AAS.getId())
                 .assetInformation(AAS.getAssetInformation())
@@ -861,6 +1005,30 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.PUT)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
                 .body(serializer.write(CONCEPT_DESCRIPTION))
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPutFileByPath() throws InvalidRequestException, MethodNotAllowedException {
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        String contentType = "application/pdf";
+        Request expected = PutFileByPathRequest.builder()
+                .submodelId(SUBMODEL.getId())
+                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .content(FileContent.builder()
+                        .content(content)
+                        .contentType(contentType)
+                        .build())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PUT)
+                .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
+                        + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
+                .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
+                .body(new String(content))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -914,6 +1082,28 @@ public class RequestMappingManagerTest {
 
 
     @Test
+    public void testPutThumbnail() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        String contentType = "application/pdf";
+        Request expected = PutThumbnailRequest.builder()
+                .id(AAS.getId())
+                .content(FileContent.builder()
+                        .content(content)
+                        .contentType(contentType)
+                        .build())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PUT)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
+                .body(new String(content))
+                .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
     public void testSetSubmodelElementValueByPathContentNormal() throws Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getId())
@@ -960,15 +1150,6 @@ public class RequestMappingManagerTest {
         Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("foo")
-                .build()));
-    }
-
-
-    @Test
-    public void testInvalidSubURL() {
-        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/bogus")
                 .build()));
     }
 

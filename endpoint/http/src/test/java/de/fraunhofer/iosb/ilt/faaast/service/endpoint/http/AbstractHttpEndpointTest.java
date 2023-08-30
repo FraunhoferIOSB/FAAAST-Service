@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
@@ -94,12 +95,14 @@ public abstract class AbstractHttpEndpointTest {
     protected static HttpEndpoint endpoint;
     protected static Service service;
     protected static Persistence persistence;
+    protected static FileStorage fileStorage;
     protected static HttpJsonApiDeserializer deserializer;
     protected static Server server;
 
     @Before
     public void setUp() {
         Mockito.reset(persistence);
+        Mockito.reset(fileStorage);
         Mockito.reset(service);
     }
 

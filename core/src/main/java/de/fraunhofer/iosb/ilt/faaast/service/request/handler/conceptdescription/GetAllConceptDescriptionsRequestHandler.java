@@ -14,17 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -33,25 +30,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest}
- * in the
- * service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse}.
- * Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsRequestHandler extends AbstractRequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
-    public GetAllConceptDescriptionsRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllConceptDescriptionsRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request) throws MessageBusException {
-        List<ConceptDescription> conceptDescriptions = persistence.findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, request.getOutputModifier(), PagingInfo.ALL);
+        List<ConceptDescription> conceptDescriptions = context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, request.getOutputModifier(),
+                PagingInfo.ALL);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                    x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)
                             .value(x)
                             .build())));

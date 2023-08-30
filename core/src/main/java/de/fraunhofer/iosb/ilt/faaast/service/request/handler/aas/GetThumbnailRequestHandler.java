@@ -14,16 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
@@ -31,19 +33,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  */
 public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbnailRequest, GetThumbnailResponse> {
 
-    public GetThumbnailRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetThumbnailRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetThumbnailResponse process(GetThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
-        InMemoryFile result = null;
-        // get file from persistence
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        if (Objects.isNull(aas.getAssetInformation())
+                || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())
+                || StringHelper.isBlank(aas.getAssetInformation().getDefaultThumbnail().getPath())) {
+            throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
+        }
+        String path = aas.getAssetInformation().getDefaultThumbnail().getPath();
+        FileContent fileContent = context.getFileStorage().get(path);
         // maybe publish event on messageBus
-        //     messageBus.publish();
         return GetThumbnailResponse.builder()
-                .payload(result)
+                .payload(new InMemoryFile.Builder()
+                        .path(path)
+                        .contentType(fileContent.getContentType())
+                        .content(fileContent.getContent())
+                        .build())
                 .success()
                 .build();
     }

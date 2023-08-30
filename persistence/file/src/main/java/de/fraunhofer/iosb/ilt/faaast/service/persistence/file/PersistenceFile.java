@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -141,8 +141,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public SubmodelElement getSubmodelElement(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getSubmodelElement(path, modifier);
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getSubmodelElement(identifier, modifier);
     }
 
 
@@ -198,8 +198,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public void save(IdShortPath parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        persistence.save(parent, submodelElement);
+    public void save(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        persistence.save(identifier, submodelElement);
         saveEnvironment();
     }
 
@@ -233,8 +233,8 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public void deleteSubmodelElement(IdShortPath path) throws ResourceNotFoundException {
-        persistence.deleteSubmodelElement(path);
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
+        persistence.deleteSubmodelElement(identifier);
         saveEnvironment();
     }
 

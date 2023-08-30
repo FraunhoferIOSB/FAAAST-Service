@@ -14,38 +14,33 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest} in
- * the
- * service and to send the corresponding response
+ * the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse}.
- * Is responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler<PostConceptDescriptionRequest, PostConceptDescriptionResponse> {
 
-    public PostConceptDescriptionRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PostConceptDescriptionRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) throws Exception {
-        ModelValidator.validate(request.getConceptDescription(), coreConfig.getValidationOnCreate());
-        persistence.save(request.getConceptDescription());
-        messageBus.publish(ElementCreateEventMessage.builder()
+        ModelValidator.validate(request.getConceptDescription(), context.getCoreConfig().getValidationOnCreate());
+        context.getPersistence().save(request.getConceptDescription());
+        context.getMessageBus().publish(ElementCreateEventMessage.builder()
                 .element(request.getConceptDescription())
                 .value(request.getConceptDescription())
                 .build());

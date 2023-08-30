@@ -14,15 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -39,8 +35,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public abstract class AbstractSubmodelInterfaceRequestHandler<T extends AbstractSubmodelInterfaceRequest<U>, U extends Response> extends AbstractRequestHandler<T, U> {
 
-    protected AbstractSubmodelInterfaceRequestHandler(CoreConfig coreConfig, Persistence<?> persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    protected AbstractSubmodelInterfaceRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -63,7 +59,7 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
     protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
         if (request.getAasId() != null) {
             Reference submodelRef = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(
+            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(
                     request.getAasId(),
                     new OutputModifier.Builder()
                             .level(Level.CORE)

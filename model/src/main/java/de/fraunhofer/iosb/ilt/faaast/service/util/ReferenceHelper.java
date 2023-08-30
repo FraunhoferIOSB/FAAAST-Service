@@ -125,6 +125,57 @@ public class ReferenceHelper {
 
 
     /**
+     * Checks if a given key is compatible with given AAS class.
+     *
+     * @param key the key to check
+     * @param type the expected AAS type
+     * @return true if key is compatible with given type, otherwise false
+     */
+    public static boolean isKeyType(Key key, Class<?> type) {
+        if (Objects.isNull(key) || Objects.isNull(type)) {
+            return false;
+        }
+        return type.isAssignableFrom(AasUtils.keyTypeToClass(key.getType()));
+    }
+
+
+    /**
+     * Ensures that a given key is compatible to a given AAS class.
+     *
+     * @param key the key to check
+     * @param type the expected AAS type
+     * @throws IllegalArgumentException if key is not compatible with given type
+     */
+    public static void ensureKeyType(Key key, Class<?> type) {
+        Ensure.requireNonNull(key, "key must be non-null");
+        Class<?> keyClass = AasUtils.keyTypeToClass(key.getType());
+        Ensure.requireNonNull(keyClass, String.format("unsupported key type '%s'", key.getType()));
+        Ensure.require(
+                type.isAssignableFrom(keyClass),
+                String.format("key must be compatible to %s (found: %s)", type, keyClass));
+    }
+
+
+    /**
+     * Finds the first occuring key with given keyType and returns its value. If no key of given keyType is found null
+     * is return.
+     *
+     * @param reference the reference
+     * @param keyType the key type to find
+     * @return the value of the key with the given keyType or null if no key with given keyType is found
+     */
+    public static String findFirstKeyType(Reference reference, KeyTypes keyType) {
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(keyType, "keyType must be non-null");
+        return reference.getKeys().stream()
+                .filter(x -> Objects.equals(x.getType(), keyType))
+                .map(Key::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    /**
      * Gets the reference to the parent element of the element addressed by given reference.
      *
      * @param reference the reference to the element to find the parent for

@@ -24,6 +24,12 @@
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>
         </dependency>
+        <!-- TODO replace with API definition only, no implementation required here -->
+        <dependency>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>${jakarta.json-api.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -33,12 +39,6 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-shacl</artifactId>
             <version>${jena.version}</version>
-        </dependency>
-        <!-- TODO replace with API definition only, no implementation required here -->
-        <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-core</artifactId>
-            <version>${johnzon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>

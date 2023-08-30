@@ -14,16 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.List;
 import java.util.Objects;
@@ -35,17 +32,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 /**
  * Not supported yet! Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest}
- * in
- * the service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
  * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
-    public GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus,
-            AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -59,7 +54,11 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         List<SpecificAssetID> specificAssetIds = request.getAssetIdentifierPairs().stream()
                 .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());
-        List<String> result = persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL).stream()
+        List<String> result = context.getPersistence().findAssetAdministrationShells(
+                AssetAdministrationShellSearchCriteria.NONE,
+                QueryModifier.DEFAULT,
+                PagingInfo.ALL)
+                .stream()
                 .filter(aas -> {
                     boolean globalMatch = aas.getAssetInformation().getGlobalAssetID() != null
                             && globalAssetIds.contains(aas.getAssetInformation().getGlobalAssetID());

@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -38,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -67,6 +69,7 @@ public class Service implements ServiceContext {
     private List<Endpoint> endpoints;
     private MessageBus messageBus;
     private Persistence persistence;
+    private FileStorage fileStorage;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -74,6 +77,7 @@ public class Service implements ServiceContext {
      *
      * @param coreConfig core configuration
      * @param persistence persistence implementation
+     * @param fileStorage fileStorage implementation
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
@@ -86,6 +90,7 @@ public class Service implements ServiceContext {
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
+            FileStorage fileStorage,
             MessageBus messageBus,
             List<Endpoint> endpoints,
             List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
@@ -103,9 +108,9 @@ public class Service implements ServiceContext {
                 .core(coreConfig)
                 .build();
         this.persistence = persistence;
+        this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
-        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
     }
 
 
@@ -266,6 +271,11 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
+        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
+                this.config.getCore(),
+                this.persistence,
+                this.fileStorage,
+                this.messageBus,
+                this.assetConnectionManager));
     }
 }

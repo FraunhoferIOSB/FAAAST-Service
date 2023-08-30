@@ -30,7 +30,8 @@ public class GetSelfDescriptionRequest implements Request<GetSelfDescriptionResp
         if (this == o) {
             return true;
         }
-        return o == null || getClass() != o.getClass();
+        return Objects.nonNull(o) &&
+                Objects.equals(getClass(), o.getClass());
     }
 
 

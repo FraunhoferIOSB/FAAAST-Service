@@ -14,17 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -32,31 +30,33 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest} in
- * the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest} in the
+ * service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse}. Is
- * responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
-    public DeleteSubmodelElementByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public DeleteSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
-
+        SubmodelElementIdentifier.builder()
+                .submodelId(request.getSubmodelId())
+                .idShortPath(IdShortPath.parse(request.getPath()))
+                .build();
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
-        persistence.deleteSubmodelElement(IdShortPath.fromReference(reference));
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
+        context.getPersistence().deleteSubmodelElement(SubmodelElementIdentifier.fromReference(reference));
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        messageBus.publish(ElementDeleteEventMessage.builder()
+        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                 .element(reference)
                 .value(submodelElement)
                 .build());

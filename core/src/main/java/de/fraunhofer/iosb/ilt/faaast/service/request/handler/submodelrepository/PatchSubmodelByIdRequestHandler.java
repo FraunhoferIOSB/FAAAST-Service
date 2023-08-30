@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PatchSubmodelByIdResponse;
@@ -27,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -40,8 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<PatchSubmodelByIdRequest, PatchSubmodelByIdResponse> {
 
-    public PatchSubmodelByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PatchSubmodelByIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -50,13 +47,13 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
         // TODO how to do validation on JSON merge patch?
         // ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnUpdate());
-        Submodel current = persistence.getSubmodel(request.getId(), QueryModifier.DEFAULT);
+        Submodel current = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
         Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
-        persistence.save(updated);
+        context.getPersistence().save(updated);
         // TODO what to do with asset connection here?
         Reference reference = ReferenceBuilder.forSubmodel(updated);
         syncWithAsset(reference, updated.getSubmodelElements());
-        messageBus.publish(ElementUpdateEventMessage.builder()
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(updated)
                 .build());

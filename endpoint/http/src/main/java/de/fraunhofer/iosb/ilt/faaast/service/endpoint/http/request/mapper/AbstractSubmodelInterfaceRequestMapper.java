@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -55,11 +56,14 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
      * @param serviceContext the service context
      * @param method the HTTP method for this request
      * @param urlPattern the URL pattern, but only the part after ".../submodel/"
+     * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
+     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
      */
-    protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
-        super(serviceContext, method, ensureUrlPatternAllowsContentModifier(addSubmodelPath(urlPattern)));
+    protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern, Content... excludedContentModifiers) {
+        super(serviceContext, method, addSubmodelPath(urlPattern), excludedContentModifiers);
         this.contextualizedUrlPattern = ensureUrlPatternAllowsContentModifier(
-                RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern))));
+                RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern))),
+                excludedContentModifiers);
     }
 
 

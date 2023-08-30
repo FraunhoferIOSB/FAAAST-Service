@@ -74,7 +74,7 @@ public class JsonApiSerializer implements ApiSerializer {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }
         if (modifier.getContent() == Content.PATH) {
-            return pathSerializer.write(obj, modifier.getLevel());
+            return pathSerializer.write(null, obj, modifier.getLevel());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());

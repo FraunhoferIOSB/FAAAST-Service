@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -140,8 +141,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String submodelElementId = "ExampleEntity2";
         IdShortPath path = IdShortPath.builder()
-                .submodelId(submodelId)
-                .element(submodelElementId)
+                .idShort(submodelElementId)
                 .build();
         SubmodelElement expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
@@ -149,7 +149,12 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .getSubmodelElements().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementId))
                 .findFirst().get();
-        SubmodelElement actual = persistence.getSubmodelElement(path, QueryModifier.DEFAULT);
+        SubmodelElement actual = persistence.getSubmodelElement(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(path)
+                        .build(),
+                QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 
@@ -176,10 +181,14 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementId))
                 .findFirst().get();
         IdShortPath path = IdShortPath.builder()
-                .submodelId(submodelId)
-                .element(submodelElementId)
+                .idShort(submodelElementId)
                 .build();
-        SubmodelElement actual = persistence.getSubmodelElement(path, QueryModifier.DEFAULT);
+        SubmodelElement actual = persistence.getSubmodelElement(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(path)
+                        .build(),
+                QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 
@@ -200,11 +209,15 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementId))
                         .findFirst().get();
         IdShortPath path = IdShortPath.builder()
-                .submodelId(submodelId)
-                .element(submodelElementCollectionId)
-                .element(submodelElementId)
+                .idShort(submodelElementCollectionId)
+                .idShort(submodelElementId)
                 .build();
-        SubmodelElement actual = persistence.getSubmodelElement(path, queryModifier);
+        SubmodelElement actual = persistence.getSubmodelElement(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(path)
+                        .build(),
+                queryModifier);
         Assert.assertEquals(expected, actual);
     }
 
@@ -221,7 +234,12 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .build();
         Blob expected = DeepCopyHelper.deepCopy(EnvironmentHelper.resolve(reference, environment, Blob.class), Blob.class);
         expected.setValue(null);
-        SubmodelElement actual = persistence.getSubmodelElement(IdShortPath.fromReference(reference), QueryModifier.DEFAULT);
+        SubmodelElement actual = persistence.getSubmodelElement(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(IdShortPath.fromReference(reference))
+                        .build(),
+                QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 
@@ -369,13 +387,17 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public void getSubmodelElements() throws ResourceNotFoundException, ResourceNotAContainerElementException {
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
         IdShortPath path = IdShortPath.builder()
-                .submodelId(submodelId)
                 .build();
         List<SubmodelElement> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements();
-        List<SubmodelElement> actual = persistence.getSubmodelElements(path, QueryModifier.DEFAULT);
+        List<SubmodelElement> actual = persistence.getSubmodelElements(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(path)
+                        .build(),
+                QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 
@@ -392,7 +414,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .collect(Collectors.toList());
         List<SubmodelElement> actual = persistence.findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
-                        .parent(IdShortPath.builder()
+                        .parent(SubmodelElementIdentifier.builder()
                                 .submodelId(submodelId)
                                 .build())
                         .semanticId(semanticId)
@@ -527,10 +549,13 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         String idShort = "NewIdShort";
         expected.setIdShort(idShort);
         persistence.save(ReferenceBuilder.forSubmodel(submodelId), expected);
-        SubmodelElement actual = persistence.getSubmodelElement(IdShortPath.builder()
-                .submodelId(submodelId)
-                .element(idShort)
-                .build(),
+        SubmodelElement actual = persistence.getSubmodelElement(
+                SubmodelElementIdentifier.builder()
+                        .submodelId(submodelId)
+                        .idShortPath(IdShortPath.builder()
+                                .idShort(idShort)
+                                .build())
+                        .build(),
                 QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }

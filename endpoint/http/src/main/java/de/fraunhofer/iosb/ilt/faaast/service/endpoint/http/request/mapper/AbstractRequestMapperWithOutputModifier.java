@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
@@ -46,10 +48,11 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
 public abstract class AbstractRequestMapperWithOutputModifier<T extends AbstractRequestWithModifier<R>, R extends Response> extends AbstractRequestMapper {
 
     private static final String CONTENT_MODIFIER_REGEX = "\\$(\\w*)";
+    private static final String CONTENT_MODIFIER_EXCLUDE_REGEX_TEMPLATE = "\\$((?!%s)\\w*)";
     private static final Pattern HAS_CONTENT_MODIFIER_PATTERN = Pattern.compile(String.format("^%s|.+/%s$", CONTENT_MODIFIER_REGEX, CONTENT_MODIFIER_REGEX));
 
-    protected AbstractRequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
-        super(serviceContext, method, ensureUrlPatternAllowsContentModifier(urlPattern));
+    protected AbstractRequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern, Content... excludedContentModifiers) {
+        super(serviceContext, method, ensureUrlPatternAllowsContentModifier(urlPattern, excludedContentModifiers));
     }
 
 
@@ -57,9 +60,11 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
      * Ensures that the provided url pattern accepts content modifier.
      *
      * @param urlPattern the url pattern
+     * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
+     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
      * @return the potentially modified url pattern accepting content modifier
      */
-    protected static String ensureUrlPatternAllowsContentModifier(String urlPattern) {
+    protected static String ensureUrlPatternAllowsContentModifier(String urlPattern, Content... excludedContentModifiers) {
         String exampleUrl = new RgxGen(RegExHelper.removeGroupNames(urlPattern)).generate();
         if (HAS_CONTENT_MODIFIER_PATTERN.matcher(exampleUrl).matches()) {
             return urlPattern;
@@ -74,10 +79,18 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
             updatedUrlPattern = updatedUrlPattern.substring(0, updatedUrlPattern.length() - 1);
             regexContainsEndline = true;
         }
+        String contentModifierRegex = Objects.isNull(excludedContentModifiers) || excludedContentModifiers.length == 0
+                ? CONTENT_MODIFIER_REGEX
+                : String.format(
+                        CONTENT_MODIFIER_EXCLUDE_REGEX_TEMPLATE,
+                        Stream.of(excludedContentModifiers)
+                                .map(Enum::name)
+                                .map(String::toLowerCase)
+                                .collect(Collectors.joining("|")));
         updatedUrlPattern = String.format("%s(%s%s)?%s",
                 updatedUrlPattern,
                 StringHelper.isBlank(urlPattern) ? "" : "/",
-                CONTENT_MODIFIER_REGEX,
+                contentModifierRegex,
                 regexContainsEndline ? "$" : "");
         return updatedUrlPattern;
     }

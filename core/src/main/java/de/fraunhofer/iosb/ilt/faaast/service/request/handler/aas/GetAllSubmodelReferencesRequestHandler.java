@@ -14,16 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -31,24 +28,22 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest}
- * in the
- * service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse}. Is responsible
- * for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
-    public GetAllSubmodelReferencesRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllSubmodelReferencesRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = persistence.getAssetAdministrationShell(request.getId(), request.getOutputModifier());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         List<Reference> submodelReferences = shell.getSubmodels();
-        messageBus.publish(ElementReadEventMessage.builder()
+        context.getMessageBus().publish(ElementReadEventMessage.builder()
                 .element(shell)
                 .value(shell)
                 .build());

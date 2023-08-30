@@ -15,18 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
@@ -37,16 +34,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest} in the
- * service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest} in the service
+ * and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse}. Is
- * responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
-    public GetAllSubmodelElementsRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllSubmodelElementsRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -54,11 +50,11 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
     public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, request.getOutputModifier());
+        List<SubmodelElement> submodelElements = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier());
         syncWithAsset(reference, submodelElements);
         if (submodelElements != null) {
             submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                    x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(AasUtils.toReference(reference, x))
                             .value(x)
                             .build())));

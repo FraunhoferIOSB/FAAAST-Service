@@ -14,17 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -35,22 +32,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsRequestHandler extends AbstractRequestHandler<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
-    public GetAllAssetAdministrationShellsRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllAssetAdministrationShellsRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) throws MessageBusException {
-        List<AssetAdministrationShell> shells = persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, request.getOutputModifier(), PagingInfo.ALL);
+        List<AssetAdministrationShell> shells = context.getPersistence().findAssetAdministrationShells(
+                AssetAdministrationShellSearchCriteria.NONE,
+                request.getOutputModifier(),
+                PagingInfo.ALL);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                    x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)
                             .value(x)
                             .build())));

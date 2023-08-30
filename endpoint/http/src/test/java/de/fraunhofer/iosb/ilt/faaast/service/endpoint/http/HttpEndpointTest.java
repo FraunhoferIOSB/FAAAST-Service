@@ -20,6 +20,7 @@ import static org.mockito.Mockito.spy;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -28,7 +29,6 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.server.Server;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 
 public class HttpEndpointTest extends AbstractHttpEndpointTest {
@@ -38,6 +38,7 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
         port = PortHelper.findFreePort();
         deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
+        fileStorage = mock(FileStorage.class);
         startServer();
         startClient();
     }
@@ -48,7 +49,7 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
 
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
@@ -64,11 +65,5 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
     private static void startClient() throws Exception {
         client = new HttpClient();
         client.start();
-    }
-
-
-    @Test
-    public void testGetAllSubmodelElementsValueOnly() throws Exception {
-        super.testGetAllSubmodelElementsValueOnly();
     }
 }

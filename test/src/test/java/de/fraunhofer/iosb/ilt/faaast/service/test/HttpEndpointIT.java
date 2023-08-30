@@ -107,7 +107,6 @@ public class HttpEndpointIT {
     private static Service service;
     private final ObjectMapper mapper;
     private static final Path pathForTestSubmodel3 = Path.builder()
-            .id("TestSubmodel3")
             .child("ExampleRelationshipElement")
             .child("ExampleAnnotatedRelationshipElement")
             .child("ExampleOperation")

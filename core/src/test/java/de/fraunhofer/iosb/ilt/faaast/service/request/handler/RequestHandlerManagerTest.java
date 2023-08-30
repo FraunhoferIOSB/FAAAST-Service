@@ -32,9 +32,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -48,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmode
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetInformationRequest;
@@ -88,6 +92,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteSubmod
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetInformationResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PostSubmodelReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetInformationResponse;
@@ -161,12 +166,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
@@ -192,9 +199,11 @@ public class RequestHandlerManagerTest {
     private static MessageBus messageBus;
     private static Persistence persistence;
     private static AssetConnectionManager assetConnectionManager;
+    private static FileStorage fileStorage;
     private static RequestHandlerManager manager;
     private static AssetValueProvider assetValueProvider;
     private static ServiceContext serviceContext;
+    private static RequestExecutionContext context;
 
     @Before
     public void createRequestHandlerManager() throws ConfigurationException, AssetConnectionException {
@@ -204,7 +213,14 @@ public class RequestHandlerManagerTest {
         persistence = mock(Persistence.class);
         serviceContext = mock(ServiceContext.class);
         assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), serviceContext));
-        manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
+        fileStorage = mock(FileStorage.class);
+        context = new RequestExecutionContext(
+                coreConfig,
+                persistence,
+                fileStorage,
+                messageBus,
+                assetConnectionManager);
+        manager = new RequestHandlerManager(context);
         assetValueProvider = mock(AssetValueProvider.class);
         when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
     }
@@ -306,11 +322,12 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
-        PostAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
-                .execute(new PostAssetAdministrationShellRequest.Builder()
-                        .aas(new DefaultAssetAdministrationShell.Builder()
-                                .build())
-                        .build());
+        PostAssetAdministrationShellResponse actual = new RequestHandlerManager(
+                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
+                        .execute(new PostAssetAdministrationShellRequest.Builder()
+                                .aas(new DefaultAssetAdministrationShell.Builder()
+                                        .build())
+                                .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -400,10 +417,11 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
-        PutAssetAdministrationShellResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
-                .execute(new PutAssetAdministrationShellRequest.Builder()
-                        .aas(new DefaultAssetAdministrationShell.Builder().build())
-                        .build());
+        PutAssetAdministrationShellResponse actual = new RequestHandlerManager(
+                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
+                        .execute(new PutAssetAdministrationShellRequest.Builder()
+                                .aas(new DefaultAssetAdministrationShell.Builder().build())
+                                .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -418,6 +436,40 @@ public class RequestHandlerManagerTest {
         GetAssetInformationResponse actual = manager.execute(request);
         GetAssetInformationResponse expected = new GetAssetInformationResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0).getAssetInformation())
+                .statusCode(StatusCode.SUCCESS)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
+        InMemoryFile file = new InMemoryFile.Builder()
+                .contentType("foo/bar")
+                .path("my/path")
+                .content("foo".getBytes())
+                .build();
+        String aasId = "aasid";
+        when(persistence.getAssetAdministrationShell(eq(aasId), any()))
+                .thenReturn(new DefaultAssetAdministrationShell.Builder()
+                        .id(aasId)
+                        .assetInformation(new DefaultAssetInformation.Builder()
+                                .defaultThumbnail(new DefaultResource.Builder()
+                                        .path(file.getPath())
+                                        .build())
+                                .build())
+                        .build());
+        when(fileStorage.get(file.getPath())).thenReturn(
+                FileContent.builder()
+                        .content(file.getContent())
+                        .contentType(file.getContentType())
+                        .build());
+        GetThumbnailRequest request = new GetThumbnailRequest.Builder()
+                .id(aasId)
+                .build();
+        GetThumbnailResponse actual = manager.execute(request);
+        GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
+                .payload(file)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -836,7 +888,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).deleteSubmodelElement(IdShortPath.fromReference(reference));
+        verify(persistence).deleteSubmodelElement(SubmodelElementIdentifier.fromReference(reference));
     }
 
 
@@ -873,7 +925,9 @@ public class RequestHandlerManagerTest {
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         AssetOperationProvider assetOperationProvider = mock(AssetOperationProvider.class);
-        RequestHandlerManager manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
+        FileStorage fileStorage = mock(FileStorage.class);
+        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
+        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
 
         Operation operation = getTestOperation();
 
@@ -901,10 +955,12 @@ public class RequestHandlerManagerTest {
         Persistence persistence = mock(Persistence.class);
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
+        FileStorage fileStorage = mock(FileStorage.class);
+        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenReturn(new CustomAssetOperationProvider());
 
-        RequestHandlerManager manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
+        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
         Operation operation = getTestOperation();
 
         InvokeOperationSyncRequest invokeOperationSyncRequest = new InvokeOperationSyncRequest.Builder()
@@ -1052,10 +1108,11 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
-        PostConceptDescriptionResponse actual = new RequestHandlerManager(coreConfigWithConstraintValidation, persistence, messageBus, assetConnectionManager)
-                .execute(new PostConceptDescriptionRequest.Builder()
-                        .conceptDescription(new DefaultConceptDescription.Builder().build())
-                        .build());
+        PostConceptDescriptionResponse actual = new RequestHandlerManager(
+                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
+                        .execute(new PostConceptDescriptionRequest.Builder()
+                                .conceptDescription(new DefaultConceptDescription.Builder().build())
+                                .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -1138,7 +1195,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetReferableWithMessageBusExceptionRequest() throws ResourceNotFoundException, MessageBusException, Exception {
-        when(persistence.getSubmodelElement((IdShortPath) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(new DefaultProperty());
         doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
@@ -1149,7 +1206,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetValueWithInvalidAssetConnectionRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
-        when(persistence.getSubmodelElement((IdShortPath) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(new DefaultProperty());
         AssetValueProvider assetValueProvider = mock(AssetValueProvider.class);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
@@ -1185,7 +1242,8 @@ public class RequestHandlerManagerTest {
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence()
             throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
-        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(coreConfig, persistence, messageBus, assetConnectionManager);
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(
+                new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager));
         Reference parentRef = ReferenceBuilder.forSubmodel("sub");
         SubmodelElement propertyUpdated = new DefaultProperty.Builder()
                 .idShort("propertyUpdated")

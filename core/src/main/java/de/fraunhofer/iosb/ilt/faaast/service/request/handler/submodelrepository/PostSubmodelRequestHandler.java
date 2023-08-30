@@ -15,17 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -33,26 +30,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest} in the service
- * and
- * to send the corresponding response
+ * and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse}. Is
- * responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmodelRequest, PostSubmodelResponse> {
 
-    public PostSubmodelRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PostSubmodelRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
-        ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnCreate());
-        persistence.save(request.getSubmodel());
+        ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
+        context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
         syncWithAsset(reference, request.getSubmodel().getSubmodelElements());
-        messageBus.publish(ElementCreateEventMessage.builder()
+        context.getMessageBus().publish(ElementCreateEventMessage.builder()
                 .element(reference)
                 .value(request.getSubmodel())
                 .build());

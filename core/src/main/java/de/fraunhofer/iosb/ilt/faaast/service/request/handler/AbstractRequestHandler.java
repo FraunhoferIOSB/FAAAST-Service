@@ -17,10 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -30,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import jakarta.json.JsonMergePatch;
 import jakarta.json.JsonValue;
@@ -55,16 +51,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
  */
 public abstract class AbstractRequestHandler<I extends Request<O>, O extends Response> {
 
-    protected final CoreConfig coreConfig;
-    protected final Persistence<?> persistence;
-    protected final MessageBus messageBus;
-    protected final AssetConnectionManager assetConnectionManager;
+    protected final RequestExecutionContext context;
 
-    protected AbstractRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        this.coreConfig = coreConfig;
-        this.persistence = persistence;
-        this.messageBus = messageBus;
-        this.assetConnectionManager = assetConnectionManager;
+    protected AbstractRequestHandler(RequestExecutionContext context) {
+        this.context = context;
     }
 
 
@@ -117,7 +107,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         Map<SubmodelElement, ElementValue> updatedSubmodelElements = new HashMap<>();
         for (SubmodelElement submodelElement: submodelElements) {
             Reference reference = AasUtils.toReference(parent, submodelElement);
-            Optional<DataElementValue> newValue = assetConnectionManager.readValue(reference);
+            Optional<DataElementValue> newValue = context.getAssetConnectionManager().readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
                 if (!Objects.equals(oldValue, newValue.get())) {
@@ -134,10 +124,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             SubmodelElement oldElement = update.getKey();
             SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
             ElementValueMapper.setValue(newElement, update.getValue());
-            persistence.save(parent, newElement);
+            context.getPersistence().save(parent, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
-            messageBus.publish(ValueChangeEventMessage.builder()
+            context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)
                     .oldValue(ElementValueMapper.toValue(oldElement))
                     .newValue(ElementValueMapper.toValue(newElement))

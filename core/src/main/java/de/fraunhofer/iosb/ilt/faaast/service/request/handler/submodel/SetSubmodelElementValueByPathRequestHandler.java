@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
@@ -25,8 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelEleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -35,16 +32,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest} in
- * the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest} in the service
+ * and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aaaaatemp.SetSubmodelElementValueByPathResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class SetSubmodelElementValueByPathRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
-    public SetSubmodelElementValueByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public SetSubmodelElementValueByPathRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -58,7 +55,7 @@ public class SetSubmodelElementValueByPathRequestHandler
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.getSubmodelElement(
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(
                 reference,
                 new OutputModifier.Builder()
                         .extend(Extent.WITH_BLOB_VALUE)
@@ -67,16 +64,16 @@ public class SetSubmodelElementValueByPathRequestHandler
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
         if (!request.isInternal()) {
-            assetConnectionManager.setValue(reference, newValue);
+            context.getAssetConnectionManager().setValue(reference, newValue);
         }
         try {
-            persistence.save(ReferenceHelper.getParent(reference), submodelElement);
+            context.getPersistence().save(ReferenceHelper.getParent(reference), submodelElement);
         }
         catch (IllegalArgumentException e) {
             // empty on purpose
         }
         response.setStatusCode(StatusCode.SUCCESS);
-        messageBus.publish(ValueChangeEventMessage.builder()
+        context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
                 .oldValue(oldValue)
                 .newValue(newValue)

@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
@@ -27,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Arrays;
@@ -46,16 +43,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest}
- * in the
- * service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse}. Is responsible
- * for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
-    public InvokeOperationSyncRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public InvokeOperationSyncRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -65,13 +60,13 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        messageBus.publish(OperationInvokeEventMessage.builder()
+        context.getMessageBus().publish(OperationInvokeEventMessage.builder()
                 .element(reference)
                 .input(ElementValueHelper.toValues(request.getInputArguments()))
                 .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
                 .build());
         OperationResult operationResult = executeOperationSync(reference, request);
-        messageBus.publish(OperationFinishEventMessage.builder()
+        context.getMessageBus().publish(OperationFinishEventMessage.builder()
                 .element(reference)
                 .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
                 .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
@@ -91,12 +86,12 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
      * @return the operation result
      */
     public OperationResult executeOperationSync(Reference reference, InvokeOperationSyncRequest request) {
-        if (!assetConnectionManager.hasOperationProvider(reference)) {
+        if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "error executing operation - no operation provider defined for reference '%s'",
                     AasUtils.asString(reference)));
         }
-        AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
+        AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<OperationVariable[]> future = executor.submit(new Callable<OperationVariable[]>() {
             @Override

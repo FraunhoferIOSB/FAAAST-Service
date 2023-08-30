@@ -15,9 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request;
 
 import com.google.common.reflect.TypeToken;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -26,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
@@ -53,16 +50,10 @@ public class RequestHandlerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerManager.class);
     private Map<Class<? extends Request>, ? extends AbstractRequestHandler> handlers;
     private ExecutorService requestHandlerExecutorService;
-    private final CoreConfig coreConfig;
-    private final Persistence persistence;
-    private final MessageBus messageBus;
-    private final AssetConnectionManager assetConnectionManager;
+    private final RequestExecutionContext context;
 
-    public RequestHandlerManager(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        this.coreConfig = coreConfig;
-        this.persistence = persistence;
-        this.messageBus = messageBus;
-        this.assetConnectionManager = assetConnectionManager;
+    public RequestHandlerManager(RequestExecutionContext context) {
+        this.context = context;
         init();
     }
 
@@ -70,10 +61,7 @@ public class RequestHandlerManager {
     private void init() {
         // TODO implement build-time scan to improve performance (see https://github.com/classgraph/classgraph/wiki/Build-Time-Scanning)
         final Object[] constructorArgs = new Object[] {
-                coreConfig,
-                persistence,
-                messageBus,
-                assetConnectionManager
+                context
         };
         final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getDeclaredConstructors()[0].getParameterTypes();
         try (ScanResult scanResult = new ClassGraph()
@@ -107,7 +95,7 @@ public class RequestHandlerManager {
                             }));
         }
         requestHandlerExecutorService = Executors.newFixedThreadPool(
-                coreConfig.getRequestHandlerThreadPoolSize(),
+                context.getCoreConfig().getRequestHandlerThreadPoolSize(),
                 new BasicThreadFactory.Builder()
                         .namingPattern("RequestHandler" + "-%d")
                         .build());

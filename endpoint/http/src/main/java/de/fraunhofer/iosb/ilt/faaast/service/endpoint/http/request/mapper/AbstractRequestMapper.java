@@ -23,6 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import jakarta.json.Json;
+import jakarta.json.JsonMergePatch;
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,6 +174,20 @@ public abstract class AbstractRequestMapper {
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);
         }
+    }
+
+
+    /**
+     * Parses a string to a JSON merge patch.
+     *
+     * @param json the JSON to parse
+     * @return the parsed merge patch
+     */
+    protected JsonMergePatch parseMergePatch(String json) {
+        return Json.createMergePatch(
+                Json.createReader(
+                        new ByteArrayInputStream(json.getBytes()))
+                        .readValue());
     }
 
 

@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -24,8 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
@@ -34,29 +31,27 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 /**
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest}
- * in the
- * service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse}. Is responsible
- * for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 
-    public PostSubmodelElementRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PostSubmodelElementRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PostSubmodelElementResponse doProcess(PostSubmodelElementRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
-        ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnCreate());
+        ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());
         Reference parentReference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
-        persistence.save(parentReference, request.getSubmodelElement());
+        context.getPersistence().save(parentReference, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
-            assetConnectionManager.setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
+            context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
         }
-        messageBus.publish(ElementCreateEventMessage.builder()
+        context.getMessageBus().publish(ElementCreateEventMessage.builder()
                 .element(parentReference)
                 .value(request.getSubmodelElement())
                 .build());

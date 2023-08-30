@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -26,10 +26,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class SubmodelElementSearchCriteria {
 
     public static final SubmodelElementSearchCriteria NONE = new SubmodelElementSearchCriteria();
-    private static final IdShortPath DEFAULT_PARENT = null;
+    private static final SubmodelElementIdentifier DEFAULT_PARENT = null;
     private static final Reference DEFAULT_SEMANTIC_ID = null;
 
-    private IdShortPath parent;
+    private SubmodelElementIdentifier parent;
     private Reference semanticId;
 
     public SubmodelElementSearchCriteria() {
@@ -38,12 +38,12 @@ public class SubmodelElementSearchCriteria {
     }
 
 
-    public IdShortPath getParent() {
+    public SubmodelElementIdentifier getParent() {
         return parent;
     }
 
 
-    public void setParent(IdShortPath parent) {
+    public void setParent(SubmodelElementIdentifier parent) {
         this.parent = parent;
     }
 
@@ -94,7 +94,7 @@ public class SubmodelElementSearchCriteria {
 
     public abstract static class AbstractBuilder<T extends SubmodelElementSearchCriteria, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B parent(IdShortPath value) {
+        public B parent(SubmodelElementIdentifier value) {
             getBuildingInstance().setParent(value);
             return getSelf();
         }

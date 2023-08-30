@@ -15,17 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -36,8 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PutFileByPathRequest, PutFileByPathResponse> {
 
-    public PutFileByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PutFileByPathRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -48,10 +45,10 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        File file = persistence.getSubmodelElement(reference, request.getOutputModifier(), File.class);
+        File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
         // save request.getContent() to persistence with key file.getValue()
         // maybe publish on MessageBus
-        //    messageBus.publish(...);
+        //    context.getMessageBus()publish(...);
         return PutFileByPathResponse.builder()
                 .success()
                 .build();

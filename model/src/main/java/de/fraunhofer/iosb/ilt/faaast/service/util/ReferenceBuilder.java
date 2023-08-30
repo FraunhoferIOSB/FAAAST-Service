@@ -14,8 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper.newKey;
-
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -362,7 +361,7 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
             if (!isIdentifiable(currentType)) {
                 return this;
             }
-            getBuildingInstance().getKeys().add(newKey(currentType, reference.getKeys().get(i).getValue()));
+            getBuildingInstance().getKeys().add(ReferenceHelper.newKey(currentType, reference.getKeys().get(i).getValue()));
         }
         return this;
     }
@@ -457,7 +456,8 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
         if (Objects.isNull(path)) {
             return this;
         }
-        return elements(path.split("\\."));
+        getBuildingInstance().getKeys().addAll(IdShortPath.parse(path).toReference().getKeys());
+        return this;
     }
 
 

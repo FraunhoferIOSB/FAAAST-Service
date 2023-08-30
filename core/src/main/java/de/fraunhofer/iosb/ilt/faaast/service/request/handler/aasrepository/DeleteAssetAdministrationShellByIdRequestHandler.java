@@ -14,45 +14,40 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.DeleteAssetAdministrationShellByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest}
- * in the service
- * and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.DeleteAssetAdministrationShellByIdResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class DeleteAssetAdministrationShellByIdRequestHandler
         extends AbstractRequestHandler<DeleteAssetAdministrationShellByIdRequest, DeleteAssetAdministrationShellByIdResponse> {
 
-    public DeleteAssetAdministrationShellByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public DeleteAssetAdministrationShellByIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
-        AssetAdministrationShell shell = persistence.getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-        persistence.deleteAssetAdministrationShell(request.getId());
+        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        context.getPersistence().deleteAssetAdministrationShell(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        messageBus.publish(ElementDeleteEventMessage.builder()
+        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                 .element(shell)
                 .value(shell)
                 .build());

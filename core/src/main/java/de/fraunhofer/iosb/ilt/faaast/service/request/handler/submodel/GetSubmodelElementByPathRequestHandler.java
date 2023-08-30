@@ -15,10 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -29,8 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,13 +40,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest} in the
  * service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse}. Is
- * responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
 
-    public GetSubmodelElementByPathRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -60,21 +56,21 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        SubmodelElement submodelElement = persistence.getSubmodelElement(reference, request.getOutputModifier());
-        Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
+        SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
+        Optional<DataElementValue> valueFromAssetConnection = context.getAssetConnectionManager().readValue(reference);
         if (valueFromAssetConnection.isPresent()) {
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
             if (!Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
-                persistence.save(reference, submodelElement);
-                messageBus.publish(ValueChangeEventMessage.builder()
+                context.getPersistence().save(reference, submodelElement);
+                context.getMessageBus().publish(ValueChangeEventMessage.builder()
                         .element(reference)
                         .oldValue(oldValue)
                         .newValue(valueFromAssetConnection.get())
                         .build());
             }
         }
-        messageBus.publish(ElementReadEventMessage.builder()
+        context.getMessageBus().publish(ElementReadEventMessage.builder()
                 .element(reference)
                 .value(submodelElement)
                 .build());

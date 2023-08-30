@@ -16,67 +16,35 @@ package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Reprensts an idShort path addressing a SubmodelElement.
+ * Reprensts an idShort path addressing a SubmodelElement within a submodel.
  */
 public class IdShortPath {
 
-    private String submodelId;
-    private List<String> elements;
+    public static final IdShortPath EMPTY = IdShortPath.builder().build();
+
+    private static final String ARRAY_INDEX_REGEX = "\\[\\d+\\]";
+    private static final String SEPARATOR = ".";
+    List<String> elements;
 
     public IdShortPath() {
         this.elements = new ArrayList<>();
-    }
-
-
-    public String getSubmodelId() {
-        return submodelId;
-    }
-
-
-    public void setSubmodelId(String submodelId) {
-        this.submodelId = submodelId;
-    }
-
-
-    public List<String> getElements() {
-        return elements;
-    }
-
-
-    public void setElements(List<String> elements) {
-        this.elements = elements;
-    }
-
-
-    /**
-     * Creates a {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} equivalent to the idShort path.
-     *
-     * @return the reference
-     * @throws IllegalArgumentException if submodelId is null
-     * @throws IllegalArgumentException if elements is null
-     */
-    public Reference toReference() {
-        Ensure.requireNonNull(submodelId, "submodelId must be non-null");
-        Ensure.requireNonNull(elements, "elements must be non-null");
-        return new ReferenceBuilder()
-                .submodel(submodelId)
-                .elements(elements.toArray(new String[0]))
-                .build();
     }
 
 
@@ -99,35 +67,42 @@ public class IdShortPath {
         Ensure.require(Objects.nonNull(reference.getKeys()) && reference.getKeys().size() >= 1, "reference must contain at least one keys");
         Ensure.require(Objects.equals(reference.getType(), ReferenceTypes.MODEL_REFERENCE), "reference must be a model reference");
         int startIndex = 0;
-        if (isKeyType(reference.getKeys().get(0), AssetAdministrationShell.class)) {
+        if (ReferenceHelper.isKeyType(reference.getKeys().get(0), AssetAdministrationShell.class)) {
             startIndex = 1;
         }
-        ensureKeyType(reference.getKeys().get(startIndex), Submodel.class);
+        ReferenceHelper.ensureKeyType(reference.getKeys().get(startIndex), Submodel.class);
         IdShortPath.Builder builder = IdShortPath.builder();
-        builder.submodelId(reference.getKeys().get(startIndex).getValue());
+        boolean inList = false;
         for (int i = startIndex + 1; i < reference.getKeys().size(); i++) {
-            ensureKeyType(reference.getKeys().get(i), SubmodelElement.class);
-            builder.element(reference.getKeys().get(i).getValue());
+            ReferenceHelper.ensureKeyType(reference.getKeys().get(i), SubmodelElement.class);
+            if (inList) {
+                builder.index(Long.parseUnsignedLong(reference.getKeys().get(i).getValue()));
+            }
+            else {
+                builder.idShort(reference.getKeys().get(i).getValue());
+            }
+            inList = ReferenceHelper.isKeyType(reference.getKeys().get(i), SubmodelElementList.class);
         }
         return builder.build();
     }
 
 
-    private static boolean isKeyType(Key key, Class<?> type) {
-        if (Objects.isNull(key) || Objects.isNull(type)) {
-            return false;
+    /**
+     * Combines two idShort paths.
+     *
+     * @param parent the parent path
+     * @param child the child path
+     * @return the combined path or empty path if parent and child are null
+     */
+    public static IdShortPath combine(IdShortPath parent, IdShortPath child) {
+        IdShortPath result = new IdShortPath();
+        if (Objects.nonNull(parent)) {
+            result.elements.addAll(parent.elements);
         }
-        return type.isAssignableFrom(AasUtils.keyTypeToClass(key.getType()));
-    }
-
-
-    private static void ensureKeyType(Key key, Class<?> type) {
-        Ensure.requireNonNull(key, "key must be non-null");
-        Class<?> keyClass = AasUtils.keyTypeToClass(key.getType());
-        Ensure.requireNonNull(keyClass, String.format("unsupported key type '%s'", key.getType()));
-        Ensure.require(
-                type.isAssignableFrom(keyClass),
-                String.format("key must be compatible to %s (found: %s)", type, keyClass));
+        if (Objects.nonNull(child)) {
+            result.elements.addAll(child.elements);
+        }
+        return result;
     }
 
 
@@ -140,14 +115,81 @@ public class IdShortPath {
             return false;
         }
         IdShortPath other = (IdShortPath) o;
-        return Objects.equals(submodelId, other.submodelId)
-                && Objects.equals(elements, other.elements);
+        return Objects.equals(elements, other.elements);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(submodelId, elements);
+        return Objects.hash(elements);
+    }
+
+
+    @Override
+    public String toString() {
+        if (Objects.isNull(elements)) {
+            return "";
+        }
+        String result = "";
+        for (var element: elements) {
+            if (!element.matches(ARRAY_INDEX_REGEX) && !StringHelper.isBlank(result)) {
+                result += SEPARATOR;
+            }
+            result += element;
+        }
+        return result;
+    }
+
+
+    /**
+     * Creates a reference representing this idShortParh. The key types will be set to
+     * {@link KeyTypes#SUBMODEL_ELEMENT}.
+     *
+     * @return a reference representing this idShortPath
+     */
+    public Reference toReference() {
+        return new ReferenceBuilder()
+                .elements(elements.stream()
+                        .map(x -> (x.matches(ARRAY_INDEX_REGEX) ? x.substring(1, x.length() - 1) : x))
+                        .toArray(String[]::new))
+                .build();
+    }
+
+
+    /**
+     * Creates a new idShortPath pointing to the parent element by removing the last element in the path.
+     *
+     * @return idShortPath pointing to the parent element
+     */
+    public IdShortPath getParent() {
+        IdShortPath result = new IdShortPath();
+        result.elements = Objects.isNull(elements) || elements.size() <= 1
+                ? List.of()
+                : elements.subList(0, elements.size() - 1);
+        return result;
+    }
+
+
+    /**
+     * Checks if this idShortPath is empty, i.e. does not contain any elements.
+     *
+     * @return true if empty, otherwise false
+     */
+    public boolean isEmpty() {
+        return Objects.isNull(elements) || elements.isEmpty();
+    }
+
+
+    /**
+     * Parses an idShort from string.
+     *
+     * @param idShortPath the string representation of the idShortPath
+     * @return the parsed idShortPath
+     */
+    public static IdShortPath parse(String idShortPath) {
+        return IdShortPath.builder()
+                .path(idShortPath)
+                .build();
     }
 
 
@@ -157,27 +199,33 @@ public class IdShortPath {
 
     public abstract static class AbstractBuilder<T extends IdShortPath, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B submodelId(String value) {
-            getBuildingInstance().setSubmodelId(value);
+        public B from(IdShortPath value) {
+            getBuildingInstance().elements = new ArrayList<>(value.elements);
             return getSelf();
         }
 
 
-        public B elements(List<String> value) {
-            getBuildingInstance().setElements(value);
+        public B idShort(String value) {
+            getBuildingInstance().elements.add(value);
             return getSelf();
         }
 
 
-        public B element(String value) {
-            getBuildingInstance().getElements().add(value);
+        public B index(long value) {
+            getBuildingInstance().elements.add("[" + value + "]");
+            return getSelf();
+        }
+
+
+        public B index(String value) {
+            getBuildingInstance().elements.add("[" + Long.parseUnsignedLong(value) + "]");
             return getSelf();
         }
 
 
         public B path(String value) {
             if (Objects.nonNull(value)) {
-                elements(new ArrayList<>(Arrays.asList(value.split("\\."))));
+                getBuildingInstance().elements = Arrays.asList(value.split("[.\\[\\]]"));
             }
             return getSelf();
         }

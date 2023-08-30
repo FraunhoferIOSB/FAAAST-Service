@@ -15,11 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -29,8 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -45,18 +42,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest} in the
- * service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest} in the service
+ * and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse}. Is
- * responsible for
- * communication with the persistence and sends the corresponding events to the message bus.
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
-    public InvokeOperationAsyncRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public InvokeOperationAsyncRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -67,7 +63,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                 .idShortPath(request.getPath())
                 .build();
         OperationHandle operationHandle = executeOperationAsync(reference, request);
-        messageBus.publish(OperationInvokeEventMessage.builder()
+        context.getMessageBus().publish(OperationInvokeEventMessage.builder()
                 .element(reference)
                 .input(ElementValueHelper.toValues(request.getInputArguments()))
                 .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
@@ -89,13 +85,13 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
      * @throws Exception if executing the operation itself failed
      */
     public OperationHandle executeOperationAsync(Reference reference, InvokeOperationAsyncRequest request) throws MessageBusException, Exception {
-        if (!assetConnectionManager.hasOperationProvider(reference)) {
+        if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "error executing operation - no operation provider defined for reference '%s'",
                     AasUtils.asString(reference)));
         }
         OperationHandle operationHandle = new OperationHandle();
-        persistence.save(
+        context.getPersistence().save(
                 operationHandle,
                 new OperationResult.Builder()
                         .inoutputArguments(request.getInoutputArguments())
@@ -103,30 +99,30 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         .build());
         try {
             BiConsumer<OperationVariable[], OperationVariable[]> callback = LambdaExceptionHelper.rethrowBiConsumer((x, y) -> {
-                OperationResult operationResult = persistence.getOperationResult(operationHandle);
+                OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
                 operationResult.setExecutionState(ExecutionState.COMPLETED);
                 operationResult.setOutputArguments(Arrays.asList(x));
                 operationResult.setInoutputArguments(Arrays.asList(y));
-                persistence.save(operationHandle, operationResult);
-                messageBus.publish(OperationFinishEventMessage.builder()
+                context.getPersistence().save(operationHandle, operationResult);
+                context.getMessageBus().publish(OperationFinishEventMessage.builder()
                         .element(reference)
                         .inoutput(ElementValueHelper.toValues(Arrays.asList(x)))
                         .output(ElementValueHelper.toValues(Arrays.asList(y)))
                         .build());
             });
-            AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
+            AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
             assetOperationProvider.invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
                     callback);
         }
         catch (AssetConnectionException | ValueMappingException e) {
-            OperationResult operationResult = persistence.getOperationResult(operationHandle);
+            OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
             operationResult.setExecutionState(ExecutionState.FAILED);
             operationResult.setInoutputArguments(request.getInoutputArguments());
-            persistence.save(operationHandle, operationResult);
+            context.getPersistence().save(operationHandle, operationResult);
             try {
-                messageBus.publish(OperationFinishEventMessage.builder()
+                context.getMessageBus().publish(OperationFinishEventMessage.builder()
                         .element(reference)
                         .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
                         .build());

@@ -14,15 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
@@ -30,21 +27,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest} in
  * the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse}.
- * Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostAssetAdministrationShellRequestHandler extends AbstractRequestHandler<PostAssetAdministrationShellRequest, PostAssetAdministrationShellResponse> {
 
-    public PostAssetAdministrationShellRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public PostAssetAdministrationShellRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
-        ModelValidator.validate(request.getAas(), coreConfig.getValidationOnCreate());
-        persistence.save(request.getAas());
-        messageBus.publish(ElementCreateEventMessage.builder()
+        ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnCreate());
+        context.getPersistence().save(request.getAas());
+        context.getMessageBus().publish(ElementCreateEventMessage.builder()
                 .element(request.getAas())
                 .value(request.getAas())
                 .build());

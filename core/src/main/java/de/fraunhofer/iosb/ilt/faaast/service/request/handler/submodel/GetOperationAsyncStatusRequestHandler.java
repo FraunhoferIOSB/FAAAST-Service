@@ -14,14 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
@@ -30,15 +27,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  */
 public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandler<GetOperationAsyncStatusRequest, GetOperationAsyncStatusResponse> {
 
-    public GetOperationAsyncStatusRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetOperationAsyncStatusRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request) throws ResourceNotFoundException {
         return GetOperationAsyncStatusResponse.builder()
-                .payload(persistence.getOperationResult(request.getHandle()).getExecutionState())
+                .payload(context.getPersistence().getOperationResult(request.getHandle()).getExecutionState())
                 .success()
                 .build();
     }

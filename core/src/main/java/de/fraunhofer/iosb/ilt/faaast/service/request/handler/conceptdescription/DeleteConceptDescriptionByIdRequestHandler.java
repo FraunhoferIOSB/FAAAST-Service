@@ -14,44 +14,39 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest}
- * in
- * the service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse}.
- * Is responsible
- * for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class DeleteConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<DeleteConceptDescriptionByIdRequest, DeleteConceptDescriptionByIdResponse> {
 
-    public DeleteConceptDescriptionByIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public DeleteConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
     @Override
     public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
-        ConceptDescription conceptDescription = persistence.getConceptDescription(request.getId(), QueryModifier.DEFAULT);
-        persistence.deleteConceptDescription(request.getId());
+        ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), QueryModifier.DEFAULT);
+        context.getPersistence().deleteConceptDescription(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        messageBus.publish(ElementDeleteEventMessage.builder()
+        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                 .element(conceptDescription)
                 .value(conceptDescription)
                 .build());

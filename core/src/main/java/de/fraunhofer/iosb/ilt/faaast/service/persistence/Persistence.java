@@ -15,16 +15,19 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -82,13 +85,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
      *
-     * @param path the idShortPath
+     * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
      * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
      *             with the given path
      */
-    public SubmodelElement getSubmodelElement(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException;
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -97,7 +100,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
      * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
      *
-     * @param path the idShortPath to the parent/container element
+     * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
      *         identified by path
@@ -105,10 +108,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
      *             i.e. cannot have any child elements
      */
-    public default List<SubmodelElement> getSubmodelElements(IdShortPath path, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public default List<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
-                        .parent(path)
+                        .parent(identifier)
                         .build(),
                 modifier,
                 PagingInfo.ALL);
@@ -197,13 +201,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
      *
-     * @param parent the parent of the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
+     * @param identifier the identifier of the SubmodelElement
      * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to save
      * @throws ResourceNotFoundException if the parent cannot be found
      * @throws ResourceNotAContainerElementException if the parent is not a valid container element, i.e. cannot contain
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public void save(IdShortPath parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException;
+    public void save(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException;
 
 
     /**
@@ -245,10 +249,10 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Deletes a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
      *
-     * @param path the idShort path
+     * @param identifier the identifier of the SubmodelElement
      * @throws ResourceNotFoundException if the resource does not exist
      */
-    public void deleteSubmodelElement(IdShortPath path) throws ResourceNotFoundException;
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException;
 
 
     /**
@@ -295,7 +299,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ResourceNotFoundException if the resource does not exist
      */
     public default void deleteSubmodelElement(Reference reference) throws ResourceNotFoundException {
-        deleteSubmodelElement(IdShortPath.fromReference(reference));
+        deleteSubmodelElement(SubmodelElementIdentifier.fromReference(reference));
     }
 
 
@@ -309,7 +313,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
     public default void save(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        save(IdShortPath.fromReference(parent), submodelElement);
+        save(SubmodelElementIdentifier.fromReference(parent), submodelElement);
     }
 
 
@@ -317,16 +321,16 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} by idShort path.
      *
      * @param <T> the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     * @param path the idShortPath
+     * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
      * @param type the concrete subtype of {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
      * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
      *             with the given path
      */
-    public default <T extends SubmodelElement> T getSubmodelElement(IdShortPath path, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+    public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
         // TODO improve stability
-        return type.cast(getSubmodelElement(path, modifier));
+        return type.cast(getSubmodelElement(identifier, modifier));
     }
 
 
@@ -340,7 +344,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             with the given path
      */
     public default SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
-        return getSubmodelElement(IdShortPath.fromReference(reference), modifier);
+        String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
+        if (Objects.isNull(submodelId)) {
+            throw new ResourceNotFoundException(reference);
+        }
+        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier);
     }
 
 
@@ -356,7 +364,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             with the given reference
      */
     public default <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        return getSubmodelElement(IdShortPath.fromReference(reference), modifier, type);
+        String submodelId = ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL);
+        if (Objects.isNull(submodelId)) {
+            throw new ResourceNotFoundException(reference);
+        }
+        return getSubmodelElement(SubmodelElementIdentifier.fromReference(reference), modifier, type);
     }
 
 
@@ -375,7 +387,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *             element, i.e. cannot have any child elements
      */
     public default List<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return getSubmodelElements(IdShortPath.fromReference(reference), modifier);
+        return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier);
     }
 
 

@@ -14,10 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
@@ -26,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentifica
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,18 +35,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest}
- * in the
- * service and to send the corresponding response
+ * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
-    public GetAllAssetAdministrationShellsByAssetIdRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus,
-            AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetAllAssetAdministrationShellsByAssetIdRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
@@ -72,14 +66,14 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
             }
             assetIdentifications.add(id);
         }
-        List<AssetAdministrationShell> shells = new ArrayList<>(persistence.findAssetAdministrationShells(
+        List<AssetAdministrationShell> shells = new ArrayList<>(context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()
                         .assetIds(assetIdentifications)
                         .build(),
                 request.getOutputModifier(),
                 PagingInfo.ALL));
         shells.forEach(LambdaExceptionHelper.rethrowConsumer(
-                x -> messageBus.publish(ElementReadEventMessage.builder()
+                x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                         .element(x)
                         .value(x)
                         .build())));

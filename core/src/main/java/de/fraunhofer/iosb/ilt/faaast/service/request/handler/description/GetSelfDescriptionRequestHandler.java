@@ -15,17 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.description;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.description.GetSelfDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
 
 /**
@@ -34,8 +31,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
  */
 public class GetSelfDescriptionRequestHandler extends AbstractRequestHandler<GetSelfDescriptionRequest, GetSelfDescriptionResponse> {
 
-    public GetSelfDescriptionRequestHandler(CoreConfig coreConfig, Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
-        super(coreConfig, persistence, messageBus, assetConnectionManager);
+    public GetSelfDescriptionRequestHandler(RequestExecutionContext context) {
+        super(context);
     }
 
 
