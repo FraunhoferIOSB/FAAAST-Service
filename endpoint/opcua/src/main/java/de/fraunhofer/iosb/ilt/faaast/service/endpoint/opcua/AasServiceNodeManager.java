@@ -41,7 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelEl
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -161,12 +161,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Maps AAS SubmodelElements to OPC UA SubmodelElements
      */
-    private final Map<IdShortPath, AASSubmodelElementType> submodelElementOpcUAMap;
+    private final Map<SubmodelElementIdentifier, AASSubmodelElementType> submodelElementOpcUAMap;
 
     /**
      * Maps Submodel references to the OPC UA Submodel
      */
-    private final Map<IdShortPath, UaNode> submodelOpcUAMap;
+    private final Map<SubmodelElementIdentifier, UaNode> submodelOpcUAMap;
 
     /**
      * Maps NodeIds to the corresponding Referable elements
@@ -550,7 +550,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
         LOG.debug("updateSubmodelElementValue");
-        IdShortPath path = IdShortPath.fromReference(reference);
+        SubmodelElementIdentifier path = SubmodelElementIdentifier.fromReference(reference);
         if (submodelElementOpcUAMap.containsKey(path)) {
             AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUAMap.get(path), newValue, this);
         }
@@ -589,7 +589,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @return The coresponding Submodel node
      */
     public UaNode getSubmodelNode(Reference reference) {
-        return submodelOpcUAMap.get(IdShortPath.fromReference(reference));
+        return submodelOpcUAMap.get(SubmodelElementIdentifier.fromReference(reference));
     }
 
 
@@ -601,7 +601,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
         //LOG.info("add to submodelElementOpcUAMap: {}", AasUtils.asString(reference));
-        submodelElementOpcUAMap.put(IdShortPath.fromReference(reference), submodelElement);
+        submodelElementOpcUAMap.put(SubmodelElementIdentifier.fromReference(reference), submodelElement);
     }
 
 
@@ -612,7 +612,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param node The corresponding Submodel node.
      */
     public void addSubmodelOpcUA(Reference reference, UaNode node) {
-        submodelOpcUAMap.put(IdShortPath.fromReference(reference), node);
+        submodelOpcUAMap.put(SubmodelElementIdentifier.fromReference(reference), node);
     }
 
 
@@ -665,7 +665,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         if (LOG.isDebugEnabled()) {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", AasUtils.asString(reference));
         }
-        AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(IdShortPath.fromReference(reference));
+        AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(SubmodelElementIdentifier.fromReference(reference));
         if ((removedElement != null) && LOG.isDebugEnabled()) {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", AasUtils.asString(reference));
         }
@@ -799,6 +799,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             doRemoveFromMaps(reference, element);
         }
 
-        submodelOpcUAMap.remove(IdShortPath.fromReference(reference));
+        submodelOpcUAMap.remove(SubmodelElementIdentifier.fromReference(reference));
     }
 }

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
@@ -46,6 +47,7 @@ public class TestService extends Service {
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
                 .assetConnections(assetConnectionConfig != null ? List.of(assetConnectionConfig) : new ArrayList<>())
+                .fileStorage(new FileStorageInMemoryConfig())
                 .build());
     }
 }
