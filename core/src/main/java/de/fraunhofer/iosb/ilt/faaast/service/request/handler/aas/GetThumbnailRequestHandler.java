@@ -50,11 +50,7 @@ public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbn
         FileContent fileContent = context.getFileStorage().get(path);
         // maybe publish event on messageBus
         return GetThumbnailResponse.builder()
-                .payload(InMemoryFile.builder()
-                        .path(path)
-                        .contentType(fileContent.getContentType())
-                        .content(fileContent.getContent())
-                        .build())
+                .payload(fileContent)
                 .success()
                 .build();
     }

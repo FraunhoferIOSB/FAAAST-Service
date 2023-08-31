@@ -440,6 +440,7 @@ public class App implements Runnable {
 
 
     private void withModel(ServiceConfig config) {
+        String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             try {
                 LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
@@ -453,7 +454,6 @@ public class App implements Runnable {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
             config.getPersistence().setInitialModelFile(modelFile);
-            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
             if (fileExtension.equals("aasx")) {
                 config.getFileStorage().setInitialModelFile(modelFile);
             }
@@ -468,7 +468,6 @@ public class App implements Runnable {
                         getEnvValue(ENV_PATH_MODEL_FILE));
             }
             config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
             if (fileExtension.equals("aasx")) {
                 config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
             }
@@ -485,7 +484,6 @@ public class App implements Runnable {
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
             config.getPersistence().setInitialModelFile(defaultModel.get());
-            String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
             if (fileExtension.equals("aasx")) {
                 config.getFileStorage().setInitialModelFile(defaultModel.get());
             }

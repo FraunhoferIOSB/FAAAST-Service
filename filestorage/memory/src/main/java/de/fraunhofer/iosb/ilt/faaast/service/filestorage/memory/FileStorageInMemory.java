@@ -51,7 +51,6 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
                             .content(v.getFileContent())
                             .contentType(FileHelper.getFileExtensionWithoutSeparator(v.getPath()))
                             .build()));
-            System.out.println();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);

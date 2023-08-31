@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithFile;
 
@@ -21,13 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithFile;
 /**
  * Response class for GetThumbnail requests.
  */
-public class GetThumbnailResponse extends AbstractResponseWithFile<InMemoryFile> {
+public class GetThumbnailResponse extends AbstractResponseWithFile<FileContent> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<InMemoryFile, GetThumbnailResponse, Builder> {
+    public static class Builder extends AbstractBuilder<FileContent, GetThumbnailResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
