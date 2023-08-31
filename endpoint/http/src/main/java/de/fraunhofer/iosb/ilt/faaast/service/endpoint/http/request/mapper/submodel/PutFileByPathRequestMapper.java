@@ -48,7 +48,7 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
 
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        byte[] fileData = httpRequest.getBody().getBytes();
+        byte[] fileData = httpRequest.getBody();
         try {
             String contentType = httpRequest.getHeaders().containsKey(HttpConstants.HEADER_CONTENT_TYPE)
                     ? httpRequest.getHeaders().get(HttpConstants.HEADER_CONTENT_TYPE)

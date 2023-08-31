@@ -46,7 +46,7 @@ public class PatchSubmodelElementByPathRequestMapper extends AbstractSubmodelInt
     public PatchSubmodelElementByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PatchSubmodelElementByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                .changes(parseMergePatch(httpRequest.getBody()))
+                .changes(parseMergePatch(httpRequest.getBodyAsString()))
                 .build();
     }
 }

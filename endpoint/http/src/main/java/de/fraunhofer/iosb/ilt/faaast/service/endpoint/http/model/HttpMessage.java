@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -24,16 +26,34 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public abstract class HttpMessage {
 
-    protected String body;
+    protected byte[] body;
+    protected Charset charset;
     protected Map<String, String> headers;
 
     protected HttpMessage() {
         this.headers = new HashMap<>();
+        this.charset = StandardCharsets.UTF_8;
     }
 
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
+    }
+
+
+    public String getBodyAsString() {
+        return new String(body, charset);
+    }
+
+
+    /**
+     * Returns the body as string using given charset.
+     *
+     * @param charset the charset to use
+     * @return the body as string using given charset
+     */
+    public String getBodyAsString(Charset charset) {
+        return new String(body, charset);
     }
 
 
@@ -47,14 +67,43 @@ public abstract class HttpMessage {
     }
 
 
-    public void setBody(String body) {
+    public void setBody(byte[] body) {
         this.body = body;
+    }
+
+
+    public void setBody(String body) {
+        this.body = body.getBytes(charset);
+    }
+
+
+    /**
+     * Sets the body to a string encoded using the provided charset.
+     *
+     * @param body the body to set
+     * @param charset the charset to use
+     */
+    public void setBody(String body, Charset charset) {
+        this.charset = charset;
+        this.body = body.getBytes(charset);
     }
 
     public abstract static class AbstractBuilder<T extends HttpMessage, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
+        public B body(byte[] value) {
+            getBuildingInstance().setBody(value);
+            return getSelf();
+        }
+
+
         public B body(String value) {
             getBuildingInstance().setBody(value);
+            return getSelf();
+        }
+
+
+        public B body(String value, Charset charset) {
+            getBuildingInstance().setBody(value, charset);
             return getSelf();
         }
 

@@ -1028,7 +1028,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
                 .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
-                .body(new String(content))
+                .body(content)
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1096,7 +1096,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
-                .body(new String(content))
+                .body(content)
                 .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
                 .build());
         Assert.assertEquals(expected, actual);

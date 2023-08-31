@@ -148,7 +148,7 @@ public abstract class AbstractRequestMapper {
     protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.read(httpRequest.getBody(), type);
+            return deserializer.read(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);
@@ -169,7 +169,7 @@ public abstract class AbstractRequestMapper {
     protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.readList(httpRequest.getBody(), type);
+            return deserializer.readList(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);

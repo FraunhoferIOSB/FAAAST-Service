@@ -45,7 +45,7 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        byte[] thumbnailData = httpRequest.getBody().getBytes();
+        byte[] thumbnailData = httpRequest.getBody();
         try {
             String contentType = httpRequest.getHeaders().containsKey(HttpConstants.HEADER_CONTENT_TYPE)
                     ? httpRequest.getHeaders().get(HttpConstants.HEADER_CONTENT_TYPE)
