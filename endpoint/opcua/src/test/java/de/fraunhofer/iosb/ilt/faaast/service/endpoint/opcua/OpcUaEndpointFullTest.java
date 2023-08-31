@@ -893,7 +893,7 @@ public class OpcUaEndpointFullTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "0", "9");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        //TODO TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
 
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
 

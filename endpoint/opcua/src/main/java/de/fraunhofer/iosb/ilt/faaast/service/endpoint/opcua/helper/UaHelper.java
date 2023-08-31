@@ -19,15 +19,22 @@ import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.nodes.PlainProperty;
+import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import opc.i4aas.AASModellingKindDataType;
+import opc.i4aas.AASQualifierKindDataType;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 
 
 /**
@@ -71,5 +78,50 @@ public class UaHelper {
         QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
         LocalizedText displayName = LocalizedText.english(name);
         parentNode.addProperty(createStringProperty(new ValueData(nodeId, browseName, displayName, nodeManager), TypedValueFactory.create(Datatype.STRING, value)));
+    }
+
+
+    public static PlainProperty<AASModellingKindDataType> createKindProperty(ValueData valueData, ModellingKind kind) throws StatusException {
+        PlainProperty<AASModellingKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+                valueData.getDisplayName());
+        kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+        kindProperty.setDescription(new LocalizedText("", ""));
+        //Variant vari = new Variant();
+        DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
+        kindProperty.setValue(value);
+
+        return kindProperty;
+    }
+
+
+    public static void addKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, ModellingKind value, String namespaceUri) throws StatusException {
+        parentNode.addProperty(createKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
+    }
+
+
+    public static PlainProperty<AASQualifierKindDataType> createQualifierKindProperty(ValueData valueData, QualifierKind kind) throws StatusException {
+        PlainProperty<AASQualifierKindDataType> kindProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+                valueData.getDisplayName());
+        kindProperty.setDataTypeId(AASQualifierKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+        kindProperty.setDescription(new LocalizedText("", ""));
+        DataValue value = new DataValue(new Variant(ValueConverter.convertQualifierKind(kind).getValue()));
+        kindProperty.setValue(value);
+
+        return kindProperty;
+    }
+
+
+    public static void addQualifierKindProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, QualifierKind value, String namespaceUri) throws StatusException {
+        parentNode.addProperty(createQualifierKindProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
+    }
+
+
+    private static ValueData createValueData(UaNode parentNode, NodeManagerUaNode nodeManager, String name, String namespaceUri) {
+        ValueData retval;
+        NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), parentNode.getNodeId().getValue().toString() + "." + name);
+        QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
+        LocalizedText displayName = LocalizedText.english(name);
+        retval = new ValueData(nodeId, browseName, displayName, nodeManager);
+        return retval;
     }
 }

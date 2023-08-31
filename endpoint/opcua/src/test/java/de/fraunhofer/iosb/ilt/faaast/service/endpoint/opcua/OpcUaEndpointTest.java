@@ -949,7 +949,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         testOperatingManual(client, operatingManualNode);
     }
@@ -963,7 +963,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "VARIABLE", AASValueTypeDataType.Int64,
                 Long.valueOf(4370), new ArrayList<>());
@@ -977,8 +977,9 @@ public class OpcUaEndpointTest {
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        // no kind available here, check for null
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, null);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "PARAMETER",
                 AASValueTypeDataType.Int64, Long.valueOf(5000), new ArrayList<>());

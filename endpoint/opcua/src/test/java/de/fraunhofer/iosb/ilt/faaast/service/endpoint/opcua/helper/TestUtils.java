@@ -124,7 +124,7 @@ public class TestUtils {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.MODELING_KIND_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KIND_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -132,10 +132,15 @@ public class TestUtils {
         Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
+        if (modelingKind == null) {
+            Assert.assertNull("checkModelingKindNode Browse Target Node not Null", targets);
+        }
+        else {
+            Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
+            Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
 
-        checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
+            checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
+        }
     }
 
 
@@ -187,6 +192,28 @@ public class TestUtils {
         Assert.assertFalse("checkDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
 
         checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
+    }
+
+
+    public static void checkEmbeddedDataSpecificationNode(UaClient client, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.EMBEDDED_DATA_SPECIFICATION_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Browse Result Null", bpres);
+        Assert.assertEquals("checkEmbeddedDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Node Targets Null", targets);
+        Assert.assertTrue("checkEmbeddedDataSpecificationNode Node targets empty", targets.length > 0);
+
+        // Currently we only check that the NodeId is not null and we have the correct type
+        NodeId dataSpecNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertFalse("checkEmbeddedDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
+
+        checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_EMBEDDED_DATA_SPECIFICATION_LIST));
     }
 
     //    public static void checkBillOfMaterialNode(UaClient client, NodeId node, int aasns) throws ServiceException, AddressSpaceException, ServiceResultException {
@@ -820,7 +847,7 @@ public class TestUtils {
 
     private static void checkModelingKind(UaClient client, NodeId kindNode, AASModellingKindDataType modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        checkDisplayName(client, kindNode, TestConstants.MODELING_KIND_NAME);
+        checkDisplayName(client, kindNode, TestConstants.KIND_NAME);
         checkType(client, kindNode, Identifiers.PropertyType);
 
         DataValue value = client.readValue(kindNode);
@@ -980,6 +1007,7 @@ public class TestUtils {
         for (int i = 0; i < listExpected.size(); i++) {
             Qualifier exp = listExpected.get(i);
             AASQualifierType curr = listCurrent.get(i);
+            Assert.assertEquals("Qualifier Kind not equal", ValueConverter.convertQualifierKind(exp.getKind()), curr.getKind());
             Assert.assertEquals("Qualifier Type not equal", exp.getType(), curr.getType());
             Assert.assertEquals("Qualifier ValueType not equal", ValueConverter.convertDataTypeDefXsd(exp.getValueType()), curr.getValueType());
             Assert.assertEquals("Qualifier Value not equal", exp.getValue(), curr.getValue());

@@ -49,6 +49,7 @@ import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
+import opc.i4aas.AASQualifierKindDataType;
 import opc.i4aas.AASValueTypeDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -62,6 +63,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -83,6 +85,7 @@ public class ValueConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
     private static final List<DatatypeMapper> typeList;
     private static final Map<ModellingKind, AASModellingKindDataType> MODELING_KIND_MAP;
+    private static final Map<QualifierKind, AASQualifierKindDataType> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKindDataType> ASSET_KIND_MAP;
     private static final List<TypeMapper<EntityType, AASEntityTypeDataType>> ENTITY_TYPE_LIST;
     private static final List<TypeMapper<KeyTypes, AASKeyTypesDataType>> KEY_ELEMENTS_LIST;
@@ -135,6 +138,11 @@ public class ValueConverter {
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
         MODELING_KIND_MAP.put(ModellingKind.TEMPLATE, AASModellingKindDataType.Template);
+
+        QUALIFIER_KIND_MAP = new EnumMap<>(QualifierKind.class);
+        QUALIFIER_KIND_MAP.put(QualifierKind.CONCEPT_QUALIFIER, AASQualifierKindDataType.ConceptQualifier);
+        QUALIFIER_KIND_MAP.put(QualifierKind.TEMPLATE_QUALIFIER, AASQualifierKindDataType.TemplateQualifier);
+        QUALIFIER_KIND_MAP.put(QualifierKind.VALUE_QUALIFIER, AASQualifierKindDataType.ValueQualifier);
 
         ASSET_KIND_MAP = new EnumMap<>(AssetKind.class);
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKindDataType.Type);
@@ -295,6 +303,31 @@ public class ValueConverter {
         else {
             LOGGER.warn("convertModellingKind: unknown value {}", value);
             throw new IllegalArgumentException("unknown ModellingKind: " + value);
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given QualifierKind to the corresponding AASQualifierKindDataType.
+     *
+     * @param value the desired QualifierKind
+     * @return The corresponding AASQualifierKindDataType
+     */
+    public static AASQualifierKindDataType convertQualifierKind(QualifierKind value) {
+        AASQualifierKindDataType retval;
+
+        if (value == null) {
+            LOGGER.warn("convertQualifierKind: value == null");
+            retval = null;
+        }
+        else if (QUALIFIER_KIND_MAP.containsKey(value)) {
+            retval = QUALIFIER_KIND_MAP.get(value);
+        }
+        else {
+            LOGGER.warn("convertQualifierKind: unknown value {}", value);
+            throw new IllegalArgumentException("unknown QualifierKind: " + value);
         }
 
         return retval;
@@ -807,28 +840,27 @@ public class ValueConverter {
     //        return retval;
     //    }
 
-
-    /**
-     * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
-     *
-     * @param value the desired ModelingKind
-     * @return The corresponding AASModelingKindDataType
-     */
-    public static AASModellingKindDataType convertModelingKind(ModellingKind value) {
-        AASModellingKindDataType retval;
-
-        if (value == null) {
-            LOGGER.warn("convertModelingKind: value == null");
-            retval = AASModellingKindDataType.Instance;
-        }
-        else if (MODELING_KIND_MAP.containsKey(value)) {
-            retval = MODELING_KIND_MAP.get(value);
-        }
-        else {
-            LOGGER.warn("convertModelingKind: unknown value {}", value);
-            throw new IllegalArgumentException("unknown ModelingKind: " + value);
-        }
-
-        return retval;
-    }
+    //    /**
+    //     * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
+    //     *
+    //     * @param value the desired ModelingKind
+    //     * @return The corresponding AASModelingKindDataType
+    //     */
+    //    public static AASModellingKindDataType convertModelingKind(ModellingKind value) {
+    //        AASModellingKindDataType retval;
+    //
+    //        if (value == null) {
+    //            LOGGER.warn("convertModelingKind: value == null");
+    //            retval = AASModellingKindDataType.Instance;
+    //        }
+    //        else if (MODELING_KIND_MAP.containsKey(value)) {
+    //            retval = MODELING_KIND_MAP.get(value);
+    //        }
+    //        else {
+    //            LOGGER.warn("convertModelingKind: unknown value {}", value);
+    //            throw new IllegalArgumentException("unknown ModelingKind: " + value);
+    //        }
+    //
+    //        return retval;
+    //    }
 }

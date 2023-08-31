@@ -93,6 +93,7 @@ public class SubmodelElementCreator {
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (SubmodelElement elem: elements) {
+                //elem.getEmbeddedDataSpecifications()
                 if (elem instanceof DataElement) {
                     DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, nodeManager);
                 }

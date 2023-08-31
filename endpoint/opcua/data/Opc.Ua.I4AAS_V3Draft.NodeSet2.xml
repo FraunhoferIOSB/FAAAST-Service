@@ -42,7 +42,7 @@
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Hash="2KKeURV3YjW1EgNd1FnFbA==" Version="1.6.10"/>
+            <ua:ModelInfo Tool="UaModeler" Hash="k0AGiSciuyQP3Unmr6KmgQ==" Version="1.6.10"/>
         </Extension>
     </Extensions>
     <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASAssetKindDataType">
@@ -2500,19 +2500,19 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5010</Reference>
         </References>
     </UAObject>
-    <UAObject ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=5009" BrowseName="1:DataSpecification">
-        <DisplayName>DataSpecification</DisplayName>
+    <UAObject ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=5009" BrowseName="1:EmbeddedDataSpecification">
+        <DisplayName>EmbeddedDataSpecification</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1050</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1006</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=6009" BrowseName="1:ModelingKind" AccessLevel="3">
-        <DisplayName>ModelingKind</DisplayName>
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=1006" NodeId="ns=1;i=6009" BrowseName="1:Kind" AccessLevel="3">
+        <DisplayName>Kind</DisplayName>
         <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1006</Reference>
         </References>
         <Value>
@@ -3402,7 +3402,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasModellingRule">i=11508</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5153</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6145</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=5401</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5024</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6028</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6142</Reference>
             <Reference ReferenceType="HasComponent">ns=1;i=5404</Reference>
@@ -3425,10 +3425,10 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5152</Reference>
         </References>
     </UAVariable>
-    <UAObject ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=5401" BrowseName="1:DataSpecification">
-        <DisplayName>DataSpecification</DisplayName>
+    <UAObject ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=5024" BrowseName="1:EmbeddedDataSpecification">
+        <DisplayName>EmbeddedDataSpecification</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1036</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1050</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5152</Reference>
         </References>
@@ -3441,11 +3441,11 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5152</Reference>
         </References>
     </UAVariable>
-    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=6142" BrowseName="1:ModelingKind" AccessLevel="3">
-        <DisplayName>ModelingKind</DisplayName>
+    <UAVariable DataType="AASModellingKindDataType" ParentNodeId="ns=1;i=5152" NodeId="ns=1;i=6142" BrowseName="1:Kind" AccessLevel="3">
+        <DisplayName>Kind</DisplayName>
         <References>
-            <Reference ReferenceType="HasModellingRule">i=78</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5152</Reference>
         </References>
         <Value>
