@@ -56,6 +56,7 @@ public class Constants {
     public static final String INTERNAL_SEGMENT_RECORDS_ID_SHORT = "Records";
     public static final String RECORD_TIME_ID_SHORT = "Time00";
     public static final String RECORD_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Record/1/1";
+    public static final String MEASUREMENT_MODEL_QUALIFIER_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/Qualifier/MeasurementModel/";
     // Operation: ReadRecords
     public static final String READ_RECORDS_ID_SHORT = "ReadRecords";
     public static final String READ_RECORDS_SEMANTIC_ID = "https://admin-shell.io/idta/TimeSeries/ReadRecords/1/1";

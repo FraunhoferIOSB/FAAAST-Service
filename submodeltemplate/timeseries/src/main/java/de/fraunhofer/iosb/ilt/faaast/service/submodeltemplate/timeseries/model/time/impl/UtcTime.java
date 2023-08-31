@@ -19,10 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
-
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -54,8 +50,8 @@ public class UtcTime extends AbstractAbsoluteTime {
         }
         DateTimeValue dateTimeValue = (DateTimeValue) TypedValueFactory.createSafe(VALUE_TYPE, value);
         if (dateTimeValue != null) {
-            this.startTimestampInEpochMillis = dateTimeValue.getValue().toInstant().toEpochMilli();
-            this.endTimestampInEpochMillis = this.startTimestampInEpochMillis;
+            this.startTimestampInUtcTime = dateTimeValue.getValue();
+            this.endTimestampInUtcTime = this.startTimestampInUtcTime;
             this.isInitialized = true;
         }
         else {
@@ -67,7 +63,7 @@ public class UtcTime extends AbstractAbsoluteTime {
 
     @Override
     public String getTimestampString() {
-        return this.isInitialized ? ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTimestampInEpochMillis), ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) : null;
+        return this.isInitialized ? this.startTimestampInUtcTime.format(DateTimeFormatter.ISO_ZONED_DATE_TIME) : null;
     }
 
 

@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -118,25 +118,25 @@ public abstract class AbstractInfluxLinkedSegmentProviderTest {
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
                     provider.getRecords(TimeSeriesData.METADATA, linkedSegment,
-                            LongTimespan.EMPTY));
+                            Timespan.EMPTY));
             // fetch exactly all records
             assertEqualsIgnoringIdShort(
                     TimeSeriesData.RECORDS,
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
-                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().orElse(0L),
-                            ((AbsoluteTime) TimeSeriesData.RECORD_09.getSingleTime()).getEndAsEpochMillis().orElse(Long.MAX_VALUE))));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_00, null, null, TimeSeriesData.METADATA).getStart().get(),
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_09, null, null, TimeSeriesData.METADATA).getEnd().get())));
             // fetch nothing
             assertEqualsIgnoringIdShort(
                     List.of(),
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
-                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 3600000L,
-                            ((AbsoluteTime) TimeSeriesData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 60000L)));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_00, null, null, TimeSeriesData.METADATA).getStart().get().minusHours(1L),
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_00, null, null, TimeSeriesData.METADATA).getStart().get().minusSeconds(1L))));
             // fetch partially
             assertEqualsIgnoringIdShort(
                     List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
-                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, LongTimespan.of(
-                            ((AbsoluteTime) TimeSeriesData.RECORD_03.getSingleTime()).getStartAsEpochMillis().getAsLong(),
-                            ((AbsoluteTime) TimeSeriesData.RECORD_04.getSingleTime()).getEndAsEpochMillis().getAsLong())));
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_03, null, null, TimeSeriesData.METADATA).getStart().get(),
+                            TimeFactory.getTimeFrom(TimeSeriesData.RECORD_04, null, null, TimeSeriesData.METADATA).getEnd().get())));
         }
         finally {
             server.stop();

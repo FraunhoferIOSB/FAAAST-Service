@@ -15,10 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.util.List;
 
 
@@ -29,68 +31,69 @@ public class TimeSeriesData {
     public static final List<String> FIELDS = List.of(FIELD_1, FIELD_2);
 
     public static final Metadata METADATA = Metadata.builder()
-            .recordMetadataVariables(FIELD_1, Datatype.INT)
-            .recordMetadataVariables(FIELD_2, Datatype.DOUBLE)
+            .recordMetadataTimeOrVariable("time", time00Builder("2022-01-01T00:00:00Z"))
+            .recordMetadataTimeOrVariable(FIELD_1, field01Builder(0))
+            .recordMetadataTimeOrVariable(FIELD_2, field02Builder(0.0))
             .build();
 
     public static final Record RECORD_00 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T00:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
+            .timeOrVariable("time", time00Builder("2022-01-01T00:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(0))
+            .timeOrVariable(FIELD_2, field02Builder(0.0))
             .build();
 
     public static final Record RECORD_01 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T01:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "1"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
+            .timeOrVariable("time", time00Builder("2022-01-01T01:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(1))
+            .timeOrVariable(FIELD_2, field02Builder(0.1))
             .build();
 
     public static final Record RECORD_02 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T02:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "2"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.2"))
+            .timeOrVariable("time", time00Builder("2022-01-01T02:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(2))
+            .timeOrVariable(FIELD_2, field02Builder(0.2))
             .build();
 
     public static final Record RECORD_03 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T03:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "3"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.3"))
+            .timeOrVariable("time", time00Builder("2022-01-01T03:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(3))
+            .timeOrVariable(FIELD_2, field02Builder(0.3))
             .build();
 
     public static final Record RECORD_04 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T04:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "4"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.4"))
+            .timeOrVariable("time", time00Builder("2022-01-01T04:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(4))
+            .timeOrVariable(FIELD_2, field02Builder(0.4))
             .build();
 
     public static final Record RECORD_05 = Record.builder()
-            .times("time", new UtcTime("2022-01-01T05:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "5"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.5"))
+            .timeOrVariable("time", time00Builder("2022-01-01T05:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(5))
+            .timeOrVariable(FIELD_2, field02Builder(0.5))
             .build();
 
     public static final Record RECORD_06 = Record.builder()
-            .times("time", new UtcTime("2022-01-02T06:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "6"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.6"))
+            .timeOrVariable("time", time00Builder("2022-01-02T06:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(6))
+            .timeOrVariable(FIELD_2, field02Builder(0.6))
             .build();
 
     public static final Record RECORD_07 = Record.builder()
-            .times("time", new UtcTime("2022-01-02T07:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "7"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.7"))
+            .timeOrVariable("time", time00Builder("2022-01-02T07:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(7))
+            .timeOrVariable(FIELD_2, field02Builder(0.7))
             .build();
 
     public static final Record RECORD_08 = Record.builder()
-            .times("time", new UtcTime("2022-01-03T08:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "8"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.8"))
+            .timeOrVariable("time", time00Builder("2022-01-03T08:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(8))
+            .timeOrVariable(FIELD_2, field02Builder(0.8))
             .build();
 
     public static final Record RECORD_09 = Record.builder()
-            .times("time", new UtcTime("2022-01-03T09:00:00Z"))
-            .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "9"))
-            .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.9"))
+            .timeOrVariable("time", time00Builder("2022-01-03T09:00:00Z"))
+            .timeOrVariable(FIELD_1, field01Builder(9))
+            .timeOrVariable(FIELD_2, field02Builder(0.9))
             .build();
 
     public static final List<Record> RECORDS = List.of(
@@ -104,5 +107,32 @@ public class TimeSeriesData {
             RECORD_07,
             RECORD_08,
             RECORD_09);
+
+    public static Property field01Builder(int value) {
+        return new DefaultProperty.Builder()
+                .idShort(FIELD_1)
+                .value(Integer.toString(value))
+                .valueType(Datatype.INT.getName())
+                .build();
+    }
+
+
+    public static Property field02Builder(double value) {
+        return new DefaultProperty.Builder()
+                .idShort(FIELD_2)
+                .value(Double.toString(value))
+                .valueType(Datatype.DOUBLE.getName())
+                .build();
+    }
+
+
+    public static Property time00Builder(String value) {
+        return new DefaultProperty.Builder()
+                .idShort("time")
+                .value(value)
+                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                .valueType(Datatype.DATE_TIME.getName())
+                .build();
+    }
 
 }

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
+import java.time.ZonedDateTime;
 import java.util.OptionalLong;
 
 
@@ -29,7 +30,7 @@ public interface AbsoluteTime extends Time {
      *
      * @return The start time of the time duration transformed to Epoch Milliseconds.
      */
-    public OptionalLong getStartAsEpochMillis();
+    public ZonedDateTime getStartAsUtcTime() throws MissingInitialisationException;
 
 
     /**
@@ -38,6 +39,6 @@ public interface AbsoluteTime extends Time {
      *
      * @return The end time of the time duration transformed to Epoch Milliseconds.
      */
-    public OptionalLong getEndAsEpochMillis();
+    public ZonedDateTime getEndAsUtcTime() throws MissingInitialisationException;
 
 }

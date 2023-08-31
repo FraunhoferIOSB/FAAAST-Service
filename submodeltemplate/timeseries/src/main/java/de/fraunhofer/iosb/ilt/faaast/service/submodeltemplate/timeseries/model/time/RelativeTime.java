@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
+import java.time.ZonedDateTime;
 import java.util.OptionalLong;
 
 
@@ -26,21 +27,23 @@ public interface RelativeTime extends Time {
     /**
      * Return the start time of the duration as a Unix Epoch milliseconds.
      *
-     * @param unixMSStartTime point in time to which the RelativeTime is relative to in epoch milliseconds
-     * @return {@link OptionalLong} containing the start time of the time duration transformed to Unix Epoch Milliseconds or an empty
+     * @param utcStartTime point in time to which the RelativeTime is relative to in epoch milliseconds
+     * @return {@link OptionalLong} containing the start time of the time duration transformed to Unix Epoch Milliseconds or
+     *         an empty
      *         {@link OptionalLong} if the calculation was not successful or the object was not initialized.
      */
-    public OptionalLong getStartAsEpochMillis(Long unixMSStartTime);
+    public ZonedDateTime getStartAsUtcTime(ZonedDateTime utcStartTime) throws MissingInitialisationException;
 
 
     /**
      * Return the end time of the duration as Unix Epoch milliseconds.
      *
-     * @param unixMSStartTime point in time to which the RelativeTime is relative to in epoch milliseconds
-     * @return {@link OptionalLong} containing the end time of the time duration transformed to Unix Epoch Milliseconds or an empty
+     * @param utcStartTime point in time to which the RelativeTime is relative to in epoch milliseconds
+     * @return {@link OptionalLong} containing the end time of the time duration transformed to Unix Epoch Milliseconds or
+     *         an empty
      *         {@link OptionalLong} if the calculation was not successfull or the object was not initialized.
      */
-    public OptionalLong getEndAsEpochMillis(Long unixMSStartTime);
+    public ZonedDateTime getEndAsEpochMillis(ZonedDateTime utcStartTime) throws MissingInitialisationException;
 
 
     /**

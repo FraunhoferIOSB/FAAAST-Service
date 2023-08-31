@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.FloatValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractRelativeTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
-
 import java.util.Objects;
 
 
@@ -50,8 +49,8 @@ public class RelativeTimeDuration extends AbstractRelativeTime {
         }
         FloatValue floatValue = (FloatValue) TypedValueFactory.createSafe(VALUE_TYPE, value);
         if (floatValue != null) {
-            this.startOffsetInEpochMillis = 0;
-            this.endOffsetInEpochMillis = 1000 * floatValue.getValue().longValue();
+            this.startOffsetInNanoseconds = 0;
+            this.endOffsetInNanoseconds = 1000000000 * floatValue.getValue().longValue();
             this.isInitialized = true;
         }
         else {
@@ -63,7 +62,7 @@ public class RelativeTimeDuration extends AbstractRelativeTime {
 
     @Override
     public String getTimestampString() {
-        return this.isInitialized ? Long.toString((endOffsetInEpochMillis / 1000)) : null;
+        return this.isInitialized ? Long.toString((endOffsetInNanoseconds / 1000000000)) : null;
     }
 
 

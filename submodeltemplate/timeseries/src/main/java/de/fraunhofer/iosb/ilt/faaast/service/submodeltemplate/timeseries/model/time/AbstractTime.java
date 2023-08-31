@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.
 
 import java.util.Objects;
 
+
 /**
  * Abstract class implementing the AbsoluteTime interface. Contains the semanticID, datatype and methods to get the
  * start and end time.
@@ -26,7 +27,6 @@ public abstract class AbstractTime implements Time {
 
     protected final String datatype;
 
-    
     public AbstractTime(String datatype) {
         this.datatype = datatype;
     }

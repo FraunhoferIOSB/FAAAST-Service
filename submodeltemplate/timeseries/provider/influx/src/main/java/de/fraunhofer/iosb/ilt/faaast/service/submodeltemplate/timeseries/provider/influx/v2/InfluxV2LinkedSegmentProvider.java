@@ -23,18 +23,18 @@ import com.influxdb.query.InfluxQLQueryResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import io.adminshell.aas.v3.model.Property;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -64,7 +64,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, LongTimespan timespan) throws SegmentProviderException {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
@@ -115,28 +115,30 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                     Object fieldValue = values[index];
                     if (fieldValue != null) {
                         if (TIME_FIELD.equals(fieldName)) {
-                            UtcTime utcTime = new UtcTime(ZonedDateTime.ofInstant(
+                            Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
+                            String utcTime = ZonedDateTime.ofInstant(
                                     Instant.ofEpochMilli(
                                             TimeUnit.MILLISECONDS.convert(
                                                     Long.parseLong(fieldValue.toString()),
                                                     TimeUnit.NANOSECONDS)),
-                                    ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
-                            result.getTimes().put(fieldName, utcTime);
+                                    ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                            newProperty.setValue(utcTime);
+                            result.getTimesAndVariables().put(fieldName, newProperty);
                         }
-                        else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
-                            Time metaType = metadata.getRecordMetadataTime().get(fieldName);
-                            result.getTimes().put(fieldName,
-                                    TimeFactory.getTimeTypeFrom(TimeFactory.getSemanticIDForClass(metaType.getClass()), fieldValue.toString()).orElse(null));
-                        }
-                        else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
-                            try {
-                                result.getVariables().put(
-                                        fieldName,
-                                        parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
+                        else if (metadata.getMetadataRecordVariables().containsKey(fieldName)) {
+                            Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
+                            if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                                newProperty.setValue(fieldValue.toString());
                             }
-                            catch (ValueFormatException e) {
-                                throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);
+                            else {
+                                try {
+                                    newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                                }
+                                catch (ValueFormatException e) {
+                                    newProperty.setValue(fieldValue.toString());
+                                }
                             }
+                            result.getTimesAndVariables().put(fieldName, newProperty);
                         }
                     }
                 }));
@@ -177,16 +179,31 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                 for (int j = 0; j < table.getRecords().size(); j++) {
                     FluxRecord record = table.getRecords().get(j);
                     String fieldName = getPropertyName(record.getField());
-                    if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
+                    if (metadata.getMetadataRecordVariables().containsKey(fieldName)) {
                         Object fieldValue = record.getValue();
                         Record newRecord = result[j] == null ? new Record() : result[j];
-                        try {
-                            newRecord.getVariables().put(fieldName, parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
+                        Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
+                        System.out.println(fieldName);
+                        if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                            newProperty.setValue(fieldValue.toString());
+                            newRecord.getTimesAndVariables().put(fieldName, newProperty);
+                            System.out.println(fieldName + ": " + newProperty.getValue());
                         }
-                        catch (ValueFormatException ex) {
-                            LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
+                        else {
+                            try {
+                                newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                                newRecord.getTimesAndVariables().put(fieldName, newProperty);
+                                System.out.println(fieldName + ": " + newRecord.getTimesAndVariables().get(fieldName));
+                            }
+                            catch (ValueFormatException e) {
+                                LOGGER.warn("InfluxDB reader: Failed to add variable {} - could not parse value", fieldName);
+                            }
                         }
-                        newRecord.getTimes().put(TIME_FIELD, new UtcTime(record.getTime().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
+
+                        //                        DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class)
+                        Property timeProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(getPropertyName(TIME_FIELD)), Property.class);
+                        timeProperty.setValue(record.getTime().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                        newRecord.getTimesAndVariables().put(getPropertyName(TIME_FIELD), timeProperty);
                         result[j] = newRecord;
                     }
                 }

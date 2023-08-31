@@ -15,22 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -92,12 +88,22 @@ public class MetadataTest extends BaseModelTest {
                     .build())
             .build();
 
+    private static Property field_01_property = new DefaultProperty.Builder()
+            .idShort(TimeSeriesData.FIELD_1)
+            .valueType(Datatype.INT.getName())
+            .build();
+
+    private static Property field_02_property = new DefaultProperty.Builder()
+            .idShort(TimeSeriesData.FIELD_2)
+            .valueType(Datatype.DOUBLE.getName())
+            .build();
+
     @Test
     public void testConversionRoundTrip() throws ValueFormatException {
         Metadata expected = Metadata.builder()
-                .recordMetadataVariables(TimeSeriesData.FIELD_1, Datatype.INT)
-                .recordMetadataVariables(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
-                .recordMetadataTime(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_1, field_01_property)
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_2, field_02_property)
+                .recordMetadataTimeOrVariable(Constants.RECORD_TIME_ID_SHORT, TimeSeriesData.timeBuilder(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))
                 .build();
         Metadata actual = Metadata.of(expected);
         assertAASEquals(expected, actual);
@@ -108,8 +114,8 @@ public class MetadataTest extends BaseModelTest {
     @Test
     public void testParseRecords() throws ValueFormatException, SerializationException {
         Metadata expected = Metadata.builder()
-                .recordMetadataVariables(TimeSeriesData.FIELD_1, Datatype.INT)
-                .recordMetadataVariables(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_1, field_01_property)
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_2, field_02_property)
                 .build();
         Metadata actual = Metadata.of(expected);
         assertAASEquals(expected, actual);
@@ -124,8 +130,8 @@ public class MetadataTest extends BaseModelTest {
                 .description(new LangString("foo", "en"))
                 .description(new LangString("bar", "de"))
                 .kind(ModelingKind.INSTANCE)
-                .recordMetadataVariables(TimeSeriesData.FIELD_1, Datatype.INT)
-                .recordMetadataVariables(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_1, field_01_property)
+                .recordMetadataTimeOrVariable(TimeSeriesData.FIELD_2, field_02_property)
                 .build();
         Metadata actual = Metadata.of(expected);
         assertAASEquals(expected, actual);
@@ -170,19 +176,18 @@ public class MetadataTest extends BaseModelTest {
         Metadata metadata = new Metadata();
         assertAASElements(metadata, METADATA_RECORD_EMPTY);
 
-        metadata.getRecordMetadataTime().put(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
+        metadata.getMetadataRecordVariables().put(Constants.RECORD_TIME_ID_SHORT, TimeSeriesData.timeBuilder(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)));
 
-        metadata.getRecordMetadata().setVariables(new HashMap<String, TypedValue>(Map.of(TimeSeriesData.FIELD_1, TypedValueFactory.createSafe(Datatype.INT, null))));
+        metadata.getRecordMetadata().addVariables(TimeSeriesData.FIELD_1, field_01_property);
         assertAASElements(metadata, METADATA_RECORD_FIELD1);
 
-        metadata.getRecordMetadata().getVariables().put(TimeSeriesData.FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, null));
+        metadata.getRecordMetadata().getTimesAndVariables().put(TimeSeriesData.FIELD_2, field_02_property);
         assertAASElements(metadata, METADATA_RECORD_FIELD1_FIELD2);
 
-        metadata.getRecordMetadata().getVariables().remove(TimeSeriesData.FIELD_1);
+        metadata.getRecordMetadata().getTimesAndVariables().remove(TimeSeriesData.FIELD_1);
         assertAASElements(metadata, METADATA_RECORD_FIELD2);
 
-        metadata.getRecordMetadata().getVariables().clear();
-        metadata.getRecordMetadataTime().clear();
+        metadata.getRecordMetadata().getTimesAndVariables().clear();
         assertAASElements(metadata, METADATA_RECORD_EMPTY);
     }
 }

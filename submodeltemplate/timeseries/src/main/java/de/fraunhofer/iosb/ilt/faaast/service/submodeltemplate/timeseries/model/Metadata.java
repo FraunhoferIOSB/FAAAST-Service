@@ -15,19 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -116,8 +112,8 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      * @return metadata of the variables.
      */
     @JsonIgnore
-    public Map<String, TypedValue> getRecordMetadataVariables() {
-        return this.recordMetadata.getValue().getVariables();
+    public Map<String, Property> getMetadataRecordVariables() {
+        return this.recordMetadata.getValue().getTimesAndVariables();
     }
 
 
@@ -125,42 +121,8 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      * Transform Datatype to TypedValues and sets the record matadata accordingly.
      */
     @JsonIgnore
-    void setRecordMetadataVariables(Map<String, Datatype> recordMetadata) {
-        Map<String, TypedValue> typedValueMap = new HashMap<>();
-        recordMetadata.forEach((key, val) -> typedValueMap.put(key, TypedValueFactory.createSafe(val, "")));
-        this.recordMetadata.getValue().setVariables(typedValueMap);
-    }
-
-
-    /**
-     * Transform Datatype to TypedValues and adds to the record matadata.
-     *
-     * @param key variable name to add
-     * @param value type for the variable
-     */
-    @JsonIgnore
-    void setRecordMetadataVariables(String key, Datatype value) {
-        this.recordMetadata.getValue().addVariables(key, TypedValueFactory.createSafe(value, ""));
-    }
-
-
-    /**
-     * Get time metadata of records.
-     *
-     * @return metadata of the timestamps.
-     */
-    @JsonIgnore
-    public Map<String, Time> getRecordMetadataTime() {
-        return this.recordMetadata.getValue().getTimes();
-    }
-
-
-    /**
-     * TransformDatatype to TypedValues and sets the record matadata accordingly.
-     */
-    @JsonIgnore
-    void setRecordMetadataTime(Map<String, Time> timeMetadata) {
-        this.recordMetadata.getValue().setTimes(timeMetadata);
+    void setMetadataRecordVariables(Map<String, Property> recordMetadata) {
+        this.recordMetadata.getValue().setTimesAndVariables(recordMetadata);
     }
 
 
@@ -194,20 +156,14 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         }
 
 
-        public B recordMetadataVariables(String name, Datatype value) {
-            getBuildingInstance().setRecordMetadataVariables(name, value);
+        public B recordMetadataVariables(Map<String, Property> recordVariables) {
+            getBuildingInstance().setMetadataRecordVariables(recordVariables);
             return getSelf();
         }
 
 
-        public B recordMetadataVariables(Map<String, Datatype> recordVariables) {
-            getBuildingInstance().setRecordMetadataVariables(recordVariables);
-            return getSelf();
-        }
-
-
-        public B recordMetadataTime(String name, Time value) {
-            getBuildingInstance().getRecordMetadataTime().put(name, value);
+        public B recordMetadataTimeOrVariable(String name, Property value) {
+            getBuildingInstance().getRecordMetadata().getTimesAndVariables().put(name, value);
             return getSelf();
         }
 

@@ -14,9 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
-import java.util.OptionalLong;
-
 
 
 /**
@@ -28,28 +27,29 @@ import java.util.OptionalLong;
 public abstract class AbstractAbsoluteTime extends AbstractTime implements AbsoluteTime {
 
     protected boolean isInitialized = false;
-    protected long startTimestampInEpochMillis;
-    protected long endTimestampInEpochMillis;
+    protected ZonedDateTime startTimestampInUtcTime;
+    protected ZonedDateTime endTimestampInUtcTime;
 
     public AbstractAbsoluteTime(String datatype) {
         super(datatype);
     }
 
+
     @Override
-    public OptionalLong getStartAsEpochMillis() {
+    public ZonedDateTime getStartAsUtcTime() throws MissingInitialisationException {
         if (this.isInitialized) {
-            return OptionalLong.of(this.startTimestampInEpochMillis);
+            return this.startTimestampInUtcTime;
         }
-        return OptionalLong.empty();
+        throw new MissingInitialisationException();
     }
 
 
     @Override
-    public OptionalLong getEndAsEpochMillis() {
+    public ZonedDateTime getEndAsUtcTime() throws MissingInitialisationException {
         if (this.isInitialized) {
-            return OptionalLong.of(this.endTimestampInEpochMillis);
+            return this.endTimestampInUtcTime;
         }
-        return OptionalLong.empty();
+        throw new MissingInitialisationException();
     }
 
 
@@ -68,15 +68,15 @@ public abstract class AbstractAbsoluteTime extends AbstractTime implements Absol
             AbstractAbsoluteTime other = (AbstractAbsoluteTime) obj;
             return super.equals(obj)
                     && Objects.equals(this.isInitialized, other.isInitialized)
-                    && Objects.equals(this.startTimestampInEpochMillis, other.startTimestampInEpochMillis)
-                    && Objects.equals(this.endTimestampInEpochMillis, other.endTimestampInEpochMillis);
+                    && Objects.equals(this.startTimestampInUtcTime, other.startTimestampInUtcTime)
+                    && Objects.equals(this.endTimestampInUtcTime, other.endTimestampInUtcTime);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.isInitialized, this.startTimestampInEpochMillis, this.endTimestampInEpochMillis);
+        return Objects.hash(super.hashCode(), this.isInitialized, this.startTimestampInUtcTime, this.endTimestampInUtcTime);
     }
 
 }

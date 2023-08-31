@@ -15,14 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.RelativeTime;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
@@ -31,14 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 
 
 /**
@@ -47,41 +36,68 @@ import java.util.Optional;
 public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private Wrapper<Map<String, Time>, Property> times = new MapWrapper<>(
-            values,
-            new LinkedHashMap<>(),
-            Property.class,
-            x -> new DefaultProperty.Builder()
-                    .idShort(x.getKey())
-                    .valueType(x.getValue().getDataValueType())
-                    .value(x.getValue().getTimestampString())
-                    .semanticId(ReferenceHelper.globalReference(TimeFactory.getSemanticIDForClass(x.getValue().getClass())))
-                    .build(),
-            x -> TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
-            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue()).get()));
-
-    @JsonIgnore
-    private Wrapper<Map<String, TypedValue>, Property> variablesAndTimes = new MapWrapper<>(
+    private Wrapper<Map<String, Property>, Property> variablesAndTimes = new MapWrapper<>(
             values,
             new HashMap<>(),
             Property.class,
-            x -> new DefaultProperty.Builder()
-                    .idShort(x.getKey())
-                    .valueType(x.getValue().getDataType().getName())
-                    .value(x.getValue().asString())
-                    .build(),
-            x -> !TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
-            x -> {
-                try {
-                    return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
-                }
-                catch (ValueFormatException e) {
-                    throw new IllegalArgumentException(e);
-                }
-            });
+            x -> x.getValue(),
+            x -> x instanceof Property,
+            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), x));
+
+    //    @JsonIgnore
+    //    private Wrapper<Map<String, Time>, Property> times = new MapWrapper<>(
+    //            values,
+    //            new LinkedHashMap<>(),
+    //            Property.class,
+    //            x -> new DefaultProperty.Builder()
+    //                    .idShort(x.getKey())
+    //                    .valueType(x.getValue().getDataValueType())
+    //                    .value(x.getValue().getTimestampString())
+    //                    .semanticId(ReferenceHelper.globalReference(TimeFactory.getSemanticIDForClass(x.getValue().getClass())))
+    //                    .build(),
+    //            x -> TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
+    //            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue()).get()));
+    //
+    //    @JsonIgnore
+    //    private Wrapper<Map<String, TypedValue>, Property> variablesAndTimes = new MapWrapper<>(
+    //            values,
+    //            new HashMap<>(),
+    //            Property.class,
+    //            x -> new DefaultProperty.Builder()
+    //                    .idShort(x.getKey())
+    //                    .valueType(x.getValue().getDataType().getName())
+    //                    .value(x.getValue().asString())
+    //                    .build(),
+    //            x -> !TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
+    //            x -> {
+    //                try {
+    //                    return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
+    //                }
+    //                catch (ValueFormatException e) {
+    //                    throw new IllegalArgumentException(e);
+    //                }
+    //            });
+
+    @JsonIgnore
+    private Wrapper<Map<String, Property>, Property> propertyVariables = new MapWrapper<>(
+            values,
+            new HashMap<>(),
+            Property.class,
+            x -> x.getValue(),
+            x -> x instanceof Property,
+            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), x));
+
+    //    @JsonIgnore
+    //    private Wrapper<Map<String, ? extends DataElement>, ? extends DataElement> dataelementVariables = new MapWrapper<>(
+    //            values,
+    //            new HashMap<>(),
+    //            DataElement.class,
+    //            x -> ((DataElement) x.getValue()),
+    //            x -> (x instanceof DataElement) && !(x instanceof Property),
+    //            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), ((DataElement)x)));
 
     public Record() {
-        withAdditionalValues(times, variablesAndTimes);
+        withAdditionalValues(variablesAndTimes);
         this.idShort = IdentifierHelper.randomId("Record");
         this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
     }
@@ -101,7 +117,6 @@ public class Record extends ExtendableSubmodelElementCollection {
         else {
             Record other = (Record) obj;
             return super.equals(obj)
-                    && Objects.equals(this.times, other.times)
                     && Objects.equals(this.variablesAndTimes, other.variablesAndTimes);
         }
     }
@@ -109,7 +124,7 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), times, variablesAndTimes);
+        return Objects.hash(super.hashCode(), variablesAndTimes);
     }
 
 
@@ -125,67 +140,7 @@ public class Record extends ExtendableSubmodelElementCollection {
     }
 
 
-    public Map<String, Time> getTimes() {
-        return times.getValue();
-    }
-
-
-    /**
-     * Get a single timestamp from the timestamps of the record. Prefers supported and absolute timestamps.
-     *
-     * @return timestamp of the record or null, if no time is set.
-     */
-    @JsonIgnore
-    public Time getSingleTime() {
-        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof AbsoluteTime).findFirst();
-
-        if (timeOpt.isEmpty()) {
-            timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof RelativeTime && !(((RelativeTime) e.getValue()).isIncrementalToPrevious()))
-                    .findFirst();
-            if (timeOpt.isEmpty()) {
-                timeOpt = this.times.getValue().entrySet().stream().findFirst();
-            }
-        }
-        return timeOpt.isPresent() ? timeOpt.get().getValue() : null;
-
-    }
-
-
-    /**
-     * Get a single absolute timestamp from the timestamps of the record.
-     *
-     * @return timestamp of the record or null, if no absolute time is set.
-     */
-    @JsonIgnore
-    public AbsoluteTime getAbsoluteTime() {
-        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof AbsoluteTime).findFirst();
-        return timeOpt.isPresent() ? (AbsoluteTime) timeOpt.get().getValue() : null;
-    }
-
-
-    /**
-     * Get a single relative timestamp from the timestamps of the record.
-     *
-     * @return timestamp of the record or null, if no relative time is set.
-     */
-    @JsonIgnore
-    public RelativeTime getRelativeTime() {
-        Optional<Entry<String, Time>> timeOpt = this.times.getValue().entrySet().stream().filter(e -> e.getValue() instanceof RelativeTime).findFirst();
-        return timeOpt.isPresent() ? (RelativeTime) timeOpt.get().getValue() : null;
-    }
-
-
-    /**
-     * Sets the time.
-     *
-     * @param time the time to set
-     */
-    public void setTimes(Map<String, Time> time) {
-        this.times.setValue(time);
-    }
-
-
-    public Map<String, TypedValue> getVariables() {
+    public Map<String, Property> getTimesAndVariables() {
         return variablesAndTimes.getValue();
     }
 
@@ -195,7 +150,7 @@ public class Record extends ExtendableSubmodelElementCollection {
      *
      * @param variables the variables to set
      */
-    public void setVariables(Map<String, TypedValue> variables) {
+    public void setTimesAndVariables(Map<String, Property> variables) {
         this.variablesAndTimes.setValue(variables);
     }
 
@@ -206,7 +161,7 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param variableName name of the variable
      * @param value {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue} of the variable
      */
-    public void addVariables(String variableName, TypedValue value) {
+    public void addVariables(String variableName, Property value) {
         this.variablesAndTimes.getValue().put(variableName, value);
     }
 
@@ -217,26 +172,14 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     public abstract static class AbstractBuilder<T extends Record, B extends AbstractBuilder<T, B>> extends SubmodelElementCollectionBuilder<T, B> {
 
-        public B times(Map<String, Time> value) {
-            getBuildingInstance().setTimes(value);
+        public B timesAndVariables(Map<String, Property> value) {
+            getBuildingInstance().setTimesAndVariables(value);
             return getSelf();
         }
 
 
-        public B times(String key, Time value) {
-            getBuildingInstance().getTimes().put(key, value);
-            return getSelf();
-        }
-
-
-        public B variables(Map<String, TypedValue> value) {
-            getBuildingInstance().setVariables(value);
-            return getSelf();
-        }
-
-
-        public B variable(String key, TypedValue value) {
-            getBuildingInstance().getVariables().put(key, value);
+        public B timeOrVariable(String key, Property value) {
+            getBuildingInstance().getTimesAndVariables().put(key, value);
             return getSelf();
         }
     }

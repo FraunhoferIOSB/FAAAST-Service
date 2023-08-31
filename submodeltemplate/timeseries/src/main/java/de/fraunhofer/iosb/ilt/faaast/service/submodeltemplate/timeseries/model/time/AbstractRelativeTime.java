@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
-import java.util.OptionalLong;
 
 
 /**
@@ -27,28 +27,29 @@ import java.util.OptionalLong;
 public abstract class AbstractRelativeTime extends AbstractTime implements RelativeTime {
 
     protected boolean isInitialized = false;
-    protected long startOffsetInEpochMillis;
-    protected long endOffsetInEpochMillis;
+    protected long startOffsetInNanoseconds;
+    protected long endOffsetInNanoseconds;
 
     public AbstractRelativeTime(String datatype) {
         super(datatype);
     }
 
+
     @Override
-    public OptionalLong getStartAsEpochMillis(Long startTime) {
+    public ZonedDateTime getStartAsUtcTime(ZonedDateTime startTime) throws MissingInitialisationException {
         if (this.isInitialized && startTime != null) {
-            return OptionalLong.of(startTime + this.startOffsetInEpochMillis);
+            return startTime.plusNanos(startOffsetInNanoseconds);
         }
-        return OptionalLong.empty();
+        throw new MissingInitialisationException();
     }
 
 
     @Override
-    public OptionalLong getEndAsEpochMillis(Long startTime) {
+    public ZonedDateTime getEndAsEpochMillis(ZonedDateTime startTime) throws MissingInitialisationException {
         if (this.isInitialized && startTime != null) {
-            return OptionalLong.of(startTime + this.endOffsetInEpochMillis);
+            return startTime.plusNanos(endOffsetInNanoseconds);
         }
-        return OptionalLong.empty();
+        throw new MissingInitialisationException();
     }
 
 
@@ -67,14 +68,14 @@ public abstract class AbstractRelativeTime extends AbstractTime implements Relat
             AbstractRelativeTime other = (AbstractRelativeTime) obj;
             return super.equals(obj)
                     && Objects.equals(this.isInitialized, other.isInitialized)
-                    && Objects.equals(this.startOffsetInEpochMillis, other.startOffsetInEpochMillis)
-                    && Objects.equals(this.endOffsetInEpochMillis, other.endOffsetInEpochMillis);
+                    && Objects.equals(this.startOffsetInNanoseconds, other.startOffsetInNanoseconds)
+                    && Objects.equals(this.endOffsetInNanoseconds, other.endOffsetInNanoseconds);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.startOffsetInEpochMillis, this.endOffsetInEpochMillis);
+        return Objects.hash(super.hashCode(), this.startOffsetInNanoseconds, this.endOffsetInNanoseconds);
     }
 }

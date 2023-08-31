@@ -18,20 +18,17 @@ import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.
 import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_2;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,9 +52,13 @@ public class RecordTest extends BaseModelTest {
                 .description(new LangString("foo", "en"))
                 .description(new LangString("bar", "de"))
                 .kind(ModelingKind.INSTANCE)
-                .times("Time00", new UtcTime("2021-01-01T00:00:00Z"))
-                .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
-                .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
+                .timeOrVariable("Time00", (Property) new DefaultProperty.Builder().idShort("Time00")
+                        .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                        .value("2021-01-01T00:00:00Z")
+                        .valueType(Datatype.DATE_TIME.getName())
+                        .build()) //UtcTime("2021-01-01T00:00:00Z"))
+                .timeOrVariable(FIELD_1, TimeSeriesData.field01Builder(0))
+                .timeOrVariable(FIELD_2, TimeSeriesData.field02Builder(0.1))
                 .build();
         Record actual = Record.of(expected);
         assertAASEquals(expected, actual);
@@ -95,22 +96,27 @@ public class RecordTest extends BaseModelTest {
         Record record = new Record();
         assertAASElements(record);
 
-        record.setTimes(new LinkedHashMap<String, Time>(Map.of(Constants.RECORD_TIME_ID_SHORT, new UtcTime(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))));
+        record.addVariables("Time00", new DefaultProperty.Builder()
+                .idShort("Time00")
+                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                .value(TIME.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
+                .valueType(Datatype.DATE_TIME.getName())
+                .build());
         assertAASElements(record, PROPERTY_TIME);
 
-        record.getVariables().put(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"));
+        record.getTimesAndVariables().put(FIELD_1, TimeSeriesData.field01Builder(0));
         assertAASElements(record, PROPERTY_TIME, PROPERTY_FIELD1);
 
-        record.getVariables().put(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"));
+        record.getTimesAndVariables().put(FIELD_2, TimeSeriesData.field02Builder(0.1));
         assertAASElements(record, PROPERTY_TIME, PROPERTY_FIELD1, PROPERTY_FIELD2);
 
-        record.setTimes(null);
+        record.getTimesAndVariables().remove("Time00");
         assertAASElements(record, PROPERTY_FIELD1, PROPERTY_FIELD2);
 
-        record.getVariables().remove(FIELD_1);
+        record.getTimesAndVariables().remove(FIELD_1);
         assertAASElements(record, PROPERTY_FIELD2);
 
-        record.getVariables().clear();
+        record.getTimesAndVariables().clear();
         assertAASElements(record);
     }
 }

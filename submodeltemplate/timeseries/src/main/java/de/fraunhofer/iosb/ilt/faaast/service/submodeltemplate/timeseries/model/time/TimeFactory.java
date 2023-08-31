@@ -15,16 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.RelativePointInTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.RelativeTimeDuration;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.TaiTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
+import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.Reference;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +54,104 @@ public class TimeFactory {
     private static boolean isInitialized = false;
 
     private TimeFactory() {}
+
+
+    /**
+     * Extract an object with {@link Time} interface from the given record or returns null, if there was none to be found.
+     * Properties must have a semantic ID supported by the TimeFactory and should begin with "time" in their shortID.
+     *
+     * @param record {@link Record} whose Time property should be extracted
+     * @return {@link Time} of the record or null, if none found
+     */
+    public static Time getTimeFrom(Record record) {
+        init();
+        Optional<Property> timeProperty = record.getTimesAndVariables().entrySet().stream()
+                .filter(entr -> entr.getKey().toLowerCase().startsWith("time"))
+                .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
+                .map(entr -> entr.getValue())
+                .findFirst();
+        if (timeProperty.isEmpty()) {
+            timeProperty = record.getTimesAndVariables().entrySet().stream()
+                    .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
+                    .map(entr -> entr.getValue())
+                    .findFirst();
+        }
+        if (timeProperty.isPresent()) {
+            Optional<Time> time = getTimeTypeFrom(timeProperty.get().getSemanticId(), timeProperty.get().getValue());
+            return time.isPresent() ? time.get() : null;
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Create timespan for the given record by finding a property within, which has a name beginning with "Time" and /
+     * or has a semantic ID that is supported by the {@link TimeFactory}. Depending on whether the time is a relative
+     * incremental time, a relative absolute, or absolute time, either the startTime of the segment, the end time of the
+     * previous segment or neither is used, to calculate the timespan.
+     *
+     * @param record {@link Record} whose timespan is to be extracted
+     * @param absoluteStarttime StartTime of the segment used for absolute releative times
+     * @param previousEndtime End time of the previous record used for incremental relative times
+     * @param metadata metadata of {@link Metadata} of the records used for checking for qualifiers
+     * @return Timespan of the record or null, if no time property was found or was parseable.
+     */
+    public static Timespan getTimeFrom(Record record, ZonedDateTime absoluteStarttime, ZonedDateTime previousEndtime, Metadata metadata) {
+        init();
+        Optional<Property> timeProperty = record.getTimesAndVariables().entrySet().stream()
+                .filter(entr -> entr.getKey().toLowerCase().startsWith("time"))
+                .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
+                .map(entr -> entr.getValue())
+                .findFirst();
+        if (timeProperty.isEmpty()) {
+            timeProperty = record.getTimesAndVariables().entrySet().stream()
+                    .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
+                    .map(entr -> entr.getValue())
+                    .findFirst();
+        }
+        if (timeProperty.isPresent()) {
+            Optional<Time> time = getTimeTypeFrom(timeProperty.get().getSemanticId(), timeProperty.get().getValue());
+            return time.isPresent() ? extractTimespan(time.get(), timeProperty.get().getIdShort(), absoluteStarttime, previousEndtime, metadata) : null;
+        }
+        return null;
+    }
+
+
+    private static Timespan extractTimespan(Time time, String propertyShortID, ZonedDateTime absoluteStarttime, ZonedDateTime previousEndtime, Metadata metadata) {
+        try {
+            if (time instanceof AbsoluteTime) {
+                AbsoluteTime absolute = (AbsoluteTime) time;
+                return new Timespan(absolute.getStartAsUtcTime(), absolute.getEndAsUtcTime());
+
+            }
+            else if (time instanceof RelativeTime) {
+                RelativeTime relative = (RelativeTime) time;
+
+                Optional<Qualifier> qualifier = metadata.getMetadataRecordVariables().get(propertyShortID).getQualifiers().stream()
+                        .filter(constr -> constr instanceof Qualifier
+                                && ((Qualifier) constr).getSemanticId().getKeys().get(0).getValue().startsWith(Constants.MEASUREMENT_MODEL_QUALIFIER_SEMANTIC_ID))
+                        .map(constr -> (Qualifier) constr)
+                        .findFirst();
+
+                boolean isIncremental = qualifier.isPresent() ? qualifier.get().getValue().equals("incremental") : relative.isIncrementalToPrevious();
+                if (isIncremental) {
+                    return new Timespan(relative.getStartAsUtcTime(previousEndtime),
+                            relative.getEndAsEpochMillis(previousEndtime));
+                }
+                else {
+                    return new Timespan(relative.getStartAsUtcTime(absoluteStarttime),
+                            relative.getEndAsEpochMillis(absoluteStarttime));
+                }
+            }
+        }
+        catch (MissingInitialisationException e) {
+            LOGGER.warn("Error reading time with shortID {}. Either value not parseable or given relative startpoint {} or {} was null ", propertyShortID, absoluteStarttime,
+                    previousEndtime);
+        }
+        return null;
+    }
 
 
     /**
@@ -117,6 +221,7 @@ public class TimeFactory {
      * @return true if there is a registered class and when this class can parse the value
      */
     public static boolean isParseable(Reference semanticID, String value) {
+        init();
         if (hasClassFor(semanticID)) {
             if (value == null) {
                 return true;
@@ -127,14 +232,21 @@ public class TimeFactory {
         }
         return false;
     }
-    
-    
+
+
+    /**
+     * Given the class of an Object, return the semantic ID registered in the TimeFactory for this class.
+     *
+     * @param timeClass class extending {@link Time}
+     * @return semanticID belonging to the class
+     */
     public static String getSemanticIDForClass(Class<? extends Time> timeClass) {
+        init();
         return supportedSemanticIDs.entrySet().stream()
-                      .filter(entry -> Objects.equals(entry.getValue(), timeClass))
-                      .map(Map.Entry::getKey)
-                      .findFirst()
-                      .orElse(null);
+                .filter(entry -> Objects.equals(entry.getValue(), timeClass))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
     }
 
 
@@ -148,7 +260,7 @@ public class TimeFactory {
         }
         try (ScanResult scanResult = new ClassGraph().enableClassInfo().enableAnnotationInfo().scan()) {
             for (ClassInfo classInfo: scanResult.getClassesWithAnnotation(SupportedSemanticID.class)) {
-                String semanticID = ((SupportedSemanticID)classInfo.getAnnotationInfo(SupportedSemanticID.class).loadClassAndInstantiate()).value();
+                String semanticID = ((SupportedSemanticID) classInfo.getAnnotationInfo(SupportedSemanticID.class).loadClassAndInstantiate()).value();
                 if (!supportedSemanticIDs.containsKey(semanticID)) {
                     if (classInfo.implementsInterface(Time.class)) {
                         Class<? extends Time> currentClass = (Class<? extends Time>) classInfo.loadClass();

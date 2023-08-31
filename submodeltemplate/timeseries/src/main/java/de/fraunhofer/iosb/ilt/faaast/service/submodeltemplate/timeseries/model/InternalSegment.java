@@ -16,14 +16,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.ZonedDateTimeComparator;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.MissingInitialisationException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.ZonedDateTimeHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -165,20 +170,40 @@ public class InternalSegment extends Segment {
         if (this.getRecordCount() == 0) {
             return;
         }
-        // TODO test cases with no absolute time
-        // TODO set start/end to null, if no valid time was found
-        this.setStart(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(records.stream().map(e -> getLongStartTime(e)).min((a, b) -> Long.compare(a, b)).orElse(null)));
-        this.setEnd(ZonedDateTimeHelper.convertEpochMillisToZonedDateTime(records.stream().map(e -> getLongEndTime(e)).max((a, b) -> Long.compare(a, b)).orElse(null)));
+        this.setStart(records.stream().map(e -> getStartTime(e)).min(new ZonedDateTimeComparator()).orElse(null));
+        this.setEnd(records.stream().map(e -> getEndTime(e)).max(new ZonedDateTimeComparator()).orElse(null));
     }
 
 
-    private long getLongStartTime(Record e) {
-        return e.getAbsoluteTime() != null ? e.getAbsoluteTime().getStartAsEpochMillis().orElse(Long.MAX_VALUE) : Long.MAX_VALUE;
+    private ZonedDateTime getStartTime(Record rec) {
+        Time time = TimeFactory.getTimeFrom(rec);
+        if (time instanceof AbsoluteTime) {
+            try {
+                return ((AbsoluteTime) time).getStartAsUtcTime();
+            }
+            catch (MissingInitialisationException e) {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
     }
 
 
-    private long getLongEndTime(Record e) {
-        return e.getAbsoluteTime() != null ? e.getAbsoluteTime().getEndAsEpochMillis().orElse(Long.MIN_VALUE) : Long.MIN_VALUE;
+    private ZonedDateTime getEndTime(Record rec) {
+        Time time = TimeFactory.getTimeFrom(rec);
+        if (time instanceof AbsoluteTime) {
+            try {
+                return ((AbsoluteTime) time).getEndAsUtcTime();
+            }
+            catch (MissingInitialisationException e) {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
     }
 
 

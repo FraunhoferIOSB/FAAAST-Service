@@ -17,17 +17,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provid
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.Time;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import io.adminshell.aas.v3.model.Property;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +54,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, LongTimespan timespan) throws SegmentProviderException {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
@@ -102,22 +102,19 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
         for (int i = 0; i < values.size(); i++) {
             String fieldName = getPropertyName(fields.get(i));
             Object fieldValue = values.get(i);
-            if (TIME_FIELD.equals(fieldName)) {
-                result.getTimes().put(fieldName, new UtcTime(fieldValue.toString()));
-            }
-            else if (metadata.getRecordMetadataTime().containsKey(fieldName)) {
-                Time metaType = metadata.getRecordMetadataTime().get(fieldName);
-                result.getTimes().put(fieldName,
-                        TimeFactory.getTimeTypeFrom(TimeFactory.getSemanticIDForClass(metaType.getClass()), fieldValue.toString()).orElse(null));
-            }
-            else if (metadata.getRecordMetadataVariables().containsKey(fieldName)) {
+            if (metadata.getMetadataRecordVariables().containsKey(fieldName)) {
+                Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
                 try {
-                    result.getVariables().put(
-                            fieldName,
-                            parseValue(fieldValue, metadata.getRecordMetadataVariables().get(fieldName).getDataType()));
+                    if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                        newProperty.setValue(fieldValue.toString());
+                    }
+                    else {
+                        newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                    }
+                    result.getTimesAndVariables().put(fieldName, newProperty);
                 }
                 catch (ValueFormatException e) {
-                    throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);
+                    LOGGER.warn("InfluxDB reader: Failed to add variable {} - could not parse value", fieldName);
                 }
             }
         }

@@ -19,7 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.LongValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
-
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 
@@ -49,8 +51,8 @@ public class UnixTime extends AbstractAbsoluteTime {
         }
         LongValue longValue = (LongValue) TypedValueFactory.createSafe(VALUE_TYPE, value);
         if (longValue != null) {
-            this.startTimestampInEpochMillis = 1000 * longValue.getValue();
-            this.endTimestampInEpochMillis = startTimestampInEpochMillis;
+            this.startTimestampInUtcTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(longValue.getValue()), ZoneOffset.UTC);
+            this.endTimestampInUtcTime = startTimestampInUtcTime;
             this.isInitialized = true;
         }
         else {
@@ -62,7 +64,7 @@ public class UnixTime extends AbstractAbsoluteTime {
 
     @Override
     public String getTimestampString() {
-        return this.isInitialized ? Long.toString(startTimestampInEpochMillis / 1000) : null;
+        return this.isInitialized ? String.valueOf(this.startTimestampInUtcTime.toEpochSecond()) : null;
     }
 
 

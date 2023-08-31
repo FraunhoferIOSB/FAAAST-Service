@@ -23,9 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.TimeSeriesTestData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -103,7 +103,7 @@ public class CSVExternalSegmentProviderTest {
             assertEqualsIgnoringIdShort(
                     TimeSeriesTestData.RECORDS,
                     provider_mapped.getRecords(TimeSeriesTestData.METADATA, fileSegment,
-                            LongTimespan.EMPTY));
+                            Timespan.EMPTY));
         }
         catch (ConfigurationException e) {
             e.printStackTrace();
@@ -123,7 +123,7 @@ public class CSVExternalSegmentProviderTest {
             assertEqualsIgnoringIdShort(
                     TimeSeriesTestData.RECORDS,
                     provider_mapped.getRecords(TimeSeriesTestData.METADATA, fileSegment,
-                            LongTimespan.EMPTY));
+                            Timespan.EMPTY));
         }
         catch (ConfigurationException e) {
             e.printStackTrace();
@@ -136,7 +136,7 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, fileSegment,
-                        LongTimespan.EMPTY));
+                        Timespan.EMPTY));
     }
 
 
@@ -145,7 +145,7 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, blobSegment,
-                        LongTimespan.EMPTY));
+                        Timespan.EMPTY));
     }
 
 
@@ -153,9 +153,9 @@ public class CSVExternalSegmentProviderTest {
     public void testAllRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
-                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong(),
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong())));
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get(),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_09, null, null, TimeSeriesTestData.METADATA).getEnd().get())));
     }
 
 
@@ -163,9 +163,9 @@ public class CSVExternalSegmentProviderTest {
     public void testAllRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
-                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong(),
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_09.getSingleTime()).getEndAsEpochMillis().getAsLong())));
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get(),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_09, null, null, TimeSeriesTestData.METADATA).getEnd().get())));
     }
 
 
@@ -173,9 +173,9 @@ public class CSVExternalSegmentProviderTest {
     public void testNoRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 List.of(),
-                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 3600000L,
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 60000L)));
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get().minusHours(1L),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get().minusSeconds(1L))));
     }
 
 
@@ -183,9 +183,9 @@ public class CSVExternalSegmentProviderTest {
     public void testNoRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 List.of(),
-                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 3600000L,
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_00.getSingleTime()).getStartAsEpochMillis().getAsLong() - 60000L)));
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get().minusHours(1L),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_00, null, null, TimeSeriesTestData.METADATA).getStart().get().minusSeconds(1L))));
     }
 
 
@@ -193,9 +193,9 @@ public class CSVExternalSegmentProviderTest {
     public void testRecordsWithTimespanExternalSegmentWithFile() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
-                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_03.getSingleTime()).getStartAsEpochMillis().getAsLong(),
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_04.getSingleTime()).getStartAsEpochMillis().getAsLong())));
+                provider.getRecords(TimeSeriesTestData.METADATA, fileSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_03, null, null, TimeSeriesTestData.METADATA).getStart().get(),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_04, null, null, TimeSeriesTestData.METADATA).getEnd().get())));
     }
 
 
@@ -203,9 +203,9 @@ public class CSVExternalSegmentProviderTest {
     public void testRecordsWithTimespanExternalSegmentWithBlob() throws SegmentProviderException {
         assertEqualsIgnoringIdShort(
                 List.of(TimeSeriesTestData.RECORD_03, TimeSeriesTestData.RECORD_04),
-                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, LongTimespan.of(
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_03.getSingleTime()).getStartAsEpochMillis().getAsLong(),
-                        ((AbsoluteTime) TimeSeriesTestData.RECORD_04.getSingleTime()).getStartAsEpochMillis().getAsLong())));
+                provider.getRecords(TimeSeriesTestData.METADATA, blobSegment, Timespan.of(
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_03, null, null, TimeSeriesTestData.METADATA).getStart().get(),
+                        TimeFactory.getTimeFrom(TimeSeriesTestData.RECORD_04, null, null, TimeSeriesTestData.METADATA).getEnd().get())));
     }
 
 
@@ -238,7 +238,7 @@ public class CSVExternalSegmentProviderTest {
         assertEqualsIgnoringIdShort(
                 TimeSeriesTestData.RECORDS,
                 provider.getRecords(TimeSeriesTestData.METADATA, segment,
-                        LongTimespan.EMPTY));
+                        Timespan.EMPTY));
     }
 
 
@@ -254,7 +254,7 @@ public class CSVExternalSegmentProviderTest {
         ExternalSegment segment = ExternalSegment.builder().data(dataFileShort).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
-        SegmentProviderException exc = assertThrows(SegmentProviderException.class, () -> provider.getRecords(TimeSeriesTestData.METADATA, segment, LongTimespan.EMPTY));
+        SegmentProviderException exc = assertThrows(SegmentProviderException.class, () -> provider.getRecords(TimeSeriesTestData.METADATA, segment, Timespan.EMPTY));
         assertEquals("Error reading from File (file: src/test/resources/testCSV.csv, expected type: text/csv, actual type: application/json)", exc.getMessage());
     }
 

@@ -15,12 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
@@ -55,9 +52,9 @@ public class TimeSeriesTest extends BaseModelTest {
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
                         .record(Record.builder()
-                                .times("Time00", new UtcTime("2022-01-01T00:00:00Z"))
-                                .variable(TimeSeriesData.FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
-                                .variable(TimeSeriesData.FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.0"))
+                                .timeOrVariable("Time00", TimeSeriesData.timeBuilder("2022-01-01T00:00:00Z"))
+                                .timeOrVariable(TimeSeriesData.FIELD_1, TimeSeriesData.field01Builder(0))
+                                .timeOrVariable(TimeSeriesData.FIELD_2, TimeSeriesData.field02Builder(0.0))
                                 .idShort("Record01")
                                 .build())
                         .idShort("InternalSegment01")

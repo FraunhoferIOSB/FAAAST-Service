@@ -18,7 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.MissingInitialisationException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
@@ -79,7 +80,7 @@ public class InternalSegmentTest extends BaseModelTest {
 
 
     @Test
-    public void testConversionRoundTripWithAutoCompleteProperties() throws ValueFormatException {
+    public void testConversionRoundTripWithAutoCompleteProperties() throws ValueFormatException, MissingInitialisationException {
         InternalSegment expected = INTERNAL_SEGMENT_WITHOUT_TIMES;
         InternalSegment actual = InternalSegment.of(expected);
         actual.setCalculateProperties(true);
@@ -87,8 +88,8 @@ public class InternalSegmentTest extends BaseModelTest {
         Assert.assertNotEquals(expected, actual);
         Assert.assertNotEquals(null, actual.getStart());
         Assert.assertNotEquals(null, actual.getEnd());
-        Assert.assertEquals(actual.getStart().toInstant().toEpochMilli(), ((AbsoluteTime) TimeSeriesData.RECORD_00.getTimes().get("Time00")).getStartAsEpochMillis().getAsLong());
-        Assert.assertEquals(actual.getEnd().toInstant().toEpochMilli(), ((AbsoluteTime) TimeSeriesData.RECORD_09.getTimes().get("Time00")).getEndAsEpochMillis().getAsLong());
+        Assert.assertEquals(actual.getStart(), TimeFactory.getTimeFrom(TimeSeriesData.RECORD_00, expected.getStart(), expected.getStart(), null).getStart().get());
+        Assert.assertEquals(actual.getEnd(), TimeFactory.getTimeFrom(TimeSeriesData.RECORD_09, expected.getStart(), expected.getStart(), null).getEnd().get());
         Assert.assertEquals(actual.getRecordCount().intValue(), TimeSeriesData.RECORDS.size());
     }
 

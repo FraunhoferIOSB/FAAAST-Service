@@ -21,8 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbsoluteTime;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest.InfluxInitializer;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.InfluxServerConfig;
@@ -48,11 +50,12 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                 serverConfig.getToken())) {
             client.getWriteApiBlocking().writePoints(records.stream().map(record -> Point
                     .measurement(measurement)
-                    .time(record.getAbsoluteTime() != null ? (((AbsoluteTime) record.getAbsoluteTime()).getStartAsEpochMillis().getAsLong() / 1000L) : 0L, WritePrecision.S)
-                    .addFields(record.getVariables().entrySet().stream()
+                    .time(TimeFactory.getTimeFrom(record, null, null, null).getStart().get().toInstant().toEpochMilli() / 1000, WritePrecision.S)
+                    .addFields(record.getTimesAndVariables().entrySet().stream()
+                            .filter(x -> !x.getKey().equals("time"))
                             .collect(Collectors.toMap(
                                     x -> x.getKey(),
-                                    x -> x.getValue().getValue()))))
+                                    x -> TypedValueFactory.createSafe(Datatype.fromName(x.getValue().getValueType()), x.getValue().getValue()).getValue()))))
                     .collect(Collectors.toList()));
         }
     }

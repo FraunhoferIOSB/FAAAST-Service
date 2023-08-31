@@ -19,9 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
-
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.JulianFields;
@@ -61,27 +58,26 @@ public class TaiTime extends AbstractAbsoluteTime {
             this.isInitialized = false;
         }
         else {
-            this.startTimestampInEpochMillis = convertToUtc(typedValue).getValue().toInstant().toEpochMilli();
-            this.endTimestampInEpochMillis = this.startTimestampInEpochMillis;
+            this.startTimestampInUtcTime = convertToUtc(typedValue);
+            this.endTimestampInUtcTime = this.startTimestampInUtcTime;
             this.isInitialized = true;
         }
         return this.isInitialized;
     }
 
 
-    private DateTimeValue convertToUtc(DateTimeValue value) {
+    private ZonedDateTime convertToUtc(DateTimeValue value) {
         ZonedDateTime time = value.getValue();
         this.taiOffset = UtcRules.system().getTaiOffset(time.getLong(JulianFields.MODIFIED_JULIAN_DAY));
         time = time.minusSeconds(this.taiOffset);
-        value.setValue(time);
-        return value;
+        return time;
     }
 
 
     @Override
     public String getTimestampString() {
         return this.isInitialized
-                ? ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTimestampInEpochMillis), ZoneOffset.UTC).plusSeconds(taiOffset).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                ? startTimestampInUtcTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 : null;
     }
 

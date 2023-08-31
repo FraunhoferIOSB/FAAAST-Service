@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LongTimespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Segment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
@@ -82,7 +81,7 @@ public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationPr
             throws SegmentProviderException {
         return LambdaExceptionHelper.rethrowPredicate(x -> (useSegmentTimestamps && (Objects.nonNull(x.getStart()) || Objects.nonNull(x.getEnd())))
                 ? timespan.overlaps(new Timespan(x.getStart(), x.getEnd()))
-                : !segmentProviderSupplier.apply(x).getRecords(metadata, x, LongTimespan.fromTimespan(timespan)).isEmpty());
+                : !segmentProviderSupplier.apply(x).getRecords(metadata, x, timespan).isEmpty());
     }
 
 
