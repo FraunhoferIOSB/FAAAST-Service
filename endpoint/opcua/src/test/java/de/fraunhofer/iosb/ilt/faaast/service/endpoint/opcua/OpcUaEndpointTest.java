@@ -905,7 +905,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkIdentification(client, aasNode, aasns, "http://customer.com/aas/9175_7013_7091_9168");
         TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
         TestUtils.checkCategoryNode(client, aasNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, aasNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, aasNode, aasns);
         TestUtils.checkAssetInformationNode(client, aasNode, aasns);
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
@@ -993,7 +993,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
         //TestUtils.checkModelingKindNode(client, node, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, node, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
         //TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
         // Skip LangString / LocalizedText test: not yet implemented in the service

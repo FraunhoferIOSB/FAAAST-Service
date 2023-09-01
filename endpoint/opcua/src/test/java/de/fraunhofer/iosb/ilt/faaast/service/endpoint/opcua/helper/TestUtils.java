@@ -421,7 +421,7 @@ public class TestUtils {
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
         //checkModelingKindNode(client, propertyNode, aasns, kind);
-        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
         checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         relPath.clear();
@@ -482,7 +482,7 @@ public class TestUtils {
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
         //checkModelingKindNode(client, propertyNode, aasns, kind);
-        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
         checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         relPath.clear();

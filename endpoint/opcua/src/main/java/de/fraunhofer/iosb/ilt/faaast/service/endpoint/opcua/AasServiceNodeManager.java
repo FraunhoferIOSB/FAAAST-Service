@@ -58,7 +58,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASAssetAdministrationShellType;
-import opc.i4aas.AASAssetType;
 import opc.i4aas.AASBlobType;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASEnvironmentType;
@@ -420,9 +419,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else if (parent.getNode() instanceof AASSubmodelElementType) {
                     EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
-                }
-                else if (parent.getNode() instanceof AASAssetType) {
-                    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
                 }
                 else {
                     LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
