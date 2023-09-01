@@ -34,8 +34,41 @@ public class TypedValueFactory {
      * @return typed value representation
      * @throws ValueFormatException if value cannot be converted to datatype
      */
-    public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
+    public static TypedValue create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
+    }
+
+
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If datatypeName is unknown,
+     * type default to string. If parsing fails, null is returned.
+     *
+     * @param datatypeName name of the datatype
+     * @param value value in string representation
+     * @return typed value representation
+     */
+    public static TypedValue createSafe(String datatypeName, String value) {
+        return createSafe(Datatype.fromName(datatypeName), value);
+    }
+
+
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If parsing fails, null is
+     * returned.
+     *
+     * @param datatype datatype to use
+     * @param value value in string representation
+     * @return typed value representation or null is parsing fails
+     * @throws IllegalArgumentException if datatype is null
+     * @throws RuntimeException if instantiating new class fails
+     */
+    public static TypedValue createSafe(Datatype datatype, String value) {
+        try {
+            return create(datatype, value);
+        }
+        catch (ValueFormatException e) {
+            return null;
+        }
     }
 
 
@@ -49,7 +82,7 @@ public class TypedValueFactory {
      * @throws ValueFormatException if value cannot be converted to datatype
      * @throws TypeInstantiationException if instantiating new class fails
      */
-    public static TypedValue<?> create(Datatype datatype, String value) throws ValueFormatException {
+    public static TypedValue create(Datatype datatype, String value) throws ValueFormatException {
         Ensure.requireNonNull(datatype, "datatype must be non-null");
         try {
             Constructor<? extends TypedValue> constructor = datatype.getImplementation().getConstructor();

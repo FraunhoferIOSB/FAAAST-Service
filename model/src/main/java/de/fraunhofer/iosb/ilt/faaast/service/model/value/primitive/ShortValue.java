@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,9 @@ public class ShortValue extends TypedValue<Short> {
 
     @Override
     public String asString() {
-        return Short.toString(value);
+        return Objects.nonNull(value)
+                ? Short.toString(value)
+                : null;
     }
 
 

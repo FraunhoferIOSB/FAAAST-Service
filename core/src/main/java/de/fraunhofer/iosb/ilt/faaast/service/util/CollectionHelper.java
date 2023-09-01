@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -63,6 +65,30 @@ public class CollectionHelper {
                 : collection.size();
         collection.remove(oldElement);
         add(collection, idx, newElement);
+    }
+
+
+    /**
+     * Merges a set of collections into a single with (removing duplicates).
+     *
+     * @param <T> generic type
+     * @param input set of collections
+     * @return merged list
+     */
+    public static <T> List<T> merge(Collection<T>... input) {
+        return Stream.of(input).flatMap(Collection::stream).distinct().collect(Collectors.toList());
+    }
+
+
+    /**
+     * Creates a union of a set of collections, i.e. merge withing removing duplicates.
+     *
+     * @param <T> generic type
+     * @param input set of collections
+     * @return merged list
+     */
+    public static <T> List<T> union(Collection<T>... input) {
+        return Stream.of(input).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
 }

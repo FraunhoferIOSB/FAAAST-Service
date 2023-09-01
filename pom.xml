@@ -47,6 +47,9 @@
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
+        <module>submodeltemplate/timeseries</module>
+        <module>submodeltemplate/timeseries/provider/influx</module>
+        <module>submodeltemplate/timeseries/provider/csv</module>
         <module>starter</module>
     </modules>
     <scm>
@@ -83,6 +86,10 @@
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.15.1</equalsverifier.version>
         <guava.version>32.1.2-jre</guava.version>
+        <hamcrest.version>2.2</hamcrest.version>
+        <influxdb.client.java.version>6.10.0</influxdb.client.java.version>
+        <influxdb.java.version>2.23</influxdb.java.version>
+        <influxdb.version>6.7.0</influxdb.version>
         <jackson.databind.version>2.15.2</jackson.databind.version>
         <jackson.version>2.15.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
@@ -93,6 +100,7 @@
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.8.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
+        <kotlin.version>1.6.20</kotlin.version>
         <logback.version>1.4.11</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -121,6 +129,7 @@
         <mockito.version>5.5.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.97.Final</netty.version>
+        <opencsv.version>5.8</opencsv.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.5</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
@@ -140,6 +149,8 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.0.2</systemstubs.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
+        <threeten-extra.version>1.7.2</threeten-extra.version>
         <wiremock.version>2.35.0</wiremock.version>
         <woodstox.version>6.5.1</woodstox.version>
     </properties>

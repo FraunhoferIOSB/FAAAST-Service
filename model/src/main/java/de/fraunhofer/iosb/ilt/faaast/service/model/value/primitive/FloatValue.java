@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,9 @@ public class FloatValue extends TypedValue<Float> {
 
     @Override
     public String asString() {
-        return Float.toString(value);
+        return Objects.nonNull(value)
+                ? Float.toString(value)
+                : null;
     }
 
 

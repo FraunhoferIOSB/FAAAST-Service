@@ -54,7 +54,6 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -716,7 +715,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
-        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+        return new DateTime(GregorianCalendar.from(value.atZone(DateTimeValue.DEFAULT_TIMEZONE)));
     }
 
 

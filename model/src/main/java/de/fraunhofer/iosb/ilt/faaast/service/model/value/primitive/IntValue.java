@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,9 @@ public class IntValue extends TypedValue<Integer> {
 
     @Override
     public String asString() {
-        return Integer.toString(value);
+        return Objects.nonNull(value)
+                ? Integer.toString(value)
+                : null;
     }
 
 

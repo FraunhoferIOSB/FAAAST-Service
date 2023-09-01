@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFac
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.math.BigInteger;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -149,7 +148,7 @@ public class ValueConverter {
             try {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
-                            ZonedDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toString());
+                            ZonedDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), DateTimeValue.DEFAULT_TIMEZONE).toString());
                 }
                 else {
                     return TypedValueFactory.create(targetType, value.getValue().toString());

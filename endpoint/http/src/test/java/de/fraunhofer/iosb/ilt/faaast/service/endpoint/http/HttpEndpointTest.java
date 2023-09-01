@@ -47,7 +47,7 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
 
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()

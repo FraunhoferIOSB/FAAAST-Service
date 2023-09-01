@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DateTimeValue extends TypedValue<ZonedDateTime> {
 
-    public static final String DEFAULT_TIMEZONE = "UTC";
+    public static final ZoneId DEFAULT_TIMEZONE = ZoneOffset.UTC;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeValue.class);
 
@@ -45,21 +46,21 @@ public class DateTimeValue extends TypedValue<ZonedDateTime> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (StringUtils.isAllBlank(value)) {
-            this.setValue(null);
+            this.value = null;
             return;
         }
         try {
-            this.setValue(ZonedDateTime.parse(value));
+            this.value = ZonedDateTime.parse(value);
         }
-        catch (DateTimeParseException ex) {
+        catch (DateTimeParseException e) {
             // If the string can't be parsed, we try to interpret it as UTC (if the time zone is missing)
             LOGGER.trace("fromString: parse with time zone failed, try to parse with the default time zone");
             try {
-                this.setValue(LocalDateTime.parse(value).atZone(ZoneId.of(DEFAULT_TIMEZONE)));
+                this.value = LocalDateTime.parse(value).atZone(DEFAULT_TIMEZONE);
             }
-            catch (DateTimeParseException dtpe) {
+            catch (DateTimeParseException e2) {
                 LOGGER.warn("fromString: no valid DateTime: {}", value);
-                throw new ValueFormatException("no valid DateTime", dtpe);
+                throw new ValueFormatException("no valid DateTime", e2);
             }
         }
     }
