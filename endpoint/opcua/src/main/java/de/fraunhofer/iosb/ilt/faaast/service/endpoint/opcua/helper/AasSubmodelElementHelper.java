@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASBlobType;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASFileType;
 import opc.i4aas.AASKeyDataType;
@@ -63,7 +64,6 @@ import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementList;
 import opc.i4aas.AASSubmodelElementType;
-import opc.i4aas.AASValueTypeDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -238,13 +238,13 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            AASValueTypeDataType valueDataType;
+            AASDataTypeDefXsd valueDataType;
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
-                valueDataType = ValueConverter.datatypeToValueType(typedValue.getValue().getDataType());
+                valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
             }
             else {
-                valueDataType = ValueConverter.dataTypeXsdToValueType(aasProperty.getValueType());
+                valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             }
 
             //LOG.info("AAS ValueType: {}; valueDataType: {}", aasProperty.getValueType(), valueDataType);
@@ -259,19 +259,21 @@ public class AasSubmodelElementHelper {
                     setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int32:
+                case Int:
                     setInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int64:
+                case Long:
+                case Integer:
+                case Decimal:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int16:
+                case Short:
                     setInt16PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case SByte:
+                case Byte:
                     setSBytePropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -455,12 +457,12 @@ public class AasSubmodelElementHelper {
         try {
             TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
             TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
-            AASValueTypeDataType valueDataType;
+            AASDataTypeDefXsd valueDataType;
             if (minTypedValue != null) {
-                valueDataType = ValueConverter.datatypeToValueType(minTypedValue.getDataType());
+                valueDataType = ValueConverter.datatypeToOpcDataType(minTypedValue.getDataType());
             }
             else {
-                valueDataType = ValueConverter.dataTypeXsdToValueType(valueType);
+                valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
             }
 
             range.setValueType(valueDataType);
@@ -474,19 +476,21 @@ public class AasSubmodelElementHelper {
                     setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case Int32:
+                case Int:
                     setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Int64:
+                case Long:
+                case Integer:
+                case Decimal:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case Int16:
+                case Short:
                     setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case SByte:
+                case Byte:
                     setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

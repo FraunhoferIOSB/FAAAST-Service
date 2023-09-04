@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import opc.i4aas.AASAssetKindDataType;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
@@ -401,7 +402,7 @@ public class TestUtils {
     }
 
 
-    public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, AASModellingKindDataType kind, String category, AASValueTypeDataType valueType,
+    public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, String category, AASDataTypeDefXsd valueType,
                                               String propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -461,7 +462,7 @@ public class TestUtils {
     }
 
 
-    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, AASModellingKindDataType kind, String category, AASValueTypeDataType valueType,
+    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, String category, AASDataTypeDefXsd valueType,
                                               Object propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();

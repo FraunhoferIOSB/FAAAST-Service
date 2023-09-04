@@ -58,12 +58,12 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
-import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -965,7 +965,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "VARIABLE", AASValueTypeDataType.Int64,
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", AASDataTypeDefXsd.Integer,
                 Long.valueOf(4370), new ArrayList<>());
     }
 
@@ -981,10 +981,10 @@ public class OpcUaEndpointTest {
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, null);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "PARAMETER",
-                AASValueTypeDataType.Int64, Long.valueOf(5000), new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, AASModellingKindDataType.Instance, "PARAMETER",
-                AASValueTypeDataType.Int64, Long.valueOf(123456), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
+                AASDataTypeDefXsd.Integer, Long.valueOf(5000), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
+                AASDataTypeDefXsd.Decimal, Long.valueOf(123456), new ArrayList<>());
     }
 
 

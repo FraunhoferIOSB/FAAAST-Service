@@ -55,12 +55,12 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
-import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -820,8 +820,8 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
 
         DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getTimeZone("UTC"));
-        TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, AASModellingKindDataType.Instance, "Parameter",
-                AASValueTypeDataType.DateTime, dt, new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
+                AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
 
         ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE));
         DateTime dtnew = new DateTime(GregorianCalendar.from(zdtnew));
@@ -908,7 +908,7 @@ public class OpcUaEndpointFullTest {
                 .valueType(DataTypeDefXSD.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
-        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", AASModellingKindDataType.Instance, "", AASValueTypeDataType.String,
+        TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", "", AASDataTypeDefXsd.String,
                 "http://acplt.org/ValueId/ACPLT", list);
     }
 }

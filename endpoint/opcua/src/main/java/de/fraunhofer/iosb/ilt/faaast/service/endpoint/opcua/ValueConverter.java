@@ -261,6 +261,29 @@ public class ValueConverter {
 
 
     /**
+     * Converts the given datatype to the corresponding AASDataTypeDefXsd.
+     *
+     * @param type The desired datatype
+     * @return The corresponding AASValueTypeDataType
+     */
+    public static AASDataTypeDefXsd datatypeToOpcDataType(Datatype type) {
+        AASDataTypeDefXsd retval;
+
+        Ensure.requireNonNull(type, "type must not be null");
+        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("datatypeToOpcDataType: unknown type: {}", type);
+            throw new IllegalArgumentException("unknown type: " + type);
+        }
+        else {
+            retval = rv.get().dataTypeDefXsd;
+        }
+
+        return retval;
+    }
+
+
+    /**
      * Converts the given DataTypeDefXSD to the corresponding AASValueTypeDataType
      *
      * @param value The desired value.
