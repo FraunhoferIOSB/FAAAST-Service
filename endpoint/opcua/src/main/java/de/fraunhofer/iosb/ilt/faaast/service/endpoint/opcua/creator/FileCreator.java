@@ -85,7 +85,7 @@ public class FileCreator extends SubmodelElementCreator {
 
 
     private static void setFileData(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) throws StatusException {
-        // MimeType
+        // ContentType
         if (!aasFile.getContentType().isEmpty()) {
             fileNode.setContentType(aasFile.getContentType());
         }

@@ -794,7 +794,7 @@ public class AasSubmodelElementHelper {
      */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
         // MimeType
-        blob.setMimeType(value.getContentType());
+        blob.setContentType(value.getContentType());
 
         // Value
         if (value.getValue() != null) {

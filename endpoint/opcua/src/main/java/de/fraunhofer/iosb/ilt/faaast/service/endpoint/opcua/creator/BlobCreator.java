@@ -64,8 +64,8 @@ public class BlobCreator extends SubmodelElementCreator {
             AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
-            // MimeType
-            blobNode.setMimeType(aasBlob.getContentType());
+            // ContentType
+            blobNode.setContentType(aasBlob.getContentType());
 
             Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
 
@@ -85,7 +85,7 @@ public class BlobCreator extends SubmodelElementCreator {
             }
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                blobNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
 
             if (ordered) {
