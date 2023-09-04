@@ -14,20 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
-import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import com.prosysopc.ua.stack.core.AccessLevelType;
-import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
@@ -73,32 +68,32 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
             addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
             // AllowDuplicates
-            if (collNode.getAllowDuplicatesNode() == null) {
-                NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-                        collNode.getNodeId().getValue().toString() + "." + AASSubmodelElementCollectionType.ALLOW_DUPLICATES);
-                PlainProperty<Boolean> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                        UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), AASSubmodelElementCollectionType.ALLOW_DUPLICATES)
-                                .toQualifiedName(nodeManager.getNamespaceTable()),
-                        LocalizedText.english(AASSubmodelElementCollectionType.ALLOW_DUPLICATES));
-                myProperty.setDataTypeId(Identifiers.Boolean);
-                myProperty.setDescription(new LocalizedText("", ""));
-                if (VALUES_READ_ONLY) {
-                    myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-                }
-                collNode.addProperty(myProperty);
-            }
+            //            if (collNode.getAllowDuplicatesNode() == null) {
+            //                NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
+            //                        collNode.getNodeId().getValue().toString() + "." + AASSubmodelElementCollectionType.ALLOW_DUPLICATES);
+            //                PlainProperty<Boolean> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+            //                        UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), AASSubmodelElementCollectionType.ALLOW_DUPLICATES)
+            //                                .toQualifiedName(nodeManager.getNamespaceTable()),
+            //                        LocalizedText.english(AASSubmodelElementCollectionType.ALLOW_DUPLICATES));
+            //                myProperty.setDataTypeId(Identifiers.Boolean);
+            //                myProperty.setDescription(new LocalizedText("", ""));
+            //                if (VALUES_READ_ONLY) {
+            //                    myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            //                }
+            //                collNode.addProperty(myProperty);
+            //            }
 
             Reference collRef = AasUtils.toReference(parentRef, aasColl);
 
             // SubmodelElements 
             addSubmodelElements(collNode, aasColl.getValue(), submodel, collRef, false, nodeManager);
 
-            if (ordered) {
-                node.addReference(collNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(collNode);
-            }
+            //if (ordered) {
+            //    node.addReference(collNode, Identifiers.HasOrderedComponent, false);
+            //}
+            //else {
+            node.addComponent(collNode);
+            //}
 
             nodeManager.addReferable(collRef, new ObjectData(aasColl, collNode, submodel));
         }

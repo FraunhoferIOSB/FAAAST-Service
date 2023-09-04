@@ -61,13 +61,22 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
             addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
             if (aasRefElem.getValue() != null) {
-                AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                if (refElemNode.getValueNode() == null) {
+                    AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
+                            opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
+                            nodeManager);
+                }
+                else {
+                    AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                }
             }
 
             Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
 
-            nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                    new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+            if (refElemNode.getValueNode() != null) {
+                nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
+                        new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+            }
 
             nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
 
