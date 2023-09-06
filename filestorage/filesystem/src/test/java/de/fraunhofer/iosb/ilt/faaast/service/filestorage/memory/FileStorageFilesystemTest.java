@@ -17,15 +17,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.AbstractFileStorageTest;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystem;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystemConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import org.junit.Test;
 
 
-public class FileStorageInMemoryTest extends AbstractFileStorageTest<FileStorageInMemory, FileStorageInMemoryConfig> {
+public class FileStorageFilesystemTest extends AbstractFileStorageTest<FileStorageFilesystem, FileStorageFilesystemConfig> {
 
     @Override
-    public FileStorageInMemoryConfig getFileStorageConfig() {
-        return FileStorageInMemoryConfig.builder()
+    public FileStorageFilesystemConfig getFileStorageConfig() {
+        return FileStorageFilesystemConfig.builder()
                 .build();
     }
 
