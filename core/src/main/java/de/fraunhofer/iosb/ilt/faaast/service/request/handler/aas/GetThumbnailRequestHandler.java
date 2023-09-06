@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
-import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;

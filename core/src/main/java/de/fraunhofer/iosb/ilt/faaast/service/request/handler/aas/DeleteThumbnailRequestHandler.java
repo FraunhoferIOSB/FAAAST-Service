@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 
 
 /**
@@ -44,8 +45,11 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
                 || StringHelper.isBlank(aas.getAssetInformation().getDefaultThumbnail().getPath())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
-        String path = aas.getAssetInformation().getDefaultThumbnail().getPath();
+        AssetInformation assetInformation = aas.getAssetInformation();
+        String path = assetInformation.getDefaultThumbnail().getPath();
         context.getFileStorage().delete(path);
+        assetInformation.setDefaultThumbnail(null);
+        aas.setAssetInformation(assetInformation);
         // maybe publish event on messageBus
         //     context.getMessageBus()publish();
         return DeleteThumbnailResponse.builder()
