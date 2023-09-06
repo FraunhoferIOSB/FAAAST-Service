@@ -112,7 +112,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         catch (IOException e) {
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
         }
-        filelist.remove(path);
+        filelist.remove(base64);
     }
 
 
