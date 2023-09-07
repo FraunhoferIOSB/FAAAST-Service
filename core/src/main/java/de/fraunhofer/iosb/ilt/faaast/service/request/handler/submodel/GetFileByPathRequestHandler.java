@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFile
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ValueReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -48,8 +49,9 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
         FileContent fileContent = context.getFileStorage().get(file.getValue());
-        // @TODO maybe publish on MessageBus
-        //    context.getMessageBus()publish(...);
+        context.getMessageBus().publish(ValueReadEventMessage.builder()
+                .element(reference)
+                .build());
         return GetFileByPathResponse.builder()
                 .payload(fileContent)
                 .success()

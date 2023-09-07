@@ -47,7 +47,6 @@ public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbn
         }
         String path = aas.getAssetInformation().getDefaultThumbnail().getPath();
         FileContent fileContent = context.getFileStorage().get(path);
-        // maybe publish event on messageBus
         return GetThumbnailResponse.builder()
                 .payload(fileContent)
                 .success()

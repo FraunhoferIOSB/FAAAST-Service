@@ -46,8 +46,6 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
         }
         String path = aas.getAssetInformation().getDefaultThumbnail().getPath();
         context.getFileStorage().save(path, request.getContent());
-        // maybe publish event on messageBus
-        //     context.getMessageBus()publish();
         return PutThumbnailResponse.builder()
                 .success()
                 .build();

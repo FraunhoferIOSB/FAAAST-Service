@@ -50,8 +50,6 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
         context.getFileStorage().delete(path);
         assetInformation.setDefaultThumbnail(null);
         aas.setAssetInformation(assetInformation);
-        // maybe publish event on messageBus
-        //     context.getMessageBus()publish();
         return DeleteThumbnailResponse.builder()
                 .success()
                 .build();
