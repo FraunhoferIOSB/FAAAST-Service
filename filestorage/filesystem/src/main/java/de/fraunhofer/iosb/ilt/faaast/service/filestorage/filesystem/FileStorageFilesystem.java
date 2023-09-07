@@ -23,11 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.AbstractMap;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
@@ -90,11 +88,11 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         String base64 = Base64.getUrlEncoder().encodeToString(path.getBytes());
         try {
             diskPath = Files.write(Path.of(base64), file.getContent());
+            filelist.put(base64, diskPath);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        filelist.put(base64, diskPath);
     }
 
 
@@ -106,11 +104,12 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         }
         try {
             Files.delete(filelist.get(base64));
+            filelist.remove(base64);
         }
         catch (IOException e) {
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
         }
-        filelist.remove(base64);
+
     }
 
 

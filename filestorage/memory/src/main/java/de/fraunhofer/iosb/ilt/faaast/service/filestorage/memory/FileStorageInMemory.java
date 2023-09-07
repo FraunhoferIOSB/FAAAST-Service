@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
