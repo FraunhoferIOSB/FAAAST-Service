@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+
 /**
  * Represents a record according to SMT TimeSeries.
  */
@@ -58,40 +59,48 @@ public class Record extends ExtendableSubmodelElementCollection {
         this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        } else if (obj == null) {
+        }
+        else if (obj == null) {
             return false;
-        } else if (this.getClass() != obj.getClass()) {
+        }
+        else if (this.getClass() != obj.getClass()) {
             return false;
-        } else {
+        }
+        else {
             Record other = (Record) obj;
             return super.equals(obj)
                     && Objects.equals(this.timesAndVariables, other.timesAndVariables);
         }
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), timesAndVariables);
     }
+
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
      *
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Record}, or null if
-     * input is null
+     *         input is null
      */
     public static Record of(SubmodelElementCollection smc) {
         return ExtendableSubmodelElementCollection.genericOf(new Record(), smc);
     }
 
+
     public Map<String, Property> getTimesAndVariables() {
         return timesAndVariables.getValue();
     }
+
 
     /**
      * Sets the variables.
@@ -101,6 +110,7 @@ public class Record extends ExtendableSubmodelElementCollection {
     public void setTimesAndVariables(Map<String, Property> variables) {
         this.timesAndVariables.setValue(variables);
     }
+
 
     /**
      * Add to the variables.
@@ -112,6 +122,7 @@ public class Record extends ExtendableSubmodelElementCollection {
         this.timesAndVariables.getValue().put(variableName, value);
     }
 
+
     public static Builder builder() {
         return new Builder();
     }
@@ -122,6 +133,7 @@ public class Record extends ExtendableSubmodelElementCollection {
             getBuildingInstance().setTimesAndVariables(value);
             return getSelf();
         }
+
 
         public B timeOrVariable(String key, Property value) {
             getBuildingInstance().getTimesAndVariables().put(key, value);
@@ -135,6 +147,7 @@ public class Record extends ExtendableSubmodelElementCollection {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected Record newBuildingInstance() {
