@@ -29,54 +29,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-
 /**
  * Represents a record according to SMT TimeSeries.
  */
 public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private Wrapper<Map<String, Property>, Property> variablesAndTimes = new MapWrapper<>(
+    private Wrapper<Map<String, Property>, Property> timesAndVariables = new MapWrapper<>(
             values,
             new HashMap<>(),
             Property.class,
             x -> x.getValue(),
             x -> x instanceof Property,
             x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), x));
-
-    //    @JsonIgnore
-    //    private Wrapper<Map<String, Time>, Property> times = new MapWrapper<>(
-    //            values,
-    //            new LinkedHashMap<>(),
-    //            Property.class,
-    //            x -> new DefaultProperty.Builder()
-    //                    .idShort(x.getKey())
-    //                    .valueType(x.getValue().getDataValueType())
-    //                    .value(x.getValue().getTimestampString())
-    //                    .semanticId(ReferenceHelper.globalReference(TimeFactory.getSemanticIDForClass(x.getValue().getClass())))
-    //                    .build(),
-    //            x -> TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
-    //            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), TimeFactory.getTimeTypeFrom(x.getSemanticId(), x.getValue()).get()));
-    //
-    //    @JsonIgnore
-    //    private Wrapper<Map<String, TypedValue>, Property> variablesAndTimes = new MapWrapper<>(
-    //            values,
-    //            new HashMap<>(),
-    //            Property.class,
-    //            x -> new DefaultProperty.Builder()
-    //                    .idShort(x.getKey())
-    //                    .valueType(x.getValue().getDataType().getName())
-    //                    .value(x.getValue().asString())
-    //                    .build(),
-    //            x -> !TimeFactory.isParseable(x.getSemanticId(), x.getValue()),
-    //            x -> {
-    //                try {
-    //                    return new AbstractMap.SimpleEntry<>(x.getIdShort(), TypedValueFactory.create(x.getValueType(), x.getValue()));
-    //                }
-    //                catch (ValueFormatException e) {
-    //                    throw new IllegalArgumentException(e);
-    //                }
-    //            });
 
     @JsonIgnore
     private Wrapper<Map<String, Property>, Property> propertyVariables = new MapWrapper<>(
@@ -87,63 +52,46 @@ public class Record extends ExtendableSubmodelElementCollection {
             x -> x instanceof Property,
             x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), x));
 
-    //    @JsonIgnore
-    //    private Wrapper<Map<String, ? extends DataElement>, ? extends DataElement> dataelementVariables = new MapWrapper<>(
-    //            values,
-    //            new HashMap<>(),
-    //            DataElement.class,
-    //            x -> ((DataElement) x.getValue()),
-    //            x -> (x instanceof DataElement) && !(x instanceof Property),
-    //            x -> new AbstractMap.SimpleEntry<>(x.getIdShort(), ((DataElement)x)));
-
     public Record() {
-        withAdditionalValues(variablesAndTimes);
+        withAdditionalValues(timesAndVariables);
         this.idShort = IdentifierHelper.randomId("Record");
         this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
     }
-
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        }
-        else if (obj == null) {
+        } else if (obj == null) {
             return false;
-        }
-        else if (this.getClass() != obj.getClass()) {
+        } else if (this.getClass() != obj.getClass()) {
             return false;
-        }
-        else {
+        } else {
             Record other = (Record) obj;
             return super.equals(obj)
-                    && Objects.equals(this.variablesAndTimes, other.variablesAndTimes);
+                    && Objects.equals(this.timesAndVariables, other.timesAndVariables);
         }
     }
-
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), variablesAndTimes);
+        return Objects.hash(super.hashCode(), timesAndVariables);
     }
-
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
      *
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Record}, or null if
-     *         input is null
+     * input is null
      */
     public static Record of(SubmodelElementCollection smc) {
         return ExtendableSubmodelElementCollection.genericOf(new Record(), smc);
     }
 
-
     public Map<String, Property> getTimesAndVariables() {
-        return variablesAndTimes.getValue();
+        return timesAndVariables.getValue();
     }
-
 
     /**
      * Sets the variables.
@@ -151,9 +99,8 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param variables the variables to set
      */
     public void setTimesAndVariables(Map<String, Property> variables) {
-        this.variablesAndTimes.setValue(variables);
+        this.timesAndVariables.setValue(variables);
     }
-
 
     /**
      * Add to the variables.
@@ -162,9 +109,8 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param value {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue} of the variable
      */
     public void addVariables(String variableName, Property value) {
-        this.variablesAndTimes.getValue().put(variableName, value);
+        this.timesAndVariables.getValue().put(variableName, value);
     }
-
 
     public static Builder builder() {
         return new Builder();
@@ -176,7 +122,6 @@ public class Record extends ExtendableSubmodelElementCollection {
             getBuildingInstance().setTimesAndVariables(value);
             return getSelf();
         }
-
 
         public B timeOrVariable(String key, Property value) {
             getBuildingInstance().getTimesAndVariables().put(key, value);
@@ -190,7 +135,6 @@ public class Record extends ExtendableSubmodelElementCollection {
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected Record newBuildingInstance() {
