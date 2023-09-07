@@ -41,7 +41,6 @@ public class InMemoryFile extends AbstractFileContent {
      */
     public FileContent asFileContent() {
         return FileContent.builder()
-                .contentType(getContentType())
                 .content(getContent())
                 .build();
     }

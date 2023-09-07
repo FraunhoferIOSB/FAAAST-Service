@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemConfig> {
 
     private FileStorageFilesystemConfig config;
-    private final Map<String, Map.Entry<Path, String>> filelist;
+    private final Map<String, Path> filelist;
 
     public FileStorageFilesystem() {
         filelist = new ConcurrentHashMap<>();
@@ -55,7 +55,6 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
             environmentContext.getFiles().stream().forEach(v -> save(v.getPath(),
                     FileContent.builder()
                             .content(v.getFileContent())
-                            .contentType(FileHelper.getFileExtensionWithoutSeparator(v.getPath()))
                             .build()));
         }
         catch (DeserializationException | InvalidConfigurationException e) {
@@ -70,14 +69,13 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         if (!filelist.containsKey(base64)) {
             throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
         }
-        Path diskpath = filelist.get(base64).getKey();
+        Path diskpath = filelist.get(base64);
         if (Objects.isNull(diskpath)) {
             throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
         }
         try {
             return new FileContent.Builder()
                     .content(Files.readAllBytes(diskpath))
-                    .contentType(filelist.get(base64).getValue())
                     .build();
         }
         catch (IOException e) {
@@ -96,7 +94,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-        filelist.put(base64, new AbstractMap.SimpleEntry<Path, String>(diskPath, file.getContentType()));
+        filelist.put(base64, diskPath);
     }
 
 
@@ -107,7 +105,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
         }
         try {
-            Files.delete(filelist.get(base64).getKey());
+            Files.delete(filelist.get(base64));
         }
         catch (IOException e) {
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));

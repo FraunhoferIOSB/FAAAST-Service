@@ -49,7 +49,6 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
             environmentContext.getFiles().stream().forEach(v -> save(v.getPath(),
                     FileContent.builder()
                             .content(v.getFileContent())
-                            .contentType(FileHelper.getFileExtensionWithoutSeparator(v.getPath()))
                             .build()));
         }
         catch (DeserializationException | InvalidConfigurationException e) {

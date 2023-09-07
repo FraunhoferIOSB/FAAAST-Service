@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.ContentTypeHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,23 +41,12 @@ public class ResponseWithFileMapper<T> extends AbstractResponseMapper<AbstractRe
                     httpResponse,
                     apiResponse.getStatusCode(),
                     apiResponse.getPayload().getContent(),
-                    //@TODO must fix content types in FileContent to match Google MediaType
-                    MediaType.parse(extendContentType(apiResponse.getPayload().getContentType())));
+                    MediaType.parse(ContentTypeHelper.guessContentType(apiResponse.getPayload().getContent())));
 
         }
         catch (Exception e) {
             HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
         }
 
-    }
-
-
-    private String extendContentType(String contentType) {
-        switch (contentType) {
-            case "pdf":
-                return "application/pdf";
-            default:
-                return "application/" + contentType;
-        }
     }
 }

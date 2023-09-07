@@ -54,7 +54,6 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
                     .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
                     .content(FileContent.builder()
                             .content(thumbnailData)
-                            .contentType(contentType)
                             .build())
                     .build();
         }

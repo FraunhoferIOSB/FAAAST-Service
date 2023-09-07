@@ -24,18 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public abstract class AbstractFileContent {
 
-    protected String contentType;
     protected byte[] content;
-
-    public String getContentType() {
-        return contentType;
-    }
-
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
 
     public byte[] getContent() {
         return content;
@@ -56,23 +45,16 @@ public abstract class AbstractFileContent {
             return false;
         }
         AbstractFileContent that = (AbstractFileContent) o;
-        return Objects.equals(contentType, that.contentType)
-                && Arrays.equals(content, that.content);
+        return Arrays.equals(content, that.content);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(contentType, Arrays.hashCode(content));
+        return Objects.hash(Arrays.hashCode(content));
     }
 
     public abstract static class AbstractBuilder<T extends AbstractFileContent, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B contentType(String value) {
-            getBuildingInstance().setContentType(value);
-            return getSelf();
-        }
-
 
         public B content(byte[] value) {
             getBuildingInstance().setContent(value);

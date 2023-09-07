@@ -57,7 +57,6 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
                     .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
                     .content(FileContent.builder()
                             .content(fileData)
-                            .contentType(contentType)
                             .build())
                     .build();
         }
