@@ -53,7 +53,6 @@ public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extend
         fileStorage = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         InMemoryFile expected = InMemoryFile.builder()
                 .path("my/path/file.txt")
-                .contentType("text/plain")
                 .content("foo".getBytes())
                 .build();
         fileStorage.save(expected);

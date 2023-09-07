@@ -402,7 +402,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .contentType("foo/bar")
                 .path("my/path")
                 .content("foo".getBytes())
                 .build();
@@ -419,7 +418,6 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
-                        .contentType(file.getContentType())
                         .build());
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
@@ -436,7 +434,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPutDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .contentType("foo/bar")
                 .path("my/path")
                 .content("foo".getBytes())
                 .build();
@@ -453,7 +450,6 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
-                        .contentType(file.getContentType())
                         .build());
         PutThumbnailRequest putThumbnailRequestRequest = new PutThumbnailRequest.Builder()
                 .id(aasId)
@@ -483,7 +479,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPutGetFileRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .contentType("foo/bar")
                 .path("file:///TestFile.pdf")
                 .content("foo".getBytes())
                 .build();
