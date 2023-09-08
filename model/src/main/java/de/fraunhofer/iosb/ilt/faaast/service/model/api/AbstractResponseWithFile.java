@@ -25,6 +25,17 @@ public abstract class AbstractResponseWithFile<T> extends AbstractResponse {
 
     protected FileContent payload;
 
+    public String getContentType() {
+        return contentType;
+    }
+
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    protected String contentType;
+
     public FileContent getPayload() {
         return payload;
     }
@@ -58,6 +69,12 @@ public abstract class AbstractResponseWithFile<T> extends AbstractResponse {
 
         public B payload(FileContent value) {
             getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        public B contentType(String value) {
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
     }

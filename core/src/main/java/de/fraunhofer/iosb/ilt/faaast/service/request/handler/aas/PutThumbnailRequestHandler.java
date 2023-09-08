@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 
 
 /**
@@ -44,7 +45,16 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
                 || StringHelper.isBlank(aas.getAssetInformation().getDefaultThumbnail().getPath())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
-        String path = aas.getAssetInformation().getDefaultThumbnail().getPath();
+        String path = request.getFileName();
+        if (!path.contains("!!!")) {
+            path = "master:///" + path;
+        }
+        //@TODO: where to get content type, possible solution: guess from file extension
+        aas.getAssetInformation().setDefaultThumbnail(new DefaultResource.Builder()
+                .path(path)
+                .contentType("")
+                .build());
+        context.getPersistence().save(aas);
         context.getFileStorage().save(path, request.getContent());
         return PutThumbnailResponse.builder()
                 .success()

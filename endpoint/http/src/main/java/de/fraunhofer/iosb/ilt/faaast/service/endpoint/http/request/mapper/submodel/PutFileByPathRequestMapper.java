@@ -18,8 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.ContentTypeHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
@@ -27,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFile
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.io.IOException;
 import java.util.Map;
 
 
@@ -48,21 +45,12 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
 
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        byte[] fileData = httpRequest.getBody().getBytes();
-        try {
-            String contentType = httpRequest.getHeaders().containsKey(HttpConstants.HEADER_CONTENT_TYPE)
-                    ? httpRequest.getHeaders().get(HttpConstants.HEADER_CONTENT_TYPE)
-                    : ContentTypeHelper.guessContentType(fileData);
-            return PutFileByPathRequest.builder()
-                    .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                    .content(FileContent.builder()
-                            .content(fileData)
-                            .build())
-                    .build();
-        }
-        catch (IOException ex) {
-            throw new InvalidRequestException("unable to determine content-type");
-        }
-
+        //@TODO: where to get content type
+        return PutFileByPathRequest.builder()
+                .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .content(FileContent.builder()
+                        .content(httpRequest.getBody().getBytes())
+                        .build())
+                .build();
     }
 }
