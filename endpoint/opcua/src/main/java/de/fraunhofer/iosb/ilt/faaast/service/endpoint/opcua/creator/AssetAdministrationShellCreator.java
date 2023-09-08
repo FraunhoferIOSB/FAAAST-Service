@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
@@ -107,7 +108,8 @@ public class AssetAdministrationShellCreator {
         // add AAS to Environment
         nodeManager.addNodeAndReference(node, aasShell, Identifiers.Organizes);
 
-        nodeManager.addReferable(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
+        //nodeManager.addReferable(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
+        nodeManager.addReferable(EnvironmentHelper.asReference(aas, nodeManager.getEnvironment()), new ObjectData(aas, aasShell));
     }
 
 

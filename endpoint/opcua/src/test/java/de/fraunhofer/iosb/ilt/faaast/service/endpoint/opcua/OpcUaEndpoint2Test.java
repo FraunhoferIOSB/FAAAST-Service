@@ -35,6 +35,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import java.io.File;
@@ -358,27 +360,23 @@ public class OpcUaEndpoint2Test {
         String newValue = "New Test Value";
 
         // update SubmodelElement 
-        // Send update event to MessageBus
         CountDownLatch condition = new CountDownLatch(1);
-        ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_DOC_NAME).build())
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.OPERATING_MANUAL_NAME).build())
-                .build());
-        msg.setValue(new DefaultSubmodelElementCollection.Builder()
-                //.kind(ModellingKind.INSTANCE)
-                .idShort("OperatingManual")
-                .value(new DefaultProperty.Builder()
-                        //.kind(ModellingKind.INSTANCE)
-                        .idShort("Title")
-                        .value(newValue)
-                        .valueType(DataTypeDefXSD.STRING)
+
+        PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
+                .submodelId(TestConstants.SUBMODEL_DOC_NAME)
+                .path(TestConstants.OPERATING_MANUAL_NAME)
+                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                        .idShort(TestConstants.OPERATING_MANUAL_NAME)
+                        .value(new DefaultProperty.Builder()
+                                .idShort("Title")
+                                .value(newValue)
+                                .valueType(DataTypeDefXSD.STRING)
+                                .build())
                         .build())
-                //.ordered(false)
-                //.allowDuplicates(false)
-                .build());
-        service.getMessageBus().publish(msg);
+                .build();
+        PutSubmodelElementByPathResponse response = (PutSubmodelElementByPathResponse) service.execute(request);
+        LOGGER.info("testUpdateSubmodelElement: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // check MessageBus
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);

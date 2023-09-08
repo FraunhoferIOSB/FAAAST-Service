@@ -36,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,6 @@ public class SubmodelElementCreator {
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (SubmodelElement elem: elements) {
-                //elem.getEmbeddedDataSpecifications()
                 if (elem instanceof DataElement) {
                     DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, nodeManager);
                 }
@@ -114,6 +114,9 @@ public class SubmodelElementCreator {
                 }
                 else if (elem instanceof SubmodelElementCollection) {
                     SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof SubmodelElementList) {
+                    SubmodelElementListCreator.addAasSubmodelElementList(node, (SubmodelElementList) elem, submodel, parentRef, ordered, nodeManager);
                 }
                 else if (elem != null) {
                     LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());

@@ -121,7 +121,8 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
 
         // Annotations 
         for (DataElement de: aasRelElem.getAnnotations()) {
-            DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false, nodeManager);
+            //DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false, nodeManager);
+            DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, null, false, nodeManager);
         }
 
         retval = relElemNode;

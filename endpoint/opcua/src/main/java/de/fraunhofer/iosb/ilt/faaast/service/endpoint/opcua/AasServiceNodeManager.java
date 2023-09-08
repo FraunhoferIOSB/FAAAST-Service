@@ -393,6 +393,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.debug("elementCreated called. Reference {}", AasUtils.asString(element));
         }
         // The element is the parent object where the value is added
+        // in the future, this will be the reference to the object which is added itself, not the parent
         ObjectData parent = null;
         if (referableMap.containsKey(element)) {
             //LOG.info("Parent not found: {}", AasUtils.asString(element));
@@ -596,7 +597,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodelElement The corresponding SubmodelElement node.
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
-        //LOG.info("add to submodelElementOpcUAMap: {}", AasUtils.asString(reference));
+        LOG.info("add to submodelElementOpcUAMap: {}", AasUtils.asString(reference));
         submodelElementOpcUAMap.put(SubmodelElementIdentifier.fromReference(reference), submodelElement);
     }
 
@@ -620,6 +621,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public void addSubmodelElementAasMap(NodeId nodeId, SubmodelElementData data) {
         submodelElementAasMap.put(nodeId, data);
+    }
+
+
+    /**
+     * Get the AAS Environment.
+     * 
+     * @return the AAS Environment.
+     */
+    public Environment getEnvironment() {
+        return aasEnvironment;
     }
 
 

@@ -31,12 +31,15 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class to create SubmodelElementCollections and integrate them into the OPC UA address space.
  */
 public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementCollectionCreator.class);
 
     /**
      * Adds a SubmodelElementCollection to the given node.
@@ -86,6 +89,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
             Reference collRef = AasUtils.toReference(parentRef, aasColl);
 
             // SubmodelElements 
+            LOGGER.info("addAasSubmodelElementCollection ({}): add {} SubmodelElements", name, aasColl.getValue().size());
             addSubmodelElements(collNode, aasColl.getValue(), submodel, collRef, false, nodeManager);
 
             //if (ordered) {

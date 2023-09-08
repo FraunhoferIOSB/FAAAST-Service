@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import opc.i4aas.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -67,7 +68,16 @@ public class BlobCreator extends SubmodelElementCreator {
             // ContentType
             blobNode.setContentType(aasBlob.getContentType());
 
-            Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
+            Reference blobRef = null;
+            if (parentRef != null) {
+                try {
+                    blobRef = EnvironmentHelper.asReference(aasBlob, nodeManager.getEnvironment());
+                }
+                catch (IllegalArgumentException iae) {
+                    blobRef = AasUtils.toReference(parentRef, aasBlob);
+                    LOGGER.warn("addAasBlob: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), AasUtils.asString(blobRef));
+                }
+            }
 
             // Value
             if (aasBlob.getValue() != null) {
@@ -79,7 +89,9 @@ public class BlobCreator extends SubmodelElementCreator {
                         new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
                 LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob);
 
-                nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
+                if (blobRef != null) {
+                    nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
+                }
 
                 blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
             }
@@ -95,7 +107,9 @@ public class BlobCreator extends SubmodelElementCreator {
                 node.addComponent(blobNode);
             }
 
-            nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
+            if (blobRef != null) {
+                nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
+            }
         }
     }
 

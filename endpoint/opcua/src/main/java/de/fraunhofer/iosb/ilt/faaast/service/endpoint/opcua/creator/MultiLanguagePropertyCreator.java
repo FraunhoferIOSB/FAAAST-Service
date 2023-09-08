@@ -26,9 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.List;
 import opc.i4aas.AASMultiLanguagePropertyType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -77,7 +77,8 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueID(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
             }
 
-            Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
+            Reference multiLangRef = EnvironmentHelper.asReference(aasMultiLang, nodeManager.getEnvironment());
+            //Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
             nodeManager.addSubmodelElementAasMap(multiLangNode.getValueNode().getNodeId(),
                     new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
 

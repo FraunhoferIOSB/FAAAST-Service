@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import opc.i4aas.AASPropertyType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -64,7 +65,17 @@ public class PropertyCreator extends SubmodelElementCreator {
             AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
-            Reference propRef = AasUtils.toReference(parentRef, aasProperty);
+            Reference propRef = null;
+            if (parentRef != null) {
+                try {
+                    propRef = EnvironmentHelper.asReference(aasProperty, nodeManager.getEnvironment());
+                }
+                catch (IllegalArgumentException iae) {
+                    propRef = AasUtils.toReference(parentRef, aasProperty);
+                    LOGGER.warn("addAasProperty (IdShort {}): exception in EnvironmentHelper.asReference: {}; try alternative version: {}", aasProperty.getIdShort(),
+                            iae.getMessage(), AasUtils.asString(propRef));
+                }
+            }
 
             // ValueId
             Reference ref = aasProperty.getValueID();
@@ -75,7 +86,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             // here Value and ValueType are set
             addOpcUaProperty(aasProperty, submodel, prop, propRef, nodeManager);
 
-            if (submodel != null) {
+            if (propRef != null) {
                 nodeManager.addSubmodelElementOpcUA(propRef, prop);
             }
 
@@ -98,7 +109,9 @@ public class PropertyCreator extends SubmodelElementCreator {
                 node.addComponent(prop);
             }
 
-            nodeManager.addReferable(propRef, new ObjectData(aasProperty, prop, submodel));
+            if (propRef != null) {
+                nodeManager.addReferable(propRef, new ObjectData(aasProperty, prop, submodel));
+            }
         }
         catch (Exception ex) {
             LOGGER.error("addAasProperty Exception", ex);
