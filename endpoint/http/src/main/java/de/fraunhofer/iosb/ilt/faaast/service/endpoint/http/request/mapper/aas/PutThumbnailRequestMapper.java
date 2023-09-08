@@ -18,16 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.ContentTypeHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.io.IOException;
+import org.apache.http.entity.ContentType;
+
 import java.util.Map;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
 
 
 /**
@@ -45,20 +46,14 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        byte[] thumbnailData = httpRequest.getBody().getBytes();
-        try {
-            String contentType = httpRequest.getHeaders().containsKey(HttpConstants.HEADER_CONTENT_TYPE)
-                    ? httpRequest.getHeaders().get(HttpConstants.HEADER_CONTENT_TYPE)
-                    : ContentTypeHelper.guessContentType(thumbnailData);
-            return PutThumbnailRequest.builder()
-                    .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
-                    .content(FileContent.builder()
-                            .content(thumbnailData)
-                            .build())
-                    .build();
-        }
-        catch (IOException ex) {
-            throw new InvalidRequestException("unable to determine content-type");
-        }
+        ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
+        Map<String, String> multipart = parseMultiPartBody(httpRequest, contentType);
+        return PutThumbnailRequest.builder()
+                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
+                .content(FileContent.builder()
+                        .content(multipart.get("file").getBytes())
+                        .path(multipart.get("fileName"))
+                        .build())
+                .build();
     }
 }

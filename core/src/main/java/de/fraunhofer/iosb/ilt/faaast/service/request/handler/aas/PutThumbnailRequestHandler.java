@@ -46,7 +46,7 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
         String path = request.getFileName();
-        if (!path.contains("!!!")) {
+        if (!path.contains("///")) {
             path = "master:///" + path;
         }
         //@TODO: where to get content type, possible solution: guess from file extension

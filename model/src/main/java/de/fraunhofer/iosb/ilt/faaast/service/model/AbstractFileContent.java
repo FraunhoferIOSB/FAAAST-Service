@@ -26,6 +26,17 @@ public abstract class AbstractFileContent {
 
     protected byte[] content;
 
+    public String getPath() {
+        return path;
+    }
+
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    private String path;
+
     public byte[] getContent() {
         return content;
     }
@@ -58,6 +69,12 @@ public abstract class AbstractFileContent {
 
         public B content(byte[] value) {
             getBuildingInstance().setContent(value);
+            return getSelf();
+        }
+
+
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
             return getSelf();
         }
     }

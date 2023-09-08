@@ -26,11 +26,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import jakarta.json.Json;
 import jakarta.json.JsonMergePatch;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.http.entity.ContentType;
 
 
 /**
@@ -153,6 +158,43 @@ public abstract class AbstractRequestMapper {
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);
         }
+    }
+
+
+    /**
+     * Deserializes HTTP body multipart form data.
+     *
+     * @param httpRequest HTTP request
+     * @param contentType the multipart contentType containing the boundary
+     * @return deserialized payload
+     * @throws InvalidRequestException if deserialization fails
+     * @throws IllegalArgumentException if httpRequest is null
+     */
+    protected Map<String, String> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
+        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
+        Map<String, String> map = new HashMap<String, String>();
+        try {
+            MultipartStream multipartStream = new MultipartStream(
+                    new ByteArrayInputStream(httpRequest.getBody().getBytes()),
+                    contentType.getParameter("boundary").getBytes());
+            boolean nextPart = multipartStream.skipPreamble();
+            while (nextPart) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                String partHeaders = multipartStream.readHeaders();
+                multipartStream.readBodyData(output);
+                if (partHeaders.contains("text/plain")) {
+                    map.put("fileName", output.toString());
+                }
+                else {
+                    map.put("file", output.toString());
+                }
+                nextPart = multipartStream.readBoundary();
+            }
+        }
+        catch (IOException e) {
+            throw new InvalidRequestException("error parsing body", e);
+        }
+        return map;
     }
 
 

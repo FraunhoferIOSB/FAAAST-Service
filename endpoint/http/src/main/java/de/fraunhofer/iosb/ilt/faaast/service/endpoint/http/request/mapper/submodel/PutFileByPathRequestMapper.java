@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
@@ -25,7 +27,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFile
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.apache.http.entity.ContentType;
 
 
 /**
@@ -45,11 +49,13 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
 
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        //@TODO: where to get content type
+        ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
+        Map<String, String> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutFileByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
                 .content(FileContent.builder()
-                        .content(httpRequest.getBody().getBytes())
+                        .content(multipart.get("file").getBytes())
+                        .path(multipart.get("fileName"))
                         .build())
                 .build();
     }

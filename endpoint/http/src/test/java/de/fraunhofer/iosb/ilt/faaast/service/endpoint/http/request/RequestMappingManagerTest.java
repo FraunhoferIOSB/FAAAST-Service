@@ -101,8 +101,12 @@ import jakarta.json.Json;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -1010,17 +1014,33 @@ public class RequestMappingManagerTest {
     }
 
 
+    private String generateMultipartBodyRandomFile(String fileName, ContentType contentType) {
+        String generatedString = RandomStringUtils.randomAlphabetic(10);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("fileName", fileName, ContentType.TEXT_PLAIN);
+        builder.addTextBody("file", generatedString, contentType);
+        builder.setBoundary("boundary");
+        String multipart = null;
+        try {
+            multipart = EntityUtils.toString(builder.build());
+        }
+        catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return multipart;
+    }
+
+
     @Test
-    public void testPutFileByPath() throws InvalidRequestException, MethodNotAllowedException {
-        byte[] content = new byte[20];
-        new Random().nextBytes(content);
-        String contentType = "application/pdf";
+    public void testPutFileByPath() throws InvalidRequestException {
+        String generated = generateMultipartBodyRandomFile("test.pdf", ContentType.APPLICATION_PDF);
+        String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutFileByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .content(FileContent.builder()
-                        .content(content)
-                        .contentType(contentType)
+                        .path("test.pdf")
+                        .content(generated.getBytes())
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -1028,7 +1048,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
                 .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
-                .body(new String(content))
+                .body(generated)
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1083,20 +1103,19 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testPutThumbnail() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
-        byte[] content = new byte[20];
-        new Random().nextBytes(content);
-        String contentType = "application/pdf";
+        String generated = generateMultipartBodyRandomFile("test.png", ContentType.IMAGE_PNG);
+        String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutThumbnailRequest.builder()
                 .id(AAS.getId())
                 .content(FileContent.builder()
-                        .content(content)
-                        .contentType(contentType)
+                        .path("test.pdf")
+                        .content(generated.getBytes())
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
-                .body(new String(content))
+                .body(generated)
                 .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
                 .build());
         Assert.assertEquals(expected, actual);
