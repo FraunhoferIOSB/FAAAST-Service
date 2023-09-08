@@ -54,8 +54,8 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
         //@TODO where to get contentType
         file.setContentType("");
         String path = request.getContent().getPath();
-        if(!path.contains("///")) {
-            path = "master:///"+path;
+        if (!path.contains("///")) {
+            path = "master:///" + path;
         }
         file.setValue(path);
         context.getPersistence().save(submodelReference, file);

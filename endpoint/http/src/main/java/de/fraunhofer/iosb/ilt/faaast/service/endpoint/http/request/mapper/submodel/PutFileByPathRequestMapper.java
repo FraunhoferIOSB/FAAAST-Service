@@ -27,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFile
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.http.entity.ContentType;
 
