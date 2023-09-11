@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -36,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -165,6 +165,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
@@ -177,6 +178,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -210,7 +212,7 @@ public class RequestHandlerManagerTest {
         environment = AASFull.createEnvironment();
         coreConfig = CoreConfig.DEFAULT;
         messageBus = mock(MessageBus.class);
-        persistence = mock(Persistence.class);
+        persistence = spy(Persistence.class);
         serviceContext = mock(ServiceContext.class);
         assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), serviceContext));
         fileStorage = mock(FileStorage.class);
@@ -726,7 +728,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
-        when(persistence.getSubmodelElements(eq(reference), any()))
+        when(persistence.getSubmodelElements(eq(SubmodelElementIdentifier.fromReference(reference)), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
@@ -754,7 +756,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(reference, environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        verify(persistence).save(SubmodelElementIdentifier.fromReference(reference), environment.getSubmodels().get(0).getSubmodelElements().get(0));
     }
 
 
@@ -766,7 +768,7 @@ public class RequestHandlerManagerTest {
                 .value("testValue")
                 .build();
         PropertyValue propertyValue = new PropertyValue.Builder().value(new StringValue("test")).build();
-        when(persistence.getSubmodelElement(argThat((Reference t) -> true), eq(OutputModifier.DEFAULT)))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(OutputModifier.DEFAULT)))
                 .thenReturn(cur_submodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         when(assetValueProvider.getValue()).thenReturn(propertyValue);
@@ -793,20 +795,43 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementByPathRequest() throws ResourceNotFoundException, Exception {
+        Property property1 = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXSD.STRING)
+                .value("first")
+                .build();
+        SubmodelElementList list = new DefaultSubmodelElementList.Builder()
+                .idShort("list")
+                .value(property1)
+                .build();
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .id("submodel")
+                .submodelElements(list)
+                .build();
+        IdShortPath listPath = IdShortPath.builder()
+                .path(list.getIdShort())
+                .build();
+        SubmodelElementIdentifier listIdentifier = SubmodelElementIdentifier.builder()
+                .submodelId(submodel.getId())
+                .idShortPath(listPath)
+                .build();
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
+                .thenReturn(list);
+        Property newProperty = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXSD.STRING)
+                .value("new")
+                .build();
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
-                .submodelId(environment.getSubmodels().get(0).getId())
-                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
-                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .submodelId(submodel.getId())
+                .submodelElement(newProperty)
+                .path(listPath.toString())
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
-                .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
+                .payload(newProperty)
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(
-                ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)),
-                environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        verify(persistence).save(listIdentifier, newProperty);
     }
 
 
@@ -822,7 +847,7 @@ public class RequestHandlerManagerTest {
                 .valueType(DataTypeDefXSD.STRING)
                 .value("NewTestValue")
                 .build();
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(currentSubmodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
 
@@ -843,7 +868,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         PropertyValue propertyValue = new PropertyValue.Builder()
@@ -1181,7 +1206,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetReferableWithInvalidIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
