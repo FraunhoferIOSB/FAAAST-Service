@@ -29,6 +29,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
+import java.net.URLConnection;
+
 
 /**
  * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest}.
@@ -51,12 +53,8 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .submodel(request.getSubmodelId())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        //@TODO where to get contentType
-        file.setContentType("");
-        String path = request.getContent().getPath();
-        if (!path.contains("///")) {
-            path = "master:///" + path;
-        }
+        String path = request.getContent().getPath().toString();
+        file.setContentType(URLConnection.guessContentTypeFromName(path));
         file.setValue(path);
         context.getPersistence().save(submodelReference, file);
         context.getFileStorage().save(file.getValue(),
