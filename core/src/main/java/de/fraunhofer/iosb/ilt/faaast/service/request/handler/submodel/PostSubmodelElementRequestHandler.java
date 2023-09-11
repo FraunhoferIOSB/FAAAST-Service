@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInt
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -46,7 +45,10 @@ public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterface
     public PostSubmodelElementResponse doProcess(PostSubmodelElementRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());
         Reference parentReference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
+        Reference childReference = ReferenceBuilder
+                .with(parentReference)
+                .element(request.getSubmodelElement().getIdShort())
+                .build();
         context.getPersistence().save(parentReference, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
             context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));

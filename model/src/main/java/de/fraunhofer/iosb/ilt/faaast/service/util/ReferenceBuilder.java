@@ -219,7 +219,7 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
 
 
     /**
-     * Create a builder with an existing Reference as base, i.e. the builder will only add to the existing reference
+     * Create a builder with an existing Reference as base, i.e. the builder will only add to the existing reference.
      *
      * @param reference the base reference
      * @return a new builder base of the existing reference
@@ -229,9 +229,10 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
         if (Objects.isNull(reference)) {
             return result;
         }
-        result.referredSemanticId(reference.getReferredSemanticID());
-        result.type(reference.getType());
-        result.getBuildingInstance().setKeys(reference.getKeys());
+        Reference clone = ReferenceHelper.clone(reference);
+        result.referredSemanticId(clone.getReferredSemanticID());
+        result.type(clone.getType());
+        result.getBuildingInstance().setKeys(clone.getKeys());
         return result;
     }
 
@@ -453,10 +454,21 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
      * @return the builder
      */
     public ReferenceBuilder idShortPath(String path) {
+        return idShortPath(IdShortPath.parse(path));
+    }
+
+
+    /**
+     * Adds submodel elements from an idShortPath to the reference.
+     *
+     * @param path the idShortPath
+     * @return the builder
+     */
+    public ReferenceBuilder idShortPath(IdShortPath path) {
         if (Objects.isNull(path)) {
             return this;
         }
-        getBuildingInstance().getKeys().addAll(IdShortPath.parse(path).toReference().getKeys());
+        getBuildingInstance().getKeys().addAll(path.toReference().getKeys());
         return this;
     }
 
