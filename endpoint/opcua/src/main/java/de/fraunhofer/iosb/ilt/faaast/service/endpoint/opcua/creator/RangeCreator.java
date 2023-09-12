@@ -29,15 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import opc.i4aas.AASRangeType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,21 +41,20 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class RangeCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RangeCreator.class);
 
     /**
      * Adds an AAS range object to the given node.
      *
      * @param node The desired UA node
      * @param aasRange The corresponding AAS range object to add
+     * @param rangeRef The reference to the AAS range
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the range should be added ordered (true)
      *            or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasRange(UaNode node, Range aasRange, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasRange(UaNode node, Range aasRange, Reference rangeRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasRange != null)) {
             String name = aasRange.getIdShort();
@@ -68,16 +63,16 @@ public class RangeCreator extends SubmodelElementCreator {
             AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
 
-            Reference rangeRef = null;
-            if (parentRef != null) {
-                try {
-                    rangeRef = EnvironmentHelper.asReference(aasRange, nodeManager.getEnvironment());
-                }
-                catch (IllegalArgumentException iae) {
-                    rangeRef = AasUtils.toReference(parentRef, aasRange);
-                    LOGGER.warn("addAasRange: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), AasUtils.asString(rangeRef));
-                }
-            }
+            //            Reference rangeRef = null;
+            //            if (parentRef != null) {
+            //                try {
+            //                    rangeRef = EnvironmentHelper.asReference(aasRange, nodeManager.getEnvironment());
+            //                }
+            //                catch (IllegalArgumentException iae) {
+            //                    rangeRef = AasUtils.toReference(parentRef, aasRange);
+            //                    LOGGER.warn("addAasRange: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), AasUtils.asString(rangeRef));
+            //                }
+            //            }
             addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
 
             if (VALUES_READ_ONLY) {

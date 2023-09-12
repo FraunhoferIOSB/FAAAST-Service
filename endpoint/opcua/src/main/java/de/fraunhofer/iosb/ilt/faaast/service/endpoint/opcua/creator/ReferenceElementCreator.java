@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.i4aas.AASReferenceElementType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -43,14 +42,14 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
+     * @param refElemRef The reference to the AAS reference element
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the reference element should be added
      *            ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasRefElem != null)) {
             String name = aasRefElem.getIdShort();
@@ -71,7 +70,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 }
             }
 
-            Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
+            //Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
 
             if (refElemNode.getValueNode() != null) {
                 nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),

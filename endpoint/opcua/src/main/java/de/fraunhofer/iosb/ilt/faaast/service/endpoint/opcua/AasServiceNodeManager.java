@@ -389,15 +389,20 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementCreated called. Reference {}", AasUtils.asString(element));
-        }
-        // The element is the parent object where the value is added
-        // in the future, this will be the reference to the object which is added itself, not the parent
+        //if (Reference.class.isAssignableFrom(element.getClass())) {
+        //    LOG.info("elementCreated called. Reference {}; Element: {}", AasUtils.asString(element), AasUtils.asString((Reference) element));
+        //}
+        //else {
+        LOG.info("elementCreated called. Reference {}; Value: {}; Class {}", AasUtils.asString(element), value.getIdShort(), value.getClass());
+        //}
+        // The element is the reference to the object which is added itself
+        // formerly it was the parent
+        Reference parentRef = ReferenceHelper.getParent(element);
+        LOG.info("elementCreated: ParentRef: {}", AasUtils.asString(parentRef));
         ObjectData parent = null;
-        if (referableMap.containsKey(element)) {
+        if ((parentRef != null) && referableMap.containsKey(parentRef)) {
             //LOG.info("Parent not found: {}", AasUtils.asString(element));
-            parent = referableMap.get(element);
+            parent = referableMap.get(parentRef);
         }
 
         if (value instanceof ConceptDescription) {
@@ -450,8 +455,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
         }
-        else if (LOG.isWarnEnabled()) {
-            LOG.debug("elementCreated: element not found: {}", AasUtils.asString(element));
+        else {
+            LOG.debug("elementCreated: parent not found: {}", AasUtils.asString(parentRef));
         }
     }
 

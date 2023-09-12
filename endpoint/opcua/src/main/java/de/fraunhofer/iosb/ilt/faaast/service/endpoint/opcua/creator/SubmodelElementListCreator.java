@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator.addSubmodelElements;
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator.addSubmodelElement;
 
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
@@ -28,10 +28,12 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.util.List;
 import opc.i4aas.AASSubmodelElementListType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
@@ -45,9 +47,8 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasList The corresponding SubmodelElementList to add
+     * @param listRef The reference to the SubmodelElementList
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
@@ -55,7 +56,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasSubmodelElementList(UaNode node, SubmodelElementList aasList, Submodel submodel, Reference parentRef, boolean ordered,
+    public static void addAasSubmodelElementList(UaNode node, SubmodelElementList aasList, Reference listRef, Submodel submodel,
                                                  AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasList != null)) {
@@ -68,14 +69,25 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
             addSubmodelElementBaseData(collNode, aasList, nodeManager);
 
-            Reference collRef = AasUtils.toReference(parentRef, aasList);
+            //Reference collRef = AasUtils.toReference(parentRef, aasList);
 
             // add SubmodelElements 
-            addSubmodelElements(collNode, aasList.getValue(), submodel, collRef, false, nodeManager);
+            addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
 
             node.addComponent(collNode);
 
-            nodeManager.addReferable(collRef, new ObjectData(aasList, collNode, submodel));
+            nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
+        }
+    }
+
+
+    private static void addSubmodelElementList(UaNode node, List<SubmodelElement> elements, Submodel submodel, Reference parentRef, AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
+        if ((elements != null) && (!elements.isEmpty())) {
+            for (int i = 0; i < elements.size(); i++) {
+                Reference elementRef = ReferenceBuilder.forParent(parentRef, String.valueOf(i));
+                addSubmodelElement(elements.get(i), node, elementRef, submodel, true, nodeManager);
+            }
         }
     }
 }

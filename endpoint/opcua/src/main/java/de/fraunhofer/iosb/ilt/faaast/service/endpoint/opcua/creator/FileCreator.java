@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.i4aas.AASFileType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -45,15 +44,15 @@ public class FileCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasFile The AAS file object
+     * @param fileRef The AAS reference to the AAS file
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
      * @param nodeName The desired Name of the node. If this value is not set,
      *            the IdShort of the file is used.
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasFile(UaNode node, File aasFile, Submodel submodel, Reference parentRef, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
+    public static void addAasFile(UaNode node, File aasFile, Reference fileRef, Submodel submodel, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasFile != null)) {
             String name = aasFile.getIdShort();
@@ -75,8 +74,8 @@ public class FileCreator extends SubmodelElementCreator {
                 node.addComponent(fileNode);
             }
 
-            if (parentRef != null) {
-                Reference fileRef = AasUtils.toReference(parentRef, aasFile);
+            if (fileRef != null) {
+                //Reference fileRef = AasUtils.toReference(parentRef, aasFile);
 
                 nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
             }

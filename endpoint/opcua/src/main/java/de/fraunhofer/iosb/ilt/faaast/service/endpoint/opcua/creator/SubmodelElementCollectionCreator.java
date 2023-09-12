@@ -27,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import opc.i4aas.AASSubmodelElementCollectionType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -46,8 +45,8 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasColl The corresponding SubmodelElementCollection to add
+     * @param collectionRef The AAS reference to the SubmodelElementCollection
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
@@ -56,7 +55,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Submodel submodel, Reference parentRef, boolean ordered,
+    public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel, boolean ordered,
                                                        AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasColl != null)) {
@@ -86,11 +85,11 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
             //                collNode.addProperty(myProperty);
             //            }
 
-            Reference collRef = AasUtils.toReference(parentRef, aasColl);
+            //Reference collRef = AasUtils.toReference(parentRef, aasColl);
 
             // SubmodelElements 
             LOGGER.info("addAasSubmodelElementCollection ({}): add {} SubmodelElements", name, aasColl.getValue().size());
-            addSubmodelElements(collNode, aasColl.getValue(), submodel, collRef, false, nodeManager);
+            addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
 
             //if (ordered) {
             //    node.addReference(collNode, Identifiers.HasOrderedComponent, false);
@@ -99,7 +98,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
             node.addComponent(collNode);
             //}
 
-            nodeManager.addReferable(collRef, new ObjectData(aasColl, collNode, submodel));
+            nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
         }
     }
 
