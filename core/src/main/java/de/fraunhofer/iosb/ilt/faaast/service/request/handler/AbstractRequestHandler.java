@@ -124,7 +124,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             SubmodelElement oldElement = update.getKey();
             SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
             ElementValueMapper.setValue(newElement, update.getValue());
-            context.getPersistence().save(parent, newElement);
+            context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
             context.getMessageBus().publish(ValueChangeEventMessage.builder()

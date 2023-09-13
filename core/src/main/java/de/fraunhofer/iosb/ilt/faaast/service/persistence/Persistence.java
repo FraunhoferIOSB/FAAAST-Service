@@ -177,7 +177,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Save an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
      * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to
-     *            save
+     *            insert
      */
     public void save(AssetAdministrationShell assetAdministrationShell);
 
@@ -185,7 +185,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}.
      *
-     * @param conceptDescription the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} to save
+     * @param conceptDescription the {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} to insert
      */
     public void save(ConceptDescription conceptDescription);
 
@@ -193,28 +193,38 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
     /**
      * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}.
      *
-     * @param submodel the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} to save
+     * @param submodel the {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} to insert
      */
     public void save(Submodel submodel);
 
 
     /**
-     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
+     * Inserts a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} relative to a parent.
      *
-     * @param identifier the identifier of the SubmodelElement
-     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to save
+     * @param parentIdentifier the identifier of the SubmodelElement
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to insert
      * @throws ResourceNotFoundException if the parent cannot be found
      * @throws ResourceNotAContainerElementException if the parent is not a valid container element, i.e. cannot contain
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public void save(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException;
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException;
+
+
+    /**
+     * Updates a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
+     *
+     * @param identifier the identifier of the SubmodelElement
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to update
+     * @throws ResourceNotFoundException if the element cannot be found
+     */
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException;
 
 
     /**
      * Save a {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult}.
      *
      * @param handle the handle of the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult}
-     * @param result the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult} to save
+     * @param result the {@code de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult} to insert
      */
     public void save(OperationHandle handle, OperationResult result);
 
@@ -304,16 +314,28 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Save a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
+     * Inserts a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} relative to the parent.
      *
      * @param parent the parent of the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
-     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to save
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to insert
      * @throws ResourceNotFoundException if the parent cannot be found
      * @throws ResourceNotAContainerElementException if the parent is not a valid container element, i.e. cannot contain
      *             {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public default void save(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        save(SubmodelElementIdentifier.fromReference(parent), submodelElement);
+    public default void insert(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        insert(SubmodelElementIdentifier.fromReference(parent), submodelElement);
+    }
+
+
+    /**
+     * Updates a {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
+     *
+     * @param reference the reference of the SubmodelElement
+     * @param submodelElement the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} to update
+     * @throws ResourceNotFoundException if the element cannot be found
+     */
+    public default void update(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        update(SubmodelElementIdentifier.fromReference(reference), submodelElement);
     }
 
 

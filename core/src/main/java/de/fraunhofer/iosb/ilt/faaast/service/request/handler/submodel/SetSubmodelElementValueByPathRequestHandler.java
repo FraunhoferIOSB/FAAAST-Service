@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
@@ -67,7 +66,7 @@ public class SetSubmodelElementValueByPathRequestHandler
             context.getAssetConnectionManager().setValue(reference, newValue);
         }
         try {
-            context.getPersistence().save(ReferenceHelper.getParent(reference), submodelElement);
+            context.getPersistence().update(reference, submodelElement);
         }
         catch (IllegalArgumentException e) {
             // empty on purpose
