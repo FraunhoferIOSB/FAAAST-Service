@@ -402,7 +402,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .path("my/path")
+                .path("my/path/image.png")
                 .content("foo".getBytes())
                 .build();
         String aasId = "aasid";
@@ -418,6 +418,7 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
+                        .contentType("image/png")
                         .build());
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
@@ -434,7 +435,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPutDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .path("my/path")
+                .path("my/path/image.png")
                 .content("foo".getBytes())
                 .build();
         String aasId = "aasid";
@@ -450,10 +451,12 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
+                        .path(file.getPath())
                         .build());
         PutThumbnailRequest putThumbnailRequestRequest = new PutThumbnailRequest.Builder()
                 .id(aasId)
                 .content(file.asFileContent())
+                .fileName(file.getPath())
                 .build();
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
@@ -481,6 +484,7 @@ public class RequestHandlerManagerTest {
         InMemoryFile file = InMemoryFile.builder()
                 .path("file:///TestFile.pdf")
                 .content("foo".getBytes())
+                .contentType("application/pdf")
                 .build();
         SubmodelElement defaultFile = new DefaultFile.Builder()
                 .idShort("ExampleFile")
@@ -489,7 +493,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElement((Reference) any(), any(), any()))
                 .thenReturn(defaultFile);
         PutFileByPathRequest putFileByPathRequest = new PutFileByPathRequest.Builder()
-                .path("")
+                .path("file:///TestFile.pdf")
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .content(file.asFileContent())
                 .build();

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
@@ -50,6 +51,10 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
         assetInformation.setDefaultThumbnail(null);
         aas.setAssetInformation(assetInformation);
         context.getPersistence().save(aas);
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .value(aas)
+                .element(aas)
+                .build());
         return DeleteThumbnailResponse.builder()
                 .success()
                 .build();

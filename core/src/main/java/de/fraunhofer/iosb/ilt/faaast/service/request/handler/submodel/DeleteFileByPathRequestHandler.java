@@ -16,17 +16,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -44,7 +43,6 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
     @Override
     public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException {
-        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getAasId(), QueryModifier.DEFAULT);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
@@ -59,6 +57,10 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
         context.getPersistence().save(submodelReference, file);
         context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
+                .build());
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .element(reference)
+                .value(file)
                 .build());
         return DeleteFileByPathResponse.builder()
                 .success()

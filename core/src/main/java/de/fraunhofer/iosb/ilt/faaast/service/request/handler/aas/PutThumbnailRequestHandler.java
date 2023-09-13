@@ -19,14 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
@@ -50,13 +46,17 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
                 || StringHelper.isBlank(aas.getAssetInformation().getDefaultThumbnail().getPath())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
-        String path = request.getContent().getPath().toString();
+        String path = request.getContent().getPath();
         aas.getAssetInformation().setDefaultThumbnail(new DefaultResource.Builder()
                 .path(path)
-                .contentType(URLConnection.guessContentTypeFromName(path))
+                .contentType(request.getContent().getContentType())
                 .build());
         context.getPersistence().save(aas);
         context.getFileStorage().save(path, request.getContent());
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .value(aas)
+                .element(aas)
+                .build());
         return PutThumbnailResponse.builder()
                 .success()
                 .build();

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -28,10 +29,7 @@ import jakarta.json.JsonMergePatch;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
@@ -170,9 +168,9 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if deserialization fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    protected Map<String, String> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
+    protected Map<String, FileContent> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, FileContent> map = new HashMap<String, FileContent>();
         try {
             MultipartStream multipartStream = new MultipartStream(
                     new ByteArrayInputStream(httpRequest.getBody().getBytes()),
@@ -182,11 +180,18 @@ public abstract class AbstractRequestMapper {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 String partHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
-                if (partHeaders.contains("text/plain")) {
-                    map.put("fileName", output.toString());
+                if (Objects.equals(headerMatcher(Pattern.compile("name=\"([^\"]+)\""), partHeaders), "fileName")) {
+                    map.put("fileName", FileContent.builder()
+                            .content(output.toByteArray())
+                            .contentType("text/plain")
+                            .build());
                 }
                 else {
-                    map.put("file", output.toString());
+                    map.put("file", FileContent.builder()
+                            .content(output.toByteArray())
+                            .contentType(headerMatcher(Pattern.compile("Content-Type: ([^\n^\r]+)"), partHeaders))
+                            .path(headerMatcher(Pattern.compile("filename=\"([^\"]+)\""), partHeaders))
+                            .build());
                 }
                 nextPart = multipartStream.readBoundary();
             }
@@ -195,6 +200,12 @@ public abstract class AbstractRequestMapper {
             throw new InvalidRequestException("error parsing body", e);
         }
         return map;
+    }
+
+
+    private String headerMatcher(Pattern pattern, String header) {
+        Matcher matcher = pattern.matcher(header);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
 

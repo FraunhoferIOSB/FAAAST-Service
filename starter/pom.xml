@@ -48,12 +48,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>filestorage-memory</artifactId>
+            <artifactId>filestorage-filesystem</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>filestorage-filesystem</artifactId>
+            <artifactId>filestorage-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- TODO re-add once OPC UA Endpoint is updated to AAS4j -->

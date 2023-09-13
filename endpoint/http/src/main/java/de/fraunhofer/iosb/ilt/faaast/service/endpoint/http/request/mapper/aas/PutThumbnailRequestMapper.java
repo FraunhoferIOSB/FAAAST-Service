@@ -46,12 +46,13 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
-        Map<String, String> multipart = parseMultiPartBody(httpRequest, contentType);
+        Map<String, FileContent> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutThumbnailRequest.builder()
                 .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
                 .content(FileContent.builder()
-                        .content(multipart.get("file").getBytes())
-                        .path(multipart.get("fileName"))
+                        .content(multipart.get("file").getContent())
+                        .contentType(multipart.get("file").getContentType())
+                        .path(new String(multipart.get("fileName").getContent()))
                         .build())
                 .build();
     }

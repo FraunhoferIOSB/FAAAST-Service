@@ -49,12 +49,13 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
-        Map<String, String> multipart = parseMultiPartBody(httpRequest, contentType);
+        Map<String, FileContent> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutFileByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
                 .content(FileContent.builder()
-                        .content(multipart.get("file").getBytes())
-                        .path(multipart.get("fileName"))
+                        .content(multipart.get("file").getContent())
+                        .contentType(multipart.get("file").getContentType())
+                        .path(new String(multipart.get("fileName").getContent()))
                         .build())
                 .build();
     }

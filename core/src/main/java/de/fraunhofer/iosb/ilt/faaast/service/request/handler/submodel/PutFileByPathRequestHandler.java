@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -28,8 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-
-import java.net.URLConnection;
 
 
 /**
@@ -53,14 +50,10 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .submodel(request.getSubmodelId())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        String path = request.getContent().getPath().toString();
-        file.setContentType(URLConnection.guessContentTypeFromName(path));
-        file.setValue(path);
+        file.setContentType(request.getContent().getContentType());
+        file.setValue(request.getContent().getPath());
         context.getPersistence().save(submodelReference, file);
-        context.getFileStorage().save(file.getValue(),
-                FileContent.builder()
-                        .content(request.getContent().getContent())
-                        .build());
+        context.getFileStorage().save(file.getValue(), request.getContent());
         context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
                 .build());
