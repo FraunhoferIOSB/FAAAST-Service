@@ -24,7 +24,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import opc.i4aas.AASEventType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -45,14 +44,14 @@ public class EventCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasEvent The AAS Event to add
+     * @param eventRef The AAS reference to the event
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasEvent(UaNode node, EventElement aasEvent, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasEvent(UaNode node, EventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasEvent != null)) {
             String name = aasEvent.getIdShort();
@@ -65,7 +64,7 @@ public class EventCreator extends SubmodelElementCreator {
                 setBasicEventData(eventNode, (BasicEventElement) aasEvent);
             }
 
-            Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
+            //Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
 
             if (ordered) {
                 node.addReference(eventNode, Identifiers.HasOrderedComponent, false);

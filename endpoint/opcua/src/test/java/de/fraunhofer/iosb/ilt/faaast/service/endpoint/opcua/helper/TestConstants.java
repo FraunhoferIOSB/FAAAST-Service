@@ -62,10 +62,11 @@ public class TestConstants {
     public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
     public static final String FULL_DATETIME_PROP_NAME = "DateTimeProperty";
 
-    public static final String MODELING_KIND_NAME = "ModelingKind";
+    public static final String KIND_NAME = "Kind";
     public static final String CATEGORY_NAME = "Category";
     //public static final String IDENTIFICATION_NAME = "Identification";
     public static final String ADMINISTRATION_NAME = "Administration";
+    public static final String EMBEDDED_DATA_SPECIFICATION_NAME = "EmbeddedDataSpecification";
     public static final String DATA_SPECIFICATION_NAME = "DataSpecification";
     public static final String QUALIFIER_NAME = "Qualifier";
     public static final String PROPERTY_VALUE_NAME = "Value";
@@ -103,6 +104,7 @@ public class TestConstants {
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
     public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
     public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
+    public static final int AAS_EMBEDDED_DATA_SPECIFICATION_LIST = 1050;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
 
     public static final String SERVER_CERT_PATH = "PKI/CA";

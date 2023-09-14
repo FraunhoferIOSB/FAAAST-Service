@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -36,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -47,7 +47,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PostSubmodelReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetInformationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
@@ -63,7 +70,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
@@ -72,7 +88,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetInformationResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PostSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetInformationResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.DeleteAssetAdministrationShellByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortResponse;
@@ -88,7 +111,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescripti
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
@@ -133,7 +165,20 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -167,7 +212,7 @@ public class RequestHandlerManagerTest {
         environment = AASFull.createEnvironment();
         coreConfig = CoreConfig.DEFAULT;
         messageBus = mock(MessageBus.class);
-        persistence = mock(Persistence.class);
+        persistence = spy(Persistence.class);
         serviceContext = mock(ServiceContext.class);
         assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), serviceContext));
         fileStorage = mock(FileStorage.class);
@@ -402,7 +447,8 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
-                .path("my/path/image.png")
+                .contentType("foo/bar")
+                .path("my/path")
                 .content("foo".getBytes())
                 .build();
         String aasId = "aasid";
@@ -418,96 +464,14 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
+                        .contentType(file.getContentType())
                         .build());
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
                 .build();
         GetThumbnailResponse actual = manager.execute(request);
         GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
-                .payload(file.asFileContent())
-                .statusCode(StatusCode.SUCCESS)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-    }
-
-
-    @Test
-    public void testPutDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
-        InMemoryFile file = InMemoryFile.builder()
-                .path("my/path/image.png")
-                .content("foo".getBytes())
-                .build();
-        String aasId = "aasid";
-        when(persistence.getAssetAdministrationShell(eq(aasId), any()))
-                .thenReturn(new DefaultAssetAdministrationShell.Builder()
-                        .id(aasId)
-                        .assetInformation(new DefaultAssetInformation.Builder()
-                                .defaultThumbnail(new DefaultResource.Builder()
-                                        .path(file.getPath())
-                                        .build())
-                                .build())
-                        .build());
-        when(fileStorage.get(file.getPath())).thenReturn(
-                FileContent.builder()
-                        .content(file.getContent())
-                        .path(file.getPath())
-                        .build());
-        PutThumbnailRequest putThumbnailRequestRequest = new PutThumbnailRequest.Builder()
-                .id(aasId)
-                .content(file.asFileContent())
-                .contentType("image/png")
-                .fileName(file.getPath())
-                .build();
-        GetThumbnailRequest request = new GetThumbnailRequest.Builder()
-                .id(aasId)
-                .build();
-        PutThumbnailResponse send = manager.execute(putThumbnailRequestRequest);
-        Assert.assertTrue(send.getResult().getSuccess());
-        GetThumbnailResponse actual = manager.execute(request);
-        GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
-                .payload(file.asFileContent())
-                .statusCode(StatusCode.SUCCESS)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        DeleteThumbnailRequest deleteThumbnailRequest = new DeleteThumbnailRequest.Builder()
-                .id(aasId)
-                .build();
-        DeleteThumbnailResponse deleted = manager.execute(deleteThumbnailRequest);
-        Assert.assertTrue(deleted.getResult().getSuccess());
-        GetThumbnailResponse fail = manager.execute(request);
-        Assert.assertFalse(fail.getResult().getSuccess());
-    }
-
-
-    @Test
-    public void testPutGetFileRequest() throws ResourceNotFoundException, Exception {
-        InMemoryFile file = InMemoryFile.builder()
-                .path("file:///TestFile.pdf")
-                .content("foo".getBytes())
-                .build();
-        SubmodelElement defaultFile = new DefaultFile.Builder()
-                .idShort("ExampleFile")
-                .value("file:///TestFile.pdf")
-                .build();
-        when(persistence.getSubmodelElement((Reference) any(), any(), any()))
-                .thenReturn(defaultFile);
-        PutFileByPathRequest putFileByPathRequest = new PutFileByPathRequest.Builder()
-                .path("file:///TestFile.pdf")
-                .submodelId(environment.getSubmodels().get(0).getId())
-                .content(file.asFileContent())
-                .contentType("application/pdf")
-                .build();
-        PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
-        Assert.assertTrue(putFileByPathResponse.getResult().getSuccess());
-        GetFileByPathRequest request = new GetFileByPathRequest.Builder()
-                .submodelId(environment.getSubmodels().get(0).getId())
-                .path("")
-                .build();
-        when(fileStorage.get(file.getPath()))
-                .thenReturn(file.asFileContent());
-        GetFileByPathResponse actual = manager.execute(request);
-        GetFileByPathResponse expected = new GetFileByPathResponse.Builder()
-                .payload(file.asFileContent())
+                .payload(file)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -764,7 +728,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
-        when(persistence.getSubmodelElements(eq(reference), any()))
+        when(persistence.getSubmodelElements(eq(SubmodelElementIdentifier.fromReference(reference)), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
@@ -792,7 +756,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(reference, environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        verify(persistence).insert(SubmodelElementIdentifier.fromReference(reference), environment.getSubmodels().get(0).getSubmodelElements().get(0));
     }
 
 
@@ -804,7 +768,7 @@ public class RequestHandlerManagerTest {
                 .value("testValue")
                 .build();
         PropertyValue propertyValue = new PropertyValue.Builder().value(new StringValue("test")).build();
-        when(persistence.getSubmodelElement(argThat((Reference t) -> true), eq(OutputModifier.DEFAULT)))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(OutputModifier.DEFAULT)))
                 .thenReturn(cur_submodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         when(assetValueProvider.getValue()).thenReturn(propertyValue);
@@ -831,20 +795,43 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementByPathRequest() throws ResourceNotFoundException, Exception {
+        Property property1 = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXSD.STRING)
+                .value("first")
+                .build();
+        SubmodelElementList list = new DefaultSubmodelElementList.Builder()
+                .idShort("list")
+                .value(property1)
+                .build();
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .id("submodel")
+                .submodelElements(list)
+                .build();
+        IdShortPath listPath = IdShortPath.builder()
+                .path(list.getIdShort())
+                .build();
+        SubmodelElementIdentifier listIdentifier = SubmodelElementIdentifier.builder()
+                .submodelId(submodel.getId())
+                .idShortPath(listPath)
+                .build();
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
+                .thenReturn(list);
+        Property newProperty = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXSD.STRING)
+                .value("new")
+                .build();
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
-                .submodelId(environment.getSubmodels().get(0).getId())
-                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
-                .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
+                .submodelId(submodel.getId())
+                .submodelElement(newProperty)
+                .path(listPath.toString())
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
-                .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
+                .payload(newProperty)
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(
-                ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0)),
-                environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        verify(persistence).insert(listIdentifier, newProperty);
     }
 
 
@@ -860,12 +847,13 @@ public class RequestHandlerManagerTest {
                 .valueType(DataTypeDefXSD.STRING)
                 .value("NewTestValue")
                 .build();
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(currentSubmodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
 
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
+                .path(currentSubmodelElement.getIdShort())
                 .submodelElement(newSubmodelElement)
                 .build();
         PutSubmodelElementByPathResponse actual = manager.execute(request);
@@ -875,13 +863,13 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
-        verify(persistence).save(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId())), eq(newSubmodelElement));
+        verify(persistence).update(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort())), eq(newSubmodelElement));
     }
 
 
     @Test
     public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         PropertyValue propertyValue = new PropertyValue.Builder()
@@ -1219,7 +1207,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetReferableWithInvalidIdRequest() throws ResourceNotFoundException, Exception {
-        when(persistence.getSubmodelElement((Reference) any(), any()))
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
@@ -1341,9 +1329,9 @@ public class RequestHandlerManagerTest {
         //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
         //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
         requestHandler.syncWithAsset(parentRef, submodelElements);
-        verify(persistence).save(parentRef, propertyExpected);
-        verify(persistence).save(parentRef, rangeExpected);
-        verify(persistence, times(0)).save(parentRef, propertyStatic);
+        verify(persistence).update(propertyUpdatedRef, propertyExpected);
+        verify(persistence).update(rangeUpdatedRef, rangeExpected);
+        verify(persistence, times(0)).update(parentRef, propertyStatic);
         List<SubmodelElement> expectedSubmodelElements = List.of(propertyExpected, rangeExpected, collection);
         Assert.assertTrue(expectedSubmodelElements.size() == submodelElements.size()
                 && expectedSubmodelElements.containsAll(submodelElements)

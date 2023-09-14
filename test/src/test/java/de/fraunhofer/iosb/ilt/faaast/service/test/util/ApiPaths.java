@@ -17,9 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -353,7 +356,12 @@ public class ApiPaths {
         public String submodelElement(String idShortPath) {
             return String.format("%s/%s",
                     submodelElements(),
-                    idShortPath);
+                    URLEncoder.encode(idShortPath, StandardCharsets.UTF_8));
+        }
+
+
+        public String submodelElement(IdShortPath idShortPath) {
+            return submodelElement(idShortPath.toString());
         }
 
 

@@ -21,19 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import jakarta.json.Json;
 import jakarta.json.JsonMergePatch;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.http.entity.ContentType;
 
 
 /**
@@ -151,60 +148,11 @@ public abstract class AbstractRequestMapper {
     protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.read(new String(httpRequest.getBody()), type);
+            return deserializer.read(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);
         }
-    }
-
-
-    /**
-     * Deserializes HTTP body multipart form data.
-     *
-     * @param httpRequest HTTP request
-     * @param contentType the multipart contentType containing the boundary
-     * @return deserialized payload
-     * @throws InvalidRequestException if deserialization fails
-     * @throws IllegalArgumentException if httpRequest is null
-     */
-    protected Map<String, BlobValue> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
-        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        Map<String, BlobValue> map = new HashMap<String, BlobValue>();
-        try {
-            MultipartStream multipartStream = new MultipartStream(
-                    new ByteArrayInputStream(httpRequest.getBody()),
-                    contentType.getParameter("boundary").getBytes());
-            boolean nextPart = multipartStream.skipPreamble();
-            while (nextPart) {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                String partHeaders = multipartStream.readHeaders();
-                multipartStream.readBodyData(output);
-                if (Objects.equals(headerMatcher(Pattern.compile("name=\"([^\"]+)\""), partHeaders), "fileName")) {
-                    map.put("fileName", BlobValue.builder()
-                            .value(output.toByteArray())
-                            .mimeType("text/plain")
-                            .build());
-                }
-                else {
-                    map.put("file", BlobValue.builder()
-                            .value(output.toByteArray())
-                            .mimeType(headerMatcher(Pattern.compile("Content-Type: ([^\n^\r]+)"), partHeaders))
-                            .build());
-                }
-                nextPart = multipartStream.readBoundary();
-            }
-        }
-        catch (IOException e) {
-            throw new InvalidRequestException("error parsing body", e);
-        }
-        return map;
-    }
-
-
-    private String headerMatcher(Pattern pattern, String header) {
-        Matcher matcher = pattern.matcher(header);
-        return matcher.find() ? matcher.group(1) : null;
     }
 
 
@@ -221,7 +169,7 @@ public abstract class AbstractRequestMapper {
     protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.readList(new String(httpRequest.getBody()), type);
+            return deserializer.readList(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);

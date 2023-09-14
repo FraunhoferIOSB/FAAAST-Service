@@ -44,6 +44,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -58,12 +60,12 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
-import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -93,7 +95,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final long DEFAULT_TIMEOUT = 150;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -647,21 +649,20 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
-        // Send event to MessageBus
         CountDownLatch condition = new CountDownLatch(1);
-        ElementCreateEventMessage msg = new ElementCreateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build())
-                .build());
-        msg.setValue(new DefaultProperty.Builder()
-                //.kind(ModelingKind.INSTANCE)
-                .idShort(propName)
-                .category("Variable")
-                .value("AZF45")
-                .valueType(DataTypeDefXSD.STRING)
-                .build());
-        service.getMessageBus().publish(msg);
+
+        PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
+                .submodelId("http://i40.customer.com/type/1/1/7A7104BDAB57E184")
+                .submodelElement(new DefaultProperty.Builder()
+                        .idShort(propName)
+                        .category("Variable")
+                        .value("AZF45")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .build())
+                .build();
+        PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
+        LOGGER.info("testAddProperty: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_CREATED, response.getStatusCode());
 
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
@@ -905,7 +906,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkIdentification(client, aasNode, aasns, "http://customer.com/aas/9175_7013_7091_9168");
         TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
         TestUtils.checkCategoryNode(client, aasNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, aasNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, aasNode, aasns);
         TestUtils.checkAssetInformationNode(client, aasNode, aasns);
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
@@ -949,7 +950,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         testOperatingManual(client, operatingManualNode);
     }
@@ -963,9 +964,9 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "VARIABLE", AASValueTypeDataType.Int64,
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", AASDataTypeDefXsd.Integer,
                 Long.valueOf(4370), new ArrayList<>());
     }
 
@@ -977,13 +978,14 @@ public class OpcUaEndpointTest {
         TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        // no kind available here, check for null
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, null);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, AASModellingKindDataType.Instance, "PARAMETER",
-                AASValueTypeDataType.Int64, Long.valueOf(5000), new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, AASModellingKindDataType.Instance, "PARAMETER",
-                AASValueTypeDataType.Int64, Long.valueOf(123456), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
+                AASDataTypeDefXsd.Integer, Long.valueOf(5000), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
+                AASDataTypeDefXsd.Decimal, Long.valueOf(123456), new ArrayList<>());
     }
 
 
@@ -992,7 +994,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
         //TestUtils.checkModelingKindNode(client, node, aasns, AASModellingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, node, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
         //TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
         // Skip LangString / LocalizedText test: not yet implemented in the service

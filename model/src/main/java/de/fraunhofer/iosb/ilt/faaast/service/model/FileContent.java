@@ -14,10 +14,33 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
+import java.util.Objects;
+
+
 /**
  * Represents the content of a file.
  */
 public class FileContent extends AbstractFileContent {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FileContent that = (FileContent) o;
+        System.out.println("FileContent equals: " + super.equals(o));
+        return super.equals(that);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
 
     public static Builder builder() {
         return new Builder();

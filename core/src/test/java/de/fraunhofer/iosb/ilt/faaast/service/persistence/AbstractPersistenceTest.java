@@ -548,7 +548,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
         String idShort = "NewIdShort";
         expected.setIdShort(idShort);
-        persistence.save(ReferenceBuilder.forSubmodel(submodelId), expected);
+        persistence.insert(ReferenceBuilder.forSubmodel(submodelId), expected);
         SubmodelElement actual = persistence.getSubmodelElement(
                 SubmodelElementIdentifier.builder()
                         .submodelId(submodelId)
@@ -575,7 +575,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .submodel(submodelId)
                 .element(submodelElement)
                 .build();
-        persistence.save(ReferenceHelper.getParent(reference), expected);
+        persistence.insert(ReferenceHelper.getParent(reference), expected);
         SubmodelElement actualSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
         Submodel actualSubmodel = persistence.getSubmodel(submodel.getId(), QueryModifier.DEFAULT);
         int idxActual = actualSubmodel.getSubmodelElements().indexOf(expected);
@@ -603,7 +603,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .findFirst().orElse(null)))
                         .getValue().stream()
                         .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
-        persistence.save(parent, expected);
+        persistence.insert(parent, expected);
         SubmodelElement actual = persistence.getSubmodelElement(
                 ReferenceBuilder
                         .with(parent)
@@ -624,7 +624,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         newElement.setIdShort("new");
         SubmodelElementList expected = DeepCopyHelper.deepCopy(submodelElementList, submodelElementList.getClass());
         expected.getValue().add(newElement);
-        persistence.save(reference, newElement);
+        persistence.insert(reference, newElement);
         SubmodelElement actual = persistence.getSubmodelElement(
                 reference,
                 new QueryModifier.Builder()
@@ -655,7 +655,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .element(submodelElementCollectionId)
                 .element(submodelElement)
                 .build();
-        persistence.save(ReferenceHelper.getParent(reference), expected);
+        persistence.insert(ReferenceHelper.getParent(reference), expected);
         SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
         Assert.assertEquals(expected, actual);
     }
@@ -668,7 +668,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
-        persistence.save(ReferenceHelper.getParent(reference), expected);
+        persistence.insert(ReferenceHelper.getParent(reference), expected);
         SubmodelElement actual = persistence.getSubmodelElement(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
         Assert.assertEquals(expected, actual);
     }

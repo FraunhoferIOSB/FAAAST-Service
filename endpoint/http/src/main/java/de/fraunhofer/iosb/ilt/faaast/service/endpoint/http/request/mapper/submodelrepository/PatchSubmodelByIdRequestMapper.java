@@ -43,7 +43,7 @@ public class PatchSubmodelByIdRequestMapper extends AbstractRequestMapper {
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PatchSubmodelByIdRequest.builder()
                 .id(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
-                .changes(parseMergePatch(new String(httpRequest.getBody())))
+                .changes(parseMergePatch(httpRequest.getBodyAsString()))
                 .build();
     }
 }

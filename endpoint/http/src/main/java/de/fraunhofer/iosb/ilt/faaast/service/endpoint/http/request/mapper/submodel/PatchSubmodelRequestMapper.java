@@ -41,7 +41,7 @@ public class PatchSubmodelRequestMapper extends AbstractSubmodelInterfaceRequest
     @Override
     public PatchSubmodelRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PatchSubmodelRequest.builder()
-                .changes(parseMergePatch(new String(httpRequest.getBody())))
+                .changes(parseMergePatch(httpRequest.getBodyAsString()))
                 .build();
     }
 }

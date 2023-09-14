@@ -26,6 +26,7 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import java.util.List;
 import opc.i4aas.AASQualifierList;
 import opc.i4aas.AASQualifierType;
@@ -112,6 +113,16 @@ public class QualifierCreator {
         QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
         AASQualifierType qualifierNode = nodeManager.createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
+
+        if (qualifier.getKind() != null) {
+            if (qualifierNode.getKindNode() == null) {
+                UaHelper.addQualifierKindProperty(qualifierNode, nodeManager, AASQualifierType.KIND, qualifier.getKind(),
+                        opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri());
+            }
+            else {
+                qualifierNode.setKind(ValueConverter.convertQualifierKind(qualifier.getKind()));
+            }
+        }
 
         // Type
         qualifierNode.setType(qualifier.getType());

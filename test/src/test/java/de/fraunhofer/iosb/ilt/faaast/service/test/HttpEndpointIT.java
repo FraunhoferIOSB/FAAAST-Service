@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -79,6 +80,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
@@ -817,9 +819,10 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelInterfaceCreateSubmodelElementWithIdInUrl()
+    public void testSubmodelInterfaceCreateSubmodelElementInsideList()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(0);
+        Submodel submodel = environment.getSubmodels().get(2);
+        SubmodelElementList submodelElementList = (SubmodelElementList) submodel.getSubmodelElements().get(5);
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
@@ -830,15 +833,52 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementList),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
-        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                API_PATHS.submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(submodelElementList.getIdShort())
+                                .index(submodelElementList.getValue().size())
+                                .build()),
                 SubmodelElement.class);
-        Assert.assertTrue(actual.contains(expected));
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementInsideCollection()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(2);
+        SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.POST,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementCollection),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                API_PATHS.submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(submodelElementCollection.getIdShort())
+                                .idShort(expected.getIdShort())
+                                .build()),
+                SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -1094,10 +1134,11 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelInterfaceCreateSubmodelElementWithIdInUrlInAasContext()
+    public void testSubmodelInterfaceCreateSubmodelElementInsideListInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        Submodel submodel = environment.getSubmodels().get(2);
+        SubmodelElementList submodelElementList = (SubmodelElementList) submodel.getSubmodelElements().get(5);
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
@@ -1108,15 +1149,57 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                API_PATHS.aasInterface(aas)
+                                        .submodelInterface(submodel)
+                                        .submodelElement(submodelElementList),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
-        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                API_PATHS.aasInterface(aas)
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(submodelElementList.getIdShort())
+                                .index(submodelElementList.getValue().size())
+                                .build()),
                 SubmodelElement.class);
-        Assert.assertTrue(actual.contains(expected));
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementInsideCollectionInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        Submodel submodel = environment.getSubmodels().get(2);
+        SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.POST,
+                                API_PATHS.aasInterface(aas.getId())
+                                        .submodelInterface(submodel)
+                                        .submodelElement(submodelElementCollection),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        SubmodelElement actual = HttpHelper.getWithSingleResult(
+                API_PATHS.aasInterface(aas.getId())
+                        .submodelInterface(submodel)
+                        .submodelElement(IdShortPath.builder()
+                                .idShort(submodelElementCollection.getIdShort())
+                                .idShort(expected.getIdShort())
+                                .build()),
+                SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
     }
 
 

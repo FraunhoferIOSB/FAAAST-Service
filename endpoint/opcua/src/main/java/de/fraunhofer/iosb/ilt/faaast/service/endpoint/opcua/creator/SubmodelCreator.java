@@ -27,6 +27,7 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
 import opc.i4aas.AASSubmodelType;
@@ -68,6 +69,7 @@ public class SubmodelCreator {
             throw new IllegalArgumentException("submodel is null");
         }
 
+        //submodel.g
         String shortId = submodel.getIdShort();
         if (!shortId.isEmpty()) {
             String displayName = "Submodel:" + shortId;
@@ -82,9 +84,18 @@ public class SubmodelCreator {
             LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}", submodel.getIdShort(), nid);
             AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
-            // ModelingKind
-            smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
             IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+
+            // Kind
+            if (submodel.getKind() != null) {
+                if (smNode.getKindNode() == null) {
+                    UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, submodel.getKind(),
+                            opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
+                }
+                else {
+                    smNode.setKind(ValueConverter.convertModellingKind(submodel.getKind()));
+                }
+            }
 
             // DataSpecifications
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
@@ -107,7 +118,9 @@ public class SubmodelCreator {
             SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                smNode.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+                if (smNode.getKindNode() != null) {
+                    smNode.getKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
             }
 
             nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);

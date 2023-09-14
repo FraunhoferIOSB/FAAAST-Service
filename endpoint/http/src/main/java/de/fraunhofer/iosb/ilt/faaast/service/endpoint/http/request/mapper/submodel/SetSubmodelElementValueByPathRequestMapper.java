@@ -55,7 +55,7 @@ public class SetSubmodelElementValueByPathRequestMapper
         final String identifier = EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID));
         return SetSubmodelElementValueByPathRequest.builder()
                 .path(path)
-                .value(httpRequest.getBody())
+                .value(httpRequest.getBodyAsString())
                 .valueParser(new ElementValueParser<Object>() {
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
