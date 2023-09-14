@@ -31,7 +31,6 @@ public class FileContent extends AbstractFileContent {
             return false;
         }
         FileContent that = (FileContent) o;
-        System.out.println("FileContent equals: " + super.equals(o));
         return super.equals(that);
     }
 
