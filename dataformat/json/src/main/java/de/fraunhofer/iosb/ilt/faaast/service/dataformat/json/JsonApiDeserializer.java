@@ -87,9 +87,9 @@ public class JsonApiDeserializer implements ApiDeserializer {
     @Override
     public <T> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json.getBytes(), type);
+            return wrapper.getMapper().readValue(json, type);
         }
-        catch (IOException e) {
+        catch (JsonProcessingException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
         }
     }

@@ -59,9 +59,16 @@ public class SetSubmodelElementValueByPathRequestMapper
                 .valueParser(new ElementValueParser<Object>() {
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
+                        String rawString;
+                        if (raw.getClass().isAssignableFrom(byte[].class)) {
+                            rawString = new String((byte[]) raw);
+                        }
+                        else {
+                            rawString = raw.toString();
+                        }
                         if (ElementValue.class.isAssignableFrom(type)) {
                             return deserializer.readValue(
-                                    new String((byte[]) raw),
+                                    rawString,
                                     serviceContext.getTypeInfo(
                                             new ReferenceBuilder()
                                                     .submodel(identifier)
@@ -69,7 +76,7 @@ public class SetSubmodelElementValueByPathRequestMapper
                                                     .build()));
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
-                            SubmodelElement submodelElement = (SubmodelElement) deserializer.read(new String((byte[]) raw), type);
+                            SubmodelElement submodelElement = (SubmodelElement) deserializer.read(rawString, type);
                             try {
                                 return ElementValueMapper.toValue(submodelElement);
                             }
