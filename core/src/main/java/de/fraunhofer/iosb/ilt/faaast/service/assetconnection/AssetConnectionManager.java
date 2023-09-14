@@ -92,7 +92,8 @@ public class AssetConnectionManager {
                 LOGGER.info(
                         "Establishing asset connection failed on initial attempt (endpoint: {}). Connecting will be retried every {}ms but no more messages about failures will be shown.",
                         connection.getEndpointInformation(),
-                        coreConfig.getAssetConnectionRetryInterval());
+                        coreConfig.getAssetConnectionRetryInterval(),
+                        e);
                 setupConnectionAsync(connection);
             }
         }
