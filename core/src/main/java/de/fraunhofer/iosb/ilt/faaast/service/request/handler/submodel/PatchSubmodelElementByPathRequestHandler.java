@@ -32,7 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInt
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -66,7 +65,7 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         //Check if submodelelement does exist
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = mergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
-        context.getPersistence().save(ReferenceHelper.getParent(reference), newSubmodelElement);
+        context.getPersistence().update(reference, newSubmodelElement);
         if (Objects.isNull(oldSubmodelElement)) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)

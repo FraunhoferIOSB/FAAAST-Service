@@ -756,7 +756,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(SubmodelElementIdentifier.fromReference(reference), environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        verify(persistence).insert(SubmodelElementIdentifier.fromReference(reference), environment.getSubmodels().get(0).getSubmodelElements().get(0));
     }
 
 
@@ -831,7 +831,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(listIdentifier, newProperty);
+        verify(persistence).insert(listIdentifier, newProperty);
     }
 
 
@@ -853,6 +853,7 @@ public class RequestHandlerManagerTest {
 
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
+                .path(currentSubmodelElement.getIdShort())
                 .submodelElement(newSubmodelElement)
                 .build();
         PutSubmodelElementByPathResponse actual = manager.execute(request);
@@ -862,7 +863,7 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
-        verify(persistence).save(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId())), eq(newSubmodelElement));
+        verify(persistence).update(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort())), eq(newSubmodelElement));
     }
 
 
@@ -1328,9 +1329,9 @@ public class RequestHandlerManagerTest {
         //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
         //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
         requestHandler.syncWithAsset(parentRef, submodelElements);
-        verify(persistence).save(parentRef, propertyExpected);
-        verify(persistence).save(parentRef, rangeExpected);
-        verify(persistence, times(0)).save(parentRef, propertyStatic);
+        verify(persistence).update(propertyUpdatedRef, propertyExpected);
+        verify(persistence).update(rangeUpdatedRef, rangeExpected);
+        verify(persistence, times(0)).update(parentRef, propertyStatic);
         List<SubmodelElement> expectedSubmodelElements = List.of(propertyExpected, rangeExpected, collection);
         Assert.assertTrue(expectedSubmodelElements.size() == submodelElements.size()
                 && expectedSubmodelElements.containsAll(submodelElements)

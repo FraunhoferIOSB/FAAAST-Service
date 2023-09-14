@@ -48,6 +48,11 @@ public class IdShortPath {
     }
 
 
+    public List<String> getElements() {
+        return List.copyOf(elements);
+    }
+
+
     /**
      * Creates an idShort path equaivalent to the reference. The reference can either be of the form AAS -> Submodel ->
      * SubmodelElements* or Submodel -> SubmodelElements*. The key types must be of the expected type or any

@@ -329,7 +329,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void save(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), environment);
@@ -354,6 +354,42 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         CollectionHelper.put(container,
                 container.stream()
                         .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
+                        .findFirst()
+                        .orElse(null),
+                submodelElement);
+    }
+
+
+    @Override
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        Ensure.requireNonNull(identifier, "identifier must be non-null");
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT);
+        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), environment);
+
+        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size()));
+            ((SubmodelElementList) parent).getValue().set(index, submodelElement);
+            return;
+        }
+
+        Collection<SubmodelElement> container;
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            container = ((Submodel) parent).getSubmodelElements();
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            container = ((SubmodelElementCollection) parent).getValue();
+        }
+        else {
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                    parent.getClass(),
+                    Submodel.class,
+                    SubmodelElementCollection.class,
+                    SubmodelElementList.class));
+        }
+        CollectionHelper.put(container,
+                container.stream()
+                        .filter(x -> Objects.equals(x, oldElement))
                         .findFirst()
                         .orElse(null),
                 submodelElement);

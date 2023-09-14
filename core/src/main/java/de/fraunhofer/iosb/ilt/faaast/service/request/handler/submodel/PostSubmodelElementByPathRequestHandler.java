@@ -68,12 +68,12 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
             }
         }
         Reference childReference = childReferenceBuilder.build();
-        context.getPersistence().save(parentReference, request.getSubmodelElement());
+        context.getPersistence().insert(parentReference, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
             context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
         }
         context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                .element(parentReference)
+                .element(childReference)
                 .value(request.getSubmodelElement())
                 .build());
         return PostSubmodelElementByPathResponse.builder()
