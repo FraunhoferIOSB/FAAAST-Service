@@ -24,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public abstract class HttpMessage {
 
-    protected String body;
+    protected byte[] body;
     protected Map<String, String> headers;
 
     protected HttpMessage() {
@@ -32,7 +32,7 @@ public abstract class HttpMessage {
     }
 
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 
@@ -47,13 +47,13 @@ public abstract class HttpMessage {
     }
 
 
-    public void setBody(String body) {
+    public void setBody(byte[] body) {
         this.body = body;
     }
 
     public abstract static class AbstractBuilder<T extends HttpMessage, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B body(String value) {
+        public B body(byte[] value) {
             getBuildingInstance().setBody(value);
             return getSelf();
         }

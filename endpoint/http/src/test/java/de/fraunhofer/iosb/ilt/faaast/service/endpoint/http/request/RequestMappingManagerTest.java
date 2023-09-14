@@ -101,11 +101,10 @@ import jakarta.json.Json;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -690,7 +689,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke-async")
-                .body(serializer.write(expected))
+                .body(serializer.write(expected).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -711,7 +710,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke-async/$value")
-                .body(serializer.write(expected))
+                .body(serializer.write(expected).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -732,7 +731,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke")
-                .body(serializer.write(expected))
+                .body(serializer.write(expected).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -753,7 +752,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke/$value")
-                .body(serializer.write(expected))
+                .body(serializer.write(expected).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -770,7 +769,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel")
-                .body("{\"category\": \"NewCategory\"}")
+                .body("{\"category\": \"NewCategory\"}".getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -787,7 +786,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()))
-                .body("{\"category\": \"NewCategory\"}")
+                .body("{\"category\": \"NewCategory\"}".getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -806,7 +805,7 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.PATCH)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .body("{\"category\": \"NewCategory\"}")
+                .body("{\"category\": \"NewCategory\"}".getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -843,7 +842,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("lookup/shells/" + EncodingHelper.base64UrlEncode(AAS.getId()))
-                .body(serializer.write(ASSET_IDENTIFIERS))
+                .body(serializer.write(ASSET_IDENTIFIERS).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -857,7 +856,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("shells")
-                .body(serializer.write(AAS))
+                .body(serializer.write(AAS).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -871,7 +870,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("concept-descriptions")
-                .body(serializer.write(CONCEPT_DESCRIPTION))
+                .body(serializer.write(CONCEPT_DESCRIPTION).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -885,7 +884,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("submodels")
-                .body(serializer.write(SUBMODEL))
+                .body(serializer.write(SUBMODEL).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -900,7 +899,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements")
-                .body(serializer.write(SUBMODEL_ELEMENT))
+                .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -917,7 +916,7 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.POST)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .body(serializer.write(SUBMODEL_ELEMENT))
+                .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -933,7 +932,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
-                .body(serializer.write(submodelRef))
+                .body(serializer.write(submodelRef).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -963,7 +962,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas")
-                .body(serializer.write(AAS))
+                .body(serializer.write(AAS).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -978,7 +977,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()))
-                .body(serializer.write(AAS))
+                .body(serializer.write(AAS).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -993,7 +992,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information")
-                .body(serializer.write(AAS.getAssetInformation()))
+                .body(serializer.write(AAS.getAssetInformation()).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1008,23 +1007,22 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("concept-descriptions/" + EncodingHelper.base64UrlEncode(CONCEPT_DESCRIPTION.getId()))
-                .body(serializer.write(CONCEPT_DESCRIPTION))
+                .body(serializer.write(CONCEPT_DESCRIPTION).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
 
 
-    private String generateMultipartBodyRandomFile(String fileName, ContentType contentType) {
-        String generatedString = RandomStringUtils.randomAlphabetic(10);
+    private byte[] generateMultipartBodyRandomFile(byte[] content, String fileName, ContentType contentType) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addTextBody("fileName", fileName, ContentType.TEXT_PLAIN);
-        builder.addTextBody("file", generatedString, contentType);
+        builder.addBinaryBody("file", content, contentType, fileName);
         builder.setBoundary("boundary");
-        String multipart = null;
+        byte[] multipart = null;
         try {
-            multipart = EntityUtils.toString(builder.build());
+            multipart = EntityUtils.toByteArray(builder.build());
         }
-        catch (IOException | ParseException e) {
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
         return multipart;
@@ -1033,22 +1031,25 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testPutFileByPath() throws InvalidRequestException {
-        String generated = generateMultipartBodyRandomFile("test.pdf", ContentType.APPLICATION_PDF);
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        byte[] multipart = generateMultipartBodyRandomFile(content, "test.pdf", ContentType.APPLICATION_PDF);
         String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutFileByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .content(FileContent.builder()
                         .path("test.pdf")
-                        .content(generated.getBytes())
+                        .content(content)
                         .build())
+                .contentType(ContentType.APPLICATION_PDF.getMimeType() + "; charset=UTF-8")
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF) + "/attachment")
                 .header(HttpConstants.HEADER_CONTENT_TYPE, contentType)
-                .body(generated)
+                .body(multipart)
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1063,7 +1064,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel")
-                .body(serializer.write(SUBMODEL))
+                .body(serializer.write(SUBMODEL).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1078,7 +1079,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()))
-                .body(serializer.write(SUBMODEL))
+                .body(serializer.write(SUBMODEL).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1095,7 +1096,7 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .body(serializer.write(SUBMODEL_ELEMENT))
+                .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1103,14 +1104,17 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testPutThumbnail() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
-        String generated = generateMultipartBodyRandomFile("test.png", ContentType.IMAGE_PNG);
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        byte[] generated = generateMultipartBodyRandomFile(content, "test.png", ContentType.IMAGE_PNG);
         String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutThumbnailRequest.builder()
                 .id(AAS.getId())
                 .content(FileContent.builder()
                         .path("test.pdf")
-                        .content(generated.getBytes())
+                        .content(content)
                         .build())
+                .contentType(ContentType.IMAGE_PNG.getMimeType())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
@@ -1134,11 +1138,12 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId())
                         + "/submodel/submodel-elements/" + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF)
                         + "/$value")
-                .body(serializer.write(SUBMODEL_ELEMENT))
+                .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
         SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
         Assert.assertEquals(expected.getPath(), actual.getPath());
+        String test = serializer.write(SUBMODEL_ELEMENT);
         Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), SubmodelElement.class));
     }
 
@@ -1155,7 +1160,7 @@ public class RequestMappingManagerTest {
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId())
                         + "/submodel/submodel-elements/" + ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF)
                         + "/$value")
-                .body(serializer.write(ElementValueMapper.toValue(SUBMODEL_ELEMENT)))
+                .body(serializer.write(ElementValueMapper.toValue(SUBMODEL_ELEMENT)).getBytes())
                 .build());
         SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
