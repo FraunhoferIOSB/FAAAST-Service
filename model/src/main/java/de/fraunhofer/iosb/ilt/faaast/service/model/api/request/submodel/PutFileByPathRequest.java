@@ -29,6 +29,16 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
     private String path;
     private FileContent content;
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    private String contentType;
+
     public PutFileByPathRequest() {
         super(OutputModifierConstraints.NONE);
         this.path = "";
@@ -91,6 +101,11 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
 
         public B content(FileContent value) {
             getBuildingInstance().setContent(value);
+            return getSelf();
+        }
+
+        public B contentType(String value) {
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
     }

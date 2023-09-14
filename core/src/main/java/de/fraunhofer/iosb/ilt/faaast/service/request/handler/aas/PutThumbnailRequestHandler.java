@@ -49,7 +49,7 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
         String path = request.getContent().getPath();
         aas.getAssetInformation().setDefaultThumbnail(new DefaultResource.Builder()
                 .path(path)
-                .contentType(request.getContent().getContentType())
+                .contentType(request.getContentType())
                 .build());
         context.getPersistence().save(aas);
         context.getFileStorage().save(path, request.getContent());

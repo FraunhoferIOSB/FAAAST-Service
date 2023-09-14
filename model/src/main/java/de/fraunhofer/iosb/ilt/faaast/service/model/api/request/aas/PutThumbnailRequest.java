@@ -29,6 +29,16 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
     private String id;
     private FileContent content;
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    private String contentType;
+
     public String getFileName() {
         return fileName;
     }
@@ -100,6 +110,11 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
 
         public B fileName(String value) {
             getBuildingInstance().setFileName(value);
+            return getSelf();
+        }
+
+        public B contentType(String value) {
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
     }

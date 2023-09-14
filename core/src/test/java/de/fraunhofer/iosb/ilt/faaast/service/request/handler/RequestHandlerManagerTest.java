@@ -418,7 +418,6 @@ public class RequestHandlerManagerTest {
         when(fileStorage.get(file.getPath())).thenReturn(
                 FileContent.builder()
                         .content(file.getContent())
-                        .contentType("image/png")
                         .build());
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
@@ -456,6 +455,7 @@ public class RequestHandlerManagerTest {
         PutThumbnailRequest putThumbnailRequestRequest = new PutThumbnailRequest.Builder()
                 .id(aasId)
                 .content(file.asFileContent())
+                .contentType("image/png")
                 .fileName(file.getPath())
                 .build();
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
@@ -484,7 +484,6 @@ public class RequestHandlerManagerTest {
         InMemoryFile file = InMemoryFile.builder()
                 .path("file:///TestFile.pdf")
                 .content("foo".getBytes())
-                .contentType("application/pdf")
                 .build();
         SubmodelElement defaultFile = new DefaultFile.Builder()
                 .idShort("ExampleFile")
@@ -496,6 +495,7 @@ public class RequestHandlerManagerTest {
                 .path("file:///TestFile.pdf")
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .content(file.asFileContent())
+                .contentType("application/pdf")
                 .build();
         PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
         Assert.assertTrue(putFileByPathResponse.getResult().getSuccess());

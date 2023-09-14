@@ -26,17 +26,6 @@ public abstract class AbstractFileContent {
 
     protected byte[] content;
 
-    public String getContentType() {
-        return contentType;
-    }
-
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    private String contentType;
-
     public String getPath() {
         return path;
     }
@@ -86,12 +75,6 @@ public abstract class AbstractFileContent {
 
         public B path(String value) {
             getBuildingInstance().setPath(value);
-            return getSelf();
-        }
-
-
-        public B contentType(String value) {
-            getBuildingInstance().setContentType(value);
             return getSelf();
         }
     }
