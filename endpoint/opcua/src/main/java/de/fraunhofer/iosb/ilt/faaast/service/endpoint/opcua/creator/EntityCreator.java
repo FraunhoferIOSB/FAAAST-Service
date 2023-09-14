@@ -91,8 +91,8 @@ public class EntityCreator extends SubmodelElementCreator {
             }
 
             // Statements
-            //SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
-            SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, null, nodeManager);
+            SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
+            //SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, null, nodeManager);
 
             nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 

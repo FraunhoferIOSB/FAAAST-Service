@@ -94,7 +94,8 @@ public class SubmodelElementCreator {
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (SubmodelElement elem: elements) {
-                Reference elementRef = ReferenceBuilder.forParent(parentRef, elem.getIdShort());
+                //Reference elementRef = ReferenceBuilder.forParent(parentRef, elem.getIdShort());
+                Reference elementRef = ReferenceBuilder.forParent(parentRef, elem);
                 addSubmodelElement(elem, node, elementRef, submodel, ordered, nodeManager);
             }
         }

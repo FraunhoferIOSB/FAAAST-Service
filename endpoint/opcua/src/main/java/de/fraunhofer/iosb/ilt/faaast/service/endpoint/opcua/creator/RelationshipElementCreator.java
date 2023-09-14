@@ -64,7 +64,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             if (aasRelElem instanceof AnnotatedRelationshipElement) {
-                relElemNode = createAnnotatedRelationshipElement((AnnotatedRelationshipElement) aasRelElem, submodel, nid, nodeManager);
+                relElemNode = createAnnotatedRelationshipElement((AnnotatedRelationshipElement) aasRelElem, relElemRef, submodel, nid, nodeManager);
             }
             else {
                 relElemNode = nodeManager.createInstance(AASRelationshipElementType.class, nid, browseName, LocalizedText.english(name));
@@ -100,13 +100,14 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
      * Creates an Annotated Relationship Element.
      *
      * @param aasRelElem The AAS Annotated Relationship Element
+     * @param relElemRef The reference to the AAS Relationship Element
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param nodeId The desired NodeId for the node to be created
      * @param nodeManager The corresponding Node Manager
      * @return The create UA Annotated Relationship Element
      * @throws StatusException If the operation fails
      */
-    private static AASRelationshipElementType createAnnotatedRelationshipElement(AnnotatedRelationshipElement aasRelElem, Submodel submodel, NodeId nodeId,
+    private static AASRelationshipElementType createAnnotatedRelationshipElement(AnnotatedRelationshipElement aasRelElem, Reference relElemRef, Submodel submodel, NodeId nodeId,
                                                                                  AasServiceNodeManager nodeManager)
             throws StatusException {
         AASRelationshipElementType retval = null;
@@ -121,7 +122,8 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
         for (DataElement de: aasRelElem.getAnnotations()) {
             //DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false, nodeManager);
             // give null for the data element reference, as it can't be referenced
-            DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, null, submodel, false, nodeManager);
+            //DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, null, submodel, false, nodeManager);
+            DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, relElemRef, submodel, false, nodeManager);
         }
 
         retval = relElemNode;

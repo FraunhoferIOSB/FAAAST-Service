@@ -168,7 +168,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<SubmodelElementIdentifier, UaNode> submodelOpcUAMap;
 
     /**
-     * Maps NodeIds to the corresponding Referable elements
+     * Maps reference to the corresponding Referable elements
      */
     private final Map<Reference, ObjectData> referableMap;
 
@@ -393,7 +393,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         //    LOG.info("elementCreated called. Reference {}; Element: {}", AasUtils.asString(element), AasUtils.asString((Reference) element));
         //}
         //else {
-        LOG.info("elementCreated called. Reference {}; Value: {}; Class {}", AasUtils.asString(element), value.getIdShort(), value.getClass());
+        LOG.debug("elementCreated called. Reference {}; Value: {}; Class {}", AasUtils.asString(element), value.getIdShort(), value.getClass());
         //}
         // The element is the reference to the object which is added itself
         // formerly it was the parent
@@ -470,9 +470,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void elementDeleted(Reference element) throws StatusException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
-        }
+        LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
         // The element is the object that should be deleted
         ObjectData data = referableMap.get(element);
         if (data != null) {
@@ -481,8 +479,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
         }
-        else if (LOG.isInfoEnabled()) {
-            LOG.debug("elementDeleted: element not found in referableMap: {}", AasUtils.asString(element));
+        else {
+            LOG.info("elementDeleted: element not found in referableMap: {}", AasUtils.asString(element));
         }
     }
 
@@ -502,22 +500,21 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementUpdated called. Reference {}", AasUtils.asString(element));
-        }
+        LOG.debug("elementUpdated called. Reference {}", AasUtils.asString(element));
         // Currently we implement update as delete and create. 
         elementDeleted(element);
 
-        // elementCreated needs the parent as element where it's available
-        Reference createElement;
-        if (element.getKeys().size() > 1) {
-            // remove the last element from the list
-            createElement = ReferenceHelper.getParent(element);
-        }
-        else {
-            createElement = element;
-        }
-        elementCreated(createElement, value);
+        //        // elementCreated needs the parent as element where it's available
+        //        Reference createElement;
+        //        if (element.getKeys().size() > 1) {
+        //            // remove the last element from the list
+        //            createElement = ReferenceHelper.getParent(element);
+        //        }
+        //        else {
+        //            createElement = element;
+        //        }
+        //        elementCreated(createElement, value);
+        elementCreated(element, value);
     }
 
 
