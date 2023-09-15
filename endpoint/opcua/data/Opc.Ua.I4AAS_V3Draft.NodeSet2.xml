@@ -30,6 +30,7 @@
         <Alias Alias="AASAssetKindDataType">ns=1;i=3003</Alias>
         <Alias Alias="AASPathDataType">ns=1;i=3005</Alias>
         <Alias Alias="AASEntityTypeDataType">ns=1;i=3006</Alias>
+        <Alias Alias="AASDirectionDataType">ns=1;i=3007</Alias>
         <Alias Alias="AASDataTypeIEC61360DataType">ns=1;i=3008</Alias>
         <Alias Alias="AASLevelTypeDataType">ns=1;i=3009</Alias>
         <Alias Alias="AASKeyDataType">ns=1;i=3011</Alias>
@@ -39,10 +40,11 @@
         <Alias Alias="AASQualifierKindDataType">ns=1;i=3017</Alias>
         <Alias Alias="AASDataTypeDefXsd">ns=1;i=3018</Alias>
         <Alias Alias="AASSubmodelElementsDataType">ns=1;i=3019</Alias>
+        <Alias Alias="AASStateOfEventDataType">ns=1;i=3021</Alias>
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Hash="e2GXdqvShtnQWRjNK5252w==" Version="1.6.10"/>
+            <ua:ModelInfo Tool="UaModeler" Hash="UTdJXgB8TeLs8K5Pf/pfqg==" Version="1.6.10"/>
         </Extension>
     </Extensions>
     <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASAssetKindDataType">
@@ -355,6 +357,34 @@ Note: In an object-oriented view, an instance denotes an object of a class (of a
                 </uax:LocalizedText>
                 <uax:LocalizedText>
                     <uax:Text>TIMESTAMP</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UADataType NodeId="ns=1;i=3007" BrowseName="1:AASDirectionDataType">
+        <DisplayName>AASDirectionDataType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6044</Reference>
+        </References>
+        <Definition Name="1:AASDirectionDataType">
+            <Field Name="Input" Value="0"/>
+            <Field Name="Output" Value="1"/>
+        </Definition>
+    </UADataType>
+    <UAVariable DataType="LocalizedText" ParentNodeId="ns=1;i=3007" ValueRank="1" NodeId="ns=1;i=6044" ArrayDimensions="2" BrowseName="EnumStrings">
+        <DisplayName>EnumStrings</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=3007</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>Input</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>Output</uax:Text>
                 </uax:LocalizedText>
             </uax:ListOfLocalizedText>
         </Value>
@@ -1274,6 +1304,34 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             </uax:ListOfLocalizedText>
         </Value>
     </UAVariable>
+    <UADataType NodeId="ns=1;i=3021" BrowseName="1:AASStateOfEventDataType">
+        <DisplayName>AASStateOfEventDataType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6046</Reference>
+        </References>
+        <Definition Name="1:AASStateOfEventDataType">
+            <Field Name="On" Value="0"/>
+            <Field Name="Off" Value="1"/>
+        </Definition>
+    </UADataType>
+    <UAVariable DataType="LocalizedText" ParentNodeId="ns=1;i=3021" ValueRank="1" NodeId="ns=1;i=6046" ArrayDimensions="2" BrowseName="EnumStrings">
+        <DisplayName>EnumStrings</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=3021</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>On</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Text>Off</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
     <UADataType NodeId="ns=1;i=3019" BrowseName="1:AASSubmodelElementsDataType">
         <DisplayName>AASSubmodelElementsDataType</DisplayName>
         <References>
@@ -1499,98 +1557,105 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         19UUkFOU0xBVEFCTEUiIFZhbHVlPSIxNiIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
         WU9IlRJTUUiIFZhbHVlPSIxNyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlRJT
         UVTVEFNUCIgVmFsdWU9IjE4Ii8+CiA8L29wYzpFbnVtZXJhdGVkVHlwZT4KIDxvcGM6RW51b
-        WVyYXRlZFR5cGUgTGVuZ3RoSW5CaXRzPSIzMiIgTmFtZT0iQUFTRW50aXR5VHlwZURhdGFUe
-        XBlIj4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDb01hbmFnZWRFbnRpdHkiIFZhb
-        HVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iU2VsZk1hbmFnZWRFbnRpd
-        HkiIFZhbHVlPSIxIi8+CiA8L29wYzpFbnVtZXJhdGVkVHlwZT4KIDxvcGM6RW51bWVyYXRlZ
-        FR5cGUgTGVuZ3RoSW5CaXRzPSIzMiIgTmFtZT0iQUFTS2V5RWxlbWVudHNEYXRhVHlwZSI+C
-        iAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQWNjZXNzUGVybWlzc2lvblJ1bGUiIFZhb
-        HVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQW5ub3RhdGVkUmVsYXRpb
-        25zaGlwRWxlbWVudCIgVmFsdWU9IjEiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lP
-        SJBc3NldCIgVmFsdWU9IjIiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJBc3Nld
-        EFkbWluaXN0cmF0aW9uU2hlbGwiIFZhbHVlPSIzIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsd
-        WUgTmFtZT0iQmxvYiIgVmFsdWU9IjQiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lP
-        SJDYXBhYmlsaXR5IiBWYWx1ZT0iNSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9I
-        kNvbmNlcHREZXNjcmlwdGlvbiIgVmFsdWU9IjYiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1Z
-        SBOYW1lPSJDb25jZXB0RGljdGlvbmFyeSIgVmFsdWU9IjciLz4KICA8b3BjOkVudW1lcmF0Z
-        WRWYWx1ZSBOYW1lPSJEYXRhRWxlbWVudCIgVmFsdWU9IjgiLz4KICA8b3BjOkVudW1lcmF0Z
-        WRWYWx1ZSBOYW1lPSJFbnRpdHkiIFZhbHVlPSI5Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsd
-        WUgTmFtZT0iRXZlbnQiIFZhbHVlPSIxMCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
-        WU9IkZpbGUiIFZhbHVlPSIxMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkZyY
-        WdtZW50UmVmZXJlbmNlIiBWYWx1ZT0iMTIiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOY
-        W1lPSJHbG9iYWxSZWZlcmVuY2UiIFZhbHVlPSIxMyIvPgogIDxvcGM6RW51bWVyYXRlZFZhb
-        HVlIE5hbWU9Ik11bHRpTGFuZ3VhZ2VQcm9wZXJ0eSIgVmFsdWU9IjE0Ii8+CiAgPG9wYzpFb
-        nVtZXJhdGVkVmFsdWUgTmFtZT0iT3BlcmF0aW9uIiBWYWx1ZT0iMTUiLz4KICA8b3BjOkVud
-        W1lcmF0ZWRWYWx1ZSBOYW1lPSJQcm9wZXJ0eSIgVmFsdWU9IjE2Ii8+CiAgPG9wYzpFbnVtZ
-        XJhdGVkVmFsdWUgTmFtZT0iUmFuZ2UiIFZhbHVlPSIxNyIvPgogIDxvcGM6RW51bWVyYXRlZ
-        FZhbHVlIE5hbWU9IlJlZmVyZW5jZUVsZW1lbnQiIFZhbHVlPSIxOCIvPgogIDxvcGM6RW51b
-        WVyYXRlZFZhbHVlIE5hbWU9IlJlbGF0aW9uc2hpcEVsZW1lbnQiIFZhbHVlPSIxOSIvPgogI
-        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Ym1vZGVsIiBWYWx1ZT0iMjAiLz4KICA8b
-        3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTdWJtb2RlbEVsZW1lbnQiIFZhbHVlPSIyMSIvP
-        gogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Ym1vZGVsRWxlbWVudENvbGxlY3Rpb
-        24iIFZhbHVlPSIyMiIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlZpZXciIFZhb
-        HVlPSIyMyIvPgogPC9vcGM6RW51bWVyYXRlZFR5cGU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlI
-        Exlbmd0aEluQml0cz0iMzIiIE5hbWU9IkFBU0tleVR5cGVzRGF0YVR5cGUiPgogIDxvcGM6R
-        W51bWVyYXRlZFZhbHVlIE5hbWU9IkFubm90YXRlZFJlbGF0aW9uc2hpcEVsZW1lbnQiIFZhb
-        HVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQXNzZXRBZG1pbmlzdHJhd
-        GlvblNoZWxsIiBWYWx1ZT0iMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkJhc
-        2ljRXZlbnRFbGVtZW50IiBWYWx1ZT0iMiIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
-        WU9IkJsb2IiIFZhbHVlPSIzIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQ2FwY
-        WJpbGl0eSIgVmFsdWU9IjQiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDb25jZ
-        XB0RGVzY3JpcHRpb24iIFZhbHVlPSI1Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZ
-        T0iRGF0YUVsZW1lbnQiIFZhbHVlPSI2Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZ
-        T0iRW50aXR5IiBWYWx1ZT0iNyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkV2Z
-        W50RWxlbWVudCIgVmFsdWU9IjgiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJGa
-        WxlIiBWYWx1ZT0iOSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkZyYWdtZW50U
-        mVmZXJlbmNlIiBWYWx1ZT0iMTAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJHb
-        G9iYWxSZWZlcmVuY2UiIFZhbHVlPSIxMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
-        WU9IklkZW50aWZpYWJsZSIgVmFsdWU9IjEyIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgT
-        mFtZT0iTXVsdGlMYW5ndWFnZVByb3BlcnR5IiBWYWx1ZT0iMTMiLz4KICA8b3BjOkVudW1lc
-        mF0ZWRWYWx1ZSBOYW1lPSJPcGVyYXRpb24iIFZhbHVlPSIxNCIvPgogIDxvcGM6RW51bWVyY
-        XRlZFZhbHVlIE5hbWU9IlByb3BlcnR5IiBWYWx1ZT0iMTUiLz4KICA8b3BjOkVudW1lcmF0Z
-        WRWYWx1ZSBOYW1lPSJSYW5nZSIgVmFsdWU9IjE2Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsd
-        WUgTmFtZT0iUmVmZXJhYmxlIiBWYWx1ZT0iMTciLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1Z
-        SBOYW1lPSJSZWZlcmVuY2VFbGVtZW50IiBWYWx1ZT0iMTgiLz4KICA8b3BjOkVudW1lcmF0Z
-        WRWYWx1ZSBOYW1lPSJSZWxhdGlvbnNoaXBFbGVtZW50IiBWYWx1ZT0iMTkiLz4KICA8b3BjO
-        kVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTdWJtb2RlbCIgVmFsdWU9IjIwIi8+CiAgPG9wYzpFb
-        nVtZXJhdGVkVmFsdWUgTmFtZT0iU3VibW9kZWxFbGVtZW50IiBWYWx1ZT0iMjEiLz4KICA8b
-        3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTdWJtb2RlbEVsZW1lbnRDb2xsZWN0aW9uIiBWY
-        Wx1ZT0iMjIiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTdWJtb2RlbEVsZW1lb
-        nRMaXN0IiBWYWx1ZT0iMjMiLz4KIDwvb3BjOkVudW1lcmF0ZWRUeXBlPgogPG9wYzpFbnVtZ
-        XJhdGVkVHlwZSBMZW5ndGhJbkJpdHM9IjMyIiBOYW1lPSJBQVNMZXZlbFR5cGVEYXRhVHlwZ
-        SI+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iTWluIiBWYWx1ZT0iMCIvPgogIDxvc
-        GM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ik1heCIgVmFsdWU9IjEiLz4KICA8b3BjOkVudW1lc
-        mF0ZWRWYWx1ZSBOYW1lPSJOdW0iIFZhbHVlPSIyIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsd
-        WUgTmFtZT0iVHlwZSIgVmFsdWU9IjMiLz4KIDwvb3BjOkVudW1lcmF0ZWRUeXBlPgogPG9wY
-        zpFbnVtZXJhdGVkVHlwZSBMZW5ndGhJbkJpdHM9IjMyIiBOYW1lPSJBQVNNb2RlbGxpbmdLa
-        W5kRGF0YVR5cGUiPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlRlbXBsYXRlIiBWY
-        Wx1ZT0iMCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ikluc3RhbmNlIiBWYWx1Z
-        T0iMSIvPgogPC9vcGM6RW51bWVyYXRlZFR5cGU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlIExlb
-        md0aEluQml0cz0iMzIiIE5hbWU9IkFBU1F1YWxpZmllcktpbmREYXRhVHlwZSI+CiAgPG9wY
-        zpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iVmFsdWVRdWFsaWZpZXIiIFZhbHVlPSIwIi8+CiAgP
-        G9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQ29uY2VwdFF1YWxpZmllciIgVmFsdWU9IjEiL
-        z4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJUZW1wbGF0ZVF1YWxpZmllciIgVmFsd
-        WU9IjIiLz4KIDwvb3BjOkVudW1lcmF0ZWRUeXBlPgogPG9wYzpFbnVtZXJhdGVkVHlwZSBMZ
-        W5ndGhJbkJpdHM9IjMyIiBOYW1lPSJBQVNTdWJtb2RlbEVsZW1lbnRzRGF0YVR5cGUiPgogI
-        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkFubm90YXRlZFJlbGF0aW9uU2hpcEVsZW1lb
-        nQiIFZhbHVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQmFzaWNFdmVud
-        EVsZW1lbnQiIFZhbHVlPSIxIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQmxvY
-        iIgVmFsdWU9IjIiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDYXBhYmlsaXR5I
-        iBWYWx1ZT0iMyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkRhdGFFbGVtZW50I
-        iBWYWx1ZT0iNCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkVudGl0eSIgVmFsd
-        WU9IjUiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJFdmVudEVsZW1lbnQiIFZhb
-        HVlPSI2Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iRmlsZSIgVmFsdWU9IjciL
+        WVyYXRlZFR5cGUgTGVuZ3RoSW5CaXRzPSIzMiIgTmFtZT0iQUFTRGlyZWN0aW9uRGF0YVR5c
+        GUiPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IklucHV0IiBWYWx1ZT0iMCIvPgogI
+        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ik91dHB1dCIgVmFsdWU9IjEiLz4KIDwvb3BjO
+        kVudW1lcmF0ZWRUeXBlPgogPG9wYzpFbnVtZXJhdGVkVHlwZSBMZW5ndGhJbkJpdHM9IjMyI
+        iBOYW1lPSJBQVNFbnRpdHlUeXBlRGF0YVR5cGUiPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlI
+        E5hbWU9IkNvTWFuYWdlZEVudGl0eSIgVmFsdWU9IjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWY
+        Wx1ZSBOYW1lPSJTZWxmTWFuYWdlZEVudGl0eSIgVmFsdWU9IjEiLz4KIDwvb3BjOkVudW1lc
+        mF0ZWRUeXBlPgogPG9wYzpFbnVtZXJhdGVkVHlwZSBMZW5ndGhJbkJpdHM9IjMyIiBOYW1lP
+        SJBQVNLZXlFbGVtZW50c0RhdGFUeXBlIj4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lP
+        SJBY2Nlc3NQZXJtaXNzaW9uUnVsZSIgVmFsdWU9IjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWY
+        Wx1ZSBOYW1lPSJBbm5vdGF0ZWRSZWxhdGlvbnNoaXBFbGVtZW50IiBWYWx1ZT0iMSIvPgogI
+        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkFzc2V0IiBWYWx1ZT0iMiIvPgogIDxvcGM6R
+        W51bWVyYXRlZFZhbHVlIE5hbWU9IkFzc2V0QWRtaW5pc3RyYXRpb25TaGVsbCIgVmFsdWU9I
+        jMiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJCbG9iIiBWYWx1ZT0iNCIvPgogI
+        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkNhcGFiaWxpdHkiIFZhbHVlPSI1Ii8+CiAgP
+        G9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQ29uY2VwdERlc2NyaXB0aW9uIiBWYWx1ZT0iN
+        iIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkNvbmNlcHREaWN0aW9uYXJ5IiBWY
+        Wx1ZT0iNyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkRhdGFFbGVtZW50IiBWY
+        Wx1ZT0iOCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkVudGl0eSIgVmFsdWU9I
+        jkiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJFdmVudCIgVmFsdWU9IjEwIi8+C
+        iAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iRmlsZSIgVmFsdWU9IjExIi8+CiAgPG9wY
+        zpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iRnJhZ21lbnRSZWZlcmVuY2UiIFZhbHVlPSIxMiIvP
+        gogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ikdsb2JhbFJlZmVyZW5jZSIgVmFsdWU9I
+        jEzIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iTXVsdGlMYW5ndWFnZVByb3Blc
+        nR5IiBWYWx1ZT0iMTQiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJPcGVyYXRpb
+        24iIFZhbHVlPSIxNSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlByb3BlcnR5I
+        iBWYWx1ZT0iMTYiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJSYW5nZSIgVmFsd
+        WU9IjE3Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUmVmZXJlbmNlRWxlbWVud
+        CIgVmFsdWU9IjE4Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUmVsYXRpb25za
+        GlwRWxlbWVudCIgVmFsdWU9IjE5Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iU
+        3VibW9kZWwiIFZhbHVlPSIyMCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Y
+        m1vZGVsRWxlbWVudCIgVmFsdWU9IjIxIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZ
+        T0iU3VibW9kZWxFbGVtZW50Q29sbGVjdGlvbiIgVmFsdWU9IjIyIi8+CiAgPG9wYzpFbnVtZ
+        XJhdGVkVmFsdWUgTmFtZT0iVmlldyIgVmFsdWU9IjIzIi8+CiA8L29wYzpFbnVtZXJhdGVkV
+        HlwZT4KIDxvcGM6RW51bWVyYXRlZFR5cGUgTGVuZ3RoSW5CaXRzPSIzMiIgTmFtZT0iQUFTS
+        2V5VHlwZXNEYXRhVHlwZSI+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQW5ub3Rhd
+        GVkUmVsYXRpb25zaGlwRWxlbWVudCIgVmFsdWU9IjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWY
+        Wx1ZSBOYW1lPSJBc3NldEFkbWluaXN0cmF0aW9uU2hlbGwiIFZhbHVlPSIxIi8+CiAgPG9wY
+        zpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQmFzaWNFdmVudEVsZW1lbnQiIFZhbHVlPSIyIi8+C
+        iAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQmxvYiIgVmFsdWU9IjMiLz4KICA8b3BjO
+        kVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDYXBhYmlsaXR5IiBWYWx1ZT0iNCIvPgogIDxvcGM6R
+        W51bWVyYXRlZFZhbHVlIE5hbWU9IkNvbmNlcHREZXNjcmlwdGlvbiIgVmFsdWU9IjUiLz4KI
+        CA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJEYXRhRWxlbWVudCIgVmFsdWU9IjYiLz4KI
+        CA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJFbnRpdHkiIFZhbHVlPSI3Ii8+CiAgPG9wY
+        zpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iRXZlbnRFbGVtZW50IiBWYWx1ZT0iOCIvPgogIDxvc
+        GM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkZpbGUiIFZhbHVlPSI5Ii8+CiAgPG9wYzpFbnVtZ
+        XJhdGVkVmFsdWUgTmFtZT0iRnJhZ21lbnRSZWZlcmVuY2UiIFZhbHVlPSIxMCIvPgogIDxvc
+        GM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ikdsb2JhbFJlZmVyZW5jZSIgVmFsdWU9IjExIi8+C
+        iAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iSWRlbnRpZmlhYmxlIiBWYWx1ZT0iMTIiL
         z4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJNdWx0aUxhbmd1YWdlUHJvcGVydHkiI
-        FZhbHVlPSI4Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iT3BlcmF0aW9uIiBWY
-        Wx1ZT0iOSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlByb3BlcnR5IiBWYWx1Z
-        T0iMTAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJSYW5nZSIgVmFsdWU9IjExI
-        i8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUmVmZXJlbmNlRWxlbWVudCIgVmFsd
-        WU9IjEyIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUmVsYXRpb25zaGlwRWxlb
-        WVudCIgVmFsdWU9IjEzIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iU3VibW9kZ
-        WxFbGVtZW50IiBWYWx1ZT0iMTQiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTd
-        WJtb2RlbEVsZW1lbnRDb2xsZWN0aW9uIiBWYWx1ZT0iMTUiLz4KICA8b3BjOkVudW1lcmF0Z
-        WRWYWx1ZSBOYW1lPSJTdWJtb2RlbEVsZW1lbnRMaXN0IiBWYWx1ZT0iMTYiLz4KIDwvb3BjO
-        kVudW1lcmF0ZWRUeXBlPgo8L29wYzpUeXBlRGljdGlvbmFyeT4K</uax:ByteString>
+        FZhbHVlPSIxMyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ik9wZXJhdGlvbiIgV
+        mFsdWU9IjE0Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUHJvcGVydHkiIFZhb
+        HVlPSIxNSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlJhbmdlIiBWYWx1ZT0iM
+        TYiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJSZWZlcmFibGUiIFZhbHVlPSIxN
+        yIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlJlZmVyZW5jZUVsZW1lbnQiIFZhb
+        HVlPSIxOCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlJlbGF0aW9uc2hpcEVsZ
+        W1lbnQiIFZhbHVlPSIxOSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Ym1vZ
+        GVsIiBWYWx1ZT0iMjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJTdWJtb2Rlb
+        EVsZW1lbnQiIFZhbHVlPSIyMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Y
+        m1vZGVsRWxlbWVudENvbGxlY3Rpb24iIFZhbHVlPSIyMiIvPgogIDxvcGM6RW51bWVyYXRlZ
+        FZhbHVlIE5hbWU9IlN1Ym1vZGVsRWxlbWVudExpc3QiIFZhbHVlPSIyMyIvPgogPC9vcGM6R
+        W51bWVyYXRlZFR5cGU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlIExlbmd0aEluQml0cz0iMzIiI
+        E5hbWU9IkFBU0xldmVsVHlwZURhdGFUeXBlIj4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOY
+        W1lPSJNaW4iIFZhbHVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iTWF4I
+        iBWYWx1ZT0iMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ik51bSIgVmFsdWU9I
+        jIiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJUeXBlIiBWYWx1ZT0iMyIvPgogP
+        C9vcGM6RW51bWVyYXRlZFR5cGU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlIExlbmd0aEluQml0c
+        z0iMzIiIE5hbWU9IkFBU01vZGVsbGluZ0tpbmREYXRhVHlwZSI+CiAgPG9wYzpFbnVtZXJhd
+        GVkVmFsdWUgTmFtZT0iVGVtcGxhdGUiIFZhbHVlPSIwIi8+CiAgPG9wYzpFbnVtZXJhdGVkV
+        mFsdWUgTmFtZT0iSW5zdGFuY2UiIFZhbHVlPSIxIi8+CiA8L29wYzpFbnVtZXJhdGVkVHlwZ
+        T4KIDxvcGM6RW51bWVyYXRlZFR5cGUgTGVuZ3RoSW5CaXRzPSIzMiIgTmFtZT0iQUFTUXVhb
+        GlmaWVyS2luZERhdGFUeXBlIj4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJWYWx1Z
+        VF1YWxpZmllciIgVmFsdWU9IjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDb
+        25jZXB0UXVhbGlmaWVyIiBWYWx1ZT0iMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hb
+        WU9IlRlbXBsYXRlUXVhbGlmaWVyIiBWYWx1ZT0iMiIvPgogPC9vcGM6RW51bWVyYXRlZFR5c
+        GU+CiA8b3BjOkVudW1lcmF0ZWRUeXBlIExlbmd0aEluQml0cz0iMzIiIE5hbWU9IkFBU1N0Y
+        XRlT2ZFdmVudERhdGFUeXBlIj4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJPbiIgV
+        mFsdWU9IjAiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJPZmYiIFZhbHVlPSIxI
+        i8+CiA8L29wYzpFbnVtZXJhdGVkVHlwZT4KIDxvcGM6RW51bWVyYXRlZFR5cGUgTGVuZ3RoS
+        W5CaXRzPSIzMiIgTmFtZT0iQUFTU3VibW9kZWxFbGVtZW50c0RhdGFUeXBlIj4KICA8b3BjO
+        kVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJBbm5vdGF0ZWRSZWxhdGlvblNoaXBFbGVtZW50IiBWY
+        Wx1ZT0iMCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkJhc2ljRXZlbnRFbGVtZ
+        W50IiBWYWx1ZT0iMSIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkJsb2IiIFZhb
+        HVlPSIyIi8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iQ2FwYWJpbGl0eSIgVmFsd
+        WU9IjMiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJEYXRhRWxlbWVudCIgVmFsd
+        WU9IjQiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJFbnRpdHkiIFZhbHVlPSI1I
+        i8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iRXZlbnRFbGVtZW50IiBWYWx1ZT0iN
+        iIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IkZpbGUiIFZhbHVlPSI3Ii8+CiAgP
+        G9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iTXVsdGlMYW5ndWFnZVByb3BlcnR5IiBWYWx1Z
+        T0iOCIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9Ik9wZXJhdGlvbiIgVmFsdWU9I
+        jkiLz4KICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJQcm9wZXJ0eSIgVmFsdWU9IjEwI
+        i8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iUmFuZ2UiIFZhbHVlPSIxMSIvPgogI
+        DxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlJlZmVyZW5jZUVsZW1lbnQiIFZhbHVlPSIxM
+        iIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlJlbGF0aW9uc2hpcEVsZW1lbnQiI
+        FZhbHVlPSIxMyIvPgogIDxvcGM6RW51bWVyYXRlZFZhbHVlIE5hbWU9IlN1Ym1vZGVsRWxlb
+        WVudCIgVmFsdWU9IjE0Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0iU3VibW9kZ
+        WxFbGVtZW50Q29sbGVjdGlvbiIgVmFsdWU9IjE1Ii8+CiAgPG9wYzpFbnVtZXJhdGVkVmFsd
+        WUgTmFtZT0iU3VibW9kZWxFbGVtZW50TGlzdCIgVmFsdWU9IjE2Ii8+CiA8L29wYzpFbnVtZ
+        XJhdGVkVHlwZT4KPC9vcGM6VHlwZURpY3Rpb25hcnk+Cg==</uax:ByteString>
         </Value>
     </UAVariable>
     <UAVariable DataType="String" ParentNodeId="ns=1;i=6094" NodeId="ns=1;i=6095" BrowseName="NamespaceUri">
@@ -1688,153 +1753,176 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         GU9InRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZT4KIDx4czplb
         GVtZW50IHR5cGU9InRuczpMaXN0T2ZBQVNEYXRhVHlwZUlFQzYxMzYwRGF0YVR5cGUiIG5hb
         WU9Ikxpc3RPZkFBU0RhdGFUeXBlSUVDNjEzNjBEYXRhVHlwZSIgbmlsbGFibGU9InRydWUiL
-        z4KIDx4czpzaW1wbGVUeXBlIG5hbWU9IkFBU0VudGl0eVR5cGVEYXRhVHlwZSI+CiAgPHhzO
-        nJlc3RyaWN0aW9uIGJhc2U9InhzOnN0cmluZyI+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1Z
-        T0iQ29NYW5hZ2VkRW50aXR5XzAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJTZWxmT
-        WFuYWdlZEVudGl0eV8xIi8+CiAgPC94czpyZXN0cmljdGlvbj4KIDwveHM6c2ltcGxlVHlwZ
-        T4KIDx4czplbGVtZW50IHR5cGU9InRuczpBQVNFbnRpdHlUeXBlRGF0YVR5cGUiIG5hbWU9I
-        kFBU0VudGl0eVR5cGVEYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZ
-        kFBU0VudGl0eVR5cGVEYXRhVHlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlbWVud
-        CBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTRW50a
-        XR5VHlwZURhdGFUeXBlIiBuYW1lPSJBQVNFbnRpdHlUeXBlRGF0YVR5cGUiIG5pbGxhYmxlP
-        SJ0cnVlIi8+CiAgPC94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlb
-        WVudCB0eXBlPSJ0bnM6TGlzdE9mQUFTRW50aXR5VHlwZURhdGFUeXBlIiBuYW1lPSJMaXN0T
-        2ZBQVNFbnRpdHlUeXBlRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CiA8eHM6c2ltcGxlV
-        HlwZSBuYW1lPSJBQVNLZXlFbGVtZW50c0RhdGFUeXBlIj4KICA8eHM6cmVzdHJpY3Rpb24gY
-        mFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJBY2Nlc3NQZXJta
-        XNzaW9uUnVsZV8wIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQW5ub3RhdGVkUmVsY
-        XRpb25zaGlwRWxlbWVudF8xIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQXNzZXRfM
-        iIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkFzc2V0QWRtaW5pc3RyYXRpb25TaGVsb
-        F8zIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQmxvYl80Ii8+CiAgIDx4czplbnVtZ
-        XJhdGlvbiB2YWx1ZT0iQ2FwYWJpbGl0eV81Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1Z
-        T0iQ29uY2VwdERlc2NyaXB0aW9uXzYiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJDb
-        25jZXB0RGljdGlvbmFyeV83Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRGF0YUVsZ
-        W1lbnRfOCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkVudGl0eV85Ii8+CiAgIDx4c
-        zplbnVtZXJhdGlvbiB2YWx1ZT0iRXZlbnRfMTAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
-        HVlPSJGaWxlXzExIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRnJhZ21lbnRSZWZlc
-        mVuY2VfMTIiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJHbG9iYWxSZWZlcmVuY2VfM
-        TMiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJNdWx0aUxhbmd1YWdlUHJvcGVydHlfM
-        TQiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJPcGVyYXRpb25fMTUiLz4KICAgPHhzO
-        mVudW1lcmF0aW9uIHZhbHVlPSJQcm9wZXJ0eV8xNiIvPgogICA8eHM6ZW51bWVyYXRpb24gd
-        mFsdWU9IlJhbmdlXzE3Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iUmVmZXJlbmNlR
-        WxlbWVudF8xOCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlJlbGF0aW9uc2hpcEVsZ
-        W1lbnRfMTkiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJTdWJtb2RlbF8yMCIvPgogI
-        CA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlN1Ym1vZGVsRWxlbWVudF8yMSIvPgogICA8eHM6Z
-        W51bWVyYXRpb24gdmFsdWU9IlN1Ym1vZGVsRWxlbWVudENvbGxlY3Rpb25fMjIiLz4KICAgP
-        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJWaWV3XzIzIi8+CiAgPC94czpyZXN0cmljdGlvbj4KI
-        DwveHM6c2ltcGxlVHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuczpBQVNLZXlFbGVtZW50c
-        0RhdGFUeXBlIiBuYW1lPSJBQVNLZXlFbGVtZW50c0RhdGFUeXBlIi8+CiA8eHM6Y29tcGxle
-        FR5cGUgbmFtZT0iTGlzdE9mQUFTS2V5RWxlbWVudHNEYXRhVHlwZSI+CiAgPHhzOnNlcXVlb
-        mNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkI
-        iB0eXBlPSJ0bnM6QUFTS2V5RWxlbWVudHNEYXRhVHlwZSIgbmFtZT0iQUFTS2V5RWxlbWVud
-        HNEYXRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb
-        21wbGV4VHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuczpMaXN0T2ZBQVNLZXlFbGVtZW50c
-        0RhdGFUeXBlIiBuYW1lPSJMaXN0T2ZBQVNLZXlFbGVtZW50c0RhdGFUeXBlIiBuaWxsYWJsZ
-        T0idHJ1ZSIvPgogPHhzOnNpbXBsZVR5cGUgbmFtZT0iQUFTS2V5VHlwZXNEYXRhVHlwZSI+C
-        iAgPHhzOnJlc3RyaWN0aW9uIGJhc2U9InhzOnN0cmluZyI+CiAgIDx4czplbnVtZXJhdGlvb
-        iB2YWx1ZT0iQW5ub3RhdGVkUmVsYXRpb25zaGlwRWxlbWVudF8wIi8+CiAgIDx4czplbnVtZ
-        XJhdGlvbiB2YWx1ZT0iQXNzZXRBZG1pbmlzdHJhdGlvblNoZWxsXzEiLz4KICAgPHhzOmVud
-        W1lcmF0aW9uIHZhbHVlPSJCYXNpY0V2ZW50RWxlbWVudF8yIi8+CiAgIDx4czplbnVtZXJhd
-        GlvbiB2YWx1ZT0iQmxvYl8zIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQ2FwYWJpb
-        Gl0eV80Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQ29uY2VwdERlc2NyaXB0aW9uX
-        zUiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJEYXRhRWxlbWVudF82Ii8+CiAgIDx4c
-        zplbnVtZXJhdGlvbiB2YWx1ZT0iRW50aXR5XzciLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
-        HVlPSJFdmVudEVsZW1lbnRfOCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkZpbGVfO
-        SIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkZyYWdtZW50UmVmZXJlbmNlXzEwIi8+C
-        iAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iR2xvYmFsUmVmZXJlbmNlXzExIi8+CiAgIDx4c
-        zplbnVtZXJhdGlvbiB2YWx1ZT0iSWRlbnRpZmlhYmxlXzEyIi8+CiAgIDx4czplbnVtZXJhd
-        GlvbiB2YWx1ZT0iTXVsdGlMYW5ndWFnZVByb3BlcnR5XzEzIi8+CiAgIDx4czplbnVtZXJhd
-        GlvbiB2YWx1ZT0iT3BlcmF0aW9uXzE0Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iU
-        HJvcGVydHlfMTUiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJSYW5nZV8xNiIvPgogI
-        CA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlJlZmVyYWJsZV8xNyIvPgogICA8eHM6ZW51bWVyY
-        XRpb24gdmFsdWU9IlJlZmVyZW5jZUVsZW1lbnRfMTgiLz4KICAgPHhzOmVudW1lcmF0aW9uI
-        HZhbHVlPSJSZWxhdGlvbnNoaXBFbGVtZW50XzE5Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2Y
-        Wx1ZT0iU3VibW9kZWxfMjAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJTdWJtb2Rlb
-        EVsZW1lbnRfMjEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJTdWJtb2RlbEVsZW1lb
-        nRDb2xsZWN0aW9uXzIyIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iU3VibW9kZWxFb
-        GVtZW50TGlzdF8yMyIvPgogIDwveHM6cmVzdHJpY3Rpb24+CiA8L3hzOnNpbXBsZVR5cGU+C
-        iA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6QUFTS2V5VHlwZXNEYXRhVHlwZSIgbmFtZT0iQUFTS
-        2V5VHlwZXNEYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZkFBU0tle
-        VR5cGVzRGF0YVR5cGUiPgogIDx4czpzZXF1ZW5jZT4KICAgPHhzOmVsZW1lbnQgbWluT2Njd
-        XJzPSIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIgdHlwZT0idG5zOkFBU0tleVR5cGVzRGF0Y
-        VR5cGUiIG5hbWU9IkFBU0tleVR5cGVzRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CiAgP
-        C94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlPSJ0b
-        nM6TGlzdE9mQUFTS2V5VHlwZXNEYXRhVHlwZSIgbmFtZT0iTGlzdE9mQUFTS2V5VHlwZXNEY
-        XRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KIDx4czpzaW1wbGVUeXBlIG5hbWU9IkFBU0xld
-        mVsVHlwZURhdGFUeXBlIj4KICA8eHM6cmVzdHJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KI
-        CAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJNaW5fMCIvPgogICA8eHM6ZW51bWVyYXRpb24gd
-        mFsdWU9Ik1heF8xIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iTnVtXzIiLz4KICAgP
-        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJUeXBlXzMiLz4KICA8L3hzOnJlc3RyaWN0aW9uPgogP
-        C94czpzaW1wbGVUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0idG5zOkFBU0xldmVsVHlwZURhd
-        GFUeXBlIiBuYW1lPSJBQVNMZXZlbFR5cGVEYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlI
-        G5hbWU9Ikxpc3RPZkFBU0xldmVsVHlwZURhdGFUeXBlIj4KICA8eHM6c2VxdWVuY2U+CiAgI
-        Dx4czplbGVtZW50IG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzPSJ1bmJvdW5kZWQiIHR5cGU9I
-        nRuczpBQVNMZXZlbFR5cGVEYXRhVHlwZSIgbmFtZT0iQUFTTGV2ZWxUeXBlRGF0YVR5cGUiI
-        G5pbGxhYmxlPSJ0cnVlIi8+CiAgPC94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+C
-        iA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6TGlzdE9mQUFTTGV2ZWxUeXBlRGF0YVR5cGUiIG5hb
-        WU9Ikxpc3RPZkFBU0xldmVsVHlwZURhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogPHhzO
-        nNpbXBsZVR5cGUgbmFtZT0iQUFTTW9kZWxsaW5nS2luZERhdGFUeXBlIj4KICA8eHM6cmVzd
-        HJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJUZ
-        W1wbGF0ZV8wIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iSW5zdGFuY2VfMSIvPgogI
-        DwveHM6cmVzdHJpY3Rpb24+CiA8L3hzOnNpbXBsZVR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlP
-        SJ0bnM6QUFTTW9kZWxsaW5nS2luZERhdGFUeXBlIiBuYW1lPSJBQVNNb2RlbGxpbmdLaW5kR
-        GF0YVR5cGUiLz4KIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZBQVNNb2RlbGxpbmdLa
-        W5kRGF0YVR5cGUiPgogIDx4czpzZXF1ZW5jZT4KICAgPHhzOmVsZW1lbnQgbWluT2NjdXJzP
-        SIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIgdHlwZT0idG5zOkFBU01vZGVsbGluZ0tpbmREY
-        XRhVHlwZSIgbmFtZT0iQUFTTW9kZWxsaW5nS2luZERhdGFUeXBlIiBuaWxsYWJsZT0idHJ1Z
-        SIvPgogIDwveHM6c2VxdWVuY2U+CiA8L3hzOmNvbXBsZXhUeXBlPgogPHhzOmVsZW1lbnQgd
-        HlwZT0idG5zOkxpc3RPZkFBU01vZGVsbGluZ0tpbmREYXRhVHlwZSIgbmFtZT0iTGlzdE9mQ
-        UFTTW9kZWxsaW5nS2luZERhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogPHhzOnNpbXBsZ
-        VR5cGUgbmFtZT0iQUFTUXVhbGlmaWVyS2luZERhdGFUeXBlIj4KICA8eHM6cmVzdHJpY3Rpb
-        24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJWYWx1ZVF1Y
-        WxpZmllcl8wIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQ29uY2VwdFF1YWxpZmllc
-        l8xIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iVGVtcGxhdGVRdWFsaWZpZXJfMiIvP
-        gogIDwveHM6cmVzdHJpY3Rpb24+CiA8L3hzOnNpbXBsZVR5cGU+CiA8eHM6ZWxlbWVudCB0e
-        XBlPSJ0bnM6QUFTUXVhbGlmaWVyS2luZERhdGFUeXBlIiBuYW1lPSJBQVNRdWFsaWZpZXJLa
-        W5kRGF0YVR5cGUiLz4KIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZBQVNRdWFsaWZpZ
-        XJLaW5kRGF0YVR5cGUiPgogIDx4czpzZXF1ZW5jZT4KICAgPHhzOmVsZW1lbnQgbWluT2Njd
-        XJzPSIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIgdHlwZT0idG5zOkFBU1F1YWxpZmllcktpb
-        mREYXRhVHlwZSIgbmFtZT0iQUFTUXVhbGlmaWVyS2luZERhdGFUeXBlIiBuaWxsYWJsZT0id
-        HJ1ZSIvPgogIDwveHM6c2VxdWVuY2U+CiA8L3hzOmNvbXBsZXhUeXBlPgogPHhzOmVsZW1lb
-        nQgdHlwZT0idG5zOkxpc3RPZkFBU1F1YWxpZmllcktpbmREYXRhVHlwZSIgbmFtZT0iTGlzd
-        E9mQUFTUXVhbGlmaWVyS2luZERhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogPHhzOnNpb
-        XBsZVR5cGUgbmFtZT0iQUFTU3VibW9kZWxFbGVtZW50c0RhdGFUeXBlIj4KICA8eHM6cmVzd
-        HJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJBb
-        m5vdGF0ZWRSZWxhdGlvblNoaXBFbGVtZW50XzAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
-        HVlPSJCYXNpY0V2ZW50RWxlbWVudF8xIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQ
-        mxvYl8yIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQ2FwYWJpbGl0eV8zIi8+CiAgI
-        Dx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRGF0YUVsZW1lbnRfNCIvPgogICA8eHM6ZW51bWVyY
-        XRpb24gdmFsdWU9IkVudGl0eV81Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRXZlb
-        nRFbGVtZW50XzYiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJGaWxlXzciLz4KICAgP
-        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJNdWx0aUxhbmd1YWdlUHJvcGVydHlfOCIvPgogICA8e
-        HM6ZW51bWVyYXRpb24gdmFsdWU9Ik9wZXJhdGlvbl85Ii8+CiAgIDx4czplbnVtZXJhdGlvb
-        iB2YWx1ZT0iUHJvcGVydHlfMTAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJSYW5nZ
-        V8xMSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlJlZmVyZW5jZUVsZW1lbnRfMTIiL
-        z4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJSZWxhdGlvbnNoaXBFbGVtZW50XzEzIi8+C
-        iAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iU3VibW9kZWxFbGVtZW50XzE0Ii8+CiAgIDx4c
-        zplbnVtZXJhdGlvbiB2YWx1ZT0iU3VibW9kZWxFbGVtZW50Q29sbGVjdGlvbl8xNSIvPgogI
-        CA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlN1Ym1vZGVsRWxlbWVudExpc3RfMTYiLz4KICA8L
+        z4KIDx4czpzaW1wbGVUeXBlIG5hbWU9IkFBU0RpcmVjdGlvbkRhdGFUeXBlIj4KICA8eHM6c
+        mVzdHJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlP
+        SJJbnB1dF8wIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iT3V0cHV0XzEiLz4KICA8L
         3hzOnJlc3RyaWN0aW9uPgogPC94czpzaW1wbGVUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0id
-        G5zOkFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhVHlwZSIgbmFtZT0iQUFTU3VibW9kZWxFbGVtZ
-        W50c0RhdGFUeXBlIi8+CiA8eHM6Y29tcGxleFR5cGUgbmFtZT0iTGlzdE9mQUFTU3VibW9kZ
-        WxFbGVtZW50c0RhdGFUeXBlIj4KICA8eHM6c2VxdWVuY2U+CiAgIDx4czplbGVtZW50IG1pb
-        k9jY3Vycz0iMCIgbWF4T2NjdXJzPSJ1bmJvdW5kZWQiIHR5cGU9InRuczpBQVNTdWJtb2Rlb
-        EVsZW1lbnRzRGF0YVR5cGUiIG5hbWU9IkFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhVHlwZSIgb
-        mlsbGFibGU9InRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZT4KI
-        Dx4czplbGVtZW50IHR5cGU9InRuczpMaXN0T2ZBQVNTdWJtb2RlbEVsZW1lbnRzRGF0YVR5c
-        GUiIG5hbWU9Ikxpc3RPZkFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhVHlwZSIgbmlsbGFibGU9I
-        nRydWUiLz4KIDx4czpjb21wbGV4VHlwZSBuYW1lPSJBQVNLZXlEYXRhVHlwZSI+CiAgPHhzO
-        nNlcXVlbmNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0iMSIgd
-        HlwZT0idG5zOkFBU0tleVR5cGVzRGF0YVR5cGUiIG5hbWU9IlR5cGUiLz4KICAgPHhzOmVsZ
-        W1lbnQgbWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9IjEiIHR5cGU9InhzOnN0cmluZyIgbmFtZ
-        T0iVmFsdWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZT4KIDx4czplb
-        GVtZW50IHR5cGU9InRuczpBQVNLZXlEYXRhVHlwZSIgbmFtZT0iQUFTS2V5RGF0YVR5cGUiL
-        z4KIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZBQVNLZXlEYXRhVHlwZSI+CiAgPHhzO
-        nNlcXVlbmNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib
-        3VuZGVkIiB0eXBlPSJ0bnM6QUFTS2V5RGF0YVR5cGUiIG5hbWU9IkFBU0tleURhdGFUeXBlI
-        iBuaWxsYWJsZT0idHJ1ZSIvPgogIDwveHM6c2VxdWVuY2U+CiA8L3hzOmNvbXBsZXhUeXBlP
-        gogPHhzOmVsZW1lbnQgdHlwZT0idG5zOkxpc3RPZkFBU0tleURhdGFUeXBlIiBuYW1lPSJMa
-        XN0T2ZBQVNLZXlEYXRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KPC94czpzY2hlbWE+Cg==</uax:ByteString>
+        G5zOkFBU0RpcmVjdGlvbkRhdGFUeXBlIiBuYW1lPSJBQVNEaXJlY3Rpb25EYXRhVHlwZSIvP
+        gogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZkFBU0RpcmVjdGlvbkRhdGFUeXBlIj4KI
+        CA8eHM6c2VxdWVuY2U+CiAgIDx4czplbGVtZW50IG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzP
+        SJ1bmJvdW5kZWQiIHR5cGU9InRuczpBQVNEaXJlY3Rpb25EYXRhVHlwZSIgbmFtZT0iQUFTR
+        GlyZWN0aW9uRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CiAgPC94czpzZXF1ZW5jZT4KI
+        DwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6TGlzdE9mQUFTRGlyZ
+        WN0aW9uRGF0YVR5cGUiIG5hbWU9Ikxpc3RPZkFBU0RpcmVjdGlvbkRhdGFUeXBlIiBuaWxsY
+        WJsZT0idHJ1ZSIvPgogPHhzOnNpbXBsZVR5cGUgbmFtZT0iQUFTRW50aXR5VHlwZURhdGFUe
+        XBlIj4KICA8eHM6cmVzdHJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzOmVudW1lc
+        mF0aW9uIHZhbHVlPSJDb01hbmFnZWRFbnRpdHlfMCIvPgogICA8eHM6ZW51bWVyYXRpb24gd
+        mFsdWU9IlNlbGZNYW5hZ2VkRW50aXR5XzEiLz4KICA8L3hzOnJlc3RyaWN0aW9uPgogPC94c
+        zpzaW1wbGVUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0idG5zOkFBU0VudGl0eVR5cGVEYXRhV
+        HlwZSIgbmFtZT0iQUFTRW50aXR5VHlwZURhdGFUeXBlIi8+CiA8eHM6Y29tcGxleFR5cGUgb
+        mFtZT0iTGlzdE9mQUFTRW50aXR5VHlwZURhdGFUeXBlIj4KICA8eHM6c2VxdWVuY2U+CiAgI
+        Dx4czplbGVtZW50IG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzPSJ1bmJvdW5kZWQiIHR5cGU9I
+        nRuczpBQVNFbnRpdHlUeXBlRGF0YVR5cGUiIG5hbWU9IkFBU0VudGl0eVR5cGVEYXRhVHlwZ
+        SIgbmlsbGFibGU9InRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZ
+        T4KIDx4czplbGVtZW50IHR5cGU9InRuczpMaXN0T2ZBQVNFbnRpdHlUeXBlRGF0YVR5cGUiI
+        G5hbWU9Ikxpc3RPZkFBU0VudGl0eVR5cGVEYXRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KI
+        Dx4czpzaW1wbGVUeXBlIG5hbWU9IkFBU0tleUVsZW1lbnRzRGF0YVR5cGUiPgogIDx4czpyZ
+        XN0cmljdGlvbiBiYXNlPSJ4czpzdHJpbmciPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9I
+        kFjY2Vzc1Blcm1pc3Npb25SdWxlXzAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJBb
+        m5vdGF0ZWRSZWxhdGlvbnNoaXBFbGVtZW50XzEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
+        HVlPSJBc3NldF8yIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQXNzZXRBZG1pbmlzd
+        HJhdGlvblNoZWxsXzMiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJCbG9iXzQiLz4KI
+        CAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJDYXBhYmlsaXR5XzUiLz4KICAgPHhzOmVudW1lc
+        mF0aW9uIHZhbHVlPSJDb25jZXB0RGVzY3JpcHRpb25fNiIvPgogICA8eHM6ZW51bWVyYXRpb
+        24gdmFsdWU9IkNvbmNlcHREaWN0aW9uYXJ5XzciLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
+        HVlPSJEYXRhRWxlbWVudF84Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRW50aXR5X
+        zkiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJFdmVudF8xMCIvPgogICA8eHM6ZW51b
+        WVyYXRpb24gdmFsdWU9IkZpbGVfMTEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJGc
+        mFnbWVudFJlZmVyZW5jZV8xMiIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9Ikdsb2Jhb
+        FJlZmVyZW5jZV8xMyIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9Ik11bHRpTGFuZ3VhZ
+        2VQcm9wZXJ0eV8xNCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9Ik9wZXJhdGlvbl8xN
+        SIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlByb3BlcnR5XzE2Ii8+CiAgIDx4czplb
+        nVtZXJhdGlvbiB2YWx1ZT0iUmFuZ2VfMTciLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlP
+        SJSZWZlcmVuY2VFbGVtZW50XzE4Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iUmVsY
+        XRpb25zaGlwRWxlbWVudF8xOSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlN1Ym1vZ
+        GVsXzIwIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iU3VibW9kZWxFbGVtZW50XzIxI
+        i8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iU3VibW9kZWxFbGVtZW50Q29sbGVjdGlvb
+        l8yMiIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlZpZXdfMjMiLz4KICA8L3hzOnJlc
+        3RyaWN0aW9uPgogPC94czpzaW1wbGVUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0idG5zOkFBU
+        0tleUVsZW1lbnRzRGF0YVR5cGUiIG5hbWU9IkFBU0tleUVsZW1lbnRzRGF0YVR5cGUiLz4KI
+        Dx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZBQVNLZXlFbGVtZW50c0RhdGFUeXBlIj4KI
+        CA8eHM6c2VxdWVuY2U+CiAgIDx4czplbGVtZW50IG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzP
+        SJ1bmJvdW5kZWQiIHR5cGU9InRuczpBQVNLZXlFbGVtZW50c0RhdGFUeXBlIiBuYW1lPSJBQ
+        VNLZXlFbGVtZW50c0RhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogIDwveHM6c2VxdWVuY
+        2U+CiA8L3hzOmNvbXBsZXhUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0idG5zOkxpc3RPZkFBU
+        0tleUVsZW1lbnRzRGF0YVR5cGUiIG5hbWU9Ikxpc3RPZkFBU0tleUVsZW1lbnRzRGF0YVR5c
+        GUiIG5pbGxhYmxlPSJ0cnVlIi8+CiA8eHM6c2ltcGxlVHlwZSBuYW1lPSJBQVNLZXlUeXBlc
+        0RhdGFUeXBlIj4KICA8eHM6cmVzdHJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4KICAgPHhzO
+        mVudW1lcmF0aW9uIHZhbHVlPSJBbm5vdGF0ZWRSZWxhdGlvbnNoaXBFbGVtZW50XzAiLz4KI
+        CAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJBc3NldEFkbWluaXN0cmF0aW9uU2hlbGxfMSIvP
+        gogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkJhc2ljRXZlbnRFbGVtZW50XzIiLz4KICAgP
+        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJCbG9iXzMiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhb
+        HVlPSJDYXBhYmlsaXR5XzQiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJDb25jZXB0R
+        GVzY3JpcHRpb25fNSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkRhdGFFbGVtZW50X
+        zYiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJFbnRpdHlfNyIvPgogICA8eHM6ZW51b
+        WVyYXRpb24gdmFsdWU9IkV2ZW50RWxlbWVudF84Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2Y
+        Wx1ZT0iRmlsZV85Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRnJhZ21lbnRSZWZlc
+        mVuY2VfMTAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJHbG9iYWxSZWZlcmVuY2VfM
+        TEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJJZGVudGlmaWFibGVfMTIiLz4KICAgP
+        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJNdWx0aUxhbmd1YWdlUHJvcGVydHlfMTMiLz4KICAgP
+        HhzOmVudW1lcmF0aW9uIHZhbHVlPSJPcGVyYXRpb25fMTQiLz4KICAgPHhzOmVudW1lcmF0a
+        W9uIHZhbHVlPSJQcm9wZXJ0eV8xNSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlJhb
+        mdlXzE2Ii8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iUmVmZXJhYmxlXzE3Ii8+CiAgI
+        Dx4czplbnVtZXJhdGlvbiB2YWx1ZT0iUmVmZXJlbmNlRWxlbWVudF8xOCIvPgogICA8eHM6Z
+        W51bWVyYXRpb24gdmFsdWU9IlJlbGF0aW9uc2hpcEVsZW1lbnRfMTkiLz4KICAgPHhzOmVud
+        W1lcmF0aW9uIHZhbHVlPSJTdWJtb2RlbF8yMCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsd
+        WU9IlN1Ym1vZGVsRWxlbWVudF8yMSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlN1Y
+        m1vZGVsRWxlbWVudENvbGxlY3Rpb25fMjIiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlP
+        SJTdWJtb2RlbEVsZW1lbnRMaXN0XzIzIi8+CiAgPC94czpyZXN0cmljdGlvbj4KIDwveHM6c
+        2ltcGxlVHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuczpBQVNLZXlUeXBlc0RhdGFUeXBlI
+        iBuYW1lPSJBQVNLZXlUeXBlc0RhdGFUeXBlIi8+CiA8eHM6Y29tcGxleFR5cGUgbmFtZT0iT
+        GlzdE9mQUFTS2V5VHlwZXNEYXRhVHlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlb
+        WVudCBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTS
+        2V5VHlwZXNEYXRhVHlwZSIgbmFtZT0iQUFTS2V5VHlwZXNEYXRhVHlwZSIgbmlsbGFibGU9I
+        nRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZT4KIDx4czplbGVtZ
+        W50IHR5cGU9InRuczpMaXN0T2ZBQVNLZXlUeXBlc0RhdGFUeXBlIiBuYW1lPSJMaXN0T2ZBQ
+        VNLZXlUeXBlc0RhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogPHhzOnNpbXBsZVR5cGUgb
+        mFtZT0iQUFTTGV2ZWxUeXBlRGF0YVR5cGUiPgogIDx4czpyZXN0cmljdGlvbiBiYXNlPSJ4c
+        zpzdHJpbmciPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9Ik1pbl8wIi8+CiAgIDx4czplb
+        nVtZXJhdGlvbiB2YWx1ZT0iTWF4XzEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJOd
+        W1fMiIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlR5cGVfMyIvPgogIDwveHM6cmVzd
+        HJpY3Rpb24+CiA8L3hzOnNpbXBsZVR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6QUFTT
+        GV2ZWxUeXBlRGF0YVR5cGUiIG5hbWU9IkFBU0xldmVsVHlwZURhdGFUeXBlIi8+CiA8eHM6Y
+        29tcGxleFR5cGUgbmFtZT0iTGlzdE9mQUFTTGV2ZWxUeXBlRGF0YVR5cGUiPgogIDx4czpzZ
+        XF1ZW5jZT4KICAgPHhzOmVsZW1lbnQgbWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9InVuYm91b
+        mRlZCIgdHlwZT0idG5zOkFBU0xldmVsVHlwZURhdGFUeXBlIiBuYW1lPSJBQVNMZXZlbFR5c
+        GVEYXRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb
+        21wbGV4VHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuczpMaXN0T2ZBQVNMZXZlbFR5cGVEY
+        XRhVHlwZSIgbmFtZT0iTGlzdE9mQUFTTGV2ZWxUeXBlRGF0YVR5cGUiIG5pbGxhYmxlPSJ0c
+        nVlIi8+CiA8eHM6c2ltcGxlVHlwZSBuYW1lPSJBQVNNb2RlbGxpbmdLaW5kRGF0YVR5cGUiP
+        gogIDx4czpyZXN0cmljdGlvbiBiYXNlPSJ4czpzdHJpbmciPgogICA8eHM6ZW51bWVyYXRpb
+        24gdmFsdWU9IlRlbXBsYXRlXzAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJJbnN0Y
+        W5jZV8xIi8+CiAgPC94czpyZXN0cmljdGlvbj4KIDwveHM6c2ltcGxlVHlwZT4KIDx4czplb
+        GVtZW50IHR5cGU9InRuczpBQVNNb2RlbGxpbmdLaW5kRGF0YVR5cGUiIG5hbWU9IkFBU01vZ
+        GVsbGluZ0tpbmREYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZkFBU
+        01vZGVsbGluZ0tpbmREYXRhVHlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlbWVud
+        CBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTTW9kZ
+        WxsaW5nS2luZERhdGFUeXBlIiBuYW1lPSJBQVNNb2RlbGxpbmdLaW5kRGF0YVR5cGUiIG5pb
+        GxhYmxlPSJ0cnVlIi8+CiAgPC94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8e
+        HM6ZWxlbWVudCB0eXBlPSJ0bnM6TGlzdE9mQUFTTW9kZWxsaW5nS2luZERhdGFUeXBlIiBuY
+        W1lPSJMaXN0T2ZBQVNNb2RlbGxpbmdLaW5kRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+C
+        iA8eHM6c2ltcGxlVHlwZSBuYW1lPSJBQVNRdWFsaWZpZXJLaW5kRGF0YVR5cGUiPgogIDx4c
+        zpyZXN0cmljdGlvbiBiYXNlPSJ4czpzdHJpbmciPgogICA8eHM6ZW51bWVyYXRpb24gdmFsd
+        WU9IlZhbHVlUXVhbGlmaWVyXzAiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJDb25jZ
+        XB0UXVhbGlmaWVyXzEiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJUZW1wbGF0ZVF1Y
+        WxpZmllcl8yIi8+CiAgPC94czpyZXN0cmljdGlvbj4KIDwveHM6c2ltcGxlVHlwZT4KIDx4c
+        zplbGVtZW50IHR5cGU9InRuczpBQVNRdWFsaWZpZXJLaW5kRGF0YVR5cGUiIG5hbWU9IkFBU
+        1F1YWxpZmllcktpbmREYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZ
+        kFBU1F1YWxpZmllcktpbmREYXRhVHlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlb
+        WVudCBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTU
+        XVhbGlmaWVyS2luZERhdGFUeXBlIiBuYW1lPSJBQVNRdWFsaWZpZXJLaW5kRGF0YVR5cGUiI
+        G5pbGxhYmxlPSJ0cnVlIi8+CiAgPC94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+C
+        iA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6TGlzdE9mQUFTUXVhbGlmaWVyS2luZERhdGFUeXBlI
+        iBuYW1lPSJMaXN0T2ZBQVNRdWFsaWZpZXJLaW5kRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlI
+        i8+CiA8eHM6c2ltcGxlVHlwZSBuYW1lPSJBQVNTdGF0ZU9mRXZlbnREYXRhVHlwZSI+CiAgP
+        HhzOnJlc3RyaWN0aW9uIGJhc2U9InhzOnN0cmluZyI+CiAgIDx4czplbnVtZXJhdGlvbiB2Y
+        Wx1ZT0iT25fMCIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9Ik9mZl8xIi8+CiAgPC94c
+        zpyZXN0cmljdGlvbj4KIDwveHM6c2ltcGxlVHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuc
+        zpBQVNTdGF0ZU9mRXZlbnREYXRhVHlwZSIgbmFtZT0iQUFTU3RhdGVPZkV2ZW50RGF0YVR5c
+        GUiLz4KIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZBQVNTdGF0ZU9mRXZlbnREYXRhV
+        HlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1cnM9IjAiIG1he
+        E9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTU3RhdGVPZkV2ZW50RGF0YVR5cGUiI
+        G5hbWU9IkFBU1N0YXRlT2ZFdmVudERhdGFUeXBlIiBuaWxsYWJsZT0idHJ1ZSIvPgogIDwve
+        HM6c2VxdWVuY2U+CiA8L3hzOmNvbXBsZXhUeXBlPgogPHhzOmVsZW1lbnQgdHlwZT0idG5zO
+        kxpc3RPZkFBU1N0YXRlT2ZFdmVudERhdGFUeXBlIiBuYW1lPSJMaXN0T2ZBQVNTdGF0ZU9mR
+        XZlbnREYXRhVHlwZSIgbmlsbGFibGU9InRydWUiLz4KIDx4czpzaW1wbGVUeXBlIG5hbWU9I
+        kFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhVHlwZSI+CiAgPHhzOnJlc3RyaWN0aW9uIGJhc2U9I
+        nhzOnN0cmluZyI+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQW5ub3RhdGVkUmVsYXRpb
+        25TaGlwRWxlbWVudF8wIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iQmFzaWNFdmVud
+        EVsZW1lbnRfMSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkJsb2JfMiIvPgogICA8e
+        HM6ZW51bWVyYXRpb24gdmFsdWU9IkNhcGFiaWxpdHlfMyIvPgogICA8eHM6ZW51bWVyYXRpb
+        24gdmFsdWU9IkRhdGFFbGVtZW50XzQiLz4KICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJFb
+        nRpdHlfNSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IkV2ZW50RWxlbWVudF82Ii8+C
+        iAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iRmlsZV83Ii8+CiAgIDx4czplbnVtZXJhdGlvb
+        iB2YWx1ZT0iTXVsdGlMYW5ndWFnZVByb3BlcnR5XzgiLz4KICAgPHhzOmVudW1lcmF0aW9uI
+        HZhbHVlPSJPcGVyYXRpb25fOSIvPgogICA8eHM6ZW51bWVyYXRpb24gdmFsdWU9IlByb3Blc
+        nR5XzEwIi8+CiAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iUmFuZ2VfMTEiLz4KICAgPHhzO
+        mVudW1lcmF0aW9uIHZhbHVlPSJSZWZlcmVuY2VFbGVtZW50XzEyIi8+CiAgIDx4czplbnVtZ
+        XJhdGlvbiB2YWx1ZT0iUmVsYXRpb25zaGlwRWxlbWVudF8xMyIvPgogICA8eHM6ZW51bWVyY
+        XRpb24gdmFsdWU9IlN1Ym1vZGVsRWxlbWVudF8xNCIvPgogICA8eHM6ZW51bWVyYXRpb24gd
+        mFsdWU9IlN1Ym1vZGVsRWxlbWVudENvbGxlY3Rpb25fMTUiLz4KICAgPHhzOmVudW1lcmF0a
+        W9uIHZhbHVlPSJTdWJtb2RlbEVsZW1lbnRMaXN0XzE2Ii8+CiAgPC94czpyZXN0cmljdGlvb
+        j4KIDwveHM6c2ltcGxlVHlwZT4KIDx4czplbGVtZW50IHR5cGU9InRuczpBQVNTdWJtb2Rlb
+        EVsZW1lbnRzRGF0YVR5cGUiIG5hbWU9IkFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhVHlwZSIvP
+        gogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZkFBU1N1Ym1vZGVsRWxlbWVudHNEYXRhV
+        HlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1cnM9IjAiIG1he
+        E9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6QUFTU3VibW9kZWxFbGVtZW50c0RhdGFUe
+        XBlIiBuYW1lPSJBQVNTdWJtb2RlbEVsZW1lbnRzRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlI
+        i8+CiAgPC94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCB0e
+        XBlPSJ0bnM6TGlzdE9mQUFTU3VibW9kZWxFbGVtZW50c0RhdGFUeXBlIiBuYW1lPSJMaXN0T
+        2ZBQVNTdWJtb2RlbEVsZW1lbnRzRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CiA8eHM6Y
+        29tcGxleFR5cGUgbmFtZT0iQUFTS2V5RGF0YVR5cGUiPgogIDx4czpzZXF1ZW5jZT4KICAgP
+        HhzOmVsZW1lbnQgbWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9IjEiIHR5cGU9InRuczpBQVNLZ
+        XlUeXBlc0RhdGFUeXBlIiBuYW1lPSJUeXBlIi8+CiAgIDx4czplbGVtZW50IG1pbk9jY3Vyc
+        z0iMCIgbWF4T2NjdXJzPSIxIiB0eXBlPSJ4czpzdHJpbmciIG5hbWU9IlZhbHVlIi8+CiAgP
+        C94czpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlPSJ0b
+        nM6QUFTS2V5RGF0YVR5cGUiIG5hbWU9IkFBU0tleURhdGFUeXBlIi8+CiA8eHM6Y29tcGxle
+        FR5cGUgbmFtZT0iTGlzdE9mQUFTS2V5RGF0YVR5cGUiPgogIDx4czpzZXF1ZW5jZT4KICAgP
+        HhzOmVsZW1lbnQgbWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIgdHlwZT0id
+        G5zOkFBU0tleURhdGFUeXBlIiBuYW1lPSJBQVNLZXlEYXRhVHlwZSIgbmlsbGFibGU9InRyd
+        WUiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZT4KIDx4czplbGVtZW50I
+        HR5cGU9InRuczpMaXN0T2ZBQVNLZXlEYXRhVHlwZSIgbmFtZT0iTGlzdE9mQUFTS2V5RGF0Y
+        VR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CjwveHM6c2NoZW1hPgo=</uax:ByteString>
         </Value>
     </UAVariable>
     <UAVariable DataType="String" ParentNodeId="ns=1;i=6096" NodeId="ns=1;i=6097" BrowseName="NamespaceUri">
@@ -2703,8 +2791,8 @@ Note: In an object oriented view, an instance denotes an object of a template (c
     <UAObject ParentNodeId="ns=1;i=1022" NodeId="ns=1;i=5051" BrowseName="1:SpecificAssetId">
         <DisplayName>SpecificAssetId</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1043</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1043</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1022</Reference>
         </References>
     </UAObject>
@@ -2716,13 +2804,109 @@ Note: In an object oriented view, an instance denotes an object of a template (c
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1022</Reference>
         </References>
     </UAObject>
-    <UAObjectType NodeId="ns=1;i=1021" BrowseName="1:AASEventType">
-        <DisplayName>AASEventType</DisplayName>
+    <UAObjectType IsAbstract="true" NodeId="ns=1;i=1021" BrowseName="1:AASEventElementType">
+        <DisplayName>AASEventElementType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.8.12</Documentation>
         <References>
             <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1009</Reference>
         </References>
     </UAObjectType>
+    <UAObjectType NodeId="ns=1;i=1045" BrowseName="1:AASBasicEventElementType">
+        <DisplayName>AASBasicEventElementType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1021</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6045</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6050</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6055</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5061</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6048</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6054</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5060</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6047</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable DataType="AASDirectionDataType" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6045" BrowseName="1:Direction" AccessLevel="3">
+        <DisplayName>Direction</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6050" BrowseName="1:LastUpdate" AccessLevel="3">
+        <DisplayName>LastUpdate</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6055" BrowseName="1:MaxInterval" AccessLevel="3">
+        <DisplayName>MaxInterval</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=5061" BrowseName="1:MessageBroker">
+        <DisplayName>MessageBroker</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1004</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6049</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAObject>
+    <UAVariable DataType="AASKeyDataType" ParentNodeId="ns=1;i=5061" ValueRank="1" NodeId="ns=1;i=6049" ArrayDimensions="0" BrowseName="1:Keys" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5061</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6048" BrowseName="1:MessageTopic" AccessLevel="3">
+        <DisplayName>MessageTopic</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6054" BrowseName="1:MinInterval" AccessLevel="3">
+        <DisplayName>MinInterval</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=5060" BrowseName="1:Observed">
+        <DisplayName>Observed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1004</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6043</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAObject>
+    <UAVariable DataType="AASKeyDataType" ParentNodeId="ns=1;i=5060" ValueRank="1" NodeId="ns=1;i=6043" ArrayDimensions="0" BrowseName="1:Keys" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5060</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable DataType="AASStateOfEventDataType" ParentNodeId="ns=1;i=1045" NodeId="ns=1;i=6047" BrowseName="1:State" AccessLevel="3">
+        <DisplayName>State</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1045</Reference>
+        </References>
+    </UAVariable>
     <UAObjectType NodeId="ns=1;i=1015" BrowseName="1:AASOperationType">
         <DisplayName>AASOperationType</DisplayName>
         <Documentation>https://reference.opcfoundation.org/v104/I4AAS/v100/docs/6.8.7</Documentation>
