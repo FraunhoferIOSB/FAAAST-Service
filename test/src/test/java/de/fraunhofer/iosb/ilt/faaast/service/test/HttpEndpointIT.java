@@ -438,7 +438,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
         assertSerialization(
                 // requires AAS without file elements, otherwise AASX de-/serialization fails
-                List.of(environment.getAssetAdministrationShells().get(2)),
+                List.of(environment.getAssetAdministrationShells().get(3)),
                 true,
                 DataFormat.AASX.getContentType(),
                 DataFormat.AASX);

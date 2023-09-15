@@ -14,16 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
  * Response class for GenerateSerializationByIds requests.
  */
-public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayload<Environment> {
+public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayload<EnvironmentContext> {
 
     private DataFormat dataformat;
 
@@ -62,7 +62,7 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
     }
 
     public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsResponse, B extends AbstractBuilder<T, B>>
-            extends AbstractResponseWithPayload.AbstractBuilder<Environment, T, B> {
+            extends AbstractResponseWithPayload.AbstractBuilder<EnvironmentContext, T, B> {
 
         public B dataformat(DataFormat value) {
             getBuildingInstance().setDataformat(value);

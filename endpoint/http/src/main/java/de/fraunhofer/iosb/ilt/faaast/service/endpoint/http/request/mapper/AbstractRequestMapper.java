@@ -26,9 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import jakarta.json.Json;
 import jakarta.json.JsonMergePatch;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.http.entity.ContentType;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,6 +35,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.http.entity.ContentType;
 
 
 /**
@@ -161,6 +160,7 @@ public abstract class AbstractRequestMapper {
             throw new InvalidRequestException("error parsing body", e);
         }
     }
+
 
     /**
      * Deserializes HTTP body multipart form data.

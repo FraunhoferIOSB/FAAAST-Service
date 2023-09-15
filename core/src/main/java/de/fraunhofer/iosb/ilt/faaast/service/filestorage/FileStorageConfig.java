@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import java.io.File;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;

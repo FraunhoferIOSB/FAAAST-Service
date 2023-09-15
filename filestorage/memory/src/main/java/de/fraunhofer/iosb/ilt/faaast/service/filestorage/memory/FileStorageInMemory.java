@@ -17,10 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
@@ -62,6 +62,12 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
             throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
         }
         return files.get(path);
+    }
+
+
+    @Override
+    public Map<String, FileContent> getAllFiles() {
+        return this.files;
     }
 
 

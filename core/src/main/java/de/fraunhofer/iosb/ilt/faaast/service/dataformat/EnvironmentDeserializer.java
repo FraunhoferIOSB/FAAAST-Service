@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -431,6 +431,7 @@ public class RequestHandlerManagerTest {
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
+
     @Test
     public void testPutDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
@@ -512,6 +513,7 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
+
 
     @Test
     public void testPutAssetInformationRequest() throws ResourceNotFoundException, Exception {

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasserialization;
 
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -26,8 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
@@ -52,21 +58,29 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
 
 
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException {
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException {
+        DefaultEnvironment environment = new DefaultEnvironment.Builder()
+                .assetAdministrationShells(
+                        request.getAasIds().stream()
+                                .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
+                                .collect(Collectors.toList()))
+                .submodels(request.getSubmodelIds().stream()
+                        .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
+                        .collect(Collectors.toList()))
+                .conceptDescriptions(request.getIncludeConceptDescriptions()
+                        ? context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
+                        : List.of())
+                .build();
+        EnvironmentContext environmentContext = new EnvironmentContext();
+        List<InMemoryFile> files = new ArrayList<>();
+        Map<String, FileContent> fileMap = context.getFileStorage().getAllFiles();
+        fileMap.forEach((key, value) -> {
+            files.add(new InMemoryFile(value.getContent(), key));
+        });
+        environmentContext.setFiles(files);
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
-                .payload(new DefaultEnvironment.Builder()
-                        .assetAdministrationShells(
-                                request.getAasIds().stream()
-                                        .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
-                                        .collect(Collectors.toList()))
-                        .submodels(request.getSubmodelIds().stream()
-                                .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
-                                .collect(Collectors.toList()))
-                        .conceptDescriptions(request.getIncludeConceptDescriptions()
-                                ? context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
-                                : List.of())
-                        .build())
+                .payload(environmentContext)
                 .success()
                 .build();
     }

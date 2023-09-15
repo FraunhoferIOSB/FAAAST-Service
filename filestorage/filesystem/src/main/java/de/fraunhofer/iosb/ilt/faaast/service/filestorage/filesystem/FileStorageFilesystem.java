@@ -17,18 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -110,6 +108,23 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
         }
 
+    }
+
+
+    @Override
+    public Map<String, FileContent> getAllFiles() {
+        Map<String, FileContent> map = new HashMap<>();
+        filelist.forEach((key, value) -> {
+            try {
+                map.put(new String(Base64.getUrlDecoder().decode(key)), FileContent.builder()
+                        .content(Files.readAllBytes(value))
+                        .build());
+            }
+            catch (IOException e) {
+                throw new RuntimeException(String.format("could not find a file referenced by file storage"));
+            }
+        });
+        return map;
     }
 
 
