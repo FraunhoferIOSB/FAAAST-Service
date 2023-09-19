@@ -44,7 +44,7 @@
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Hash="UTdJXgB8TeLs8K5Pf/pfqg==" Version="1.6.10"/>
+            <ua:ModelInfo Tool="UaModeler" Hash="1WcVWLoFhQzb3dFuzM1gWQ==" Version="1.6.10"/>
         </Extension>
     </Extensions>
     <UADataType NodeId="ns=1;i=3003" BrowseName="1:AASAssetKindDataType">
@@ -3072,9 +3072,10 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <References>
             <Reference ReferenceType="HasComponent">ns=1;i=5059</Reference>
             <Reference ReferenceType="HasSubtype" IsForward="false">ns=1;i=1009</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=6016</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=6027</Reference>
-            <Reference ReferenceType="HasComponent">ns=1;i=6042</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6016</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=5062</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6027</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6042</Reference>
         </References>
     </UAObjectType>
     <UAObject SymbolicName="Value" ParentNodeId="ns=1;i=1040" NodeId="ns=1;i=5059" BrowseName="1:&lt;Value>">
@@ -3089,24 +3090,41 @@ Note: In an object oriented view, an instance denotes an object of a template (c
         <DisplayName>OrderRelevant</DisplayName>
         <References>
             <Reference ReferenceType="HasModellingRule">i=80</Reference>
-            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1040</Reference>
+        </References>
+    </UAVariable>
+    <UAObject ParentNodeId="ns=1;i=1040" NodeId="ns=1;i=5062" BrowseName="1:SemanticIDListElement">
+        <DisplayName>SemanticIDListElement</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1004</Reference>
+            <Reference ReferenceType="HasModellingRule">i=80</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6065</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1040</Reference>
+        </References>
+    </UAObject>
+    <UAVariable DataType="AASKeyDataType" ParentNodeId="ns=1;i=5062" ValueRank="1" NodeId="ns=1;i=6065" ArrayDimensions="0" BrowseName="1:Keys" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=5062</Reference>
         </References>
     </UAVariable>
     <UAVariable DataType="AASSubmodelElementsDataType" ParentNodeId="ns=1;i=1040" NodeId="ns=1;i=6027" BrowseName="1:TypeValueListElement" AccessLevel="3">
         <DisplayName>TypeValueListElement</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1040</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1040</Reference>
         </References>
     </UAVariable>
     <UAVariable DataType="AASDataTypeDefXsd" ParentNodeId="ns=1;i=1040" NodeId="ns=1;i=6042" BrowseName="1:ValueTypeListElement" AccessLevel="3">
         <DisplayName>ValueTypeListElement</DisplayName>
         <References>
-            <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
             <Reference ReferenceType="HasModellingRule">i=80</Reference>
-            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1040</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1040</Reference>
         </References>
     </UAVariable>
     <UAObjectType NodeId="ns=1;i=1004" BrowseName="1:AASReferenceType">

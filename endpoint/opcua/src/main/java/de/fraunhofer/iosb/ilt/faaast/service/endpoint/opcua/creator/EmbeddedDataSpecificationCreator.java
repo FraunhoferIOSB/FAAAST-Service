@@ -18,7 +18,6 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASConceptDescriptionType;
@@ -205,7 +204,7 @@ public class EmbeddedDataSpecificationCreator {
                 AasReferenceCreator.addAasReferenceAasNS(node, embeddedDataSpecification.getDataSpecification(), AASEmbeddedDataSpecificationType.DATA_SPECIFICATION, nodeManager);
             }
             else {
-                AasSubmodelElementHelper.setAasReferenceData(embeddedDataSpecification.getDataSpecification(), refNode);
+                AasReferenceCreator.setAasReferenceData(embeddedDataSpecification.getDataSpecification(), refNode);
             }
         }
 

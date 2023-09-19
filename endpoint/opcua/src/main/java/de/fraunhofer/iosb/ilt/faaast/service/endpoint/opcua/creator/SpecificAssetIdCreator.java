@@ -22,7 +22,6 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.List;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASReferenceType;
@@ -238,7 +237,7 @@ public class SpecificAssetIdCreator {
                 AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASSpecificAssetIDType.EXTERNAL_SUBJECT_ID, nodeManager);
             }
             else {
-                AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
+                AasReferenceCreator.setAasReferenceData(externalSubjectId, extSubjectNode);
             }
         }
 

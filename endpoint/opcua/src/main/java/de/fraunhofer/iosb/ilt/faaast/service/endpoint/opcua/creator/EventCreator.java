@@ -24,7 +24,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import opc.i4aas.AASBasicEventElementType;
@@ -103,7 +102,7 @@ public class EventCreator extends SubmodelElementCreator {
     private static void setBasicEventElementData(AASBasicEventElementType eventNode, BasicEventElement aasEvent, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException {
         if (aasEvent.getObserved() != null) {
-            AasSubmodelElementHelper.setAasReferenceData(aasEvent.getObserved(), eventNode.getObservedNode(), true);
+            AasReferenceCreator.setAasReferenceData(aasEvent.getObserved(), eventNode.getObservedNode(), true);
         }
 
         if (aasEvent.getDirection() != null) {
@@ -132,7 +131,7 @@ public class EventCreator extends SubmodelElementCreator {
                         nodeManager);
             }
             else {
-                AasSubmodelElementHelper.setAasReferenceData(aasEvent.getMessageBroker(), eventNode.getMessageBrokerNode(), true);
+                AasReferenceCreator.setAasReferenceData(aasEvent.getMessageBroker(), eventNode.getMessageBrokerNode(), true);
             }
         }
 

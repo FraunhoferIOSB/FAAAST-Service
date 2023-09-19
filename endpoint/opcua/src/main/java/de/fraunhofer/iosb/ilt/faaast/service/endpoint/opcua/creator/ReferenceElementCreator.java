@@ -24,7 +24,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.i4aas.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -66,7 +65,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                             nodeManager);
                 }
                 else {
-                    AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                    AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
                 }
             }
 
