@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -66,10 +67,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
@@ -97,6 +95,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 
 
 public class HttpEndpointIT {
@@ -436,12 +435,47 @@ public class HttpEndpointIT {
     @Test
     public void testAASSerializationAASX()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
-        assertSerialization(
-                // requires AAS without file elements, otherwise AASX de-/serialization fails
-                List.of(environment.getAssetAdministrationShells().get(3)),
-                true,
-                DataFormat.AASX.getContentType(),
-                DataFormat.AASX);
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(3);
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        Environment defaultEnvironment = new DefaultEnvironment.Builder()
+                .assetAdministrationShells(aas)
+                .submodels(aas.getSubmodels().stream()
+                        .map(x -> {
+                            try {
+                                return EnvironmentHelper.resolve(x, environment, Submodel.class);
+                            }
+                            catch (ResourceNotFoundException ex) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList()))
+                .conceptDescriptions(environment.getConceptDescriptions())
+                .build();
+        EnvironmentContext expected = EnvironmentContext.builder()
+                .environment(defaultEnvironment)
+                .file(new InMemoryFile(content, "aasx/path"))
+                .build();
+        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                                .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
+                                .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
+                                .GET()
+                                .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        MediaType responseContentType = MediaType.parse(response.headers()
+                .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
+                .orElseThrow());
+        Assert.assertTrue("content-type out of range", responseContentType.is(DataFormat.AASX.getContentType()));
+        try (InputStream in = new ByteArrayInputStream(response.body())) {
+            EnvironmentContext actual = EnvironmentSerializationManager
+                    .deserializerFor(DataFormat.AASX)
+                    .read(in, responseContentType.charset().or(StandardCharsets.UTF_8));
+            Assert.assertEquals(expected, actual);
+        }
     }
 
 

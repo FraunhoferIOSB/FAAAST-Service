@@ -71,16 +71,17 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                         ? context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
                         : List.of())
                 .build();
-        EnvironmentContext environmentContext = new EnvironmentContext();
         List<InMemoryFile> files = new ArrayList<>();
         Map<String, FileContent> fileMap = context.getFileStorage().getAllFiles();
         fileMap.forEach((key, value) -> {
             files.add(new InMemoryFile(value.getContent(), key));
         });
-        environmentContext.setFiles(files);
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
-                .payload(environmentContext)
+                .payload(EnvironmentContext.builder()
+                        .environment(environment)
+                        .files(files)
+                        .build())
                 .success()
                 .build();
     }

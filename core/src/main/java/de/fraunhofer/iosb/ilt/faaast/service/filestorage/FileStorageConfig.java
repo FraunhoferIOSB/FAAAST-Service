@@ -64,10 +64,9 @@ public abstract class FileStorageConfig<T extends FileStorage> extends Config<T>
             return EnvironmentSerializationManager
                     .deserialize(initialModelFile);
         }
-        DefaultEnvironment defaultEnvironment = new DefaultEnvironment.Builder().build();
-        EnvironmentContext defaultEnvironmentContext = new EnvironmentContext();
-        defaultEnvironmentContext.setEnvironment(defaultEnvironment);
-        return defaultEnvironmentContext;
+        return EnvironmentContext.builder()
+                .environment(new DefaultEnvironment.Builder().build())
+                .build();
     }
 
 
