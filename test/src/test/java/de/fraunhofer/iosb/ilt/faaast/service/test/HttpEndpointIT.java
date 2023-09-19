@@ -66,9 +66,16 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -435,9 +442,10 @@ public class HttpEndpointIT {
     @Test
     public void testAASSerializationAASX()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(3);
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         byte[] content = new byte[20];
         new Random().nextBytes(content);
+        String fileName = "/TestFile.pdf";
         Environment defaultEnvironment = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(aas)
                 .submodels(aas.getSubmodels().stream()
@@ -456,8 +464,29 @@ public class HttpEndpointIT {
                 .build();
         EnvironmentContext expected = EnvironmentContext.builder()
                 .environment(defaultEnvironment)
-                .file(new InMemoryFile(content, "aasx/path"))
+                .file(new InMemoryFile(content, fileName))
                 .build();
+        HttpEntity httpEntity = MultipartEntityBuilder.create()
+                .addPart("fileName",
+                        new StringBody(fileName,
+                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
+                        fileName)
+                .build();
+        HttpResponse<byte[]> putFileResponse = HttpClient.newHttpClient()
+                    .send(HttpRequest.newBuilder()
+                                    .uri(new URI(API_PATHS.submodelRepository()
+                                            .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                                            + "/attachment"
+                                    ))
+                                    .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                                    .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                                    .PUT(BodyPublishers.ofInputStream(
+                                                            LambdaExceptionHelper.wrap(httpEntity::getContent)
+                                    ))
+                                    .build(),
+                            HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
         HttpResponse<byte[]> response = HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder()
                                 .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
