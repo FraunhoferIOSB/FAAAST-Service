@@ -14,6 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -30,6 +37,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import java.util.List;
+
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -45,7 +57,16 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+        MongoClient mongoClient = MongoClients.create(
+                MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString("mongodb://localhost:27017"))
+                        .build());
+        MongoDatabase database = mongoClient.getDatabase("FaaastTest");
+        MongoCollection<Document> collection = database.getCollection("test");
 
+        Document document = new Document();
+        document.append("testKey", "testValue");
+        collection.insertOne(document);
     }
 
     @Override
