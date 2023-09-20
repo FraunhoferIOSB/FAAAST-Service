@@ -29,10 +29,7 @@ import jakarta.json.JsonMergePatch;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
@@ -181,9 +178,9 @@ public abstract class AbstractRequestMapper {
             boolean nextPart = multipartStream.skipPreamble();
             while (nextPart) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                String partHeaders = multipartStream.readHeaders();
+                String multipartHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
-                if (Objects.equals(headerMatcher(Pattern.compile("name=\"([^\"]+)\""), partHeaders), "fileName")) {
+                if (Objects.equals(headerMatcher(Pattern.compile("name=\"([^\"]+)\""), multipartHeaders), "fileName")) {
                     map.put("fileName", BlobValue.builder()
                             .value(output.toByteArray())
                             .mimeType("text/plain")
@@ -192,7 +189,7 @@ public abstract class AbstractRequestMapper {
                 else {
                     map.put("file", BlobValue.builder()
                             .value(output.toByteArray())
-                            .mimeType(headerMatcher(Pattern.compile("Content-Type: ([^\n^\r]+)"), partHeaders))
+                            .mimeType(headerMatcher(Pattern.compile("Content-Type: ([^\n^\r]+)"), multipartHeaders))
                             .build());
                 }
                 nextPart = multipartStream.readBoundary();
@@ -207,7 +204,11 @@ public abstract class AbstractRequestMapper {
 
     private String headerMatcher(Pattern pattern, String header) {
         Matcher matcher = pattern.matcher(header);
-        return matcher.find() ? matcher.group(1) : null;
+        String result = matcher.find() ? matcher.group(1) : null;
+        if (!Objects.isNull(result) && result.contains("charset")) {
+            result = result.split(";")[0];
+        }
+        return result;
     }
 
 

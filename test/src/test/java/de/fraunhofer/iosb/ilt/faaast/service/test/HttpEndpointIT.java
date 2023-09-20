@@ -65,17 +65,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -86,15 +85,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,7 +93,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 
 
 public class HttpEndpointIT {
@@ -445,7 +435,6 @@ public class HttpEndpointIT {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         byte[] content = new byte[20];
         new Random().nextBytes(content);
-        String fileName = "/TestFile.pdf";
         Environment defaultEnvironment = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(aas)
                 .submodels(aas.getSubmodels().stream()
@@ -462,6 +451,7 @@ public class HttpEndpointIT {
                         .collect(Collectors.toList()))
                 .conceptDescriptions(environment.getConceptDescriptions())
                 .build();
+        String fileName = "file:///TestFile.pdf";
         EnvironmentContext expected = EnvironmentContext.builder()
                 .environment(defaultEnvironment)
                 .file(new InMemoryFile(content, fileName))
@@ -474,25 +464,22 @@ public class HttpEndpointIT {
                         fileName)
                 .build();
         HttpResponse<byte[]> putFileResponse = HttpClient.newHttpClient()
-                    .send(HttpRequest.newBuilder()
-                                    .uri(new URI(API_PATHS.submodelRepository()
-                                            .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                            + "/attachment"
-                                    ))
-                                    .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                                    .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                                    .PUT(BodyPublishers.ofInputStream(
-                                                            LambdaExceptionHelper.wrap(httpEntity::getContent)
-                                    ))
-                                    .build(),
-                            HttpResponse.BodyHandlers.ofByteArray());
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.submodelRepository()
+                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
         HttpResponse<byte[]> response = HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder()
-                                .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
-                                .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
-                                .GET()
-                                .build(),
+                        .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
+                        .GET()
+                        .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         MediaType responseContentType = MediaType.parse(response.headers()
