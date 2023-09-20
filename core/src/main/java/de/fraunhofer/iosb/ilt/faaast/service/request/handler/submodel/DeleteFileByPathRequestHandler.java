@@ -47,14 +47,11 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        Reference submodelReference = new ReferenceBuilder()
-                .submodel(request.getSubmodelId())
-                .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
         context.getFileStorage().delete(file.getValue());
         file.setValue("");
         file.setContentType("");
-        context.getPersistence().update(submodelReference, file);
+        context.getPersistence().update(reference, file);
         context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
                 .build());

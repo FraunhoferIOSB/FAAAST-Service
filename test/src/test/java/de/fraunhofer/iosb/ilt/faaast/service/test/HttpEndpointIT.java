@@ -428,6 +428,7 @@ public class HttpEndpointIT {
                 DataFormat.RDF);
     }
 
+
     @Ignore("Failing because aas4j modifies the environment: SubmodelElementCollection values are set to null. Waiting for new aas4j release.")
     @Test
     public void testAASSerializationAASX()
@@ -1027,6 +1028,124 @@ public class HttpEndpointIT {
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceFileAttachment()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        Environment defaultEnvironment = new DefaultEnvironment.Builder()
+                .assetAdministrationShells(aas)
+                .submodels(aas.getSubmodels().stream()
+                        .map(x -> {
+                            try {
+                                return EnvironmentHelper.resolve(x, environment, Submodel.class);
+                            }
+                            catch (ResourceNotFoundException ex) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList()))
+                .conceptDescriptions(environment.getConceptDescriptions())
+                .build();
+        String fileName = "file:///TestFile.pdf";
+        EnvironmentContext expected = EnvironmentContext.builder()
+                .environment(defaultEnvironment)
+                .file(new InMemoryFile(content, fileName))
+                .build();
+        HttpEntity httpEntity = MultipartEntityBuilder.create()
+                .addPart("fileName",
+                        new StringBody(fileName,
+                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
+                        fileName)
+                .build();
+        HttpResponse<byte[]> putFileResponse = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.submodelRepository()
+                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        HttpResponse<byte[]> getFileResponse = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.submodelRepository()
+                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                        .GET()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertArrayEquals(content, getFileResponse.body());
+        HttpResponse<byte[]> deleteFileResponse = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.submodelRepository()
+                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .DELETE()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
+    }
+
+
+    @Test
+    public void testAASThumbnail() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        AssetInformation expected = aas.getAssetInformation();
+        String imageName = "file:///image.png";
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        DefaultResource thumbnail = new DefaultResource.Builder()
+                .path(imageName)
+                .contentType(ContentType.IMAGE_PNG.getMimeType())
+                .build();
+        expected.setDefaultThumbnail(thumbnail);
+        HttpEntity httpEntity = MultipartEntityBuilder.create()
+                .addPart("fileName",
+                        new StringBody(imageName,
+                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.IMAGE_PNG,
+                        imageName)
+                .build();
+        HttpResponse<byte[]> putThumbnailResponse = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
+                                + "/thumbnail"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putThumbnailResponse.statusCode());
+        assertExecuteSingle(
+                HttpMethod.GET,
+                API_PATHS.aasInterface(aas).assetInformation(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                AssetInformation.class);
+        HttpResponse<byte[]> deleteThumbnailResponse = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
+                                + "/thumbnail"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                        .DELETE()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteThumbnailResponse.statusCode());
     }
 
 
