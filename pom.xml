@@ -121,7 +121,7 @@
         <milo.version>0.6.11</milo.version>
         <mockito.version>5.5.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.97.Final</netty.version>
+        <netty.version>4.1.98.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.5</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
