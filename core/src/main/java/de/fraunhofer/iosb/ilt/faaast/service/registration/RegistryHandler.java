@@ -73,9 +73,9 @@ public class RegistryHandler {
         this.persistence = persistence;
         this.coreConfig = coreConfig;
         httpClient = HttpClient.newBuilder().build();
-        messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, LambdaExceptionHelper.wrap(m -> handleCreateEvent(m))));
-        messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, LambdaExceptionHelper.wrap(m -> handleChangeEvent(m))));
-        messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(m -> handleDeleteEvent(m))));
+        messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, LambdaExceptionHelper.wrap(this::handleCreateEvent)));
+        messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, LambdaExceptionHelper.wrap(this::handleChangeEvent)));
+        messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(this::handleDeleteEvent)));
         environment = persistence.getEnvironment();
         try {
             if (Objects.isNull(environment) || environment.getAssetAdministrationShells().isEmpty())
@@ -83,7 +83,6 @@ public class RegistryHandler {
             for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
                 createIdentifiableInRegistry(getAasDescriptor(aas), coreConfig.getAasRegistryBasePath());
             }
-            LOGGER.info("Registration of FA³ST Service in Registry successful.");
         }
         catch (RegistryException | InterruptedException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
@@ -133,9 +132,8 @@ public class RegistryHandler {
      * Sends the request for updating an aas or submodel in the registry.
      *
      * @param eventMessage Event that signals the update of an element.
-     * @throws RegistryException
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws RegistryException, InterruptedException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
             updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
@@ -153,9 +151,8 @@ public class RegistryHandler {
      * Sends the request for deleting an aas or submodel in the registry.
      *
      * @param eventMessage Event that signals the deletion of an element.
-     * @throws RegistryException
      */
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws RegistryException, InterruptedException {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
             deleteIdentifiableInRegistry(identifier, coreConfig.getAasRegistryBasePath());
@@ -185,17 +182,17 @@ public class RegistryHandler {
                     HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
                     HttpResponse.BodyHandlers.ofString(),
                     null);
-            if (!is2xxSuccessful(response.statusCode())) {
+            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
                 LOGGER.warn(String.format(SYNC_EVENT_ERROR));
             }
         }
-        catch (Exception e) {
+        catch (URISyntaxException | IOException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
         }
     }
 
 
-    private void updateIdentifiableInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
+    private void updateIdentifiableInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws InterruptedException {
         try {
             HttpResponse<String> response = execute(
                     new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
@@ -205,17 +202,17 @@ public class RegistryHandler {
                     HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
                     HttpResponse.BodyHandlers.ofString(),
                     null);
-            if (!is2xxSuccessful(response.statusCode())) {
+            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
                 LOGGER.warn(String.format(SYNC_EVENT_ERROR));
             }
         }
-        catch (Exception e) {
+        catch (URISyntaxException | IOException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
         }
     }
 
 
-    private void deleteIdentifiableInRegistry(String identifier, String basePath) throws RegistryException, InterruptedException {
+    private void deleteIdentifiableInRegistry(String identifier, String basePath) throws InterruptedException {
         try {
             HttpResponse<String> response = execute(
                     new URL("HTTP", coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
@@ -225,11 +222,11 @@ public class RegistryHandler {
                     HttpRequest.BodyPublishers.noBody(),
                     HttpResponse.BodyHandlers.ofString(),
                     null);
-            if (!is2xxSuccessful(response.statusCode())) {
+            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
                 LOGGER.warn(String.format(SYNC_EVENT_ERROR));
             }
         }
-        catch (Exception e) {
+        catch (URISyntaxException | IOException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
         }
     }
@@ -258,7 +255,13 @@ public class RegistryHandler {
                 builder = builder.header(header.getKey(), header.getValue());
             }
         }
-        return httpClient.send(builder.method(method, bodyPublisher).build(), bodyHandler);
+        try {
+            return httpClient.send(builder.method(method, bodyPublisher).build(), bodyHandler);
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return null;
     }
 
 
