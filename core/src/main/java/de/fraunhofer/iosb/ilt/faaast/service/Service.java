@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.registration.RegistryHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -58,7 +59,7 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private RequestHandlerManager requestHandler;
-    private FaaastRegistryHandler registryHandler;
+    private RegistryHandler registryHandler;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -182,7 +183,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
-        registryHandler = new FaaastRegistryHandler(messageBus, persistence, config.getCore());
+        registryHandler = new RegistryHandler(messageBus, persistence, config.getCore());
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -206,12 +207,9 @@ public class Service implements ServiceContext {
         try {
             registryHandler.deleteAllAasInRegistry();
         }
-        catch (InterruptedException e) {
-            LOGGER.warn(FaaastRegistryHandler.THREAD_INTERRUPTION_ERROR);
+        catch (InterruptedException | RegistryException e) {
+            LOGGER.error(String.format("Deregistration in Registry failed: %s", e.getMessage()), e);
             Thread.currentThread().interrupt();
-        }
-        catch (RegistryException e) {
-            LOGGER.error(String.format("Unregistration in Fa³st-Registry failed: %s", e.getMessage()), e);
         }
     }
 

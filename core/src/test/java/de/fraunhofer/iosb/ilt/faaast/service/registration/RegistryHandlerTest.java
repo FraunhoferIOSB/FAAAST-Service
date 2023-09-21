@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.registration;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -59,7 +60,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 
-public class FaaastRegistryHandlerTest {
+public class RegistryHandlerTest {
     @ClassRule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(options().dynamicPort());
     @Rule
@@ -71,7 +72,7 @@ public class FaaastRegistryHandlerTest {
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private static MessageBus MESSAGE_BUS;
     private static final Persistence PERSISTENCE = Mockito.mock(Persistence.class);
-    private static FaaastRegistryHandler faaastRegistryHandler;
+    private static RegistryHandler registryHandler;
     private static AssetAdministrationShellEnvironment environment;
     private static CoreConfig coreConfig;
 
@@ -86,7 +87,7 @@ public class FaaastRegistryHandlerTest {
         setupMockedPersistence();
 
         // Throws registry exception because http request for creation is not mocked
-        faaastRegistryHandler = new FaaastRegistryHandler(MESSAGE_BUS, PERSISTENCE,
+        registryHandler = new RegistryHandler(MESSAGE_BUS, PERSISTENCE,
                 CoreConfig.builder()
                         .registryPort(wireMockRule.port())
                         .registryHost("localhost")
@@ -100,7 +101,7 @@ public class FaaastRegistryHandlerTest {
             public Void answer(InvocationOnMock invocation) {
                 ElementCreateEventMessage eventMessage = invocation.getArgument(0);
                 try {
-                    faaastRegistryHandler.handleCreateEvent(eventMessage);
+                    registryHandler.handleCreateEvent(eventMessage);
                 }
                 catch (Exception e) {
                     fail();
@@ -114,7 +115,7 @@ public class FaaastRegistryHandlerTest {
             public Void answer(InvocationOnMock invocation) {
                 ElementUpdateEventMessage eventMessage = invocation.getArgument(0);
                 try {
-                    faaastRegistryHandler.handleChangeEvent(eventMessage);
+                    registryHandler.handleChangeEvent(eventMessage);
                 }
                 catch (Exception e) {
                     fail();
@@ -128,7 +129,7 @@ public class FaaastRegistryHandlerTest {
             public Void answer(InvocationOnMock invocation) {
                 ElementDeleteEventMessage eventMessage = invocation.getArgument(0);
                 try {
-                    faaastRegistryHandler.handleDeleteEvent(eventMessage);
+                    registryHandler.handleDeleteEvent(eventMessage);
                 }
                 catch (Exception e) {
                     fail();
