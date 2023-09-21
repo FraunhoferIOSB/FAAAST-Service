@@ -37,12 +37,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class to create SubmodelElementLists and integrate them into the OPC UA address space.
  */
 public class SubmodelElementListCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementListCreator.class);
 
     /**
      * Adds a SubmodelElementList to the given node.
@@ -67,12 +70,14 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             QualifiedName browseName = UaQualifiedName.from(namespaceUri, name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
+
+            LOGGER.debug("addAasSubmodelElementList: Name {}; NodeId {}", name, nid);
             AASSubmodelElementListType collNode = nodeManager.createInstance(AASSubmodelElementListType.class, nid, browseName, LocalizedText.english(name));
 
             addSubmodelElementBaseData(collNode, aasList, nodeManager);
 
             if (collNode.getOrderRelevantNode() == null) {
-                UaHelper.addBooleanUaProperty(node, nodeManager, AASSubmodelElementListType.ORDER_RELEVANT, aasList.getOrderRelevant(),
+                UaHelper.addBooleanUaProperty(collNode, nodeManager, AASSubmodelElementListType.ORDER_RELEVANT, aasList.getOrderRelevant(),
                         namespaceUri);
             }
             else {
@@ -81,7 +86,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
             if (aasList.getValueTypeListElement() != null) {
                 if (collNode.getValueTypeListElementNode() == null) {
-                    UaHelper.addDataTypeDefProperty(node, nodeManager, AASSubmodelElementListType.VALUE_TYPE_LIST_ELEMENT, aasList.getValueTypeListElement(), namespaceUri);
+                    UaHelper.addDataTypeDefProperty(collNode, nodeManager, AASSubmodelElementListType.VALUE_TYPE_LIST_ELEMENT, aasList.getValueTypeListElement(), namespaceUri);
                 }
                 else {
                     collNode.setValueTypeListElement(ValueConverter.convertDataTypeDefXsd(aasList.getValueTypeListElement()));
@@ -90,7 +95,8 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
             if (aasList.getTypeValueListElement() != null) {
                 if (collNode.getTypeValueListElementNode() == null) {
-                    UaHelper.addAasSubmodelElementsProperty(node, nodeManager, AASSubmodelElementListType.TYPE_VALUE_LIST_ELEMENT, aasList.getTypeValueListElement(), namespaceUri);
+                    UaHelper.addAasSubmodelElementsProperty(collNode, nodeManager, AASSubmodelElementListType.TYPE_VALUE_LIST_ELEMENT, aasList.getTypeValueListElement(),
+                            namespaceUri);
                 }
                 else {
                     collNode.setTypeValueListElement(ValueConverter.getAasSubmodelElementsType(aasList.getTypeValueListElement()));
@@ -99,7 +105,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
             if (aasList.getSemanticIDListElement() != null) {
                 if (collNode.getSemanticIDListElementNode() == null) {
-                    AasReferenceCreator.addAasReference(node, aasList.getSemanticIDListElement(), AASSubmodelElementListType.SEMANTIC_I_D_LIST_ELEMENT, namespaceUri, true,
+                    AasReferenceCreator.addAasReference(collNode, aasList.getSemanticIDListElement(), AASSubmodelElementListType.SEMANTIC_I_D_LIST_ELEMENT, namespaceUri, true,
                             nodeManager);
                 }
                 else {
