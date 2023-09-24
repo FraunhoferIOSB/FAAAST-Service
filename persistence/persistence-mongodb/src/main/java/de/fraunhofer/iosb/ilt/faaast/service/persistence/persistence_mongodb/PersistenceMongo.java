@@ -88,7 +88,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Document modelDoc = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
         if (modelDoc == null) {
             try {
-                Document envDoc = Document.parse(mapper.writeValueAsString());
+                Document envDoc = Document.parse(mapper.writeValueAsString(AASFull.crea));
                 modelDoc = new Document()
                         .append(ID_KEY, config.getModelId())
                         .append(ENVIRONMENT_KEY, envDoc);
