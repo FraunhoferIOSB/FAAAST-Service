@@ -20,4 +20,68 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 /**
  * lol.
  */
-public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {}
+public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
+    private String databaseName;
+    private String collectionName;
+    private String modelId;
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public String getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(String modelId) {
+        this.modelId = modelId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private abstract static class AbstractBuilder<T extends PersistenceMongoConfig, B extends AbstractBuilder<T, B>>
+            extends PersistenceConfig.AbstractBuilder<PersistenceMongo, T, B> {
+        public B databaseName(String value) {
+            getBuildingInstance().setDatabaseName(value);
+            return getSelf();
+        }
+
+        public B collectionName(String value) {
+            getBuildingInstance().setCollectionName(value);
+            return getSelf();
+        }
+
+        public B modelId(String value) {
+            getBuildingInstance().setModelId(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<PersistenceMongoConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected PersistenceMongoConfig newBuildingInstance() {
+            return new PersistenceMongoConfig();
+        }
+    }
+}

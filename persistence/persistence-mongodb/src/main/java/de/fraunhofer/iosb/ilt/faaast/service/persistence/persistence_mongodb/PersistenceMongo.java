@@ -14,16 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
@@ -38,12 +44,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCr
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import java.util.List;
 
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -54,30 +61,73 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
+    private final String ID_KEY = "model_id";
+    private final String ENVIRONMENT_KEY = "environment";
+
+    private PersistenceMongoConfig config;
+    private CoreConfig coreConfig;
+    private ServiceContext serviceContext;
+    private MongoCollection<Document> environmentCollection;
+    private ObjectMapper mapper;
 
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+        this.config = config;
+        this.coreConfig = coreConfig;
+        this.serviceContext = serviceContext;
+
+        mapper = new ObjectMapper();
+
         MongoClient mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString("mongodb://localhost:27017"))
                         .build());
-        MongoDatabase database = mongoClient.getDatabase("FaaastTest");
-        MongoCollection<Document> collection = database.getCollection("test");
+        MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
+        environmentCollection = database.getCollection(config.getCollectionName());
 
-        Document document = new Document();
-        document.append("testKey", "testValue");
-        collection.insertOne(document);
+        Document modelDoc = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+        if (modelDoc == null) {
+            try {
+                Document envDoc = Document.parse(mapper.writeValueAsString());
+                modelDoc = new Document()
+                        .append(ID_KEY, config.getModelId())
+                        .append(ENVIRONMENT_KEY, envDoc);
+                 environmentCollection.insertOne(modelDoc);
+            } catch (Exception e) {
+                throw new ConfigurationInitializationException(e);
+            }
+        }
+        getMemoryPersistence();
     }
 
     @Override
     public PersistenceMongoConfig asConfig() {
-        return null;
+        return config;
+    }
+
+    private PersistenceInMemory getMemoryPersistence() {
+        Document envDoc = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+        Environment aasEnvironment = (Environment) envDoc.get(ENVIRONMENT_KEY);
+        try {
+            return PersistenceInMemoryConfig.builder()
+                    .initialModel(aasEnvironment)
+                    .build()
+                    .newInstance(coreConfig, serviceContext);
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void saveEnvironment(Environment aasEnvironment) {
+        Bson filter = Filters.eq(ID_KEY, config.getModelId());
+        Bson updateOperation = Updates.set(ENVIRONMENT_KEY, aasEnvironment);
+        environmentCollection.updateOne(filter, updateOperation);
     }
 
 
     @Override
     public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
+        return getMemoryPersistence().getAssetAdministrationShell(id, modifier);
     }
 
 
@@ -138,7 +188,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void save(AssetAdministrationShell assetAdministrationShell) {
-
+        PersistenceInMemory persistence = getMemoryPersistence();
+        persistence.save(assetAdministrationShell);
+        saveEnvironment(persistence.getEnvironment());
     }
 
 

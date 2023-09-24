@@ -33,6 +33,11 @@
             <artifactId>mongodb-driver-sync</artifactId>
             <version>${mongodb.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>persistence-memory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
