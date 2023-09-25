@@ -18,10 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
@@ -31,7 +32,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 /**
  * class to map HTTP-GET-Request path: lookup/shells.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends AbstractRequestMapper {
+public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper
+        extends AbstractRequestMapperWithPaging<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
     private static final String PATTERN = "lookup/shells";
 
@@ -41,7 +43,8 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends A
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+    public GetAllAssetAdministrationShellIdsByAssetLinkRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo)
+            throws InvalidRequestException {
         try {
             GetAllAssetAdministrationShellIdsByAssetLinkRequest.Builder builder = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder();
             if (httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)) {

@@ -19,11 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -108,7 +109,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
      *             i.e. cannot have any child elements
      */
-    public default List<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
+    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
             throws ResourceNotFoundException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
@@ -137,7 +138,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      */
-    public List<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
@@ -148,7 +149,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      */
-    public List<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
@@ -159,7 +160,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public List<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException;
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException;
 
 
     /**
@@ -170,7 +171,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      */
-    public List<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging);
 
 
     /**
@@ -408,7 +409,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
      *             element, i.e. cannot have any child elements
      */
-    public default List<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
         return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier);
     }
 
@@ -420,7 +421,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}s
      */
-    public default List<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) {
+    public default Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) {
         return findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, modifier, paging);
     }
 
@@ -432,7 +433,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
      */
-    public default List<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) {
+    public default Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) {
         return findSubmodels(SubmodelSearchCriteria.NONE, modifier, paging);
     }
 
@@ -444,7 +445,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      */
-    public default List<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) {
+    public default Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) {
         return findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, modifier, paging);
     }
 
@@ -456,7 +457,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param paging paging information
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      */
-    public default List<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
         return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
     }
 }

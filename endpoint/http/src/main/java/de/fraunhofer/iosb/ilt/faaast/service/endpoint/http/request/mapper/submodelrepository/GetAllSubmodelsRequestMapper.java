@@ -17,9 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import java.util.Map;
@@ -28,12 +30,12 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: submodels.
  */
-public class GetAllSubmodelsRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
+public class GetAllSubmodelsRequestMapper extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 
     private static final String PATTERN = "submodels";
 
     public GetAllSubmodelsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
     }
 
 
@@ -46,7 +48,7 @@ public class GetAllSubmodelsRequestMapper extends AbstractRequestMapperWithOutpu
 
 
     @Override
-    public GetAllSubmodelsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllSubmodelsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllSubmodelsRequest.builder().build();
     }
 

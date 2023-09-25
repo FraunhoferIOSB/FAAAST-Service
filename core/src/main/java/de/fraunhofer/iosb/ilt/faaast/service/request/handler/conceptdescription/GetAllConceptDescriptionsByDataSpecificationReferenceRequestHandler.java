@@ -15,15 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
@@ -44,21 +44,21 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
 
     @Override
     public GetAllConceptDescriptionsByDataSpecificationReferenceResponse process(GetAllConceptDescriptionsByDataSpecificationReferenceRequest request) throws MessageBusException {
-        List<ConceptDescription> conceptDescriptions = context.getPersistence().findConceptDescriptions(
+        Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.builder()
                         .dataSpecification(request.getDataSpecificationReference())
                         .build(),
                 request.getOutputModifier(),
-                PagingInfo.ALL);
-        if (conceptDescriptions != null) {
-            conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
+                request.getPagingInfo());
+        if (Objects.nonNull(page.getContent())) {
+            page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)
                             .value(x)
                             .build())));
         }
         return GetAllConceptDescriptionsByDataSpecificationReferenceResponse.builder()
-                .payload(conceptDescriptions)
+                .payload(page)
                 .success()
                 .build();
     }

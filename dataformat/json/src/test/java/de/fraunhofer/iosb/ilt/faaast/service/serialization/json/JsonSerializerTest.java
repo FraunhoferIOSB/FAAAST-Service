@@ -20,7 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.ValueOnlyExamples;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -98,9 +101,8 @@ public class JsonSerializerTest {
 
     @Test
     public void testSubmodelElementListValueOnly() throws SerializationException, JSONException {
-        Map<SubmodelElement, File> data = Map.of(
-                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
-                PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
+        Map<SubmodelElement, File> data = Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
+                ValueOnlyExamples.RANGE_INT, ValueOnlyExamples.RANGE_INT_FILE);
         String expected = data.entrySet().stream()
                 .map(x -> {
                     try {
@@ -154,6 +156,61 @@ public class JsonSerializerTest {
 
 
     private void assertEquals(String expected, String actual) throws JSONException {
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
+    public void testPageWithoutCursor() throws SerializationException, JSONException {
+        Page<SubmodelElement> page = Page.<SubmodelElement> builder()
+                .metadata(PagingMetadata.builder()
+                        .build())
+                .result(new DefaultProperty.Builder()
+                        .idShort("idShort")
+                        .value("foo")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .build())
+                .build();
+        String actual = serializer.write(page);
+        String expected = "{\n"
+                + "  \"result\" : [ {\n"
+                + "    \"modelType\" : \"Property\",\n"
+                + "    \"value\" : \"foo\",\n"
+                + "    \"valueType\" : \"xs:string\",\n"
+                + "    \"idShort\" : \"idShort\"\n"
+                + "  } ],\n"
+                + "  \"paging_metadata\" : {\n"
+                + "    \"cursor\" : null\n"
+                + "  }\n"
+                + "}";
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
+    public void testPageWithCursor() throws SerializationException, JSONException {
+        Page<SubmodelElement> page = Page.<SubmodelElement> builder()
+                .metadata(PagingMetadata.builder()
+                        .cursor("foo")
+                        .build())
+                .result(new DefaultProperty.Builder()
+                        .idShort("idShort")
+                        .value("foo")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .build())
+                .build();
+        String actual = serializer.write(page);
+        String expected = "{\n"
+                + "  \"result\" : [ {\n"
+                + "    \"modelType\" : \"Property\",\n"
+                + "    \"value\" : \"foo\",\n"
+                + "    \"valueType\" : \"xs:string\",\n"
+                + "    \"idShort\" : \"idShort\"\n"
+                + "  } ],\n"
+                + "  \"paging_metadata\" : {\n"
+                + "    \"cursor\" : \"Zm9v\"\n"
+                + "  }\n"
+                + "}";
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

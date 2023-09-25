@@ -54,7 +54,7 @@ public class RangeValueTest {
                 .min("2")
                 .build();
 
-        RangeValue rangeValue = ElementValueMapper.toValue(actual);
+        RangeValue rangeValue = ElementValueMapper.toValue(actual, RangeValue.class);
 
         SubmodelElement expected = new DefaultRange.Builder()
                 .valueType(DataTypeDefXSD.INT)

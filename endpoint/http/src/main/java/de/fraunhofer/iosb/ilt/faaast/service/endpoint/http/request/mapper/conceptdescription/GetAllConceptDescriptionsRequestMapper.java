@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conce
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse;
 import java.util.Map;
@@ -28,7 +29,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: concept-descriptions.
  */
-public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
     private static final String PATTERN = "concept-descriptions";
 
@@ -47,7 +48,7 @@ public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMappe
 
 
     @Override
-    public GetAllConceptDescriptionsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllConceptDescriptionsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsRequest.builder().build();
     }
 }

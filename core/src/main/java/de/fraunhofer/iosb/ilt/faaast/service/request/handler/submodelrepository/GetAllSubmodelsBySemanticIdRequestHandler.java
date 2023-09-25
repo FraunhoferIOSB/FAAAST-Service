@@ -17,17 +17,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -50,14 +50,14 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
     @Override
     public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
-        List<Submodel> submodels = context.getPersistence().findSubmodels(
+        Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.builder()
                         .semanticId(request.getSemanticId())
                         .build(),
                 QueryModifier.DEFAULT,
-                PagingInfo.ALL);
-        if (submodels != null) {
-            for (Submodel submodel: submodels) {
+                request.getPagingInfo());
+        if (Objects.nonNull(page.getContent())) {
+            for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
                 syncWithAsset(reference, submodel.getSubmodelElements());
                 context.getMessageBus().publish(ElementReadEventMessage.builder()
@@ -67,7 +67,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
             }
         }
         return GetAllSubmodelsBySemanticIdResponse.builder()
-                .payload(submodels)
+                .payload(page)
                 .success()
                 .build();
     }

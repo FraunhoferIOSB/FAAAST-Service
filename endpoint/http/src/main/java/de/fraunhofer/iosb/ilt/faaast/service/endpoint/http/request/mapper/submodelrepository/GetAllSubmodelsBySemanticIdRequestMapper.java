@@ -18,9 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -32,7 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * class to map HTTP-GET-Request path: submodels.
  */
-public class GetAllSubmodelsBySemanticIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequestMapper
+        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
     private static final String PATTERN = "submodels";
 
@@ -48,7 +50,8 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends AbstractRequestMap
 
 
     @Override
-    public GetAllSubmodelsBySemanticIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+    public GetAllSubmodelsBySemanticIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo)
+            throws InvalidRequestException {
         try {
             return GetAllSubmodelsBySemanticIdRequest.builder()
                     .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.SEMANTIC_ID)), Reference.class))

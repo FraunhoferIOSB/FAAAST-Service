@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
  * Response class for GetAllSubmodelsBySemanticId requests.
  */
-public class GetAllSubmodelsBySemanticIdResponse extends AbstractResponseWithPayload<List<Submodel>> {
+public class GetAllSubmodelsBySemanticIdResponse extends AbstractPagedResponse<Submodel> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<Submodel, GetAllSubmodelsBySemanticIdResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 /**
  * Request class for GetAllAssetAdministrationShellsByAssetId requests.
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
+public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractRequestWithModifierAndPaging<GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private List<SpecificAssetID> assetIds;
 

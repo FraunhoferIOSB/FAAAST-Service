@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,6 +35,11 @@ public class HttpHelper {
 
     public static <T> List<T> getWithMultipleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
         return (List<T>) readResponseList(get(url), type);
+    }
+
+
+    public static <T> Page<T> getPage(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
+        return readResponsePage(get(url), type);
     }
 
 
@@ -126,5 +133,10 @@ public class HttpHelper {
 
     public static <T> List<T> readResponseList(HttpResponse<String> response, Class<T> type) throws DeserializationException {
         return new JsonApiDeserializer().readList(response.body(), type);
+    }
+
+
+    public static <T> Page<T> readResponsePage(HttpResponse<String> response, Class<T> type) throws DeserializationException {
+        return new JsonApiDeserializer().read(response.body(), TypeFactory.defaultInstance().constructParametricType(Page.class, type));
     }
 }

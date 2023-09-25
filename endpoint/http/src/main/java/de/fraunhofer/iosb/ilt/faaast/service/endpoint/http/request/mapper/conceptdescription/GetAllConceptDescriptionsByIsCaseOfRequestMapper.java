@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conce
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -31,7 +32,7 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
  * class to map HTTP-GET-Request path: concept-descriptions.
  */
 public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
-        extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
+        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private static final String PATTERN = "concept-descriptions";
 
@@ -47,7 +48,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
 
 
     @Override
-    public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
                 .isCaseOf(AasUtils.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
                 .build();

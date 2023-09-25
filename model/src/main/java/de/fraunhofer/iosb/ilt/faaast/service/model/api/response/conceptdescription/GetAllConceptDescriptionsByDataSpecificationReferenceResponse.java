@@ -14,15 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
  * Response class for GetAllConceptDescriptionsByDataSpecificationReference requests.
  */
-public class GetAllConceptDescriptionsByDataSpecificationReferenceResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
+public class GetAllConceptDescriptionsByDataSpecificationReferenceResponse extends AbstractPagedResponse<ConceptDescription> {
 
     public static Builder builder() {
         return new Builder();
@@ -30,7 +29,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceResponse exten
 
     public static class Builder
             extends
-            AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByDataSpecificationReferenceResponse, Builder> {
+            AbstractBuilder<ConceptDescription, GetAllConceptDescriptionsByDataSpecificationReferenceResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

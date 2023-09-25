@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsByIdShortResponse;
 import java.util.Map;
@@ -28,7 +29,7 @@ import java.util.Map;
 /**
  * class to map HTTP-Request path: submodels.
  */
-public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
+public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
 
     private static final String PATTERN = "submodels";
 
@@ -44,7 +45,7 @@ public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapper
 
 
     @Override
-    public GetAllSubmodelsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllSubmodelsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllSubmodelsByIdShortRequest.builder()
                 .idShort(httpRequest.getQueryParameter(QueryParameters.ID_SHORT))
                 .build();

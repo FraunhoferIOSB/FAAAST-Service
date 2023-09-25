@@ -110,7 +110,7 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         try {
             return Stream.of(parameters).collect(Collectors.toMap(
                     x -> x.getValue().getIdShort(),
-                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
+                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue(), DataElementValue.class))));
         }
         catch (ValueMappingException e) {
             throw new AssetConnectionException("Could not extract value of parameters", e);

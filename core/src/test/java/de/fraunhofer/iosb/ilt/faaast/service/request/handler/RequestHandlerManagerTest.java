@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
@@ -133,6 +134,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentifica
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -231,11 +233,11 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllAssetAdministrationShellRequest() throws Exception {
         when(persistence.findAssetAdministrationShells(any(), any(), any()))
-                .thenReturn(environment.getAssetAdministrationShells());
+                .thenReturn(Page.of(environment.getAssetAdministrationShells()));
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         GetAllAssetAdministrationShellsResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsResponse expected = new GetAllAssetAdministrationShellsResponse.Builder()
-                .payload(environment.getAssetAdministrationShells())
+                .payload(Page.of(environment.getAssetAdministrationShells()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -258,7 +260,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(List.of(
+                        .thenReturn(Page.of(
                                 environment.getAssetAdministrationShells().get(0),
                                 environment.getAssetAdministrationShells().get(1)));
 
@@ -277,7 +279,7 @@ public class RequestHandlerManagerTest {
                 .build();
         GetAllAssetAdministrationShellsByAssetIdResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
-                .payload(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
+                .payload(Page.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -292,14 +294,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getAssetAdministrationShells());
+                        .thenReturn(Page.of(environment.getAssetAdministrationShells()));
 
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
                 .build();
         GetAllAssetAdministrationShellsByIdShortResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsByIdShortResponse expected = new GetAllAssetAdministrationShellsByIdShortResponse.Builder()
-                .payload(environment.getAssetAdministrationShells())
+                .payload(Page.of(environment.getAssetAdministrationShells()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -553,14 +555,14 @@ public class RequestHandlerManagerTest {
                 eq(SubmodelSearchCriteria.NONE),
                 any(),
                 any()))
-                        .thenReturn(environment.getSubmodels());
+                        .thenReturn(Page.of(environment.getSubmodels()));
 
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllSubmodelsResponse actual = manager.execute(request);
         GetAllSubmodelsResponse expected = new GetAllSubmodelsResponse.Builder()
-                .payload(environment.getSubmodels())
+                .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -575,14 +577,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getSubmodels());
+                        .thenReturn(Page.of(environment.getSubmodels()));
         GetAllSubmodelsBySemanticIdRequest request = new GetAllSubmodelsBySemanticIdRequest.Builder()
                 .semanticId(SUBMODEL_ELEMENT_REF)
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllSubmodelsBySemanticIdResponse actual = manager.execute(request);
         GetAllSubmodelsBySemanticIdResponse expected = new GetAllSubmodelsBySemanticIdResponse.Builder()
-                .payload(environment.getSubmodels())
+                .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -597,14 +599,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getSubmodels());
+                        .thenReturn(Page.of(environment.getSubmodels()));
         GetAllSubmodelsByIdShortRequest request = new GetAllSubmodelsByIdShortRequest.Builder()
                 .idShort("Test")
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllSubmodelsByIdShortResponse actual = manager.execute(request);
         GetAllSubmodelsByIdShortResponse expected = new GetAllSubmodelsByIdShortResponse.Builder()
-                .payload(environment.getSubmodels())
+                .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -729,14 +731,14 @@ public class RequestHandlerManagerTest {
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
         when(persistence.getSubmodelElements(eq(SubmodelElementIdentifier.fromReference(reference)), any()))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
+                .thenReturn(Page.of(environment.getSubmodels().get(0).getSubmodelElements()));
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllSubmodelElementsResponse actual = manager.execute(request);
         GetAllSubmodelElementsResponse expected = new GetAllSubmodelElementsResponse.Builder()
-                .payload(environment.getSubmodels().get(0).getSubmodelElements())
+                .payload(Page.of(environment.getSubmodels().get(0).getSubmodelElements()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -862,7 +864,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
+        verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement, DataElementValue.class));
         verify(persistence).update(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort())), eq(newSubmodelElement));
     }
 
@@ -1035,13 +1037,13 @@ public class RequestHandlerManagerTest {
                 eq(ConceptDescriptionSearchCriteria.NONE),
                 any(),
                 any()))
-                        .thenReturn(environment.getConceptDescriptions());
+                        .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllConceptDescriptionsResponse actual = manager.execute(request);
         GetAllConceptDescriptionsResponse expected = new GetAllConceptDescriptionsResponse.Builder()
-                .payload(environment.getConceptDescriptions())
+                .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1056,14 +1058,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getConceptDescriptions());
+                        .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByIdShortRequest request = new GetAllConceptDescriptionsByIdShortRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .idShort(environment.getConceptDescriptions().get(0).getIdShort())
                 .build();
         GetAllConceptDescriptionsByIdShortResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByIdShortResponse expected = new GetAllConceptDescriptionsByIdShortResponse.Builder()
-                .payload(environment.getConceptDescriptions())
+                .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1079,14 +1081,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getConceptDescriptions());
+                        .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .isCaseOf(reference)
                 .build();
         GetAllConceptDescriptionsByIsCaseOfResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByIsCaseOfResponse expected = new GetAllConceptDescriptionsByIsCaseOfResponse.Builder()
-                .payload(environment.getConceptDescriptions())
+                .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1102,14 +1104,14 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(environment.getConceptDescriptions());
+                        .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .dataSpecification(reference)
                 .build();
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse expected = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder()
-                .payload(environment.getConceptDescriptions())
+                .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1255,13 +1257,13 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
         when(persistence.findAssetAdministrationShells(eq(AssetAdministrationShellSearchCriteria.NONE), any(), any()))
-                .thenReturn(environment.getAssetAdministrationShells());
+                .thenReturn(Page.of(environment.getAssetAdministrationShells()));
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
         CountDownLatch condition = new CountDownLatch(1);
         manager.executeAsync(request, x -> response.set(x));
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload());
+        Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload().getContent());
     }
 
 
@@ -1316,13 +1318,13 @@ public class RequestHandlerManagerTest {
         when(assetConnectionManager.hasValueProvider(rangeUpdatedRef)).thenReturn(true);
 
         when(assetConnectionManager.getValueProvider(propertyUpdatedRef)).thenReturn(propertyUpdatedProvider);
-        when(propertyUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyExpected));
+        when(propertyUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyExpected, DataElementValue.class));
 
         when(assetConnectionManager.getValueProvider(propertyStaticRef)).thenReturn(propertyStaticProvider);
-        when(propertyStaticProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyStatic));
+        when(propertyStaticProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyStatic, DataElementValue.class));
 
         when(assetConnectionManager.getValueProvider(rangeUpdatedRef)).thenReturn(rangeUpdatedProvider);
-        when(rangeUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected));
+        when(rangeUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected, DataElementValue.class));
 
         // TODO fix
         //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);

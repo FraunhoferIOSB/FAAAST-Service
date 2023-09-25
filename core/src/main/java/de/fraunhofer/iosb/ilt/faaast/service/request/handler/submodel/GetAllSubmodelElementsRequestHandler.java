@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -26,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInt
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -50,17 +51,17 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
     public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        List<SubmodelElement> submodelElements = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier());
-        syncWithAsset(reference, submodelElements);
-        if (submodelElements != null) {
-            submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(
+        Page<SubmodelElement> page = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier());
+        syncWithAsset(reference, page.getContent());
+        if (Objects.nonNull(page.getContent())) {
+            page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(AasUtils.toReference(reference, x))
                             .value(x)
                             .build())));
         }
         return GetAllSubmodelElementsResponse.builder()
-                .payload(submodelElements)
+                .payload(page)
                 .success()
                 .build();
     }

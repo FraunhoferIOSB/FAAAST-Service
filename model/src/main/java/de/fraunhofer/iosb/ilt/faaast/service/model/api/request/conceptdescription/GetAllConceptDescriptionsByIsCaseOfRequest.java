@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -23,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Request class for GetAllConceptDescriptionsByIsCaseOf requests.
  */
-public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByIsCaseOfResponse> {
+public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestWithModifierAndPaging<GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private Reference isCaseOf;
 

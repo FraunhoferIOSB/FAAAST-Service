@@ -20,6 +20,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 public class FaaastConstants {
 
     public static final String KEY_GLOBAL_ASSET_ID = "globalAssetId";
+    public static final String CURSOR = "cursor";
 
     private FaaastConstants() {}
 }

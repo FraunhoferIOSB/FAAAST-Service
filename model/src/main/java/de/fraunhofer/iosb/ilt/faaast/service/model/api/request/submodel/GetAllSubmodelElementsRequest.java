@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import java.util.Objects;
@@ -23,7 +24,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllSubmodelElements requests.
  */
-public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequest<GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequestWithPaging<GetAllSubmodelElementsResponse> {
 
     public GetAllSubmodelElementsRequest() {
         super(OutputModifierConstraints.SUBMODEL_ELEMENT);
