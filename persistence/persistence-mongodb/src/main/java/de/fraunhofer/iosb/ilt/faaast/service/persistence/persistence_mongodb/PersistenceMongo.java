@@ -27,6 +27,7 @@ import com.mongodb.client.model.Updates;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -54,6 +55,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
 /**
@@ -85,19 +87,18 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
         environmentCollection = database.getCollection(config.getCollectionName());
 
-        Document modelDoc = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
-        if (modelDoc == null) {
+        Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+        if (environmentDocument == null) {
             try {
-                Document envDoc = Document.parse(mapper.writeValueAsString(AASFull.crea));
-                modelDoc = new Document()
+                String environmentJsonString = mapper.writeValueAsString(new DefaultEnvironment.Builder().build());
+                environmentDocument = new Document()
                         .append(ID_KEY, config.getModelId())
-                        .append(ENVIRONMENT_KEY, envDoc);
-                 environmentCollection.insertOne(modelDoc);
-            } catch (Exception e) {
+                        .append(ENVIRONMENT_KEY, Document.parse(environmentJsonString));
+                 environmentCollection.insertOne(environmentDocument);
+            } catch (JsonProcessingException e) {
                 throw new ConfigurationInitializationException(e);
             }
         }
-        getMemoryPersistence();
     }
 
     @Override
@@ -106,8 +107,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
     private PersistenceInMemory getMemoryPersistence() {
-        Document envDoc = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
-        Environment aasEnvironment = (Environment) envDoc.get(ENVIRONMENT_KEY);
+        Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+        String envJsonString = ((Document)environmentDocument.get(ENVIRONMENT_KEY)).toJson();
+        Environment aasEnvironment = null; // TODO get env from jsonString
         try {
             return PersistenceInMemoryConfig.builder()
                     .initialModel(aasEnvironment)
