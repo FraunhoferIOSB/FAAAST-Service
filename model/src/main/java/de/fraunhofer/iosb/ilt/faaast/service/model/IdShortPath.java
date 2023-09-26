@@ -19,9 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -40,6 +40,7 @@ public class IdShortPath {
     public static final IdShortPath EMPTY = IdShortPath.builder().build();
 
     private static final String ARRAY_INDEX_REGEX = "\\[\\d+\\]";
+    private static final Pattern PATH_ELEMENT_PATTERN = Pattern.compile("[^\\.\\[\\]]+|" + ARRAY_INDEX_REGEX);
     private static final String SEPARATOR = ".";
     List<String> elements;
 
@@ -147,17 +148,27 @@ public class IdShortPath {
 
 
     /**
-     * Creates a reference representing this idShortParh. The key types will be set to
+     * Creates a reference representing this idShortParh. If it is possible to detect, the key type will be set to
+     * {@link KeyTypes#SUBMODEL_ELEMENT_LIST} where appropriate, in all other occasions the key type will be set to
      * {@link KeyTypes#SUBMODEL_ELEMENT}.
      *
      * @return a reference representing this idShortPath
      */
     public Reference toReference() {
-        return new ReferenceBuilder()
-                .elements(elements.stream()
-                        .map(x -> (x.matches(ARRAY_INDEX_REGEX) ? x.substring(1, x.length() - 1) : x))
-                        .toArray(String[]::new))
-                .build();
+        ReferenceBuilder builder = new ReferenceBuilder();
+        builder.type(ReferenceTypes.MODEL_REFERENCE);
+        for (int i = 0; i < elements.size(); i++) {
+            KeyTypes keyType = KeyTypes.SUBMODEL_ELEMENT;
+            if (i < elements.size() - 1 && elements.get(i + 1).matches(ARRAY_INDEX_REGEX)) {
+                keyType = KeyTypes.SUBMODEL_ELEMENT_LIST;
+            }
+            builder.element(
+                    elements.get(i).matches(ARRAY_INDEX_REGEX)
+                            ? elements.get(i).substring(1, elements.get(i).length() - 1)
+                            : elements.get(i),
+                    keyType);
+        }
+        return builder.build();
     }
 
 
@@ -230,7 +241,11 @@ public class IdShortPath {
 
         public B path(String value) {
             if (Objects.nonNull(value)) {
-                getBuildingInstance().elements = Arrays.asList(value.split("[.\\[\\]]"));
+                getBuildingInstance().elements = new ArrayList<>();
+                var matcher = PATH_ELEMENT_PATTERN.matcher(value);
+                while (matcher.find()) {
+                    getBuildingInstance().elements.add(matcher.group());
+                }
             }
             return getSelf();
         }
