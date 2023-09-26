@@ -29,10 +29,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollect
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class ModelValidatorTest {
 
     private static final Property PROPRERTY_1 = new DefaultProperty.Builder()
