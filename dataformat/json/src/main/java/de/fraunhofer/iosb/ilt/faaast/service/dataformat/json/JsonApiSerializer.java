@@ -22,18 +22,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.PagingMetadataSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -43,12 +48,14 @@ public class JsonApiSerializer implements ApiSerializer {
 
     private final PathJsonSerializer pathSerializer;
     private final ValueOnlyJsonSerializer valueOnlySerializer;
+    private final MetadataJsonSerializer metadataJsonSerializer;
     private final SerializerWrapper wrapper;
 
     public JsonApiSerializer() {
         this.wrapper = new SerializerWrapper(this::modifyMapper);
         this.pathSerializer = new PathJsonSerializer();
         this.valueOnlySerializer = new ValueOnlyJsonSerializer();
+        this.metadataJsonSerializer = new MetadataJsonSerializer();
     }
 
 
@@ -60,39 +67,59 @@ public class JsonApiSerializer implements ApiSerializer {
     protected void modifyMapper(JsonMapper mapper) {
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
+        module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
         mapper.registerModule(module);
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
+        mapper.addMixIn(Page.class, PageMixin.class);
     }
 
 
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-        if (modifier.getContent() == Content.VALUE) {
-            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
+        switch (modifier.getContent()) {
+            case VALUE:
+                return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
+            case PATH:
+                return pathSerializer.write(null, obj, modifier.getLevel());
+            case METADATA:
+                return metadataJsonSerializer.write(obj);
+            case NORMAL:
+            default: {
+                return serializeNormal(obj, modifier);
+            }
         }
-        if (modifier.getContent() == Content.PATH) {
-            return pathSerializer.write(null, obj, modifier.getLevel());
-        }
+    }
+
+
+    private String serializeNormal(Object obj, OutputModifier modifier) throws SerializationException {
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }
         try {
             JsonMapper mapper = wrapper.getMapper();
-            if (obj != null && List.class.isAssignableFrom(obj.getClass()) && !((List) obj).isEmpty()) {
-                ObjectWriter objectWriter = mapper
-                        .writerFor(mapper.getTypeFactory()
-                                .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
-                        .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
-                return objectWriter.writeValueAsString(obj);
+            if (Objects.nonNull(obj)) {
+                if (List.class.isAssignableFrom(obj.getClass()) && !((List) obj).isEmpty()) {
+                    ObjectWriter objectWriter = mapper
+                            .writerFor(mapper.getTypeFactory()
+                                    .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
+                            .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
+                    return objectWriter.writeValueAsString(obj);
+                }
+                if (Page.class.isAssignableFrom(obj.getClass())) {
+                    Class<?> contentType = CollectionHelper.findMostSpecificCommonType(((Page) obj).getContent());
+                    ObjectWriter objectWriter = mapper
+                            .writerFor(mapper.getTypeFactory()
+                                    .constructParametricType(Page.class, contentType))
+                            .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
+                    return objectWriter.writeValueAsString(obj);
+                }
             }
-            else {
-                return mapper.writer()
-                        .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
-                        .writeValueAsString(obj);
-            }
+            return mapper.writer()
+                    .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
+                    .writeValueAsString(obj);
         }
         catch (JsonProcessingException e) {
             throw new SerializationException("serialization failed", e);

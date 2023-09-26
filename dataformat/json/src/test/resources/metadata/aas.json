@@ -1,0 +1,10 @@
+{
+    "modelType": "AssetAdministrationShell",
+    "administration": {
+        "revision": "0",
+        "version": "1"
+    },
+    "id": "http://example.org/test",
+    "category": "category",
+    "idShort": "submodel1"
+}

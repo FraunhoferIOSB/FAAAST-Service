@@ -32,10 +32,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
@@ -177,9 +177,24 @@ public class Service implements ServiceContext {
     @Override
     public Environment getAASEnvironment() {
         return new DefaultEnvironment.Builder()
-                .assetAdministrationShells(persistence.findAssetAdministrationShells(AssetAdministrationShellSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
-                .submodels(persistence.findSubmodels(SubmodelSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
-                .conceptDescriptions(persistence.findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, QueryModifier.DEFAULT, PagingInfo.ALL))
+                .assetAdministrationShells(
+                        persistence.findAssetAdministrationShells(
+                                AssetAdministrationShellSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
+                .submodels(
+                        persistence.findSubmodels(
+                                SubmodelSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
+                .conceptDescriptions(
+                        persistence.findConceptDescriptions(
+                                ConceptDescriptionSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
                 .build();
     }
 

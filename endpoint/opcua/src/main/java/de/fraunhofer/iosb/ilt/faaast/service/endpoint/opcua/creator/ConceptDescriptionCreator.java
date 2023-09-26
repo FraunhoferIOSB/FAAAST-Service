@@ -26,7 +26,6 @@ import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +126,7 @@ public class ConceptDescriptionCreator {
             NodeId nid = nodeManager.createNodeId(node, browseName);
             AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));
 
-            AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef);
+            AasReferenceCreator.setAasReferenceData(ref, nodeRef);
             node.addComponent(nodeRef);
             node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
         }

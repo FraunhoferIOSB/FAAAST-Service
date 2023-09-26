@@ -42,6 +42,10 @@ public class TestConstants {
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
     public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
+    public static final String SUBMODEL_ELEMENT_LIST_ORDERED_NAME = "ExampleSubmodelElementListOrdered";
+    public static final String ORDER_RELEVANT = "OrderRelevant";
+    public static final String TYPE_VALUE_LIST_ELEMENT = "TypeValueListElement";
+    public static final String VALUE_TYPE_LIST_ELEMENT = "ValueTypeListElement";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";

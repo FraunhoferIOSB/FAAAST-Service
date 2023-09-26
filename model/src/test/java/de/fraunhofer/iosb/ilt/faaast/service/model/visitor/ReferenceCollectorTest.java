@@ -35,10 +35,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class ReferenceCollectorTest {
 
     @Test

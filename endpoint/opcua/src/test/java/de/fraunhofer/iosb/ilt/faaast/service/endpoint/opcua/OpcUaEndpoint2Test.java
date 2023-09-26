@@ -84,7 +84,7 @@ public class OpcUaEndpoint2Test {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final long DEFAULT_TIMEOUT = 150;
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;

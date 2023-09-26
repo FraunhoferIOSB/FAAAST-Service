@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conce
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -32,7 +33,7 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
         extends
-        AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
+        AbstractRequestMapperWithOutputModifierAndPaging<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
     private static final String PATTERN = "concept-descriptions";
 
@@ -48,7 +49,8 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
 
 
     @Override
-    public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
+                                                                                PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
                 .dataSpecification(AasUtils.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
                 .build();

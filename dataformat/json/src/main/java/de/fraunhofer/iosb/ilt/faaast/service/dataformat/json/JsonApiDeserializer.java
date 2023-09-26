@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
@@ -34,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.Elemen
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EntityValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EnumDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.MultiLanguagePropertyValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.PagingMetadataDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.PropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RangeValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.SubmodelElementCollectionValueDeserializer;
@@ -44,8 +46,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueC
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueMapDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -85,7 +90,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
 
 
     @Override
-    public <T> T read(String json, Class<T> type) throws DeserializationException {
+    public <T> T read(String json, JavaType type) throws DeserializationException {
         try {
             return wrapper.getMapper().readValue(json, type);
         }
@@ -96,9 +101,13 @@ public class JsonApiDeserializer implements ApiDeserializer {
 
 
     @Override
-    public <T> List<T> readList(String json, Class<T> type) throws DeserializationException {
+    public <T> List<T> readList(String json, JavaType type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
+            return wrapper.getMapper().readValue(
+                    json,
+                    wrapper.getMapper().getTypeFactory().constructCollectionType(
+                            List.class,
+                            wrapper.getMapper().getTypeFactory().constructType(type)));
         }
         catch (JsonProcessingException e) {
             throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
@@ -217,6 +226,39 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws DeserializationException if typeInfo does not contain type information
      * @throws DeserializationException if typeInfo does contain content type information
      */
+    public <T extends ElementValue> Page<T> readValuePage(String json, TypeInfo typeInfo) throws DeserializationException {
+        Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
+        if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
+            throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
+        }
+        if (typeInfo.getType() == null) {
+            throw new DeserializationException(ERROR_MSG_ROOT_TYPE_INFO_MUST_BE_NON_NULL);
+        }
+        ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
+        if (containerTypeInfo.getContentType() == null) {
+            throw new DeserializationException(ERROR_MSG_CONTENT_TYPE_MUST_BE_NON_NULL);
+        }
+        try {
+            return (Page<T>) wrapper.getMapper().reader()
+                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .forType(wrapper.getMapper().getTypeFactory().constructParametricType(Page.class, ElementValue.class))
+                    .readValue(json);
+        }
+        catch (IOException e) {
+            throw new DeserializationException(ERROR_MSG_DESERIALIZATION_FAILED, e);
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if typeInfo is null
+     * @throws IllegalArgumentException if typeInfo is not a
+     *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
+     * @throws DeserializationException if typeInfo does not contain type information
+     * @throws DeserializationException if typeInfo does contain content type information
+     */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
         Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
@@ -258,6 +300,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
+        mapper.addMixIn(Page.class, PageMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {
@@ -306,6 +349,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
+        module.addDeserializer(PagingMetadata.class, new PagingMetadataDeserializer());
         ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
         mapper.registerModule(module);
     }

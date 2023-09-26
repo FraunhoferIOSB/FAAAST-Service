@@ -49,9 +49,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
-public class EventValues {
+public class EventExamples {
 
-    private static final String RESOURCE_PATH = "src/test/resources";
+    private static final String RESOURCE_PATH = "src/test/resources/event";
 
     public static final String ELEMENT_READ_EVENT_FILE = RESOURCE_PATH + "/eventmessage-elementread.json";
     public static final String OPERATION_FINISH_EVENT_FILE = RESOURCE_PATH + "/eventmessage-operationfinish.json";
@@ -108,9 +108,9 @@ public class EventValues {
 
     static {
         try {
-            PROPERTY_VALUE_INT = ElementValueMapper.toValue(PROPERTY_INT);
-            PROPERTY_VALUE_DOUBLE = ElementValueMapper.toValue(PROPERTY_DOUBLE);
-            PROPERTY_VALUE_STRING = ElementValueMapper.toValue(PROPERTY_STRING);
+            PROPERTY_VALUE_INT = ElementValueMapper.toValue(PROPERTY_INT, PropertyValue.class);
+            PROPERTY_VALUE_DOUBLE = ElementValueMapper.toValue(PROPERTY_DOUBLE, PropertyValue.class);
+            PROPERTY_VALUE_STRING = ElementValueMapper.toValue(PROPERTY_STRING, PropertyValue.class);
             RANGE_VALUE = RangeValue.builder()
                     .min(TypedValueFactory.create(Datatype.DOUBLE, "0.1"))
                     .max(TypedValueFactory.create(Datatype.DOUBLE, "0.2"))
@@ -215,7 +215,7 @@ public class EventValues {
             .message("This is a warning")
             .build();
 
-    private EventValues() {
+    private EventExamples() {
 
     }
 }

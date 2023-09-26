@@ -56,7 +56,6 @@ import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASQualifierType;
 import opc.i4aas.AASSpecificAssetIDType;
-import opc.i4aas.AASValueTypeDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
 
@@ -372,7 +371,7 @@ public class TestUtils {
         //List<AASKeyDataType> keyList = new ArrayList<>();
         //keyList.add(new AASKeyDataType(AASKeyTypesDataType.AssetAdministrationShell, "http://customer.com/assets/KHBVZJSQKIY", AASKeyTypeDataType.IRI));
         //checkAasReferenceNode(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME, keyList);
-        checkVariableString(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME, AASValueTypeDataType.String,
+        checkVariableString(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME,
                 "http://customer.com/assets/KHBVZJSQKIY");
 
         Map<String, String> map = new HashMap<>();
@@ -786,7 +785,7 @@ public class TestUtils {
     }
 
 
-    public static void checkVariableString(UaClient client, NodeId node, int aasns, String name, AASValueTypeDataType valueType, String propValue)
+    public static void checkVariableString(UaClient client, NodeId node, int aasns, String name, String propValue)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -803,43 +802,9 @@ public class TestUtils {
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkDisplayName(client, propertyNode, name);
-        //checkCategoryNode(client, propertyNode, aasns, category);
-        //checkModelingKindNode(client, propertyNode, aasns, kind);
-        //checkDataSpecificationNode(client, propertyNode, aasns);
-        //checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
-        //        relPath.clear();
-        //        browsePath.clear();
-        //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_TYPE_NAME)));
-        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        //        browsePath.clear();
-        //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        //
-        //        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
-        //        Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        //        Assert.assertEquals("checkAasPropertyString Browse Value & Type Result: size doesn't match", 2, bpres.length);
-        //
-        //        targets = bpres[0].getTargets();
-        //        Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
-        //        Assert.assertTrue("checkAasPropertyString ValueType empty", targets.length > 0);
-
-        //        DataValue value = client.readValue(node);
-        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //        Assert.assertEquals(valueType.ordinal(), value.getValue().intValue());
-        //
-        //        targets = bpres[1].getTargets();
-        //        Assert.assertNotNull("checkAasPropertyString Value Null", targets);
-        //        Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
         DataValue value = client.readValue(propertyNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //        Variant var;
-        //        if (valueType == AASValueTypeDataType.LocalizedText) {
-        //            var = new Variant(LocalizedText.english(propValue));
-        //        }
-        //        else {
-        //            var = new Variant(propValue);
-        //        }
 
         Variant var = new Variant(propValue);
         Assert.assertEquals(var, value.getValue());

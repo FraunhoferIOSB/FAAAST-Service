@@ -17,8 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -34,10 +36,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
@@ -144,6 +149,18 @@ public abstract class AbstractHttpEndpointTest {
 
     public ContentResponse execute(HttpMethod method, String path) throws Exception {
         return execute(method, path, null, null, null, null, null);
+    }
+
+
+    public ContentResponse execute(HttpMethod method, String path, Content contentModifier) throws Exception {
+        return execute(
+                method,
+                path,
+                null,
+                contentModifier,
+                null,
+                null,
+                null);
     }
 
 
@@ -429,19 +446,41 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShells() throws Exception {
-        List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
+    public void testGetAllAssetAdministrationShellsWithSinglePage() throws Exception {
+        Page<AssetAdministrationShell> expected = Page.of(AASFull.AAS_1);
         when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(expectedPayload)
+                .payload(expected)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         // TODO: server not returning character encoding
         LOGGER.info("http response encoding: {}", response.getEncoding());
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
-        List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent(), "UTF-8"), AssetAdministrationShell.class);
-        Assert.assertEquals(expectedPayload, actualPayload);
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllAssetAdministrationShellsWithMultiplePages() throws Exception {
+        Page<AssetAdministrationShell> expected = Page.<AssetAdministrationShell> builder()
+                .result(AASFull.AAS_2)
+                .metadata(PagingMetadata.builder()
+                        .cursor("foo")
+                        .build())
+                .build();
+        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        // TODO: server not returning character encoding
+        LOGGER.info("http response encoding: {}", response.getEncoding());
+        LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -525,7 +564,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     @Ignore("value only serialization not defined for AssetAdministrationShells")
     public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
-        List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
+        Page<AssetAdministrationShell> expectedPayload = Page.of(AASFull.AAS_1);
         when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expectedPayload)
@@ -534,7 +573,7 @@ public abstract class AbstractHttpEndpointTest {
                 .content(Content.VALUE)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent()), AssetAdministrationShell.class);
+        Page<AssetAdministrationShell> actualPayload = deserializer.read(new String(response.getContent()), Page.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }
 
@@ -555,23 +594,63 @@ public abstract class AbstractHttpEndpointTest {
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(submodelElements)
+                .payload(Page.of(submodelElements))
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<ElementValue> actual = deserializer.readValueList(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
-        List<ElementValue> expected = submodelElements.stream()
+        Page<ElementValue> actual = deserializer.readValuePage(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
+        Page<ElementValue> expected = Page.of(submodelElements.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElementsMetadata() throws Exception {
+        Page<SubmodelElement> expected = Page.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .build(),
+                new DefaultRange.Builder()
+                        .idShort("range1")
+                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .build());
+        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+                .content(Content.METADATA)
+                .build());
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElementsReference() throws Exception {
+        Page<Reference> expected = Page.of(
+                ReferenceBuilder.forSubmodel("submodelId", "property1"),
+                ReferenceBuilder.forSubmodel("submodelId", "range1"));
+        when(service.execute(any())).thenReturn(GetAllSubmodelElementsReferenceResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", Content.REFERENCE);
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        Page<Reference> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<Reference>>() {});
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
     public void testGetAllSubmodelElements() throws Exception {
-        List<SubmodelElement> expected = List.of(
+        Page<SubmodelElement> expected = Page.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
@@ -591,7 +670,7 @@ public abstract class AbstractHttpEndpointTest {
                 .content(Content.NORMAL)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
@@ -608,7 +687,7 @@ public abstract class AbstractHttpEndpointTest {
                 .id(aasId)
                 .submodels(submodelRef)
                 .build();
-        List<SubmodelElement> expected = List.of(
+        Page<SubmodelElement> expected = Page.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
@@ -641,17 +720,19 @@ public abstract class AbstractHttpEndpointTest {
                         .content(Content.NORMAL)
                         .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
+        Page<SubmodelElement> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<SubmodelElement>>() {});
         Assert.assertEquals(expected, actual);
     }
 
 
     private void mockAasContext(ServiceContext serviceContext, String aasId) {
-        when(serviceContext.getAASEnvironment()).thenReturn(new DefaultEnvironment.Builder()
+        doReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
                         .id(aasId)
                         .build())
-                .build());
+                .build())
+                        .when(serviceContext)
+                        .getAASEnvironment();
     }
 
 

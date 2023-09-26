@@ -24,7 +24,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASRelationshipElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
@@ -73,8 +72,8 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
             if (relElemNode != null) {
                 addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
 
-                AasSubmodelElementHelper.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
-                AasSubmodelElementHelper.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
+                AasReferenceCreator.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
+                AasReferenceCreator.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
 
                 nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getKeysNode().getNodeId(),
                         new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));

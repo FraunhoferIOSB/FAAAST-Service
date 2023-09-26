@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 
 
 /**
  * Response class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractResponseWithPayload<List<String>> {
+public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractPagedResponse<String> {
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<List<String>, GetAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
+            extends AbstractBuilder<String, GetAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

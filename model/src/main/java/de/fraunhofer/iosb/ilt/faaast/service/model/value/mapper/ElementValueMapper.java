@@ -23,6 +23,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
@@ -79,21 +80,52 @@ public class ElementValueMapper {
      * {@link ElementValue} instance.
      *
      * @param submodelElement for which a ElementValue should be created
-     * @param <I> type of the input SubmodelElement
-     * @param <O> type of the output ElementValue
+     * @param <T> type of the input SubmodelElement
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
      * @throws ValueMappingException is no mapper for type of submodelElement can be found
      * @throws ValueMappingException if mapping fails
      */
-    public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) throws ValueMappingException {
+    public static <T extends SubmodelElement> ElementValue toValue(T submodelElement) throws ValueMappingException {
         init();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
         if (!mappers.containsKey(aasInterface)) {
             throw new ValueMappingException("no mapper defined for AAS type " + aasInterface.getSimpleName());
         }
-        return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+        return mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+    }
+
+
+    /**
+     * Extracts the value of a {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * {@link ElementValue} instance.
+     *
+     *
+     * @param submodelElement for which a ElementValue should be created
+     * @param <I> type of the input SubmodelElement
+     * @param <O> type of the output ElementValue
+     * @param type expected result type
+     * @return a value representation of the submodel element
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws ValueMappingException is no mapper for type of submodelElement can be found
+     * @throws ValueMappingException if mapping fails
+     */
+    public static <I extends SubmodelElement, O extends ElementValue> O toValue(I submodelElement, Class<O> type) throws ValueMappingException {
+        init();
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(type, "type must be non-null");
+        Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
+        if (!mappers.containsKey(aasInterface)) {
+            throw new ValueMappingException(String.format("no mapper defined for AAS type %s", aasInterface.getSimpleName()));
+        }
+        ElementValue result = mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+        if (Objects.nonNull(result) && !type.isAssignableFrom(result.getClass())) {
+            throw new ValueMappingException(String.format("type mismatch (expected: %s but found: %s",
+                    type.getSimpleName(),
+                    result.getClass().getSimpleName()));
+        }
+        return (O) result;
     }
 
 

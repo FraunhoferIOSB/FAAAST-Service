@@ -17,9 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aasre
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import java.util.Map;
@@ -29,12 +31,12 @@ import java.util.Map;
  * class to map HTTP-GET-Request path: shells.
  */
 public class GetAllAssetAdministrationShellsRequestMapper
-        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
+        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
     private static final String PATTERN = "shells";
 
     public GetAllAssetAdministrationShellsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
     }
 
 
@@ -47,7 +49,7 @@ public class GetAllAssetAdministrationShellsRequestMapper
 
 
     @Override
-    public GetAllAssetAdministrationShellsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllAssetAdministrationShellsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllAssetAdministrationShellsRequest.builder().build();
     }
 }

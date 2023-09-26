@@ -18,9 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -33,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
  * class to map HTTP-GET-Request path: shells.
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
-        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
+        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private static final String PATTERN = "shells";
 
@@ -49,7 +50,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
 
 
     @Override
-    public GetAllAssetAdministrationShellsByAssetIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier)
+    public GetAllAssetAdministrationShellsByAssetIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo)
             throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()

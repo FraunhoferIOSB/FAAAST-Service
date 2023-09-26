@@ -15,15 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
@@ -43,19 +43,19 @@ public class GetAllAssetAdministrationShellsRequestHandler extends AbstractReque
 
     @Override
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) throws MessageBusException {
-        List<AssetAdministrationShell> shells = context.getPersistence().findAssetAdministrationShells(
+        Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.NONE,
                 request.getOutputModifier(),
-                PagingInfo.ALL);
-        if (shells != null) {
-            shells.forEach(LambdaExceptionHelper.rethrowConsumer(
+                request.getPagingInfo());
+        if (Objects.nonNull(page.getContent())) {
+            page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)
                             .value(x)
                             .build())));
         }
         return GetAllAssetAdministrationShellsResponse.builder()
-                .payload(shells)
+                .payload(page)
                 .success()
                 .build();
     }

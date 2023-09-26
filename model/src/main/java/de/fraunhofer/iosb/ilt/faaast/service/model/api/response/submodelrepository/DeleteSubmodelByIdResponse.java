@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
 
 
 /**

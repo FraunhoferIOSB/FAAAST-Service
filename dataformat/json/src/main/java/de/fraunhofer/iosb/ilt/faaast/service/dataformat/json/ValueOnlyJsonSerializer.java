@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelElementCollectionValueMixin;
@@ -36,10 +37,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EntityVa
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.FileValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.MultiLanguagePropertyValueSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.PagingMetadataSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
@@ -139,7 +143,9 @@ public class ValueOnlyJsonSerializer {
     public String write(Object obj, Level level, Extent extend) throws SerializationException {
         if (!ElementValueHelper.isValueOnlySupported(obj)) {
             throw new SerializationException(
-                    "Provided element is not supported by value-only serialization. Supported types are: all subtypes of DataElement, SubmodelElementCollection, ReferenceElement, RelationshipElement, AnnotatedRelationshipElement, and Entity as well as all subtypes of ElementValue");
+                    String.format(
+                            "Provided element is not supported by value-only serialization (type: %s). Supported types are: all subtypes of DataElement, SubmodelElementCollection, ReferenceElement, RelationshipElement, AnnotatedRelationshipElement, and Entity as well as all subtypes of ElementValue",
+                            obj.getClass()));
         }
         try {
             return wrapper.getMapper().writer()
@@ -171,6 +177,7 @@ public class ValueOnlyJsonSerializer {
         mapper.addMixIn(SubmodelElementListValue.class, SubmodelElementListValueMixin.class);
         mapper.addMixIn(TypedValue.class, TypedValueMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
+        mapper.addMixIn(Page.class, PageMixin.class);
         SimpleModule module = new SimpleModule();
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
         module.addSerializer(FileValue.class, new FileValueSerializer());
@@ -179,6 +186,7 @@ public class ValueOnlyJsonSerializer {
         module.addSerializer(EntityValue.class, new EntityValueSerializer());
         module.addSerializer(SubmodelElement.class, new SubmodelElementValueSerializer());
         module.addSerializer(Submodel.class, new SubmodelValueSerializer());
+        module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
         ObjectMapper result = mapper.registerModule(module);
         result = result.registerModule(new SimpleModule() {
             @Override

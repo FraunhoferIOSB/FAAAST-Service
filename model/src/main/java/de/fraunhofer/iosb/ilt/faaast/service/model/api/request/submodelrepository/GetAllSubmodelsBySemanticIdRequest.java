@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
 import java.util.Objects;
@@ -24,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Request class for GetAllSubmodelsBySemanticId requests.
  */
-public class GetAllSubmodelsBySemanticIdRequest extends AbstractRequestWithModifier<GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequest extends AbstractRequestWithModifierAndPaging<GetAllSubmodelsBySemanticIdResponse> {
 
     private Reference semanticId;
 

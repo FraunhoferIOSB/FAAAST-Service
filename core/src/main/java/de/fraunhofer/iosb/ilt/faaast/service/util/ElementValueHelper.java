@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -33,7 +34,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
@@ -78,6 +78,9 @@ public class ElementValueHelper {
         }
         if (Map.class.isAssignableFrom(type)) {
             return ((Map) obj).values().stream().allMatch(x -> isValueOnlySupported(x));
+        }
+        if (Page.class.isAssignableFrom(type)) {
+            return ((Page) obj).getContent().stream().allMatch(x -> isValueOnlySupported(x));
         }
         return isValueOnlySupported(type);
     }
@@ -146,7 +149,7 @@ public class ElementValueHelper {
     public static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
         return variables.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(
-                        x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue())))
+                        x -> ElementValueMapper.toValue(x.getValue())))
                 .collect(Collectors.toList());
     }
 }

@@ -1,0 +1,6 @@
+{
+    "modelType": "Property",
+    "valueType": "xs:int",
+    "category": "category",
+    "idShort": "propInt"
+}

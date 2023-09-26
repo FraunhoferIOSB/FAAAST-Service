@@ -14,22 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
  * Response class for GetAllAssetAdministrationShellsByAssetId requests.
  */
-public class GetAllAssetAdministrationShellsByAssetIdResponse extends AbstractResponseWithPayload<List<AssetAdministrationShell>> {
+public class GetAllAssetAdministrationShellsByAssetIdResponse extends AbstractPagedResponse<AssetAdministrationShell> {
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsByAssetIdResponse, Builder> {
+            extends AbstractBuilder<AssetAdministrationShell, GetAllAssetAdministrationShellsByAssetIdResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

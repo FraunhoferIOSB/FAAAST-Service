@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import java.util.Objects;
@@ -23,7 +24,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllAssetAdministrationShells requests.
  */
-public class GetAllAssetAdministrationShellsRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsResponse> {
+public class GetAllAssetAdministrationShellsRequest extends AbstractRequestWithModifierAndPaging<GetAllAssetAdministrationShellsResponse> {
 
     public GetAllAssetAdministrationShellsRequest() {
         super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);

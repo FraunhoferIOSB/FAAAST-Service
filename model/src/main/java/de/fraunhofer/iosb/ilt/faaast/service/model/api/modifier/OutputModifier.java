@@ -58,6 +58,14 @@ public class OutputModifier extends QueryModifier {
 
         public B content(Content value) {
             getBuildingInstance().content = value;
+            if (value == Content.METADATA) {
+                getBuildingInstance().level = Level.CORE;
+                getBuildingInstance().extent = Extent.WITHOUT_BLOB_VALUE;
+            }
+            else if (value == Content.REFERENCE) {
+                getBuildingInstance().level = Level.CORE;
+                getBuildingInstance().extent = Extent.WITHOUT_BLOB_VALUE;
+            }
             return getSelf();
         }
     }

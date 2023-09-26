@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAssetAdministrationShellByIdResponse;
@@ -36,7 +37,7 @@ public class GetAssetAdministrationShellByIdRequestMapper
     private static final String PATTERN = String.format("(?!.*/aas)shells/%s", pathElement(AAS_ID));
 
     public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
     }
 
 

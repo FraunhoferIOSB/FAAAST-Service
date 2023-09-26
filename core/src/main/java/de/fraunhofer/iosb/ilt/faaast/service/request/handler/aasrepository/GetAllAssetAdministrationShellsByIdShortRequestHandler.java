@@ -15,15 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
@@ -44,21 +44,21 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
 
     @Override
     public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request) throws MessageBusException {
-        List<AssetAdministrationShell> shells = context.getPersistence().findAssetAdministrationShells(
+        Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()
                         .idShort(request.getIdShort())
                         .build(),
                 request.getOutputModifier(),
-                PagingInfo.ALL);
-        if (shells != null) {
-            shells.forEach(LambdaExceptionHelper.rethrowConsumer(
+                request.getPagingInfo());
+        if (Objects.nonNull(page.getContent())) {
+            page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)
                             .value(x)
                             .build())));
         }
         return GetAllAssetAdministrationShellsByIdShortResponse.builder()
-                .payload(shells)
+                .payload(page)
                 .success()
                 .build();
     }

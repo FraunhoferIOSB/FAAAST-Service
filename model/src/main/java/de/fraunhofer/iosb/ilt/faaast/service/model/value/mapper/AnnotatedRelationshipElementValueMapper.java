@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
         if (submodelElement.getAnnotations() != null && submodelElement.getAnnotations().stream().noneMatch(Objects::isNull)) {
             value.setAnnotations(submodelElement.getAnnotations().stream().collect(Collectors.toMap(
                     x -> x != null ? x.getIdShort() : null,
-                    LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
+                    LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x, DataElementValue.class) : null))));
         }
 
         value.setFirst(submodelElement.getFirst());

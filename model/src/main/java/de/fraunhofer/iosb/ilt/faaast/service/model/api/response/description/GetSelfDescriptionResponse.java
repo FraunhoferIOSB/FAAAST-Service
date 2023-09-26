@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.description;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 
 
 /**

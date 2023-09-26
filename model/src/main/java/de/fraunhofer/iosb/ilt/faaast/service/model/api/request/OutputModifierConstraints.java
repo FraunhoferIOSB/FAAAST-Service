@@ -34,9 +34,11 @@ public class OutputModifierConstraints {
     private Set<Content> supportedContentModifiers;
     public static final OutputModifierConstraints DEFAULT = new OutputModifierConstraints(true, false, Content.values());
     public static final OutputModifierConstraints NONE = new OutputModifierConstraints(false, false);
-    public static final OutputModifierConstraints SUBMODEL = new OutputModifierConstraints(true, true, Content.NORMAL, Content.VALUE, Content.REFERENCE, Content.PATH);
-    public static final OutputModifierConstraints SUBMODEL_ELEMENT = new OutputModifierConstraints(true, true, Content.NORMAL, Content.VALUE, Content.REFERENCE, Content.PATH);
-    public static final OutputModifierConstraints ASSET_ADMINISTRATION_SHELL = new OutputModifierConstraints(false, false, Content.NORMAL, Content.REFERENCE);
+    public static final OutputModifierConstraints SUBMODEL = new OutputModifierConstraints(true, true, Content.NORMAL, Content.VALUE, Content.PATH,
+            Content.METADATA);
+    public static final OutputModifierConstraints SUBMODEL_ELEMENT = new OutputModifierConstraints(true, true, Content.NORMAL, Content.VALUE, Content.PATH,
+            Content.METADATA);
+    public static final OutputModifierConstraints ASSET_ADMINISTRATION_SHELL = new OutputModifierConstraints(false, false, Content.NORMAL);
 
     public OutputModifierConstraints() {
         this.supportsExtent = true;

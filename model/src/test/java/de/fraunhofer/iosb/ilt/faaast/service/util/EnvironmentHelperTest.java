@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
@@ -25,10 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class EnvironmentHelperTest {
 
     @Test
@@ -41,7 +38,7 @@ public class EnvironmentHelperTest {
                         try {
                             assertResolve(referable, environment);
                         }
-                        catch (ResourceNotFoundException e) {
+                        catch (ResourceNotFoundException | AmbiguousElementException e) {
                             Assert.fail();
                         }
                     }
@@ -52,7 +49,7 @@ public class EnvironmentHelperTest {
     }
 
 
-    private void assertResolve(Referable expected, Environment environment) throws ResourceNotFoundException {
+    private void assertResolve(Referable expected, Environment environment) throws ResourceNotFoundException, AmbiguousElementException {
         Reference reference = EnvironmentHelper.asReference(expected, environment);
         Referable actual = EnvironmentHelper.resolve(reference, environment);
         Assert.assertEquals(expected, actual);

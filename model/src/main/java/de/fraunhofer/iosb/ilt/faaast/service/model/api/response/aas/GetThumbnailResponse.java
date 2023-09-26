@@ -14,8 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
 
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
+
 
 
 /**

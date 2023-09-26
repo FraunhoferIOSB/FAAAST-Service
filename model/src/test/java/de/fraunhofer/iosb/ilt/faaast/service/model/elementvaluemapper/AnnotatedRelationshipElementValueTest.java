@@ -114,7 +114,7 @@ public class AnnotatedRelationshipElementValueTest {
                 .first(null)
                 .second(null)
                 .build();
-        AnnotatedRelationshipElementValue value = ElementValueMapper.toValue(element);
+        AnnotatedRelationshipElementValue value = ElementValueMapper.toValue(element, AnnotatedRelationshipElementValue.class);
         Assert.assertEquals(expected, value);
     }
 

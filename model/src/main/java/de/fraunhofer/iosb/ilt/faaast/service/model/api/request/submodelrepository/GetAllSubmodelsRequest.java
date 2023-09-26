@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import java.util.Objects;
@@ -23,7 +24,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllSubmodels requests.
  */
-public class GetAllSubmodelsRequest extends AbstractRequestWithModifier<GetAllSubmodelsResponse> {
+public class GetAllSubmodelsRequest extends AbstractRequestWithModifierAndPaging<GetAllSubmodelsResponse> {
 
     public GetAllSubmodelsRequest() {
         super(OutputModifierConstraints.SUBMODEL);

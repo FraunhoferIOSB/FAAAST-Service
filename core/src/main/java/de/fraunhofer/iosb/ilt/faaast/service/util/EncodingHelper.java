@@ -18,6 +18,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
 
 
 /**
@@ -37,6 +38,9 @@ public class EncodingHelper {
      * @return encoded string
      */
     public static String urlEncode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
@@ -48,6 +52,9 @@ public class EncodingHelper {
      * @return decoded string
      */
     public static String urlDecode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 
@@ -59,6 +66,9 @@ public class EncodingHelper {
      * @return encoded string
      */
     public static String base64Encode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return Base64.getEncoder().encodeToString(value.getBytes());
     }
 
@@ -81,6 +91,9 @@ public class EncodingHelper {
      * @return decoded string
      */
     public static String base64Decode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return new String(Base64.getDecoder().decode(value));
 
     }
@@ -93,6 +106,9 @@ public class EncodingHelper {
      * @return encoded string
      */
     public static String base64UrlEncode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return Base64.getUrlEncoder().encodeToString(value.getBytes());
     }
 
@@ -104,6 +120,9 @@ public class EncodingHelper {
      * @return decoded string
      */
     public static String base64UrlDecode(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         return new String(Base64.getUrlDecoder().decode(value));
     }
 }
