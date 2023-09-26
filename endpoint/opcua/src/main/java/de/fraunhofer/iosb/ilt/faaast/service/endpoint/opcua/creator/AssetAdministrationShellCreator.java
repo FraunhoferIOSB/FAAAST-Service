@@ -27,15 +27,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
 import opc.i4aas.AASReferenceList;
 import opc.i4aas.AASSpecificAssetIDList;
 import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -67,8 +68,10 @@ public class AssetAdministrationShellCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment
      */
-    public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager) throws StatusException, ValueFormatException {
+    public static void addAssetAdministrationShell(UaNode node, AssetAdministrationShell aas, AasServiceNodeManager nodeManager)
+            throws StatusException, ValueFormatException, AmbiguousElementException {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
@@ -90,7 +93,7 @@ public class AssetAdministrationShellCreator {
         AASAssetAdministrationShellType aasShell = nodeManager.createInstance(AASAssetAdministrationShellTypeNode.class, nid, browseName, LocalizedText.english(displayName));
         IdentifiableCreator.addIdentifiable(aasShell, aas.getId(), aas.getAdministration(), aas.getCategory(), nodeManager);
 
-        // DataSpecifications
+        // EmbeddedDataSpecifications
         EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), nodeManager);
 
         // AssetInformation
@@ -108,7 +111,6 @@ public class AssetAdministrationShellCreator {
         // add AAS to Environment
         nodeManager.addNodeAndReference(node, aasShell, Identifiers.Organizes);
 
-        //nodeManager.addReferable(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
         nodeManager.addReferable(EnvironmentHelper.asReference(aas, nodeManager.getEnvironment()), new ObjectData(aas, aasShell));
     }
 
@@ -179,7 +181,6 @@ public class AssetAdministrationShellCreator {
         // GlobalAssetId
         String globalAssetId = assetInformation.getGlobalAssetID();
         if (globalAssetId != null) {
-            //AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, nodeManager);
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
                         opc.i4aas.ObjectTypeIds.AASAssetInformationType.getNamespaceUri());
@@ -283,7 +284,7 @@ public class AssetAdministrationShellCreator {
                     refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
                 }
                 else {
-                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", AasUtils.asString(ref));
+                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ReferenceHelper.toString(ref));
                 }
             }
         }

@@ -38,7 +38,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class EventCreator extends SubmodelElementCreator {
-    //private static final Logger LOGGER = LoggerFactory.getLogger(EventCreator.class);
 
     /**
      * Adds an AAS EventElement to the given node.
@@ -85,8 +84,6 @@ public class EventCreator extends SubmodelElementCreator {
         addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
         setBasicEventElementData(eventNode, (BasicEventElement) aasEvent, nodeManager);
-
-        //Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
 
         if (ordered) {
             node.addReference(eventNode, Identifiers.HasOrderedComponent, false);

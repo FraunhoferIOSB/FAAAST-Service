@@ -57,7 +57,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
-    //private int requestCounter;
 
     /**
      * Creates a new instance of OpcUaEndpoint
@@ -148,6 +147,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         Ensure.requireNonNull(submodel, "submodel must not be null");
 
         try {
+            LOGGER.info("writeValue: Reference {}", ReferenceHelper.toString(refElement));
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             request.setSubmodelId(submodel.getId());
@@ -174,7 +174,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+            LOGGER.info("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
                     response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;

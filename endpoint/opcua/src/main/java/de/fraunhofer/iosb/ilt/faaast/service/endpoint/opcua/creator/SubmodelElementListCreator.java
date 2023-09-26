@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import opc.i4aas.AASSubmodelElementListType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -112,7 +113,6 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
                     AasReferenceCreator.setAasReferenceData(aasList.getSemanticIDListElement(), collNode.getSemanticIDListElementNode(), true);
                 }
             }
-            //Reference collRef = AasUtils.toReference(parentRef, aasList);
 
             // add SubmodelElements 
             addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
@@ -128,7 +128,8 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (int i = 0; i < elements.size(); i++) {
-                Reference elementRef = ReferenceBuilder.forParent(parentRef, String.valueOf(i));
+                Reference elementRef = ReferenceBuilder.with(parentRef).index(i).build();
+                LOGGER.info("addSubmodelElementList: ParentRef: {}; ElementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
                 addSubmodelElement(elements.get(i), node, elementRef, submodel, true, nodeManager);
             }
         }

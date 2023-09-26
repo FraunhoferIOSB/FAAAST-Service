@@ -138,7 +138,6 @@ public class UaHelper {
                 valueData.getDisplayName());
         kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         kindProperty.setDescription(new LocalizedText("", ""));
-        //Variant vari = new Variant();
         DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
         kindProperty.setValue(value);
 

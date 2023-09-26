@@ -24,10 +24,13 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.i4aas.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,6 +38,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
      * Adds an AAS reference element to the given node.
@@ -69,9 +73,8 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                 }
             }
 
-            //Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
-
             if (refElemNode.getValueNode() != null) {
+                LOGGER.trace("addAasReferenceElement: Name {}; Reference {}", name, ReferenceHelper.toString(refElemRef));
                 nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
                         new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
             }

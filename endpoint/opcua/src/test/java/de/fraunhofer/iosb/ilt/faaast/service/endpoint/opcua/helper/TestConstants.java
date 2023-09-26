@@ -57,8 +57,8 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
     public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
-    public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
-    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelCollection";
+    public static final String FULL_SM_ELEM_LIST_O_NAME = "ExampleSubmodelElementListOrdered";
+    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
     public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
@@ -68,7 +68,6 @@ public class TestConstants {
 
     public static final String KIND_NAME = "Kind";
     public static final String CATEGORY_NAME = "Category";
-    //public static final String IDENTIFICATION_NAME = "Identification";
     public static final String ADMINISTRATION_NAME = "Administration";
     public static final String EMBEDDED_DATA_SPECIFICATION_NAME = "EmbeddedDataSpecification";
     public static final String DATA_SPECIFICATION_NAME = "DataSpecification";

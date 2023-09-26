@@ -23,6 +23,7 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
 import opc.i4aas.AASSubmodelElementType;
@@ -94,8 +95,9 @@ public class SubmodelElementCreator {
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((elements != null) && (!elements.isEmpty())) {
             for (SubmodelElement elem: elements) {
-                //Reference elementRef = ReferenceBuilder.forParent(parentRef, elem.getIdShort());
-                Reference elementRef = ReferenceBuilder.forParent(parentRef, elem);
+                Reference elementRef = ReferenceBuilder.with(parentRef).element(elem).build();
+
+                LOGGER.info("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
                 addSubmodelElement(elem, node, elementRef, submodel, ordered, nodeManager);
             }
         }
@@ -187,7 +189,6 @@ public class SubmodelElementCreator {
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
                 node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-                //node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
         }
     }

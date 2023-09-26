@@ -70,7 +70,7 @@ public class RangeCreator extends SubmodelElementCreator {
             //                }
             //                catch (IllegalArgumentException iae) {
             //                    rangeRef = AasUtils.toReference(parentRef, aasRange);
-            //                    LOGGER.warn("addAasRange: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), AasUtils.asString(rangeRef));
+            //                    LOGGER.warn("addAasRange: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), ReferenceHelper.toString(rangeRef));
             //                }
             //            }
             addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);

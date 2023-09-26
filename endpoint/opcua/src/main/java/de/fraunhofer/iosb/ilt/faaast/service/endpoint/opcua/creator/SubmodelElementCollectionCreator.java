@@ -26,6 +26,7 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.i4aas.AASSubmodelElementCollectionType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -69,57 +70,14 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
 
             addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
-            // AllowDuplicates
-            //            if (collNode.getAllowDuplicatesNode() == null) {
-            //                NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-            //                        collNode.getNodeId().getValue().toString() + "." + AASSubmodelElementCollectionType.ALLOW_DUPLICATES);
-            //                PlainProperty<Boolean> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-            //                        UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), AASSubmodelElementCollectionType.ALLOW_DUPLICATES)
-            //                                .toQualifiedName(nodeManager.getNamespaceTable()),
-            //                        LocalizedText.english(AASSubmodelElementCollectionType.ALLOW_DUPLICATES));
-            //                myProperty.setDataTypeId(Identifiers.Boolean);
-            //                myProperty.setDescription(new LocalizedText("", ""));
-            //                if (VALUES_READ_ONLY) {
-            //                    myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            //                }
-            //                collNode.addProperty(myProperty);
-            //            }
-
-            //Reference collRef = AasUtils.toReference(parentRef, aasColl);
-
             // SubmodelElements 
-            LOGGER.info("addAasSubmodelElementCollection ({}): add {} SubmodelElements", name, aasColl.getValue().size());
+            LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
             addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
 
-            //if (ordered) {
-            //    node.addReference(collNode, Identifiers.HasOrderedComponent, false);
-            //}
-            //else {
             node.addComponent(collNode);
-            //}
 
             nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
         }
     }
-
-    //    /**
-    //     * Creates an AAS Ordered Submodel Element Collection.
-    //     *
-    //     * @param name The desired name
-    //     * @param nid The desired NodeId
-    //     * @param nodeManager The corresponding Node Manager
-    //     * @return The created Ordered Submodel Element Collection object
-    //     */
-    //    private static AASSubmodelElementCollectionType createAasOrderedSubmodelElementCollection(String name, NodeId nid, AasServiceNodeManager nodeManager) {
-    //        AASSubmodelElementCollectionType retval = null;
-    //
-    //        AASOrderedSubmodelElementCollectionType orderedNode = nodeManager.createInstance(AASOrderedSubmodelElementCollectionType.class, nid,
-    //                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOrderedSubmodelElementCollectionType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable()),
-    //                LocalizedText.english(name));
-    //
-    //        retval = orderedNode;
-    //
-    //        return retval;
-    //    }
 
 }
