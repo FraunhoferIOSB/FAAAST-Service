@@ -18,6 +18,7 @@ import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
 import jakarta.servlet.http.HttpServletResponse;
 
 

@@ -1317,7 +1317,10 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteThumbnailResponse.statusCode());
+    }
 
+
+    @Test
     public void testSubmodelInterfaceGetSubmodelContentMetadata()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(3));

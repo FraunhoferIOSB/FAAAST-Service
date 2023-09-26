@@ -72,7 +72,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                 ConceptDescriptionSearchCriteria.NONE,
                                 OUTPUT_MODIFIER,
                                 PagingInfo.ALL)
-                        .getContent()
+                                .getContent()
                         : List.of())
                 .build();
         List<InMemoryFile> files = new ArrayList<>();

@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
 
 
-
 /**
  * Response class for GetFileByPath requests.
  */
