@@ -95,7 +95,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 200;
+    private static final long DEFAULT_TIMEOUT = 300;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;

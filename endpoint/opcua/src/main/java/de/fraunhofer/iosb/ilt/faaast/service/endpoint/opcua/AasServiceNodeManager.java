@@ -394,11 +394,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        LOG.debug("elementCreated called. Reference {}; Value: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(), value.getClass());
+        Reference parentRef = ReferenceHelper.getParent(element);
+        LOG.debug("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
+                ReferenceHelper.toString(parentRef), value.getClass());
         // The element is the reference to the object which is added itself
         // formerly it was the parent
-        Reference parentRef = ReferenceHelper.getParent(element);
-        LOG.info("elementCreated: ParentRef: {}", ReferenceHelper.toString(parentRef));
         ObjectData parent = null;
         if ((parentRef != null) && referableMap.containsKey(parentRef)) {
             parent = referableMap.get(parentRef);
@@ -446,7 +446,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element, this);
                 }
                 else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    LOG.trace("elementCreated: call addSubmodelElements");
+                    LOG.debug("elementCreated: call addSubmodelElements");
                     SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
                 }
                 else {
@@ -567,7 +567,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referableData The data of the desired referable.
      */
     public void addReferable(Reference reference, ObjectData referableData) {
-        //LOG.info("addReferable: Reference {}", ReferenceHelper.toString(reference));
         referableMap.put(reference, referableData);
     }
 
