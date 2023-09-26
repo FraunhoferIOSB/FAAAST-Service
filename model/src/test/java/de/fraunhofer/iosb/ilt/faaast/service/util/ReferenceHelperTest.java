@@ -25,10 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class ReferenceHelperTest {
 
     private static final List<ReferenceSerializationInfo> TEST_CASES = List.of(
