@@ -27,10 +27,9 @@ import com.mongodb.client.model.Updates;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
@@ -70,6 +69,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private CoreConfig coreConfig;
     private ServiceContext serviceContext;
     private MongoCollection<Document> environmentCollection;
+    private PersistenceInMemory persistenceInMemory;
     private ObjectMapper mapper;
 
     @Override
@@ -88,16 +88,28 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         environmentCollection = database.getCollection(config.getCollectionName());
 
         Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+        Environment aasEnvironment = null;
         if (environmentDocument == null) {
             try {
-                String environmentJsonString = mapper.writeValueAsString(new DefaultEnvironment.Builder().build());
-                environmentDocument = new Document()
-                        .append(ID_KEY, config.getModelId())
-                        .append(ENVIRONMENT_KEY, Document.parse(environmentJsonString));
-                 environmentCollection.insertOne(environmentDocument);
-            } catch (JsonProcessingException e) {
-                throw new ConfigurationInitializationException(e);
+                aasEnvironment = config.loadInitialModel();
+                insertEnvironment(config.getModelId(), aasEnvironment);
+            } catch (ConfigurationException | JsonProcessingException | DeserializationException e) {
+                throw new ConfigurationInitializationException(e); // TODO
             }
+        } else {
+            try {
+                aasEnvironment = loadEnvironment(config.getModelId());
+            } catch (DeserializationException e) {
+                throw new RuntimeException(e); // TODO
+            }
+        }
+        try {
+            persistenceInMemory = PersistenceInMemoryConfig.builder()
+                    .initialModel(aasEnvironment)
+                    .build()
+                    .newInstance(coreConfig, serviceContext);
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e); // TODO
         }
     }
 
@@ -106,22 +118,23 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return config;
     }
 
-    private PersistenceInMemory getMemoryPersistence() {
-        Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
+    private Environment loadEnvironment(String modelId) throws DeserializationException {
+        Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, modelId)).first();
         String envJsonString = ((Document)environmentDocument.get(ENVIRONMENT_KEY)).toJson();
-        Environment aasEnvironment = null; // TODO get env from jsonString
-        try {
-            return PersistenceInMemoryConfig.builder()
-                    .initialModel(aasEnvironment)
-                    .build()
-                    .newInstance(coreConfig, serviceContext);
-        } catch (ConfigurationException e) {
-            throw new RuntimeException(e);
-        }
+        JsonApiDeserializer deserializer = new JsonApiDeserializer();
+        return deserializer.read(envJsonString, Environment.class);
     }
 
-    private void saveEnvironment(Environment aasEnvironment) {
-        Bson filter = Filters.eq(ID_KEY, config.getModelId());
+    private void insertEnvironment(String modelId, Environment aasEnvironment) throws JsonProcessingException {
+        String environmentJsonString = mapper.writeValueAsString(aasEnvironment);
+        Document environmentDocument = new Document()
+                .append(ID_KEY, config.getModelId())
+                .append(ENVIRONMENT_KEY, Document.parse(environmentJsonString));
+        environmentCollection.insertOne(environmentDocument);
+    }
+
+    private void saveEnvironment(String modelId, Environment aasEnvironment) {
+        Bson filter = Filters.eq(ID_KEY, modelId);
         Bson updateOperation = Updates.set(ENVIRONMENT_KEY, aasEnvironment);
         environmentCollection.updateOne(filter, updateOperation);
     }
@@ -129,149 +142,156 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return getMemoryPersistence().getAssetAdministrationShell(id, modifier);
+        return persistenceInMemory.getAssetAdministrationShell(id, modifier);
     }
 
 
     @Override
     public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
+        return persistenceInMemory.getSubmodel(id, modifier);
     }
 
 
     @Override
     public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
+        return persistenceInMemory.getConceptDescription(id, modifier);
     }
 
 
     @Override
     public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
+        return persistenceInMemory.getSubmodelElement(identifier, modifier);
     }
 
 
     @Override
     public List<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
             throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return Persistence.super.getSubmodelElements(identifier, modifier);
+        return persistenceInMemory.getSubmodelElements(identifier, modifier);
     }
 
 
     @Override
     public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
-        return null;
+        return persistenceInMemory.getOperationResult(handle);
     }
 
 
     @Override
     public List<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return null;
+        return persistenceInMemory.findAssetAdministrationShells(criteria, modifier, paging);
     }
 
 
     @Override
     public List<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return null;
+        return persistenceInMemory.findSubmodels(criteria, modifier, paging);
     }
 
 
     @Override
     public List<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
-        return null;
+        return persistenceInMemory.findSubmodelElements(criteria, modifier, paging);
     }
 
 
     @Override
     public List<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
-        return null;
+        return persistenceInMemory.findConceptDescriptions(criteria, modifier, paging);
     }
 
 
     @Override
     public void save(AssetAdministrationShell assetAdministrationShell) {
-        PersistenceInMemory persistence = getMemoryPersistence();
-        persistence.save(assetAdministrationShell);
-        saveEnvironment(persistence.getEnvironment());
+        persistenceInMemory.save(assetAdministrationShell);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void save(ConceptDescription conceptDescription) {
-
+        persistenceInMemory.save(conceptDescription);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void save(Submodel submodel) {
-
+        persistenceInMemory.save(submodel);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void save(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-
+        persistenceInMemory.save(identifier, submodelElement);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void save(OperationHandle handle, OperationResult result) {
-
+        persistenceInMemory.save(handle, result);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException {
-
+        persistenceInMemory.deleteAssetAdministrationShell(id);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void deleteSubmodel(String id) throws ResourceNotFoundException {
-
+        persistenceInMemory.deleteSubmodel(id);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void deleteConceptDescription(String id) throws ResourceNotFoundException {
-
+        persistenceInMemory.deleteConceptDescription(id);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
-
+        persistenceInMemory.deleteSubmodelElement(identifier);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());
     }
 
 
     @Override
     public void deleteAssetAdministrationShell(AssetAdministrationShell assetAdministrationShell) throws ResourceNotFoundException {
-        Persistence.super.deleteAssetAdministrationShell(assetAdministrationShell);
-    }
+        persistenceInMemory.deleteAssetAdministrationShell(assetAdministrationShell);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());    }
 
 
     @Override
     public void deleteSubmodel(Submodel submodel) throws ResourceNotFoundException {
-        Persistence.super.deleteSubmodel(submodel);
-    }
+        persistenceInMemory.deleteSubmodel(submodel);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());    }
 
 
     @Override
     public void deleteConceptDescription(ConceptDescription conceptDescription) throws ResourceNotFoundException {
-        Persistence.super.deleteConceptDescription(conceptDescription);
-    }
+        persistenceInMemory.deleteConceptDescription(conceptDescription);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());    }
 
 
     @Override
     public void deleteSubmodelElement(Reference reference) throws ResourceNotFoundException {
-        Persistence.super.deleteSubmodelElement(reference);
-    }
+        persistenceInMemory.deleteSubmodelElement(reference);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());    }
 
 
     @Override
     public void save(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        Persistence.super.save(parent, submodelElement);
-    }
+        persistenceInMemory.save(parent, submodelElement);
+        saveEnvironment(config.getModelId(), persistenceInMemory.getEnvironment());    }
 
 
     @Override
@@ -282,42 +302,42 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
-        return Persistence.super.getSubmodelElement(reference, modifier);
+        return persistenceInMemory.getSubmodelElement(reference, modifier);
     }
 
 
     @Override
     public <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        return Persistence.super.getSubmodelElement(reference, modifier, type);
+        return persistenceInMemory.getSubmodelElement(reference, modifier, type);
     }
 
 
     @Override
     public List<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return Persistence.super.getSubmodelElements(reference, modifier);
+        return persistenceInMemory.getSubmodelElements(reference, modifier);
     }
 
 
     @Override
     public List<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllAssetAdministrationShells(modifier, paging);
+        return persistenceInMemory.getAllAssetAdministrationShells(modifier, paging);
     }
 
 
     @Override
     public List<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllSubmodels(modifier, paging);
+        return persistenceInMemory.getAllSubmodels(modifier, paging);
     }
 
 
     @Override
     public List<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllConceptDescriptions(modifier, paging);
+        return persistenceInMemory.getAllConceptDescriptions(modifier, paging);
     }
 
 
     @Override
     public List<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
-        return Persistence.super.getAllSubmodelElements(modifier, paging);
+        return persistenceInMemory.getAllSubmodelElements(modifier, paging);
     }
 }
