@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import static org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils.keyTypeToClass;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
@@ -289,35 +289,7 @@ public class ReferenceHelper {
         if (reference == null || reference.getKeys().isEmpty()) {
             return "";
         }
-        return toPath(reference.getKeys());
-    }
-
-
-    /**
-     * Create an element path from key elements.
-     *
-     * @param keys the key element
-     * @return values of the keys of the reference separated by a "."
-     */
-    public static String toPath(Key... keys) {
-        return toPath(Arrays.asList(keys));
-    }
-
-
-    /**
-     * Create an element path from key elements.
-     *
-     * @param keys the key element
-     * @return values of the keys of the reference separated by a "."
-     */
-    public static String toPath(List<Key> keys) {
-        if (Objects.isNull(keys) || keys.isEmpty()) {
-            return "";
-        }
-        return keys.stream()
-                .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
-                .map(x -> x.getValue())
-                .collect(Collectors.joining("."));
+        return IdShortPath.fromReference(reference).toString();
     }
 
 
