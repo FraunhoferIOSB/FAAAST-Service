@@ -21,9 +21,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
  * lol.
  */
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
+    private String connectionString;
     private String databaseName;
     private String collectionName;
     private String modelId;
+
+    public String getConnectionString() {
+        return connectionString;
+    }
+
+    public void setConnectionString(String connectionString) {
+        this.connectionString = connectionString;
+    }
 
     public String getDatabaseName() {
         return databaseName;
@@ -55,6 +64,11 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
 
     private abstract static class AbstractBuilder<T extends PersistenceMongoConfig, B extends AbstractBuilder<T, B>>
             extends PersistenceConfig.AbstractBuilder<PersistenceMongo, T, B> {
+        public B connectionString(String value) {
+            getBuildingInstance().setConnectionString(value);
+            return getSelf();
+        }
+
         public B databaseName(String value) {
             getBuildingInstance().setDatabaseName(value);
             return getSelf();

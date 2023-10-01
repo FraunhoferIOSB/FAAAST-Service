@@ -61,7 +61,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
  * lol.
  */
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
-
     private final String ID_KEY = "model_id";
     private final String ENVIRONMENT_KEY = "environment";
 
@@ -82,7 +81,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         MongoClient mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString("mongodb://localhost:27017"))
+                        .applyConnectionString(new ConnectionString(config.getConnectionString()))
                         .build());
         MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
         environmentCollection = database.getCollection(config.getCollectionName());
@@ -126,17 +125,28 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
     private void insertEnvironment(String modelId, Environment aasEnvironment) throws JsonProcessingException {
-        String environmentJsonString = mapper.writeValueAsString(aasEnvironment);
-        Document environmentDocument = new Document()
-                .append(ID_KEY, config.getModelId())
-                .append(ENVIRONMENT_KEY, Document.parse(environmentJsonString));
+        Document environmentDocument = getEnvironmentDocument(aasEnvironment);
         environmentCollection.insertOne(environmentDocument);
     }
 
     private void saveEnvironment(String modelId, Environment aasEnvironment) {
+        Document environmentDocument = null;
+        try {
+            environmentDocument = getEnvironmentDocument(aasEnvironment);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e); //TODO
+        }
+
         Bson filter = Filters.eq(ID_KEY, modelId);
-        Bson updateOperation = Updates.set(ENVIRONMENT_KEY, aasEnvironment);
+        Bson updateOperation = Updates.set(ENVIRONMENT_KEY, environmentDocument.get(ENVIRONMENT_KEY));
         environmentCollection.updateOne(filter, updateOperation);
+    }
+
+    private Document getEnvironmentDocument(Environment aasEnvironment) throws JsonProcessingException {
+        String environmentJsonString = mapper.writeValueAsString(aasEnvironment);
+        return new Document()
+                .append(ID_KEY, config.getModelId())
+                .append(ENVIRONMENT_KEY, Document.parse(environmentJsonString));
     }
 
 
