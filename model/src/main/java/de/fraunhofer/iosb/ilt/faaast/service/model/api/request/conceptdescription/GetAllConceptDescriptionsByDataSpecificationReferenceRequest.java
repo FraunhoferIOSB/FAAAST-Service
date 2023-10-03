@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -23,7 +24,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Request class for GetAllConceptDescriptionsByDataSpecificationReference requests.
  */
-public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
+public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest
+        extends AbstractRequestWithModifierAndPaging<GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
     private Reference dataSpecificationReference;
 

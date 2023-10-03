@@ -42,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceM
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -168,7 +169,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<SubmodelElementIdentifier, UaNode> submodelOpcUAMap;
 
     /**
-     * Maps NodeIds to the corresponding Referable elements
+     * Maps reference to the corresponding Referable elements
      */
     private final Map<Reference, ObjectData> referableMap;
 
@@ -227,7 +228,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getServiceResult(), ex);
         }
-        catch (AddressSpaceException | MessageBusException | ValueFormatException ex) {
+        catch (AddressSpaceException | MessageBusException | ValueFormatException | AmbiguousElementException ex) {
             LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getMessage(), ex);
         }
@@ -271,7 +272,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Creates the address space of the OPC UA Server.
      */
-    private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException, ValueFormatException {
+    private void createAddressSpace()
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException, ValueFormatException, AmbiguousElementException {
         LOG.trace("createAddressSpace");
 
         MethodManagerUaNode methodManager = (MethodManagerUaNode) getMethodManager();
@@ -290,8 +292,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment
      */
-    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
+    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         addAasEnvironmentNode();
 
         ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
@@ -384,19 +387,21 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment
      */
-    private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
+    private void elementCreated(Reference element, Referable value)
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementCreated called. Reference {}", AasUtils.asString(element));
-        }
-        // The element is the parent object where the value is added
+        Reference parentRef = ReferenceHelper.getParent(element);
+        LOG.debug("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
+                ReferenceHelper.toString(parentRef), value.getClass());
+        // The element is the reference to the object which is added itself
+        // formerly it was the parent
         ObjectData parent = null;
-        if (referableMap.containsKey(element)) {
-            //LOG.info("Parent not found: {}", AasUtils.asString(element));
-            parent = referableMap.get(element);
+        if ((parentRef != null) && referableMap.containsKey(parentRef)) {
+            parent = referableMap.get(parentRef);
         }
 
         if (value instanceof ConceptDescription) {
@@ -441,7 +446,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element, this);
                 }
                 else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    LOG.trace("elementCreated: call addSubmodelElements");
+                    LOG.debug("elementCreated: call addSubmodelElements");
                     SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
                 }
                 else {
@@ -449,8 +454,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
         }
-        else if (LOG.isWarnEnabled()) {
-            LOG.debug("elementCreated: element not found: {}", AasUtils.asString(element));
+        else {
+            LOG.debug("elementCreated: parent not found: {}", ReferenceHelper.toString(parentRef));
         }
     }
 
@@ -464,9 +469,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void elementDeleted(Reference element) throws StatusException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
-        }
+        LOG.debug("elementDeleted called. Reference {}", ReferenceHelper.toString(element));
         // The element is the object that should be deleted
         ObjectData data = referableMap.get(element);
         if (data != null) {
@@ -475,8 +478,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
         }
-        else if (LOG.isInfoEnabled()) {
-            LOG.debug("elementDeleted: element not found in referableMap: {}", AasUtils.asString(element));
+        else {
+            LOG.info("elementDeleted: element not found in referableMap: {}", ReferenceHelper.toString(element));
         }
     }
 
@@ -491,27 +494,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
+     * @throws AmbiguousElementException if there are multiple matching elements in the environment
      */
-    private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException {
+    private void elementUpdated(Reference element, Referable value)
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("elementUpdated called. Reference {}", AasUtils.asString(element));
-        }
+        LOG.debug("elementUpdated called. Reference {}", ReferenceHelper.toString(element));
         // Currently we implement update as delete and create. 
         elementDeleted(element);
 
-        // elementCreated needs the parent as element where it's available
-        Reference createElement;
-        if (element.getKeys().size() > 1) {
-            // remove the last element from the list
-            createElement = ReferenceHelper.getParent(element);
-        }
-        else {
-            createElement = element;
-        }
-        elementCreated(createElement, value);
+        elementCreated(element, value);
     }
 
 
@@ -545,13 +539,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(reference, "reference must not be null");
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
-        LOG.debug("updateSubmodelElementValue");
         SubmodelElementIdentifier path = SubmodelElementIdentifier.fromReference(reference);
+        LOG.info("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
         if (submodelElementOpcUAMap.containsKey(path)) {
             AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUAMap.get(path), newValue, this);
         }
         else if (LOG.isWarnEnabled()) {
-            LOG.warn("SubmodelElement {} not found in submodelElementOpcUAMap", AasUtils.asString(reference));
+            LOG.warn("SubmodelElement {} not found in submodelElementOpcUAMap", ReferenceHelper.toString(reference));
         }
     }
 
@@ -573,7 +567,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referableData The data of the desired referable.
      */
     public void addReferable(Reference reference, ObjectData referableData) {
-        //LOG.info("addReferable: Reference {}", AasUtils.asString(reference));
         referableMap.put(reference, referableData);
     }
 
@@ -596,8 +589,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodelElement The corresponding SubmodelElement node.
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
-        //LOG.info("add to submodelElementOpcUAMap: {}", AasUtils.asString(reference));
-        submodelElementOpcUAMap.put(SubmodelElementIdentifier.fromReference(reference), submodelElement);
+        SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
+        LOG.info("add to submodelElementOpcUAMap: {}; ({})", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(smid));
+        submodelElementOpcUAMap.put(smid, submodelElement);
     }
 
 
@@ -619,7 +613,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param data The corresponding SubmodelElement data.
      */
     public void addSubmodelElementAasMap(NodeId nodeId, SubmodelElementData data) {
+        LOG.info("addSubmodelElementAasMap {}", ReferenceHelper.toString(data.getReference()));
         submodelElementAasMap.put(nodeId, data);
+    }
+
+
+    /**
+     * Get the AAS Environment.
+     * 
+     * @return the AAS Environment.
+     */
+    public Environment getEnvironment() {
+        return aasEnvironment;
     }
 
 
@@ -658,12 +663,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referable The corresponding referable
      */
     private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", AasUtils.asString(reference));
-        }
+        LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
         AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(SubmodelElementIdentifier.fromReference(reference));
         if ((removedElement != null) && LOG.isDebugEnabled()) {
-            LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", AasUtils.asString(reference));
+            LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
         }
 
         if (element instanceof AASPropertyType) {
@@ -775,8 +778,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
             }
         }
-        else if (LOG.isInfoEnabled()) {
-            LOG.info("doRemoveFromMaps: element not found in referableMap: {}", AasUtils.asString(ref));
+        else {
+            LOG.info("doRemoveFromMaps: element not found in referableMap: {}", ReferenceHelper.toString(ref));
         }
     }
 
@@ -788,13 +791,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodel The desired submodel
      */
     private void doRemoveFromMaps(Reference reference, Submodel submodel) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("doRemoveFromMaps: remove submodel {}", AasUtils.asString(reference));
-        }
+        LOG.debug("doRemoveFromMaps: remove submodel {}", ReferenceHelper.toString(reference));
         for (SubmodelElement element: submodel.getSubmodelElements()) {
             doRemoveFromMaps(reference, element);
         }
 
         submodelOpcUAMap.remove(SubmodelElementIdentifier.fromReference(reference));
+    }
+
+
+    private static String dumpSubmodelElementIdentifier(SubmodelElementIdentifier value) {
+        return String.format("SubmodelElementIdentifier: Submodel %s; IdShortPath %s", value.getSubmodelId(), value.getIdShortPath().toString());
     }
 }

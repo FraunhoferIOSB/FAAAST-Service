@@ -28,8 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.i4aas.AASPropertyType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -49,13 +49,13 @@ public class PropertyCreator extends SubmodelElementCreator {
      *
      * @param node The desired node
      * @param aasProperty The corresponding AAS property to add
+     * @param propertyRef The AAS reference to the AAS property
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the property should be added ordered
      *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      */
-    public static void addAasProperty(UaNode node, Property aasProperty, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager) {
+    public static void addAasProperty(UaNode node, Property aasProperty, Reference propertyRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager) {
         try {
             String name = aasProperty.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
@@ -64,8 +64,6 @@ public class PropertyCreator extends SubmodelElementCreator {
             AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
-            Reference propRef = AasUtils.toReference(parentRef, aasProperty);
-
             // ValueId
             Reference ref = aasProperty.getValueID();
             if (ref != null) {
@@ -73,10 +71,10 @@ public class PropertyCreator extends SubmodelElementCreator {
             }
 
             // here Value and ValueType are set
-            addOpcUaProperty(aasProperty, submodel, prop, propRef, nodeManager);
+            addOpcUaProperty(aasProperty, submodel, prop, propertyRef, nodeManager);
 
-            if (submodel != null) {
-                nodeManager.addSubmodelElementOpcUA(propRef, prop);
+            if (propertyRef != null) {
+                nodeManager.addSubmodelElementOpcUA(propertyRef, prop);
             }
 
             if (VALUES_READ_ONLY) {
@@ -89,7 +87,7 @@ public class PropertyCreator extends SubmodelElementCreator {
                 }
             }
 
-            LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, AasUtils.asString(ref));
+            LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(ref));
 
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);
@@ -98,7 +96,9 @@ public class PropertyCreator extends SubmodelElementCreator {
                 node.addComponent(prop);
             }
 
-            nodeManager.addReferable(propRef, new ObjectData(aasProperty, prop, submodel));
+            if (propertyRef != null) {
+                nodeManager.addReferable(propertyRef, new ObjectData(aasProperty, prop, submodel));
+            }
         }
         catch (Exception ex) {
             LOGGER.error("addAasProperty Exception", ex);

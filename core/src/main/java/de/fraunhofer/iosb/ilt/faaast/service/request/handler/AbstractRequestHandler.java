@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -28,17 +31,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import jakarta.json.JsonMergePatch;
 import jakarta.json.JsonValue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
@@ -124,7 +131,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             SubmodelElement oldElement = update.getKey();
             SubmodelElement newElement = DeepCopyHelper.deepCopy(oldElement, SubmodelElement.class);
             ElementValueMapper.setValue(newElement, update.getValue());
-            context.getPersistence().save(parent, newElement);
+            context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
@@ -150,5 +157,44 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         JsonValue target = mapper.convertValue(targetBean, JsonValue.class);
         JsonValue result = changes.apply(target);
         return mapper.convertValue(result, type);
+    }
+
+
+    /**
+     * Parses a {@code SpecificAssetID} as {@code AssetIdentification}.
+     *
+     * @param specificAssetId the input to parse
+     * @return the parsed output
+     */
+    protected AssetIdentification parseSpecificAssetId(SpecificAssetID specificAssetId) {
+        if (Objects.isNull(specificAssetId)) {
+            return null;
+        }
+        if (specificAssetId.getName().equalsIgnoreCase(FaaastConstants.KEY_GLOBAL_ASSET_ID)) {
+            return new GlobalAssetIdentification.Builder()
+                    .value(specificAssetId.getValue())
+                    .build();
+        }
+        return new SpecificAssetIdentification.Builder()
+                .value(specificAssetId.getValue())
+                .key(specificAssetId.getName())
+                .build();
+    }
+
+
+    /**
+     * Parses a list of {@code SpecificAssetID} as {@code AssetIdentification}.
+     *
+     * @param specificAssetIds the input to parse
+     * @return the parsed output
+     */
+    protected List<AssetIdentification> parseSpecificAssetIds(List<SpecificAssetID> specificAssetIds) {
+        if (Objects.isNull(specificAssetIds)) {
+            return List.of();
+        }
+        return specificAssetIds.stream()
+                .map(x -> parseSpecificAssetId(x))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

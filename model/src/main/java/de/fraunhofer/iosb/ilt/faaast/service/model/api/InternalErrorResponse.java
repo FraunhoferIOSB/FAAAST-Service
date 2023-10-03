@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
+
+
 /**
  * Response class representing internal error.
  */

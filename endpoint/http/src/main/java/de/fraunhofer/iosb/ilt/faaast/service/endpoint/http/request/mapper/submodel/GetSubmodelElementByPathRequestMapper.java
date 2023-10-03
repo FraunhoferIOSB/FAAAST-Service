@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
@@ -37,7 +38,7 @@ public class GetSubmodelElementByPathRequestMapper extends AbstractSubmodelInter
     private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
 
     public GetSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
     }
 
 

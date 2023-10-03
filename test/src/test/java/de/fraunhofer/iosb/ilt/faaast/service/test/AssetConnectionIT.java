@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
@@ -62,6 +64,7 @@ import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.json.JSONException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -208,8 +211,8 @@ public class AssetConnectionIT {
 
 
     private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Object expected = environment.getAssetAdministrationShells();
-        assertExecuteMultiple(
+        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
+        assertExecutePage(
                 HttpMethod.GET,
                 new ApiPaths(HOST, port).aasRepository().assetAdministrationShells(),
                 StatusCode.SUCCESS,
@@ -251,6 +254,18 @@ public class AssetConnectionIT {
             Object actual = HttpHelper.readResponseList(response, type);
             assertEquals(expected, actual);
         }
+    }
+
+
+    private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
+        HttpResponse response = HttpHelper.execute(method, url, input);
+        Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
+        Page<T> actual = HttpHelper.readResponsePage(response, type);
+        if (expected != null) {
+            Assert.assertEquals(expected, actual.getContent());
+        }
+        return actual;
     }
 
 

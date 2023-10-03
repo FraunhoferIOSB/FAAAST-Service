@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 
 
 /**

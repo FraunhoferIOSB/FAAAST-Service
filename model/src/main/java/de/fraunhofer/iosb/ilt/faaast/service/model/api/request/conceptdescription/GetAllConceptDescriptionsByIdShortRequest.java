@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIdShortResponse;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllConceptDescriptionsByIdShort requests.
  */
-public class GetAllConceptDescriptionsByIdShortRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByIdShortResponse> {
+public class GetAllConceptDescriptionsByIdShortRequest extends AbstractRequestWithModifierAndPaging<GetAllConceptDescriptionsByIdShortResponse> {
 
     private String idShort;
 

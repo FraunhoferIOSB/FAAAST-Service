@@ -62,7 +62,7 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
             if (!Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
-                context.getPersistence().save(reference, submodelElement);
+                context.getPersistence().update(reference, submodelElement);
                 context.getMessageBus().publish(ValueChangeEventMessage.builder()
                         .element(reference)
                         .oldValue(oldValue)

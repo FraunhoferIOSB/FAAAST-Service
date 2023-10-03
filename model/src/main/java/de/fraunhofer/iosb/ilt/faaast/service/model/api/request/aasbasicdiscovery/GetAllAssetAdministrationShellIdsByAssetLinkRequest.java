@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 /**
  * Request class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkRequest implements Request<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
+public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends AbstractRequestWithPaging<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
     private List<SpecificAssetID> assetIdentifierPairs;
 

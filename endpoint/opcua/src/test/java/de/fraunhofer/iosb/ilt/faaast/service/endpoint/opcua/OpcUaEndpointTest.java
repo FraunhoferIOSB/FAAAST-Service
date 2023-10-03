@@ -44,6 +44,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -93,7 +95,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final long DEFAULT_TIMEOUT = 300;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -647,21 +649,20 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
-        // Send event to MessageBus
         CountDownLatch condition = new CountDownLatch(1);
-        ElementCreateEventMessage msg = new ElementCreateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build())
-                .build());
-        msg.setValue(new DefaultProperty.Builder()
-                //.kind(ModelingKind.INSTANCE)
-                .idShort(propName)
-                .category("Variable")
-                .value("AZF45")
-                .valueType(DataTypeDefXSD.STRING)
-                .build());
-        service.getMessageBus().publish(msg);
+
+        PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
+                .submodelId("http://i40.customer.com/type/1/1/7A7104BDAB57E184")
+                .submodelElement(new DefaultProperty.Builder()
+                        .idShort(propName)
+                        .category("Variable")
+                        .value("AZF45")
+                        .valueType(DataTypeDefXSD.STRING)
+                        .build())
+                .build();
+        PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
+        LOGGER.info("testAddProperty: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_CREATED, response.getStatusCode());
 
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 

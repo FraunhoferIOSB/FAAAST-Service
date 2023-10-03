@@ -33,11 +33,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
@@ -47,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -153,25 +153,25 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public List<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         return persistence.findAssetAdministrationShells(criteria, modifier, paging);
     }
 
 
     @Override
-    public List<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         return persistence.findSubmodels(criteria, modifier, paging);
     }
 
 
     @Override
-    public List<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
         return persistence.findSubmodelElements(criteria, modifier, paging);
     }
 
 
     @Override
-    public List<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         return persistence.findConceptDescriptions(criteria, modifier, paging);
     }
 
@@ -198,8 +198,15 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public void save(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        persistence.save(identifier, submodelElement);
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        persistence.insert(parentIdentifier, submodelElement);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        persistence.update(identifier, submodelElement);
         saveEnvironment();
     }
 

@@ -18,11 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -64,7 +64,11 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                 .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
                                 .collect(Collectors.toList()))
                         .conceptDescriptions(request.getIncludeConceptDescriptions()
-                                ? context.getPersistence().findConceptDescriptions(ConceptDescriptionSearchCriteria.NONE, OUTPUT_MODIFIER, PagingInfo.ALL)
+                                ? context.getPersistence().findConceptDescriptions(
+                                        ConceptDescriptionSearchCriteria.NONE,
+                                        OUTPUT_MODIFIER,
+                                        PagingInfo.ALL)
+                                        .getContent()
                                 : List.of())
                         .build())
                 .success()

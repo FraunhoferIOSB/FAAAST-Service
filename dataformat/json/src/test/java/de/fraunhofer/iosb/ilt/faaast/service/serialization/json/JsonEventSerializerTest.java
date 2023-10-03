@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.EventValues;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.EventExamples;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,55 +36,55 @@ public class JsonEventSerializerTest {
 
     @Test
     public void testElementReadEventMessage() throws SerializationException, DeserializationException, JSONException, IOException {
-        assertEquals(EventValues.ELEMENT_READ_EVENT, EventValues.ELEMENT_READ_EVENT_FILE);
+        assertEquals(EventExamples.ELEMENT_READ_EVENT, EventExamples.ELEMENT_READ_EVENT_FILE);
     }
 
 
     @Test
     public void testOperationFinishEventMessage() throws SerializationException, DeserializationException, ValueFormatException, ValueMappingException, JSONException, IOException {
-        assertEquals(EventValues.OPERATION_FINISH_EVENT, EventValues.OPERATION_FINISH_EVENT_FILE);
+        assertEquals(EventExamples.OPERATION_FINISH_EVENT, EventExamples.OPERATION_FINISH_EVENT_FILE);
     }
 
 
     @Test
     public void testOperationInvokeEventMessage() throws SerializationException, DeserializationException, ValueFormatException, ValueMappingException, JSONException, IOException {
-        assertEquals(EventValues.OPERATION_INVOKE_EVENT, EventValues.OPERATION_INVOKE_EVENT_FILE);
+        assertEquals(EventExamples.OPERATION_INVOKE_EVENT, EventExamples.OPERATION_INVOKE_EVENT_FILE);
     }
 
 
     @Test
     public void testValueReadEventMessage() throws SerializationException, DeserializationException, JSONException, IOException {
-        assertEquals(EventValues.VALUE_READ_EVENT, EventValues.VALUE_READ_EVENT_FILE);
+        assertEquals(EventExamples.VALUE_READ_EVENT, EventExamples.VALUE_READ_EVENT_FILE);
     }
 
 
     @Test
     public void testElementCreateEventMessage() throws SerializationException, DeserializationException, ValueFormatException, JSONException, IOException {
-        assertEquals(EventValues.ELEMENT_CREATE_EVENT, EventValues.ELEMENT_CREATE_EVENT_FILE);
+        assertEquals(EventExamples.ELEMENT_CREATE_EVENT, EventExamples.ELEMENT_CREATE_EVENT_FILE);
     }
 
 
     @Test
     public void testElementDeleteEventMessage() throws SerializationException, DeserializationException, ValueFormatException, JSONException, IOException {
-        assertEquals(EventValues.ELEMENT_DELETE_EVENT, EventValues.ELEMENT_DELETE_EVENT_FILE);
+        assertEquals(EventExamples.ELEMENT_DELETE_EVENT, EventExamples.ELEMENT_DELETE_EVENT_FILE);
     }
 
 
     @Test
     public void testElementUpdateEventMessage() throws SerializationException, DeserializationException, ValueFormatException, JSONException, IOException {
-        assertEquals(EventValues.ELEMENT_UPDATE_EVENT, EventValues.ELEMENT_UPDATE_EVENT_FILE);
+        assertEquals(EventExamples.ELEMENT_UPDATE_EVENT, EventExamples.ELEMENT_UPDATE_EVENT_FILE);
     }
 
 
     @Test
     public void testValueChangeEventMessage() throws SerializationException, DeserializationException, ValueFormatException, JSONException, IOException {
-        assertEquals(EventValues.VALUE_CHANGE_EVENT, EventValues.VALUE_CHANGE_EVENT_FILE);
+        assertEquals(EventExamples.VALUE_CHANGE_EVENT, EventExamples.VALUE_CHANGE_EVENT_FILE);
     }
 
 
     @Test
     public void testErrorEventMessage() throws SerializationException, DeserializationException, ValueFormatException, JSONException, IOException {
-        assertEquals(EventValues.ERROR_EVENT, EventValues.ERROR_EVENT_FILE);
+        assertEquals(EventExamples.ERROR_EVENT, EventExamples.ERROR_EVENT_FILE);
     }
 
 

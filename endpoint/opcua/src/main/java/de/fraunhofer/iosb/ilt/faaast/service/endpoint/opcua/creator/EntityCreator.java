@@ -34,7 +34,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import java.util.List;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASSpecificAssetIDList;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
@@ -52,8 +51,8 @@ public class EntityCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasEntity The AAS entity to add
+     * @param entityRef The AAS reference to the AAS entity
      * @param submodel The corresponding Submodel
-     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
@@ -63,7 +62,7 @@ public class EntityCreator extends SubmodelElementCreator {
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasEntity(UaNode node, Entity aasEntity, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasEntity(UaNode node, Entity aasEntity, Reference entityRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasEntity != null)) {
             String name = aasEntity.getIdShort();
@@ -72,7 +71,7 @@ public class EntityCreator extends SubmodelElementCreator {
             AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
-            Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
+            //Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
 
             // EntityType
             entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
@@ -93,6 +92,7 @@ public class EntityCreator extends SubmodelElementCreator {
 
             // Statements
             SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
+            //SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, null, nodeManager);
 
             nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 

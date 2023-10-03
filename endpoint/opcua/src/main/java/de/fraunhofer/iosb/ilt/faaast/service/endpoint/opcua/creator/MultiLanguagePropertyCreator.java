@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import java.util.List;
 import opc.i4aas.AASMultiLanguagePropertyType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -46,14 +45,14 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasMultiLang The AAS Multi Language Property to add
+     * @param multiLangRef The AAS reference to the Multi Language Property
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the multi language property should be
      *            added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Submodel submodel, Reference parentRef, boolean ordered,
+    public static void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Reference multiLangRef, Submodel submodel, boolean ordered,
                                                    AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasMultiLang != null)) {
@@ -77,7 +76,8 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
                 AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueID(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
             }
 
-            Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
+            //Reference multiLangRef = EnvironmentHelper.asReference(aasMultiLang, nodeManager.getEnvironment());
+            //Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
             nodeManager.addSubmodelElementAasMap(multiLangNode.getValueNode().getNodeId(),
                     new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
 

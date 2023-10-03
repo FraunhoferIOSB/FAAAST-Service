@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aasre
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortResponse;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.Map;
  * class to map HTTP-Request path: shells.
  */
 public class GetAllAssetAdministrationShellsByIdShortRequestMapper
-        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
+        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
 
     private static final String PATTERN = "shells";
 
@@ -45,7 +46,8 @@ public class GetAllAssetAdministrationShellsByIdShortRequestMapper
 
 
     @Override
-    public GetAllAssetAdministrationShellsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllAssetAdministrationShellsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
+                                                                   PagingInfo pagingInfo) {
         return GetAllAssetAdministrationShellsByIdShortRequest.builder()
                 .idShort(httpRequest.getQueryParameters().get(QueryParameters.ID_SHORT))
                 .build();

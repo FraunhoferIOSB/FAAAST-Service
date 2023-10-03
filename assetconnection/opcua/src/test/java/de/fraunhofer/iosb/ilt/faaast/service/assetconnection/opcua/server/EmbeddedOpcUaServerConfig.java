@@ -30,10 +30,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 
 
-/**
- *
- * @author jab
- */
 public class EmbeddedOpcUaServerConfig {
 
     private static final String DEFAULT_PATH = "/test";

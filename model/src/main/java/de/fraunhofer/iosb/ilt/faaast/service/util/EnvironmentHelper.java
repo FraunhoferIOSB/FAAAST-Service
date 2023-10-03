@@ -14,10 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.ReferenceCollector;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -91,21 +94,33 @@ public class EnvironmentHelper {
      * {{@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} given an
      * {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} as context.
      *
+     * <p>This method does not work in all cases as it tries to find the referable in the environment by equality. However,
+     * this will fail if the is more than one element in the environment that are equals, e.g. as part of different
+     * parents.
+     *
      * @param referable the referable to generate the reference for
      * @param environment the environment containing the referable
      * @return a reference pointing to the referable
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException if there are multiple
+     *             matching elements in the environment
      * @throws IllegalArgumentException if referable or environment is null
      * @throws IllegalArgumentException if referable is not present in environment
      */
-    public static Reference asReference(Referable referable, Environment environment) {
+    public static Reference asReference(Referable referable, Environment environment) throws AmbiguousElementException {
         Ensure.requireNonNull(referable, "referable must be non-null");
         Ensure.requireNonNull(environment, "environment must be non-null");
-        return ReferenceCollector.collect(environment).entrySet().stream()
+        List<Reference> result = ReferenceCollector.collect(environment).entrySet().stream()
                 .filter(x -> Objects.equals(referable, x.getValue()))
                 .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format(
-                        "referable not present in environment (idShort: %s)",
-                        referable.getIdShort())));
+                .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException(String.format(
+                    "referable not present in environment (idShort: %s)",
+                    referable.getIdShort()));
+        }
+        if (result.size() > 1) {
+            throw new AmbiguousElementException(referable, result);
+        }
+        return result.get(0);
     }
 }

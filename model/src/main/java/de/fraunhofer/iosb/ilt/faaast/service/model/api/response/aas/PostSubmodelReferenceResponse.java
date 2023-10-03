@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 

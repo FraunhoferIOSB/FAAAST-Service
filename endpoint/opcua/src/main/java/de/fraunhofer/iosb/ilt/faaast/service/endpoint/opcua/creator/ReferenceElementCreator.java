@@ -24,12 +24,13 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.i4aas.AASReferenceElementType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,20 +38,21 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
      * Adds an AAS reference element to the given node.
      *
      * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
+     * @param refElemRef The reference to the AAS reference element
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the reference element should be added
      *            ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasRefElem != null)) {
             String name = aasRefElem.getIdShort();
@@ -67,13 +69,12 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
                             nodeManager);
                 }
                 else {
-                    AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                    AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
                 }
             }
 
-            Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
-
             if (refElemNode.getValueNode() != null) {
+                LOGGER.trace("addAasReferenceElement: Name {}; Reference {}", name, ReferenceHelper.toString(refElemRef));
                 nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
                         new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
             }

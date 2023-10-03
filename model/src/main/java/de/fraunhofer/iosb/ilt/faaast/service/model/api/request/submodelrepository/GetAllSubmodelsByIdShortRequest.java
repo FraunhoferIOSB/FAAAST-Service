@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsByIdShortResponse;
 import java.util.Objects;
@@ -23,7 +24,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllSubmodelsByIdShort requests.
  */
-public class GetAllSubmodelsByIdShortRequest extends AbstractRequestWithModifier<GetAllSubmodelsByIdShortResponse> {
+public class GetAllSubmodelsByIdShortRequest extends AbstractRequestWithModifierAndPaging<GetAllSubmodelsByIdShortResponse> {
 
     private String idShort;
 

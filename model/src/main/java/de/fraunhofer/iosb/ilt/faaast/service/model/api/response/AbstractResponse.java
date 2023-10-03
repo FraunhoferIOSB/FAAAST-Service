@@ -12,8 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.api;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 

@@ -17,12 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -46,6 +50,29 @@ public class ApiPaths {
 
     public String root() {
         return String.format("%s:%d", host, port);
+    }
+
+
+    private String content(Content content) {
+        return String.format("/$%s", content.name().toLowerCase());
+    }
+
+
+    private static String appendQueryParameter(String url, String name, Object value) {
+        return String.format("%s%s%s=%s",
+                url,
+                url.contains("?") ? "&" : "?",
+                name,
+                value);
+    }
+
+
+    private String paging(String url, String cursor, long limit) {
+        String result = url;
+        if (Objects.nonNull(cursor)) {
+            result = appendQueryParameter(result, "cursor", EncodingHelper.base64UrlEncode(cursor));
+        }
+        return appendQueryParameter(result, "limit", limit);
     }
 
 
@@ -90,6 +117,16 @@ public class ApiPaths {
         }
 
 
+        public String assetAdministrationShells(Content content) {
+            return String.format("%s%s", assetAdministrationShells(), content(content));
+        }
+
+
+        public String assetAdministrationShells(String cursor, long limit) {
+            return paging(assetAdministrationShells(), cursor, limit);
+        }
+
+
         public String assetAdministrationShell(String identifier) {
             return String.format("%s/%s",
                     assetAdministrationShells(),
@@ -97,8 +134,20 @@ public class ApiPaths {
         }
 
 
+        public String assetAdministrationShell(String identifier, Content content) {
+            return String.format("%s%s",
+                    assetAdministrationShell(identifier),
+                    content(content));
+        }
+
+
         public String assetAdministrationShell(AssetAdministrationShell aas) {
             return assetAdministrationShell(aas.getId());
+        }
+
+
+        public String assetAdministrationShell(AssetAdministrationShell aas, Content content) {
+            return assetAdministrationShell(aas.getId(), content);
         }
     }
 
@@ -106,6 +155,16 @@ public class ApiPaths {
 
         public String submodels() {
             return String.format("%s/submodels", ApiPaths.this.root());
+        }
+
+
+        public String submodels(Content content) {
+            return String.format("%s%s", submodels(), content(content));
+        }
+
+
+        public String submodels(String cursor, long limit) {
+            return paging(submodels(), cursor, limit);
         }
 
 
@@ -118,6 +177,11 @@ public class ApiPaths {
 
         public String submodel(Submodel submodel) {
             return submodel(submodel.getId());
+        }
+
+
+        public String submodel(Submodel submodel, Content content) {
+            return String.format("%s%s", submodel(submodel), content(content));
         }
 
 
@@ -135,6 +199,11 @@ public class ApiPaths {
 
         public String conceptDescriptions() {
             return String.format("%s/concept-descriptions", ApiPaths.this.root());
+        }
+
+
+        public String conceptDescriptions(String cursor, long limit) {
+            return paging(conceptDescriptions(), cursor, limit);
         }
 
 
@@ -157,6 +226,11 @@ public class ApiPaths {
         }
 
 
+        public String assetAdministrationShells(String cursor, long limit) {
+            return paging(assetAdministrationShells(), cursor, limit);
+        }
+
+
         public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException {
             return String.format("%s?assetIds=%s",
                     assetAdministrationShells(),
@@ -167,6 +241,11 @@ public class ApiPaths {
                                             .value(x.getValue())
                                             .build())
                                     .collect(Collectors.toList()))));
+        }
+
+
+        public String assetAdministrationShells(Map<String, String> assetIds, String cursor, long limit) throws SerializationException {
+            return paging(assetAdministrationShells(assetIds), cursor, limit);
         }
 
 
@@ -239,6 +318,13 @@ public class ApiPaths {
         }
 
 
+        public String assetAdministrationShell(Content content) {
+            return String.format("%s%s",
+                    assetAdministrationShell(),
+                    content(content));
+        }
+
+
         public String assetInformation() {
             return String.format("%s/asset-information", assetAdministrationShell());
         }
@@ -246,6 +332,11 @@ public class ApiPaths {
 
         public String submodels() {
             return String.format("%s/submodels", assetAdministrationShell());
+        }
+
+
+        public String submodels(String cursor, long limit) {
+            return paging(submodels(), cursor, limit);
         }
 
 
@@ -282,11 +373,6 @@ public class ApiPaths {
 
         private String level(Level level) {
             return String.format("level=%s", level.name().toLowerCase());
-        }
-
-
-        private String content(Content content) {
-            return String.format("/$%s", content.name().toLowerCase());
         }
 
 
@@ -328,10 +414,20 @@ public class ApiPaths {
         }
 
 
+        public String submodelElements(String cursor, long limit) {
+            return paging(submodelElements(), cursor, limit);
+        }
+
+
         public String submodelElements(Level level) {
             return String.format("%s?%s",
                     submodelElements(),
                     level(level));
+        }
+
+
+        public String submodelElements(Level level, String cursor, long limit) {
+            return paging(submodelElements(level), cursor, limit);
         }
 
 
@@ -343,6 +439,11 @@ public class ApiPaths {
         }
 
 
+        public String submodelElements(Level level, Content content, String cursor, long limit) {
+            return paging(submodelElements(level, content), cursor, limit);
+        }
+
+
         public String submodelElements(Content content) {
             return String.format("%s%s",
                     submodelElements(),
@@ -350,10 +451,20 @@ public class ApiPaths {
         }
 
 
+        public String submodelElements(Content content, String cursor, long limit) {
+            return paging(submodelElements(content), cursor, limit);
+        }
+
+
         public String submodelElement(String idShortPath) {
             return String.format("%s/%s",
                     submodelElements(),
-                    idShortPath);
+                    URLEncoder.encode(idShortPath, StandardCharsets.UTF_8));
+        }
+
+
+        public String submodelElement(IdShortPath idShortPath) {
+            return submodelElement(idShortPath.toString());
         }
 
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllConceptDescriptions requests.
  */
-public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifierAndPaging<GetAllConceptDescriptionsResponse> {
 
     @Override
     public boolean equals(Object o) {

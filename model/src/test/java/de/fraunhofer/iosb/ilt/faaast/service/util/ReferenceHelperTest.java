@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -25,10 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class ReferenceHelperTest {
 
     private static final List<ReferenceSerializationInfo> TEST_CASES = List.of(
@@ -126,6 +123,15 @@ public class ReferenceHelperTest {
         assertCombine("(Submodel)1", "(Property)2", "(Submodel)1, (Property)2");
         assertCombine(null, "(Property)2", "(Property)2");
         assertCombine("(Submodel)1", null, "(Submodel)1");
+    }
+
+
+    @Test
+    public void testListElement() {
+        Reference actualReference = ReferenceHelper.parse("[ModelRef](Submodel)SubmodelId, (SubmodelElementList)List, (SubmodelElement)1");
+        IdShortPath actual = IdShortPath.parse(ReferenceHelper.toPath(actualReference));
+        IdShortPath expected = IdShortPath.builder().idShort("List").index(1).build();
+        Assert.assertEquals(expected, actual);
     }
 
 

@@ -27,9 +27,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Locale;
 import opc.i4aas.AASOperationType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -51,13 +51,13 @@ public class OperationCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasOperation The corresponding AAS operation to add
+     * @param operationRef The reference to the AAS operation
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the operation should be added ordered
      *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      */
-    public static void addAasOperation(UaNode node, Operation aasOperation, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager) {
+    public static void addAasOperation(UaNode node, Operation aasOperation, Reference operationRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager) {
         try {
             String name = aasOperation.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
@@ -65,11 +65,9 @@ public class OperationCreator extends SubmodelElementCreator {
             AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation, nodeManager);
 
-            Reference operRef = AasUtils.toReference(parentRef, aasOperation);
-
             // for operations we put the corresponding operation object into the map
-            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operRef));
-            LOGGER.debug("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), AasUtils.asString(operRef));
+            nodeManager.addSubmodelElementAasMap(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operationRef));
+            LOGGER.debug("addAasOperation: NodeId {}; Property: {}; Reference: {}", nid, aasOperation.getIdShort(), ReferenceHelper.toString(operationRef));
 
             // add method
             NodeId myMethodId = new NodeId(nodeManager.getNamespaceIndex(), nid.getValue().toString() + "." + name);
@@ -102,7 +100,7 @@ public class OperationCreator extends SubmodelElementCreator {
                 node.addComponent(oper);
             }
 
-            nodeManager.addReferable(operRef, new ObjectData(aasOperation, oper, submodel));
+            nodeManager.addReferable(operationRef, new ObjectData(aasOperation, oper, submodel));
         }
         catch (Exception ex) {
             LOGGER.error("addAasOperation Exception", ex);

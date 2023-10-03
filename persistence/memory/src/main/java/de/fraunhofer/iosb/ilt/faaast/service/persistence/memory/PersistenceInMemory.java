@@ -23,6 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
@@ -32,7 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
@@ -173,7 +175,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -185,12 +187,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isAssetIdsSet()) {
             result = filterByAssetIds(result, criteria.getAssetIds());
         }
-        return prepareResult(result, modifier, paging);
+        return preparePagedResult(result, modifier, paging);
     }
 
 
     @Override
-    public List<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -204,12 +206,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
         }
-        return prepareResult(result, modifier, paging);
+        return preparePagedResult(result, modifier, paging);
     }
 
 
     @Override
-    public List<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -241,12 +243,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        return prepareResult(result, modifier, paging);
+        return preparePagedResult(result, modifier, paging);
     }
 
 
     @Override
-    public List<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -257,7 +259,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        return prepareResult(result, modifier, paging);
+        return preparePagedResult(result, modifier, paging);
     }
 
 
@@ -329,7 +331,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void save(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), environment);
@@ -354,6 +356,42 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         CollectionHelper.put(container,
                 container.stream()
                         .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
+                        .findFirst()
+                        .orElse(null),
+                submodelElement);
+    }
+
+
+    @Override
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        Ensure.requireNonNull(identifier, "identifier must be non-null");
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        SubmodelElement oldElement = getSubmodelElement(identifier, QueryModifier.DEFAULT);
+        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), environment);
+
+        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1));
+            ((SubmodelElementList) parent).getValue().set(index, submodelElement);
+            return;
+        }
+
+        Collection<SubmodelElement> container;
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            container = ((Submodel) parent).getSubmodelElements();
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            container = ((SubmodelElementCollection) parent).getValue();
+        }
+        else {
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                    parent.getClass(),
+                    Submodel.class,
+                    SubmodelElementCollection.class,
+                    SubmodelElementList.class));
+        }
+        CollectionHelper.put(container,
+                container.stream()
+                        .filter(x -> Objects.equals(x, oldElement))
                         .findFirst()
                         .orElse(null),
                 submodelElement);
@@ -455,17 +493,55 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
-    private static <T extends Referable> List<T> prepareResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+    private static long readCursor(String cursor) {
+        return Long.parseLong(cursor);
+    }
+
+
+    private static String writeCursor(long index) {
+        return Long.toString(index);
+    }
+
+
+    private static String nextCursor(PagingInfo paging, int resultCount) {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
+    }
+
+
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
+        if (!hasMoreData) {
+            return null;
+        }
+        if (!paging.hasLimit()) {
+            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+        }
+        if (Objects.isNull(paging.getCursor())) {
+            return writeCursor(paging.getLimit());
+        }
+        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
+    }
+
+
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
         Stream<T> result = input;
-        if (paging.isSkipSet()) {
-            result = result.skip(paging.getSkip());
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
         }
-        if (paging.isLimitSet()) {
-            result = result.limit(paging.getLimit());
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
         }
-        return QueryModifierHelper.applyQueryModifier(
-                result.map(DeepCopyHelper::deepCopy).collect(Collectors.toList()),
-                modifier);
+        List<T> temp = result.collect(Collectors.toList());
+        return Page.<T> builder()
+                .result(QueryModifierHelper.applyQueryModifier(
+                        temp.stream()
+                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                                .map(DeepCopyHelper::deepCopy)
+                                .collect(Collectors.toList()),
+                        modifier))
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
     }
 
 

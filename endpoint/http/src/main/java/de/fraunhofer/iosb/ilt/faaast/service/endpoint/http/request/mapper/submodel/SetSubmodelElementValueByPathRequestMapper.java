@@ -71,7 +71,7 @@ public class SetSubmodelElementValueByPathRequestMapper
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);
                             try {
-                                return ElementValueMapper.toValue(submodelElement);
+                                return ElementValueMapper.toValue(submodelElement, type);
                             }
                             catch (ValueMappingException e) {
                                 throw new DeserializationException("error mapping submodel element to value object", e);

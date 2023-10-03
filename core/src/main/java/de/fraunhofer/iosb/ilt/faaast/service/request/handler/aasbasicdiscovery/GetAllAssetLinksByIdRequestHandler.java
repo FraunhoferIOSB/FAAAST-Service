@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
@@ -46,7 +47,7 @@ public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<G
     public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        if (aas.getAssetInformation().getGlobalAssetID() != null) {
+        if (Objects.nonNull(aas.getAssetInformation().getGlobalAssetID())) {
             result.add(new DefaultSpecificAssetID.Builder()
                     .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
                     .value(aas.getAssetInformation().getGlobalAssetID())

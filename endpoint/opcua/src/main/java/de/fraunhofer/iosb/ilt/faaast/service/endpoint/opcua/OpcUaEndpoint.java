@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
@@ -57,7 +58,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
-    //private int requestCounter;
 
     /**
      * Creates a new instance of OpcUaEndpoint
@@ -148,10 +148,12 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         Ensure.requireNonNull(submodel, "submodel must not be null");
 
         try {
+            String path = IdShortPath.fromReference(refElement).toString();
+            LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             request.setSubmodelId(submodel.getId());
-            request.setPath(ReferenceHelper.toPath(refElement));
+            request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
