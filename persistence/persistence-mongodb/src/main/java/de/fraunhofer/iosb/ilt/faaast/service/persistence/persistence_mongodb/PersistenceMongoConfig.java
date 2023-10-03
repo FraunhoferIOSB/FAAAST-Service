@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 
 
 /**
- * lol.
+ * Configuration for a persistence with a mongo database.
  */
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
@@ -30,33 +30,41 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         return connectionString;
     }
 
+
     public void setConnectionString(String connectionString) {
         this.connectionString = connectionString;
     }
+
 
     public String getDatabaseName() {
         return databaseName;
     }
 
+
     public void setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
     }
+
 
     public String getCollectionName() {
         return collectionName;
     }
 
+
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }
+
 
     public String getModelId() {
         return modelId;
     }
 
+
     public void setModelId(String modelId) {
         this.modelId = modelId;
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -69,15 +77,18 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
             return getSelf();
         }
 
+
         public B databaseName(String value) {
             getBuildingInstance().setDatabaseName(value);
             return getSelf();
         }
 
+
         public B collectionName(String value) {
             getBuildingInstance().setCollectionName(value);
             return getSelf();
         }
+
 
         public B modelId(String value) {
             getBuildingInstance().setModelId(value);

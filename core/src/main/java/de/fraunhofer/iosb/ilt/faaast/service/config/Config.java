@@ -59,11 +59,13 @@ public abstract class Config<T extends Configurable> {
             result.init(coreConfig, this, context);
             return result;
         }
-        catch(Exception e) {
+        catch (Exception e) {
             throw new ConfigurationInstantiationException(e);
         }
-        /*catch (IllegalAccessException | InstantiationException e) {
-            throw new ConfigurationInstantiationException("error instantiating configuration implementation class", e);
-        }*/
+        /*
+         * catch (IllegalAccessException | InstantiationException e) {
+         * throw new ConfigurationInstantiationException("error instantiating configuration implementation class", e);
+         * }
+         */
     }
 }
