@@ -65,6 +65,15 @@ In-Memory <persistences/inmemory_persistence.md>
 File-based <persistences/file_persistence.md>
 ```
 
+```{toctree} 
+:hidden:
+:caption: Filestorage
+:maxdepth: 3
+General <filestorages/filestorage.md>
+In-Memory <filestorages/inmemory_filestorage.md>
+File-based <filestorages/filesystem_filestorage.md>
+```
+
 ```{toctree}
 :hidden:
 :caption: MessageBus
