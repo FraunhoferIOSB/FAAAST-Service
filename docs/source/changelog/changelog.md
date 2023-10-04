@@ -8,6 +8,8 @@
 	*   Environment variables now use `_` instead of `.` as a separator
 * HTTP Endpoint
 	*   Now supports HTTPS
+    *   Now supports AASX serialization
+    *   Now supports upload, deletion and modification of asset thumbnails and file attachments.
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
@@ -18,13 +20,16 @@
 *   Asset Connection
 	*   HTTP
 		*   Now provides a way to explicitely trust server certificates, e.g. useful when servers are using a self-signed certificate
-
+*   File-storage
+	*   New file-storage interface provides functionality to store referenced files like thumbnails and files in SubmodelElements.
+    *   Implementations for filesystem- and memory-based storages.
+    
 **Internal changes & bugfixes**
 *   General
 	*   Fixed a `ConcurrentModificationException` that could occur when accessing a submodel with subscription-based asset connection via HTTP endpoint
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
-    *   Now longer leaks sensitive server information in HTTP response headers (such as server version of the HTTP server library)
+    *   No longer leaks sensitive server information in HTTP response headers (such as server version of the HTTP server library)
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
