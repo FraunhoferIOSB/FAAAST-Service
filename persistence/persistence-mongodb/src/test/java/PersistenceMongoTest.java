@@ -45,8 +45,6 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 .initialModelFile(initialModelFile)
                 .connectionString("mongodb://" + serverAddress.getHost() + ":" + serverAddress.getPort())
                 .databaseName("FaaastTest")
-                .collectionName("test")
-                .modelId("test1")
                 .build();
         return result;
     }
