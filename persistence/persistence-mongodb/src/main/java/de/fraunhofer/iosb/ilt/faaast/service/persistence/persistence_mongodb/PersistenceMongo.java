@@ -84,9 +84,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String AAS_COLLECTION_NAME = "aasCol";
     private static final String CD_COLLECTION_NAME = "cdCol";
     private static final String SUBMODEL_COLLECTION_NAME = "submodelCol";
+    private static final String OPERATION_COLLECTION_NAME = "opCol";
+
 
     private PersistenceMongoConfig config;
-    private MongoCollection<Document> aasCollection, cdCollection, submodelCollection;
+    private MongoCollection<Document> aasCollection, cdCollection, submodelCollection, operationCollection;
     private JsonApiSerializer jsonApiSerializer = new JsonApiSerializer();
     private JsonApiDeserializer jsonApiDeserializer = new JsonApiDeserializer();
 
@@ -102,11 +104,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         aasCollection = database.getCollection(AAS_COLLECTION_NAME);
         cdCollection = database.getCollection(CD_COLLECTION_NAME);
         submodelCollection = database.getCollection(SUBMODEL_COLLECTION_NAME);
+        operationCollection = database.getCollection(OPERATION_COLLECTION_NAME);
 
         if (!config.isUseExisting()) {
             aasCollection.drop();
             cdCollection.drop();
             submodelCollection.drop();
+            operationCollection.drop();
 
             try {
                 saveEnvironment(config.loadInitialModel());
@@ -229,7 +233,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
-        return null;
+        try {
+            Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
+            Bson filter = Filters.eq("handle", handleDocument);
+            return jsonApiDeserializer.read(operationCollection.find(filter).first().toJson(), OperationResult.class);
+        } catch (SerializationException | DeserializationException e) {
+            throw new RuntimeException(e); // TODO
+        }
+
     }
 
 
@@ -317,7 +328,15 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void save(OperationHandle handle, OperationResult result) {
-
+        Document document = new Document();
+        try {
+            Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
+            Document resultDocument = Document.parse(jsonApiSerializer.write(result));
+            document.append("handle", handleDocument).append("result", resultDocument);
+        } catch (SerializationException e) {
+            throw new RuntimeException(e); // TODO
+        }
+        operationCollection.insertOne(document);
     }
 
 

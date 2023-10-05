@@ -82,6 +82,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
         modelFileXml = copyToTempDir(RESOURCE_MODEL_FILE_XML);
     }
 
+
     private File copyToTempDir(File baseFile) throws IOException {
         Path result = Files.createTempFile(
                 tempDir,

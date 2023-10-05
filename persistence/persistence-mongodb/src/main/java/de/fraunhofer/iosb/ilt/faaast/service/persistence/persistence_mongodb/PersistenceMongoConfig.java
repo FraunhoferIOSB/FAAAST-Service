@@ -44,13 +44,16 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         this.databaseName = databaseName;
     }
 
+
     public boolean isUseExisting() {
         return useExisting;
     }
 
+
     public void setUseExisting(boolean useExisting) {
         this.useExisting = useExisting;
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -68,6 +71,7 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
             getBuildingInstance().setDatabaseName(value);
             return getSelf();
         }
+
 
         public B useExisting(boolean value) {
             getBuildingInstance().setUseExisting(value);
