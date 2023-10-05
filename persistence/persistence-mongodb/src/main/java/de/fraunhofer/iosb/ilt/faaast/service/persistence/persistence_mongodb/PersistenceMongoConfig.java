@@ -23,8 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
     private String databaseName;
-    private String collectionName;
-    private String modelId;
+    private boolean useExisting;
 
     public String getConnectionString() {
         return connectionString;
@@ -45,26 +44,13 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         this.databaseName = databaseName;
     }
 
-
-    public String getCollectionName() {
-        return collectionName;
+    public boolean isUseExisting() {
+        return useExisting;
     }
 
-
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
+    public void setUseExisting(boolean useExisting) {
+        this.useExisting = useExisting;
     }
-
-
-    public String getModelId() {
-        return modelId;
-    }
-
-
-    public void setModelId(String modelId) {
-        this.modelId = modelId;
-    }
-
 
     public static Builder builder() {
         return new Builder();
@@ -83,15 +69,8 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
             return getSelf();
         }
 
-
-        public B collectionName(String value) {
-            getBuildingInstance().setCollectionName(value);
-            return getSelf();
-        }
-
-
-        public B modelId(String value) {
-            getBuildingInstance().setModelId(value);
+        public B useExisting(boolean value) {
+            getBuildingInstance().setUseExisting(value);
             return getSelf();
         }
     }

@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
@@ -61,12 +62,12 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);
-    private final String ID_KEY = "model_id";
-    private final String ENVIRONMENT_KEY = "environment";
+    private String AAS_COLLECTION_NAME = "aasCol";
+    private String CD_COLLECTION_NAME = "cdCol";
+    private String SUBMODEL_COLLECTION_NAME = "submodelCol";
 
     private PersistenceMongoConfig config;
-    private MongoCollection<Document> environmentCollection;
-    private PersistenceInMemory persistenceInMemory;
+    private MongoCollection<Document> aasCollection, cdCollection, submodelCollection;
     private ObjectMapper mapper;
 
     @Override
@@ -80,35 +81,23 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
                         .build());
         MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
-        environmentCollection = database.getCollection(config.getCollectionName());
+        aasCollection = database.getCollection(AAS_COLLECTION_NAME);
+        cdCollection = database.getCollection(CD_COLLECTION_NAME);
+        submodelCollection = database.getCollection(SUBMODEL_COLLECTION_NAME);
 
-        Document environmentDocument = environmentCollection.find(Filters.eq(ID_KEY, config.getModelId())).first();
-        Environment aasEnvironment = null;
-        if (environmentDocument == null) {
+        if (config.isUseExisting()) {
+            aasCollection.drop();
+            cdCollection.drop();
+            submodelCollection.drop();
+
             try {
-                aasEnvironment = config.loadInitialModel();
-                insertEnvironment(config.getModelId(), aasEnvironment);
-            }
-            catch (ConfigurationException | JsonProcessingException | DeserializationException e) {
+                Environment aasEnvironment = config.loadInitialModel();
+                for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
+
+                }
+            } catch (DeserializationException | InvalidConfigurationException e) {
                 throw new ConfigurationInitializationException(e);
             }
-        }
-        else {
-            try {
-                aasEnvironment = loadEnvironment(config.getModelId());
-            }
-            catch (DeserializationException e) {
-                throw new ConfigurationInitializationException(e);
-            }
-        }
-        try {
-            persistenceInMemory = PersistenceInMemoryConfig.builder()
-                    .initialModel(aasEnvironment)
-                    .build()
-                    .newInstance(coreConfig, serviceContext);
-        }
-        catch (ConfigurationException e) {
-            throw new ConfigurationInitializationException(e);
         }
     }
 
@@ -127,7 +116,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private void insertEnvironment(String modelId, Environment aasEnvironment) throws JsonProcessingException {
+    private void insertEnvironment(Environment aasEnvironment) throws JsonProcessingException {
         Document environmentDocument = getEnvironmentDocument(aasEnvironment);
         environmentCollection.insertOne(environmentDocument);
     }
