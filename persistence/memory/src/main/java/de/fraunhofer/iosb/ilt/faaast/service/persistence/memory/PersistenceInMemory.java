@@ -38,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PagingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -187,7 +188,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isAssetIdsSet()) {
             result = filterByAssetIds(result, criteria.getAssetIds());
         }
-        return preparePagedResult(result, modifier, paging);
+        return PagingHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -206,7 +207,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
         }
-        return preparePagedResult(result, modifier, paging);
+        return PagingHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -243,7 +244,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        return preparePagedResult(result, modifier, paging);
+        return PagingHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -259,7 +260,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        return preparePagedResult(result, modifier, paging);
+        return PagingHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -492,57 +493,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                 modifier);
     }
 
-
-    private static long readCursor(String cursor) {
-        return Long.parseLong(cursor);
-    }
-
-
-    private static String writeCursor(long index) {
-        return Long.toString(index);
-    }
-
-
-    private static String nextCursor(PagingInfo paging, int resultCount) {
-        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
-    }
-
-
-    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
-        if (!hasMoreData) {
-            return null;
-        }
-        if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-        }
-        if (Objects.isNull(paging.getCursor())) {
-            return writeCursor(paging.getLimit());
-        }
-        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
-    }
-
-
-    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
-        Stream<T> result = input;
-        if (Objects.nonNull(paging.getCursor())) {
-            result = result.skip(readCursor(paging.getCursor()));
-        }
-        if (paging.hasLimit()) {
-            result = result.limit(paging.getLimit() + 1);
-        }
-        List<T> temp = result.collect(Collectors.toList());
-        return Page.<T> builder()
-                .result(QueryModifierHelper.applyQueryModifier(
-                        temp.stream()
-                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                                .map(DeepCopyHelper::deepCopy)
-                                .collect(Collectors.toList()),
-                        modifier))
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor(paging, temp.size()))
-                        .build())
-                .build();
-    }
 
 
     private static <T extends Identifiable> void saveOrUpdateById(Collection<T> container, T element) {

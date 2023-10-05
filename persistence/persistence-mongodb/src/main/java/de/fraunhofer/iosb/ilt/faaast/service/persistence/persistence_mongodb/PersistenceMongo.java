@@ -23,6 +23,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.InsertManyResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
@@ -49,12 +50,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCr
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -71,6 +75,8 @@ import java.util.stream.Stream;
  */
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);
+    private static final String MSG_RESOURCE_NOT_FOUND_BY_ID = "resource not found (id %s)";
+
     private String AAS_COLLECTION_NAME = "aasCol";
     private String CD_COLLECTION_NAME = "cdCol";
     private String SUBMODEL_COLLECTION_NAME = "submodelCol";
@@ -115,26 +121,35 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     public void saveEnvironment(Environment environment) {
-        InsertManyResult saveAasResult = saveListInCollection(environment.getAssetAdministrationShells(), aasCollection);
-        if (!saveAasResult.wasAcknowledged()) {
+        if (!saveListInCollection(environment.getAssetAdministrationShells(), aasCollection)) {
             throw new IllegalStateException("Failed to save AAS");
         }
-        InsertManyResult saveSubmodelResult = saveListInCollection(environment.getSubmodels(), submodelCollection);
-        if (!saveSubmodelResult.wasAcknowledged()) {
+        if (!saveListInCollection(environment.getSubmodels(), submodelCollection)) {
             throw new IllegalStateException("Failed to save Submodels");
         }
 
-        InsertManyResult saveCDResult = saveListInCollection(environment.getConceptDescriptions(), cdCollection);
-        if (!saveCDResult.wasAcknowledged()) {
+        if (!saveListInCollection(environment.getConceptDescriptions(), cdCollection)) {
             throw new IllegalStateException("Failed to save CD");
         }
     }
 
-    private InsertManyResult saveListInCollection(List<? extends Identifiable> list, MongoCollection<Document> collection) {
+    private boolean saveListInCollection(List<? extends Identifiable> list, MongoCollection<Document> collection) {
+        if (list.isEmpty())
+            return true;
         List<Document> docList = list.stream()
                 .map(this::getDocument)
                 .collect(Collectors.toList());
-        return collection.insertMany(docList);
+        InsertManyResult result = collection.insertMany(docList);
+        return result.wasAcknowledged();
+    }
+
+    private Identifiable loadElementById(MongoCollection<Document> collection, String id, ) throws ResourceNotFoundException {
+        Bson filter = Filters.eq("id", id);
+        Document resultDoc = collection.find(filter).first();
+        if (resultDoc == null)
+            throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
+
+        return jsonApiDeserializer.readValue(resultDoc.toJson(), AssetAdministrationShell.class)
     }
 
     private Document getDocument(Identifiable identifiable) {
@@ -146,9 +161,16 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
     }
 
+    private void saveOrUpdateById(MongoCollection<Document> collection, Identifiable element) {
+        UpdateOptions updateOptions = new UpdateOptions();
+        updateOptions.upsert(true);
+        Bson filter = Filters.eq("id", element.getId());
+        collection.updateOne(filter, getDocument(element), updateOptions);
+    }
+
     @Override
     public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
+        return prepareResult(loadElementById(aasCollection, id), modifier);
     }
 
     @Override
@@ -198,17 +220,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void save(AssetAdministrationShell assetAdministrationShell) {
-
+        saveOrUpdateById(aasCollection, assetAdministrationShell);
     }
 
     @Override
     public void save(ConceptDescription conceptDescription) {
-
+        saveOrUpdateById(cdCollection, conceptDescription);
     }
 
     @Override
     public void save(Submodel submodel) {
-
+        saveOrUpdateById(submodelCollection, submodel);
     }
 
     @Override
@@ -282,11 +304,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
     @Override
-    public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
-        return Persistence.super.getSubmodelElement(reference, modifier);
-    }
-
-    @Override
     public <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
         return Persistence.super.getSubmodelElement(reference, modifier, type);
     }
@@ -314,5 +331,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     @Override
     public Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
         return Persistence.super.getAllSubmodelElements(modifier, paging);
+    }
+
+    private static <T extends Referable> T prepareResult(T result, QueryModifier modifier) {
+        return QueryModifierHelper.applyQueryModifier(
+                DeepCopyHelper.deepCopy(result),
+                modifier);
     }
 }
