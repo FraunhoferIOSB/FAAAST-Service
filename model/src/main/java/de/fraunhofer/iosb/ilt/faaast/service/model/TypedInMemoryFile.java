@@ -58,6 +58,7 @@ public class TypedInMemoryFile extends AbstractFileContent {
                 && Objects.equals(contentType, that.contentType);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), path);
@@ -74,6 +75,7 @@ public class TypedInMemoryFile extends AbstractFileContent {
             getBuildingInstance().setPath(value);
             return getSelf();
         }
+
 
         public B contentType(String value) {
             getBuildingInstance().setContentType(value);

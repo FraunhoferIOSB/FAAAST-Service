@@ -30,7 +30,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ObjectHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +79,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .build();
         List<InMemoryFile> files = new ArrayList<>();
         Map<String, byte[]> fileMap = context.getFileStorage().getAllFiles();
-        ObjectHelper.forEach(environment, x -> AssetAdministrationShellElementWalker.builder()
+        AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(File file) {
@@ -90,12 +89,11 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                     }
                 })
                 .build()
-                .walk(x));
+                .walk(environment);
         environment.getAssetAdministrationShells().stream().filter(a -> a.getAssetInformation() != null
                 && a.getAssetInformation().getDefaultThumbnail() != null
                 && a.getAssetInformation().getDefaultThumbnail().getPath() != null).forEach(
-                        a -> files.add(new InMemoryFile(
-                                fileMap.get(a.getAssetInformation().getDefaultThumbnail().getPath()),
+                        a -> files.add(new InMemoryFile(fileMap.get(a.getAssetInformation().getDefaultThumbnail().getPath()),
                                 a.getAssetInformation().getDefaultThumbnail().getPath())));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
