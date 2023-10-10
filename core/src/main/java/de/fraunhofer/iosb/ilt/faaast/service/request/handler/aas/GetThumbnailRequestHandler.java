@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
@@ -45,8 +46,11 @@ public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbn
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
         return GetThumbnailResponse.builder()
-                .payload(context.getFileStorage().get(aas.getAssetInformation().getDefaultThumbnail().getPath()))
-                .contentType(aas.getAssetInformation().getDefaultThumbnail().getContentType())
+                .payload(TypedInMemoryFile.builder()
+                        .content(context.getFileStorage().get(aas.getAssetInformation().getDefaultThumbnail().getPath()))
+                        .contentType(aas.getAssetInformation().getDefaultThumbnail().getContentType())
+                        .path(aas.getAssetInformation().getDefaultThumbnail().getPath())
+                        .build())
                 .success()
                 .build();
     }

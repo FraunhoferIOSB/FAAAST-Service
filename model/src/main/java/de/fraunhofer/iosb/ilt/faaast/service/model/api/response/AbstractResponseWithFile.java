@@ -14,37 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import java.util.Objects;
 
 
 /**
  * Abstract base class for protocol-agnostic responses containing file.
  */
-public abstract class AbstractResponseWithFile<T> extends AbstractResponse {
-
-    protected FileContent payload;
-
-    public String getContentType() {
-        return contentType;
-    }
-
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    protected String contentType;
-
-    public FileContent getPayload() {
-        return payload;
-    }
-
-
-    public void setPayload(FileContent payload) {
-        this.payload = payload;
-    }
-
+public abstract class AbstractResponseWithFile extends AbstractResponseWithPayload<TypedInMemoryFile> {
 
     @Override
     public boolean equals(Object o) {
@@ -54,7 +31,7 @@ public abstract class AbstractResponseWithFile<T> extends AbstractResponse {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractResponseWithFile<T> that = (AbstractResponseWithFile<T>) o;
+        AbstractResponseWithFile that = (AbstractResponseWithFile) o;
         return super.equals(o)
                 && Objects.equals(payload, that.payload);
     }
@@ -65,18 +42,9 @@ public abstract class AbstractResponseWithFile<T> extends AbstractResponse {
         return Objects.hash(super.hashCode(), payload);
     }
 
-    public abstract static class AbstractBuilder<V, T extends AbstractResponseWithFile<V>, B extends AbstractBuilder<V, T, B>> extends AbstractResponse.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractResponseWithFile, B extends AbstractBuilder<T, B>>
+            extends AbstractResponseWithPayload.AbstractBuilder<TypedInMemoryFile, T, B> {
 
-        public B payload(FileContent value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
-        }
-
-
-        public B contentType(String value) {
-            getBuildingInstance().setContentType(value);
-            return getSelf();
-        }
     }
 
 }

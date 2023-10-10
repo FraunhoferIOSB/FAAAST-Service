@@ -25,9 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Response mapper for any responses that contain a file.
  *
- * @param <T> type of the payload
  */
-public class ResponseWithFileMapper<T> extends AbstractResponseMapper<AbstractResponseWithFile<T>> {
+public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile> {
 
     public ResponseWithFileMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -35,18 +34,11 @@ public class ResponseWithFileMapper<T> extends AbstractResponseMapper<AbstractRe
 
 
     @Override
-    public void map(Request<AbstractResponseWithFile<T>> apiRequest, AbstractResponseWithFile<T> apiResponse, HttpServletResponse httpResponse) {
-        try {
-            HttpHelper.sendContent(
-                    httpResponse,
-                    apiResponse.getStatusCode(),
-                    apiResponse.getPayload().getContent(),
-                    MediaType.parse(apiResponse.getContentType()));
-
-        }
-        catch (Exception e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
-        }
-
+    public void map(Request<AbstractResponseWithFile> apiRequest, AbstractResponseWithFile apiResponse, HttpServletResponse httpResponse) {
+        HttpHelper.sendContent(
+                httpResponse,
+                apiResponse.getStatusCode(),
+                apiResponse.getPayload().getContent(),
+                MediaType.parse(apiResponse.getPayload().getContentType()));
     }
 }

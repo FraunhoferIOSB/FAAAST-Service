@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
@@ -35,19 +34,19 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @return the file content
      * @throws ResourceNotFoundException if the path does not exist
      */
-    public FileContent get(String path) throws ResourceNotFoundException;
+    public byte[] get(String path) throws ResourceNotFoundException;
 
 
-    public Map<String, FileContent> getAllFiles();
+    public Map<String, byte[]> getAllFiles();
 
 
     /**
      * Saves the file to given path.
      *
      * @param path the path to save the file under
-     * @param file the file to save
+     * @param content the file content to save
      */
-    public void save(String path, FileContent file);
+    public void save(String path, byte[] content);
 
 
     /**
@@ -65,6 +64,6 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param file the file to save
      */
     public default void save(InMemoryFile file) {
-        save(file.getPath(), file.asFileContent());
+        save(file.getPath(), file.getContent());
     }
 }

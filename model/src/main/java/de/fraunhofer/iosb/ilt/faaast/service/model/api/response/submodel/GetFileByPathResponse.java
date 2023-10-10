@@ -14,20 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
 
 
 /**
  * Response class for GetFileByPath requests.
  */
-public class GetFileByPathResponse extends AbstractResponseWithFile<FileContent> {
+public class GetFileByPathResponse extends AbstractResponseWithFile {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<FileContent, GetFileByPathResponse, Builder> {
+    public static class Builder extends AbstractBuilder<GetFileByPathResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

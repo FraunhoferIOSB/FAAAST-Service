@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -51,8 +52,10 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .element(reference)
                 .build());
         return GetFileByPathResponse.builder()
-                .payload(context.getFileStorage().get(file.getValue()))
-                .contentType(file.getContentType())
+                .payload(TypedInMemoryFile.builder()
+                        .content(context.getFileStorage().get(file.getValue()))
+                        .contentType(file.getContentType())
+                        .build())
                 .success()
                 .build();
     }

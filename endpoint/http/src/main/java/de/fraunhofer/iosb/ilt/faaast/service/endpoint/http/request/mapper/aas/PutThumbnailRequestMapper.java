@@ -20,11 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
@@ -47,14 +46,14 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
-        Map<String, BlobValue> multipart = parseMultiPartBody(httpRequest, contentType);
+        Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutThumbnailRequest.builder()
                 .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
-                .content(FileContent.builder()
-                        .content(multipart.get("file").getValue())
-                        .path(new String(multipart.get("fileName").getValue()))
+                .content(TypedInMemoryFile.builder()
+                        .content(multipart.get("file").getContent())
+                        .contentType(multipart.get("file").getContentType())
+                        .path(new String(multipart.get("fileName").getContent()))
                         .build())
-                .contentType(multipart.get("file").getContentType())
                 .build();
     }
 }

@@ -19,9 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import jakarta.json.Json;
@@ -29,7 +29,10 @@ import jakarta.json.JsonMergePatch;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
@@ -45,6 +48,9 @@ public abstract class AbstractRequestMapper {
     protected final HttpJsonApiDeserializer deserializer;
     protected final HttpMethod method;
     protected String urlPattern;
+    protected final String BOUNDARY = "boundary";
+    protected final Pattern PATTERN_NAME = Pattern.compile("name=\"([^\"]+)\"");
+    protected final Pattern PATTERN_CONTENT_TYPE = Pattern.compile("Content-Type: ([^\n^\r]+)");
 
     protected AbstractRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -168,28 +174,28 @@ public abstract class AbstractRequestMapper {
      * @throws InvalidRequestException if deserialization fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    protected Map<String, BlobValue> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
+    protected Map<String, TypedInMemoryFile> parseMultiPartBody(HttpRequest httpRequest, ContentType contentType) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        Map<String, BlobValue> map = new HashMap<String, BlobValue>();
+        Map<String, TypedInMemoryFile> map = new HashMap<String, TypedInMemoryFile>();
         try {
             MultipartStream multipartStream = new MultipartStream(
                     new ByteArrayInputStream(httpRequest.getBody()),
-                    contentType.getParameter("boundary").getBytes());
+                    contentType.getParameter(BOUNDARY).getBytes(), 4096, null);
             boolean nextPart = multipartStream.skipPreamble();
             while (nextPart) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 String multipartHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
-                if (Objects.equals(headerMatcher(Pattern.compile("name=\"([^\"]+)\""), multipartHeaders), "fileName")) {
-                    map.put("fileName", BlobValue.builder()
-                            .value(output.toByteArray())
-                            .mimeType("text/plain")
+                if (Objects.equals(headerMatcher(PATTERN_NAME, multipartHeaders), "fileName")) {
+                    map.put("fileName", TypedInMemoryFile.builder()
+                            .content(output.toByteArray())
+                            .contentType(ContentType.TEXT_PLAIN.getMimeType())
                             .build());
                 }
                 else {
-                    map.put("file", BlobValue.builder()
-                            .value(output.toByteArray())
-                            .mimeType(headerMatcher(Pattern.compile("Content-Type: ([^\n^\r]+)"), multipartHeaders))
+                    map.put("file", TypedInMemoryFile.builder()
+                            .content(output.toByteArray())
+                            .contentType(headerMatcher(PATTERN_CONTENT_TYPE, multipartHeaders))
                             .build());
                 }
                 nextPart = multipartStream.readBoundary();

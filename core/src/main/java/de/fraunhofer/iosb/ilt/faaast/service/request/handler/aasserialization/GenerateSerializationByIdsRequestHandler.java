@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasserialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -25,15 +24,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ObjectHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
 
@@ -76,10 +79,24 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                         : List.of())
                 .build();
         List<InMemoryFile> files = new ArrayList<>();
-        Map<String, FileContent> fileMap = context.getFileStorage().getAllFiles();
-        fileMap.forEach((key, value) -> {
-            files.add(new InMemoryFile(value.getContent(), key));
-        });
+        Map<String, byte[]> fileMap = context.getFileStorage().getAllFiles();
+        ObjectHelper.forEach(environment, x -> AssetAdministrationShellElementWalker.builder()
+                .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                    @Override
+                    public void visit(File file) {
+                        if (fileMap.containsKey(file.getValue())) {
+                            files.add(new InMemoryFile(fileMap.get(file.getValue()), file.getValue()));
+                        }
+                    }
+                })
+                .build()
+                .walk(x));
+        environment.getAssetAdministrationShells().stream().filter(a -> a.getAssetInformation() != null
+                && a.getAssetInformation().getDefaultThumbnail() != null
+                && a.getAssetInformation().getDefaultThumbnail().getPath() != null).forEach(
+                        a -> files.add(new InMemoryFile(
+                                fileMap.get(a.getAssetInformation().getDefaultThumbnail().getPath()),
+                                a.getAssetInformation().getDefaultThumbnail().getPath())));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
                 .payload(EnvironmentContext.builder()

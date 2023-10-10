@@ -47,10 +47,10 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        file.setContentType(request.getContentType());
+        file.setContentType(request.getContent().getContentType());
         file.setValue(request.getContent().getPath());
         context.getPersistence().update(reference, file);
-        context.getFileStorage().save(file.getValue(), request.getContent());
+        context.getFileStorage().save(file.getValue(), request.getContent().getContent());
         context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
                 .build());

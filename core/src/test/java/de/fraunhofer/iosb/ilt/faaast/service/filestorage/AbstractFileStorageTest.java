@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import org.junit.Assert;
@@ -56,8 +55,8 @@ public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extend
                 .content("foo".getBytes())
                 .build();
         fileStorage.save(expected);
-        FileContent actual = fileStorage.get(expected.getPath());
-        Assert.assertEquals(expected.asFileContent(), actual);
+        byte[] actual = fileStorage.get(expected.getPath());
+        Assert.assertEquals(expected.getContent(), actual);
         fileStorage.delete(expected.getPath());
         Assert.assertThrows(ResourceNotFoundException.class, () -> fileStorage.get(expected.getPath()));
     }

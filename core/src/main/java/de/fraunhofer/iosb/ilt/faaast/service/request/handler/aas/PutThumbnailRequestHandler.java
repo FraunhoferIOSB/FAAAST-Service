@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
@@ -46,10 +47,13 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
         String path = request.getContent().getPath();
         aas.getAssetInformation().setDefaultThumbnail(new DefaultResource.Builder()
                 .path(path)
-                .contentType(request.getContentType())
+                .contentType(request.getContent().getContentType())
                 .build());
         context.getPersistence().save(aas);
-        context.getFileStorage().save(path, request.getContent());
+        context.getFileStorage().save(InMemoryFile.builder()
+                .content(request.getContent().getContent())
+                .path(path)
+                .build());
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .value(aas)
                 .element(aas)

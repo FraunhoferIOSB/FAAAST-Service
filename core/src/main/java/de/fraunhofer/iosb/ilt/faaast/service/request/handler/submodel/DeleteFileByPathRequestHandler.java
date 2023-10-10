@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -49,11 +50,14 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
         context.getFileStorage().delete(file.getValue());
+        File oldFile = file;
         file.setValue("");
         file.setContentType("");
         context.getPersistence().update(reference, file);
         context.getMessageBus().publish(ValueChangeEventMessage.builder()
                 .element(reference)
+                .oldValue(ElementValueMapper.toValue(oldFile))
+                .newValue(ElementValueMapper.toValue(file))
                 .build());
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)

@@ -20,12 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
@@ -50,14 +49,14 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
-        Map<String, BlobValue> multipart = parseMultiPartBody(httpRequest, contentType);
+        Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutFileByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                .content(FileContent.builder()
-                        .content(multipart.get("file").getValue())
-                        .path(new String(multipart.get("fileName").getValue()))
+                .content(TypedInMemoryFile.builder()
+                        .content(multipart.get("file").getContent())
+                        .contentType(multipart.get("file").getContentType())
+                        .path(new String(multipart.get("fileName").getContent()))
                         .build())
-                .contentType(multipart.get("file").getContentType())
                 .build();
     }
 }

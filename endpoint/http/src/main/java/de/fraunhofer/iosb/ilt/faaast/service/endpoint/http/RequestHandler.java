@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.eclipse.jetty.servlets.CrossOriginFilter.ACCESS_CONTROL_MAX_AGE_HEADER;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
@@ -95,7 +94,7 @@ public class RequestHandler extends AbstractHandler {
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
-                .body(ByteStreams.toByteArray(request.getInputStream()))
+                .body(request.getInputStream().readAllBytes())
                 .method(method)
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(

@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfig> {
 
     private FileStorageInMemoryConfig config;
-    private final Map<String, FileContent> files;
+    private final Map<String, byte[]> files;
 
     public FileStorageInMemory() {
         files = new ConcurrentHashMap<>();
@@ -45,10 +44,7 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
         EnvironmentContext environmentContext = null;
         try {
             environmentContext = config.loadInitialModelAndFiles();
-            environmentContext.getFiles().stream().forEach(v -> save(v.getPath(),
-                    FileContent.builder()
-                            .content(v.getFileContent())
-                            .build()));
+            environmentContext.getFiles().stream().forEach(v -> save(v.getPath(), v.getFileContent()));
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
@@ -57,7 +53,7 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
 
 
     @Override
-    public FileContent get(String path) throws ResourceNotFoundException {
+    public byte[] get(String path) throws ResourceNotFoundException {
         if (!files.containsKey(path)) {
             throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
         }
@@ -66,14 +62,14 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
 
 
     @Override
-    public Map<String, FileContent> getAllFiles() {
+    public Map<String, byte[]> getAllFiles() {
         return this.files;
     }
 
 
     @Override
-    public void save(String path, FileContent file) {
-        files.put(path, file);
+    public void save(String path, byte[] content) {
+        files.put(path, content);
     }
 
 

@@ -1232,7 +1232,7 @@ public class HttpEndpointIT {
         HttpEntity httpEntity = MultipartEntityBuilder.create()
                 .addPart("fileName",
                         new StringBody(fileName,
-                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                                ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), StandardCharsets.UTF_8)))
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
                         fileName)
                 .build();

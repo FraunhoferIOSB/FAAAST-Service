@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -1174,11 +1174,11 @@ public class RequestMappingManagerTest {
         Request expected = PutFileByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .content(FileContent.builder()
+                .content(TypedInMemoryFile.builder()
                         .path("test.pdf")
                         .content(content)
+                        .contentType(ContentType.APPLICATION_PDF.getMimeType() + "; charset=UTF-8")
                         .build())
-                .contentType(ContentType.APPLICATION_PDF.getMimeType() + "; charset=UTF-8")
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
@@ -1246,11 +1246,11 @@ public class RequestMappingManagerTest {
         String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutThumbnailRequest.builder()
                 .id(AAS.getId())
-                .content(FileContent.builder()
+                .content(TypedInMemoryFile.builder()
                         .path("test.pdf")
                         .content(content)
+                        .contentType(ContentType.IMAGE_PNG.getMimeType())
                         .build())
-                .contentType(ContentType.IMAGE_PNG.getMimeType())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
