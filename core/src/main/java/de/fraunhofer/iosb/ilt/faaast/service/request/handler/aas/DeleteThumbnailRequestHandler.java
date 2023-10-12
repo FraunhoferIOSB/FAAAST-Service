@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.io.IOException;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
@@ -39,7 +40,7 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
 
 
     @Override
-    public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
+    public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())
                 || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())

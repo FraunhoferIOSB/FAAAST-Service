@@ -23,6 +23,7 @@ import java.util.Objects;
 public class TypedInMemoryFile extends AbstractFileContent {
 
     private String contentType;
+    private String path;
 
     public String getContentType() {
         return contentType;
@@ -33,7 +34,6 @@ public class TypedInMemoryFile extends AbstractFileContent {
         this.contentType = contentType;
     }
 
-    private String path;
 
     public String getPath() {
         return path;
@@ -55,38 +55,39 @@ public class TypedInMemoryFile extends AbstractFileContent {
         }
         TypedInMemoryFile that = (TypedInMemoryFile) o;
         return super.equals(that)
-                && Objects.equals(contentType, that.contentType);
+                && Objects.equals(contentType, that.contentType)
+                && Objects.equals(path, that.path);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path);
+        return Objects.hash(super.hashCode(), contentType, path);
     }
 
 
-    public static TypedInMemoryFile.Builder builder() {
-        return new TypedInMemoryFile.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends TypedInMemoryFile, B extends TypedInMemoryFile.AbstractBuilder<T, B>> extends AbstractFileContent.AbstractBuilder<T, B> {
-
-        public B path(String value) {
-            getBuildingInstance().setPath(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends TypedInMemoryFile, B extends AbstractBuilder<T, B>> extends AbstractFileContent.AbstractBuilder<T, B> {
 
         public B contentType(String value) {
             getBuildingInstance().setContentType(value);
             return getSelf();
         }
+
+
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
+            return getSelf();
+        }
     }
 
-    public static class Builder extends TypedInMemoryFile.AbstractBuilder<TypedInMemoryFile, TypedInMemoryFile.Builder> {
+    public static class Builder extends AbstractBuilder<TypedInMemoryFile, Builder> {
 
         @Override
-        protected TypedInMemoryFile.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

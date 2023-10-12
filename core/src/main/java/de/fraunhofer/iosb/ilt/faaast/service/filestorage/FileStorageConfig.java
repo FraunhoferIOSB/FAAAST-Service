@@ -32,6 +32,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
  * @param <T> type of the file storage
  */
 public abstract class FileStorageConfig<T extends FileStorage> extends Config<T> {
+
+    protected File initialModelFile;
+
     public File getInitialModelFile() {
         return initialModelFile;
     }
@@ -41,14 +44,12 @@ public abstract class FileStorageConfig<T extends FileStorage> extends Config<T>
         this.initialModelFile = initialModelFile;
     }
 
-    protected File initialModelFile;
 
     /**
      * Loads the initial model and files from code/memory if present, otherwise from file.
      *
-     * @return the loaded initial model with files or an empty model if neither an initial in-memory model nor an initial
-     *         model
-     *         file is specified.
+     * @return the loaded initial model with files or an empty model if neither an initial in-memory model nor an
+     *         initial model file is specified.
      * @throws InvalidConfigurationException if initial model file should be used and file does not exist or is not a
      *             file
      * @throws DeserializationException if deserialization fails

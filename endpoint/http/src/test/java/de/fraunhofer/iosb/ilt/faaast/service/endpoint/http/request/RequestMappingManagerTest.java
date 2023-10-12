@@ -1149,24 +1149,19 @@ public class RequestMappingManagerTest {
     }
 
 
-    private byte[] generateMultipartBodyRandomFile(byte[] content, String fileName, ContentType contentType) {
+    private byte[] generateMultipartBodyRandomFile(byte[] content, String fileName, ContentType contentType) throws IOException {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addTextBody("fileName", fileName, ContentType.TEXT_PLAIN);
         builder.addBinaryBody("file", content, contentType, fileName);
         builder.setBoundary("boundary");
         byte[] multipart = null;
-        try {
-            multipart = EntityUtils.toByteArray(builder.build());
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        multipart = EntityUtils.toByteArray(builder.build());
         return multipart;
     }
 
 
     @Test
-    public void testPutFileByPath() throws InvalidRequestException {
+    public void testPutFileByPath() throws InvalidRequestException, IOException {
         byte[] content = new byte[20];
         new Random().nextBytes(content);
         byte[] multipart = generateMultipartBodyRandomFile(content, "test.pdf", ContentType.APPLICATION_PDF);
@@ -1239,7 +1234,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutThumbnail() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testPutThumbnail() throws SerializationException, InvalidRequestException, MethodNotAllowedException, IOException {
         byte[] content = new byte[20];
         new Random().nextBytes(content);
         byte[] generated = generateMultipartBodyRandomFile(content, "test.png", ContentType.IMAGE_PNG);

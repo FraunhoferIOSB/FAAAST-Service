@@ -14,13 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.AbstractFileStorageTest;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystem;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystemConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import org.junit.Test;
 
 
 public class FileStorageFilesystemTest extends AbstractFileStorageTest<FileStorageFilesystem, FileStorageFilesystemConfig> {
@@ -30,11 +26,4 @@ public class FileStorageFilesystemTest extends AbstractFileStorageTest<FileStora
         return FileStorageFilesystemConfig.builder()
                 .build();
     }
-
-
-    @Test
-    public void saveAndDelete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
-        super.saveAndDelete();
-    }
-
 }

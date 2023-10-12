@@ -30,9 +30,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
@@ -60,7 +62,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
 
 
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException {
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException, IOException {
         DefaultEnvironment environment = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(
                         request.getAasIds().stream()
@@ -90,11 +92,15 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 })
                 .build()
                 .walk(environment);
-        environment.getAssetAdministrationShells().stream().filter(a -> a.getAssetInformation() != null
-                && a.getAssetInformation().getDefaultThumbnail() != null
-                && a.getAssetInformation().getDefaultThumbnail().getPath() != null).forEach(
-                        a -> files.add(new InMemoryFile(fileMap.get(a.getAssetInformation().getDefaultThumbnail().getPath()),
-                                a.getAssetInformation().getDefaultThumbnail().getPath())));
+        files.addAll(environment.getAssetAdministrationShells().stream()
+                .filter(Objects::nonNull)
+                .filter(x -> Objects.nonNull(x.getAssetInformation()))
+                .filter(x -> Objects.nonNull(x.getAssetInformation().getDefaultThumbnail()))
+                .filter(x -> Objects.nonNull(x.getAssetInformation().getDefaultThumbnail().getPath()))
+                .distinct()
+                .map(x -> x.getAssetInformation().getDefaultThumbnail().getPath())
+                .map(x -> new InMemoryFile(fileMap.get(x), x))
+                .collect(Collectors.toList()));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())
                 .payload(EnvironmentContext.builder()

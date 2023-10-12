@@ -39,6 +39,7 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
     }
 
 
+    @Override
     public void init(CoreConfig coreConfig, FileStorageInMemoryConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
         EnvironmentContext environmentContext = null;

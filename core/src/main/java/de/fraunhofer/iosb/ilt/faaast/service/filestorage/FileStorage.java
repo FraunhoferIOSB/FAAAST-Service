@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -37,7 +38,13 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
     public byte[] get(String path) throws ResourceNotFoundException;
 
 
-    public Map<String, byte[]> getAllFiles();
+    /**
+     * Reads all files.
+     *
+     * @return map of all files and their content
+     * @throws IOException if reading a file fails
+     */
+    public Map<String, byte[]> getAllFiles() throws IOException;
 
 
     /**
@@ -45,8 +52,9 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to save the file under
      * @param content the file content to save
+     * @throws java.io.IOException if saving fails
      */
-    public void save(String path, byte[] content);
+    public void save(String path, byte[] content) throws IOException;
 
 
     /**
@@ -54,16 +62,18 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to the file to delete
      * @throws ResourceNotFoundException if path does not exist
+     * @throws java.io.IOException if deleting fails
      */
-    public void delete(String path) throws ResourceNotFoundException;
+    public void delete(String path) throws ResourceNotFoundException, IOException;
 
 
     /**
      * Saves the file to given path.
      *
      * @param file the file to save
+     * @throws java.io.IOException if saving fails
      */
-    public default void save(InMemoryFile file) {
+    public default void save(InMemoryFile file) throws IOException {
         save(file.getPath(), file.getContent());
     }
 }

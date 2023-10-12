@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import java.io.IOException;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
@@ -39,7 +40,7 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
 
 
     @Override
-    public PutThumbnailResponse process(PutThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
+    public PutThumbnailResponse process(PutThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));

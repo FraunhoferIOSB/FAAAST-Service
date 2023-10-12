@@ -22,11 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -34,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemConfig> {
 
+    private static final String MSG_FILE_NOT_FOUND = "could not find file for path '%s'";
     private FileStorageFilesystemConfig config;
     private final Map<String, Path> filelist;
 
@@ -42,14 +45,15 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
     }
 
 
+    @Override
     public void init(CoreConfig coreConfig, FileStorageFilesystemConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
         EnvironmentContext environmentContext = null;
         try {
             environmentContext = config.loadInitialModelAndFiles();
-            environmentContext.getFiles().stream().forEach(v -> save(v.getPath(), v.getFileContent()));
+            environmentContext.getFiles().stream().forEach(LambdaExceptionHelper.rethrowConsumer(v -> save(v.getPath(), v.getFileContent())));
         }
-        catch (DeserializationException | InvalidConfigurationException e) {
+        catch (DeserializationException | InvalidConfigurationException | IOException e) {
             throw new ConfigurationInitializationException("error initializing file-system file storage", e);
         }
     }
@@ -59,17 +63,17 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
     public byte[] get(String path) throws ResourceNotFoundException {
         String encoded = encodeFilePath(path);
         if (!filelist.containsKey(encoded)) {
-            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
+            throw new ResourceNotFoundException(String.format(MSG_FILE_NOT_FOUND, path));
         }
         Path diskpath = filelist.get(encoded);
         if (Objects.isNull(diskpath)) {
-            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
+            throw new ResourceNotFoundException(String.format(MSG_FILE_NOT_FOUND, path));
         }
         try {
             return Files.readAllBytes(diskpath);
         }
         catch (IOException e) {
-            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
+            throw new ResourceNotFoundException(String.format(MSG_FILE_NOT_FOUND, path));
         }
     }
 
@@ -85,48 +89,31 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
 
     @Override
-    public void save(String path, byte[] content) {
+    public void save(String path, byte[] content) throws IOException {
         Path diskPath = null;
         String encoded = encodeFilePath(path);
-        try {
-            diskPath = Files.write(Path.of(encoded), content);
-            filelist.put(encoded, diskPath);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        diskPath = Files.write(Path.of(encoded), content);
+        filelist.put(encoded, diskPath);
     }
 
 
     @Override
-    public void delete(String path) throws ResourceNotFoundException {
+    public void delete(String path) throws ResourceNotFoundException, IOException {
         String encoded = encodeFilePath(path);
         if (!filelist.containsKey(encoded)) {
             throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
         }
-        try {
-            Files.delete(filelist.get(encoded));
-            filelist.remove(encoded);
-        }
-        catch (IOException e) {
-            throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
-        }
-
+        Files.delete(filelist.get(encoded));
+        filelist.remove(encoded);
     }
 
 
     @Override
-    public Map<String, byte[]> getAllFiles() {
-        Map<String, byte[]> map = new HashMap<>();
-        filelist.forEach((key, value) -> {
-            try {
-                map.put(decodeFilePath(key), Files.readAllBytes(value));
-            }
-            catch (IOException e) {
-                throw new RuntimeException(String.format("could not find a file referenced by file storage"));
-            }
-        });
-        return map;
+    public Map<String, byte[]> getAllFiles() throws IOException {
+        return filelist.entrySet().stream()
+                .collect(Collectors.toMap(
+                        x -> decodeFilePath(x.getKey()),
+                        LambdaExceptionHelper.rethrowFunction(x -> Files.readAllBytes(x.getValue()))));
     }
 
 
