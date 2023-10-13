@@ -69,7 +69,6 @@ public class SubmodelCreator {
             throw new IllegalArgumentException("submodel is null");
         }
 
-        //submodel.g
         String shortId = submodel.getIdShort();
         if (!shortId.isEmpty()) {
             String displayName = "Submodel:" + shortId;

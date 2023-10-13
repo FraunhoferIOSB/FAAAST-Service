@@ -911,15 +911,6 @@ public class OpcUaEndpointTest {
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
 
-    //    private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-    //        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
-    //        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
-    //        TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
-    //        TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
-    //        TestUtils.checkCategoryNode(client, assetNode, aasns, "");
-    //        TestUtils.checkDataSpecificationNode(client, assetNode, aasns);
-    //    }
-
 
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {

@@ -75,29 +75,6 @@ public class EmbeddedDataSpecificationCreator {
         }
     }
 
-    //    /**
-    //     * Adds the references to the given Embedded Data Specification references.
-    //     *
-    //     * @param refListNode The desired object where the DataSpecifications should be added
-    //     * @param refList The list of the desired Data Specification references
-    //     * @param nodeManager The corresponding Node Manager
-    //     * @throws StatusException If the operation fails
-    //     */
-    //    public static void addEmbeddedDataSpecificationsReferences(AASReferenceList refListNode, List<Reference> refList, AasServiceNodeManager nodeManager) throws StatusException {
-    //        if ((refListNode != null) && (!refList.isEmpty())) {
-    //            int count = 0;
-    //            for (Reference ref: refList) {
-    //                count++;
-    //                String name = AASAssetAdministrationShellType.DATA_SPECIFICATION;
-    //                if (count > 1) {
-    //                    name += count;
-    //                }
-    //
-    //                AasReferenceCreator.addAasReferenceAasNS(refListNode, ref, name, nodeManager);
-    //            }
-    //        }
-    //    }
-
 
     /**
      * Adds the references to the given Embedded Data Specifications.
@@ -113,20 +90,6 @@ public class EmbeddedDataSpecificationCreator {
         if ((list != null) && (!list.isEmpty())) {
             AASEmbeddedDataSpecificationList listNode = submodelElementNode.getEmbeddedDataSpecificationNode();
             addEmbeddedDataSpecifications(list, listNode, nodeManager, AASSubmodelElementType.EMBEDDED_DATA_SPECIFICATION);
-
-            //            List<Reference> refList = new ArrayList<>();
-            //            for (EmbeddedDataSpecification eds: list) {
-            //                refList.add(eds.getDataSpecification());
-            //            }
-            //
-            //            AASReferenceList listNode = submodelElementNode.getDataSpecificationNode();
-            //
-            //            if (listNode == null) {
-            //                AasReferenceCreator.addAasReferenceListNode(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION, nodeManager);
-            //            }
-            //            else {
-            //                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-            //            }
         }
     }
 
@@ -155,42 +118,7 @@ public class EmbeddedDataSpecificationCreator {
         for (var embedDataSpec: list) {
             addEmbeddedDataSpecificationNode(listNode, embedDataSpec, name + counter++, nodeManager);
         }
-
-        //AASReferenceList listNode = submodelNode.getDataSpecificationNode();
-
-        //if (listNode == null) {
-        //    AasReferenceCreator.addAasReferenceListNode(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION, nodeManager);
-        //}
-        //else {
-        //    addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-        //}
     }
-
-    //    /**
-    //     * Adds the references to the given Embedded Data Specifications.
-    //     *
-    //     * @param assetNode The desired node where the DataSpecifications should be added
-    //     * @param list The list of the desired Data Specifications
-    //     * @param nodeManager The corresponding Node Manager
-    //     * @throws StatusException If the operation fails
-    //     */
-    //    public static void addEmbeddedDataSpecifications(AASAssetType assetNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager) throws StatusException {
-    //        if ((list != null) && (!list.isEmpty())) {
-    //            List<Reference> refList = new ArrayList<>();
-    //            for (EmbeddedDataSpecification eds: list) {
-    //                refList.add(eds.getDataSpecification());
-    //            }
-    //
-    //            AASReferenceList listNode = assetNode.getDataSpecificationNode();
-    //
-    //            if (listNode == null) {
-    //                AasReferenceCreator.addAasReferenceListNode(assetNode, refList, AASAssetType.DATA_SPECIFICATION, nodeManager);
-    //            }
-    //            else {
-    //                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-    //            }
-    //        }
-    //    }
 
 
     private static void addEmbeddedDataSpecificationNode(UaNode node, EmbeddedDataSpecification embeddedDataSpecification, String name, AasServiceNodeManager nodeManager)
