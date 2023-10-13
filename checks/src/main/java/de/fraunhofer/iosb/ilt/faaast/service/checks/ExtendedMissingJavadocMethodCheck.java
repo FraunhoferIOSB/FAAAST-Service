@@ -20,8 +20,8 @@ import com.puppycrawl.tools.checkstyle.api.FileContents;
 import com.puppycrawl.tools.checkstyle.api.Scope;
 import com.puppycrawl.tools.checkstyle.api.TextBlock;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck;
 import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
-import com.puppycrawl.tools.checkstyle.utils.CheckUtil;
 import com.puppycrawl.tools.checkstyle.utils.ScopeUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.checks.util.InterfaceHelper;
 import java.util.Set;
@@ -167,7 +167,7 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
 
 
     private boolean isSetterOrGetter(final DetailAST ast) {
-        return ((currentlyInClass() || currentlyInEnum()) && (CheckUtil.isSetterMethod(ast) || CheckUtil.isGetterMethod(ast)))
+        return ((currentlyInClass() || currentlyInEnum()) && (MissingJavadocMethodCheck.isSetterMethod(ast) || MissingJavadocMethodCheck.isGetterMethod(ast)))
                 || (currentlyInInterface() && InterfaceHelper.isGetterOrGetterMethod(ast));
     }
 
