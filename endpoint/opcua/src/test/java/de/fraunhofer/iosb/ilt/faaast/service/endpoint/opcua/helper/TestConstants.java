@@ -38,7 +38,7 @@ public class TestConstants {
     public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
     public static final String TEST_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String TEST_ENTITY_NAME = "ExampleEntity";
-    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty";
+    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty2";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
     public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";

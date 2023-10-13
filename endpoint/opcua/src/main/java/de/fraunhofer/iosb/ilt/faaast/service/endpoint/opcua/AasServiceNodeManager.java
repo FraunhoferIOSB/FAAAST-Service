@@ -540,7 +540,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
         SubmodelElementIdentifier path = SubmodelElementIdentifier.fromReference(reference);
-        LOG.info("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
+        LOG.trace("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
         if (submodelElementOpcUAMap.containsKey(path)) {
             AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUAMap.get(path), newValue, this);
         }
@@ -590,7 +590,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
-        LOG.info("add to submodelElementOpcUAMap: {}; ({})", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(smid));
+        LOG.trace("add to submodelElementOpcUAMap: {}; ({})", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(smid));
         submodelElementOpcUAMap.put(smid, submodelElement);
     }
 
@@ -613,7 +613,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param data The corresponding SubmodelElement data.
      */
     public void addSubmodelElementAasMap(NodeId nodeId, SubmodelElementData data) {
-        LOG.info("addSubmodelElementAasMap {}", ReferenceHelper.toString(data.getReference()));
+        LOG.trace("addSubmodelElementAasMap {}", ReferenceHelper.toString(data.getReference()));
         submodelElementAasMap.put(nodeId, data);
     }
 

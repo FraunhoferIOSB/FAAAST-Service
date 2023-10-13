@@ -55,8 +55,6 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
                                                  AasServiceNodeManager nodeManager)
             throws StatusException {
         if ((node != null) && (aasRelElem != null)) {
-            //Reference relElemRef = AasUtils.toReference(parentRef, aasRelElem);
-
             String name = aasRelElem.getIdShort();
             AASRelationshipElementType relElemNode;
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
@@ -119,9 +117,6 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
 
         // Annotations 
         for (DataElement de: aasRelElem.getAnnotations()) {
-            //DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false, nodeManager);
-            // give null for the data element reference, as it can't be referenced
-            //DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, null, submodel, false, nodeManager);
             DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, relElemRef, submodel, false, nodeManager);
         }
 

@@ -681,7 +681,6 @@ public class ValueConverter {
         Variant retval;
 
         if (type == SubmodelElementData.Type.PROPERTY_VALUE) {
-            //retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
             retval = createVariant(ElementValueMapper.toValue(submodelElement, PropertyValue.class).getValue().getValue());
         }
         else {

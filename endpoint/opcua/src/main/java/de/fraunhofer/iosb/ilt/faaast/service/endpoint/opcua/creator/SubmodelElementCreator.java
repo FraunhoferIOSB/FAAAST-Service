@@ -97,7 +97,7 @@ public class SubmodelElementCreator {
             for (SubmodelElement elem: elements) {
                 Reference elementRef = ReferenceBuilder.with(parentRef).element(elem).build();
 
-                LOGGER.info("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
+                LOGGER.trace("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
                 addSubmodelElement(elem, node, elementRef, submodel, ordered, nodeManager);
             }
         }

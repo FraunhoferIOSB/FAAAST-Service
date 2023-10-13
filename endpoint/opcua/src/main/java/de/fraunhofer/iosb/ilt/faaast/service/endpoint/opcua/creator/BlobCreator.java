@@ -66,17 +66,6 @@ public class BlobCreator extends SubmodelElementCreator {
             // ContentType
             blobNode.setContentType(aasBlob.getContentType());
 
-            //            Reference blobRef = null;
-            //            if (parentRef != null) {
-            //                try {
-            //                    blobRef = EnvironmentHelper.asReference(aasBlob, nodeManager.getEnvironment());
-            //                }
-            //                catch (IllegalArgumentException iae) {
-            //                    blobRef = AasUtils.toReference(parentRef, aasBlob);
-            //                    LOGGER.warn("addAasBlob: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), ReferenceHelper.toString(blobRef));
-            //                }
-            //            }
-
             // Value
             if (aasBlob.getValue() != null) {
                 if (blobNode.getValueNode() == null) {

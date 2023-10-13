@@ -25,11 +25,8 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
  */
 public class ValueData {
     private final NodeId nodeId;
-
     private final QualifiedName browseName;
-
     private final LocalizedText displayName;
-
     private final NodeManagerUaNode nodeManager;
 
     /**

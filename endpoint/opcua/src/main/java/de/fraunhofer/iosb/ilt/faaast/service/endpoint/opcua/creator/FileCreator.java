@@ -75,8 +75,6 @@ public class FileCreator extends SubmodelElementCreator {
             }
 
             if (fileRef != null) {
-                //Reference fileRef = AasUtils.toReference(parentRef, aasFile);
-
                 nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
             }
         }
@@ -106,28 +104,6 @@ public class FileCreator extends SubmodelElementCreator {
         }
 
         fileNode.setValue(aasFile.getValue());
-
-        //        if (!aasFile.getValue().isEmpty()) {
-        //            java.io.File f = new java.io.File(aasFile.getValue());
-        //            if (!f.exists()) {
-        //                LOGGER.warn("addAasFile: File '{}' does not exist!", f.getAbsolutePath());
-        //            }
-        //            else {
-        //                // File Object: include only when the file exists
-        //                QualifiedName fileBrowseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.FILE)
-        //                        .toQualifiedName(nodeManager.getNamespaceTable());
-        //                NodeId fileId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.FILE);
-        //                FileTypeNode fileType = nodeManager.createInstance(FileTypeNode.class, fileId, fileBrowseName, LocalizedText.english(AASFileType.FILE));
-        //                fileType.setFile(new java.io.File(aasFile.getValue()));
-        //                fileType.setWritable(false);
-        //                fileType.setUserWritable(false);
-        //                if (fileType.getNodeVersion() != null) {
-        //                    fileType.getNodeVersion().setDescription(new LocalizedText("", ""));
-        //                }
-        //
-        //                fileNode.addReference(fileType, Identifiers.HasAddIn, false);
-        //            }
-        //        }
     }
 
 }

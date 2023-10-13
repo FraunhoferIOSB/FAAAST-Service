@@ -63,16 +63,6 @@ public class RangeCreator extends SubmodelElementCreator {
             AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
 
-            //            Reference rangeRef = null;
-            //            if (parentRef != null) {
-            //                try {
-            //                    rangeRef = EnvironmentHelper.asReference(aasRange, nodeManager.getEnvironment());
-            //                }
-            //                catch (IllegalArgumentException iae) {
-            //                    rangeRef = AasUtils.toReference(parentRef, aasRange);
-            //                    LOGGER.warn("addAasRange: exception in EnvironmentHelper.asReference: {}; try alternative version: {}", iae.getMessage(), ReferenceHelper.toString(rangeRef));
-            //                }
-            //            }
             addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
 
             if (VALUES_READ_ONLY) {

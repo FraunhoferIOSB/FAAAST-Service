@@ -33,6 +33,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
  */
 public class ResourceCreator {
 
+    /**
+     * Adds an AAS Resource to the given Node.
+     *
+     * @param node The UA node in which the SpecificAssetID should be created
+     * @param aasResource The desired AAS Resource.
+     * @param name The desired name.
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
+     */
     public static void addAasResource(UaNode node, Resource aasResource, String name, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         if ((node != null) && (aasResource != null)) {
             NodeId nodeId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + name);

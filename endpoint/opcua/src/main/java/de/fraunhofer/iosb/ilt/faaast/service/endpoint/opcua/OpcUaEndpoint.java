@@ -207,9 +207,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         request.setPath(ReferenceHelper.toPath(refElement));
         request.setInputArguments(inputVariables);
 
-        //requestCounter++;
-        //request.setRequestId(Integer.toString(requestCounter));
-
         // execute method
         InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
         if (response.getStatusCode().isSuccess()) {
