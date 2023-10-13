@@ -46,7 +46,7 @@ public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbn
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
         }
         return GetThumbnailResponse.builder()
-                .payload(TypedInMemoryFile.builder()
+                .payload(new TypedInMemoryFile.Builder()
                         .content(context.getFileStorage().get(aas.getAssetInformation().getDefaultThumbnail().getPath()))
                         .contentType(aas.getAssetInformation().getDefaultThumbnail().getContentType())
                         .path(aas.getAssetInformation().getDefaultThumbnail().getPath())

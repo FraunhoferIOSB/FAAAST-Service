@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 
 /**
@@ -22,6 +25,7 @@ import java.io.File;
  */
 public class FileHelper {
 
+    private static final String PATH_SEPARATOR = "/";
     private static final String MSG_FILE_NON_NULL = "file must be non-null";
     private static final String MSG_FILENAME_NON_NULL = "filename must be non-null";
 
@@ -115,5 +119,25 @@ public class FileHelper {
             return "";
         }
         return filename.substring(index + 1);
+    }
+
+
+    /**
+     * Extracts the filename from a given path.
+     *
+     * @param path the path to the file containing the filename
+     * @return the filename
+     */
+    public static String getFilenameFromPath(String path) {
+        Ensure.requireNonNull(path, "path must be non-null");
+        try {
+            return Paths.get(new URI(path)).getFileName().toString();
+        }
+        catch (URISyntaxException ex) {
+            if (path.contains(PATH_SEPARATOR)) {
+                return path.substring(path.lastIndexOf(PATH_SEPARATOR));
+            }
+            return path;
+        }
     }
 }

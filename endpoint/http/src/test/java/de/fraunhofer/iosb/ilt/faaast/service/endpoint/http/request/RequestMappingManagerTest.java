@@ -1169,10 +1169,10 @@ public class RequestMappingManagerTest {
         Request expected = PutFileByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .content(TypedInMemoryFile.builder()
+                .content(new TypedInMemoryFile.Builder()
                         .path("test.pdf")
                         .content(content)
-                        .contentType(ContentType.APPLICATION_PDF.getMimeType() + "; charset=UTF-8")
+                        .contentType(ContentType.APPLICATION_PDF.getMimeType())
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -1241,8 +1241,8 @@ public class RequestMappingManagerTest {
         String contentType = "multipart/form-data; boundary=boundary";
         Request expected = PutThumbnailRequest.builder()
                 .id(AAS.getId())
-                .content(TypedInMemoryFile.builder()
-                        .path("test.pdf")
+                .content(new TypedInMemoryFile.Builder()
+                        .path("test.png")
                         .content(content)
                         .contentType(ContentType.IMAGE_PNG.getMimeType())
                         .build())

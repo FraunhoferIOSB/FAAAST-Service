@@ -27,6 +27,8 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jetty.http.HttpStatus;
@@ -164,9 +166,28 @@ public class HttpHelper {
      * @throws IllegalArgumentException if statusCode is null
      */
     public static void sendContent(HttpServletResponse response, StatusCode statusCode, byte[] content, MediaType contentType) {
+        sendContent(response, statusCode, content, contentType, null);
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode, payload and contentType.
+     *
+     * @param response HTTP response object
+     * @param statusCode statusCode to send
+     * @param content the content to send
+     * @param contentType the contentType to use
+     * @param headers headers to be added to the response
+     * @throws IllegalArgumentException if response is null
+     * @throws IllegalArgumentException if statusCode is null
+     */
+    public static void sendContent(HttpServletResponse response, StatusCode statusCode, byte[] content, MediaType contentType, Map<String, String> headers) {
         Ensure.requireNonNull(response, "response must be non-null");
         Ensure.requireNonNull(statusCode, "statusCode must be non-null");
         response.setStatus(toHttpStatusCode(statusCode));
+        if (Objects.nonNull(headers)) {
+            headers.forEach((key, value) -> response.addHeader(key, value));
+        }
         if (statusCode != StatusCode.SUCCESS_NO_CONTENT) {
             if (contentType != null) {
                 response.setContentType(contentType.toString());

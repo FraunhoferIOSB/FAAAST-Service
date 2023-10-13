@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
 
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
@@ -28,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
-import org.apache.http.entity.ContentType;
 
 
 /**
@@ -48,11 +48,11 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
 
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
+        MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
         Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutFileByPathRequest.builder()
                 .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                .content(TypedInMemoryFile.builder()
+                .content(new TypedInMemoryFile.Builder()
                         .content(multipart.get("file").getContent())
                         .contentType(multipart.get("file").getContentType())
                         .path(new String(multipart.get("fileName").getContent()))

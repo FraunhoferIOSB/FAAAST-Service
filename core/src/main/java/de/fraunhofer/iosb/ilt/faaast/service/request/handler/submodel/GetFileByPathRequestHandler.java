@@ -52,9 +52,10 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .element(reference)
                 .build());
         return GetFileByPathResponse.builder()
-                .payload(TypedInMemoryFile.builder()
+                .payload(new TypedInMemoryFile.Builder()
                         .content(context.getFileStorage().get(file.getValue()))
                         .contentType(file.getContentType())
+                        .path(file.getValue())
                         .build())
                 .success()
                 .build();

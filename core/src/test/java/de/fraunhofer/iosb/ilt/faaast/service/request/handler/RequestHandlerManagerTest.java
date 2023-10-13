@@ -457,7 +457,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetThumbnailRequest() throws ResourceNotFoundException, Exception {
-        TypedInMemoryFile file = TypedInMemoryFile.builder()
+        TypedInMemoryFile file = new TypedInMemoryFile.Builder()
                 .path("my/path/image.png")
                 .content("foo".getBytes())
                 .build();
@@ -505,7 +505,7 @@ public class RequestHandlerManagerTest {
                 file.getContent());
         PutThumbnailRequest putThumbnailRequestRequest = new PutThumbnailRequest.Builder()
                 .id(aasId)
-                .content(TypedInMemoryFile.builder().path(file.getPath()).content(file.getContent()).contentType("image/png").build())
+                .content(new TypedInMemoryFile.Builder().path(file.getPath()).content(file.getContent()).contentType("image/png").build())
                 .build();
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
@@ -514,9 +514,10 @@ public class RequestHandlerManagerTest {
         Assert.assertTrue(send.getResult().getSuccess());
         GetThumbnailResponse actual = manager.execute(request);
         GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
-                .payload(TypedInMemoryFile.builder()
+                .payload(new TypedInMemoryFile.Builder()
                         .content(file.getContent())
                         .contentType("image/png")
+                        .path(file.getPath())
                         .build())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
@@ -533,32 +534,33 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutGetFileRequest() throws ResourceNotFoundException, Exception {
-        TypedInMemoryFile file = TypedInMemoryFile.builder()
+        TypedInMemoryFile expectedFile = new TypedInMemoryFile.Builder()
                 .path("file:///TestFile.pdf")
                 .content("foo".getBytes())
                 .contentType("application/pdf")
                 .build();
-        SubmodelElement defaultFile = new DefaultFile.Builder()
+        SubmodelElement file = new DefaultFile.Builder()
                 .idShort("ExampleFile")
-                .value("file:///TestFile.pdf")
+                .value("file://TestFile.pdf")
                 .build();
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
-                .thenReturn(defaultFile);
+                .thenReturn(file);
         PutFileByPathRequest putFileByPathRequest = new PutFileByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
-                .content(file)
+                .path(file.getIdShort())
+                .content(expectedFile)
                 .build();
         PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
         Assert.assertTrue(putFileByPathResponse.getResult().getSuccess());
         GetFileByPathRequest request = new GetFileByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
-                .path("")
+                .path(file.getIdShort())
                 .build();
-        when(fileStorage.get(file.getPath()))
-                .thenReturn(file.getContent());
+        when(fileStorage.get(expectedFile.getPath()))
+                .thenReturn(expectedFile.getContent());
         GetFileByPathResponse actual = manager.execute(request);
         GetFileByPathResponse expected = new GetFileByPathResponse.Builder()
-                .payload(file)
+                .payload(expectedFile)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));

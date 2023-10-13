@@ -19,7 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 
 /**
@@ -27,6 +29,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  */
 public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile> {
+
+    private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
     public ResponseWithFileMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -39,6 +43,10 @@ public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractRespo
                 httpResponse,
                 apiResponse.getStatusCode(),
                 apiResponse.getPayload().getContent(),
-                MediaType.parse(apiResponse.getPayload().getContentType()));
+                MediaType.parse(apiResponse.getPayload().getContentType()),
+                Map.of(HEADER_CONTENT_DISPOSITION, String.format(
+                        "attachment; filename=\"%s\"",
+                        FileHelper.getFilenameFromPath(apiResponse.getPayload().getPath()))));
+
     }
 }

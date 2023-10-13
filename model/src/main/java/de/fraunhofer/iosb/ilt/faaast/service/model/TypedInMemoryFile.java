@@ -20,10 +20,9 @@ import java.util.Objects;
 /**
  * Represents a typed in-memory file with path, content and contentType.
  */
-public class TypedInMemoryFile extends AbstractFileContent {
+public class TypedInMemoryFile extends InMemoryFile {
 
     private String contentType;
-    private String path;
 
     public String getContentType() {
         return contentType;
@@ -32,16 +31,6 @@ public class TypedInMemoryFile extends AbstractFileContent {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
-    }
-
-
-    public String getPath() {
-        return path;
-    }
-
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
 
@@ -55,31 +44,19 @@ public class TypedInMemoryFile extends AbstractFileContent {
         }
         TypedInMemoryFile that = (TypedInMemoryFile) o;
         return super.equals(that)
-                && Objects.equals(contentType, that.contentType)
-                && Objects.equals(path, that.path);
+                && Objects.equals(contentType, that.contentType);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), contentType, path);
+        return Objects.hash(super.hashCode(), contentType);
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public abstract static class AbstractBuilder<T extends TypedInMemoryFile, B extends AbstractBuilder<T, B>> extends AbstractFileContent.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends TypedInMemoryFile, B extends AbstractBuilder<T, B>> extends InMemoryFile.AbstractBuilder<T, B> {
 
         public B contentType(String value) {
             getBuildingInstance().setContentType(value);
-            return getSelf();
-        }
-
-
-        public B path(String value) {
-            getBuildingInstance().setPath(value);
             return getSelf();
         }
     }

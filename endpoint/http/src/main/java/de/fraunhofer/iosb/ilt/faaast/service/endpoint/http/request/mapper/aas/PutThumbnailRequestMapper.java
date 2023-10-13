@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aas;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
 
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
@@ -27,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
-import org.apache.http.entity.ContentType;
 
 
 /**
@@ -45,11 +45,11 @@ public class PutThumbnailRequestMapper extends AbstractRequestMapper {
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        ContentType contentType = ContentType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
+        MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
         Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
         return PutThumbnailRequest.builder()
                 .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
-                .content(TypedInMemoryFile.builder()
+                .content(new TypedInMemoryFile.Builder()
                         .content(multipart.get("file").getContent())
                         .contentType(multipart.get("file").getContentType())
                         .path(new String(multipart.get("fileName").getContent()))

@@ -1225,10 +1225,6 @@ public class HttpEndpointIT {
                 .conceptDescriptions(environment.getConceptDescriptions())
                 .build();
         String fileName = "file:///TestFile.pdf";
-        EnvironmentContext expected = EnvironmentContext.builder()
-                .environment(defaultEnvironment)
-                .file(new InMemoryFile(content, fileName))
-                .build();
         HttpEntity httpEntity = MultipartEntityBuilder.create()
                 .addPart("fileName",
                         new StringBody(fileName,

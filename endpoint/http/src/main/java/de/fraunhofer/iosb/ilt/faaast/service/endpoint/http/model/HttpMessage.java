@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -32,7 +33,7 @@ public abstract class HttpMessage {
 
     protected HttpMessage() {
         this.headers = new HashMap<>();
-        this.charset = StandardCharsets.UTF_8;
+        this.charset = Charset.defaultCharset();
     }
 
 
@@ -77,6 +78,29 @@ public abstract class HttpMessage {
     }
 
 
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
+
+    /**
+     * Sets the charset.
+     *
+     * @param charset the charset to set
+     */
+    public void setCharset(String charset) {
+        try {
+            this.charset = Charset.forName(charset);
+        }
+        catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+            throw e;
+        }
+        catch (IllegalArgumentException e) {
+            this.charset = Charset.defaultCharset();
+        }
+    }
+
+
     /**
      * Sets the body to a string encoded using the provided charset.
      *
@@ -116,6 +140,18 @@ public abstract class HttpMessage {
 
         public B headers(Map<String, String> value) {
             getBuildingInstance().setHeaders(value);
+            return getSelf();
+        }
+
+
+        public B charset(Charset value) {
+            getBuildingInstance().setCharset(value);
+            return getSelf();
+        }
+
+
+        public B charset(String value) {
+            getBuildingInstance().setCharset(value);
             return getSelf();
         }
     }

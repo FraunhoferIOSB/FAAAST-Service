@@ -96,6 +96,7 @@ public class RequestHandler extends AbstractHandler {
                 .query(request.getQueryString())
                 .body(request.getInputStream().readAllBytes())
                 .method(method)
+                .charset(request.getCharacterEncoding())
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(
                                 x -> x,

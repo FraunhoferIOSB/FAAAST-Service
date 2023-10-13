@@ -14,15 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
+import java.util.Arrays;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Represents a file loaded to memory.
  */
-public class InMemoryFile extends AbstractFileContent {
+public class InMemoryFile {
 
+    private byte[] content;
     private String path;
+
+    public byte[] getContent() {
+        return content;
+    }
+
+
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
+
 
     public String getPath() {
         return path;
@@ -43,14 +56,14 @@ public class InMemoryFile extends AbstractFileContent {
             return false;
         }
         InMemoryFile that = (InMemoryFile) o;
-        return super.equals(that)
+        return Arrays.equals(content, that.content)
                 && Objects.equals(path, that.path);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path);
+        return Objects.hash(Arrays.hashCode(content), path);
     }
 
 
@@ -58,7 +71,13 @@ public class InMemoryFile extends AbstractFileContent {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends InMemoryFile, B extends AbstractBuilder<T, B>> extends AbstractFileContent.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends InMemoryFile, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B content(byte[] value) {
+            getBuildingInstance().setContent(value);
+            return getSelf();
+        }
+
 
         public B path(String value) {
             getBuildingInstance().setPath(value);
