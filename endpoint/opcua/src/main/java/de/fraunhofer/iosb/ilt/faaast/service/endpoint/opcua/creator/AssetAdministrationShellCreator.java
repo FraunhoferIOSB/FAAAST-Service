@@ -273,7 +273,9 @@ public class AssetAdministrationShellCreator {
             }
 
             // change reference to model reference here
-            ref.setType(ReferenceTypes.MODEL_REFERENCE);
+            if (ref != null) {
+                ref.setType(ReferenceTypes.MODEL_REFERENCE);
+            }
             submodelNode = nodeManager.getSubmodelNode(ref);
 
             UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);

@@ -141,13 +141,11 @@ public class EmbeddedDataSpecificationCreator {
 
 
     private static void addDataSpecificationContent(AASEmbeddedDataSpecificationType dataSpecNode, DataSpecificationContent content, AasServiceNodeManager nodeManager) {
-        if (content != null) {
-            if (dataSpecNode.getDataSpecificationContentNode() == null) {
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASDataSpecificationContentType contentNode = nodeManager.createInstance(AASDataSpecificationContentType.class,
-                        AASEmbeddedDataSpecificationType.DATA_SPECIFICATION_CONTENT, nid);
-                dataSpecNode.addComponent(contentNode);
-            }
+        if ((content != null) && (dataSpecNode.getDataSpecificationContentNode() == null)) {
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASDataSpecificationContentType contentNode = nodeManager.createInstance(AASDataSpecificationContentType.class,
+                    AASEmbeddedDataSpecificationType.DATA_SPECIFICATION_CONTENT, nid);
+            dataSpecNode.addComponent(contentNode);
         }
     }
 }

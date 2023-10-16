@@ -664,7 +664,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
         LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
-        AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(SubmodelElementIdentifier.fromReference(reference));
+        SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
+        AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(smid);
         if ((removedElement != null) && LOG.isDebugEnabled()) {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
         }
