@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import java.util.List;
 import opc.i4aas.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -85,16 +86,7 @@ public class SubmodelCreator {
 
             IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
 
-            // Kind
-            if (submodel.getKind() != null) {
-                if (smNode.getKindNode() == null) {
-                    UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, submodel.getKind(),
-                            opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
-                }
-                else {
-                    smNode.setKind(ValueConverter.convertModellingKind(submodel.getKind()));
-                }
-            }
+            setKind(submodel.getKind(), smNode, nodeManager);
 
             // DataSpecifications
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
@@ -128,6 +120,20 @@ public class SubmodelCreator {
         }
         else {
             LOGGER.warn("addSubmodel: IdShort is empty!");
+        }
+    }
+
+
+    private static void setKind(ModellingKind kind, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
+        // Kind
+        if (kind != null) {
+            if (smNode.getKindNode() == null) {
+                UaHelper.addKindProperty(smNode, nodeManager, AASSubmodelType.KIND, kind,
+                        opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri());
+            }
+            else {
+                smNode.setKind(ValueConverter.convertModellingKind(kind));
+            }
         }
     }
 
