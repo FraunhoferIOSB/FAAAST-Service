@@ -395,8 +395,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         Reference parentRef = ReferenceHelper.getParent(element);
-        LOG.debug("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
-                ReferenceHelper.toString(parentRef), value.getClass());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("elementCreated called. Reference {}; Value: {}; ParentRef: {}; Class {}", ReferenceHelper.toString(element), value.getIdShort(),
+                    ReferenceHelper.toString(parentRef), value.getClass());
+        }
         // The element is the reference to the object which is added itself
         // formerly it was the parent
         ObjectData parent = null;
@@ -415,46 +417,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         else if (parent != null) {
             if (value instanceof EmbeddedDataSpecification) {
-                if (parent.getNode() instanceof AASAssetAdministrationShellType) {
-                    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(),
-                            List.of((EmbeddedDataSpecification) value), this);
-                }
-                else if (parent.getNode() instanceof AASSubmodelType) {
-                    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
-                }
-                else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
-                }
-                else {
-                    LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
-                }
+                addEmbeddedDataSpecification(parent, value);
             }
             else if (value instanceof Qualifier) {
-                if (parent.getNode() instanceof AASSubmodelType) {
-                    QualifierCreator.addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
-                }
-                else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
-                }
-                else {
-                    LOG.debug("elementCreated: Constraint parent class not found");
-                }
+                addQualifier(parent, value);
             }
             else if (value instanceof SubmodelElement) {
-                if (parent.getNode() instanceof AASSubmodelType) {
-                    LOG.trace("elementCreated: call addSubmodelElements");
-                    SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element, this);
-                }
-                else if (parent.getNode() instanceof AASSubmodelElementType) {
-                    LOG.debug("elementCreated: call addSubmodelElements");
-                    SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
-                }
-                else {
-                    LOG.debug("elementCreated: SubmodelElement parent class not found: {}; {}", parent.getNode().getNodeId(), parent.getNode());
-                }
+                addSubmodelElement(parent, value, element);
             }
         }
-        else {
+        else if (LOG.isDebugEnabled()) {
             LOG.debug("elementCreated: parent not found: {}", ReferenceHelper.toString(parentRef));
         }
     }
@@ -469,7 +441,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void elementDeleted(Reference element) throws StatusException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
 
-        LOG.debug("elementDeleted called. Reference {}", ReferenceHelper.toString(element));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("elementDeleted called. Reference {}", ReferenceHelper.toString(element));
+        }
         // The element is the object that should be deleted
         ObjectData data = referableMap.get(element);
         if (data != null) {
@@ -478,7 +452,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
         }
-        else {
+        else if (LOG.isInfoEnabled()) {
             LOG.info("elementDeleted: element not found in referableMap: {}", ReferenceHelper.toString(element));
         }
     }
@@ -501,7 +475,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        LOG.debug("elementUpdated called. Reference {}", ReferenceHelper.toString(element));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("elementUpdated called. Reference {}", ReferenceHelper.toString(element));
+        }
         // Currently we implement update as delete and create. 
         elementDeleted(element);
 
@@ -540,7 +516,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(newValue, "newValue must not be null");
 
         SubmodelElementIdentifier path = SubmodelElementIdentifier.fromReference(reference);
-        LOG.trace("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("updateSubmodelElementValue Reference {}; Path {}", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(path));
+        }
         if (submodelElementOpcUAMap.containsKey(path)) {
             AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUAMap.get(path), newValue, this);
         }
@@ -590,7 +568,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
-        LOG.trace("add to submodelElementOpcUAMap: {}; ({})", ReferenceHelper.toString(reference), dumpSubmodelElementIdentifier(smid));
         submodelElementOpcUAMap.put(smid, submodelElement);
     }
 
@@ -613,7 +590,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param data The corresponding SubmodelElement data.
      */
     public void addSubmodelElementAasMap(NodeId nodeId, SubmodelElementData data) {
-        LOG.trace("addSubmodelElementAasMap {}", ReferenceHelper.toString(data.getReference()));
         submodelElementAasMap.put(nodeId, data);
     }
 
@@ -663,7 +639,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referable The corresponding referable
      */
     private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
-        LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", ReferenceHelper.toString(reference));
+        }
         SubmodelElementIdentifier smid = SubmodelElementIdentifier.fromReference(reference);
         AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(smid);
         if ((removedElement != null) && LOG.isDebugEnabled()) {
@@ -779,7 +757,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
             }
         }
-        else {
+        else if (LOG.isDebugEnabled()) {
             LOG.info("doRemoveFromMaps: element not found in referableMap: {}", ReferenceHelper.toString(ref));
         }
     }
@@ -792,7 +770,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodel The desired submodel
      */
     private void doRemoveFromMaps(Reference reference, Submodel submodel) {
-        LOG.debug("doRemoveFromMaps: remove submodel {}", ReferenceHelper.toString(reference));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("doRemoveFromMaps: remove submodel {}", ReferenceHelper.toString(reference));
+        }
         for (SubmodelElement element: submodel.getSubmodelElements()) {
             doRemoveFromMaps(reference, element);
         }
@@ -803,5 +783,51 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     private static String dumpSubmodelElementIdentifier(SubmodelElementIdentifier value) {
         return String.format("SubmodelElementIdentifier: Submodel %s; IdShortPath %s", value.getSubmodelId(), value.getIdShortPath().toString());
+    }
+
+
+    private void addQualifier(ObjectData parent, Referable value) throws StatusException {
+        if (parent.getNode() instanceof AASSubmodelType) {
+            QualifierCreator.addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelElementType) {
+            QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
+        }
+        else {
+            LOG.debug("elementCreated: Constraint parent class not found");
+        }
+    }
+
+
+    private void addSubmodelElement(ObjectData parent, Referable value, Reference element)
+            throws StatusException, ValueFormatException, ServiceResultException, ServiceException, AddressSpaceException {
+        if (parent.getNode() instanceof AASSubmodelType) {
+            LOG.trace("elementCreated: call addSubmodelElements");
+            SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element, this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelElementType) {
+            LOG.debug("elementCreated: call addSubmodelElements");
+            SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
+        }
+        else {
+            LOG.debug("elementCreated: SubmodelElement parent class not found: {}; {}", parent.getNode().getNodeId(), parent.getNode());
+        }
+    }
+
+
+    private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException {
+        if (parent.getNode() instanceof AASAssetAdministrationShellType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(),
+                    List.of((EmbeddedDataSpecification) value), this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
+        }
+        else if (parent.getNode() instanceof AASSubmodelElementType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
+        }
+        else {
+            LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
+        }
     }
 }
