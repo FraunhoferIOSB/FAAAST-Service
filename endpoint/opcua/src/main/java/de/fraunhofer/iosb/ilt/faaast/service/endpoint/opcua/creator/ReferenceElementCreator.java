@@ -74,7 +74,9 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
             }
 
             if (refElemNode.getValueNode() != null) {
-                LOGGER.trace("addAasReferenceElement: Name {}; Reference {}", name, ReferenceHelper.toString(refElemRef));
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("addAasReferenceElement: Name {}; Reference {}", name, ReferenceHelper.toString(refElemRef));
+                }
                 nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
                         new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
             }

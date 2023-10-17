@@ -48,7 +48,6 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @param aasColl The corresponding SubmodelElementCollection to add
      * @param collectionRef The AAS reference to the SubmodelElementCollection
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
@@ -56,7 +55,7 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @throws ServiceResultException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel, boolean ordered,
+    public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel,
                                                        AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
         if ((node != null) && (aasColl != null)) {
@@ -71,7 +70,9 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
             addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
             // SubmodelElements 
-            LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
+            }
             addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
 
             node.addComponent(collNode);

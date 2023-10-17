@@ -34,6 +34,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
 public class ResourceCreator {
 
     /**
+     * Sonar wants a private constructor.
+     */
+    private ResourceCreator() {}
+
+
+    /**
      * Adds an AAS Resource to the given Node.
      *
      * @param node The UA node in which the SpecificAssetID should be created

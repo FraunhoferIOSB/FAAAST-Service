@@ -148,7 +148,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
         try {
             String path = ReferenceHelper.toPath(refElement);
-            LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
+            }
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             request.setSubmodelId(submodel.getId());
@@ -175,8 +177,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
-                    response.getStatusCode());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+                        response.getStatusCode());
+            }
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }

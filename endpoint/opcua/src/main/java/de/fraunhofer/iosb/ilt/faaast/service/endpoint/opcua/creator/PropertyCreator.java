@@ -87,7 +87,9 @@ public class PropertyCreator extends SubmodelElementCreator {
                 }
             }
 
-            LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(ref));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(ref));
+            }
 
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);

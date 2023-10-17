@@ -852,7 +852,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testSubmodelElementList Browse Result Null", bpres);
-        Assert.assertTrue("testSubmodelElementList Browse Result: size doesn't match", bpres.length == 4);
+        Assert.assertEquals("testSubmodelElementList Browse Result: size doesn't match", 4, bpres.length);
         Assert.assertTrue("testSubmodelElementList Browse Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testSubmodelElementList Browse Result 2 Good", bpres[1].getStatusCode().isGood());
         // ValueTypeListElement not set

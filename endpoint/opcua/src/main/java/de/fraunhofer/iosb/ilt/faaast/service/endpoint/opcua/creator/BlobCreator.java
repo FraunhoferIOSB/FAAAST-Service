@@ -66,22 +66,7 @@ public class BlobCreator extends SubmodelElementCreator {
             // ContentType
             blobNode.setContentType(aasBlob.getContentType());
 
-            // Value
-            if (aasBlob.getValue() != null) {
-                if (blobNode.getValueNode() == null) {
-                    AasSubmodelElementHelper.addBlobValueNode(blobNode, nodeManager);
-                }
-
-                nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),
-                        new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-                LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob);
-
-                if (blobRef != null) {
-                    nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
-                }
-
-                blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
-            }
+            setValue(aasBlob, blobNode, nodeManager, submodel, blobRef);
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
                 blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -97,6 +82,28 @@ public class BlobCreator extends SubmodelElementCreator {
             if (blobRef != null) {
                 nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
             }
+        }
+    }
+
+
+    private static void setValue(Blob aasBlob, AASBlobType blobNode, AasServiceNodeManager nodeManager, Submodel submodel, Reference blobRef) throws StatusException {
+        // Value
+        if (aasBlob.getValue() != null) {
+            if (blobNode.getValueNode() == null) {
+                AasSubmodelElementHelper.addBlobValueNode(blobNode, nodeManager);
+            }
+
+            nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),
+                    new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob.getIdShort());
+            }
+
+            if (blobRef != null) {
+                nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
+            }
+
+            blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
         }
     }
 

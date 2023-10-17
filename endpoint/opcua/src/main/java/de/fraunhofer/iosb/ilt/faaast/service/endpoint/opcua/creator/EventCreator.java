@@ -81,7 +81,7 @@ public class EventCreator extends SubmodelElementCreator {
         AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
         addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
-        setBasicEventElementData(eventNode, (BasicEventElement) aasEvent, nodeManager);
+        setBasicEventElementData(eventNode, aasEvent, nodeManager);
 
         if (ordered) {
             node.addReference(eventNode, Identifiers.HasOrderedComponent, false);

@@ -285,7 +285,7 @@ public class AssetAdministrationShellCreator {
                 if (submodelNode != null) {
                     refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
                 }
-                else {
+                else if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ReferenceHelper.toString(ref));
                 }
             }

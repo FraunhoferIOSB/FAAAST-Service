@@ -97,7 +97,9 @@ public class SubmodelElementCreator {
             for (SubmodelElement elem: elements) {
                 Reference elementRef = ReferenceBuilder.with(parentRef).element(elem).build();
 
-                LOGGER.trace("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("addSubmodelElements: parentRef {}; elementRef: {}", ReferenceHelper.toString(parentRef), ReferenceHelper.toString(elementRef));
+                }
                 addSubmodelElement(elem, node, elementRef, submodel, ordered, nodeManager);
             }
         }
@@ -140,7 +142,7 @@ public class SubmodelElementCreator {
             RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, elementRef, submodel, ordered, nodeManager);
         }
         else if (elem instanceof SubmodelElementCollection) {
-            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, elementRef, submodel, ordered, nodeManager);
+            SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, elementRef, submodel, nodeManager);
         }
         else if (elem instanceof SubmodelElementList) {
             SubmodelElementListCreator.addAasSubmodelElementList(node, (SubmodelElementList) elem, elementRef, submodel, nodeManager);

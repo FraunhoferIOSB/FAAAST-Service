@@ -47,6 +47,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 public class UaHelper {
 
     /**
+     * Sonar wants a private constructor.
+     */
+    private UaHelper() {}
+
+
+    /**
      * Creates an OPC UA String property.
      * 
      * @param valueData The desired Value Data
