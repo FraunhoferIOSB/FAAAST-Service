@@ -87,7 +87,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (environmentDocument == null) {
             try {
                 aasEnvironment = config.loadInitialModel();
-                insertEnvironment(config.getModelId(), aasEnvironment);
+                insertEnvironment(aasEnvironment);
             }
             catch (ConfigurationException | JsonProcessingException | DeserializationException e) {
                 throw new ConfigurationInitializationException(e);
@@ -127,7 +127,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private void insertEnvironment(String modelId, Environment aasEnvironment) throws JsonProcessingException {
+    private void insertEnvironment(Environment aasEnvironment) throws JsonProcessingException {
         Document environmentDocument = getEnvironmentDocument(aasEnvironment);
         environmentCollection.insertOne(environmentDocument);
     }
