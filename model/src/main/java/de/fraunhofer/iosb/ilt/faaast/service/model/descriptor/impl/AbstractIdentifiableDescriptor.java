@@ -55,7 +55,7 @@ public abstract class AbstractIdentifiableDescriptor {
         this.endpoints = endpoints;
         this.administration = administration;
         this.descriptions = descriptions;
-        this.id = id;
+        this.id = identification;
     }
 
 
