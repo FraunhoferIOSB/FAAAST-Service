@@ -135,7 +135,7 @@ public class AssetConnectionManager {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
                     Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
                             .submodelId(subscriptionInfo.getKey().getKeys().get(0).getValue())
-                            .path(ReferenceHelper.toPath(ReferenceHelper.getParent(subscriptionInfo.getKey())))
+                            .path(ReferenceHelper.toPath(subscriptionInfo.getKey()))
                             .internal()
                             .value(data)
                             .build());
