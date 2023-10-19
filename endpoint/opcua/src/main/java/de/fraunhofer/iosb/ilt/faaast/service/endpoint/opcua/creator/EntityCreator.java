@@ -71,8 +71,6 @@ public class EntityCreator extends SubmodelElementCreator {
             AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
-            //Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
-
             // EntityType
             entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
 
@@ -92,7 +90,6 @@ public class EntityCreator extends SubmodelElementCreator {
 
             // Statements
             SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
-            //SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, null, nodeManager);
 
             nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
 

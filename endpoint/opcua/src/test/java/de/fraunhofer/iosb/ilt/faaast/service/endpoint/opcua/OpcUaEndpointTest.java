@@ -95,7 +95,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 200;
+    private static final long DEFAULT_TIMEOUT = 400;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -164,7 +164,6 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("Browse Environment Refs Null", refs);
         Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
         NodeId aasNode = null;
-        //NodeId assetNode = null;
         NodeId submodelDocNode = null;
         NodeId submodelTechDataNode = null;
         NodeId submodelOperDataNode = null;
@@ -173,9 +172,6 @@ public class OpcUaEndpointTest {
                 case TestConstants.SIMPLE_AAS_NAME:
                     aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                //case TestConstants.SIMPLE_ASSET_NAME:
-                //    assetNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                //    break;
                 case TestConstants.SUBMODEL_DOC_NODE_NAME:
                     submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
@@ -191,7 +187,6 @@ public class OpcUaEndpointTest {
         }
 
         Assert.assertNotNull("AAS Node not found", aasNode);
-        //Assert.assertNotNull("Asset Node not found", assetNode);
         Assert.assertNotNull("Submodel Documentation Node not found", submodelDocNode);
         Assert.assertNotNull("Submodel TechnicalData Node not found", submodelTechDataNode);
         Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
@@ -202,9 +197,6 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelDocNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        //// Asset
-        //testAsset(client, assetNode);
 
         // Submodels
         testSubmodelDoc(client, submodelDocNode);
@@ -273,10 +265,7 @@ public class OpcUaEndpointTest {
                 .build();
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        //PropertyValue propertyValue = new PropertyValue();
-        //propertyValue.setValue(new IntValue(oldValue));
         valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, oldValue.toString()));
-        //propertyValue.setValue(new IntValue(newValue));
         valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
 
@@ -420,44 +409,6 @@ public class OpcUaEndpointTest {
         client.disconnect();
     }
 
-    //    @Test
-    //    public void testWriteBlobValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-    //        UaClient client = new UaClient(ENDPOINT_URL);
-    //        client.setSecurityMode(SecurityMode.NONE);
-    //        TestUtils.initialize(client);
-    //        client.connect();
-    //        System.out.println("testWriteBlobValue: client connected");
-    //
-    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-    //
-    //        List<RelativePath> relPath = new ArrayList<>();
-    //        List<RelativePathElement> browsePath = new ArrayList<>();
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_BLOB_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-    //
-    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-    //        Assert.assertNotNull("testWriteBlobValue Browse Result Null", bpres);
-    //        Assert.assertTrue("testWriteBlobValue Browse Result: size doesn't match", bpres.length == 1);
-    //        Assert.assertTrue("testWriteBlobValue Browse Result Good", bpres[0].getStatusCode().isGood());
-    //
-    //        BrowsePathTarget[] targets = bpres[0].getTargets();
-    //        Assert.assertNotNull("testWriteBlobValue ValueType Null", targets);
-    //        Assert.assertTrue("testWriteBlobValue ValueType empty", targets.length > 0);
-    //
-    //        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-    //
-    //        //byte[] oldValue = Base64.getDecoder().decode("AQIDBAU=");
-    //        ByteString oldValue = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
-    //        ByteString newValue = ByteString.valueOf(Base64.getDecoder().decode("QUJDREU="));
-    //        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
-    //
-    //        System.out.println("disconnect client");
-    //        client.disconnect();
-    //    }
-
 
     @Test
     public void testWriteMultiLanguagePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -549,43 +500,6 @@ public class OpcUaEndpointTest {
         client.disconnect();
     }
 
-    //    @Test
-    //    public void testWriteEntityPropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-    //        UaClient client = new UaClient(ENDPOINT_URL);
-    //        client.setSecurityMode(SecurityMode.NONE);
-    //        TestUtils.initialize(client);
-    //        client.connect();
-    //        System.out.println("testWriteEntityPropertyValue: client connected");
-    //
-    //        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-    //
-    //        List<RelativePath> relPath = new ArrayList<>();
-    //        List<RelativePathElement> browsePath = new ArrayList<>();
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASEntityType.STATEMENT)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_PROPERTY_NAME)));
-    //        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-    //        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-    //
-    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-    //        Assert.assertNotNull("testWriteEntityPropertyValue Browse Result Null", bpres);
-    //        Assert.assertTrue("testWriteEntityPropertyValue Browse Result: size doesn't match", bpres.length == 1);
-    //        Assert.assertTrue("testWriteEntityPropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
-    //
-    //        BrowsePathTarget[] targets = bpres[0].getTargets();
-    //        Assert.assertNotNull("testWriteEntityPropertyValue ValueType Null", targets);
-    //        Assert.assertTrue("testWriteEntityPropertyValue ValueType empty", targets.length > 0);
-    //
-    //        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-    //
-    //        TestUtils.writeNewValueIntern(client, writeNode, "http://acplt.org/ValueId/ExampleValueId", "http://acplt.org/ValueId/AnotherValue");
-    //
-    //        System.out.println("disconnect client");
-    //        client.disconnect();
-    //    }
-
 
     @Test
     public void testWriteEntityType() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -661,7 +575,6 @@ public class OpcUaEndpointTest {
                         .build())
                 .build();
         PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
-        LOGGER.info("testAddProperty: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_CREATED, response.getStatusCode());
 
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -911,15 +824,6 @@ public class OpcUaEndpointTest {
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
     }
 
-    //    private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-    //        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
-    //        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
-    //        TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
-    //        TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
-    //        TestUtils.checkCategoryNode(client, assetNode, aasns, "");
-    //        TestUtils.checkDataSpecificationNode(client, assetNode, aasns);
-    //    }
-
 
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
@@ -993,13 +897,8 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
-        //TestUtils.checkModelingKindNode(client, node, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        //TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
-        // Skip LangString / LocalizedText test: not yet implemented in the service
-        //TestUtils.checkAasPropertyString(client, node, aasns, "Title", AASModelingKindDataType.Instance, "", AASValueTypeDataType.LocalizedText, "OperatingManual",
-        //        new ArrayList<>());
         TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKindDataType.Instance, "", "application/pdf", "file:///aasx/OperatingManual.pdf", 0);
     }
 

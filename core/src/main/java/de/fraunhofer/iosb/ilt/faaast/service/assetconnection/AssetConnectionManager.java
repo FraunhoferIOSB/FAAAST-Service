@@ -89,7 +89,8 @@ public class AssetConnectionManager {
                 LOGGER.info(
                         "Establishing asset connection failed on initial attempt (endpoint: {}). Connecting will be retried every {}ms but no more messages about failures will be shown.",
                         connection.getEndpointInformation(),
-                        coreConfig.getAssetConnectionRetryInterval());
+                        coreConfig.getAssetConnectionRetryInterval(),
+                        e);
                 setupConnectionAsync(connection);
             }
         }
@@ -134,7 +135,7 @@ public class AssetConnectionManager {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
                     Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
                             .submodelId(subscriptionInfo.getKey().getKeys().get(0).getValue())
-                            .path(ReferenceHelper.toPath(ReferenceHelper.getParent(subscriptionInfo.getKey())))
+                            .path(ReferenceHelper.toPath(subscriptionInfo.getKey()))
                             .internal()
                             .value(data)
                             .build());

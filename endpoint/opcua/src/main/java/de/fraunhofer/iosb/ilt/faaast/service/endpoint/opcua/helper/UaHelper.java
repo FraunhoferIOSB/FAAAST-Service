@@ -47,6 +47,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 public class UaHelper {
 
     /**
+     * Sonar wants a private constructor.
+     */
+    private UaHelper() {}
+
+
+    /**
      * Creates an OPC UA String property.
      * 
      * @param valueData The desired Value Data
@@ -138,7 +144,6 @@ public class UaHelper {
                 valueData.getDisplayName());
         kindProperty.setDataTypeId(AASModellingKindDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         kindProperty.setDescription(new LocalizedText("", ""));
-        //Variant vari = new Variant();
         DataValue value = new DataValue(new Variant(ValueConverter.convertModellingKind(kind).getValue()));
         kindProperty.setValue(value);
 

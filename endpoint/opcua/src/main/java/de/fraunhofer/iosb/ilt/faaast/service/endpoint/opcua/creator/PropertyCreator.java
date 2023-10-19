@@ -28,8 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import opc.i4aas.AASPropertyType;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -64,18 +64,6 @@ public class PropertyCreator extends SubmodelElementCreator {
             AASPropertyType prop = nodeManager.createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
-            //            Reference propRef = null;
-            //            if (parentRef != null) {
-            //                try {
-            //                    propRef = EnvironmentHelper.asReference(aasProperty, nodeManager.getEnvironment());
-            //                }
-            //                catch (IllegalArgumentException iae) {
-            //                    propRef = AasUtils.toReference(parentRef, aasProperty);
-            //                    LOGGER.warn("addAasProperty (IdShort {}): exception in EnvironmentHelper.asReference: {}; try alternative version: {}", aasProperty.getIdShort(),
-            //                            iae.getMessage(), AasUtils.asString(propRef));
-            //                }
-            //            }
-
             // ValueId
             Reference ref = aasProperty.getValueID();
             if (ref != null) {
@@ -99,7 +87,9 @@ public class PropertyCreator extends SubmodelElementCreator {
                 }
             }
 
-            LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, AasUtils.asString(ref));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("addAasProperty: add Property {}, Reference: {}", nid, ReferenceHelper.toString(ref));
+            }
 
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);

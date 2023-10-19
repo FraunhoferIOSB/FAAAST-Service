@@ -58,18 +58,7 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
             AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
-            if (aasRefElem.getValue() != null) {
-                if (refElemNode.getValueNode() == null) {
-                    AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
-                            opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
-                            nodeManager);
-                }
-                else {
-                    AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
-                }
-            }
-
-            //Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
+            setValue(aasRefElem, refElemNode, nodeManager);
 
             if (refElemNode.getValueNode() != null) {
                 nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
@@ -86,6 +75,20 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
             }
 
             nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+        }
+    }
+
+
+    private static void setValue(ReferenceElement aasRefElem, AASReferenceElementType refElemNode, AasServiceNodeManager nodeManager) throws StatusException {
+        if (aasRefElem.getValue() != null) {
+            if (refElemNode.getValueNode() == null) {
+                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
+                        opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
+                        nodeManager);
+            }
+            else {
+                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+            }
         }
     }
 

@@ -131,19 +131,20 @@ public class QualifierCreator {
         qualifierNode.setValueType(ValueConverter.convertDataTypeDefXsd(qualifier.getValueType()));
 
         // Value
-        if (qualifier.getValue() != null) {
-            if (qualifierNode.getValueNode() == null) {
-                addQualifierValueNode(qualifierNode, nodeManager);
-            }
-
-            qualifierNode.setValue(qualifier.getValue());
-        }
+        setValue(qualifier.getValue(), qualifierNode, nodeManager);
 
         // ValueId
         if (qualifier.getValueID() != null) {
             AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueID(), AASQualifierType.VALUE_ID, nodeManager);
         }
 
+        setAccessRights(qualifierNode);
+
+        node.addComponent(qualifierNode);
+    }
+
+
+    private static void setAccessRights(AASQualifierType qualifierNode) {
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             if (qualifierNode.getValueNode() != null) {
                 qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -155,8 +156,17 @@ public class QualifierCreator {
                 qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
         }
+    }
 
-        node.addComponent(qualifierNode);
+
+    private static void setValue(String value, AASQualifierType qualifierNode, AasServiceNodeManager nodeManager) throws StatusException {
+        if (value != null) {
+            if (qualifierNode.getValueNode() == null) {
+                addQualifierValueNode(qualifierNode, nodeManager);
+            }
+
+            qualifierNode.setValue(value);
+        }
     }
 
 

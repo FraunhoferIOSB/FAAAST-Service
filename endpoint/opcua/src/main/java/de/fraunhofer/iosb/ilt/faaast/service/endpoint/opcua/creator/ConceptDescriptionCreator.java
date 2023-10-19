@@ -132,55 +132,6 @@ public class ConceptDescriptionCreator {
         }
     }
 
-    //    /**
-    //     * Adds AAS Identifiable information to the given node.
-    //     *
-    //     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
-    //     * @param identifier The corresponding AAS Identifier
-    //     * @param adminInfo The corresponding AAS Administrative Information
-    //     * @param category The desired category
-    //     * @param nodeManager The corresponding Node Manager
-    //     */
-    //    private static void addIdentifiable(AASIrdiConceptDescriptionType conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
-    //                                        AasServiceNodeManager nodeManager)
-    //            throws StatusException {
-    //        if (identifier != null) {
-    //            setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
-    //        }
-    //
-    //        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-    //        conceptDescriptionNode.setCategory(category != null ? category : "");
-    //
-    //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-    //            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-    //        }
-    //    }
-
-    //    /**
-    //     * Adds AAS Identifiable information to the given node.
-    //     *
-    //     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
-    //     * @param identifier The corresponding AAS Identifier
-    //     * @param adminInfo The corresponding AAS Administrative Information
-    //     * @param category The desired category
-    //     * @param nodeManager The corresponding Node Manager
-    //     */
-    //    private static void addIdentifiable(AASIriConceptDescriptionType conceptDescriptionNode, String identifier, AdministrativeInformation adminInfo, String category,
-    //                                        AasServiceNodeManager nodeManager)
-    //            throws StatusException {
-    //        if (identifier != null) {
-    //            setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
-    //        }
-    //
-    //        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-    //
-    //        conceptDescriptionNode.setCategory(category != null ? category : "");
-    //
-    //        if (AasServiceNodeManager.VALUES_READ_ONLY) {
-    //            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-    //        }
-    //    }
-
 
     /**
      * Adds AAS Identifiable information to the given node.
@@ -196,7 +147,6 @@ public class ConceptDescriptionCreator {
             throws StatusException {
         if (identifier != null) {
             conceptDescriptionNode.setId(identifier);
-            //setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -207,12 +157,4 @@ public class ConceptDescriptionCreator {
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
-
-    //    private static void setIdentifierData(AASIdentifierType identifierNode, String identifier, boolean readOnly) throws StatusException {
-    //        identifierNode.setId(identifier);
-    //        if (readOnly) {
-    //            identifierNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-    //            identifierNode.getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-    //        }
-    //    }
 }

@@ -38,7 +38,7 @@ public class TestConstants {
     public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
     public static final String TEST_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String TEST_ENTITY_NAME = "ExampleEntity";
-    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty";
+    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty2";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
     public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
     public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
@@ -57,8 +57,8 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
     public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
-    public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
-    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelCollection";
+    public static final String FULL_SM_ELEM_LIST_O_NAME = "ExampleSubmodelElementListOrdered";
+    public static final String FULL_SM_ELEM_COLL_NAME = "ExampleSubmodelElementCollection";
     public static final String FULL_SMEC_REF_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
@@ -68,7 +68,6 @@ public class TestConstants {
 
     public static final String KIND_NAME = "Kind";
     public static final String CATEGORY_NAME = "Category";
-    //public static final String IDENTIFICATION_NAME = "Identification";
     public static final String ADMINISTRATION_NAME = "Administration";
     public static final String EMBEDDED_DATA_SPECIFICATION_NAME = "EmbeddedDataSpecification";
     public static final String DATA_SPECIFICATION_NAME = "DataSpecification";
@@ -106,6 +105,7 @@ public class TestConstants {
     public static final int AAS_REFERENCE_LIST_ID = 1036;
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
+    public static final int AAS_SUBMODEL_ELEM_LIST_TYPE = 1040;
     public static final int AAS_SPECIFIC_ASSET_ID_TYPE_ID = 1041;
     public static final int AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID = 1043;
     public static final int AAS_EMBEDDED_DATA_SPECIFICATION_LIST = 1050;

@@ -63,8 +63,6 @@ public class CapabilityCreator extends SubmodelElementCreator {
                 node.addComponent(capabilityNode);
             }
 
-            //Reference capabilityRef = AasUtils.toReference(parentRef, aasCapability);
-
             nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
         }
     }

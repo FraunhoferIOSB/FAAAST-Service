@@ -154,7 +154,6 @@ public class OpcUaEndpoint2Test {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -375,7 +374,7 @@ public class OpcUaEndpoint2Test {
                         .build())
                 .build();
         PutSubmodelElementByPathResponse response = (PutSubmodelElementByPathResponse) service.execute(request);
-        LOGGER.info("testUpdateSubmodelElement: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
+        LOGGER.debug("testUpdateSubmodelElement: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // check MessageBus

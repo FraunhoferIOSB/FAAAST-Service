@@ -232,7 +232,7 @@ public class AasSubmodelElementHelper {
             throws StatusException {
         try {
             AASDataTypeDefXsd valueDataType;
-            PropertyValue typedValue = ElementValueMapper.toValue(aasProperty);
+            PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
                 valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
             }
@@ -240,7 +240,6 @@ public class AasSubmodelElementHelper {
                 valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             }
 
-            //LOG.info("AAS ValueType: {}; valueDataType: {}", aasProperty.getValueType(), valueDataType);
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {
