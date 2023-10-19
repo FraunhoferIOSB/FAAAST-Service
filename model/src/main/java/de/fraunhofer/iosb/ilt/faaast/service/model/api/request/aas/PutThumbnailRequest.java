@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import java.util.Objects;
@@ -27,7 +27,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
 
     private String id;
-    private FileContent content;
+    private TypedInMemoryFile content;
 
     public String getId() {
         return id;
@@ -39,12 +39,12 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
     }
 
 
-    public FileContent getContent() {
+    public TypedInMemoryFile getContent() {
         return content;
     }
 
 
-    public void setContent(FileContent content) {
+    public void setContent(TypedInMemoryFile content) {
         this.content = content;
     }
 
@@ -81,10 +81,11 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
         }
 
 
-        public B content(FileContent value) {
+        public B content(TypedInMemoryFile value) {
             getBuildingInstance().setContent(value);
             return getSelf();
         }
+
     }
 
     public static class Builder extends AbstractBuilder<PutThumbnailRequest, Builder> {

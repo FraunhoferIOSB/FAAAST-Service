@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
@@ -27,7 +27,7 @@ import java.util.Objects;
 public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFileByPathResponse> {
 
     private String path;
-    private FileContent content;
+    private TypedInMemoryFile content;
 
     public PutFileByPathRequest() {
         super(OutputModifierConstraints.NONE);
@@ -45,12 +45,12 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
     }
 
 
-    public FileContent getContent() {
+    public TypedInMemoryFile getContent() {
         return content;
     }
 
 
-    public void setContent(FileContent content) {
+    public void setContent(TypedInMemoryFile content) {
         this.content = content;
     }
 
@@ -89,10 +89,11 @@ public class PutFileByPathRequest extends AbstractSubmodelInterfaceRequest<PutFi
         }
 
 
-        public B content(FileContent value) {
+        public B content(TypedInMemoryFile value) {
             getBuildingInstance().setContent(value);
             return getSelf();
         }
+
     }
 
     public static class Builder extends AbstractBuilder<PutFileByPathRequest, Builder> {

@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -492,7 +493,9 @@ public abstract class AbstractHttpEndpointTest {
                 .build();
         when(service.execute(any())).thenReturn(GenerateSerializationByIdsResponse.builder()
                 .dataformat(DataFormat.JSON)
-                .payload(expected)
+                .payload(EnvironmentContext.builder()
+                        .environment(expected)
+                        .build())
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(
@@ -529,7 +532,9 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
                 .thenReturn(GenerateSerializationByIdsResponse.builder()
                         .dataformat(DataFormat.JSON)
-                        .payload(expected)
+                        .payload(EnvironmentContext.builder()
+                                .environment(expected)
+                                .build())
                         .statusCode(StatusCode.SUCCESS)
                         .build());
         ContentResponse response = execute(

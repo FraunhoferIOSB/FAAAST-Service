@@ -25,11 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -70,7 +70,7 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
     private static String addSubmodelPath(String urlPattern) {
         return String.format("%s%s%s",
                 SUBMODEL_PATH_PATTERN,
-                StringUtils.isNoneBlank(urlPattern) && !urlPattern.startsWith(HttpConstants.PATH_SEPERATOR)
+                !StringHelper.isBlank(urlPattern) && !urlPattern.startsWith(HttpConstants.PATH_SEPERATOR)
                         ? "/"
                         : "",
                 urlPattern);

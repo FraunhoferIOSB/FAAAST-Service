@@ -15,11 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.io.IOException;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 
 
 /**
@@ -33,10 +40,22 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
 
 
     @Override
-    public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
-        // delete file via persistence
-        // maybe publish event on messageBus
-        //     context.getMessageBus()publish();
+    public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException {
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        if (Objects.isNull(aas.getAssetInformation())
+                || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())
+                || StringHelper.isBlank(aas.getAssetInformation().getDefaultThumbnail().getPath())) {
+            throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
+        }
+        AssetInformation assetInformation = aas.getAssetInformation();
+        context.getFileStorage().delete(assetInformation.getDefaultThumbnail().getPath());
+        assetInformation.setDefaultThumbnail(null);
+        aas.setAssetInformation(assetInformation);
+        context.getPersistence().save(aas);
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .value(aas)
+                .element(aas)
+                .build());
         return DeleteThumbnailResponse.builder()
                 .success()
                 .build();

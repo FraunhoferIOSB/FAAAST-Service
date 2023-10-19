@@ -14,18 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
-import java.util.Arrays;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Abstract base class for storing file content information.
+ * Represents a typed in-memory file with path, content and contentType.
  */
-public abstract class AbstractFileContent {
+public class TypedInMemoryFile extends InMemoryFile {
 
-    protected String contentType;
-    protected byte[] content;
+    private String contentType;
 
     public String getContentType() {
         return contentType;
@@ -37,16 +34,6 @@ public abstract class AbstractFileContent {
     }
 
 
-    public byte[] getContent() {
-        return content;
-    }
-
-
-    public void setContent(byte[] content) {
-        this.content = content;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -55,28 +42,37 @@ public abstract class AbstractFileContent {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractFileContent that = (AbstractFileContent) o;
-        return Objects.equals(contentType, that.contentType)
-                && Arrays.equals(content, that.content);
+        TypedInMemoryFile that = (TypedInMemoryFile) o;
+        return super.equals(that)
+                && Objects.equals(contentType, that.contentType);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(contentType, Arrays.hashCode(content));
+        return Objects.hash(super.hashCode(), contentType);
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractFileContent, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends TypedInMemoryFile, B extends AbstractBuilder<T, B>> extends InMemoryFile.AbstractBuilder<T, B> {
 
         public B contentType(String value) {
             getBuildingInstance().setContentType(value);
             return getSelf();
         }
+    }
+
+    public static class Builder extends AbstractBuilder<TypedInMemoryFile, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
 
 
-        public B content(byte[] value) {
-            getBuildingInstance().setContent(value);
-            return getSelf();
+        @Override
+        protected TypedInMemoryFile newBuildingInstance() {
+            return new TypedInMemoryFile();
         }
     }
+
 }

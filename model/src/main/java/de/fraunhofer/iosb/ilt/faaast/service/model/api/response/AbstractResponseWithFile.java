@@ -12,15 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import java.util.Objects;
 
 
 /**
- * Represents the content of a file.
+ * Abstract base class for protocol-agnostic responses containing file.
  */
-public class FileContent extends AbstractFileContent {
+public abstract class AbstractResponseWithFile extends AbstractResponseWithPayload<TypedInMemoryFile> {
 
     @Override
     public boolean equals(Object o) {
@@ -30,34 +31,20 @@ public class FileContent extends AbstractFileContent {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FileContent that = (FileContent) o;
-        System.out.println("FileContent equals: " + super.equals(o));
-        return super.equals(that);
+        AbstractResponseWithFile that = (AbstractResponseWithFile) o;
+        return super.equals(o)
+                && Objects.equals(payload, that.payload);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode());
+        return Objects.hash(super.hashCode(), payload);
     }
 
+    public abstract static class AbstractBuilder<T extends AbstractResponseWithFile, B extends AbstractBuilder<T, B>>
+            extends AbstractResponseWithPayload.AbstractBuilder<TypedInMemoryFile, T, B> {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder extends AbstractBuilder<FileContent, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected FileContent newBuildingInstance() {
-            return new FileContent();
-        }
     }
 
 }

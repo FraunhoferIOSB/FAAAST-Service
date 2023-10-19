@@ -15,11 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import java.io.IOException;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 
 
 /**
@@ -33,10 +40,25 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
 
 
     @Override
-    public PutThumbnailResponse process(PutThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
-        // write file to persistence
-        // maybe publish event on messageBus
-        //     context.getMessageBus()publish();
+    public PutThumbnailResponse process(PutThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException {
+        AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
+        if (Objects.isNull(aas.getAssetInformation())) {
+            throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));
+        }
+        String path = request.getContent().getPath();
+        aas.getAssetInformation().setDefaultThumbnail(new DefaultResource.Builder()
+                .path(path)
+                .contentType(request.getContent().getContentType())
+                .build());
+        context.getPersistence().save(aas);
+        context.getFileStorage().save(InMemoryFile.builder()
+                .content(request.getContent().getContent())
+                .path(path)
+                .build());
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .value(aas)
+                .element(aas)
+                .build());
         return PutThumbnailResponse.builder()
                 .success()
                 .build();

@@ -36,11 +36,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.File;
@@ -439,6 +441,7 @@ public class App implements Runnable {
 
 
     private void withModel(ServiceConfig config) {
+        String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             try {
                 LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
@@ -452,6 +455,9 @@ public class App implements Runnable {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
             config.getPersistence().setInitialModelFile(modelFile);
+            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+                config.getFileStorage().setInitialModelFile(modelFile);
+            }
             return;
 
         }
@@ -463,6 +469,9 @@ public class App implements Runnable {
                         getEnvValue(ENV_PATH_MODEL_FILE));
             }
             config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+                config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+            }
             modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
             return;
         }
@@ -476,6 +485,9 @@ public class App implements Runnable {
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
             config.getPersistence().setInitialModelFile(defaultModel.get());
+            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+                config.getFileStorage().setInitialModelFile(defaultModel.get());
+            }
             modelFile = new File(defaultModel.get().getAbsolutePath());
             return;
         }

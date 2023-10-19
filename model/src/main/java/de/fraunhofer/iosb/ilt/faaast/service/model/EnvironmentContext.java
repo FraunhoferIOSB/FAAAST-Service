@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
+package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

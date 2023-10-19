@@ -35,10 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -76,12 +73,6 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
-            @Override
-            public void close() throws IOException {
-                request.getInputStream().close();
-            }
-        };
         if (config.isCorsEnabled()) {
             setCORSHeader(response);
             if (isPreflightedCORSRequest(request)) {
@@ -103,8 +94,9 @@ public class RequestHandler extends AbstractHandler {
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
-                .body(reader.lines().collect(Collectors.joining(System.lineSeparator())))
+                .body(request.getInputStream().readAllBytes())
                 .method(method)
+                .charset(request.getCharacterEncoding())
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(
                                 x -> x,

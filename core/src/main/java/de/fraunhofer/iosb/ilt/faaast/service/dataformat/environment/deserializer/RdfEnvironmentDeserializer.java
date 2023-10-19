@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import java.io.File;
 import java.io.InputStream;
@@ -58,7 +58,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @param in the InputStream to read
      * @param charset the charset to use
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @return the read {@link EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset, Lang rdfLanguage) throws DeserializationException {
@@ -80,7 +80,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @param file the file to read
      * @param charset the charset to use
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @return the read {@link EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(File file, Charset charset, Lang rdfLanguage) throws DeserializationException {
@@ -99,7 +99,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      *
      * @param in the Inputstream to read
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @return the read {@link EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Lang rdfLanguage) throws DeserializationException {
@@ -112,7 +112,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      *
      * @param file the File to read
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @return the read {@link EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(File file, Lang rdfLanguage) throws DeserializationException {

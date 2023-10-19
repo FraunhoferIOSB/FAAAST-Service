@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submodel;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
+
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.ContentTypeHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.io.IOException;
 import java.util.Map;
 
 
@@ -48,22 +48,15 @@ public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequest
 
     @Override
     public PutFileByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        byte[] fileData = httpRequest.getBody();
-        try {
-            String contentType = httpRequest.getHeaders().containsKey(HttpConstants.HEADER_CONTENT_TYPE)
-                    ? httpRequest.getHeaders().get(HttpConstants.HEADER_CONTENT_TYPE)
-                    : ContentTypeHelper.guessContentType(fileData);
-            return PutFileByPathRequest.builder()
-                    .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                    .content(FileContent.builder()
-                            .content(fileData)
-                            .contentType(contentType)
-                            .build())
-                    .build();
-        }
-        catch (IOException ex) {
-            throw new InvalidRequestException("unable to determine content-type");
-        }
-
+        MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
+        Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
+        return PutFileByPathRequest.builder()
+                .path(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .content(new TypedInMemoryFile.Builder()
+                        .content(multipart.get("file").getContent())
+                        .contentType(multipart.get("file").getContentType())
+                        .path(new String(multipart.get("fileName").getContent()))
+                        .build())
+                .build();
     }
 }

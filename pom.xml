@@ -43,6 +43,7 @@
         <module>persistence/memory</module>
         <module>persistence/file</module>
         <module>filestorage/memory</module>
+        <module>filestorage/filesystem</module>
         <module>assetconnection/common</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
@@ -77,6 +78,7 @@
         <checkstyle.version>10.12.4</checkstyle.version>
         <classgraph.version>4.8.162</classgraph.version>
         <commons.codec.version>1.16.0</commons.codec.version>
+        <commons.fileupload.version>1.4</commons.fileupload.version>
         <commons.compress.version>1.24.0</commons.compress.version>
         <commons.io.version>2.14.0</commons.io.version>
         <commons.lang3.version>3.13.0</commons.lang3.version>
@@ -122,6 +124,7 @@
         <milo.version>0.6.11</milo.version>
         <mockito.version>5.6.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
+        <org.apache.httpcomponents.client5.version>5.1.3</org.apache.httpcomponents.client5.version>
         <netty.version>4.1.100.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.4</parsson.version>

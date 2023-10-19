@@ -18,9 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,16 +48,17 @@ public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extend
 
 
     @Test
-    public void save() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException {
+    public void saveAndDelete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException, IOException {
         FileStorageConfig<T> config = getFileStorageConfig();
         fileStorage = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         InMemoryFile expected = InMemoryFile.builder()
                 .path("my/path/file.txt")
-                .contentType("text/plain")
                 .content("foo".getBytes())
                 .build();
         fileStorage.save(expected);
-        FileContent actual = fileStorage.get(expected.getPath());
-        Assert.assertEquals(expected.asFileContent(), actual);
+        byte[] actual = fileStorage.get(expected.getPath());
+        Assert.assertArrayEquals(expected.getContent(), actual);
+        fileStorage.delete(expected.getPath());
+        Assert.assertThrows(ResourceNotFoundException.class, () -> fileStorage.get(expected.getPath()));
     }
 }

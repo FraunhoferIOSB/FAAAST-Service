@@ -16,12 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.FileContent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFileByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ValueReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -47,11 +48,15 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        FileContent fileContent = null; // get from persistence based on file.getValue()
-        // maybe publish on MessageBus
-        //    context.getMessageBus()publish(...);
+        context.getMessageBus().publish(ValueReadEventMessage.builder()
+                .element(reference)
+                .build());
         return GetFileByPathResponse.builder()
-                .payload(fileContent)
+                .payload(new TypedInMemoryFile.Builder()
+                        .content(context.getFileStorage().get(file.getValue()))
+                        .contentType(file.getContentType())
+                        .path(file.getValue())
+                        .build())
                 .success()
                 .build();
     }

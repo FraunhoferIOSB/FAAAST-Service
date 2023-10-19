@@ -21,9 +21,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteF
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -40,15 +44,26 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
 
     @Override
     public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        // delete from persistence with key file.getValue()
-        // maybe publish on MessageBus
-        //    context.getMessageBus()publish(...);
+        context.getFileStorage().delete(file.getValue());
+        File oldFile = file;
+        file.setValue("");
+        file.setContentType("");
+        context.getPersistence().update(reference, file);
+        context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                .element(reference)
+                .oldValue(ElementValueMapper.toValue(oldFile))
+                .newValue(ElementValueMapper.toValue(file))
+                .build());
+        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                .element(reference)
+                .value(file)
+                .build());
         return DeleteFileByPathResponse.builder()
                 .success()
                 .build();

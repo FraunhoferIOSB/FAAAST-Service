@@ -21,9 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFile
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.io.IOException;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -40,15 +42,19 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
 
     @Override
     public PutFileByPathResponse doProcess(PutFileByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        // save request.getContent() to persistence with key file.getValue()
-        // maybe publish on MessageBus
-        //    context.getMessageBus()publish(...);
+        file.setContentType(request.getContent().getContentType());
+        file.setValue(request.getContent().getPath());
+        context.getPersistence().update(reference, file);
+        context.getFileStorage().save(file.getValue(), request.getContent().getContent());
+        context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                .element(reference)
+                .build());
         return PutFileByPathResponse.builder()
                 .success()
                 .build();
