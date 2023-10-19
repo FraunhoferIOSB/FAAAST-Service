@@ -63,8 +63,8 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
 
 
     @Override
-    public Map<String, byte[]> getAllFiles() {
-        return this.files;
+    public boolean contains(String path) {
+        return this.files.containsKey(path);
     }
 
 

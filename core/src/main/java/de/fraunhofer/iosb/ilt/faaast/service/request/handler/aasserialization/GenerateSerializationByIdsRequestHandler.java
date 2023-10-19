@@ -33,7 +33,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
@@ -80,13 +79,17 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                         : List.of())
                 .build();
         List<InMemoryFile> files = new ArrayList<>();
-        Map<String, byte[]> fileMap = context.getFileStorage().getAllFiles();
         AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(File file) {
-                        if (fileMap.containsKey(file.getValue())) {
-                            files.add(new InMemoryFile(fileMap.get(file.getValue()), file.getValue()));
+                        try {
+                            if (context.getFileStorage().contains(file.getValue())) {
+                                files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), file.getValue()));
+                            }
+                        }
+                        catch (ResourceNotFoundException e) {
+                            //intentionally empty
                         }
                     }
                 })
@@ -99,7 +102,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .filter(x -> Objects.nonNull(x.getAssetInformation().getDefaultThumbnail().getPath()))
                 .distinct()
                 .map(x -> x.getAssetInformation().getDefaultThumbnail().getPath())
-                .map(x -> new InMemoryFile(fileMap.get(x), x))
+                .map(LambdaExceptionHelper.rethrowFunction(x -> new InMemoryFile(context.getFileStorage().get(x), x)))
                 .collect(Collectors.toList()));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())

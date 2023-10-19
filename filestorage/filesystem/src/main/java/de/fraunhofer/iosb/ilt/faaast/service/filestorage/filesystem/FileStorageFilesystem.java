@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 
 /**
@@ -109,11 +108,8 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
 
     @Override
-    public Map<String, byte[]> getAllFiles() throws IOException {
-        return filelist.entrySet().stream()
-                .collect(Collectors.toMap(
-                        x -> decodeFilePath(x.getKey()),
-                        LambdaExceptionHelper.rethrowFunction(x -> Files.readAllBytes(x.getValue()))));
+    public boolean contains(String path) {
+        return this.filelist.containsKey(path);
     }
 
 

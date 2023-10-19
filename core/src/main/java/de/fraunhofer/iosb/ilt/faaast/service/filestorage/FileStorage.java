@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 
 
 /**
@@ -39,12 +38,11 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
 
 
     /**
-     * Reads all files.
+     * Returns a boolean for a file existing in the storage
      *
-     * @return map of all files and their content
-     * @throws IOException if reading a file fails
+     * @return true if file is in storage
      */
-    public Map<String, byte[]> getAllFiles() throws IOException;
+    public boolean contains(String path);
 
 
     /**
