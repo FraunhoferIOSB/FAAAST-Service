@@ -16,13 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.*;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
@@ -39,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
@@ -46,27 +42,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PagingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.slf4j.LoggerFactory;
 
 
@@ -85,7 +71,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String CD_COLLECTION_NAME = "cdCol";
     private static final String SUBMODEL_COLLECTION_NAME = "submodelCol";
     private static final String OPERATION_COLLECTION_NAME = "opCol";
-
 
     private PersistenceMongoConfig config;
     private MongoCollection<Document> aasCollection, cdCollection, submodelCollection, operationCollection;
@@ -114,13 +99,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
             try {
                 saveEnvironment(config.loadInitialModel());
-                deleteSubmodel("https://acplt.org/Test_Submodel");
             }
             catch (DeserializationException | InvalidConfigurationException e) {
                 throw new ConfigurationInitializationException(e);
-            }
-            catch (ResourceNotFoundException e) {
-                throw new RuntimeException(e);
             }
         }
     }
@@ -181,9 +162,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Document getDocument(Identifiable identifiable) {
+    private Document getDocument(Referable referable) {
         try {
-            String json = jsonApiSerializer.write(identifiable);
+            String json = jsonApiSerializer.write(referable);
             return Document.parse(json);
         }
         catch (SerializationException e) {
@@ -220,14 +201,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
-        return null;
-    }
-
-
-    @Override
-    public Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
-            throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return Persistence.super.getSubmodelElements(identifier, modifier);
+        return prepareResult(
+                resolveReference(identifier.toReference(), SubmodelElement.class),
+                modifier);
     }
 
 
@@ -237,7 +213,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
             Bson filter = Filters.eq("handle", handleDocument);
             return jsonApiDeserializer.read(operationCollection.find(filter).first().toJson(), OperationResult.class);
-        } catch (SerializationException | DeserializationException e) {
+        }
+        catch (SerializationException | DeserializationException e) {
             throw new RuntimeException(e); // TODO
         }
 
@@ -249,7 +226,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        return null;
+
+        Bson filter = NO_FILTER;
+        if (criteria.isIdShortSet())
+            filter = Filters.and(filter, getIdShortFilter(criteria.getIdShort()));
+        if (criteria.isAssetIdsSet())
+            filter = Filters.and(filter, getAssetIdsFilter(criteria.getAssetIds()));
+        return PersistenceHelper.preparePagedResult(getResultStream(aasCollection.find(filter), AssetAdministrationShell.class), modifier, paging);
     }
 
 
@@ -265,7 +248,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet())
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
 
-        return PagingHelper.preparePagedResult(getResultStream(submodelCollection.find(filter), Submodel.class), modifier, paging);
+        return PersistenceHelper.preparePagedResult(getResultStream(submodelCollection.find(filter), Submodel.class), modifier, paging);
     }
 
 
@@ -274,7 +257,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        return null;
+        final Collection<SubmodelElement> elements = new ArrayList<>();
+        if (criteria.isParentSet()) {
+            Referable parent = resolveReference(criteria.getParent().toReference(), Referable.class);
+
+            PersistenceHelper.addSubmodelElementsFromParentToCollection(parent, elements);
+        }
+        Stream<SubmodelElement> result = elements.stream();
+        if (criteria.isSemanticIdSet()) {
+            result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
+        }
+        return PersistenceHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -292,7 +285,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isDataSpecificationSet())
             filter = Filters.and(filter, getDataSpecificationFilter(criteria.getDataSpecification()));
 
-        return PagingHelper.preparePagedResult(getResultStream(cdCollection.find(filter), ConceptDescription.class), modifier, paging);
+        return PersistenceHelper.preparePagedResult(getResultStream(cdCollection.find(filter), ConceptDescription.class), modifier, paging);
     }
 
 
@@ -316,7 +309,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-
+        Reference parentRef = parentIdentifier.toReference();
+        Bson filter = getFilterForReference(parentRef);
+        if (parentRef.getKeys().size() == 1) {
+            submodelCollection.updateOne(filter, Updates.push("submodelElements", getDocument(submodelElement)));
+        }
+        else {
+            submodelCollection.updateOne(filter, Updates.push("value", getDocument(submodelElement)));
+        }
     }
 
 
@@ -333,7 +333,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
             Document resultDocument = Document.parse(jsonApiSerializer.write(result));
             document.append("handle", handleDocument).append("result", resultDocument);
-        } catch (SerializationException e) {
+        }
+        catch (SerializationException e) {
             throw new RuntimeException(e); // TODO
         }
         operationCollection.insertOne(document);
@@ -369,60 +370,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    @Override
-    public void insert(Reference parent, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        Persistence.super.insert(parent, submodelElement);
-    }
-
-
-    @Override
-    public void update(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        Persistence.super.update(reference, submodelElement);
-    }
-
-
-    @Override
-    public <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        return Persistence.super.getSubmodelElement(identifier, modifier, type);
-    }
-
-
-    @Override
-    public <T extends SubmodelElement> T getSubmodelElement(Reference reference, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        return Persistence.super.getSubmodelElement(reference, modifier, type);
-    }
-
-
-    @Override
-    public Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return Persistence.super.getSubmodelElements(reference, modifier);
-    }
-
-
-    @Override
-    public Page<AssetAdministrationShell> getAllAssetAdministrationShells(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllAssetAdministrationShells(modifier, paging);
-    }
-
-
-    @Override
-    public Page<Submodel> getAllSubmodels(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllSubmodels(modifier, paging);
-    }
-
-
-    @Override
-    public Page<ConceptDescription> getAllConceptDescriptions(QueryModifier modifier, PagingInfo paging) {
-        return Persistence.super.getAllConceptDescriptions(modifier, paging);
-    }
-
-
-    @Override
-    public Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
-        return Persistence.super.getAllSubmodelElements(modifier, paging);
-    }
-
-
     private Bson getIdShortFilter(String idShort) {
         return Filters.eq("idShort", idShort);
     }
@@ -446,6 +393,25 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (Objects.isNull(dataSpecification))
             return NO_FILTER;
         return Filters.eq("embeddedDataSpecifications", getReferenceDocument(dataSpecification));
+    }
+
+
+    private Bson getAssetIdsFilter(List<AssetIdentification> assetIds) {
+        if (assetIds == null)
+            return NO_FILTER;
+
+        List<String> globalAssetIdentificators = new ArrayList<>();
+        List<SpecificAssetID> specificAssetIdentificators = new ArrayList<>();
+        PersistenceHelper.splitAssetIdsIntoGlobalAndSpecificIds(assetIds, globalAssetIdentificators, specificAssetIdentificators);
+
+        Bson filter = NO_FILTER;
+        if (!globalAssetIdentificators.isEmpty()) {
+            filter = Filters.and(filter, Filters.in("assetInformation.globalAssetId", globalAssetIdentificators.toArray()));
+        }
+        if (!specificAssetIdentificators.isEmpty()) {
+            filter = Filters.and(filter, Filters.in("assetInformation.specificAssetIds", specificAssetIdentificators.toArray()));
+        }
+        return filter;
     }
 
 
@@ -480,5 +446,67 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return QueryModifierHelper.applyQueryModifier(
                 DeepCopyHelper.deepCopy(result),
                 modifier);
+    }
+
+
+    private <T extends Referable> T resolveReference(Reference reference, Class<T> returnType) throws ResourceNotFoundException {
+        Document result = null;
+        List<Bson> pipelineStages = new ArrayList<>();
+
+        // Filter for the right submodel
+        pipelineStages.add(Aggregates.match(Filters.eq("id", reference.getKeys().get(0).getValue())));
+
+        if (reference.getKeys().size() == 1)
+            result = submodelCollection.aggregate(pipelineStages).first();
+        else {
+            // Filter for the right submodel element in the "submodelElements" array of the right submodel
+            pipelineStages.add(Aggregates.unwind("$submodelElements"));
+            pipelineStages.add(Aggregates.match(Filters.eq("submodelElements.idShort", reference.getKeys().get(1).getValue())));
+
+            String currentFieldName = "submodelElements";
+            for (int i = 2; i < reference.getKeys().size(); i++) {
+                // Filter for the right submodel element in the "value" array of the parent submodel element
+                currentFieldName += ".value";
+                pipelineStages.add(Aggregates.unwind("$" + currentFieldName));
+                pipelineStages.add(Aggregates.match(Filters.eq(currentFieldName + ".idShort", reference.getKeys().get(2).getValue())));
+            }
+
+            try {
+                Document nestedResult = submodelCollection.aggregate(pipelineStages).first().get("submodelElements", Document.class);
+                for (int i = 2; i < reference.getKeys().size(); i++) {
+                    nestedResult = nestedResult.get("value", Document.class);
+                }
+                result = nestedResult;
+            }
+            catch (Exception e) {
+                throw new ResourceNotFoundException(reference);
+            }
+        }
+
+        if (Objects.isNull(result))
+            throw new ResourceNotFoundException(reference);
+        Referable parent = null;
+        try {
+            return jsonApiDeserializer.read(result.toJson(), returnType);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    // TODO evtl unnötig
+    private Bson getFilterForReference(Reference reference) {
+        Bson filter = Filters.eq("id", reference.getKeys().get(0).getValue());
+        if (reference.getKeys().size() > 1) {
+            String currentPropertyKey = "submodelElements";
+            filter = Filters.and(filter, Filters.eq(currentPropertyKey + ".idShort", reference.getKeys().get(1).getValue()));
+            for (int i = 2; i < reference.getKeys().size(); i++) {
+                currentPropertyKey += ".value";
+                filter = Filters.and(filter, Filters.eq(currentPropertyKey + ".idShort", reference.getKeys().get(i).getValue()));
+            }
+        }
+
+        return filter;
     }
 }

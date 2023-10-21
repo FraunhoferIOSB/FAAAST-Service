@@ -18,16 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import java.util.List;
-import java.util.Objects;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
-public class PagingHelper {
-    private PagingHelper() {}
+public class PersistenceHelper {
+    private PersistenceHelper() {}
 
 
     private static long readCursor(String cursor) {
@@ -79,5 +84,48 @@ public class PagingHelper {
                         .cursor(nextCursor(paging, temp.size()))
                         .build())
                 .build();
+    }
+
+
+    public static <T extends HasSemantics> Stream<T> filterBySemanticId(Stream<T> stream, Reference semanticId) {
+        if (Objects.isNull(semanticId)) {
+            return stream;
+        }
+        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId));
+    }
+
+
+    public static void addSubmodelElementsFromParentToCollection(Referable parent, Collection<SubmodelElement> submodelElementCollection) {
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((Submodel) parent).getSubmodelElements());
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((SubmodelElementCollection) parent).getValue());
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((SubmodelElementList) parent).getValue());
+        }
+    }
+
+
+    public static void splitAssetIdsIntoGlobalAndSpecificIds(List<AssetIdentification> assetIds,
+                                                             List<String> globalIds,
+                                                             List<SpecificAssetID> specificIds) {
+        Ensure.requireNonNull(assetIds);
+        Ensure.requireNonNull(globalIds);
+        Ensure.requireNonNull(specificIds);
+
+        globalIds.addAll(assetIds.stream()
+                .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
+                .map(GlobalAssetIdentification.class::cast)
+                .map(x -> x.getValue())
+                .collect(Collectors.toList()));
+        specificIds.addAll(assetIds.stream()
+                .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
+                .map(x -> new DefaultSpecificAssetID.Builder()
+                        .name(((SpecificAssetIdentification) x).getKey())
+                        .value(((SpecificAssetIdentification) x).getValue())
+                        .build())
+                .collect(Collectors.toList()));
     }
 }

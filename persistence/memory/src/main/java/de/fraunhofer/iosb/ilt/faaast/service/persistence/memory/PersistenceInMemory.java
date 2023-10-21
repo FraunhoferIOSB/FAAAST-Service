@@ -26,8 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
@@ -37,7 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearc
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PagingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -52,12 +50,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -66,7 +62,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
 
 
 /**
@@ -187,7 +182,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isAssetIdsSet()) {
             result = filterByAssetIds(result, criteria.getAssetIds());
         }
-        return PagingHelper.preparePagedResult(result, modifier, paging);
+        return PersistenceHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -206,7 +201,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
         }
-        return PagingHelper.preparePagedResult(result, modifier, paging);
+        return PersistenceHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -218,15 +213,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
             Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), environment);
-            if (Submodel.class.isAssignableFrom(parent.getClass())) {
-                elements.addAll(((Submodel) parent).getSubmodelElements());
-            }
-            else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
-                elements.addAll(((SubmodelElementCollection) parent).getValue());
-            }
-            else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-                elements.addAll(((SubmodelElementList) parent).getValue());
-            }
+            PersistenceHelper.addSubmodelElementsFromParentToCollection(parent, elements);
         }
         else {
             AssetAdministrationShellElementWalker.builder()
@@ -241,9 +228,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         Stream<SubmodelElement> result = elements.stream();
         if (criteria.isSemanticIdSet()) {
-            result = filterBySemanticId(result, criteria.getSemanticId());
+            result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
         }
-        return PagingHelper.preparePagedResult(result, modifier, paging);
+        return PersistenceHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -257,9 +244,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             result = filterByIdShort(result, criteria.getIdShort());
         }
         if (criteria.isSemanticIdSet()) {
-            result = filterBySemanticId(result, criteria.getSemanticId());
+            result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
         }
-        return PagingHelper.preparePagedResult(result, modifier, paging);
+        return PersistenceHelper.preparePagedResult(result, modifier, paging);
     }
 
 
@@ -422,14 +409,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
-    private static <T extends HasSemantics> Stream<T> filterBySemanticId(Stream<T> stream, Reference semanticId) {
-        if (Objects.isNull(semanticId)) {
-            return stream;
-        }
-        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId));
-    }
-
-
     private static <T extends Referable> Stream<T> filterByIdShort(Stream<T> stream, String idShort) {
         return stream.filter(x -> Objects.equals(x.getIdShort(), idShort));
     }
@@ -445,18 +424,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return stream;
         }
         Stream<AssetAdministrationShell> result = stream;
-        List<String> globalAssetIdentificators = assetIds.stream()
-                .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
-                .map(GlobalAssetIdentification.class::cast)
-                .map(x -> x.getValue())
-                .collect(Collectors.toList());
-        List<SpecificAssetID> specificAssetIdentificators = assetIds.stream()
-                .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
-                .map(x -> new DefaultSpecificAssetID.Builder()
-                        .name(((SpecificAssetIdentification) x).getKey())
-                        .value(((SpecificAssetIdentification) x).getValue())
-                        .build())
-                .collect(Collectors.toList());
+        List<String> globalAssetIdentificators = new ArrayList<>();
+        List<SpecificAssetID> specificAssetIdentificators = new ArrayList<>();
+        PersistenceHelper.splitAssetIdsIntoGlobalAndSpecificIds(assetIds, globalAssetIdentificators, specificAssetIdentificators);
 
         if (!globalAssetIdentificators.isEmpty()) {
             result = result.filter(x -> globalAssetIdentificators.contains(x.getAssetInformation().getGlobalAssetID()));
