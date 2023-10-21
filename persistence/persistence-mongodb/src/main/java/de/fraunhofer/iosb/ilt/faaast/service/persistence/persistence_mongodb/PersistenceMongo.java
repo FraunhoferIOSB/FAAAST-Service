@@ -307,22 +307,47 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
+    // TODO ersetzen bei gleicher idShort
     @Override
     public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Reference parentRef = parentIdentifier.toReference();
-        Bson filter = getFilterForReference(parentRef);
+        Bson filter = getFilterForSubmodelOfReference(parentRef);
         if (parentRef.getKeys().size() == 1) {
             submodelCollection.updateOne(filter, Updates.push("submodelElements", getDocument(submodelElement)));
         }
         else {
-            submodelCollection.updateOne(filter, Updates.push("value", getDocument(submodelElement)));
+            String fieldName = "submodelElements";
+            List<Bson> arrayFilters = new ArrayList<>();
+            for (int i = 1; i < parentRef.getKeys().size(); i++) {
+                fieldName += String.format(".$[a%d].value", i);
+                arrayFilters.add(Filters.eq(String.format("a%d.idShort", i), parentRef.getKeys().get(i).getValue()));
+            }
+            submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
+                    new UpdateOptions().arrayFilters(arrayFilters));
         }
     }
 
 
     @Override
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
-
+        Reference reference = identifier.toReference();
+        Bson filter = getFilterForSubmodelOfReference(reference);
+        if (reference.getKeys().size() == 2) {
+            List<Bson> arrayFilters = new ArrayList<>();
+            arrayFilters.add(Filters.eq("i.idShort", reference.getKeys().get(1)));
+            submodelCollection.updateOne(filter, Updates.set("submodelElements.$[i]", getDocument(submodelElement)), new UpdateOptions().arrayFilters(arrayFilters));
+        }
+        else {
+            // TODO for nested elements
+            /*String fieldName = "submodelElements";
+            List<Bson> arrayFilters = new ArrayList<>();
+            for (int i = 1; i < parentRef.getKeys().size(); i++) {
+                fieldName += String.format(".$[a%d].value", i);
+                arrayFilters.add(Filters.eq(String.format("a%d.idShort", i), parentRef.getKeys().get(i).getValue()));
+            }
+            submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
+                    new UpdateOptions().arrayFilters(arrayFilters));*/
+        }
     }
 
 
@@ -494,9 +519,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
     }
 
-
-    // TODO evtl unnötig
-    private Bson getFilterForReference(Reference reference) {
+    private Bson getFilterForSubmodelOfReference(Reference reference) {
         Bson filter = Filters.eq("id", reference.getKeys().get(0).getValue());
         if (reference.getKeys().size() > 1) {
             String currentPropertyKey = "submodelElements";

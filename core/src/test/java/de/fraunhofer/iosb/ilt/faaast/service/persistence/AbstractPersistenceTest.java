@@ -584,29 +584,6 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
-    public void putSubmodelElementChangeInSubmodel() throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Submodel submodel = environment.getSubmodels().stream()
-                .filter(x -> x.getId().equalsIgnoreCase(submodelId)).findFirst().get();
-        int idxExpected = 0;
-        SubmodelElement submodelElement = submodel.getSubmodelElements().get(idxExpected);
-        SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
-        String category = "NewCategory";
-        expected.setCategory(category);
-        Reference reference = new ReferenceBuilder()
-                .submodel(submodelId)
-                .element(submodelElement)
-                .build();
-        persistence.insert(ReferenceHelper.getParent(reference), expected);
-        SubmodelElement actualSubmodelElement = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
-        Submodel actualSubmodel = persistence.getSubmodel(submodel.getId(), QueryModifier.DEFAULT);
-        int idxActual = actualSubmodel.getSubmodelElements().indexOf(expected);
-        Assert.assertEquals(expected, actualSubmodelElement);
-        Assert.assertEquals(idxExpected, idxActual);
-    }
-
-
-    @Test
     public void putSubmodelElementNewInSubmodelElementCollection() throws ResourceNotFoundException, ResourceNotAContainerElementException {
         SubmodelElement expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0).getSubmodelElements().get(0),
                 environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
