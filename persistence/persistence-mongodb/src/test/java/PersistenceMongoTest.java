@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb.Per
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb.PersistenceMongoConfig;
 import java.io.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.junit.AfterClass;
 
 
 /**
@@ -32,13 +33,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
  */
 public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMongo, PersistenceMongoConfig> {
 
+    private static TransitionWalker.ReachedState<RunningMongodProcess> runningProcess;
+
     @Override
     public PersistenceMongoConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
         Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
-        TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
+        runningProcess = transitions.walker()
                 .initState(StateID.of(RunningMongodProcess.class));
-        de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = running.current().getServerAddress();
-
+        de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = runningProcess.current().getServerAddress();
         PersistenceMongoConfig result = PersistenceMongoConfig
                 .builder()
                 .initialModel(initialModel)
@@ -48,5 +50,10 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 .useExisting(false)
                 .build();
         return result;
+    }
+
+    @AfterClass
+    public static void cleanup() {
+        runningProcess.close();
     }
 }
