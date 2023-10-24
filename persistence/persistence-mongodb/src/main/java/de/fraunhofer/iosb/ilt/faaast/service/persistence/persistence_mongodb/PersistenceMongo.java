@@ -20,6 +20,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.UpdateResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -47,12 +48,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.LoggerFactory;
 
 
@@ -105,7 +114,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             }
         }
     }
-
 
     @Override
     public PersistenceMongoConfig asConfig() {
@@ -217,7 +225,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         catch (SerializationException | DeserializationException e) {
             throw new RuntimeException(e); // TODO
         }
-
     }
 
 
@@ -309,11 +316,19 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     // TODO ersetzen bei gleicher idShort
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void  insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Reference parentRef = parentIdentifier.toReference();
+        Reference submodelElementRef = addSubmodelElementToReference(parentRef, submodelElement);
+
+        if (!Objects.isNull(submodelCollection.find(getFilterForSubmodelOfReference(submodelElementRef)).first())) {
+            updateViaReference(submodelElementRef, submodelElement);
+            return;
+        }
+
+        UpdateResult result = null;
         Bson filter = getFilterForSubmodelOfReference(parentRef);
         if (parentRef.getKeys().size() == 1) {
-            submodelCollection.updateOne(filter, Updates.push("submodelElements", getDocument(submodelElement)));
+            result = submodelCollection.updateOne(filter, Updates.push("submodelElements", getDocument(submodelElement)));
         }
         else {
             String fieldName = "submodelElements";
@@ -322,32 +337,54 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 fieldName += String.format(".$[a%d].value", i);
                 arrayFilters.add(Filters.eq(String.format("a%d.idShort", i), parentRef.getKeys().get(i).getValue()));
             }
-            submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
+            result = submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
         }
+        if (result.getModifiedCount() == 0)
+            throw new ResourceNotFoundException(parentRef);
+    }
+
+    private Reference addSubmodelElementToReference(Reference reference, SubmodelElement submodelElement) {
+        Key submodelKey = new DefaultKey();
+        submodelKey.setValue(submodelElement.getIdShort());
+        List<Key> keyList = new ArrayList<>(reference.getKeys());
+        keyList.add(submodelKey);
+        Reference result = new DefaultReference();
+        result.setKeys(keyList);
+        return result;
     }
 
 
     @Override
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        Reference reference = identifier.toReference();
+        updateViaReference(identifier.toReference(), submodelElement);
+    }
+
+    private void updateViaReference(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
         Bson filter = getFilterForSubmodelOfReference(reference);
+        UpdateResult result = null;
         if (reference.getKeys().size() == 2) {
             List<Bson> arrayFilters = new ArrayList<>();
-            arrayFilters.add(Filters.eq("i.idShort", reference.getKeys().get(1)));
-            submodelCollection.updateOne(filter, Updates.set("submodelElements.$[i]", getDocument(submodelElement)), new UpdateOptions().arrayFilters(arrayFilters));
+            arrayFilters.add(Filters.eq("i.idShort", reference.getKeys().get(1).getValue()));
+            result = submodelCollection.updateOne(filter, Updates.set("submodelElements.$[i]", getDocument(submodelElement)),
+                    new UpdateOptions().arrayFilters(arrayFilters));
         }
         else {
-            // TODO for nested elements
-            /*String fieldName = "submodelElements";
+            String fieldName = "submodelElements";
             List<Bson> arrayFilters = new ArrayList<>();
-            for (int i = 1; i < parentRef.getKeys().size(); i++) {
+            for (int i = 1; i < reference.getKeys().size() - 1; i++) {
                 fieldName += String.format(".$[a%d].value", i);
-                arrayFilters.add(Filters.eq(String.format("a%d.idShort", i), parentRef.getKeys().get(i).getValue()));
+                arrayFilters.add(Filters.eq(String.format("a%d.idShort", i), reference.getKeys().get(i).getValue()));
             }
-            submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
-                    new UpdateOptions().arrayFilters(arrayFilters));*/
+            fieldName += ".$[i]";
+            arrayFilters.add(Filters.eq("i.idShort", reference.getKeys().get(reference.getKeys().size()-1).getValue()));
+            result = submodelCollection.updateOne(filter, Updates.set(fieldName, getDocument(submodelElement)),
+                    new UpdateOptions().arrayFilters(arrayFilters));
+            SubmodelElement element = resolveReference(reference, SubmodelElement.class);
+            System.out.println(element.getIdShort());
         }
+        if (result.getModifiedCount() == 0)
+            throw new ResourceNotFoundException(reference);
     }
 
 
