@@ -38,8 +38,9 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
 
 
     /**
-     * Returns a boolean for a file existing in the storage
+     * Returns a boolean for a file existing in the storage.
      *
+     * @param path the path to the file
      * @return true if file is in storage
      */
     public boolean contains(String path);
