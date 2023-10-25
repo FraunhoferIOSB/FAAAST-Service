@@ -68,34 +68,32 @@ public class AASSimple {
     private static final String ACTUAL_ROTATION_SPEED = "ActRotationSpeed";
     private static final String ACTUALROTATIONSPEED = "Actualrotationspeed";
     private static final String AKTUELLE_DREHZAHL = "AktuelleDrehzahl";
-    private static final String _1_MIN = "1/min";
+    private static final String UNIT_1_MIN = "1/min";
     private static final String HTTP_CUSTOMER_COM_CD_1_1_18EBD56F6B43D895 = "http://customer.com/cd/1/1/18EBD56F6B43D895";
     private static final String ROTATION_SPEED = "RotationSpeed";
     private static final String MAX_ROTATE_DEF_EN = "Greatestpermissiblerotationspeedwithwhichthemotororfeedingunitmaybeoperated";
     private static final String MAX_ROTATE_DEF_DE = "HöchstezulässigeDrehzahl,mitwelcherderMotoroderdieSpeiseinheitbetriebenwerdendarf";
-    private static final String _0173_1_05_AAA650_002 = "0173-1#05-AAA650#002";
+    private static final String VAL_0173_1_05_AAA650_002 = "0173-1#05-AAA650#002";
     private static final String MAX_ROTATIONSPEED = "Max.rotationspeed";
     private static final String MAX_DREHZAHL = "max.Drehzahl";
-    private static final String _0173_1_02_BAA120_008 = "0173-1#02-BAA120#008";
+    private static final String ID_0173_1_02_BAA120_008 = "0173-1#02-BAA120#008";
     private static final String PROPERTY = "PROPERTY";
     private static final String MAX_ROTATION_SPEED = "MaxRotationSpeed";
     private static final String DIGITAL_FILE_DEFINITION = "A file representing the document version. In addition to the mandatory PDF file, other files can be specified."; //"Eine Datei, die die Document Version repräsentiert. Neben der obligatorischen PDF Datei können weitere Dateien angegeben werden.";
     private static final String DIGITALE_DATEI = "DigitaleDatei";
     private static final String WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_STORED_DOCUMENT_REPRESENTATION_DIGITAL_FILE = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/StoredDocumentRepresentation/DigitalFile";
     private static final String DIGITAL_FILE = "DigitalFile";
-    private static final String SPRACHABHÄNGIGER_TITELDES_DOKUMENTS = "SprachabhängigerTiteldesDokuments.";
+    private static final String SPRACHABHAENGIGER_TITELDES_DOKUMENTS = "SprachabhängigerTiteldesDokuments.";
     private static final String TITEL = "Titel";
     private static final String WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_DESCRIPTION_TITLE = "http://www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Description/Title";
     private static final String TITLE = "Title";
-    private static final String SERVO_DC_MOTOR = "ServoDCMotor";
     private static final String FILE_MASTER_VERWALTUNGSSCHALE_DETAIL_PART1_PNG = "file:///master/verwaltungsschale-detail-part1.png";
     private static final String IMAGE_PNG = "image/png";
-    private static final String THUMBNAIL = "thumbnail";
     private static final String HTTP_CUSTOMER_COM_SYSTEMS_IO_T_1 = "http://customer.com/Systems/IoT/1";
     private static final String QJ_YG_PGGJWKI_HK4_RR_QI_YS_LG = "QjYgPggjwkiHk4RrQiYSLg==";
     private static final String DEVICE_ID = "DeviceID";
     private static final String HTTP_CUSTOMER_COM_SYSTEMS_ERP_012 = "http://customer.com/Systems/ERP/012";
-    private static final String _538FD1B3_F99F_4A52_9C75_72E9FA921270 = "538fd1b3-f99f-4a52-9c75-72e9fa921270";
+    private static final String VAL_538FD1B3_F99F_4A52_9C75_72E9FA921270 = "538fd1b3-f99f-4a52-9c75-72e9fa921270";
     private static final String EQUIPMENT_ID = "EquipmentID";
     private static final String HTTP_CUSTOMER_COM_ASSETS_KHBVZJSQKIY = "http://customer.com/assets/KHBVZJSQKIY";
     // AAS
@@ -107,7 +105,7 @@ public class AASSimple {
     public static final String SUBMODEL_TECHNICAL_DATA_ID_SHORT = "TechnicalData";
     public static final String SUBMODEL_TECHNICAL_DATA_ID = "http://i40.customer.com/type/1/1/7A7104BDAB57E184";
     public static final String SUBMODEL_TECHNICAL_DATA_SEMANTIC_ID = "0173-1#01-AFZ615#016";
-    public static final String SUBMODEL_TECHNICAL_DATA_SEMANTIC_ID_PROPERTY = _0173_1_02_BAA120_008;
+    public static final String SUBMODEL_TECHNICAL_DATA_SEMANTIC_ID_PROPERTY = ID_0173_1_02_BAA120_008;
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY = "PARAMETER";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE = "5000";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "integer";
@@ -123,10 +121,9 @@ public class AASSimple {
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_SEMANTIC_ID = WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_DESCRIPTION_TITLE;
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_ID_SHORT = TITLE;
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_VALUE = "OperatingManual";
-    private static final String SUBMODEL_DOCUMENTATION_PROPERTY_VALUETYPE = "langString";
     private static final String SUBMODEL_DOCUMENTATION_FILE_SEMANTIC_ID = WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_STORED_DOCUMENT_REPRESENTATION_DIGITAL_FILE;
     private static final String SUBMODEL_DOCUMENTATION_FILE_ID_SHORT = "DigitalFile_PDF";
-    private static final String SUBMODEL_DOCUMENTATION_FILE_contentType = "application/pdf";
+    private static final String SUBMODEL_DOCUMENTATION_FILE_CONTENT_TYPE = "application/pdf";
     private static final String SUBMODEL_DOCUMENTATION_FILE_VALUE = "file:///aasx/OperatingManual.pdf";
 
     // SUBMODEL_OPERATIONAL_DATA
@@ -139,8 +136,6 @@ public class AASSimple {
     public static final String AAS_3_0_RC_02_DATA_SPECIFICATION_IEC_61360 = "https://admin-shell.io/aas/3/0/RC02/DataSpecificationIEC61360";
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME = "ExampleProperty";
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME = "ExampleEntity";
-
-    public AASSimple() {}
 
     public static final AssetAdministrationShell AAS = createAAS();
 
@@ -163,7 +158,7 @@ public class AASSimple {
                         .globalAssetID(HTTP_CUSTOMER_COM_ASSETS_KHBVZJSQKIY)
                         .specificAssetIds(new DefaultSpecificAssetID.Builder()
                                 .name(EQUIPMENT_ID)
-                                .value(_538FD1B3_F99F_4A52_9C75_72E9FA921270)
+                                .value(VAL_538FD1B3_F99F_4A52_9C75_72E9FA921270)
                                 .externalSubjectID(new DefaultReference.Builder()
                                         .keys(new DefaultKey.Builder()
                                                 .type(KeyTypes.GLOBAL_REFERENCE)
@@ -434,7 +429,7 @@ public class AASSimple {
                                         .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                         .build())
                                 .idShort(SUBMODEL_DOCUMENTATION_FILE_ID_SHORT)
-                                .contentType(SUBMODEL_DOCUMENTATION_FILE_contentType)
+                                .contentType(SUBMODEL_DOCUMENTATION_FILE_CONTENT_TYPE)
                                 .value(SUBMODEL_DOCUMENTATION_FILE_VALUE)
                                 .build())
                         //.ordered(false)
@@ -464,7 +459,7 @@ public class AASSimple {
                                 .unit("ExampleString")
                                 .sourceOfDefinition("ExampleString")
                                 .dataType(DataTypeIec61360.STRING_TRANSLATABLE)
-                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(SPRACHABHÄNGIGER_TITELDES_DOKUMENTS).language("EN").build())
+                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(SPRACHABHAENGIGER_TITELDES_DOKUMENTS).language("EN").build())
                                 .build())
                         .build())
                 .build();
@@ -506,33 +501,32 @@ public class AASSimple {
                         .version("2")
                         .revision("1")
                         .build())
-                .id(_0173_1_02_BAA120_008)
-                .embeddedDataSpecifications(
-                        new DefaultEmbeddedDataSpecification.Builder()
-                                .dataSpecification(new DefaultReference.Builder()
+                .id(ID_0173_1_02_BAA120_008)
+                .embeddedDataSpecifications(new DefaultEmbeddedDataSpecification.Builder()
+                        .dataSpecification(new DefaultReference.Builder()
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value(AAS_3_0_RC_02_DATA_SPECIFICATION_IEC_61360)
+                                        .build())
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .build())
+                        .dataSpecificationContent(new DefaultDataSpecificationIec61360.Builder()
+                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(MAX_DREHZAHL).language("de").build())
+                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(MAX_ROTATIONSPEED).language("en").build())
+                                .unit(UNIT_1_MIN)
+                                .unitID(new DefaultReference.Builder()
                                         .keys(new DefaultKey.Builder()
                                                 .type(KeyTypes.GLOBAL_REFERENCE)
-                                                .value(AAS_3_0_RC_02_DATA_SPECIFICATION_IEC_61360)
+                                                .value(VAL_0173_1_05_AAA650_002)
                                                 .build())
                                         .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                         .build())
-                                .dataSpecificationContent(new DefaultDataSpecificationIec61360.Builder()
-                                        .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(MAX_DREHZAHL).language("de").build())
-                                        .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(MAX_ROTATIONSPEED).language("en").build())
-                                        .unit(_1_MIN)
-                                        .unitID(new DefaultReference.Builder()
-                                                .keys(new DefaultKey.Builder()
-                                                        .type(KeyTypes.GLOBAL_REFERENCE)
-                                                        .value(_0173_1_05_AAA650_002)
-                                                        .build())
-                                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
-                                                .build())
-                                        .sourceOfDefinition("ExampleString")
-                                        .dataType(DataTypeIec61360.REAL_MEASURE)
-                                        .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(MAX_ROTATE_DEF_DE).language("de").build())
-                                        .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(MAX_ROTATE_DEF_EN).language("EN").build())
-                                        .build())
+                                .sourceOfDefinition("ExampleString")
+                                .dataType(DataTypeIec61360.REAL_MEASURE)
+                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(MAX_ROTATE_DEF_DE).language("de").build())
+                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text(MAX_ROTATE_DEF_EN).language("EN").build())
                                 .build())
+                        .build())
                 .build();
     }
 
@@ -542,37 +536,35 @@ public class AASSimple {
                 .idShort(ROTATION_SPEED)
                 .category(PROPERTY)
                 .id(HTTP_CUSTOMER_COM_CD_1_1_18EBD56F6B43D895)
-                .embeddedDataSpecifications(
-                        new DefaultEmbeddedDataSpecification.Builder()
-                                .dataSpecification(new DefaultReference.Builder()
+                .embeddedDataSpecifications(new DefaultEmbeddedDataSpecification.Builder()
+                        .dataSpecification(new DefaultReference.Builder()
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value(AAS_3_0_RC_02_DATA_SPECIFICATION_IEC_61360)
+                                        .build())
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .build())
+                        .dataSpecificationContent(new DefaultDataSpecificationIec61360.Builder()
+                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(AKTUELLE_DREHZAHL).language("DE").build())
+                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(ACTUALROTATIONSPEED).language("EN").build())
+                                .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text(AKTUELLE_DREHZAHL).language("DE").build())
+                                .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text(ACTUAL_ROTATION_SPEED).language("EN").build())
+                                .unit(UNIT_1_MIN)
+                                .unitID(new DefaultReference.Builder()
                                         .keys(new DefaultKey.Builder()
                                                 .type(KeyTypes.GLOBAL_REFERENCE)
-                                                .value(AAS_3_0_RC_02_DATA_SPECIFICATION_IEC_61360)
+                                                .value(VAL_0173_1_05_AAA650_002)
                                                 .build())
                                         .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                         .build())
-                                .dataSpecificationContent(
-                                        new DefaultDataSpecificationIec61360.Builder()
-                                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(AKTUELLE_DREHZAHL).language("DE").build())
-                                                .preferredName(new DefaultLangStringPreferredNameTypeIec61360.Builder().text(ACTUALROTATIONSPEED).language("EN").build())
-                                                .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text(AKTUELLE_DREHZAHL).language("DE").build())
-                                                .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text(ACTUAL_ROTATION_SPEED).language("EN").build())
-                                                .unit(_1_MIN)
-                                                .unitID(new DefaultReference.Builder()
-                                                        .keys(new DefaultKey.Builder()
-                                                                .type(KeyTypes.GLOBAL_REFERENCE)
-                                                                .value(_0173_1_05_AAA650_002)
-                                                                .build())
-                                                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
-                                                        .build())
-                                                .sourceOfDefinition("ExampleString")
-                                                .dataType(DataTypeIec61360.REAL_MEASURE)
-                                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder()
-                                                        .text(AKTUELLE_DREHZAHL_MITWELCHER_DER_MOTOR_ODER_DIE_SPEISEINHEIT_BETRIEBEN_WIRD).language("DE").build())
-                                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder()
-                                                        .text(ACTUAL_ROTATIONSPEED_WITH_WHICH_THE_MOTOR_OR_FEEDINGUNIT_IS_OPERATED).language("EN").build())
-                                                .build())
+                                .sourceOfDefinition("ExampleString")
+                                .dataType(DataTypeIec61360.REAL_MEASURE)
+                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder()
+                                        .text(AKTUELLE_DREHZAHL_MITWELCHER_DER_MOTOR_ODER_DIE_SPEISEINHEIT_BETRIEBEN_WIRD).language("DE").build())
+                                .definition(new DefaultLangStringDefinitionTypeIec61360.Builder()
+                                        .text(ACTUAL_ROTATIONSPEED_WITH_WHICH_THE_MOTOR_OR_FEEDINGUNIT_IS_OPERATED).language("EN").build())
                                 .build())
+                        .build())
                 .build();
     }
 
