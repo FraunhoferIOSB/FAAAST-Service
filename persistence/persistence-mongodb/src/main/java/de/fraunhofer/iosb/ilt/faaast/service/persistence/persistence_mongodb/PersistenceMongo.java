@@ -541,7 +541,20 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     private <T extends Referable> T resolveReference(Reference reference, Class<T> returnType) throws ResourceNotFoundException {
-        Document result = null;
+        Document result = loadDocumentFromReference(reference);
+
+        if (Objects.isNull(result))
+            throw new ResourceNotFoundException(reference);
+        Referable parent = null;
+        try {
+            return jsonApiDeserializer.read(result.toJson(), returnType);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException {
         List<Bson> pipelineStages = new ArrayList<>();
         List<Key> keys = reference.getKeys();
 
@@ -549,7 +562,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         pipelineStages.add(Aggregates.match(Filters.eq(ID_KEY, keys.get(0).getValue())));
 
         if (reference.getKeys().size() == 1)
-            result = submodelCollection.aggregate(pipelineStages).first();
+            return submodelCollection.aggregate(pipelineStages).first();
         else {
             // Filter for the right submodel element in the "submodelElements" array of the right submodel
             pipelineStages.add(Aggregates.unwind("$" + SUBMODEL_ELEMENTS_KEY));
@@ -561,7 +574,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 currentFieldName += "." + VALUE_KEY;
                 pipelineStages.add(Aggregates.unwind("$" + currentFieldName));
                 if (isIndexKey(keys.get(i).getValue())) {
-                    pipelineStages.add(Aggregates.skip(Math.max(Integer.parseInt(keys.get(i).getValue())-1, 0)));
+                    pipelineStages.add(Aggregates.skip(Math.max(Integer.parseInt(keys.get(i).getValue()) - 1, 0)));
                     pipelineStages.add(Aggregates.limit(1));
                 } else {
                     pipelineStages.add(Aggregates.match(Filters.eq(currentFieldName + "." + ID_SHORT_KEY, keys.get(i).getValue())));
@@ -573,21 +586,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 for (int i = 2; i < keys.size(); i++) {
                     nestedResult = nestedResult.get(VALUE_KEY, Document.class);
                 }
-                result = nestedResult;
-            }
-            catch (Exception e) {
+                return nestedResult;
+            } catch (Exception e) {
                 throw new ResourceNotFoundException(reference);
             }
-        }
-
-        if (Objects.isNull(result))
-            throw new ResourceNotFoundException(reference);
-        Referable parent = null;
-        try {
-            return jsonApiDeserializer.read(result.toJson(), returnType);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -612,7 +614,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             Key newKey = new DefaultKey();
             newKey.setType(oldkey.getType());
             if (isIndexKey(oldkey.getValue())) {
-                newKey.setValue(resolveReference(reference, SubmodelElement.class).getIdShort());
+                newKey.setValue((String) loadDocumentFromReference(reference).get(ID_SHORT_KEY));
             } else {
                 newKey.setValue(oldkey.getValue());
             }
