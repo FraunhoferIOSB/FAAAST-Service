@@ -37,20 +37,24 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
     @Override
     public PersistenceMongoConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
-        Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
-        runningProcess = transitions.walker()
-                .initState(StateID.of(RunningMongodProcess.class));
-        de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = runningProcess.current().getServerAddress();
-        PersistenceMongoConfig result = PersistenceMongoConfig
-                .builder()
-                .initialModel(initialModel)
-                .initialModelFile(initialModelFile)
-                .connectionString("mongodb://" + serverAddress.getHost() + ":" + serverAddress.getPort())
-                .databaseName("MongoTest")
-                .useExisting(false)
-                .build();
-        return result;
+        try {
+            Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
+            runningProcess = transitions.walker()
+                    .initState(StateID.of(RunningMongodProcess.class));
+            de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = runningProcess.current().getServerAddress();
+            return PersistenceMongoConfig
+                    .builder()
+                    .initialModel(initialModel)
+                    .initialModelFile(initialModelFile)
+                    .connectionString("mongodb://" + serverAddress.getHost() + ":" + serverAddress.getPort())
+                    .databaseName("MongoTest")
+                    .useExisting(false)
+                    .build();
+        } catch (Exception e) {
+            throw new ConfigurationInitializationException(e);
+        }
     }
+
 
     @AfterClass
     public static void cleanup() {

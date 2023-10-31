@@ -48,7 +48,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +55,6 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
@@ -83,15 +81,15 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String MSG_PAGING_NOT_NULL = "paging must be non-null";
     private static final Bson NO_FILTER = Filters.exists("_id");
 
-    private static final String AAS_COLLECTION_NAME = "aasCol";
-    private static final String CD_COLLECTION_NAME = "cdCol";
-    private static final String SUBMODEL_COLLECTION_NAME = "submodelCol";
-    private static final String OPERATION_COLLECTION_NAME = "opCol";
+    private static final String AAS_COLLECTION_NAME = "assetAdministrationShells";
+    private static final String CD_COLLECTION_NAME = "contentDescriptions";
+    private static final String SUBMODEL_COLLECTION_NAME = "submodels";
+    private static final String OPERATION_COLLECTION_NAME = "operationResults";
 
     private PersistenceMongoConfig config;
     private MongoCollection<Document> aasCollection, cdCollection, submodelCollection, operationCollection;
-    private JsonApiSerializer jsonApiSerializer = new JsonApiSerializer();
-    private JsonApiDeserializer jsonApiDeserializer = new JsonApiDeserializer();
+    private final JsonApiSerializer jsonApiSerializer = new JsonApiSerializer();
+    private final JsonApiDeserializer jsonApiDeserializer = new JsonApiDeserializer();
 
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
@@ -102,12 +100,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
                         .build());
         MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
+
         aasCollection = database.getCollection(AAS_COLLECTION_NAME);
         cdCollection = database.getCollection(CD_COLLECTION_NAME);
         submodelCollection = database.getCollection(SUBMODEL_COLLECTION_NAME);
         operationCollection = database.getCollection(OPERATION_COLLECTION_NAME);
 
-        if (!config.isUseExisting()) {
+        if (config.isOverride() || !databaseHasSavedEnvironment(database)) {
             aasCollection.drop();
             cdCollection.drop();
             submodelCollection.drop();
@@ -121,6 +120,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             }
         }
     }
+
+
+    private boolean databaseHasSavedEnvironment(MongoDatabase database) {
+        List<String> collectionNames = new ArrayList<>();
+        database.listCollectionNames().into(collectionNames);
+        return collectionNames.contains(AAS_COLLECTION_NAME)
+                && collectionNames.contains(SUBMODEL_COLLECTION_NAME)
+                && collectionNames.contains(CD_COLLECTION_NAME)
+                && collectionNames.contains(OPERATION_COLLECTION_NAME);
+    }
+
 
     @Override
     public PersistenceMongoConfig asConfig() {
@@ -230,11 +240,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             Document operationDocument = operationCollection.find(filter).first();
             if (Objects.isNull(operationDocument))
                 throw new ResourceNotFoundException(handle.getHandleId());
-            return jsonApiDeserializer.read(((Document)operationDocument.get("result")).toJson(), OperationResult.class);
+            return jsonApiDeserializer.read(((Document) operationDocument.get("result")).toJson(), OperationResult.class);
         }
         catch (SerializationException e) {
             LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
-        } catch (DeserializationException e) {
+        }
+        catch (DeserializationException e) {
             LOGGER.error(String.format(DESERIALIZATION_ERROR, handle.getHandleId()));
         }
         return null; // TODO check if null is fine
@@ -328,7 +339,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void  insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
         Reference parentRef = parentIdentifier.toReference();
         Reference submodelElementRef = addSubmodelElementToReference(parentRef, submodelElement);
 
@@ -337,8 +348,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return;
         }
 
+        // TODO check if value field is an array (so parent is sme-collection)
         List<Key> keys = getReferenceKeysWithoutIndices(parentRef);
-        UpdateResult result = null;
+        UpdateResult result;
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
         if (keys.size() == 1) {
             result = submodelCollection.updateOne(filter, Updates.push(SUBMODEL_ELEMENTS_KEY, getDocument(submodelElement)));
@@ -357,6 +369,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             throw new ResourceNotFoundException(parentRef);
     }
 
+
     private Reference addSubmodelElementToReference(Reference reference, SubmodelElement submodelElement) {
         Key submodelKey = new DefaultKey();
         submodelKey.setValue(submodelElement.getIdShort());
@@ -372,6 +385,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
         updateViaReference(identifier.toReference(), submodelElement);
     }
+
 
     private void updateViaReference(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
         UpdateResult result = null;
@@ -391,7 +405,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i).getValue()));
             }
             fieldName += ".$[i]";
-            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(keys.size()-1).getValue()));
+            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(keys.size() - 1).getValue()));
 
             result = submodelCollection.updateOne(filter, Updates.set(fieldName, getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
@@ -447,7 +461,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         UpdateResult result = null;
         List<Key> keys = getReferenceKeysWithoutIndices(reference);
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
-        Bson pullFilter =  Filters.eq(ID_SHORT_KEY, keys.get(keys.size()-1).getValue());
+        Bson pullFilter = Filters.eq(ID_SHORT_KEY, keys.get(keys.size() - 1).getValue());
 
         if (keys.size() == 2) {
             result = submodelCollection.updateOne(filter,
@@ -554,7 +568,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         if (Objects.isNull(result))
             throw new ResourceNotFoundException(reference);
-        Referable parent = null;
         try {
             return jsonApiDeserializer.read(result.toJson(), returnType);
         }
@@ -562,6 +575,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             throw new RuntimeException(e);
         }
     }
+
 
     private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException {
         List<Bson> pipelineStages = new ArrayList<>();
@@ -585,7 +599,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 if (isIndexKey(keys.get(i).getValue())) {
                     pipelineStages.add(Aggregates.skip(Math.max(Integer.parseInt(keys.get(i).getValue()) - 1, 0)));
                     pipelineStages.add(Aggregates.limit(1));
-                } else {
+                }
+                else {
                     pipelineStages.add(Aggregates.match(Filters.eq(currentFieldName + "." + ID_SHORT_KEY, keys.get(i).getValue())));
                 }
             }
@@ -596,11 +611,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                     nestedResult = nestedResult.get(VALUE_KEY, Document.class);
                 }
                 return nestedResult;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw new ResourceNotFoundException(reference);
             }
         }
     }
+
 
     private Bson getFilterForSubmodelOfReferenceKeys(List<Key> keys) {
         Bson filter = Filters.eq(ID_KEY, keys.get(0).getValue());
@@ -616,6 +633,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return filter;
     }
 
+
     private List<Key> getReferenceKeysWithoutIndices(Reference reference) throws ResourceNotFoundException {
         List<Key> result = new ArrayList<>();
         List<Key> keys = reference.getKeys();
@@ -624,13 +642,15 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             newKey.setType(oldkey.getType());
             if (isIndexKey(oldkey.getValue())) {
                 newKey.setValue((String) loadDocumentFromReference(reference).get(ID_SHORT_KEY));
-            } else {
+            }
+            else {
                 newKey.setValue(oldkey.getValue());
             }
             result.add(newKey);
         }
         return result;
     }
+
 
     private boolean isIndexKey(String keyValue) {
         // Alternate: keys.get(i-1).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST

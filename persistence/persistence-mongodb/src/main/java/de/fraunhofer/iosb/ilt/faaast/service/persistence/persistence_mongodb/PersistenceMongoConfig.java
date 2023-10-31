@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
     private String databaseName;
-    private boolean useExisting;
+    private boolean override;
 
     public String getConnectionString() {
         return connectionString;
@@ -45,13 +45,13 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
     }
 
 
-    public boolean isUseExisting() {
-        return useExisting;
+    public boolean isOverride() {
+        return override;
     }
 
 
-    public void setUseExisting(boolean useExisting) {
-        this.useExisting = useExisting;
+    public void setOverride(boolean override) {
+        this.override = override;
     }
 
 
@@ -74,7 +74,7 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
 
 
         public B useExisting(boolean value) {
-            getBuildingInstance().setUseExisting(value);
+            getBuildingInstance().setOverride(value);
             return getSelf();
         }
     }
