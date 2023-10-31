@@ -63,6 +63,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShe
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -102,12 +103,21 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     public abstract C getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationException;
 
 
+    public abstract void close();
+
+
     @Before
     public void init() throws Exception {
         fullModelFile = copyResourceToTempDir(FULL_MODEL_FILENAME);
         minimalModelFile = copyResourceToTempDir(MINIMAL_MODEL_FILENAME);
         environment = AASFull.createEnvironment();
         persistence = getPersistenceConfig(null, environment).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+    }
+
+
+    @After
+    public void shutdown() {
+        close();
     }
 
 

@@ -83,6 +83,12 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
     }
 
 
+    @Override
+    public void close() {
+        //intentionally empty
+    }
+
+
     private File copyToTempDir(File baseFile) throws IOException {
         Path result = Files.createTempFile(
                 tempDir,

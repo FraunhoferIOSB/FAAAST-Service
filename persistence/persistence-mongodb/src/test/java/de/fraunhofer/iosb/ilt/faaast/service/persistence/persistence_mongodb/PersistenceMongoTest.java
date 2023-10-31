@@ -44,11 +44,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
  * Tests for the mongo database persistence implementation.
  */
 public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMongo, PersistenceMongoConfig> {
+    private TransitionWalker.ReachedState<RunningMongodProcess> running;
 
     @Override
     public PersistenceMongoConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
         Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
-        TransitionWalker.ReachedState<RunningMongodProcess> running = transitions.walker()
+        running = transitions.walker()
                 .initState(StateID.of(RunningMongodProcess.class));
         de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = running.current().getServerAddress();
 
@@ -62,5 +63,11 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 .modelId("test1")
                 .build();
         return result;
+    }
+
+
+    @Override
+    public void close() {
+        running.close();
     }
 }

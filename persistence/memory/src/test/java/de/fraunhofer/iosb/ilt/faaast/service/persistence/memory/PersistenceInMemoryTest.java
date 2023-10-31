@@ -29,4 +29,9 @@ public class PersistenceInMemoryTest extends AbstractPersistenceTest<Persistence
                 .build();
     }
 
+
+    @Override
+    public void close() {
+        //intentionally empty
+    }
 }
