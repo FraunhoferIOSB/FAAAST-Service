@@ -73,6 +73,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String ID_SHORT_KEY = "idShort";
     private static final String SUBMODEL_ELEMENTS_KEY = "submodelElements";
     private static final String VALUE_KEY = "value";
+    private static final String SERIALIZATION_ERROR = "Serialization of document with id %s failed!";
+    private static final String DESERIALIZATION_ERROR = "Deserialization of document with id %s failed!";
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);
     private static final String MSG_RESOURCE_NOT_FOUND_BY_ID = "resource not found (id %s)";
@@ -161,8 +163,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return jsonApiDeserializer.read(resultDoc.toJson(), type);
         }
         catch (DeserializationException e) {
-            throw new RuntimeException(e); // TODO
+            LOGGER.error(String.format(DESERIALIZATION_ERROR, id));
         }
+        return null; // TODO check if null is fine
     }
 
 
@@ -224,12 +227,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         try {
             Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
             Bson filter = Filters.eq("handle", handleDocument);
-            OperationResult result = jsonApiDeserializer.read(operationCollection.find(filter).first().toJson(), OperationResult.class);
-            return result;
+            Document operationDocument = operationCollection.find(filter).first();
+            if (Objects.isNull(operationDocument))
+                throw new ResourceNotFoundException(handle.getHandleId());
+            return jsonApiDeserializer.read(((Document)operationDocument.get("result")).toJson(), OperationResult.class);
         }
-        catch (SerializationException | DeserializationException e) {
-            throw new RuntimeException(e); // TODO
+        catch (SerializationException e) {
+            LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
+        } catch (DeserializationException e) {
+            LOGGER.error(String.format(DESERIALIZATION_ERROR, handle.getHandleId()));
         }
+        return null; // TODO check if null is fine
     }
 
 
@@ -402,7 +410,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             document.append("handle", handleDocument).append("result", resultDocument);
         }
         catch (SerializationException e) {
-            throw new RuntimeException(e); // TODO
+            LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
         }
         operationCollection.replaceOne(Filters.eq("handle", document.get("handle")),
                 document,
@@ -420,7 +428,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public void deleteSubmodel(String id) throws ResourceNotFoundException {
         deleteElementById(submodelCollection, id);
         Reference submodelRef = ReferenceBuilder.forSubmodel(id);
-        Document referenceDocument = getReferenceDocument(submodelRef);
+        Document referenceDocument = getReferenceAsDocument(submodelRef);
         Bson filter = Filters.eq("submodels.id", id);
         Bson update = Updates.pull("submodels", filter);
         aasCollection.updateMany(filter, update);
@@ -469,21 +477,21 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private Bson getSemanticIdFilter(Reference semanticId) {
         if (Objects.isNull(semanticId))
             return NO_FILTER;
-        return Filters.eq("semanticId", getReferenceDocument(semanticId));
+        return Filters.eq("semanticId", getReferenceAsDocument(semanticId));
     }
 
 
     private Bson getIsCaseOfFilter(Reference isCaseOf) {
         if (Objects.isNull(isCaseOf))
             return NO_FILTER;
-        return Filters.eq("isCaseOf", getReferenceDocument(isCaseOf)); // TODO better equals implementation
+        return Filters.eq("isCaseOf", getReferenceAsDocument(isCaseOf)); // TODO better equals implementation
     }
 
 
     private Bson getDataSpecificationFilter(Reference dataSpecification) {
         if (Objects.isNull(dataSpecification))
             return NO_FILTER;
-        return Filters.eq("embeddedDataSpecifications", getReferenceDocument(dataSpecification));
+        return Filters.eq("embeddedDataSpecifications", getReferenceAsDocument(dataSpecification));
     }
 
 
@@ -506,7 +514,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Document getReferenceDocument(Reference reference) {
+    private Document getReferenceAsDocument(Reference reference) {
         try {
             //Ref type has to match the one in the database exactly, ReferenceBuilder sets the wrong one
             reference.setType(ReferenceTypes.EXTERNAL_REFERENCE);
@@ -514,8 +522,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return Document.parse(refJson);
         }
         catch (SerializationException e) {
-            throw new RuntimeException(e); // TODO
+            LOGGER.error(String.format(SERIALIZATION_ERROR, reference));
         }
+        return null; // TODO check if null is fine
     }
 
 
@@ -526,7 +535,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 result.add(jsonApiDeserializer.read(document.toJson(), type));
             }
             catch (DeserializationException e) {
-                throw new RuntimeException(e); // TODO
+                LOGGER.error(String.format(DESERIALIZATION_ERROR, document.get("id")));
             }
         }
         return result.stream();
