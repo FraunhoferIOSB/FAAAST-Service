@@ -102,18 +102,18 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.4.0</maven.plugin.buildhelper.version>
-        <maven.plugin.checkstyle.version>3.3.0</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.1.2</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>6.0.0</maven.plugin.git.commit.id.version>
+        <maven.plugin.failsafe.version>3.2.1</maven.plugin.failsafe.version>
+        <maven.plugin.git.commit.id.version>7.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.10</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.11</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.4.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>8.4.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.11.0-6</maven.plugin.prosys.codegen.version>
