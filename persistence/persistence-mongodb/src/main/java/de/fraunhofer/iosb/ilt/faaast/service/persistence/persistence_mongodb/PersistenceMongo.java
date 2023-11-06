@@ -126,9 +126,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         List<String> collectionNames = new ArrayList<>();
         database.listCollectionNames().into(collectionNames);
         return collectionNames.contains(AAS_COLLECTION_NAME)
-                && collectionNames.contains(SUBMODEL_COLLECTION_NAME)
-                && collectionNames.contains(CD_COLLECTION_NAME)
-                && collectionNames.contains(OPERATION_COLLECTION_NAME);
+                || collectionNames.contains(SUBMODEL_COLLECTION_NAME)
+                || collectionNames.contains(CD_COLLECTION_NAME)
+                || collectionNames.contains(OPERATION_COLLECTION_NAME);
     }
 
 

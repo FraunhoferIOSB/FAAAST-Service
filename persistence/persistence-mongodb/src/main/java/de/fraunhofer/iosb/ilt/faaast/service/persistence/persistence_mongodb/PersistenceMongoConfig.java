@@ -73,7 +73,7 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         }
 
 
-        public B useExisting(boolean value) {
+        public B override(boolean value) {
             getBuildingInstance().setOverride(value);
             return getSelf();
         }

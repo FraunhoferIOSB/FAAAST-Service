@@ -82,7 +82,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
     private static final String FULL_MODEL_FILENAME = "AASFull.json";
     private static final String MINIMAL_MODEL_FILENAME = "AASMinimal.json";
-    private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
+    protected static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
 
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
