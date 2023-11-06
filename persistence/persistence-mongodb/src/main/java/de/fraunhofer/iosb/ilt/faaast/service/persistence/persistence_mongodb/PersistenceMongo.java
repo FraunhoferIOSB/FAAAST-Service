@@ -155,22 +155,22 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private boolean saveListInCollection(List<? extends Identifiable> list, MongoCollection<Document> collection) {
         if (list.isEmpty())
             return true;
-        List<Document> docList = list.stream()
+        List<Document> documentList = list.stream()
                 .map(this::getDocument)
                 .collect(Collectors.toList());
-        InsertManyResult result = collection.insertMany(docList);
+        InsertManyResult result = collection.insertMany(documentList);
         return result.wasAcknowledged();
     }
 
 
     private <T extends Identifiable> T loadElementById(MongoCollection<Document> collection, String id, Class<T> type) throws ResourceNotFoundException {
         Bson filter = Filters.eq(ID_KEY, id);
-        Document resultDoc = collection.find(filter).first();
-        if (resultDoc == null)
+        Document resultDocument = collection.find(filter).first();
+        if (resultDocument == null)
             throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
 
         try {
-            return jsonApiDeserializer.read(resultDoc.toJson(), type);
+            return jsonApiDeserializer.read(resultDocument.toJson(), type);
         }
         catch (DeserializationException e) {
             LOGGER.error(String.format(DESERIALIZATION_ERROR, id));
@@ -474,7 +474,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 fieldName += String.format(".$[a%d].%s", i, VALUE_KEY);
                 arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i).getValue()));
             }
-            Document doc = submodelCollection.find(filter).first();
             result = submodelCollection.updateOne(filter, Updates.pull(fieldName, pullFilter),
                     new UpdateOptions().arrayFilters(arrayFilters));
         }
@@ -530,7 +529,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private Document getReferenceAsDocument(Reference reference) {
         try {
-            //Ref type has to match the one in the database exactly, ReferenceBuilder sets the wrong one
+            //Reference type has to match the one in the database exactly, ReferenceBuilder sets the wrong one
             reference.setType(ReferenceTypes.EXTERNAL_REFERENCE);
             String refJson = jsonApiSerializer.write(reference);
             return Document.parse(refJson);
@@ -576,7 +575,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
     }
 
-
+    /**
+     * Gets the right document to a reference from the database.
+     * Behaviour should be similar to EnvironmentHelper.resolve().
+     * Can handle indizes as keys.
+     * Works by splitting arrays of submodelelements into different documents
+     * and then selecting the right one.
+     *
+     * @param reference to be resolved.
+     * @return the document that is the right submodelelement.
+     * @throws ResourceNotFoundException if the referenced submodel does not exist in the database.
+     */
     private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException {
         List<Bson> pipelineStages = new ArrayList<>();
         List<Key> keys = reference.getKeys();
@@ -596,7 +605,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 // Filter for the right submodel element in the "value" array of the parent submodel element
                 currentFieldName += "." + VALUE_KEY;
                 pipelineStages.add(Aggregates.unwind("$" + currentFieldName));
-                if (isIndexKey(keys.get(i).getValue())) {
+                if (isKeyAnIndex(keys.get(i).getValue())) {
                     pipelineStages.add(Aggregates.skip(Math.max(Integer.parseInt(keys.get(i).getValue()) - 1, 0)));
                     pipelineStages.add(Aggregates.limit(1));
                 }
@@ -634,13 +643,21 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
+    /**
+     * Returns all keys in a reference but every key that is an index is replaced by the idShort
+     * of the right submodelElement.
+     *
+     * @param reference where the keys should be replaced.
+     * @return a list of keys, which are all idShorts.
+     * @throws ResourceNotFoundException if a referenced submodelElement doesn't exist in the database.
+     */
     private List<Key> getReferenceKeysWithoutIndices(Reference reference) throws ResourceNotFoundException {
         List<Key> result = new ArrayList<>();
         List<Key> keys = reference.getKeys();
         for (Key oldkey: keys) {
             Key newKey = new DefaultKey();
             newKey.setType(oldkey.getType());
-            if (isIndexKey(oldkey.getValue())) {
+            if (isKeyAnIndex(oldkey.getValue())) {
                 newKey.setValue((String) loadDocumentFromReference(reference).get(ID_SHORT_KEY));
             }
             else {
@@ -652,7 +669,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private boolean isIndexKey(String keyValue) {
+    private boolean isKeyAnIndex(String keyValue) {
         // Alternate: keys.get(i-1).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST
         return Pattern.compile("\\d+").matcher(keyValue).matches();
     }
