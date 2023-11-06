@@ -440,47 +440,54 @@ public class App implements Runnable {
     }
 
 
+    private void withModelFromCommandLine(ServiceConfig config, String fileExtension) {
+        try {
+            LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
+            if (config.getPersistence().getInitialModelFile() != null) {
+                LOGGER.info("Overriding Model Path {} set in Config File with {}",
+                        config.getPersistence().getInitialModelFile(),
+                        modelFile.getCanonicalFile());
+            }
+        }
+        catch (IOException e) {
+            LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
+        }
+        config.getPersistence().setInitialModelFile(modelFile);
+        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+            config.getFileStorage().setInitialModelFile(modelFile);
+        }
+    }
+
+
+    private void withModelFromEnvironmentVariable(ServiceConfig config, String fileExtension) {
+        LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
+        if (config.getPersistence().getInitialModelFile() != null) {
+            LOGGER.info("Overriding model path {} set in Config File with {}",
+                    config.getPersistence().getInitialModelFile(),
+                    getEnvValue(ENV_PATH_MODEL_FILE));
+        }
+        config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+            config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+        }
+        modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
+    }
+
+
     private void withModel(ServiceConfig config) {
         String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            try {
-                LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
-                if (config.getPersistence().getInitialModelFile() != null) {
-                    LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                            config.getPersistence().getInitialModelFile(),
-                            modelFile.getCanonicalFile());
-                }
-            }
-            catch (IOException e) {
-                LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
-            }
-            config.getPersistence().setInitialModelFile(modelFile);
-            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-                config.getFileStorage().setInitialModelFile(modelFile);
-            }
+            withModelFromCommandLine(config, fileExtension);
             return;
-
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
-            if (config.getPersistence().getInitialModelFile() != null) {
-                LOGGER.info("Overriding model path {} set in Config File with {}",
-                        config.getPersistence().getInitialModelFile(),
-                        getEnvValue(ENV_PATH_MODEL_FILE));
-            }
-            config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-                config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-            }
-            modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
+            withModelFromEnvironmentVariable(config, fileExtension);
             return;
         }
-
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
             return;
         }
-
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());

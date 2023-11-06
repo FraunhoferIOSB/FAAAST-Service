@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -23,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
@@ -41,17 +43,16 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
 
 
     @Override
-    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException, MessageBusException {
+    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException, MessageBusException, AssetConnectionException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
         Submodel submodel = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteSubmodel(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        //TODO: Delete AssetConnections of underlying submodel elements?
+        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence());
         context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                 .element(submodel)
                 .value(submodel)
                 .build());
         return response;
     }
-
 }

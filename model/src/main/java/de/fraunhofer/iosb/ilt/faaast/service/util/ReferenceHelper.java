@@ -265,6 +265,34 @@ public class ReferenceHelper {
 
 
     /**
+     * Checks if a reference starts with another reference/prefix.Returns true if th prefix is null or empty.
+     *
+     * @param reference the reference the test if it starts with the prfix
+     * @param prefix the prefix the reference has to start with
+     * @return true if the reference starts with the prefix
+     */
+    public static boolean startsWith(Reference reference, Reference prefix) {
+        boolean referenceEmpty = Objects.isNull(reference) || Objects.isNull(reference.getKeys()) || reference.getKeys().isEmpty();
+        boolean prefixEmpty = Objects.isNull(prefix) || Objects.isNull(prefix.getKeys()) || prefix.getKeys().isEmpty();
+        if (prefixEmpty) {
+            return true;
+        }
+        if (referenceEmpty) {
+            return false;
+        }
+        if (reference.getKeys().size() < prefix.getKeys().size()) {
+            return false;
+        }
+        for (int i = 0; i < prefix.getKeys().size(); i++) {
+            if (!equals(reference.getKeys().get(i), prefix.getKeys().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
      * Get the corresponding {@link KeyElements} to the given class.
      *
      * @param clazz to convert to a KeyElement

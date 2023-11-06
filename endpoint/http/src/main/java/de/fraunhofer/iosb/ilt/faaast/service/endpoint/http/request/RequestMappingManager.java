@@ -61,7 +61,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      * @throws MethodNotAllowedException if the method was not valid for the request
      * @throws IllegalStateException if there were multiple matching mappers
      */
-    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
+    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Set<AbstractRequestMapper> mappersByUrl = mappers.stream()
                 .filter(request -> request.matchesUrl(httpRequest))
@@ -93,7 +93,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      * @throws InvalidRequestException if no mapper is found for request or mapping fails
      * @throws MethodNotAllowedException if HTTP method is not allowed on URL
      */
-    public Request map(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
+    public Request map(HttpRequest httpRequest) throws InvalidRequestException {
         return findRequestMapper(httpRequest).parse(httpRequest);
     }
 

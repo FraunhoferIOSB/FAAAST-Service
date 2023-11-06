@@ -37,7 +37,7 @@ public class GetSelfDescriptionRequestHandler extends AbstractRequestHandler<Get
 
 
     @Override
-    public GetSelfDescriptionResponse process(GetSelfDescriptionRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
+    public GetSelfDescriptionResponse process(GetSelfDescriptionRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         return GetSelfDescriptionResponse.builder()
                 .payload(ServiceDescription.builder()
                         .profile(ServiceSpecificationProfile.AAS_FULL)

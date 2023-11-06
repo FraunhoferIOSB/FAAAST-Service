@@ -186,7 +186,7 @@ public class HttpHelper {
         Ensure.requireNonNull(statusCode, "statusCode must be non-null");
         response.setStatus(toHttpStatusCode(statusCode));
         if (Objects.nonNull(headers)) {
-            headers.forEach((key, value) -> response.addHeader(key, value));
+            headers.forEach(response::addHeader);
         }
         if (statusCode != StatusCode.SUCCESS_NO_CONTENT) {
             if (contentType != null) {
