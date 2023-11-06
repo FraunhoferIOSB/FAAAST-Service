@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -229,7 +228,7 @@ public class AssetConnectionIT {
                 .host("opc.tcp://" + "localhost:" + port)
                 .build());
         DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE);
-        assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
+        Assert.assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
     }
 
 
@@ -240,7 +239,7 @@ public class AssetConnectionIT {
                         .submodelRepository()
                         .submodelInterface(submodel)
                         .submodelElement(target, Content.VALUE));
-        assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         String expected = String.format("{\"target\": %d}", expectedValue);
         JSONAssert.assertEquals(expected, response.body(), false);
     }
@@ -249,10 +248,10 @@ public class AssetConnectionIT {
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
         HttpResponse response = HttpHelper.execute(method, url, input);
-        assertEquals(toHttpStatusCode(statusCode), response.statusCode());
+        Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponseList(response, type);
-            assertEquals(expected, actual);
+            Assert.assertEquals(expected, actual);
         }
     }
 

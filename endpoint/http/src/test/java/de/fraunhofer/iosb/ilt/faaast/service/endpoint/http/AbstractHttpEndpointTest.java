@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
@@ -250,9 +249,9 @@ public abstract class AbstractHttpEndpointTest {
                 .scheme(scheme)
                 .send()
                 .getHeaders();
-        assertFalse(headers.contains(HttpHeader.SERVER));
-        assertFalse(headers.contains(HttpHeader.DATE));
-        assertFalse(headers.contains(HttpHeader.X_POWERED_BY));
+        Assert.assertFalse(headers.contains(HttpHeader.SERVER));
+        Assert.assertFalse(headers.contains(HttpHeader.DATE));
+        Assert.assertFalse(headers.contains(HttpHeader.X_POWERED_BY));
     }
 
 

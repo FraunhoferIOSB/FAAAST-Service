@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import static org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils.keyTypeToClass;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -414,8 +412,8 @@ public class ReferenceHelper {
         if (Objects.equals(key1.getType(), key2.getType())) {
             return true;
         }
-        Class<?> type1 = keyTypeToClass(key1.getType());
-        Class<?> type2 = keyTypeToClass(key2.getType());
+        Class<?> type1 = AasUtils.keyTypeToClass(key1.getType());
+        Class<?> type2 = AasUtils.keyTypeToClass(key2.getType());
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {

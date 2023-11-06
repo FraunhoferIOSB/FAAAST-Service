@@ -37,39 +37,6 @@ import java.util.Objects;
  */
 public class ServiceConfig {
 
-    /**
-     * Load the config from a given file.
-     *
-     * @param file the file to parse
-     * @return the parsed config
-     * @throws IOException if loading fails
-     */
-    public static ServiceConfig load(File file) throws IOException {
-        return getMapper().readValue(file, ServiceConfig.class);
-    }
-
-
-    /**
-     * Load the config from a given input stream.
-     *
-     * @param in the stream to parse
-     * @return the parsed config
-     * @throws IOException if loading fails
-     */
-    public static ServiceConfig load(InputStream in) throws IOException {
-        return getMapper().readValue(in, ServiceConfig.class);
-    }
-
-
-    private static ObjectMapper getMapper() {
-        ObjectMapper mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
-        return mapper;
-    }
-
     private List<AssetConnectionConfig> assetConnections;
     private CoreConfig core;
     private List<EndpointConfig> endpoints;
@@ -167,6 +134,40 @@ public class ServiceConfig {
     @Override
     public int hashCode() {
         return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage);
+    }
+
+
+    /**
+     * Load the config from a given file.
+     *
+     * @param file the file to parse
+     * @return the parsed config
+     * @throws IOException if loading fails
+     */
+    public static ServiceConfig load(File file) throws IOException {
+        return getMapper().readValue(file, ServiceConfig.class);
+    }
+
+
+    /**
+     * Load the config from a given input stream.
+     *
+     * @param in the stream to parse
+     * @return the parsed config
+     * @throws IOException if loading fails
+     */
+    public static ServiceConfig load(InputStream in) throws IOException {
+        return getMapper().readValue(in, ServiceConfig.class);
+    }
+
+
+    private static ObjectMapper getMapper() {
+        ObjectMapper mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+        return mapper;
     }
 
 

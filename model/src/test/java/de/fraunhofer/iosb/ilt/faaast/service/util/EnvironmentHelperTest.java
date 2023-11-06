@@ -45,7 +45,6 @@ public class EnvironmentHelperTest {
                 })
                 .build()
                 .walk(environment);
-
     }
 
 

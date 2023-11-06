@@ -74,7 +74,6 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
 
 
     private void addPath(Referable referable) {
-        String newPath;
         if (path.isEmpty()) {
             path = IdShortPath.builder()
                     .from(path)
