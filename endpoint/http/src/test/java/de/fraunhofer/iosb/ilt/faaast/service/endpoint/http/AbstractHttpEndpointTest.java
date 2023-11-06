@@ -798,7 +798,7 @@ public abstract class AbstractHttpEndpointTest {
         Result actual = new HttpJsonApiDeserializer().read(response.getContentAsString(), Result.class);
         Assert.assertFalse(actual.getSuccess());
         Assert.assertNotNull(actual.getMessages());
-        Assert.assertTrue(actual.getMessages().size() == 1);
+        Assert.assertEquals(actual.getMessages().size(), 1);
         if (Objects.nonNull(textSnippets)) {
             for (var text: textSnippets) {
                 Assert.assertTrue(actual.getMessages().get(0).getText().contains(text));

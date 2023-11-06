@@ -82,11 +82,6 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
     }
 
 
-    private String decodeFilePath(String filePath) {
-        return new String(Base64.getUrlDecoder().decode(filePath.getBytes()));
-    }
-
-
     @Override
     public void save(String path, byte[] content) throws IOException {
         Path diskPath = null;

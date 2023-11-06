@@ -489,7 +489,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private void assertConnect(EmbeddedOpcUaServer server, OpcUaAssetConnectionConfig config)
-            throws ValueFormatException, AssetConnectionException, ConfigurationException {
+            throws ValueFormatException, AssetConnectionException, ConfigurationException, ResourceNotFoundException {
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expected = PropertyValue.of(Datatype.DOUBLE, "3.3");
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -522,7 +522,7 @@ public class OpcUaAssetConnectionTest {
                                      EndpointSecurityConfiguration securityConfiguration,
                                      OpcUaAssetConnectionConfig config,
                                      Consumer<OpcUaAssetConnectionConfig> beforeConnect)
-            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException {
+            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException {
 
         Path clientBaseSecurityDir = Paths.get(Files.createTempDirectory("client").toString(), "client");
         try {
@@ -571,7 +571,8 @@ public class OpcUaAssetConnectionTest {
     private void assertConnectSecureCertificate(
                                                 EmbeddedOpcUaServer server,
                                                 EndpointSecurityConfiguration securityConfiguration)
-            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException {
+            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException,
+            ResourceNotFoundException {
         List<X509Certificate> clientCertificate = new ArrayList<>();
         try {
             assertConnectSecure(server,
@@ -611,7 +612,7 @@ public class OpcUaAssetConnectionTest {
                                                      EndpointSecurityConfiguration securityConfiguration,
                                                      String username,
                                                      String password)
-            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException {
+            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException {
         assertConnectSecure(
                 server,
                 securityConfiguration,
@@ -798,7 +799,7 @@ public class OpcUaAssetConnectionTest {
                                       String nodeId,
                                       PropertyValue expected,
                                       String arrayIndex)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()

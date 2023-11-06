@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
@@ -58,7 +59,16 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
 
     private void init() throws AssetConnectionException {
         final String baseErrorMessage = "error registering value provider";
-        TypeInfo<?> typeInfo = serviceContext.getTypeInfo(reference);
+        TypeInfo<?> typeInfo;
+        try {
+            typeInfo = serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException ex) {
+            throw new AssetConnectionException(
+                    String.format("%s - could not resolve type information (reference: %s)",
+                            baseErrorMessage,
+                            AasUtils.asString(reference)));
+        }
         if (typeInfo == null) {
             throw new AssetConnectionException(
                     String.format("%s - could not resolve type information (reference: %s)",

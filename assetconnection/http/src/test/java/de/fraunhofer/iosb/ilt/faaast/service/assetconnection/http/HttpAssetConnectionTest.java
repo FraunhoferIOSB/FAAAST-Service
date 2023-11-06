@@ -148,7 +148,8 @@ public class HttpAssetConnectionTest {
     @Test
     public void testValueProviderPropertySetValueWithTemplateJSONHttps() throws AssetConnectionException,
             ConfigurationInitializationException,
-            ValueFormatException {
+            ValueFormatException,
+            ResourceNotFoundException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -160,7 +161,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderWithHeaders() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderWithHeaders() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderHeaders(Map.of(), Map.of(), Map.of(), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"), false);
@@ -170,7 +171,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testValueProviderPropertyGetValueJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "5",
@@ -203,7 +205,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueWithQueryJSON() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testValueProviderPropertyGetValueWithQueryJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "{\"foo\" : [1, 2, 5]}",
@@ -213,7 +216,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyWriteJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 null,
@@ -223,7 +226,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueWithTemplateJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderPropertySetValueWithTemplateJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -235,7 +239,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonGET() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonGET()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -250,7 +255,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonGET2() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonGET2()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -269,7 +275,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonPOST()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -400,7 +407,7 @@ public class HttpAssetConnectionTest {
                                             Map<String, String> providerHeaders,
                                             Map<String, String> expectedHeaders,
                                             boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         PropertyValue value = PropertyValue.of(Datatype.INT, "5");
         assertValueProviderPropertyJson(
                 value.getValue().getDataType(),
@@ -425,7 +432,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query, boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
                 RequestMethod.GET,
@@ -441,7 +448,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query, HttpAssetConnectionConfig config)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
                 RequestMethod.GET,
@@ -463,7 +470,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyWriteJson(PropertyValue newValue, String template, String expectedResponseBody, boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 newValue.getValue().getDataType(),
                 RequestMethod.PUT,
@@ -518,7 +525,7 @@ public class HttpAssetConnectionTest {
                                                  boolean useHttps,
                                                  Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 datatype,
                 method,
@@ -541,7 +548,7 @@ public class HttpAssetConnectionTest {
                                                  HttpAssetConnectionConfig config,
                                                  Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -590,7 +597,7 @@ public class HttpAssetConnectionTest {
                                                         String payload,
                                                         boolean useHttps,
                                                         PropertyValue... expected)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -680,9 +687,9 @@ public class HttpAssetConnectionTest {
                 .when(serviceContext)
                 .getOperationOutputVariables(REFERENCE);
         if (output != null) {
-            Stream.of(output).forEach(x -> doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+            Stream.of(output).forEach(LambdaExceptionHelper.rethrowConsumer(x -> doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
                     .when(serviceContext)
-                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue())));
+                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()))));
         }
 
         String path = String.format("/test/random/%s", "foo");

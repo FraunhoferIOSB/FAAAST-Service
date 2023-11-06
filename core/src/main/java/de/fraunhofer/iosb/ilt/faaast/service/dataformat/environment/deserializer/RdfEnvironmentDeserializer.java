@@ -31,6 +31,7 @@ import org.apache.jena.riot.Lang;
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
+    private static final String MSG_RDF_CURRENTLY_NOT_SUPPORTED = "Current version of AAS4j library does not support RDF de-/serialization";
     // private final Serializer deserializer;
 
     public RdfEnvironmentDeserializer() {
@@ -40,7 +41,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        throw new UnsupportedOperationException(MSG_RDF_CURRENTLY_NOT_SUPPORTED);
         // try {
         //     return EnvironmentContext.builder()
         //             .environment(deserializer.read(IOUtils.toString(in, charset)))
@@ -62,7 +63,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset, Lang rdfLanguage) throws DeserializationException {
-        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        throw new UnsupportedOperationException(MSG_RDF_CURRENTLY_NOT_SUPPORTED);
         // try {
         //     return EnvironmentContext.builder()
         //             .environment(deserializer.read(IOUtils.toString(in, charset), rdfLanguage))
@@ -84,7 +85,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(File file, Charset charset, Lang rdfLanguage) throws DeserializationException {
-        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF de-/serialization");
+        throw new UnsupportedOperationException(MSG_RDF_CURRENTLY_NOT_SUPPORTED);
         // try (InputStream in = new FileInputStream(file)) {
         //     return read(in, charset, rdfLanguage);
         // }

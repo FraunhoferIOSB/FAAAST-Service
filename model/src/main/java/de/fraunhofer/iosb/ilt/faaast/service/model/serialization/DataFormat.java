@@ -32,9 +32,7 @@ public enum DataFormat {
     XML(MediaType.XML_UTF_8, 1, "xml"),
     RDF(MediaType.create("text", "turtle"), 2, "rdf", "xml", "ttl", "n3", "nt", "nq"),
     JSONLD(MediaType.create("application", "ld+json"), 3, "jsonld", "json-ld"),
-    AML(MediaType.XML_UTF_8, 5, "aml", "xml"),
-    AASX(MediaType.create("application", "asset-administration-shell-package"), 4, "aasx"),
-    UANODESET(MediaType.XML_UTF_8, 6, "xml");
+    AASX(MediaType.create("application", "asset-administration-shell-package"), 4, "aasx");
 
     private final MediaType contentType;
     private final List<String> fileExtensions;

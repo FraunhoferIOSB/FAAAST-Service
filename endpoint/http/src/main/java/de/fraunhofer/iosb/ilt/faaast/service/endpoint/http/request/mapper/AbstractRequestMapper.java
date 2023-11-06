@@ -28,9 +28,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import jakarta.json.Json;
 import jakarta.json.JsonMergePatch;
+import jakarta.json.JsonReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ import org.apache.commons.fileupload.MultipartStream;
  */
 public abstract class AbstractRequestMapper {
 
+    private static final String MSG_ERROR_PARSING_BODY = "error parsing body";
     protected static final String BOUNDARY = "boundary";
     protected static final Pattern PATTERN_NAME = Pattern.compile("name=\"([^\"]+)\"");
     protected static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile(HttpConstants.HEADER_CONTENT_TYPE + ": ([^\n^\r]+)");
@@ -162,7 +165,7 @@ public abstract class AbstractRequestMapper {
             return deserializer.read(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
-            throw new InvalidRequestException("error parsing body", e);
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
     }
 
@@ -204,7 +207,7 @@ public abstract class AbstractRequestMapper {
             }
         }
         catch (IOException e) {
-            throw new InvalidRequestException("error parsing body", e);
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
         return map;
     }
@@ -236,7 +239,7 @@ public abstract class AbstractRequestMapper {
             return deserializer.readList(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
-            throw new InvalidRequestException("error parsing body", e);
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
     }
 
@@ -246,12 +249,22 @@ public abstract class AbstractRequestMapper {
      *
      * @param json the JSON to parse
      * @return the parsed merge patch
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException if json cannot be parsed as
+     *             JSON Merge Patch
      */
-    protected JsonMergePatch parseMergePatch(String json) {
-        return Json.createMergePatch(
-                Json.createReader(
-                        new ByteArrayInputStream(json.getBytes()))
-                        .readValue());
+    protected JsonMergePatch parseMergePatch(String json) throws InvalidRequestException {
+        try (StringReader stringReader = new StringReader(json)) {
+            try (JsonReader jsonReader = Json.createReader(stringReader)) {
+                return Json.createMergePatch(jsonReader.readValue());
+            }
+            catch (Exception e) {
+                throw new InvalidRequestException(String.format("unable to create JSON merge patch (reason: %s, JSON payload: %s)",
+                        e.getMessage(),
+                        json),
+                        e);
+            }
+        }
+
     }
 
 

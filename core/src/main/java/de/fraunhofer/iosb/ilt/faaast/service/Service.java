@@ -50,7 +50,6 @@ import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
@@ -161,16 +160,8 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) {
-        Referable referable;
-        try {
-            referable = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
-        }
-        catch (ResourceNotFoundException e) {
-            // TODO could also be submodel?
-            throw new RuntimeException();
-        }
-        return TypeExtractor.extractTypeInfo(referable);
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+        return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
 

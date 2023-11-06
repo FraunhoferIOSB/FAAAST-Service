@@ -7,21 +7,18 @@
                 "validationOnLoad":
                         {
                             "validateConstraints": false,
-                            "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
                 "validationOnCreate":
                         {
                             "validateConstraints": false,
-                            "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
                 "validationOnUpdate":
                         {
                             "validateConstraints": false,
-                            "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         }
