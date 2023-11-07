@@ -350,9 +350,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
      * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
      *             with the given path
+     * @throws IllegalArgumentException if type is null
+     * @throws ClassCastException if casting fails
      */
     public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        // TODO improve stability
+        Ensure.requireNonNull(type, "type must be non-null");
         return type.cast(getSubmodelElement(identifier, modifier));
     }
 

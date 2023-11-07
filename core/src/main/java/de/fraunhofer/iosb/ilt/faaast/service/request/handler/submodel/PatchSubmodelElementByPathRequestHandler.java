@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
@@ -55,17 +56,15 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
         context.getPersistence().save(updated);
-
-        // TODO how to do validation on JSON merge patch?
-        // ModelValidator.validate(request.getSubmodelElement(), coreConfig.getValidationOnUpdate());
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        //Check if submodelelement does exist
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = mergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
+        ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);
+        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
         if (Objects.isNull(oldSubmodelElement)) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)
