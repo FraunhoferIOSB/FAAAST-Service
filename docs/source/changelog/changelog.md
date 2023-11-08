@@ -12,6 +12,7 @@
     *   Now supports upload, deletion and modification of asset thumbnails and file attachments.
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
+	*  Adapted OPC UA Information model to AAS specification version 3.0.1
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
 *   Validation
 	*   More fine-grained configuration of validation via configuration file
