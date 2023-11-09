@@ -85,12 +85,9 @@ Here you can see a sample Screenshot with UaExpert.
     -   Category
     -   ModelingKind
 
--   AASValueTypeDataType
-    -   ByteString
-    -   Byte
-    -   UInt16
-    -   UInt32
-    -   UInt64
-    -   DateTime
-    -   LocalizedText
-    -   UtcTime
+-   AASDataTypeDefXsd
+    -   Base64Binary
+    -   UnsignedInt
+    -   UnsignedLong
+    -   UnsignedShort
+    -   UnsignedByte
