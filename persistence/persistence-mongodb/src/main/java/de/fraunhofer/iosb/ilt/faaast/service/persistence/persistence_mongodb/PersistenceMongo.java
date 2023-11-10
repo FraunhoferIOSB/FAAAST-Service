@@ -343,25 +343,21 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Reference parentRef = parentIdentifier.toReference();
         Reference submodelElementRef = addSubmodelElementToReference(parentRef, submodelElement);
 
-        if (!Objects.isNull(submodelCollection.find(getFilterForSubmodelOfReferenceKeys(getReferenceKeysWithoutIndices(submodelElementRef))).first())) {
+        if (!Objects.isNull(submodelCollection.find(getFilterForSubmodelOfReferenceKeys(getKeyValuesFromReference(submodelElementRef))).first())) {
             updateViaReference(submodelElementRef, submodelElement);
             return;
         }
 
         // TODO check if value field is an array (so parent is sme-collection)
-        List<Key> keys = getReferenceKeysWithoutIndices(parentRef);
+        List<String> keys = getKeyValuesFromReference(parentRef);
         UpdateResult result;
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
         if (keys.size() == 1) {
             result = submodelCollection.updateOne(filter, Updates.push(SUBMODEL_ELEMENTS_KEY, getDocument(submodelElement)));
         }
         else {
-            String fieldName = SUBMODEL_ELEMENTS_KEY;
             List<Bson> arrayFilters = new ArrayList<>();
-            for (int i = 1; i < keys.size(); i++) {
-                fieldName += String.format(".$[a%d].%s", i, VALUE_KEY);
-                arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i).getValue()));
-            }
+            String fieldName = getArrayFieldNameWithArrayFilters(keys, arrayFilters, keys.size());
             result = submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
         }
@@ -389,11 +385,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private void updateViaReference(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
         UpdateResult result = null;
-        List<Key> keys = getReferenceKeysWithoutIndices(reference);
+        List<String> keys = getKeyValuesFromReference(reference);
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
         if (keys.size() == 2) {
             List<Bson> arrayFilters = new ArrayList<>();
-            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(1).getValue()));
+            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(1)));
             result = submodelCollection.updateOne(filter, Updates.set(SUBMODEL_ELEMENTS_KEY + ".$[i]", getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
         }
@@ -402,10 +398,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             List<Bson> arrayFilters = new ArrayList<>();
             for (int i = 1; i < keys.size() - 1; i++) {
                 fieldName += String.format(".$[a%d].%s", i, VALUE_KEY);
-                arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i).getValue()));
+                arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i)));
             }
             fieldName += ".$[i]";
-            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(keys.size() - 1).getValue()));
+            arrayFilters.add(Filters.eq("i." + ID_SHORT_KEY, keys.get(keys.size() - 1)));
 
             result = submodelCollection.updateOne(filter, Updates.set(fieldName, getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
@@ -459,26 +455,49 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
         Reference reference = identifier.toReference();
         UpdateResult result = null;
-        List<Key> keys = getReferenceKeysWithoutIndices(reference);
+        List<String> keys = getKeyValuesFromReference(reference);
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
-        Bson pullFilter = Filters.eq(ID_SHORT_KEY, keys.get(keys.size() - 1).getValue());
 
         if (keys.size() == 2) {
             result = submodelCollection.updateOne(filter,
-                    Updates.pull(SUBMODEL_ELEMENTS_KEY, pullFilter));
+                    Updates.pull(SUBMODEL_ELEMENTS_KEY, Filters.eq(ID_SHORT_KEY, keys.get(keys.size() - 1))));
         }
         else {
-            String fieldName = SUBMODEL_ELEMENTS_KEY;
             List<Bson> arrayFilters = new ArrayList<>();
-            for (int i = 1; i < keys.size() - 1; i++) {
-                fieldName += String.format(".$[a%d].%s", i, VALUE_KEY);
-                arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i).getValue()));
+            String fieldName = getArrayFieldNameWithArrayFilters(keys, arrayFilters, keys.size() - 1);
+
+            String lastKeyValue = keys.get(keys.size() - 1);
+            if (isKeyAnIndex(lastKeyValue)) {
+                // no normal possibility for removing elements by index
+                // fix by removing the value of the right element and the pulling all elements with null value
+                submodelCollection.updateOne(filter, Updates.unset(fieldName + "." + lastKeyValue),
+                        new UpdateOptions().arrayFilters(arrayFilters));
+                result = submodelCollection.updateOne(filter, Updates.pull(fieldName, null),
+                        new UpdateOptions().arrayFilters(arrayFilters));
             }
-            result = submodelCollection.updateOne(filter, Updates.pull(fieldName, pullFilter),
-                    new UpdateOptions().arrayFilters(arrayFilters));
+            else {
+                result = submodelCollection.updateOne(filter, Updates.pull(fieldName, Filters.eq(ID_SHORT_KEY, keys.get(keys.size() - 1))),
+                        new UpdateOptions().arrayFilters(arrayFilters));
+            }
+
         }
         if (result.getModifiedCount() == 0)
             throw new ResourceNotFoundException(reference);
+    }
+
+
+    private String getArrayFieldNameWithArrayFilters(List<String> keys, List<Bson> arrayFilters, int count) {
+        String fieldName = SUBMODEL_ELEMENTS_KEY;
+        for (int i = 1; i < count; i++) {
+            if (isKeyAnIndex(keys.get(i))) {
+                fieldName += "." + keys.get(i) + "." + VALUE_KEY;
+            }
+            else {
+                fieldName += String.format(".$[a%d].%s", i, VALUE_KEY);
+                arrayFilters.add(Filters.eq(String.format("a%d.%s", i, ID_SHORT_KEY), keys.get(i)));
+            }
+        }
+        return fieldName;
     }
 
 
@@ -575,6 +594,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
     }
 
+
     /**
      * Gets the right document to a reference from the database.
      * Behaviour should be similar to EnvironmentHelper.resolve().
@@ -588,29 +608,29 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
      */
     private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException {
         List<Bson> pipelineStages = new ArrayList<>();
-        List<Key> keys = reference.getKeys();
+        List<String> keys = getKeyValuesFromReference(reference);
 
         // Filter for the right submodel
-        pipelineStages.add(Aggregates.match(Filters.eq(ID_KEY, keys.get(0).getValue())));
+        pipelineStages.add(Aggregates.match(Filters.eq(ID_KEY, keys.get(0))));
 
         if (reference.getKeys().size() == 1)
             return submodelCollection.aggregate(pipelineStages).first();
         else {
             // Filter for the right submodel element in the "submodelElements" array of the right submodel
             pipelineStages.add(Aggregates.unwind("$" + SUBMODEL_ELEMENTS_KEY));
-            pipelineStages.add(Aggregates.match(Filters.eq(SUBMODEL_ELEMENTS_KEY + "." + ID_SHORT_KEY, keys.get(1).getValue())));
+            pipelineStages.add(Aggregates.match(Filters.eq(SUBMODEL_ELEMENTS_KEY + "." + ID_SHORT_KEY, keys.get(1))));
 
             String currentFieldName = SUBMODEL_ELEMENTS_KEY;
             for (int i = 2; i < keys.size(); i++) {
                 // Filter for the right submodel element in the "value" array of the parent submodel element
                 currentFieldName += "." + VALUE_KEY;
                 pipelineStages.add(Aggregates.unwind("$" + currentFieldName));
-                if (isKeyAnIndex(keys.get(i).getValue())) {
-                    pipelineStages.add(Aggregates.skip(Math.max(Integer.parseInt(keys.get(i).getValue()) - 1, 0)));
+                if (isKeyAnIndex(keys.get(i))) {
+                    pipelineStages.add(Aggregates.skip(Integer.parseInt(keys.get(i))));
                     pipelineStages.add(Aggregates.limit(1));
                 }
                 else {
-                    pipelineStages.add(Aggregates.match(Filters.eq(currentFieldName + "." + ID_SHORT_KEY, keys.get(i).getValue())));
+                    pipelineStages.add(Aggregates.match(Filters.eq(currentFieldName + "." + ID_SHORT_KEY, keys.get(i))));
                 }
             }
 
@@ -628,14 +648,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Bson getFilterForSubmodelOfReferenceKeys(List<Key> keys) {
-        Bson filter = Filters.eq(ID_KEY, keys.get(0).getValue());
+    private Bson getFilterForSubmodelOfReferenceKeys(List<String> keys) {
+        Bson filter = Filters.eq(ID_KEY, keys.get(0));
         if (keys.size() > 1) {
             String currentPropertyKey = SUBMODEL_ELEMENTS_KEY;
-            filter = Filters.and(filter, Filters.eq(currentPropertyKey + "." + ID_SHORT_KEY, keys.get(1).getValue()));
-            for (int i = 2; i < keys.size(); i++) {
+            for (int i = 1; i < keys.size(); i++) {
+                if (!isKeyAnIndex(keys.get(i))) // TODO better handling of index keys here
+                    filter = Filters.and(filter, Filters.eq(currentPropertyKey + "." + ID_SHORT_KEY, keys.get(i)));
                 currentPropertyKey += "." + VALUE_KEY;
-                filter = Filters.and(filter, Filters.eq(currentPropertyKey + "." + ID_SHORT_KEY, keys.get(i).getValue()));
             }
         }
 
@@ -643,29 +663,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    /**
-     * Returns all keys in a reference but every key that is an index is replaced by the idShort
-     * of the right submodelElement.
-     *
-     * @param reference where the keys should be replaced.
-     * @return a list of keys, which are all idShorts.
-     * @throws ResourceNotFoundException if a referenced submodelElement doesn't exist in the database.
-     */
-    private List<Key> getReferenceKeysWithoutIndices(Reference reference) throws ResourceNotFoundException {
-        List<Key> result = new ArrayList<>();
-        List<Key> keys = reference.getKeys();
-        for (Key oldkey: keys) {
-            Key newKey = new DefaultKey();
-            newKey.setType(oldkey.getType());
-            if (isKeyAnIndex(oldkey.getValue())) {
-                newKey.setValue((String) loadDocumentFromReference(reference).get(ID_SHORT_KEY));
-            }
-            else {
-                newKey.setValue(oldkey.getValue());
-            }
-            result.add(newKey);
-        }
-        return result;
+    private List<String> getKeyValuesFromReference(Reference reference) throws ResourceNotFoundException {
+        return reference.getKeys().stream()
+                .map(key -> key.getValue())
+                .collect(Collectors.toList());
     }
 
 

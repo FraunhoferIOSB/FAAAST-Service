@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static org.junit.Assert.assertThrows;
+
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
@@ -22,22 +24,24 @@ import de.flapdoodle.reverse.Transitions;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASDeep;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb.PersistenceMongo;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb.PersistenceMongoConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
-
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.assertThrows;
 
 
 /**
@@ -48,11 +52,11 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
     private static TransitionWalker.ReachedState<RunningMongodProcess> runningProcess;
     private static de.flapdoodle.embed.mongo.commands.ServerAddress serverAddress = null;
 
-
     @Override
     public PersistenceMongoConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
         return getPersistenceConfig(initialModelFile, initialModel, true);
     }
+
 
     public PersistenceMongoConfig getPersistenceConfig(File initialModelFile, Environment initialModel, boolean override) throws ConfigurationInitializationException {
         try {
@@ -66,10 +70,12 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                     .databaseName("MongoTest")
                     .override(override)
                     .build();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ConfigurationInitializationException(e);
         }
     }
+
 
     private void startEmbeddedMongoDB() {
         Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
@@ -96,6 +102,31 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
         Persistence overridePersistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(0);
         AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void putSubmodelElementNewInDeepSubmodelElementList() throws ResourceNotFoundException, ResourceNotAContainerElementException, ConfigurationException {
+        Environment environment = AASDeep.createEnvironment();
+        Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+
+        Reference reference = new ReferenceBuilder()
+                .submodel("https://acplt.org/Test_Submodel_Deep")
+                .element("ExampleSubmodelElementListOrdered")
+                .index(1)
+                .build();
+        SubmodelElementList submodelElementList = EnvironmentHelper.resolve(reference, environment, SubmodelElementList.class);
+        SubmodelElement newElement = DeepCopyHelper.deepCopy(submodelElementList.getValue().get(0), SubmodelElement.class);
+        newElement.setIdShort("new");
+        SubmodelElementList expected = DeepCopyHelper.deepCopy(submodelElementList, submodelElementList.getClass());
+        expected.getValue().add(newElement);
+        persistence.insert(reference, newElement);
+        SubmodelElement actual = persistence.getSubmodelElement(
+                reference,
+                new QueryModifier.Builder()
+                        .extend(Extent.WITH_BLOB_VALUE)
+                        .build());
         Assert.assertEquals(expected, actual);
     }
 }
