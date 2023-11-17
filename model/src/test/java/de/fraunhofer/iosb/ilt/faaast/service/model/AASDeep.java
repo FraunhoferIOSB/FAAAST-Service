@@ -14,15 +14,44 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.*;
 
 
 public class AASDeep {
-    public static Submodel createSubmodel1() {
+    private static final String SUBMODEL1_ID = "https://acplt.org/Test_Submodel_Deep";
+
+    private static AssetAdministrationShell createAAS1() {
+        return new DefaultAssetAdministrationShell.Builder()
+                .idShort("TestAssetAdministrationShell")
+                .id("https://acplt.org/Test_AssetAdministrationShell")
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version("0")
+                        .revision("9")
+                        .build())
+                .assetInformation(new DefaultAssetInformation.Builder()
+                        .assetKind(AssetKind.INSTANCE)
+                        .specificAssetIds(new DefaultSpecificAssetID.Builder()
+                                .name("Test Asset")
+                                .value("https://acplt.org/Test_Asset")
+                                .build()
+                        )
+                        .build())
+                .submodels(new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
+                                .value(SUBMODEL1_ID)
+                                .build())
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .build())
+                .build();
+    }
+
+    private static Submodel createSubmodel1() {
         return new DefaultSubmodel.Builder()
                 .idShort("TestSubmodel1")
-                .id("https://acplt.org/Test_Submodel_Deep")
+                .id(SUBMODEL1_ID)
                 .semanticID(new DefaultReference.Builder()
                         .keys(new DefaultKey.Builder()
                                 .type(KeyTypes.GLOBAL_REFERENCE)
@@ -85,6 +114,7 @@ public class AASDeep {
 
     public static Environment createEnvironment() {
         return new DefaultEnvironment.Builder()
+                .assetAdministrationShells(createAAS1())
                 .submodels(createSubmodel1())
                 .build();
     }

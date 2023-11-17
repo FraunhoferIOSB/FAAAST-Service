@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
@@ -540,7 +541,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             filter = Filters.and(filter, Filters.in("assetInformation.globalAssetId", globalAssetIdentificators.toArray()));
         }
         if (!specificAssetIdentificators.isEmpty()) {
-            filter = Filters.and(filter, Filters.in("assetInformation.specificAssetIds", specificAssetIdentificators.toArray()));
+            // TODO fix this
+            Document doc = new Document();
+            doc.put("name", specificAssetIdentificators.get(0).getName());
+            doc.put("value", specificAssetIdentificators.get(0).getValue());
+            filter = Filters.and(filter, Filters.eq("assetInformation.specificAssetIds", doc));
         }
         return filter;
     }
@@ -562,6 +567,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private <T extends Identifiable> Stream<T> getResultStream(MongoIterable<Document> documents, Class<T> type) {
         List<T> result = new ArrayList<>();
+        Document doc = documents.first();
         for (Document document: documents) {
             try {
                 result.add(jsonApiDeserializer.read(document.toJson(), type));
@@ -671,7 +677,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     private boolean isKeyAnIndex(String keyValue) {
-        // Alternate: keys.get(i-1).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST
         return Pattern.compile("\\d+").matcher(keyValue).matches();
     }
 }
