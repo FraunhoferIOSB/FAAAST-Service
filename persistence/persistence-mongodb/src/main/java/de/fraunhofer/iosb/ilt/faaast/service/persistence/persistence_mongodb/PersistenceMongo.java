@@ -22,6 +22,7 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongodb.internal.client.model.FindOptions;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -36,6 +37,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -49,6 +51,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -264,7 +268,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             filter = Filters.and(filter, getIdShortFilter(criteria.getIdShort()));
         if (criteria.isAssetIdsSet())
             filter = Filters.and(filter, getAssetIdsFilter(criteria.getAssetIds()));
-        return PersistenceHelper.preparePagedResult(getResultStream(aasCollection.find(filter), AssetAdministrationShell.class), modifier, paging);
+
+        FindOptions options = getPagingOptions(paging);
+        return preparePagedResult(getResultStream(
+                aasCollection.find(filter).skip(options.getSkip()).limit(options.getLimit()),
+                AssetAdministrationShell.class), modifier, paging);
     }
 
 
@@ -280,7 +288,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet())
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
 
-        return PersistenceHelper.preparePagedResult(getResultStream(submodelCollection.find(filter), Submodel.class), modifier, paging);
+        FindOptions options = getPagingOptions(paging);
+        return preparePagedResult(getResultStream(submodelCollection.find(filter)
+                .skip(options.getSkip()).limit(options.getLimit())
+                , Submodel.class), modifier, paging);
     }
 
 
@@ -299,7 +310,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet()) {
             result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
         }
-        return PersistenceHelper.preparePagedResult(result, modifier, paging);
+
+        result = applyPagingToStream(result, paging);
+        return preparePagedResult(result, modifier, paging);
     }
 
 
@@ -317,7 +330,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isDataSpecificationSet())
             filter = Filters.and(filter, getDataSpecificationFilter(criteria.getDataSpecification()));
 
-        return PersistenceHelper.preparePagedResult(getResultStream(cdCollection.find(filter), ConceptDescription.class), modifier, paging);
+        FindOptions options = getPagingOptions(paging);
+        return preparePagedResult(getResultStream(cdCollection.find(filter)
+                .skip(options.getSkip()).limit(options.getLimit())
+                , ConceptDescription.class), modifier, paging);
     }
 
 
@@ -678,5 +694,67 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private boolean isKeyAnIndex(String keyValue) {
         return Pattern.compile("\\d+").matcher(keyValue).matches();
+    }
+
+    FindOptions getPagingOptions(PagingInfo paging) {
+        FindOptions options = new FindOptions();
+        if (Objects.nonNull(paging.getCursor())) {
+            options.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            options.limit((int)paging.getLimit()+1);
+        }
+        return options;
+    }
+
+    Stream applyPagingToStream(Stream input, PagingInfo paging) {
+        Stream result = input;
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
+        }
+        return result;
+    }
+
+    public static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+        List<T> temp = input.collect(Collectors.toList());
+        return Page.<T> builder()
+                .result(QueryModifierHelper.applyQueryModifier(
+                        temp.stream()
+                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                                .map(DeepCopyHelper::deepCopy)
+                                .collect(Collectors.toList()),
+                        modifier))
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
+    }
+
+    private static String nextCursor(PagingInfo paging, int resultCount) {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
+    }
+
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
+        if (!hasMoreData) {
+            return null;
+        }
+        if (!paging.hasLimit()) {
+            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+        }
+        if (Objects.isNull(paging.getCursor())) {
+            return writeCursor((int)paging.getLimit());
+        }
+        return writeCursor(readCursor(paging.getCursor()) + (int)paging.getLimit());
+    }
+
+    private static int readCursor(String cursor) {
+        return Integer.parseInt(cursor);
+    }
+
+    private static String writeCursor(int index) {
+        return Long.toString(index);
     }
 }
