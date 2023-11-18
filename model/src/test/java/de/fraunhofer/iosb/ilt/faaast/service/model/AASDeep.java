@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.*;
 
@@ -35,8 +34,7 @@ public class AASDeep {
                         .specificAssetIds(new DefaultSpecificAssetID.Builder()
                                 .name("Test Asset")
                                 .value("https://acplt.org/Test_Asset")
-                                .build()
-                        )
+                                .build())
                         .build())
                 .submodels(new DefaultReference.Builder()
                         .keys(new DefaultKey.Builder()
@@ -47,6 +45,7 @@ public class AASDeep {
                         .build())
                 .build();
     }
+
 
     private static Submodel createSubmodel1() {
         return new DefaultSubmodel.Builder()

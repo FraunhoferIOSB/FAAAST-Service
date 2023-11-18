@@ -474,6 +474,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                 element);
     }
 
+
     private static long readCursor(String cursor) {
         return Long.parseLong(cursor);
     }

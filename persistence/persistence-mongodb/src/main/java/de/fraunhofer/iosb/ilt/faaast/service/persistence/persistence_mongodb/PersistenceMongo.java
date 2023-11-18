@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.persistence_mongodb;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
@@ -51,8 +50,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelpe
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -178,9 +175,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return jsonApiDeserializer.read(resultDocument.toJson(), type);
         }
         catch (DeserializationException e) {
-            LOGGER.error(String.format(DESERIALIZATION_ERROR, id));
+            throw new IllegalStateException(e);
         }
-        return null; // TODO check if null is fine
     }
 
 
@@ -247,13 +243,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 throw new ResourceNotFoundException(handle.getHandleId());
             return jsonApiDeserializer.read(((Document) operationDocument.get("result")).toJson(), OperationResult.class);
         }
-        catch (SerializationException e) {
-            LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
+        catch (SerializationException | DeserializationException e) {
+            throw new IllegalStateException(e);
         }
-        catch (DeserializationException e) {
-            LOGGER.error(String.format(DESERIALIZATION_ERROR, handle.getHandleId()));
-        }
-        return null; // TODO check if null is fine
     }
 
 
@@ -290,8 +282,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         FindOptions options = getPagingOptions(paging);
         return preparePagedResult(getResultStream(submodelCollection.find(filter)
-                .skip(options.getSkip()).limit(options.getLimit())
-                , Submodel.class), modifier, paging);
+                .skip(options.getSkip()).limit(options.getLimit()), Submodel.class), modifier, paging);
     }
 
 
@@ -300,12 +291,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
             Referable parent = resolveReference(criteria.getParent().toReference(), Referable.class);
 
             PersistenceHelper.addSubmodelElementsFromParentToCollection(parent, elements);
         }
+
         Stream<SubmodelElement> result = elements.stream();
         if (criteria.isSemanticIdSet()) {
             result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
@@ -332,8 +325,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         FindOptions options = getPagingOptions(paging);
         return preparePagedResult(getResultStream(cdCollection.find(filter)
-                .skip(options.getSkip()).limit(options.getLimit())
-                , ConceptDescription.class), modifier, paging);
+                .skip(options.getSkip()).limit(options.getLimit()), ConceptDescription.class), modifier, paging);
     }
 
 
@@ -486,7 +478,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             String lastKeyValue = keys.get(keys.size() - 1);
             if (isKeyAnIndex(lastKeyValue)) {
                 // no normal possibility for removing elements by index
-                // fix by removing the value of the right element and the pulling all elements with null value
+                // fix by removing the value of the element to delete and then pulling all elements with null value
                 submodelCollection.updateOne(filter, Updates.unset(fieldName + "." + lastKeyValue),
                         new UpdateOptions().arrayFilters(arrayFilters));
                 result = submodelCollection.updateOne(filter, Updates.pull(fieldName, null),
@@ -557,11 +549,15 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             filter = Filters.and(filter, Filters.in("assetInformation.globalAssetId", globalAssetIdentificators.toArray()));
         }
         if (!specificAssetIdentificators.isEmpty()) {
-            // TODO fix this
-            Document doc = new Document();
-            doc.put("name", specificAssetIdentificators.get(0).getName());
-            doc.put("value", specificAssetIdentificators.get(0).getValue());
-            filter = Filters.and(filter, Filters.eq("assetInformation.specificAssetIds", doc));
+            Bson specificAssetIdFilter = NO_FILTER;
+            for (int i = 0; i < specificAssetIdentificators.size(); i++) {
+                specificAssetIdFilter = Filters.or(
+                        specificAssetIdFilter,
+                        Filters.and(
+                                Filters.eq("assetInformation.specificAssetIds.name", specificAssetIdentificators.get(i).getName()),
+                                Filters.eq("assetInformation.specificAssetIds.value", specificAssetIdentificators.get(i).getValue())));
+            }
+            filter = Filters.and(filter, specificAssetIdFilter);
         }
         return filter;
     }
@@ -575,9 +571,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return Document.parse(refJson);
         }
         catch (SerializationException e) {
-            LOGGER.error(String.format(SERIALIZATION_ERROR, reference));
+            throw new IllegalStateException(e);
         }
-        return null; // TODO check if null is fine
     }
 
 
@@ -675,8 +670,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (keys.size() > 1) {
             String currentPropertyKey = SUBMODEL_ELEMENTS_KEY;
             for (int i = 1; i < keys.size(); i++) {
-                if (!isKeyAnIndex(keys.get(i))) // TODO better handling of index keys here
+                if (isKeyAnIndex(keys.get(i))) {
+                    filter = Filters.and(filter, Filters.exists(currentPropertyKey + "." + VALUE_KEY + "." + keys.get(i)));
+                }
+                else {
                     filter = Filters.and(filter, Filters.eq(currentPropertyKey + "." + ID_SHORT_KEY, keys.get(i)));
+                }
                 currentPropertyKey += "." + VALUE_KEY;
             }
         }
@@ -696,18 +695,20 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return Pattern.compile("\\d+").matcher(keyValue).matches();
     }
 
+
     FindOptions getPagingOptions(PagingInfo paging) {
         FindOptions options = new FindOptions();
         if (Objects.nonNull(paging.getCursor())) {
             options.skip(readCursor(paging.getCursor()));
         }
         if (paging.hasLimit()) {
-            options.limit((int)paging.getLimit()+1);
+            options.limit((int) paging.getLimit() + 1);
         }
         return options;
     }
 
-    Stream applyPagingToStream(Stream input, PagingInfo paging) {
+
+    private <T extends Referable> Stream<T> applyPagingToStream(Stream<T> input, PagingInfo paging) {
         Stream result = input;
         if (Objects.nonNull(paging.getCursor())) {
             result = result.skip(readCursor(paging.getCursor()));
@@ -717,6 +718,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
         return result;
     }
+
 
     public static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
         List<T> temp = input.collect(Collectors.toList());
@@ -733,9 +735,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 .build();
     }
 
+
     private static String nextCursor(PagingInfo paging, int resultCount) {
         return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
     }
+
 
     private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
         if (!hasMoreData) {
@@ -745,14 +749,16 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
         }
         if (Objects.isNull(paging.getCursor())) {
-            return writeCursor((int)paging.getLimit());
+            return writeCursor((int) paging.getLimit());
         }
-        return writeCursor(readCursor(paging.getCursor()) + (int)paging.getLimit());
+        return writeCursor(readCursor(paging.getCursor()) + (int) paging.getLimit());
     }
+
 
     private static int readCursor(String cursor) {
         return Integer.parseInt(cursor);
     }
+
 
     private static String writeCursor(int index) {
         return Long.toString(index);
