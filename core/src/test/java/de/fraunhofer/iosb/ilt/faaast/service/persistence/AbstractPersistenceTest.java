@@ -614,6 +614,23 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
+    public void putSubmodelElementNewInNotAContainer() throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        SubmodelElement elementToInsert = DeepCopyHelper.deepCopy(environment.getSubmodels().get(0).getSubmodelElements().get(0),
+                environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
+        String submodelId = "https://acplt.org/Test_Submodel";
+        String submodelListId = "ExampleSubmodelElementListOrdered";
+        Reference parent = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(submodelListId)
+                .index(0)
+                .build();
+        Assert.assertThrows(ResourceNotAContainerElementException.class, () -> {
+            persistence.insert(parent, elementToInsert);
+        });
+    }
+
+
+    @Test
     public void putSubmodelElementNewInSubmodelElementList() throws ResourceNotFoundException, ResourceNotAContainerElementException {
         String submodelId = "https://acplt.org/Test_Submodel";
         String submodelElementListId = "ExampleSubmodelElementListOrdered";

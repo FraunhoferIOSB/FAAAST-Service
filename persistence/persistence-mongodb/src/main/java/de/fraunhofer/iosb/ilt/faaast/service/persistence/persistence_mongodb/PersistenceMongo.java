@@ -357,7 +357,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return;
         }
 
-        // TODO check if value field is an array (so parent is sme-collection)
         List<String> keys = getKeyValuesFromReference(parentRef);
         UpdateResult result;
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
@@ -367,6 +366,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         else {
             List<Bson> arrayFilters = new ArrayList<>();
             String fieldName = getArrayFieldNameWithArrayFilters(keys, arrayFilters, keys.size());
+            Object valueObject = loadDocumentFromReference(parentRef).get(VALUE_KEY);
+            if (Objects.isNull(valueObject) || !List.class.isAssignableFrom(valueObject.getClass())) {
+                throw new ResourceNotAContainerElementException(String.format("illegal type for parent. Must be one of: %s, %s, %s",
+                        Submodel.class,
+                        SubmodelElementCollection.class,
+                        SubmodelElementList.class));
+            }
             result = submodelCollection.updateOne(filter, Updates.push(fieldName, getDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(arrayFilters));
         }

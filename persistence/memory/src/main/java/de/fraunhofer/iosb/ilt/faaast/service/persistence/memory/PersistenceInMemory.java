@@ -336,7 +336,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             container = ((SubmodelElementList) parent).getValue();
         }
         else {
-            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+            throw new ResourceNotAContainerElementException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
