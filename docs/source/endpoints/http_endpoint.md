@@ -1,18 +1,17 @@
 # HTTP Endpoint
 
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
-The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
+It will always use HTTPS. The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
 Exchanging Information via Application
 Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02), Apr, 26th 2022
 
 ## Configuration Parameters
 
-| Name | Allowed Value | Description |
-|:--| -- | -- |
-| port | Integer |  _optional_ The port to use, default: 8080 |
-| corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false |
-| httpsEnabled | Boolean | _optional_ If true, the endpoint will only be available via HTTPS; if false, it will only be available via HTTP, default: false |
-| certificate; | Object | _optional_  The certificate to use when `httpsEnabled` is true, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
+| Name | Allowed Value | Description                                                                                                                                                                                                                     |
+|:--| -- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| port | Integer | _optional_ The port to use, default: 8080                                                                                                                                                                                       |
+| corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false                     |
+| certificate; | Object | _optional_  The HTTPS certificate to use, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 
 ### Example
 
@@ -24,7 +23,6 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
 			"port": 8080,
 			"corsEnabled": true,
-			"httpsEnabled": true,
 			"certificate": {
 				"keyStoreType": "PKCS12",
 				"keyStorePath": "C:\faaast\MyKeyStore.p12",
@@ -93,7 +91,7 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 They are added to the URL as regular query params
 
 ```sh
-http://url:port?level=deep&content=value
+https://url:port?level=deep&content=value
 ```
 
 FA³ST Service currently supports only content=value and content=normal
@@ -119,5 +117,5 @@ using the query-parameters _level=deep_ and _content=normal_.
 > To avoid problems with IRIs in URLs the identifiers shall be BASE64-URL-encoded before using them as parameters in the HTTP APIs. IdshortPaths are URL-encoded to handle including square brackets.
 
 ```sh
-http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
+https://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
 ```

@@ -66,11 +66,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -102,7 +103,7 @@ public class HttpEndpointIT {
 
     public static MessageBus messageBus;
 
-    private static final String HOST = "http://localhost";
+    private static final String HOST = "https://localhost";
     private static int PORT;
     private static ApiPaths API_PATHS;
     private static Environment environment;
@@ -171,7 +172,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASBasicDiscoveryCreate() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testAASBasicDiscoveryCreate()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         SpecificAssetID newIdentifier = new DefaultSpecificAssetID.Builder()
                 .name("foo")
@@ -195,7 +197,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASBasicDiscoveryDelete() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testAASBasicDiscoveryDelete()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.getAssetInformation().getSpecificAssetIds().clear();
         aas.getAssetInformation().setGlobalAssetID(null);
@@ -215,7 +218,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASBasicDiscoveryGetAssetAdministrationShells()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<String> expected = environment.getAssetAdministrationShells().stream()
                 .map(x -> x.getId())
                 .collect(Collectors.toList());
@@ -231,7 +234,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASBasicDiscoveryGetAssetAdministrationShellsByGlobalAssetId()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         String assetIdValue = "https://acplt.org/Test_Asset";
         List<String> expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getAssetInformation().getGlobalAssetID().equalsIgnoreCase(assetIdValue))
@@ -249,7 +252,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASBasicDiscoveryGetAssetLinks()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         List<SpecificAssetID> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         expected.add(new DefaultSpecificAssetID.Builder()
@@ -268,7 +271,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryCreateAssetAdministrationShells()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell expected = new DefaultAssetAdministrationShell.Builder()
                 .id("http://newOne")
                 .idShort("newOne")
@@ -298,7 +302,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryDeleteAssetAdministrationShell()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         Page<AssetAdministrationShell> before = HttpHelper.getPage(
                 API_PATHS.aasRepository().assetAdministrationShells(),
@@ -321,8 +326,9 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryDeleteAssetAdministrationShellNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.delete(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.delete(API_PATHS.aasRepository().assetAdministrationShell("non-existant"), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -368,7 +374,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellUsingSubmodelIdReturnsResourceNotFound()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         String submodelId = environment.getSubmodels().get(1).getId();
         assertExecuteSingle(HttpMethod.GET,
                 API_PATHS.aasRepository().assetAdministrationShell(submodelId),
@@ -381,14 +388,16 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShells() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testAASRepositoryGetAssetAdministrationShells()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
@@ -402,7 +411,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<Reference> expected = environment.getAssetAdministrationShells().stream()
                 .map(ReferenceBuilder::forAas)
                 .collect(Collectors.toList());
@@ -418,7 +427,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellsWithPaging()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         // 4 elements in total are available, query data with increasing page size 1, 2, 3.
         String cursor = null;
         List<AssetAdministrationShell> allExpectedShells = environment.getAssetAdministrationShells();
@@ -486,7 +495,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationJSON()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -497,7 +507,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationXML()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -509,7 +520,8 @@ public class HttpEndpointIT {
     @Ignore("Failing because of charset issues, probably caused by admin-shell.io library not respecting charset for de-/serialization")
     @Test
     public void testAASSerializationRDF()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -521,7 +533,8 @@ public class HttpEndpointIT {
     @Ignore("Failing because aas4j modifies the environment: SubmodelElementCollection values are set to null. Waiting for new aas4j release.")
     @Test
     public void testAASSerializationAASX()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         byte[] content = new byte[20];
         new Random().nextBytes(content);
@@ -553,7 +566,7 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
                         fileName)
                 .build();
-        HttpResponse<byte[]> putFileResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> putFileResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.submodelRepository()
                                 .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
@@ -564,7 +577,7 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
-        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
                         .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
@@ -587,7 +600,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationWildcard()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
@@ -598,8 +612,9 @@ public class HttpEndpointIT {
 
     @Test
     public void testAASSerializationInvalidDataformat()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(), List.of(), false)))
                         .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
@@ -611,7 +626,8 @@ public class HttpEndpointIT {
 
 
     private void assertSerialization(List<AssetAdministrationShell> aass, boolean includeConceptDescriptions, MediaType contentType, DataFormat expectedFormat)
-            throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException, ResourceNotFoundException {
+            throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException, ResourceNotFoundException, NoSuchAlgorithmException,
+            KeyManagementException {
         Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(aass)
                 .submodels(aass.stream().flatMap(x -> x.getSubmodels().stream())
@@ -630,7 +646,7 @@ public class HttpEndpointIT {
                         ? environment.getConceptDescriptions()
                         : List.of())
                 .build();
-        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
                         .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
@@ -654,7 +670,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAssetAdministrationShellInterfaceCreateSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         List<Reference> expected = aas.getSubmodels();
         Reference newReference = new DefaultReference.Builder()
@@ -687,7 +704,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAssetAdministrationShellInterfaceDeleteSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Reference submodelToDelete = aas.getSubmodels().get(0);
         aas.getSubmodels().remove(submodelToDelete);
@@ -752,15 +770,16 @@ public class HttpEndpointIT {
 
     @Test
     public void testAssetAdministrationShellInterfaceGetAssetAdministrationShellNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell());
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell(), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
 
     @Test
     public void testAssetAdministrationShellInterfaceGetAssetInformation()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         // TODO does this trigger any message bus event?
@@ -776,7 +795,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testAssetAdministrationShellInterfaceGetSubmodels()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Object expected = aas.getSubmodels();
         assertExecuteMultiple(
@@ -811,7 +830,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testAssetAdministrationShellInterfaceUpdateAssetInformation()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         expected.getSpecificAssetIds().add(new DefaultSpecificAssetID.Builder()
@@ -831,7 +851,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testConceptDescriptionRepositoryCreateConceptDescription()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         ConceptDescription expected = new DefaultConceptDescription.Builder()
                 .id("http://example.org/foo")
                 .idShort("created")
@@ -858,7 +879,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testConceptDescriptionRepositoryDeleteConceptDescription()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         ConceptDescription expected = environment.getConceptDescriptions().get(0);
         Page<ConceptDescription> before = HttpHelper.getPage(
                 API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
@@ -882,8 +904,9 @@ public class HttpEndpointIT {
 
     @Test
     public void testConceptDescriptionRepositoryDeleteConceptDescriptionNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -909,15 +932,16 @@ public class HttpEndpointIT {
 
     @Test
     public void testConceptDescriptionRepositoryGetConceptDescriptionNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
 
     @Test
     public void testConceptDescriptionRepositoryGetConceptDescriptions()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<ConceptDescription> expected = environment.getConceptDescriptions();
         assertExecutePage(
                 HttpMethod.GET,
@@ -931,7 +955,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testConceptDescriptionRepositoryUpdateConceptDescription()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException {
         ConceptDescription expected = environment.getConceptDescriptions().get(0);
         expected.setIdShort("changed");
         assertEvent(
@@ -956,7 +981,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElement()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
@@ -982,7 +1008,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInsideList()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementList submodelElementList = (SubmodelElementList) submodel.getSubmodelElements().get(5);
         SubmodelElement expected = new DefaultProperty.Builder()
@@ -1014,7 +1041,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInsideCollection()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
         SubmodelElement expected = new DefaultProperty.Builder()
@@ -1046,7 +1074,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceDeleteSubmodelElement()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         Page<SubmodelElement> before = HttpHelper.getPage(
@@ -1150,7 +1179,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelInterfaceGetSubmodelElements() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testSubmodelInterfaceGetSubmodelElements()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
         assertExecutePage(
@@ -1165,7 +1195,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElementsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
         List<Reference> expected = submodel
                 .getSubmodelElements()
@@ -1195,7 +1225,7 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE));
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1204,7 +1234,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceFileAttachment()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         byte[] content = new byte[20];
         new Random().nextBytes(content);
@@ -1232,7 +1263,7 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
                         fileName)
                 .build();
-        HttpResponse<byte[]> putFileResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> putFileResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.submodelRepository()
                                 .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
@@ -1243,7 +1274,7 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
-        HttpResponse<byte[]> getFileResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> getFileResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.submodelRepository()
                                 .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
@@ -1254,7 +1285,7 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertArrayEquals(content, getFileResponse.body());
-        HttpResponse<byte[]> deleteFileResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> deleteFileResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.submodelRepository()
                                 .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
@@ -1268,7 +1299,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASThumbnail() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testAASThumbnail()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         String imageName = "file:///image.png";
@@ -1286,7 +1318,7 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.IMAGE_PNG,
                         imageName)
                 .build();
-        HttpResponse<byte[]> putThumbnailResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> putThumbnailResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
                                 + "/thumbnail"))
@@ -1303,7 +1335,7 @@ public class HttpEndpointIT {
                 null,
                 expected,
                 AssetInformation.class);
-        HttpResponse<byte[]> deleteThumbnailResponse = HttpClient.newHttpClient()
+        HttpResponse<byte[]> deleteThumbnailResponse = HttpHelper.getTrustAllCertsHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
                                 + "/thumbnail"))
@@ -1336,7 +1368,7 @@ public class HttpEndpointIT {
                         x -> {
                             HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository()
                                     .submodelInterface(submodel)
-                                    .submodel(Content.METADATA));
+                                    .submodel(Content.METADATA), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1375,7 +1407,7 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.DEEP, Content.PATH));
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.DEEP, Content.PATH), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
                         }));
@@ -1394,7 +1426,7 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.CORE, Content.PATH));
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.CORE, Content.PATH), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
                         }));
@@ -1443,7 +1475,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceUpdateSubmodelElement()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         expected.getDescription().add(new DefaultLangStringTextType.Builder()
@@ -1471,7 +1504,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInAasContext()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException {
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = new DefaultProperty.Builder()
@@ -1498,7 +1532,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInsideListInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementList submodelElementList = (SubmodelElementList) submodel.getSubmodelElements().get(5);
@@ -1533,7 +1568,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceCreateSubmodelElementInsideCollectionInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
@@ -1568,7 +1604,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceDeleteSubmodelElementInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
@@ -1635,7 +1672,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElementsInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, ResourceNotFoundException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, ResourceNotFoundException, NoSuchAlgorithmException,
+            KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
@@ -1664,7 +1702,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> {
                             HttpResponse<String> response = HttpHelper.get(
-                                    API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE));
+                                    API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1705,7 +1743,7 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.DEEP, Content.PATH));
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.DEEP, Content.PATH), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
                         }));
@@ -1725,7 +1763,7 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.CORE, Content.PATH));
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.CORE, Content.PATH), true);
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
                         }));
@@ -1776,7 +1814,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelInterfaceUpdateSubmodelElementInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException,
+            NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
@@ -1805,7 +1844,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelRepositoryCreateSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel expected = new DefaultSubmodel.Builder()
                 .id("newSubmodel")
                 .build();
@@ -1831,7 +1871,8 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelRepositoryDeleteSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
         Submodel expected = environment.getSubmodels().get(1);
         Page<Submodel> before = HttpHelper.getPage(
                 API_PATHS.submodelRepository().submodels(),
@@ -1893,14 +1934,16 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelRepositoryGetSubmodelNotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodel("non-existant"));
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodel("non-existant"), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
 
     @Test
-    public void testSubmodelRepositoryGetSubmodels() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testSubmodelRepositoryGetSubmodels()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<Submodel> expected = environment.getSubmodels();
         ExtendHelper.withoutBlobValue(expected);
         assertExecutePage(
@@ -1915,7 +1958,7 @@ public class HttpEndpointIT {
 
     @Test
     public void testSubmodelRepositoryGetSubmodelsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<Reference> expected = environment.getSubmodels().stream()
                 .map(ReferenceBuilder::forSubmodel)
                 .collect(Collectors.toList());
@@ -1930,7 +1973,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelRepositoryGetSubmodelsByIdShort() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testSubmodelRepositoryGetSubmodelsByIdShort()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(
                 HttpMethod.GET,
@@ -1943,7 +1987,8 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelRepositoryGetSubmodelsBySemanticId() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void testSubmodelRepositoryGetSubmodelsBySemanticId()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
@@ -1978,20 +2023,20 @@ public class HttpEndpointIT {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        HttpResponse response = HttpHelper.execute(HttpMethod.PUT, API_PATHS.aasRepository().assetAdministrationShells());
+        HttpResponse response = HttpHelper.execute(HttpMethod.PUT, API_PATHS.aasRepository().assetAdministrationShells(), true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_METHOD_NOT_ALLOWED), response.statusCode());
     }
 
 
     private void assertExecute(HttpMethod method, String url, StatusCode statusCode)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
         assertExecuteSingle(method, url, statusCode, null, null, null);
     }
 
 
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(method, url, input, true);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponseList(response, type);
@@ -2001,8 +2046,8 @@ public class HttpEndpointIT {
 
 
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(method, url, input, true);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
@@ -2013,8 +2058,8 @@ public class HttpEndpointIT {
 
 
     private void assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(method, url, input, true);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponse(response, type);

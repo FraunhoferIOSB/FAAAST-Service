@@ -30,66 +30,123 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
+import javax.net.ssl.*;
 
 
 public class HttpHelper {
 
-    public static <T> List<T> getWithMultipleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (List<T>) readResponseList(get(url), type);
+    static {
+        disableSslVerification();
+    }
+
+    private static void disableSslVerification() {
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+
+    private static TrustManager[] getTrustAllCerts() {
+
+        return new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+
+                    public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                    }
+
+
+                    public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                    }
+                }
+        };
+    }
+
+    HostnameVerifier allHostsValid = new HostnameVerifier() {
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    };
+
+    public static <T> List<T> getWithMultipleResult(String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (List<T>) readResponseList(get(url, true), type);
     }
 
 
-    public static <T> Page<T> getPage(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return readResponsePage(get(url), type);
+    public static <T> Page<T> getPage(String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return readResponsePage(get(url, true), type);
     }
 
 
-    public static <T> T getWithSingleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (T) readResponse(get(url), type);
+    public static <T> T getWithSingleResult(String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(get(url, true), type);
     }
 
 
     public static <T> T postWithSingleResult(String url, T payload, Class<T> type)
-            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException {
-        return (T) readResponse(post(url, payload), type);
+            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(post(url, payload, true), type);
     }
 
 
     public static <T> T putWithSingleResult(String url, T payload, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException {
-        return (T) readResponse(put(url, payload), type);
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(put(url, payload, true), type);
     }
 
 
-    public static <T> T deleteWithSingleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (T) readResponse(delete(url), type);
+    public static <T> T deleteWithSingleResult(String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(delete(url, true), type);
     }
 
 
-    public static HttpResponse<String> execute(HttpMethod method, String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
+    public static HttpResponse<String> execute(HttpMethod method, String url, Object payload, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         switch (method) {
             case GET:
-                return get(url);
+                return get(url, trustAll);
             case PUT:
-                return put(url, payload);
+                return put(url, payload, trustAll);
             case POST:
-                return post(url, payload);
+                return post(url, payload, trustAll);
             case DELETE:
-                return delete(url);
+                return delete(url, trustAll);
             default:
                 throw new UnsupportedOperationException(String.format("unsupported HTTP method: %s", method));
         }
     }
 
 
-    public static HttpResponse<String> execute(HttpMethod method, String url) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return execute(method, url, null);
+    public static HttpResponse<String> execute(HttpMethod method, String url, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return execute(method, url, trustAll);
     }
 
 
-    public static HttpResponse<String> put(String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> put(String url, Object payload, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpClient client;
+        if (trustAll)
+            client = getTrustAllCertsHttpClient();
+        else
+            client = HttpClient.newHttpClient();
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
@@ -99,8 +156,14 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> post(String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> post(String url, Object payload, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpClient client;
+        if (trustAll)
+            client = getTrustAllCertsHttpClient();
+        else
+            client = HttpClient.newHttpClient();
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
@@ -110,8 +173,14 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> delete(String url) throws IOException, InterruptedException, URISyntaxException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> delete(String url, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        HttpClient client;
+        if (trustAll)
+            client = getTrustAllCertsHttpClient();
+        else
+            client = HttpClient.newHttpClient();
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .DELETE()
@@ -120,8 +189,14 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> get(String url) throws IOException, InterruptedException, URISyntaxException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> get(String url, Boolean trustAll)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        HttpClient client;
+        if (trustAll)
+            client = getTrustAllCertsHttpClient();
+        else
+            client = HttpClient.newHttpClient();
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .GET()
@@ -142,5 +217,13 @@ public class HttpHelper {
 
     public static <T> Page<T> readResponsePage(HttpResponse<String> response, Class<T> type) throws DeserializationException {
         return new JsonApiDeserializer().read(response.body(), TypeFactory.defaultInstance().constructParametricType(Page.class, type));
+    }
+
+    public static HttpClient getTrustAllCertsHttpClient() throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, getTrustAllCerts(), new SecureRandom());
+        return HttpClient.newBuilder()
+                .sslContext(sslContext)
+                .build();
     }
 }

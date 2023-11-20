@@ -110,13 +110,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         httpConfig.setSendXPoweredBy(false);
         HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
         ServerConnector serverConnector;
-        if (config.isHttpsEnabled()) {
-            httpConfig.addCustomizer(new SecureRequestCustomizer());
-            serverConnector = buildSSLServerConnector(httpConnectionFactory);
-        }
-        else {
-            serverConnector = new ServerConnector(server, httpConnectionFactory);
-        }
+        httpConfig.addCustomizer(new SecureRequestCustomizer());
+        serverConnector = buildSSLServerConnector(httpConnectionFactory);
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
     }

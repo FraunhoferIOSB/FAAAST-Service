@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +75,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 public class AssetConnectionIT {
 
-    private static final String HOST = "http://localhost";
+    private static final String HOST = "https://localhost";
     private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
 
     private static final int SOURCE_VALUE = 42;
@@ -210,7 +212,8 @@ public class AssetConnectionIT {
     }
 
 
-    private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    private void assertServiceAvailabilityHttp(int port)
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
@@ -234,12 +237,13 @@ public class AssetConnectionIT {
 
 
     private void assertTargetValue(int port, int expectedValue)
-            throws IOException, InterruptedException, URISyntaxException, JSONException {
+            throws IOException, InterruptedException, URISyntaxException, JSONException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse<String> response = HttpHelper.get(
                 new ApiPaths(HOST, port)
                         .submodelRepository()
                         .submodelInterface(submodel)
-                        .submodelElement(target, Content.VALUE));
+                        .submodelElement(target, Content.VALUE),
+                true);
         assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         String expected = String.format("{\"target\": %d}", expectedValue);
         JSONAssert.assertEquals(expected, response.body(), false);
@@ -247,8 +251,8 @@ public class AssetConnectionIT {
 
 
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(method, url, input, true);
         assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponseList(response, type);
@@ -258,8 +262,8 @@ public class AssetConnectionIT {
 
 
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(method, url, input, true);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
