@@ -53,9 +53,10 @@ public class HttpHelper {
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
     }
 
+
     private static TrustManager[] getTrustAllCerts() {
 
-        return new TrustManager[]{
+        return new TrustManager[] {
                 new X509TrustManager() {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -63,13 +64,11 @@ public class HttpHelper {
 
 
                     public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
+                                                   java.security.cert.X509Certificate[] certs, String authType) {}
 
 
                     public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
+                                                   java.security.cert.X509Certificate[] certs, String authType) {}
                 }
         };
     }
@@ -218,6 +217,7 @@ public class HttpHelper {
     public static <T> Page<T> readResponsePage(HttpResponse<String> response, Class<T> type) throws DeserializationException {
         return new JsonApiDeserializer().read(response.body(), TypeFactory.defaultInstance().constructParametricType(Page.class, type));
     }
+
 
     public static HttpClient getTrustAllCertsHttpClient() throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext sslContext = SSLContext.getInstance("SSL");

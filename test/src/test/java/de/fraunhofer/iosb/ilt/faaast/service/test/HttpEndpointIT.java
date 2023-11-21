@@ -162,6 +162,8 @@ public class HttpEndpointIT {
         service = new Service(serviceConfig);
         messageBus = service.getMessageBus();
         service.start();
+        final Properties props = System.getProperties();
+        props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
     }
 
 
