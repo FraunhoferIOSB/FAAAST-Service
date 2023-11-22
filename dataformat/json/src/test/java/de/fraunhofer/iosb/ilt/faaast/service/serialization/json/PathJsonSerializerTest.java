@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import java.io.IOException;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
@@ -353,7 +353,7 @@ public class PathJsonSerializerTest {
                                 .idShort("ExampleProperty3")
                                 .category("PARAMETER")
                                 .value("some example annotation")
-                                .valueType(DataTypeDefXSD.STRING)
+                                .valueType(DataTypeDefXsd.STRING)
                                 .build())
                         .build())
                 .submodelElements(new DefaultOperation.Builder()

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
@@ -34,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifiableDescriptor implements AssetAdministrationShellDescriptor {
 
     private String globalAssetId;
-    private List<SpecificAssetID> specificAssetIds;
+    private List<SpecificAssetId> specificAssetIds;
     private List<SubmodelDescriptor> submodels;
     private List<Extension> extensions;
     private AssetKind assetKind;
@@ -97,13 +97,13 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
 
 
     @Override
-    public List<SpecificAssetID> getSpecificAssetIds() {
+    public List<SpecificAssetId> getSpecificAssetIds() {
         return specificAssetIds;
     }
 
 
     @Override
-    public void setSpecificAssetIds(List<SpecificAssetID> specificAssetIds) {
+    public void setSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
         this.specificAssetIds = specificAssetIds;
     }
 
@@ -158,13 +158,13 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
         }
 
 
-        public B specificAssetIds(List<SpecificAssetID> value) {
+        public B specificAssetIds(List<SpecificAssetId> value) {
             getBuildingInstance().setSpecificAssetIds(value);
             return getSelf();
         }
 
 
-        public B specificAssetId(SpecificAssetID value) {
+        public B specificAssetId(SpecificAssetId value) {
             getBuildingInstance().getSpecificAssetIds().add(value);
             return getSelf();
         }
@@ -233,7 +233,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
                 displayNames(parent.getDisplayName());
                 id(parent.getId());
                 if (parent.getAssetInformation() != null) {
-                    globalAssetId(parent.getAssetInformation().getGlobalAssetID());
+                    globalAssetId(parent.getAssetInformation().getGlobalAssetId());
                     specificAssetIds(parent.getAssetInformation().getSpecificAssetIds());
                 }
             }

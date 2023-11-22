@@ -39,7 +39,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,13 +93,13 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.asString(reference)));
             }
             return response.body();
         }
         catch (IOException | InterruptedException | URISyntaxException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.asString(reference)), e);
         }
     }
 
@@ -114,7 +113,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     fireNewDataReceived(readRawValue());
                 }
                 catch (AssetConnectionException e) {
-                    LOGGER.debug("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.asString(reference), e);
                 }
             }, 0, Math.max(MINIMUM_INTERVAL, config.getInterval()), TimeUnit.MILLISECONDS);
         }

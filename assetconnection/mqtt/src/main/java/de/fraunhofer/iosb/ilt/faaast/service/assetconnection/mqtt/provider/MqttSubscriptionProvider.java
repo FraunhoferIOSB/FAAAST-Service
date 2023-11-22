@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -71,7 +70,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         catch (MqttException e) {
             throw new AssetConnectionException(
                     String.format("error subscribing to MQTT asset connection (reference: %s, topic: %s)",
-                            AasUtils.asString(reference),
+                            ReferenceHelper.asString(reference),
                             config.getTopic()),
                     e);
         }
@@ -87,7 +86,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
             catch (MqttException e) {
                 throw new AssetConnectionException(
                         String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
-                                AasUtils.asString(reference),
+                                ReferenceHelper.asString(reference),
                                 config.getTopic()),
                         e);
             }

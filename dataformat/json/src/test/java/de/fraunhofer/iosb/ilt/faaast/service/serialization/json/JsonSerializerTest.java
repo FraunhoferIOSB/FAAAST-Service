@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -168,7 +168,7 @@ public class JsonSerializerTest {
                 .result(new DefaultProperty.Builder()
                         .idShort("idShort")
                         .value("foo")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .build();
         String actual = serializer.write(page);
@@ -196,7 +196,7 @@ public class JsonSerializerTest {
                 .result(new DefaultProperty.Builder()
                         .idShort("idShort")
                         .value("foo")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .build();
         String actual = serializer.write(page);

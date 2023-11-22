@@ -24,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Map;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 
 
 /**
@@ -50,7 +50,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
     @Override
     public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
-                .isCaseOf(AasUtils.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
+                .isCaseOf(ReferenceHelper.parse(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
                 .build();
     }
 }

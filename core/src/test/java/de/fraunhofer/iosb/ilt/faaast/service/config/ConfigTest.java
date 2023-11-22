@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyNodeBasedProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -47,7 +47,7 @@ public class ConfigTest {
         DummyNodeBasedProviderConfig valueProvider = new DummyNodeBasedProviderConfig();
         valueProvider.setNodeId("some.opc.ua.node.id");
         // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
-        assetConnection.getValueProviders().put(AasUtils.parseReference("(Property)[ID_SHORT]Temperature"), valueProvider);
+        assetConnection.getValueProviders().put(ReferenceHelper.parse("(Property)[ID_SHORT]Temperature"), valueProvider);
         config = ServiceConfig.builder()
                 .core(CoreConfig.builder()
                         .requestHandlerThreadPoolSize(2)

@@ -32,8 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
 import opc.i4aas.AASSubmodelElementListType;
-import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -87,7 +87,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
 
             setValueTypeListElement(aasList.getValueTypeListElement(), collNode, nodeManager, namespaceUri);
             setTypeValueListElement(aasList.getTypeValueListElement(), collNode, nodeManager, namespaceUri);
-            setSemanticIDListElement(aasList.getSemanticIDListElement(), collNode, namespaceUri, nodeManager);
+            setSemanticIdListElement(aasList.getSemanticIdListElement(), collNode, namespaceUri, nodeManager);
 
             // add SubmodelElements 
             addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
@@ -99,21 +99,21 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setSemanticIDListElement(Reference semanticIDElement, AASSubmodelElementListType collNode, String namespaceUri, AasServiceNodeManager nodeManager)
+    private static void setSemanticIdListElement(Reference semanticIdElement, AASSubmodelElementListType collNode, String namespaceUri, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if (semanticIDElement != null) {
-            if (collNode.getSemanticIDListElementNode() == null) {
-                AasReferenceCreator.addAasReference(collNode, semanticIDElement, AASSubmodelElementListType.SEMANTIC_I_D_LIST_ELEMENT, namespaceUri, true,
+        if (semanticIdElement != null) {
+            if (collNode.getSemanticIdListElementNode() == null) {
+                AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_I_D_LIST_ELEMENT, namespaceUri, true,
                         nodeManager);
             }
             else {
-                AasReferenceCreator.setAasReferenceData(semanticIDElement, collNode.getSemanticIDListElementNode(), true);
+                AasReferenceCreator.setAasReferenceData(semanticIdElement, collNode.getSemanticIdListElementNode(), true);
             }
         }
     }
 
 
-    private static void setTypeValueListElement(AASSubmodelElements typeValue, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    private static void setTypeValueListElement(AasSubmodelElements typeValue, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
             throws StatusException {
         if (typeValue != null) {
             if (collNode.getTypeValueListElementNode() == null) {
@@ -127,7 +127,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setValueTypeListElement(DataTypeDefXSD datatype, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
+    private static void setValueTypeListElement(DataTypeDefXsd datatype, AASSubmodelElementListType collNode, AasServiceNodeManager nodeManager, String namespaceUri)
             throws StatusException {
         if (datatype != null) {
             if (collNode.getValueTypeListElementNode() == null) {

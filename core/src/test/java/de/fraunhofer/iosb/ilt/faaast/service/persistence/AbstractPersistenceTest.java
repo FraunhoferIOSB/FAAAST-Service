@@ -328,7 +328,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         GlobalAssetIdentification globalAssetIdentification = new GlobalAssetIdentification();
         globalAssetIdentification.setValue("https://acplt.org/Test_Asset_Mandatory");
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getAssetInformation().getGlobalAssetID().equals(globalAssetIdentification.getValue()))
+                .filter(x -> x.getAssetInformation().getGlobalAssetId().equals(globalAssetIdentification.getValue()))
                 .collect(Collectors.toList());
         List<AssetAdministrationShell> actual = persistence.findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()
@@ -370,7 +370,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
-    public void getSubmodelsWithSemanticId() {
+    public void getSubmodelsWithsemanticId() {
         Reference semanticId = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
                         .type(KeyTypes.GLOBAL_REFERENCE)
@@ -379,7 +379,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .build();
         List<Submodel> expected = environment.getSubmodels().stream()
                 .filter(Objects::nonNull)
-                .filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId))
+                .filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId))
                 .collect(Collectors.toList());
         ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence.findSubmodels(
@@ -414,14 +414,14 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
-    public void getSubmodelElementsWithSemanticId() throws ResourceNotFoundException {
+    public void getSubmodelElementsWithsemanticId() throws ResourceNotFoundException {
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
         Reference semanticId = ReferenceBuilder.global("0173-1#02-AAO677#002");
         List<SubmodelElement> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getId().equalsIgnoreCase(submodelId))
                 .findFirst().get()
                 .getSubmodelElements().stream()
-                .filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId))
+                .filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId))
                 .collect(Collectors.toList());
         List<SubmodelElement> actual = persistence.findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()

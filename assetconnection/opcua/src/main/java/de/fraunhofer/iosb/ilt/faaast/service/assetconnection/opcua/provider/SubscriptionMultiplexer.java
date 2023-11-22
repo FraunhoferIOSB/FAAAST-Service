@@ -30,10 +30,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
@@ -91,28 +91,28 @@ public class SubscriptionMultiplexer {
         catch (ResourceNotFoundException ex) {
             throw new AssetConnectionException(
                     String.format("Could not resolve type information (reference: %s)",
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.asString(reference)));
         }
         if (typeInfo == null) {
             throw new AssetConnectionException(
                     String.format("Could not resolve type information (reference: %s)",
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.asString(reference)));
         }
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new AssetConnectionException(
                     String.format("Reference must point to element with value (reference: %s)",
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.asString(reference)));
         }
         ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
         if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
             throw new AssetConnectionException(String.format("Unsupported element type (reference: %s, element type: %s)",
-                    AasUtils.asString(reference),
+                    ReferenceHelper.asString(reference),
                     valueTypeInfo.getType()));
         }
         datatype = valueTypeInfo.getDatatype();
         if (datatype == null) {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
-                    AasUtils.asString(reference)));
+                    ReferenceHelper.asString(reference)));
         }
         try {
             dataItem = opcUaSubscription.createDataItem(
@@ -122,7 +122,7 @@ public class SubscriptionMultiplexer {
         }
         catch (UaException e) {
             LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
-                    AasUtils.asString(reference),
+                    ReferenceHelper.asString(reference),
                     providerConfig.getNodeId(),
                     e);
         }
@@ -213,7 +213,7 @@ public class SubscriptionMultiplexer {
         catch (UaException e) {
             throw new AssetConnectionException(
                     String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-                            AasUtils.asString(reference),
+                            ReferenceHelper.asString(reference),
                             providerConfig.getNodeId()),
                     e);
         }

@@ -35,7 +35,7 @@ import java.util.List;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
 import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASSpecificAssetIDList;
+import opc.i4aas.AASSpecificAssetIdList;
 import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
@@ -43,7 +43,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Resource;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +179,7 @@ public class AssetAdministrationShellCreator {
         }
 
         // GlobalAssetId
-        String globalAssetId = assetInformation.getGlobalAssetID();
+        String globalAssetId = assetInformation.getGlobalAssetId();
         if (globalAssetId != null) {
             if (assetInfoNode.getGlobalAssetIdNode() == null) {
                 UaHelper.addStringUaProperty(assetInfoNode, nodeManager, AASAssetInformationType.GLOBAL_ASSET_ID, globalAssetId,
@@ -191,7 +191,7 @@ public class AssetAdministrationShellCreator {
         }
 
         // SpecificAssetIds
-        List<SpecificAssetID> specificAssetIds = assetInformation.getSpecificAssetIds();
+        List<SpecificAssetId> specificAssetIds = assetInformation.getSpecificAssetIds();
         if ((specificAssetIds != null) && (!specificAssetIds.isEmpty())) {
             addSpecificAssetIds(assetInfoNode, specificAssetIds, "SpecificAssetIds", nodeManager);
         }
@@ -207,7 +207,7 @@ public class AssetAdministrationShellCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetID> list, String name, AasServiceNodeManager nodeManager)
+    private static void addSpecificAssetIds(AASAssetInformationType assetInfoNode, List<SpecificAssetId> list, String name, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (assetInfoNode == null) {
             throw new IllegalArgumentException("assetInfoNode = null");
@@ -217,18 +217,18 @@ public class AssetAdministrationShellCreator {
         }
 
         LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
-        AASSpecificAssetIDList listNode = assetInfoNode.getSpecificAssetIdNode();
+        AASSpecificAssetIdList listNode = assetInfoNode.getSpecificAssetIdNode();
         boolean created = false;
 
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDList.getNamespaceUri(), name)
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdList.getNamespaceUri(), name)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
-            listNode = nodeManager.createInstance(AASSpecificAssetIDList.class, nid, browseName, LocalizedText.english(name));
+            listNode = nodeManager.createInstance(AASSpecificAssetIdList.class, nid, browseName, LocalizedText.english(name));
             created = true;
         }
 
-        SpecificAssetIdCreator.addSpecificAssetIDList(listNode, list, nodeManager);
+        SpecificAssetIdCreator.addSpecificAssetIdList(listNode, list, nodeManager);
 
         if (created) {
             assetInfoNode.addComponent(listNode);

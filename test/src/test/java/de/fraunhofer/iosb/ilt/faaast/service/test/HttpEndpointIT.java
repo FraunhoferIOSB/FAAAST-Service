@@ -83,7 +83,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -173,16 +173,16 @@ public class HttpEndpointIT {
     @Test
     public void testAASBasicDiscoveryCreate() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        SpecificAssetID newIdentifier = new DefaultSpecificAssetID.Builder()
+        SpecificAssetId newIdentifier = new DefaultSpecificAssetId.Builder()
                 .name("foo")
                 .value("bar")
                 .build();
-        List<SpecificAssetID> expected = new ArrayList<>();
+        List<SpecificAssetId> expected = new ArrayList<>();
         expected.add(newIdentifier);
         expected.addAll(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultSpecificAssetID.Builder()
+        expected.add(new DefaultSpecificAssetId.Builder()
                 .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetID())
+                .value(aas.getAssetInformation().getGlobalAssetId())
                 .build());
         assertExecuteMultiple(
                 HttpMethod.POST,
@@ -190,7 +190,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS_CREATED,
                 List.of(newIdentifier),
                 expected,
-                SpecificAssetID.class);
+                SpecificAssetId.class);
     }
 
 
@@ -198,7 +198,7 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryDelete() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.getAssetInformation().getSpecificAssetIds().clear();
-        aas.getAssetInformation().setGlobalAssetID(null);
+        aas.getAssetInformation().setGlobalAssetId(null);
         assertExecute(
                 HttpMethod.DELETE,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
@@ -209,7 +209,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS,
                 null,
                 List.of(),
-                SpecificAssetID.class);
+                SpecificAssetId.class);
     }
 
 
@@ -234,7 +234,7 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         String assetIdValue = "https://acplt.org/Test_Asset";
         List<String> expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getAssetInformation().getGlobalAssetID().equalsIgnoreCase(assetIdValue))
+                .filter(x -> x.getAssetInformation().getGlobalAssetId().equalsIgnoreCase(assetIdValue))
                 .map(x -> x.getId())
                 .collect(Collectors.toList());
         assertExecutePage(
@@ -251,10 +251,10 @@ public class HttpEndpointIT {
     public void testAASBasicDiscoveryGetAssetLinks()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        List<SpecificAssetID> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultSpecificAssetID.Builder()
+        List<SpecificAssetId> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        expected.add(new DefaultSpecificAssetId.Builder()
                 .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetID())
+                .value(aas.getAssetInformation().getGlobalAssetId())
                 .build());
         assertExecuteMultiple(
                 HttpMethod.GET,
@@ -262,7 +262,7 @@ public class HttpEndpointIT {
                 StatusCode.SUCCESS,
                 null,
                 expected,
-                SpecificAssetID.class);
+                SpecificAssetId.class);
     }
 
 
@@ -814,7 +814,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
-        expected.getSpecificAssetIds().add(new DefaultSpecificAssetID.Builder()
+        expected.getSpecificAssetIds().add(new DefaultSpecificAssetId.Builder()
                 .name("foo")
                 .value("bar")
                 .build());
@@ -1948,7 +1948,7 @@ public class HttpEndpointIT {
         assertExecutePage(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
                         API_PATHS.submodelRepository().submodels(),
-                        EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticID()))),
+                        EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticId()))),
                 StatusCode.SUCCESS,
                 null,
                 List.of(expected),

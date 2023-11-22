@@ -65,7 +65,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             addSubmodelElementBaseData(prop, aasProperty, nodeManager);
 
             // ValueId
-            Reference ref = aasProperty.getValueID();
+            Reference ref = aasProperty.getValueId();
             if (ref != null) {
                 AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, nodeManager);
             }

@@ -61,12 +61,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 /**
@@ -426,7 +426,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (Objects.isNull(semanticId)) {
             return stream;
         }
-        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticID(), semanticId));
+        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId));
     }
 
 
@@ -450,16 +450,16 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                 .map(GlobalAssetIdentification.class::cast)
                 .map(x -> x.getValue())
                 .collect(Collectors.toList());
-        List<SpecificAssetID> specificAssetIdentificators = assetIds.stream()
+        List<SpecificAssetId> specificAssetIdentificators = assetIds.stream()
                 .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
-                .map(x -> new DefaultSpecificAssetID.Builder()
+                .map(x -> new DefaultSpecificAssetId.Builder()
                         .name(((SpecificAssetIdentification) x).getKey())
                         .value(((SpecificAssetIdentification) x).getValue())
                         .build())
                 .collect(Collectors.toList());
 
         if (!globalAssetIdentificators.isEmpty()) {
-            result = result.filter(x -> globalAssetIdentificators.contains(x.getAssetInformation().getGlobalAssetID()));
+            result = result.filter(x -> globalAssetIdentificators.contains(x.getAssetInformation().getGlobalAssetId()));
         }
         if (!specificAssetIdentificators.isEmpty()) {
             result = result.filter(x -> specificAssetIdentificators.stream().anyMatch(y -> x.getAssetInformation().getSpecificAssetIds().contains(y)));

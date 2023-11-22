@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.Deserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -60,7 +59,14 @@ public class EnvironmentSerializationManagerTest {
     }
 
 
-    private void assertEquals(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
+    private void assertEquals(String filePath, JsonDeserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
+        Environment expected = deserializer.read(new File(filePath));
+        Environment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private void assertEquals(String filePath, XmlDeserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
         Environment expected = deserializer.read(new File(filePath));
         Environment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
         Assert.assertEquals(expected, actual);

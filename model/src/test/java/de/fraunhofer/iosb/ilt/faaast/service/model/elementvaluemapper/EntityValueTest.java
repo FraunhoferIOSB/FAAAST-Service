@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
@@ -64,7 +64,7 @@ public class EntityValueTest {
         SubmodelElement expected = new DefaultEntity.Builder()
                 .statements(new DefaultProperty.Builder()
                         .idShort("property")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .entityType(null)
@@ -100,11 +100,11 @@ public class EntityValueTest {
         return new DefaultEntity.Builder()
                 .statements(new DefaultProperty.Builder()
                         .idShort(idShort)
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .entityType(entityType)
-                .globalAssetID(globalAssetId)
+                .globalAssetId(globalAssetId)
                 .build();
     }
 

@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInt
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -89,7 +89,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "error executing operation - no operation provider defined for reference '%s'",
-                    AasUtils.asString(reference)));
+                    ReferenceHelper.asString(reference)));
         }
         AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();

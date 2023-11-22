@@ -23,6 +23,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.deserialization.EnumDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -83,7 +86,7 @@ public class ReferenceHelper {
             return null;
         }
         return new DefaultReference.Builder()
-                .referredSemanticID(clone(reference.getReferredSemanticID()))
+                .referredSemanticId(clone(reference.getReferredSemanticId()))
                 .type(reference.getType())
                 .keys(reference.getKeys().stream()
                         .map(ReferenceHelper::clone)
@@ -111,7 +114,7 @@ public class ReferenceHelper {
         if (ref1Empty != ref2Empty) {
             return false;
         }
-        if (!equals(ref1.getReferredSemanticID(), ref2.getReferredSemanticID())) {
+        if (!equals(ref1.getReferredSemanticId(), ref2.getReferredSemanticId())) {
             return false;
         }
         if (ref1.getKeys().size() != ref2.getKeys().size()) {
@@ -133,9 +136,22 @@ public class ReferenceHelper {
         if (Objects.isNull(key) || Objects.isNull(type)) {
             return false;
         }
-        return type.isAssignableFrom(AasUtils.keyTypeToClass(key.getType()));
+        return type.isAssignableFrom(keyTypeToClass(key.getType()));
     }
 
+    /**
+     * Gets a Java interface representing the type provided by key.
+     *
+     * @param key The KeyElements type
+     * @return a Java interface representing the provided KeyElements type or null if no matching Class/interface could
+     * be found. It also returns abstract types like SUBMODEL_ELEMENT or DATA_ELEMENT
+     */
+    private static Class<?> keyTypeToClass(KeyTypes key) {
+        return Stream.concat(ReflectionHelper.INTERFACES.stream(), ReflectionHelper.INTERFACES_WITHOUT_DEFAULT_IMPLEMENTATION.stream())
+                .filter(x -> x.getSimpleName().equals(EnumSerializer.serializeEnumName(key.name())))
+                .findAny()
+                .orElse(null);
+    }
 
     /**
      * Ensures that a given key is compatible to a given AAS class.
@@ -146,7 +162,7 @@ public class ReferenceHelper {
      */
     public static void ensureKeyType(Key key, Class<?> type) {
         Ensure.requireNonNull(key, "key must be non-null");
-        Class<?> keyClass = AasUtils.keyTypeToClass(key.getType());
+        Class<?> keyClass = keyTypeToClass(key.getType());
         Ensure.requireNonNull(keyClass, String.format("unsupported key type '%s'", key.getType()));
         Ensure.require(
                 type.isAssignableFrom(keyClass),
@@ -186,7 +202,7 @@ public class ReferenceHelper {
         if (Objects.isNull(reference.getKeys()) || reference.getKeys().size() < 2) {
             return null;
         }
-        Reference result = AasUtils.clone(reference);
+        Reference result = clone(reference);
         result.getKeys().remove(result.getKeys().size() - 1);
         return result;
     }
@@ -258,7 +274,7 @@ public class ReferenceHelper {
         }
         return new DefaultReference.Builder()
                 .type(referenceType)
-                .referredSemanticID(referredSemanticId)
+                .referredSemanticId(referredSemanticId)
                 .keys(keys)
                 .build();
     }
@@ -300,9 +316,24 @@ public class ReferenceHelper {
      */
     public static KeyTypes toKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
-        return aasInterface != null ? KeyTypes.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
+        return aasInterface != null ? KeyTypes.valueOf(EnumDeserializer.deserializeEnumName(aasInterface.getSimpleName())) : null;
     }
 
+    /**
+     * Formats a Reference as string
+     *
+     * @param reference
+     *            Reference to serialize
+     * @return string representation of the reference for serialization, null if
+     *         reference is null
+     */
+    public static String asString(Reference reference) {
+        if (reference == null) {
+            return null;
+        }
+        return String.format("[%s]%s", reference.getType(),
+                reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue())).collect(Collectors.joining(KEY_SEPARATOR)));
+    }
 
     /**
      * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference} to a
@@ -374,7 +405,7 @@ public class ReferenceHelper {
         String result = "";
         if (includeReferenceType) {
             String referredSemanticId = includeReferredSemanticId
-                    ? toString(reference.getReferredSemanticID(), includeReferenceType, false)
+                    ? toString(reference.getReferredSemanticId(), includeReferenceType, false)
                     : "";
             result = String.format("[%s%s]",
                     toString(reference.getType()),
@@ -383,7 +414,7 @@ public class ReferenceHelper {
         }
         result += reference.getKeys().stream()
                 .map(x -> String.format("(%s)%s",
-                        AasUtils.serializeEnumName(x.getType().name()),
+                        EnumSerializer.serializeEnumName(x.getType().name()),
                         x.getValue()))
                 .collect(Collectors.joining(", "));
         return result;
@@ -440,8 +471,8 @@ public class ReferenceHelper {
         if (Objects.equals(key1.getType(), key2.getType())) {
             return true;
         }
-        Class<?> type1 = AasUtils.keyTypeToClass(key1.getType());
-        Class<?> type2 = AasUtils.keyTypeToClass(key2.getType());
+        Class<?> type1 = keyTypeToClass(key1.getType());
+        Class<?> type2 = keyTypeToClass(key2.getType());
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
@@ -475,7 +506,7 @@ public class ReferenceHelper {
 
 
     private static KeyTypes parseKeyType(String keyType) {
-        return KeyTypes.valueOf(AasUtils.deserializeEnumName(keyType));
+        return KeyTypes.valueOf(EnumDeserializer.deserializeEnumName(keyType));
     }
 
 

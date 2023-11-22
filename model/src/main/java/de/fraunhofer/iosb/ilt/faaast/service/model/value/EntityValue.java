@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -31,7 +31,7 @@ public class EntityValue extends ElementValue {
 
     private EntityType entityType;
     private String globalAssetId;
-    private List<SpecificAssetID> specificAssetIds;
+    private List<SpecificAssetId> specificAssetIds;
     private Map<String, ElementValue> statements;
 
     public EntityValue() {
@@ -40,7 +40,7 @@ public class EntityValue extends ElementValue {
     }
 
 
-    public EntityValue(Map<String, ElementValue> statements, EntityType entityType, String globalAssetId, List<SpecificAssetID> specificAssetIds) {
+    public EntityValue(Map<String, ElementValue> statements, EntityType entityType, String globalAssetId, List<SpecificAssetId> specificAssetIds) {
         this.statements = statements;
         this.entityType = entityType;
         this.globalAssetId = globalAssetId;
@@ -84,12 +84,12 @@ public class EntityValue extends ElementValue {
     }
 
 
-    public List<SpecificAssetID> getSpecificAssetIds() {
+    public List<SpecificAssetId> getSpecificAssetIds() {
         return specificAssetIds;
     }
 
 
-    public void setSpecificAssetIds(List<SpecificAssetID> specificAssetIds) {
+    public void setSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
         this.specificAssetIds = specificAssetIds;
     }
 
@@ -140,13 +140,13 @@ public class EntityValue extends ElementValue {
         }
 
 
-        public B specificAssetId(SpecificAssetID value) {
+        public B specificAssetId(SpecificAssetId value) {
             getBuildingInstance().getSpecificAssetIds().add(value);
             return getSelf();
         }
 
 
-        public B specificAssetIds(List<SpecificAssetID> value) {
+        public B specificAssetIds(List<SpecificAssetId> value) {
             getBuildingInstance().setSpecificAssetIds(value);
             return getSelf();
         }

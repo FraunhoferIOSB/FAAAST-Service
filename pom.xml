@@ -72,7 +72,7 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas4j.version>1.0.0-milestone-03.1</aas4j.version>
+        <aas4j.version>1.0.0-milestone-04</aas4j.version>
         <awaitility.version>4.2.0</awaitility.version>
         <bouncycastle.version>1.70</bouncycastle.version>
         <checkstyle.version>10.12.4</checkstyle.version>

@@ -36,7 +36,7 @@ import opc.i4aas.AASEntityType;
 import opc.i4aas.AASSpecificAssetIDList;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
@@ -83,7 +83,7 @@ public class EntityCreator extends SubmodelElementCreator {
             }
 
             // SpecificAssetIds
-            List<SpecificAssetID> specificAssetId = aasEntity.getSpecificAssetIds();
+            List<SpecificAssetId> specificAssetId = aasEntity.getSpecificAssetIds();
             if (specificAssetId != null) {
                 setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
             }
