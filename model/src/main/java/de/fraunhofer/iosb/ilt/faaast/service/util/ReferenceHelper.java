@@ -23,10 +23,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -139,12 +137,13 @@ public class ReferenceHelper {
         return type.isAssignableFrom(keyTypeToClass(key.getType()));
     }
 
+
     /**
      * Gets a Java interface representing the type provided by key.
      *
      * @param key The KeyElements type
      * @return a Java interface representing the provided KeyElements type or null if no matching Class/interface could
-     * be found. It also returns abstract types like SUBMODEL_ELEMENT or DATA_ELEMENT
+     *         be found. It also returns abstract types like SUBMODEL_ELEMENT or DATA_ELEMENT
      */
     private static Class<?> keyTypeToClass(KeyTypes key) {
         return Stream.concat(ReflectionHelper.INTERFACES.stream(), ReflectionHelper.INTERFACES_WITHOUT_DEFAULT_IMPLEMENTATION.stream())
@@ -152,6 +151,7 @@ public class ReferenceHelper {
                 .findAny()
                 .orElse(null);
     }
+
 
     /**
      * Ensures that a given key is compatible to a given AAS class.
@@ -319,6 +319,7 @@ public class ReferenceHelper {
         return aasInterface != null ? KeyTypes.valueOf(EnumDeserializer.deserializeEnumName(aasInterface.getSimpleName())) : null;
     }
 
+
     /**
      * Formats a Reference as string
      *
@@ -332,8 +333,10 @@ public class ReferenceHelper {
             return null;
         }
         return String.format("[%s]%s", reference.getType(),
-                reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue())).collect(Collectors.joining(KEY_SEPARATOR)));
+                reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue()))
+                        .collect(Collectors.joining(KEY_SEPARATOR)));
     }
+
 
     /**
      * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference} to a
