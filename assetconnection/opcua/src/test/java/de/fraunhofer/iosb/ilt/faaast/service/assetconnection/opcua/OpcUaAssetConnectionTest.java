@@ -311,7 +311,7 @@ public class OpcUaAssetConnectionTest {
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expectedInitial = PropertyValue.of(Datatype.DOUBLE, Double.toString(initialValue));
         PropertyValue expectedUpdated = PropertyValue.of(Datatype.DOUBLE, Double.toString(updatedValue));
-        Reference reference = ReferenceHelper.parse("(Property)[ID_SHORT]Temperature");
+        Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         TypeInfo infoExample = ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -492,7 +492,7 @@ public class OpcUaAssetConnectionTest {
             throws ValueFormatException, AssetConnectionException, ConfigurationException, ResourceNotFoundException {
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expected = PropertyValue.of(Datatype.DOUBLE, "3.3");
-        Reference reference = ReferenceHelper.parse("(Property)[ID_SHORT]Temperature");
+        Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(expected.getClass())
@@ -649,7 +649,7 @@ public class OpcUaAssetConnectionTest {
                                        List<ArgumentMapping> inputMapping,
                                        List<ArgumentMapping> outputMapping)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException {
-        Reference reference = ReferenceHelper.parse("(Property)[ID_SHORT]Temperature");
+        Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(server.getEndpoint(Protocol.TCP))
                 .securityBaseDir(Files.createTempDirectory("asset-connection"))
@@ -735,7 +735,7 @@ public class OpcUaAssetConnectionTest {
 
     private void assertSubscribe(EmbeddedOpcUaServer server, String nodeId, PropertyValue expected, String elementIndex)
             throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
-        Reference reference = ReferenceHelper.parse("(Property)[ID_SHORT]Temperature");
+        Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
         ServiceContext serviceContext = mock(ServiceContext.class);
         TypeInfo infoExample = ElementValueTypeInfo.builder()
@@ -800,7 +800,7 @@ public class OpcUaAssetConnectionTest {
                                       PropertyValue expected,
                                       String arrayIndex)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException {
-        Reference reference = ReferenceHelper.parse("(Property)[ID_SHORT]Temperature");
+        Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(expected.getClass())

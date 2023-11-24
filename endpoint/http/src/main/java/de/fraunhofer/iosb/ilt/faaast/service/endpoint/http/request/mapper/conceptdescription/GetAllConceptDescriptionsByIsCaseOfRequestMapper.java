@@ -50,7 +50,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
     @Override
     public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
-                .isCaseOf(ReferenceHelper.parse(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
+                .isCaseOf(ReferenceHelper.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
                 .build();
     }
 }

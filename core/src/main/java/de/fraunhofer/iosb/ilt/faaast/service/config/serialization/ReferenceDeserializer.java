@@ -28,6 +28,6 @@ public class ReferenceDeserializer extends KeyDeserializer {
 
     @Override
     public Reference deserializeKey(String value, DeserializationContext context) throws IOException {
-        return ReferenceHelper.parse(value);
+        return ReferenceHelper.parseReference(value);
     }
 }

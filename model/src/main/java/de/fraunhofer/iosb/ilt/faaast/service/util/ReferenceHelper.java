@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -281,6 +282,103 @@ public class ReferenceHelper {
 
 
     /**
+     * Parses a given string as Reference. If the given string is not a valid reference, null is returned.
+     *
+     * @param value String representation of the reference
+     * @return parsed Reference or null is given value is not a valid Reference
+     */
+    public static Reference parseReference(String value) {
+        return parseReference(value,
+                ReflectionHelper.getDefaultImplementation(Reference.class),
+                ReflectionHelper.getDefaultImplementation(Key.class));
+    }
+
+
+    /**
+     * Parses a given string as Reference using the provided implementation of Reference and Key interface. If the given
+     * string is not a valid reference, null is returned.
+     *
+     * @param value String representation of the reference
+     * @param referenceType implementation type of Reference interface
+     * @param keyType implementation type of Key interface
+     * @return parsed Reference or null is given value is not a valid Reference
+     */
+    public static Reference parseReference(String value, Class<? extends Reference> referenceType, Class<? extends Key> keyType) {
+        String reference = value;
+        if (reference == null || reference.isBlank()) {
+            return null;
+        }
+
+        try {
+            Reference result = referenceType.getConstructor().newInstance();
+            // check if optional [<ReferenceTypes>] is present, if so, check for consistency
+            //TODO: consolidate the different parse methods and check why we need to remove the first square brackets, for example"[MODEL_REFERENCE]"
+            if (reference.startsWith(SQUARE_BRACKET_LEFT)) {
+                reference = reference.substring(reference.indexOf(SQUARE_BRACKET_RIGHT) + 1);
+            }
+            result.setKeys(Stream.of(reference.split(KEY_SEPARATOR))
+                    .map(x -> parseKey(x))
+                    .collect(Collectors.toList()));
+            if (!result.getKeys().isEmpty()) {
+                if (result.getType() == null) {
+                    // deduct from first element
+                    result.setType(result.getKeys().get(0).getType() == KeyTypes.GLOBAL_REFERENCE
+                            ? ReferenceTypes.EXTERNAL_REFERENCE
+                            : ReferenceTypes.MODEL_REFERENCE);
+                }
+                else {
+                    // validate against first element
+                    if (!isCompatible(result.getKeys().get(0).getType(), result.getType())) {
+                        throw new IllegalArgumentException(String.format("invalid reference - reference type '%s' is not compatible with type of first key elemenet '%s'",
+                                result.getType(), result.getKeys().get(0)));
+                    }
+                }
+            }
+            // check that keys following SubmodelElementList have valid index (i.e. are number >= 0)
+            validateSubmodelElementListKeyValues(result.getKeys());
+            return result;
+        }
+        catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new IllegalArgumentException("error parsing reference - could not instantiate reference type", ex);
+        }
+    }
+
+
+    private static boolean isCompatible(KeyTypes keyType, ReferenceTypes referenceType) {
+        if (keyType == null && referenceType == null) {
+            return true;
+        }
+        if (keyType == null ^ referenceType == null) {
+            return false;
+        }
+        return referenceType == ReferenceTypes.EXTERNAL_REFERENCE
+                ? keyType == KeyTypes.GLOBAL_REFERENCE
+                : keyType != KeyTypes.GLOBAL_REFERENCE;
+    }
+
+
+    private static void validateSubmodelElementListKeyValues(List<Key> keys) {
+        if (keys == null || keys.size() <= 1) {
+            return;
+        }
+        for (int i = 0; i < keys.size() - 1; i++) {
+            if (keys.get(i).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST) {
+                try {
+                    if (Integer.parseInt(keys.get(i + 1).getValue()) < 0) {
+                        throw new IllegalArgumentException(String.format("invalid value for key with index %d, expected integer values >= 0, but found '%s'",
+                                i, keys.get(i + 1).getValue()));
+                    }
+                }
+                catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException(String.format("invalid value for key with index %d, expected integer values >= 0, but found '%s'",
+                            i, keys.get(i + 1).getValue()));
+                }
+            }
+        }
+    }
+
+
+    /**
      * Checks if a reference starts with another reference/prefix.Returns true if th prefix is null or empty.
      *
      * @param reference the reference the test if it starts with the prfix
@@ -321,7 +419,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Formats a Reference as string
+     * Formats a Reference as string.
      *
      * @param reference
      *            Reference to serialize

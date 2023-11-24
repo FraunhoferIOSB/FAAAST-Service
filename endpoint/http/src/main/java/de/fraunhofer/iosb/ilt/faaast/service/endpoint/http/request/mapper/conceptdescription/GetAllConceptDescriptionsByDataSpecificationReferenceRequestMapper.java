@@ -52,7 +52,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
                                                                                 PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(ReferenceHelper.parse(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
+                .dataSpecification(ReferenceHelper.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
                 .build();
     }
 }
