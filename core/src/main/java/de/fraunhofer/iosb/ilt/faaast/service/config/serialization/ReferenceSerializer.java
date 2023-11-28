@@ -30,6 +30,6 @@ public class ReferenceSerializer extends JsonSerializer<Reference> {
 
     @Override
     public void serialize(Reference value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeFieldName(ReferenceHelper.asString(value));
+        gen.writeFieldName(ReferenceHelper.toString(value));
     }
 }

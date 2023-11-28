@@ -109,7 +109,7 @@ public class OpcUaAssetConnection extends
             catch (AssetConnectionException e) {
                 LOGGER.warn("Error re-creating OPC UA subscription after disconnect (endpoint: {}, AAS reference: {}, nodeId: {})",
                         config.getHost(),
-                        ReferenceHelper.asString(subscriptionProvider.getReference()),
+                        ReferenceHelper.toString(subscriptionProvider.getReference()),
                         subscriptionProvider.getNodeId(),
                         e);
             }
@@ -125,7 +125,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA operation provider, reason: invalid configuration (reference: %s)",
-                    ReferenceHelper.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }
@@ -139,7 +139,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA subscription provider, reason: invalid configuration (reference: %s)",
-                    ReferenceHelper.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }
@@ -153,7 +153,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA value provider, reason: invalid configuration (reference: %s)",
-                    ReferenceHelper.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }

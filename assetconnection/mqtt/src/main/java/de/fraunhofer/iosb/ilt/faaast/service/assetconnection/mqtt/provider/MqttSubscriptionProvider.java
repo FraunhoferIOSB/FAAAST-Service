@@ -70,7 +70,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         catch (MqttException e) {
             throw new AssetConnectionException(
                     String.format("error subscribing to MQTT asset connection (reference: %s, topic: %s)",
-                            ReferenceHelper.asString(reference),
+                            ReferenceHelper.toString(reference),
                             config.getTopic()),
                     e);
         }
@@ -86,7 +86,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
             catch (MqttException e) {
                 throw new AssetConnectionException(
                         String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
-                                ReferenceHelper.asString(reference),
+                                ReferenceHelper.toString(reference),
                                 config.getTopic()),
                         e);
             }

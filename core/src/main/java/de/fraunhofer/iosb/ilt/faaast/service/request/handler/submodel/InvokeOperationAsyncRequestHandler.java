@@ -88,7 +88,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "error executing operation - no operation provider defined for reference '%s'",
-                    ReferenceHelper.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
         OperationHandle operationHandle = new OperationHandle();
         context.getPersistence().save(

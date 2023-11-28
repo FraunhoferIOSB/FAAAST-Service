@@ -422,7 +422,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(ReferenceHelper.asString(dataSpecificationRef)))
+                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(dataSpecificationRef)))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -451,7 +451,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(ReferenceHelper.asString(isCaseOf)))
+                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(isCaseOf)))
                 .build());
         Assert.assertEquals(expected, actual);
     }

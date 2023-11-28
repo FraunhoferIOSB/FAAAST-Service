@@ -140,16 +140,16 @@ public class AssetConnectionManager {
                             .build());
                     if (!response.getStatusCode().isSuccess()) {
                         LOGGER.atInfo().log("Error updating value from asset connection subscription (reference: {})",
-                                ReferenceHelper.asString(subscriptionInfo.getKey()));
+                                ReferenceHelper.toString(subscriptionInfo.getKey()));
                         LOGGER.debug("Error updating value from asset connection subscription (reference: {}, reason: {})",
-                                ReferenceHelper.asString(subscriptionInfo.getKey()),
+                                ReferenceHelper.toString(subscriptionInfo.getKey()),
                                 response.getResult().getMessages());
                     }
                 });
             }
             catch (AssetConnectionException e) {
                 LOGGER.warn("Subscribing to asset connection failed (reference: {})",
-                        ReferenceHelper.asString(subscriptionInfo.getKey()),
+                        ReferenceHelper.toString(subscriptionInfo.getKey()),
                         e);
             }
         }
@@ -364,7 +364,7 @@ public class AssetConnectionManager {
         if (valueProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d value providers for reference %s but maximum 1 allowed",
                     valueProviders.get().getValue().size(),
-                    ReferenceHelper.asString(valueProviders.get().getKey())));
+                    ReferenceHelper.toString(valueProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetOperationProvider>>> operationProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
@@ -374,7 +374,7 @@ public class AssetConnectionManager {
         if (operationProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d operation providers for reference %s but maximum 1 allowed",
                     operationProviders.get().getValue().size(),
-                    ReferenceHelper.asString(operationProviders.get().getKey())));
+                    ReferenceHelper.toString(operationProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetSubscriptionProvider>>> subscriptionProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
@@ -384,7 +384,7 @@ public class AssetConnectionManager {
         if (subscriptionProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d subscription providers for reference %s but maximum 1 allowed",
                     subscriptionProviders.get().getValue().size(),
-                    ReferenceHelper.asString(subscriptionProviders.get().getKey())));
+                    ReferenceHelper.toString(subscriptionProviders.get().getKey())));
         }
     }
 }

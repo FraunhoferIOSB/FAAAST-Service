@@ -93,16 +93,16 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
         catch (IOException | URISyntaxException e) {
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -133,7 +133,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
         }
         catch (IOException | URISyntaxException | InterruptedException e) {

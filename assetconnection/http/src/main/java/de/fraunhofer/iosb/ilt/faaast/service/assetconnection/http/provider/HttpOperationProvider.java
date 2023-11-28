@@ -92,13 +92,13 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     HttpResponse.BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.asString(reference)));
+                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.asString(reference)), e);
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 }

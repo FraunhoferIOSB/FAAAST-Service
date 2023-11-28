@@ -89,7 +89,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
                     "error executing operation - no operation provider defined for reference '%s'",
-                    ReferenceHelper.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
         AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();

@@ -91,28 +91,28 @@ public class SubscriptionMultiplexer {
         catch (ResourceNotFoundException ex) {
             throw new AssetConnectionException(
                     String.format("Could not resolve type information (reference: %s)",
-                            ReferenceHelper.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         if (typeInfo == null) {
             throw new AssetConnectionException(
                     String.format("Could not resolve type information (reference: %s)",
-                            ReferenceHelper.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new AssetConnectionException(
                     String.format("Reference must point to element with value (reference: %s)",
-                            ReferenceHelper.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
         if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
             throw new AssetConnectionException(String.format("Unsupported element type (reference: %s, element type: %s)",
-                    ReferenceHelper.asString(reference),
+                    ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
         datatype = valueTypeInfo.getDatatype();
         if (datatype == null) {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
-                    ReferenceHelper.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
         try {
             dataItem = opcUaSubscription.createDataItem(
@@ -122,7 +122,7 @@ public class SubscriptionMultiplexer {
         }
         catch (UaException e) {
             LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
-                    ReferenceHelper.asString(reference),
+                    ReferenceHelper.toString(reference),
                     providerConfig.getNodeId(),
                     e);
         }
@@ -213,7 +213,7 @@ public class SubscriptionMultiplexer {
         catch (UaException e) {
             throw new AssetConnectionException(
                     String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-                            ReferenceHelper.asString(reference),
+                            ReferenceHelper.toString(reference),
                             providerConfig.getNodeId()),
                     e);
         }

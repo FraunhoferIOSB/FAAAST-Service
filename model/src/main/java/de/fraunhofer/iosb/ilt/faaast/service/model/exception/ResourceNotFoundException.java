@@ -32,12 +32,12 @@ public class ResourceNotFoundException extends Exception {
 
 
     public ResourceNotFoundException(Reference reference, Throwable cause) {
-        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.asString(reference)), cause);
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)), cause);
     }
 
 
     public ResourceNotFoundException(Reference reference) {
-        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.asString(reference)));
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)));
     }
 
 

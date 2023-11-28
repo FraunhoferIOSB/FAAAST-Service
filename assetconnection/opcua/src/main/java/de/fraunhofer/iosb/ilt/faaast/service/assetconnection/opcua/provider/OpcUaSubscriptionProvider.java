@@ -114,7 +114,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
             catch (AssetConnectionException e) {
                 throw new AssetConnectionException(
                         String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-                                ReferenceHelper.asString(reference),
+                                ReferenceHelper.toString(reference),
                                 providerConfig.getNodeId()),
                         e);
             }

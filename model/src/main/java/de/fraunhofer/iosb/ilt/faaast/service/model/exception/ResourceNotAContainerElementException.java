@@ -32,12 +32,12 @@ public class ResourceNotAContainerElementException extends Exception {
 
 
     public ResourceNotAContainerElementException(Reference reference, Throwable cause) {
-        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.asString(reference)), cause);
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)), cause);
     }
 
 
     public ResourceNotAContainerElementException(Reference reference) {
-        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.asString(reference)));
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)));
     }
 
 
