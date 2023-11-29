@@ -25,9 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import java.util.List;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASReferenceType;
-import opc.i4aas.AASSpecificAssetIDType;
+import opc.i4aas.AASSpecificAssetIdType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +45,14 @@ public class SpecificAssetIdCreator {
 
 
     /**
-     * Adds a list of SpecificAssetIDs to the given Node.
+     * Adds a list of SpecificAssetIds to the given Node.
      * 
-     * @param node The UA node in which the SpecificAssetID should be created
-     * @param specificAssetIDs The desired list of SpecificAssetIDs
+     * @param node The UA node in which the SpecificAssetId should be created
+     * @param specificAssetIDs The desired list of SpecificAssetIds
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addSpecificAssetIDList(UaNode node, List<SpecificAssetID> specificAssetIDs, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addSpecificAssetIdList(UaNode node, List<SpecificAssetId> specificAssetIDs, AasServiceNodeManager nodeManager) throws StatusException {
 
         int index = 1;
         for (var specificAssetID: specificAssetIDs) {
@@ -61,50 +61,50 @@ public class SpecificAssetIdCreator {
                 name = specificAssetID.getName();
             }
 
-            addSpecificAssetID(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+            addSpecificAssetId(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
         }
     }
 
 
     /**
-     * Adds a SpecificAssetID to the given Node.
+     * Adds a SpecificAssetId to the given Node.
      *
-     * @param node The UA node in which the SpecificAssetID should be created
-     * @param specificAssetID The desired SpecificAssetID
-     * @param name The desired name of the SpecificAssetID node
+     * @param node The UA node in which the SpecificAssetId should be created
+     * @param specificAssetID The desired SpecificAssetId
+     * @param name The desired name of the SpecificAssetId node
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addSpecificAssetID(UaNode node, SpecificAssetID specificAssetID, String name, AasServiceNodeManager nodeManager) throws StatusException {
-        addSpecificAssetID(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+    public static void addSpecificAssetId(UaNode node, SpecificAssetId specificAssetID, String name, AasServiceNodeManager nodeManager) throws StatusException {
+        addSpecificAssetId(node, specificAssetID, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
      * 
-     * @param specificAssetIDNode The desired SpecificAssetID Node
+     * @param specificAssetIDNode The desired SpecificAssetId Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void setSpecificAssetIDData(AASSpecificAssetIDType specificAssetIDNode, SpecificAssetID aasIdentifierPair, AasServiceNodeManager nodeManager)
+    public static void setSpecificAssetIdData(AASSpecificAssetIdType specificAssetIDNode, SpecificAssetId aasIdentifierPair, AasServiceNodeManager nodeManager)
             throws StatusException {
-        setSpecificAssetIDData(specificAssetIDNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
+        setSpecificAssetIdData(specificAssetIDNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
 
     /**
-     * Adds an SpecificAssetID to the given Node.
+     * Adds an SpecificAssetId to the given Node.
      *
-     * @param node The UA node in which the SpecificAssetID should be created
-     * @param specificAssetID The desired SpecificAssetID
-     * @param name The desired name of the SpecificAssetID node
+     * @param node The UA node in which the SpecificAssetId should be created
+     * @param specificAssetID The desired SpecificAssetId
+     * @param name The desired name of the SpecificAssetId node
      * @param readOnly True if the value should be read-only
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void addSpecificAssetID(UaNode node, SpecificAssetID specificAssetID, String name, boolean readOnly, AasServiceNodeManager nodeManager)
+    private static void addSpecificAssetId(UaNode node, SpecificAssetId specificAssetID, String name, boolean readOnly, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
@@ -113,13 +113,13 @@ public class SpecificAssetIdCreator {
             throw new IllegalArgumentException("specificAssetID = null");
         }
 
-        LOGGER.debug("addSpecificAssetID {}; to Node: {}", name, node);
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDType.getNamespaceUri(), name)
+        LOGGER.debug("addSpecificAssetId {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdType.getNamespaceUri(), name)
                 .toQualifiedName(nodeManager.getNamespaceTable());
         NodeId nid = nodeManager.createNodeId(node, browseName);
-        AASSpecificAssetIDType specificAssetIDNode = nodeManager.createInstance(AASSpecificAssetIDType.class, nid, browseName, LocalizedText.english(name));
+        AASSpecificAssetIdType specificAssetIDNode = nodeManager.createInstance(AASSpecificAssetIdType.class, nid, browseName, LocalizedText.english(name));
 
-        setSpecificAssetIDData(specificAssetIDNode, specificAssetID, readOnly, nodeManager);
+        setSpecificAssetIdData(specificAssetIDNode, specificAssetID, readOnly, nodeManager);
 
         node.addComponent(specificAssetIDNode);
     }
@@ -134,15 +134,15 @@ public class SpecificAssetIdCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    private static void setSpecificAssetIDData(AASSpecificAssetIDType specificAssetIDNode, SpecificAssetID aasIdentifierPair, boolean readOnly,
+    private static void setSpecificAssetIdData(AASSpecificAssetIdType specificAssetIDNode, SpecificAssetId aasIdentifierPair, boolean readOnly,
                                                AasServiceNodeManager nodeManager)
             throws StatusException {
         // ExternalSubjectId
-        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectID();
+        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
         if (externalSubjectId != null) {
             AASReferenceType extSubjectNode = specificAssetIDNode.getExternalSubjectIdNode();
             if (extSubjectNode == null) {
-                AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASSpecificAssetIDType.EXTERNAL_SUBJECT_ID, nodeManager);
+                AasReferenceCreator.addAasReferenceAasNS(specificAssetIDNode, externalSubjectId, AASSpecificAssetIdType.EXTERNAL_SUBJECT_ID, nodeManager);
             }
             else {
                 AasReferenceCreator.setAasReferenceData(externalSubjectId, extSubjectNode);

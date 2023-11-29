@@ -64,8 +64,8 @@ import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.VariableIds;
-import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -123,7 +123,7 @@ public class OpcUaEndpointFullTest {
                 .keys(keys)
                 .build();
         List<OperationVariable> outputArgs = new ArrayList<>();
-        outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType(DataTypeDefXSD.STRING).value("XYZ1").build())
+        outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType(DataTypeDefXsd.STRING).value("XYZ1").build())
                 .build());
 
         // register another Operation 
@@ -581,7 +581,7 @@ public class OpcUaEndpointFullTest {
                 .idShort(propName)
                 .category("PARAMETER")
                 .value("3465")
-                .valueType(DataTypeDefXSD.INT)
+                .valueType(DataTypeDefXsd.INT)
                 .build());
         service.getMessageBus().publish(msg);
 
@@ -874,7 +874,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testSubmodelElementList TypeValueListElement empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Integer tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AASSubmodelElements.SUBMODEL_ELEMENT).ordinal();
+        Integer tvListElementExpected = ValueConverter.getAasSubmodelElementsType(AasSubmodelElements.SUBMODEL_ELEMENT).ordinal();
         Assert.assertEquals("TypeValueListElement not equal", tvListElementExpected, value.getValue().getValue());
 
         // SubmodelElementList type
@@ -902,12 +902,12 @@ public class OpcUaEndpointFullTest {
         ArrayList<Qualifier> list = new ArrayList<>();
         list.add(new DefaultQualifier.Builder()
                 .value("100")
-                .valueType(DataTypeDefXSD.INT)
+                .valueType(DataTypeDefXsd.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier")
                 .build());
         list.add(new DefaultQualifier.Builder()
                 .value("50")
-                .valueType(DataTypeDefXSD.INT)
+                .valueType(DataTypeDefXsd.INT)
                 .type("http://acplt.org/Qualifier/ExampleQualifier2")
                 .build());
         TestUtils.checkAasPropertyString(client, submodelNode, aasns, "ManufacturerName", "", AASDataTypeDefXsd.String,

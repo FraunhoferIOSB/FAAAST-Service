@@ -33,7 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
 import opc.i4aas.AASEntityType;
-import opc.i4aas.AASSpecificAssetIDList;
+import opc.i4aas.AASSpecificAssetIdList;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
@@ -78,7 +78,7 @@ public class EntityCreator extends SubmodelElementCreator {
                     new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
 
             // GlobalAssetId
-            if (aasEntity.getGlobalAssetID() != null) {
+            if (aasEntity.getGlobalAssetId() != null) {
                 addGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
             }
 
@@ -116,24 +116,24 @@ public class EntityCreator extends SubmodelElementCreator {
     }
 
 
-    private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetID> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
-        AASSpecificAssetIDList listNode = entityNode.getSpecificAssetIdNode();
+    private static void setSpecificAssetIdData(AASEntityType entityNode, List<SpecificAssetId> specificAssetId, AasServiceNodeManager nodeManager) throws StatusException {
+        AASSpecificAssetIdList listNode = entityNode.getSpecificAssetIdNode();
         if (listNode == null) {
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIDList.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSpecificAssetIdList.getNamespaceUri(), AASEntityType.SPECIFIC_ASSET_ID)
                     .toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.createNodeId(entityNode, browseName);
-            listNode = nodeManager.createInstance(AASSpecificAssetIDList.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
+            listNode = nodeManager.createInstance(AASSpecificAssetIdList.class, nid, browseName, LocalizedText.english(AASEntityType.SPECIFIC_ASSET_ID));
             entityNode.addComponent(listNode);
         }
 
-        SpecificAssetIdCreator.addSpecificAssetIDList(listNode, specificAssetId, nodeManager);
+        SpecificAssetIdCreator.addSpecificAssetIdList(listNode, specificAssetId, nodeManager);
     }
 
 
     private static void addGlobalAssetIdData(AASEntityType entityNode, Entity aasEntity, AasServiceNodeManager nodeManager, Submodel submodel, Reference entityRef)
             throws StatusException, ValueFormatException {
 
-        setGlobalAssetIdData(entityNode, aasEntity.getGlobalAssetID(), nodeManager);
+        setGlobalAssetIdData(entityNode, aasEntity.getGlobalAssetId(), nodeManager);
         nodeManager.addSubmodelElementAasMap(entityNode.getGlobalAssetIdNode().getNodeId(),
                 new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_GLOBAL_ASSET_ID, entityRef));
     }

@@ -103,7 +103,7 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
             throws StatusException {
         if (semanticIdElement != null) {
             if (collNode.getSemanticIdListElementNode() == null) {
-                AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_I_D_LIST_ELEMENT, namespaceUri, true,
+                AasReferenceCreator.addAasReference(collNode, semanticIdElement, AASSubmodelElementListType.SEMANTIC_ID_LIST_ELEMENT, namespaceUri, true,
                         nodeManager);
             }
             else {

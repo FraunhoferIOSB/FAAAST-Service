@@ -883,7 +883,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         // no kind available here, check for null
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, null);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",

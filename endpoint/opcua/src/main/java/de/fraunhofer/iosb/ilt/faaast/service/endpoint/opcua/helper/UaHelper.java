@@ -34,7 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASQualifierKindDataType;
-import opc.i4aas.AasSubmodelElementsDataType;
+import opc.i4aas.AASSubmodelElementsDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
@@ -244,10 +244,10 @@ public class UaHelper {
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AasSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
-        PlainProperty<AasSubmodelElementsDataType> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+    public static PlainProperty<AASSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
+        PlainProperty<AASSubmodelElementsDataType> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                 valueData.getDisplayName());
-        smelemProperty.setDataTypeId(AasSubmodelElementsDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
+        smelemProperty.setDataTypeId(AASSubmodelElementsDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
         smelemProperty.setDescription(new LocalizedText("", ""));
         DataValue value = new DataValue(new Variant(ValueConverter.getAasSubmodelElementsType(submodelElement).getValue()));
         smelemProperty.setValue(value);
