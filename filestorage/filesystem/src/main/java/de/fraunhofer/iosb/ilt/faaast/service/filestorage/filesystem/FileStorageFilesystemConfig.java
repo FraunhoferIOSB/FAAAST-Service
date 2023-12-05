@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem;
 
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
+import java.util.Objects;
 
 
 /**
@@ -48,6 +49,26 @@ public class FileStorageFilesystemConfig extends FileStorageConfig<FileStorageFi
 
     public void setExistingDataPath(String existingDataPath) {
         this.existingDataPath = existingDataPath;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FileStorageFilesystemConfig that = (FileStorageFilesystemConfig) o;
+        return Objects.equals(path, that.path)
+                && Objects.equals(existingDataPath, that.existingDataPath);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path, existingDataPath);
     }
 
 

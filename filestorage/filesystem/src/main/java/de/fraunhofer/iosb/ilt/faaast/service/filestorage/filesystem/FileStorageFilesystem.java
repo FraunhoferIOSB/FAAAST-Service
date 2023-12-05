@@ -105,7 +105,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
         try {
             final Path existingDataPath = Path.of(config.getExistingDataPath());
             if (Files.exists(existingDataPath) && !Files.isDirectory(existingDataPath)) {
-                LOGGER.warn("error initializing FileStorageFilesystem - existing data path is not a directory (path: %s)", config.getExistingDataPath());
+                LOGGER.warn("error initializing FileStorageFilesystem - existing data path is not a directory (path: {})", config.getExistingDataPath());
                 return;
             }
             try (Stream<Path> files = Files.walk(existingDataPath)) {
@@ -117,10 +117,10 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
         }
         catch (InvalidPathException e) {
-            LOGGER.warn("error initializing FileStorageFilesystem - invalid existing data path (path: %s)", config.getExistingDataPath(), e);
+            LOGGER.warn("error initializing FileStorageFilesystem - invalid existing data path (path: {})", config.getExistingDataPath(), e);
         }
         catch (IOException e) {
-            LOGGER.warn("error initializing FileStorageFilesystem - unable to load existing data (path: %s)", config.getExistingDataPath(), e);
+            LOGGER.warn("error initializing FileStorageFilesystem - unable to load existing data (path: {})", config.getExistingDataPath(), e);
         }
     }
 
