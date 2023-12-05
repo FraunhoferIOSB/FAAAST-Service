@@ -118,7 +118,7 @@ public class AasSubmodelElementHelper {
                 throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
-            // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
+            // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
             for (UaNode annotationNode: annotationNodes) {
                 if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
                     setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
