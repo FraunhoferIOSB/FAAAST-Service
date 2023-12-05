@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -40,10 +41,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
@@ -68,9 +72,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
@@ -102,10 +108,13 @@ public abstract class AbstractHttpEndpointTest {
     protected static Persistence persistence;
     protected static FileStorage fileStorage;
     protected static HttpJsonApiDeserializer deserializer;
+    protected static HttpJsonApiSerializer serializer;
     protected static Server server;
 
     @Before
     public void setUp() {
+        serializer = new HttpJsonApiSerializer();
+        deserializer = new HttpJsonApiDeserializer();
         Mockito.reset(persistence);
         Mockito.reset(fileStorage);
         Mockito.reset(service);
@@ -138,84 +147,6 @@ public abstract class AbstractHttpEndpointTest {
                 }
             }
         }
-    }
-
-
-    public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters) throws Exception {
-        return execute(method, path, parameters, null, null, null, null);
-    }
-
-
-    public ContentResponse execute(HttpMethod method, String path) throws Exception {
-        return execute(method, path, null, null, null, null, null);
-    }
-
-
-    public ContentResponse execute(HttpMethod method, String path, Content contentModifier) throws Exception {
-        return execute(
-                method,
-                path,
-                null,
-                contentModifier,
-                null,
-                null,
-                null);
-    }
-
-
-    public ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier) throws Exception {
-        return execute(
-                method,
-                path,
-                Map.of(
-                        "level", outputModifier.getLevel().name().toLowerCase(),
-                        "extend", outputModifier.getExtent().name().toLowerCase()),
-                outputModifier.getContent(),
-                null,
-                null,
-                null);
-    }
-
-
-    public ContentResponse execute(
-                                   HttpMethod method,
-                                   String path,
-                                   Map<String, String> parameters,
-                                   Content content,
-                                   String body,
-                                   String contentType,
-                                   Map<String, String> headers)
-            throws Exception {
-        String actualPath = path;
-        if (Objects.nonNull(content) && !Objects.equals(content, Content.NORMAL)) {
-            actualPath = String.format("%s/$%s", path, content.name().toLowerCase());
-        }
-        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
-                // TODO remove
-                .timeout(1, TimeUnit.HOURS)
-                .idleTimeout(1, TimeUnit.HOURS)
-                .method(method)
-                .path(actualPath)
-                .scheme(scheme);
-        if (parameters != null) {
-            for (Map.Entry<String, String> parameter: parameters.entrySet()) {
-                request = request.param(parameter.getKey(), parameter.getValue());
-            }
-        }
-        if (body != null) {
-            if (contentType != null) {
-                request = request.body(new StringRequestContent(contentType, body));
-            }
-            else {
-                request = request.body(new StringRequestContent(body));
-            }
-        }
-        if (headers != null) {
-            for (Map.Entry<String, String> header: headers.entrySet()) {
-                request = request.header(header.getKey(), header.getValue());
-            }
-        }
-        return request.send();
     }
 
 
@@ -724,6 +655,61 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
+    @Test
+    public void testAASAlreadyExists() throws Exception {
+        when(service.execute(any())).thenReturn(
+                PostAssetAdministrationShellResponse.builder()
+                        .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
+                        .build());
+        ContentResponse response = execute(
+                HttpMethod.POST,
+                "/shells",
+                new DefaultAssetAdministrationShell.Builder().build());
+        Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
+    }
+
+
+    @Test
+    public void testSubmodelAlreadyExists() throws Exception {
+        when(service.execute(any())).thenReturn(
+                PostSubmodelResponse.builder()
+                        .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
+                        .build());
+        ContentResponse response = execute(
+                HttpMethod.POST,
+                "/submodels",
+                new DefaultSubmodel.Builder().build());
+        Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
+    }
+
+
+    @Test
+    public void testSubmodelElementAlreadyExists() throws Exception {
+        String id = "foo";
+        when(service.execute(any())).thenReturn(
+                PostSubmodelElementResponse.builder()
+                        .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
+                        .build());
+        ContentResponse response = execute(
+                HttpMethod.POST, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel/submodel-elements",
+                new DefaultProperty.Builder().build());
+        Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
+    }
+
+
+    @Test
+    public void testConceptDescriptionAlreadyExists() throws Exception {
+        when(service.execute(any())).thenReturn(
+                PostConceptDescriptionResponse.builder()
+                        .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
+                        .build());
+        ContentResponse response = execute(
+                HttpMethod.POST, "/concept-descriptions",
+                new DefaultConceptDescription.Builder().build());
+        Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
+    }
+
+
     private void mockAasContext(ServiceContext serviceContext, String aasId) {
         doReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
@@ -780,6 +766,96 @@ public abstract class AbstractHttpEndpointTest {
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertFalse(actual.getSuccess());
         Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters) throws Exception {
+        return execute(method, path, parameters, null, null, null, null);
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path) throws Exception {
+        return execute(method, path, null, null, null, null, null);
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path, Object payload) throws Exception {
+        return execute(
+                method,
+                path,
+                null,
+                null,
+                serializer.write(payload),
+                DataFormat.JSON.getContentType().toString(),
+                null);
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path, Content contentModifier) throws Exception {
+        return execute(
+                method,
+                path,
+                null,
+                contentModifier,
+                null,
+                null,
+                null);
+    }
+
+
+    protected ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier) throws Exception {
+        return execute(
+                method,
+                path,
+                Map.of(
+                        "level", outputModifier.getLevel().name().toLowerCase(),
+                        "extend", outputModifier.getExtent().name().toLowerCase()),
+                outputModifier.getContent(),
+                null,
+                null,
+                null);
+    }
+
+
+    protected ContentResponse execute(
+                                      HttpMethod method,
+                                      String path,
+                                      Map<String, String> parameters,
+                                      Content content,
+                                      String body,
+                                      String contentType,
+                                      Map<String, String> headers)
+            throws Exception {
+        String actualPath = path;
+        if (Objects.nonNull(content) && !Objects.equals(content, Content.NORMAL)) {
+            actualPath = String.format("%s/$%s", path, content.name().toLowerCase());
+        }
+        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
+                // TODO remove
+                .timeout(1, TimeUnit.HOURS)
+                .idleTimeout(1, TimeUnit.HOURS)
+                .method(method)
+                .path(actualPath)
+                .scheme(scheme);
+        if (parameters != null) {
+            for (Map.Entry<String, String> parameter: parameters.entrySet()) {
+                request = request.param(parameter.getKey(), parameter.getValue());
+            }
+        }
+        if (body != null) {
+            if (contentType != null) {
+                request = request.body(new StringRequestContent(contentType, body));
+            }
+            else {
+                request = request.body(new StringRequestContent(body));
+            }
+        }
+        if (headers != null) {
+            for (Map.Entry<String, String> header: headers.entrySet()) {
+                request = request.header(header.getKey(), header.getValue());
+            }
+        }
+        return request.send();
     }
 
 

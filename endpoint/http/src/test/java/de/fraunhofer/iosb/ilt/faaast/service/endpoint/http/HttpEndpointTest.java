@@ -19,7 +19,6 @@ import static org.mockito.Mockito.spy;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -36,7 +35,6 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
     @BeforeClass
     public static void init() throws Exception {
         port = PortHelper.findFreePort();
-        deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
         fileStorage = mock(FileStorage.class);
         startServer();

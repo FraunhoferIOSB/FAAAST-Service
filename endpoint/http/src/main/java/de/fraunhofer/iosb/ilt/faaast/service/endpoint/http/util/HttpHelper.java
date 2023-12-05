@@ -59,18 +59,26 @@ public class HttpHelper {
                 return HttpStatus.OK_200;
             case SUCCESS_CREATED:
                 return HttpStatus.CREATED_201;
+            case SUCCESS_ACCEPTED:
+                return HttpStatus.ACCEPTED_202;
             case SUCCESS_NO_CONTENT:
                 return HttpStatus.NO_CONTENT_204;
-            case CLIENT_FORBIDDEN:
-                return HttpStatus.FORBIDDEN_403;
             case CLIENT_ERROR_BAD_REQUEST:
                 return HttpStatus.BAD_REQUEST_400;
-            case CLIENT_METHOD_NOT_ALLOWED:
-                return HttpStatus.METHOD_NOT_ALLOWED_405;
+            case CLIENT_NOT_AUTHORIZED:
+                return HttpStatus.UNAUTHORIZED_401;
+            case CLIENT_FORBIDDEN:
+                return HttpStatus.FORBIDDEN_403;
             case CLIENT_ERROR_RESOURCE_NOT_FOUND:
                 return HttpStatus.NOT_FOUND_404;
+            case CLIENT_METHOD_NOT_ALLOWED:
+                return HttpStatus.METHOD_NOT_ALLOWED_405;
+            case CLIENT_RESOURCE_CONFLICT:
+                return HttpStatus.CONFLICT_409;
             case SERVER_INTERNAL_ERROR:
                 return HttpStatus.INTERNAL_SERVER_ERROR_500;
+            case SERVER_NOT_IMPLEMENTED:
+                return HttpStatus.NOT_IMPLEMENTED_501;
             case SERVER_ERROR_BAD_GATEWAY:
                 return HttpStatus.BAD_GATEWAY_502;
             default:

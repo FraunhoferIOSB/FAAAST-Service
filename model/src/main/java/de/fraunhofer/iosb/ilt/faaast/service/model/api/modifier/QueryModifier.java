@@ -24,6 +24,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
+    public static final QueryModifier MINIMAL = new Builder()
+            .level(Level.CORE)
+            .extend(Extent.WITHOUT_BLOB_VALUE)
+            .build();
     protected Level level;
     protected Extent extent;
 
