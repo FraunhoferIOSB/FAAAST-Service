@@ -87,7 +87,7 @@
         <jackson.databind.version>2.16.0</jackson.databind.version>
         <jackson.version>2.16.0</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
-        <janino.version>3.1.10</janino.version>
+        <janino.version>3.1.11</janino.version>
         <jena.version>4.10.0</jena.version>
         <jetty.version>11.0.18</jetty.version>
         <json-smart.version>2.5.0</json-smart.version>
