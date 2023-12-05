@@ -22,6 +22,35 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
  */
 public class FileStorageFilesystemConfig extends FileStorageConfig<FileStorageFilesystem> {
 
+    private static final String DEFAULT_PATH = ".";
+    private String path;
+    private String existingDataPath;
+
+    public FileStorageFilesystemConfig() {
+        this.path = DEFAULT_PATH;
+    }
+
+
+    public String getPath() {
+        return path;
+    }
+
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+
+    public String getExistingDataPath() {
+        return existingDataPath;
+    }
+
+
+    public void setExistingDataPath(String existingDataPath) {
+        this.existingDataPath = existingDataPath;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -29,6 +58,16 @@ public class FileStorageFilesystemConfig extends FileStorageConfig<FileStorageFi
     private abstract static class AbstractBuilder<T extends FileStorageFilesystemConfig, B extends AbstractBuilder<T, B>>
             extends FileStorageConfig.AbstractBuilder<FileStorageFilesystem, T, B> {
 
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B existingDataPath(String value) {
+            getBuildingInstance().setExistingDataPath(value);
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<FileStorageFilesystemConfig, Builder> {

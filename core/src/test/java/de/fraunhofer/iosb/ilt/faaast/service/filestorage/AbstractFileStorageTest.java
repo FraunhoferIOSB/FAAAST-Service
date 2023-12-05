@@ -35,7 +35,7 @@ import org.mockito.Mockito;
  */
 public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extends FileStorageConfig<T>> {
 
-    private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
+    protected static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private T fileStorage;
 
     /**
