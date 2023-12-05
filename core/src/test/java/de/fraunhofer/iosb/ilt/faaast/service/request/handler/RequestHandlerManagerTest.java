@@ -728,7 +728,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(true);
         PostSubmodelResponse actual = manager.execute(request);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
-        verify(persistence, Mockito.times(0)).save((Submodel) any());
+        verify(persistence, times(0)).save((Submodel) any());
     }
 
 
@@ -1307,7 +1307,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PostConceptDescriptionResponse actual = manager.execute(request);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
-        verify(persistence, Mockito.times(0)).save((ConceptDescription) any());
+        verify(persistence, times(0)).save((ConceptDescription) any());
     }
 
 
