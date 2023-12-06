@@ -49,7 +49,7 @@ public class AbstractIntegrationTest {
     protected static HttpClient httpClient;
 
     @BeforeClass
-    public static void _initialize() throws IOException, GeneralSecurityException {
+    public static void initialize() throws IOException, GeneralSecurityException {
         PORT = PortHelper.findFreePort();
         generateHttpEndpointCertificate();
         httpClient = SslHelper.disableHostnameVerification(
