@@ -1202,8 +1202,7 @@ public class HttpEndpointIT {
     }
 
 
-    @Test
-    public void testSubmodelInterfaceFileAttachment()
+    private void testSubmodelInterfaceFileAttachment(String fileName)
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         byte[] content = new byte[20];
@@ -1224,7 +1223,6 @@ public class HttpEndpointIT {
                         .collect(Collectors.toList()))
                 .conceptDescriptions(environment.getConceptDescriptions())
                 .build();
-        String fileName = "file:///TestFile.pdf";
         HttpEntity httpEntity = MultipartEntityBuilder.create()
                 .addPart("fileName",
                         new StringBody(fileName,
@@ -1264,6 +1262,18 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
+    }
+
+    @Test
+    public void testSubmodelInterfaceFileAttachment1()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+       testSubmodelInterfaceFileAttachment("file:///TestFile.pdf");
+    }
+
+    @Test
+    public void testSubmodelInterfaceFileAttachment2()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        testSubmodelInterfaceFileAttachment("/aasx/files/documentation.pdf");
     }
 
 
