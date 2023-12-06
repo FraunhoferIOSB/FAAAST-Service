@@ -18,8 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -49,7 +51,15 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
     @Override
     protected TypeInfo getTypeInfo() {
-        return serviceContext.getTypeInfo(reference);
+        try {
+            return serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(String.format(
+                    "MQTT subscription provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 

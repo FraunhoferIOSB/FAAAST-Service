@@ -32,7 +32,7 @@ public class AasHelper {
     private AasHelper() {}
 
 
-    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException {
+    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException, ResourceNotFoundException {
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new IllegalArgumentException(String.format("type info does not provide datatype (type info: %s)", typeInfo.getClass()));

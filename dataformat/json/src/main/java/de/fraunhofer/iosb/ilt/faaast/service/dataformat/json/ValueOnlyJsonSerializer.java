@@ -196,13 +196,11 @@ public class ValueOnlyJsonSerializer {
                     @Override
                     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                                                                      BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
-                        beanProperties.removeIf(property -> {
-                            return !evalContainerType(property.getType()).stream()
-                                    .allMatch(
-                                            x -> isJreType(x.getRawClass())
-                                                    || ElementValueHelper.isValueOnlySupported(x.getRawClass())
-                                                    || isExplicitelyAcceptedType(x.getRawClass()));
-                        });
+                        beanProperties.removeIf(property -> !evalContainerType(property.getType()).stream()
+                                .allMatch(
+                                        x -> isJreType(x.getRawClass())
+                                                || ElementValueHelper.isValueOnlySupported(x.getRawClass())
+                                                || isExplicitelyAcceptedType(x.getRawClass())));
                         return beanProperties;
                     }
                 });

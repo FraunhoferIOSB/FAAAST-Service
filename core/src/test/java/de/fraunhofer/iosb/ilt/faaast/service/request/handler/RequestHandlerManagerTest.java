@@ -328,7 +328,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence, times(1)).save(eq(environment.getAssetAdministrationShells().get(0)));
+        verify(persistence, times(1)).save(environment.getAssetAdministrationShells().get(0));
     }
 
 
@@ -373,7 +373,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence, times(1)).save(eq(environment.getAssetAdministrationShells().get(0)));
+        verify(persistence, times(1)).save(environment.getAssetAdministrationShells().get(0));
     }
 
 
@@ -381,11 +381,11 @@ public class RequestHandlerManagerTest {
     public void testDeleteAssetAdministrationShellByIdRequest() throws ResourceNotFoundException, Exception {
         when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
-        DeleteAssetAdministrationShellByIdRequest request = new DeleteAssetAdministrationShellByIdRequest().builder()
+        DeleteAssetAdministrationShellByIdRequest request = DeleteAssetAdministrationShellByIdRequest.builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .build();
         DeleteAssetAdministrationShellByIdResponse actual = manager.execute(request);
-        DeleteAssetAdministrationShellByIdResponse expected = new DeleteAssetAdministrationShellByIdResponse.Builder()
+        DeleteAssetAdministrationShellByIdResponse expected = DeleteAssetAdministrationShellByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -952,7 +952,7 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement, DataElementValue.class));
-        verify(persistence).update(eq(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort())), eq(newSubmodelElement));
+        verify(persistence).update(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort()), newSubmodelElement);
     }
 
 

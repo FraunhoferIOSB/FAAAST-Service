@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
@@ -67,13 +68,18 @@ public class SetSubmodelElementValueByPathRequestMapper
                             rawString = raw.toString();
                         }
                         if (ElementValue.class.isAssignableFrom(type)) {
-                            return deserializer.readValue(
-                                    rawString,
-                                    serviceContext.getTypeInfo(
-                                            new ReferenceBuilder()
-                                                    .submodel(identifier)
-                                                    .idShortPath(path)
-                                                    .build()));
+                            try {
+                                return deserializer.readValue(
+                                        rawString,
+                                        serviceContext.getTypeInfo(
+                                                new ReferenceBuilder()
+                                                        .submodel(identifier)
+                                                        .idShortPath(path)
+                                                        .build()));
+                            }
+                            catch (ResourceNotFoundException e) {
+                                throw new DeserializationException("unable to obtain type information as resource does not exist", e);
+                            }
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(rawString, type);

@@ -62,7 +62,7 @@ public class QueryModifier {
         return Objects.hash(level, extent);
     }
 
-    public static abstract class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B level(Level value) {
             getBuildingInstance().level = value;

@@ -350,9 +350,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} identified by the given path
      * @throws ResourceNotFoundException if there is no {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}
      *             with the given path
+     * @throws IllegalArgumentException if type is null
+     * @throws ClassCastException if casting fails
      */
     public default <T extends SubmodelElement> T getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        // TODO improve stability
+        Ensure.requireNonNull(type, "type must be non-null");
         return type.cast(getSubmodelElement(identifier, modifier));
     }
 
@@ -459,5 +461,90 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
         return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
+    }
+
+
+    /**
+     * Checks if a given {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} exists.
+     *
+     * @param id the id
+     * @return true if exists, false otherwise
+     */
+    public default boolean assetAdministrationShellExists(String id) {
+        try {
+            getAssetAdministrationShell(id, QueryModifier.DEFAULT);
+            return true;
+        }
+        catch (ResourceNotFoundException e) {
+            return false;
+        }
+    }
+
+
+    /**
+     * Checks if a given {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription} exists.
+     *
+     * @param id the id
+     * @return true if exists, false otherwise
+     */
+    public default boolean conceptDescriptionExists(String id) {
+        try {
+            getConceptDescription(id, QueryModifier.DEFAULT);
+            return true;
+        }
+        catch (ResourceNotFoundException e) {
+            return false;
+        }
+    }
+
+
+    /**
+     * Checks if a given {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} exists.
+     *
+     * @param id the id
+     * @return true if exists, false otherwise
+     */
+    public default boolean submodelExists(String id) {
+        try {
+            getSubmodel(id, QueryModifier.DEFAULT);
+            return true;
+        }
+        catch (ResourceNotFoundException e) {
+            return false;
+        }
+    }
+
+
+    /**
+     * Checks if a given {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} exists.
+     *
+     * @param reference the reference
+     * @return true if exists, false otherwise
+     */
+    public default boolean submodelElementExists(Reference reference) {
+        try {
+            getSubmodelElement(reference, QueryModifier.DEFAULT);
+            return true;
+        }
+        catch (ResourceNotFoundException e) {
+            return false;
+        }
+    }
+
+
+    /**
+     * Checks if a given {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} exists.
+     *
+     * @param identifier the identifier
+     * @return true if exists, false otherwise
+     */
+    public default boolean submodelElementExists(SubmodelElementIdentifier identifier) {
+        try {
+            getSubmodelElement(identifier, QueryModifier.DEFAULT);
+            return true;
+        }
+        catch (ResourceNotFoundException e) {
+            return false;
+        }
     }
 }

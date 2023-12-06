@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import static org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils.keyTypeToClass;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -267,6 +265,34 @@ public class ReferenceHelper {
 
 
     /**
+     * Checks if a reference starts with another reference/prefix.Returns true if th prefix is null or empty.
+     *
+     * @param reference the reference the test if it starts with the prfix
+     * @param prefix the prefix the reference has to start with
+     * @return true if the reference starts with the prefix
+     */
+    public static boolean startsWith(Reference reference, Reference prefix) {
+        boolean referenceEmpty = Objects.isNull(reference) || Objects.isNull(reference.getKeys()) || reference.getKeys().isEmpty();
+        boolean prefixEmpty = Objects.isNull(prefix) || Objects.isNull(prefix.getKeys()) || prefix.getKeys().isEmpty();
+        if (prefixEmpty) {
+            return true;
+        }
+        if (referenceEmpty) {
+            return false;
+        }
+        if (reference.getKeys().size() < prefix.getKeys().size()) {
+            return false;
+        }
+        for (int i = 0; i < prefix.getKeys().size(); i++) {
+            if (!equals(reference.getKeys().get(i), prefix.getKeys().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
      * Get the corresponding {@link KeyElements} to the given class.
      *
      * @param clazz to convert to a KeyElement
@@ -414,8 +440,8 @@ public class ReferenceHelper {
         if (Objects.equals(key1.getType(), key2.getType())) {
             return true;
         }
-        Class<?> type1 = keyTypeToClass(key1.getType());
-        Class<?> type2 = keyTypeToClass(key2.getType());
+        Class<?> type1 = AasUtils.keyTypeToClass(key1.getType());
+        Class<?> type2 = AasUtils.keyTypeToClass(key2.getType());
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {

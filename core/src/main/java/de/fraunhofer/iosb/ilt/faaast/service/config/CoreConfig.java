@@ -44,19 +44,16 @@ public class CoreConfig {
                 .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
         this.validationOnCreate = ModelValidatorConfig.builder()
                 .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
         this.validationOnUpdate = ModelValidatorConfig.builder()
                 .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
     }
 
@@ -197,14 +194,6 @@ public class CoreConfig {
             getBuildingInstance().getValidationOnLoad().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnCreate().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnUpdate().setValidateIdentifierUniqueness(value);
-            return getSelf();
-        }
-
-
-        public Builder validateValueTypes(boolean value) {
-            getBuildingInstance().getValidationOnLoad().setValidateValueTypes(value);
-            getBuildingInstance().getValidationOnCreate().setValidateValueTypes(value);
-            getBuildingInstance().getValidationOnUpdate().setValidateValueTypes(value);
             return getSelf();
         }
 

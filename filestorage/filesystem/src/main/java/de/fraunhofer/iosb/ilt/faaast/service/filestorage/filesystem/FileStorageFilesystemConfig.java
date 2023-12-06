@@ -15,12 +15,62 @@
 package de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem;
 
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
+import java.util.Objects;
 
 
 /**
  * Configuration class for {@link FileStorageFilesystem}.
  */
 public class FileStorageFilesystemConfig extends FileStorageConfig<FileStorageFilesystem> {
+
+    private static final String DEFAULT_PATH = ".";
+    private String path;
+    private String existingDataPath;
+
+    public FileStorageFilesystemConfig() {
+        this.path = DEFAULT_PATH;
+    }
+
+
+    public String getPath() {
+        return path;
+    }
+
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+
+    public String getExistingDataPath() {
+        return existingDataPath;
+    }
+
+
+    public void setExistingDataPath(String existingDataPath) {
+        this.existingDataPath = existingDataPath;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FileStorageFilesystemConfig that = (FileStorageFilesystemConfig) o;
+        return Objects.equals(path, that.path)
+                && Objects.equals(existingDataPath, that.existingDataPath);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path, existingDataPath);
+    }
+
 
     public static Builder builder() {
         return new Builder();
@@ -29,6 +79,16 @@ public class FileStorageFilesystemConfig extends FileStorageConfig<FileStorageFi
     private abstract static class AbstractBuilder<T extends FileStorageFilesystemConfig, B extends AbstractBuilder<T, B>>
             extends FileStorageConfig.AbstractBuilder<FileStorageFilesystem, T, B> {
 
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B existingDataPath(String value) {
+            getBuildingInstance().setExistingDataPath(value);
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<FileStorageFilesystemConfig, Builder> {

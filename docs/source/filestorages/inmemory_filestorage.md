@@ -1,9 +1,14 @@
-# In-Memory-based Filestorage
+# In-Memory-based FileStorage
+
 The in-memory-based filestorage keeps all files stored in-memory.
 
+## Configuration Parameters
 
+In-memory-based FileStorage does not support any configuration parameters.
 
-Example configuration for the in-memory-based filestorage:
+### Example
+
+Example configuration for the in-memory-based FileStorage:
 
 ```json
 {

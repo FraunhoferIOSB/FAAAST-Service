@@ -36,9 +36,9 @@ public interface ServiceContext {
      * @return type information of the referenced element, empty
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
      *         reference is null
-     * @throws IllegalArgumentException if reference can not be resolved on AAS environment of the service
+     * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
      */
-    public TypeInfo getTypeInfo(Reference reference);
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException;
 
 
     /**

@@ -46,7 +46,7 @@ public class PagingHelper {
         }
         if (queryParameters.containsKey(QUERY_PARAMETER_LIMIT)) {
             String errorMessage = String.format(
-                    "invalid value for query parameter '%s' - must be a positive number",
+                    "invalid value for query parameter '%s' - must be a positive number (value: %s)",
                     QUERY_PARAMETER_LIMIT,
                     queryParameters.get(QUERY_PARAMETER_LIMIT));
             try {

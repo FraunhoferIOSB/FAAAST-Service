@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT;
-import static de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer.getTypeInfo;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;

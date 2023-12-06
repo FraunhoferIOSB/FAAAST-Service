@@ -246,7 +246,7 @@ public class ValueConverter {
      * Converts the given datatype to the corresponding AASDataTypeDefXsd.
      *
      * @param type The desired datatype
-     * @return The corresponding AASValueTypeDataType
+     * @return The corresponding AASDataTypeDefXsd
      */
     public static AASDataTypeDefXsd datatypeToOpcDataType(Datatype type) {
         AASDataTypeDefXsd retval;
@@ -266,10 +266,10 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given DataTypeDefXSD to the corresponding AASValueTypeDataType
+     * Converts the given DataTypeDefXSD to the corresponding AASDataTypeDefXsd
      *
      * @param value The desired value.
-     * @return The corresponding AASValueTypeDataType
+     * @return The corresponding AASDataTypeDefXsd
      */
     public static AASDataTypeDefXsd convertDataTypeDefXsd(DataTypeDefXSD value) {
         AASDataTypeDefXsd retval = null;

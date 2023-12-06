@@ -170,7 +170,7 @@ public class ServiceConfigHelper {
             throws InvalidConfigurationException {
         List<T> configsForType = configs.stream()
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
-                .map(x -> (T) x)
+                .map(configType::cast)
                 .collect(Collectors.toList());
         if (configsForType.size() > 1) {
             throw new InvalidConfigurationException(String.format("configuration exception - found %d configurations of type %s but expected at most 1",
@@ -186,7 +186,7 @@ public class ServiceConfigHelper {
     private static <T extends Config> void applyMultiple(List<Config<? extends Configurable>> configs, Class<T> configType, Consumer<List<T>> updater) {
         List<T> configsForType = configs.stream()
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
-                .map(x -> (T) x)
+                .map(configType::cast)
                 .collect(Collectors.toList());
         if (!configsForType.isEmpty()) {
             updater.accept(configsForType);

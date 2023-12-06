@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,7 +41,7 @@ public class PagingMetadataDeserializer extends StdDeserializer<PagingMetadata> 
 
 
     @Override
-    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public PagingMetadata deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = parser.getCodec().readTree(parser);
         if (Objects.isNull(node)) {
             return null;

@@ -27,11 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Property;
-import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
-import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -124,56 +120,9 @@ public class ModelValidator {
                     }
 
 
-                    private void validateDatatype(Object obj) {
-                        if (!config.getValueTypeValidation() || Objects.isNull(obj)) {
-                            return;
-                        }
-                        // TODO Check if datatype validation is still necessarry as it now is an enum instead of String which basically prevents any invalid values.
-                        //
-                        // try {
-                        //     aggressive approach: if property/getter is there this means there is a datatype that needs to be validated
-                        //     Object datatype = obj.getClass().getMethod("getValueType").invoke(obj, (Object[]) null);
-                        //     if (Objects.nonNull(datatype) && !Datatype.isValid(datatype.toString())) {
-                        //         errors.add(String.format(
-                        //                 "Unsupported datatype '%s' found for element of type '%s' with path '%s'",
-                        //                 datatype,
-                        //                 ReflectionHelper.getAasInterface(obj.getClass()).getSimpleName(),
-                        //                 String.join(".", path)));
-                        //     }
-                        // }
-                        // catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                        //    // do nothing
-                        // }
-                    }
-
-
                     @Override
                     public void visit(Identifiable identifiable) {
                         validateIdentifierUniqueness(identifiable.getId());
-                    }
-
-
-                    @Override
-                    public void visit(Extension extension) {
-                        validateDatatype(extension);
-                    }
-
-
-                    @Override
-                    public void visit(Property property) {
-                        validateDatatype(property);
-                    }
-
-
-                    @Override
-                    public void visit(Qualifier qualifier) {
-                        validateDatatype(qualifier);
-                    }
-
-
-                    @Override
-                    public void visit(Range range) {
-                        validateDatatype(range);
                     }
 
 

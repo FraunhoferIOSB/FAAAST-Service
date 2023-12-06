@@ -15,9 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
@@ -42,7 +45,8 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
 
 
     @Override
-    public PostSubmodelResponse process(PostSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
+    public PostSubmodelResponse process(PostSubmodelRequest request)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());

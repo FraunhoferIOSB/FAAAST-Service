@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -45,13 +46,12 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
     @Override
     public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
-        // TODO how to do validation on JSON merge patch?
-        // ModelValidator.validate(request.getSubmodel(), coreConfig.getValidationOnUpdate());
         Submodel current = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
         Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
+        ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
-        // TODO what to do with asset connection here?
         Reference reference = ReferenceBuilder.forSubmodel(updated);
+        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
         syncWithAsset(reference, updated.getSubmodelElements());
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)

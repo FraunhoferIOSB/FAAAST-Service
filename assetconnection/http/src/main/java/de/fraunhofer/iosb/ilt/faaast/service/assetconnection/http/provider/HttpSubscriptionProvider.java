@@ -21,9 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFo
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -149,7 +151,15 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
 
     @Override
     protected TypeInfo getTypeInfo() {
-        return serviceContext.getTypeInfo(reference);
+        try {
+            return serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(String.format(
+                    "HTTP subscription provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 }

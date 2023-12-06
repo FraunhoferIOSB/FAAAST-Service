@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
@@ -264,7 +265,6 @@ public class App implements Runnable {
             }
             LOGGER.debug("Validating model...");
             LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
-            LOGGER.debug("ValueType validation: {}", config.getCore().getValidationOnLoad().getValueTypeValidation());
             LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
             LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
             ModelValidator.validate(model, config.getCore().getValidationOnLoad());
@@ -440,47 +440,54 @@ public class App implements Runnable {
     }
 
 
+    private void withModelFromCommandLine(ServiceConfig config, String fileExtension) {
+        try {
+            LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
+            if (config.getPersistence().getInitialModelFile() != null) {
+                LOGGER.info("Overriding Model Path {} set in Config File with {}",
+                        config.getPersistence().getInitialModelFile(),
+                        modelFile.getCanonicalFile());
+            }
+        }
+        catch (IOException e) {
+            LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
+        }
+        config.getPersistence().setInitialModelFile(modelFile);
+        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+            config.getFileStorage().setInitialModelFile(modelFile);
+        }
+    }
+
+
+    private void withModelFromEnvironmentVariable(ServiceConfig config, String fileExtension) {
+        LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
+        if (config.getPersistence().getInitialModelFile() != null) {
+            LOGGER.info("Overriding model path {} set in Config File with {}",
+                    config.getPersistence().getInitialModelFile(),
+                    getEnvValue(ENV_PATH_MODEL_FILE));
+        }
+        config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+            config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
+        }
+        modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
+    }
+
+
     private void withModel(ServiceConfig config) {
         String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            try {
-                LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
-                if (config.getPersistence().getInitialModelFile() != null) {
-                    LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                            config.getPersistence().getInitialModelFile(),
-                            modelFile.getCanonicalFile());
-                }
-            }
-            catch (IOException e) {
-                LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
-            }
-            config.getPersistence().setInitialModelFile(modelFile);
-            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-                config.getFileStorage().setInitialModelFile(modelFile);
-            }
+            withModelFromCommandLine(config, fileExtension);
             return;
-
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
-            if (config.getPersistence().getInitialModelFile() != null) {
-                LOGGER.info("Overriding model path {} set in Config File with {}",
-                        config.getPersistence().getInitialModelFile(),
-                        getEnvValue(ENV_PATH_MODEL_FILE));
-            }
-            config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-                config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-            }
-            modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
+            withModelFromEnvironmentVariable(config, fileExtension);
             return;
         }
-
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
             return;
         }
-
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
@@ -521,10 +528,9 @@ public class App implements Runnable {
                 if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
                     LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
                 }
-                // TODO re-add once OPC UA Endpoint is updated to AAS4j
-                //else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
-                //    LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());
-                //}
+                else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
+                    LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());
+                }
             });
         }
     }

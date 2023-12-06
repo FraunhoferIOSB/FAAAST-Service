@@ -613,7 +613,7 @@ public class AASSimple {
     @Test
     public void testAasSimpleExtensionsInitialized() {
         List<Extension> extensions = AASSimple.createEnvironment().getAssetAdministrationShells().get(0).getExtensions();
-        Assert.assertTrue(extensions != null);
+        Assert.assertNotNull(extensions);
     }
 
 }

@@ -6,7 +6,7 @@ For detailed information on OPC UA see
 The OPC UA Endpoint is based on the [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/).
 The release version of this Companion Specification is based on the document [Details of the Asset Administration Shell - Part 1 Version 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V2.html).
 
-This implementation is based on [Details of the Asset Administration Shell - Part 1 Version 3](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), which is currently not yet released.
+This implementation is based on [Details of the Asset Administration Shell - Part 1 Version 3](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html).
 Therefore, the current implementation is actually not compatible with the Companion Specification.
 
 The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/).
@@ -85,12 +85,9 @@ Here you can see a sample Screenshot with UaExpert.
     -   Category
     -   ModelingKind
 
--   AASValueTypeDataType
-    -   ByteString
-    -   Byte
-    -   UInt16
-    -   UInt32
-    -   UInt64
-    -   DateTime
-    -   LocalizedText
-    -   UtcTime
+-   AASDataTypeDefXsd
+    -   Base64Binary
+    -   UnsignedInt
+    -   UnsignedLong
+    -   UnsignedShort
+    -   UnsignedByte
