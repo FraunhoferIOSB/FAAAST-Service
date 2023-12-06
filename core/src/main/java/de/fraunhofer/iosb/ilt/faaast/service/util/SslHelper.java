@@ -94,13 +94,13 @@ public class SslHelper {
                 new X509TrustManager() {
 
                     @Override
-                    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws java.security.cert.CertificateException {
+                    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
                         // intentionally left empty
                     }
 
 
                     @Override
-                    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws java.security.cert.CertificateException {
+                    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
                         // intentionally left empty
                     }
 
