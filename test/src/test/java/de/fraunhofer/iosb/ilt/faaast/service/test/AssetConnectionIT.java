@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -73,15 +74,14 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 
-public class AssetConnectionIT {
+public class AssetConnectionIT extends AbstractIntegrationTest {
 
-    private static final String HOST = "https://localhost";
     private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
 
     private static final int SOURCE_VALUE = 42;
     private static final int TARGET_VALUE = 0;
-    private static Environment environment;
     private static Service service;
+    private static Environment environment;
     private static Property source;
     private static Submodel submodel;
     private static Property target;
@@ -192,6 +192,11 @@ public class AssetConnectionIT {
                 //        .build())
                 .endpoint(HttpEndpointConfig.builder()
                         .port(portHttp)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(httpEndpointKeyStoreFile)
+                                .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                                .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .build())
                         .build())
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
@@ -239,31 +244,20 @@ public class AssetConnectionIT {
     private void assertTargetValue(int port, int expectedValue)
             throws IOException, InterruptedException, URISyntaxException, JSONException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse<String> response = HttpHelper.get(
+                httpClient,
                 new ApiPaths(HOST, port)
                         .submodelRepository()
                         .submodelInterface(submodel)
-                        .submodelElement(target, Content.VALUE),
-                true);
+                        .submodelElement(target, Content.VALUE));
         assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         String expected = String.format("{\"target\": %d}", expectedValue);
         JSONAssert.assertEquals(expected, response.body(), false);
     }
 
 
-    private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
-        HttpResponse response = HttpHelper.execute(method, url, input, true);
-        assertEquals(toHttpStatusCode(statusCode), response.statusCode());
-        if (expected != null) {
-            Object actual = HttpHelper.readResponseList(response, type);
-            assertEquals(expected, actual);
-        }
-    }
-
-
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
-        HttpResponse response = HttpHelper.execute(method, url, input, true);
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {

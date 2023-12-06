@@ -11,6 +11,7 @@ Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI docum
 |:--| -- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | port | Integer | _optional_ The port to use, default: 8080                                                                                                                                                                                       |
 | corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false                     |
+| sniEnabled | Boolean | _optional_ If Server Name Identification (SNI) should be enabled. THis should only be disabled for testing purposes as it may present a security risk., default: true                     |
 | certificate; | Object | _optional_  The HTTPS certificate to use, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
 
 ### Example
@@ -23,6 +24,7 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
 			"port": 8080,
 			"corsEnabled": true,
+			"sniEnabled": true,
 			"certificate": {
 				"keyStoreType": "PKCS12",
 				"keyStorePath": "C:\faaast\MyKeyStore.p12",

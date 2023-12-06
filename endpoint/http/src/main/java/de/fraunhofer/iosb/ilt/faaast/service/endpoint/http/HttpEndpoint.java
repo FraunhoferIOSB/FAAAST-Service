@@ -110,9 +110,9 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         httpConfig.setSendXPoweredBy(false);
         HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
         ServerConnector serverConnector;
-        SecureRequestCustomizer src = new SecureRequestCustomizer();
-        src.setSniHostCheck(false);
-        httpConfig.addCustomizer(src);
+        SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
+        secureRequestCustomizer.setSniHostCheck(config.isSniEnabled());
+        httpConfig.addCustomizer(secureRequestCustomizer);
         serverConnector = buildSSLServerConnector(httpConnectionFactory);
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);

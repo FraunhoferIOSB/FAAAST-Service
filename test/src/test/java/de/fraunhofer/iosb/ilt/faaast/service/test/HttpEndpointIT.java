@@ -20,6 +20,7 @@ import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.a
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -70,9 +71,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
@@ -89,7 +95,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -99,16 +114,12 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 
-public class HttpEndpointIT {
+public class HttpEndpointIT extends AbstractIntegrationTest {
 
-    public static MessageBus messageBus;
-
-    private static final String HOST = "https://localhost";
-    private static int PORT;
-    private static ApiPaths API_PATHS;
-    private static Environment environment;
     private static Service service;
-    private final ObjectMapper mapper;
+    private static Environment environment;
+    private static ApiPaths apiPaths;
+    private static MessageBus messageBus;
     private static final Path pathForTestSubmodel3 = Path.builder()
             .child("ExampleRelationshipElement")
             .child("ExampleAnnotatedRelationshipElement")
@@ -130,15 +141,17 @@ public class HttpEndpointIT {
                     .build())
             .build();
 
+    private final ObjectMapper mapper;
+
     public HttpEndpointIT() {
         this.mapper = new ObjectMapper();
     }
 
 
     @BeforeClass
-    public static void initClass() throws IOException {
+    public static void initClass() throws IOException, GeneralSecurityException {
         PORT = PortHelper.findFreePort();
-        API_PATHS = new ApiPaths(HOST, PORT);
+        apiPaths = new ApiPaths(HOST, PORT);
     }
 
 
@@ -155,6 +168,13 @@ public class HttpEndpointIT {
                 .fileStorage(new FileStorageInMemoryConfig())
                 .endpoints(List.of(HttpEndpointConfig.builder()
                         .port(PORT)
+                        .sni(false)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(httpEndpointKeyStoreFile)
+                                .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                                .keyPassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .build())
                         .build()))
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
@@ -162,8 +182,6 @@ public class HttpEndpointIT {
         service = new Service(serviceConfig);
         messageBus = service.getMessageBus();
         service.start();
-        final Properties props = System.getProperties();
-        props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
     }
 
 
@@ -190,7 +208,7 @@ public class HttpEndpointIT {
                 .build());
         assertExecuteMultiple(
                 HttpMethod.POST,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                apiPaths.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS_CREATED,
                 List.of(newIdentifier),
                 expected,
@@ -206,11 +224,11 @@ public class HttpEndpointIT {
         aas.getAssetInformation().setGlobalAssetID(null);
         assertExecute(
                 HttpMethod.DELETE,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                apiPaths.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS_NO_CONTENT);
         assertExecuteMultiple(
                 HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                apiPaths.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS,
                 null,
                 List.of(),
@@ -226,7 +244,7 @@ public class HttpEndpointIT {
                 .collect(Collectors.toList());
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShells(),
+                apiPaths.aasBasicDiscovery().assetAdministrationShells(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -244,7 +262,7 @@ public class HttpEndpointIT {
                 .collect(Collectors.toList());
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShells(Map.of(FaaastConstants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
+                apiPaths.aasBasicDiscovery().assetAdministrationShells(Map.of(FaaastConstants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -263,7 +281,7 @@ public class HttpEndpointIT {
                 .build());
         assertExecuteMultiple(
                 HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                apiPaths.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -289,13 +307,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasRepository().assetAdministrationShells(),
+                                apiPaths.aasRepository().assetAdministrationShells(),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 AssetAdministrationShell.class)));
         Assert.assertTrue(HttpHelper.getPage(
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class)
                 .getContent()
                 .contains(expected));
@@ -308,7 +327,8 @@ public class HttpEndpointIT {
             KeyManagementException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         Page<AssetAdministrationShell> before = HttpHelper.getPage(
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class);
         Assert.assertTrue(before.getContent().contains(expected));
         assertEvent(
@@ -317,10 +337,11 @@ public class HttpEndpointIT {
                 expected,
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(HttpMethod.DELETE,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
+                                apiPaths.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         Page<AssetAdministrationShell> actual = HttpHelper.getPage(
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class);
         Assert.assertFalse(actual.getContent().contains(expected));
     }
@@ -330,7 +351,9 @@ public class HttpEndpointIT {
     public void testAASRepositoryDeleteAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.delete(API_PATHS.aasRepository().assetAdministrationShell("non-existant"), true);
+        HttpResponse<String> response = HttpHelper.delete(
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShell("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -346,7 +369,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
+                                apiPaths.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -366,7 +389,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasRepository().assetAdministrationShell(aas, Content.REFERENCE),
+                                apiPaths.aasRepository().assetAdministrationShell(aas, Content.REFERENCE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -380,7 +403,7 @@ public class HttpEndpointIT {
             KeyManagementException {
         String submodelId = environment.getSubmodels().get(1).getId();
         assertExecuteSingle(HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShell(submodelId),
+                apiPaths.aasRepository().assetAdministrationShell(submodelId),
                 StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
                 null,
                 null,
@@ -392,7 +415,9 @@ public class HttpEndpointIT {
     public void testAASRepositoryGetAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"), true);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.aasRepository().assetAdministrationShell("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -403,7 +428,7 @@ public class HttpEndpointIT {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                apiPaths.aasRepository().assetAdministrationShells(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -419,7 +444,7 @@ public class HttpEndpointIT {
                 .collect(Collectors.toList());
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(Content.REFERENCE),
+                apiPaths.aasRepository().assetAdministrationShells(Content.REFERENCE),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -436,7 +461,7 @@ public class HttpEndpointIT {
         List<AssetAdministrationShell> allActualShells = new ArrayList<>();
         Page<AssetAdministrationShell> page1 = assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(cursor, 1),
+                apiPaths.aasRepository().assetAdministrationShells(cursor, 1),
                 StatusCode.SUCCESS,
                 null,
                 allExpectedShells.stream()
@@ -448,7 +473,7 @@ public class HttpEndpointIT {
         Assert.assertNotNull(cursor);
         Page<AssetAdministrationShell> page2 = assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(cursor, 2),
+                apiPaths.aasRepository().assetAdministrationShells(cursor, 2),
                 StatusCode.SUCCESS,
                 null,
                 allExpectedShells.stream()
@@ -461,7 +486,7 @@ public class HttpEndpointIT {
         Assert.assertNotNull(cursor);
         Page<AssetAdministrationShell> page3 = assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(cursor, 3),
+                apiPaths.aasRepository().assetAdministrationShells(cursor, 3),
                 StatusCode.SUCCESS,
                 null,
                 allExpectedShells.stream()
@@ -487,7 +512,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
+                                apiPaths.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
@@ -568,24 +593,22 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
                         fileName)
                 .build();
-        HttpResponse<byte[]> putFileResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
-        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
-                        .GET()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
+                .GET()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         MediaType responseContentType = MediaType.parse(response.headers()
                 .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
@@ -615,14 +638,13 @@ public class HttpEndpointIT {
     @Test
     public void testAASSerializationInvalidDataformat()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
-            KeyManagementException {
-        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(), List.of(), false)))
-                        .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
-                        .GET()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+            KeyManagementException, GeneralSecurityException {
+        HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.aasSerialization().serialization(List.of(), List.of(), false)))
+                .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
+                .GET()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_BAD_REQUEST), response.statusCode());
     }
 
@@ -648,13 +670,12 @@ public class HttpEndpointIT {
                         ? environment.getConceptDescriptions()
                         : List.of())
                 .build();
-        HttpResponse<byte[]> response = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
-                        .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
-                        .GET()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
+                .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
+                .GET()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         MediaType responseContentType = MediaType.parse(response.headers()
                 .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
@@ -689,14 +710,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasInterface(aas).submodels(),
+                                apiPaths.aasInterface(aas).submodels(),
                                 StatusCode.SUCCESS_CREATED,
                                 newReference,
                                 newReference,
                                 Reference.class)));
         assertExecuteMultiple(
                 HttpMethod.GET,
-                API_PATHS.aasInterface(aas).submodels(),
+                apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -712,7 +733,8 @@ public class HttpEndpointIT {
         Reference submodelToDelete = aas.getSubmodels().get(0);
         aas.getSubmodels().remove(submodelToDelete);
         List<Reference> before = HttpHelper.getWithMultipleResult(
-                API_PATHS.aasInterface(aas).submodels(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodels(),
                 Reference.class);
         Assert.assertTrue(before.contains(submodelToDelete));
         assertEvent(
@@ -722,10 +744,11 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(
                                 HttpMethod.DELETE,
-                                API_PATHS.aasInterface(aas).submodel(submodelToDelete),
+                                apiPaths.aasInterface(aas).submodel(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         List<Reference> actual = HttpHelper.getWithMultipleResult(
-                API_PATHS.aasInterface(aas).submodels(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodels(),
                 Reference.class);
         Assert.assertFalse(actual.contains(submodelToDelete));
     }
@@ -742,7 +765,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(expected).assetAdministrationShell(),
+                                apiPaths.aasInterface(expected).assetAdministrationShell(),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -762,7 +785,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(aas).assetAdministrationShell(Content.REFERENCE),
+                                apiPaths.aasInterface(aas).assetAdministrationShell(Content.REFERENCE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -774,7 +797,9 @@ public class HttpEndpointIT {
     public void testAssetAdministrationShellInterfaceGetAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell(), true);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.aasInterface("non-existant").assetAdministrationShell());
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -787,7 +812,7 @@ public class HttpEndpointIT {
         // TODO does this trigger any message bus event?
         assertExecuteSingle(
                 HttpMethod.GET,
-                API_PATHS.aasInterface(aas).assetInformation(),
+                apiPaths.aasInterface(aas).assetInformation(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -802,7 +827,7 @@ public class HttpEndpointIT {
         Object expected = aas.getSubmodels();
         assertExecuteMultiple(
                 HttpMethod.GET,
-                API_PATHS.aasInterface(aas).submodels(),
+                apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -822,7 +847,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
+                                apiPaths.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
@@ -843,7 +868,7 @@ public class HttpEndpointIT {
         // TODO does this trigger any message bus event?
         assertExecuteSingle(
                 HttpMethod.PUT,
-                API_PATHS.aasInterface(aas).assetInformation(),
+                apiPaths.aasInterface(aas).assetInformation(),
                 StatusCode.SUCCESS_NO_CONTENT,
                 expected,
                 null,
@@ -866,13 +891,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 ConceptDescription.class)));
         Assert.assertTrue(HttpHelper.getPage(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class)
                 .getContent()
                 .contains(expected));
@@ -885,7 +911,8 @@ public class HttpEndpointIT {
             KeyManagementException {
         ConceptDescription expected = environment.getConceptDescriptions().get(0);
         Page<ConceptDescription> before = HttpHelper.getPage(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class);
         Assert.assertTrue(before.getContent().contains(expected));
         assertEvent(
@@ -895,10 +922,11 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(
                                 HttpMethod.DELETE,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                apiPaths.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         Page<ConceptDescription> actual = HttpHelper.getPage(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class);
         Assert.assertFalse(actual.getContent().contains(expected));
     }
@@ -908,7 +936,9 @@ public class HttpEndpointIT {
     public void testConceptDescriptionRepositoryDeleteConceptDescriptionNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"), true);
+        HttpResponse<String> response = HttpHelper.delete(
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescription("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -924,7 +954,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                apiPaths.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -936,7 +966,9 @@ public class HttpEndpointIT {
     public void testConceptDescriptionRepositoryGetConceptDescriptionNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"), true);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescription("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -947,7 +979,7 @@ public class HttpEndpointIT {
         List<ConceptDescription> expected = environment.getConceptDescriptions();
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -968,13 +1000,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                apiPaths.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
                                 ConceptDescription.class)));
         Assert.assertTrue(HttpHelper.getPage(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                httpClient,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class)
                 .getContent()
                 .contains(expected));
@@ -996,13 +1029,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(actual.getContent().contains(expected));
     }
@@ -1024,13 +1058,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementList),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementList),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
-                API_PATHS.submodelRepository()
+                httpClient,
+                apiPaths.submodelRepository()
                         .submodelInterface(submodel)
                         .submodelElement(IdShortPath.builder()
                                 .idShort(submodelElementList.getIdShort())
@@ -1057,13 +1092,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementCollection),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementCollection),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
-                API_PATHS.submodelRepository()
+                httpClient,
+                apiPaths.submodelRepository()
                         .submodelInterface(submodel)
                         .submodelElement(IdShortPath.builder()
                                 .idShort(submodelElementCollection.getIdShort())
@@ -1081,7 +1117,8 @@ public class HttpEndpointIT {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         Page<SubmodelElement> before = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(before.getContent().contains(expected));
         assertEvent(
@@ -1091,10 +1128,11 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(
                                 HttpMethod.DELETE,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertFalse(actual.getContent().contains(expected));
     }
@@ -1111,7 +1149,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
+                                apiPaths.submodelRepository().submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1131,7 +1169,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.REFERENCE),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodel(Content.REFERENCE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1151,7 +1189,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1172,7 +1210,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(submodelElement, Content.REFERENCE),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElement, Content.REFERENCE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1187,7 +1225,7 @@ public class HttpEndpointIT {
         List<SubmodelElement> expected = submodel.getSubmodelElements();
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -1206,7 +1244,7 @@ public class HttpEndpointIT {
                 .collect(Collectors.toList());
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(Content.REFERENCE),
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(Content.REFERENCE),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -1227,7 +1265,9 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1265,37 +1305,34 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
                         fileName)
                 .build();
-        HttpResponse<byte[]> putFileResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
-        HttpResponse<byte[]> getFileResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .GET()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .GET()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertArrayEquals(content, getFileResponse.body());
-        HttpResponse<byte[]> deleteFileResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.submodelRepository()
-                                .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                                + "/attachment"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .DELETE()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> deleteFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .DELETE()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
     }
 
@@ -1320,32 +1357,30 @@ public class HttpEndpointIT {
                 .addBinaryBody("file", content, ContentType.IMAGE_PNG,
                         imageName)
                 .build();
-        HttpResponse<byte[]> putThumbnailResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
-                                + "/thumbnail"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> putThumbnailResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
+                        + "/thumbnail"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putThumbnailResponse.statusCode());
         assertExecuteSingle(
                 HttpMethod.GET,
-                API_PATHS.aasInterface(aas).assetInformation(),
+                apiPaths.aasInterface(aas).assetInformation(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
                 AssetInformation.class);
-        HttpResponse<byte[]> deleteThumbnailResponse = HttpHelper.getTrustAllCertsHttpClient()
-                .send(HttpRequest.newBuilder()
-                        .uri(new URI(API_PATHS.aasInterface(aas).assetInformation()
-                                + "/thumbnail"))
-                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                        .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                        .DELETE()
-                        .build(),
-                        HttpResponse.BodyHandlers.ofByteArray());
+        HttpResponse<byte[]> deleteThumbnailResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.aasInterface(aas).assetInformation()
+                        + "/thumbnail"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .DELETE()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteThumbnailResponse.statusCode());
     }
 
@@ -1368,9 +1403,11 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository()
-                                    .submodelInterface(submodel)
-                                    .submodel(Content.METADATA), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.submodelRepository()
+                                            .submodelInterface(submodel)
+                                            .submodel(Content.METADATA));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1389,7 +1426,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.CORE),
+                                apiPaths.submodelRepository().submodelInterface(expected).submodel(Level.CORE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1409,7 +1446,11 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.DEEP, Content.PATH), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.submodelRepository()
+                                            .submodelInterface(submodel)
+                                            .submodel(Level.DEEP, Content.PATH));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
                         }));
@@ -1428,7 +1469,11 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.CORE, Content.PATH), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.submodelRepository()
+                                            .submodelInterface(submodel)
+                                            .submodel(Level.CORE, Content.PATH));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
                         }));
@@ -1447,7 +1492,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.DEEP),
+                                apiPaths.submodelRepository().submodelInterface(expected).submodel(Level.DEEP),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1467,7 +1512,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
+                                apiPaths.submodelRepository().submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
@@ -1492,13 +1537,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(actual.getContent().contains(expected));
     }
@@ -1520,13 +1566,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(actual.getContent().contains(expected));
     }
@@ -1549,7 +1596,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasInterface(aas)
+                                apiPaths.aasInterface(aas)
                                         .submodelInterface(submodel)
                                         .submodelElement(submodelElementList),
                                 StatusCode.SUCCESS_CREATED,
@@ -1557,7 +1604,8 @@ public class HttpEndpointIT {
                                 expected,
                                 SubmodelElement.class)));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
-                API_PATHS.aasInterface(aas)
+                httpClient,
+                apiPaths.aasInterface(aas)
                         .submodelInterface(submodel)
                         .submodelElement(IdShortPath.builder()
                                 .idShort(submodelElementList.getIdShort())
@@ -1585,7 +1633,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.aasInterface(aas.getId())
+                                apiPaths.aasInterface(aas.getId())
                                         .submodelInterface(submodel)
                                         .submodelElement(submodelElementCollection),
                                 StatusCode.SUCCESS_CREATED,
@@ -1593,7 +1641,8 @@ public class HttpEndpointIT {
                                 expected,
                                 SubmodelElement.class)));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
-                API_PATHS.aasInterface(aas.getId())
+                httpClient,
+                apiPaths.aasInterface(aas.getId())
                         .submodelInterface(submodel)
                         .submodelElement(IdShortPath.builder()
                                 .idShort(submodelElementCollection.getIdShort())
@@ -1612,7 +1661,8 @@ public class HttpEndpointIT {
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         Page<SubmodelElement> before = HttpHelper.getPage(
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(before.getContent().contains(expected));
         assertEvent(
@@ -1622,10 +1672,11 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(
                                 HttpMethod.DELETE,
-                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertFalse(actual.getContent().contains(expected));
     }
@@ -1643,7 +1694,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(),
+                                apiPaths.aasInterface(aas).submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1664,7 +1715,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1681,7 +1732,7 @@ public class HttpEndpointIT {
         List<SubmodelElement> expected = submodel.getSubmodelElements();
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -1704,7 +1755,8 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> {
                             HttpResponse<String> response = HttpHelper.get(
-                                    API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE), true);
+                                    httpClient,
+                                    apiPaths.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1724,7 +1776,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(Level.CORE),
+                                apiPaths.aasInterface(aas).submodelInterface(expected).submodel(Level.CORE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1745,7 +1797,11 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.DEEP, Content.PATH), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.aasInterface(aas)
+                                            .submodelInterface(submodel)
+                                            .submodel(Level.DEEP, Content.PATH));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
                         }));
@@ -1765,7 +1821,11 @@ public class HttpEndpointIT {
                 submodel,
                 LambdaExceptionHelper.wrap(
                         x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.CORE, Content.PATH), true);
+                            HttpResponse<String> response = HttpHelper.get(
+                                    httpClient,
+                                    apiPaths.aasInterface(aas)
+                                            .submodelInterface(submodel)
+                                            .submodel(Level.CORE, Content.PATH));
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
                         }));
@@ -1785,7 +1845,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(Level.DEEP),
+                                apiPaths.aasInterface(aas).submodelInterface(expected).submodel(Level.DEEP),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1806,7 +1866,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(),
+                                apiPaths.aasInterface(aas).submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
@@ -1832,13 +1892,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
-                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                httpClient,
+                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(actual.getContent().contains(expected));
     }
@@ -1858,13 +1919,14 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodels(),
+                                apiPaths.submodelRepository().submodels(),
                                 StatusCode.SUCCESS_CREATED,
                                 expected,
                                 expected,
                                 Submodel.class)));
         Assert.assertTrue(HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodels(),
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
                 Submodel.class)
                 .getContent()
                 .contains(expected));
@@ -1877,7 +1939,8 @@ public class HttpEndpointIT {
             KeyManagementException {
         Submodel expected = environment.getSubmodels().get(1);
         Page<Submodel> before = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodels(),
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
                 Submodel.class);
         Assert.assertTrue(before.getContent().contains(expected));
         assertEvent(
@@ -1886,10 +1949,11 @@ public class HttpEndpointIT {
                 expected,
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(HttpMethod.DELETE,
-                                API_PATHS.submodelRepository().submodel(expected),
+                                apiPaths.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         Page<Submodel> actual = HttpHelper.getPage(
-                API_PATHS.submodelRepository().submodels(),
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
                 Submodel.class);
         Assert.assertFalse(actual.getContent().contains(expected));
     }
@@ -1906,7 +1970,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodel(expected),
+                                apiPaths.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1926,7 +1990,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodel(submodel, Content.REFERENCE),
+                                apiPaths.submodelRepository().submodel(submodel, Content.REFERENCE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -1938,7 +2002,9 @@ public class HttpEndpointIT {
     public void testSubmodelRepositoryGetSubmodelNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodel("non-existant"), true);
+        HttpResponse<String> response = HttpHelper.get(
+                httpClient,
+                apiPaths.submodelRepository().submodel("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
@@ -1950,7 +2016,7 @@ public class HttpEndpointIT {
         ExtendHelper.withoutBlobValue(expected);
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.submodelRepository().submodels(),
+                apiPaths.submodelRepository().submodels(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -1966,7 +2032,7 @@ public class HttpEndpointIT {
                 .collect(Collectors.toList());
         assertExecutePage(
                 HttpMethod.GET,
-                API_PATHS.submodelRepository().submodels(Content.REFERENCE),
+                apiPaths.submodelRepository().submodels(Content.REFERENCE),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -1980,7 +2046,7 @@ public class HttpEndpointIT {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(
                 HttpMethod.GET,
-                String.format("%s?idShort=%s", API_PATHS.submodelRepository().submodels(), expected.getIdShort()),
+                String.format("%s?idShort=%s", apiPaths.submodelRepository().submodels(), expected.getIdShort()),
                 StatusCode.SUCCESS,
                 null,
                 List.of(expected),
@@ -1994,7 +2060,7 @@ public class HttpEndpointIT {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
-                        API_PATHS.submodelRepository().submodels(),
+                        apiPaths.submodelRepository().submodels(),
                         EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticID()))),
                 StatusCode.SUCCESS,
                 null,
@@ -2015,7 +2081,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
-                                API_PATHS.submodelRepository().submodel(expected),
+                                apiPaths.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS,
                                 expected,
                                 expected,
@@ -2025,7 +2091,10 @@ public class HttpEndpointIT {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        HttpResponse response = HttpHelper.execute(HttpMethod.PUT, API_PATHS.aasRepository().assetAdministrationShells(), true);
+        HttpResponse response = HttpHelper.execute(
+                httpClient,
+                HttpMethod.PUT, apiPaths.aasRepository().assetAdministrationShells(),
+                true);
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_METHOD_NOT_ALLOWED), response.statusCode());
     }
 
@@ -2038,7 +2107,7 @@ public class HttpEndpointIT {
 
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
-        HttpResponse response = HttpHelper.execute(method, url, input, true);
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponseList(response, type);
@@ -2049,7 +2118,7 @@ public class HttpEndpointIT {
 
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
-        HttpResponse response = HttpHelper.execute(method, url, input, true);
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
@@ -2061,7 +2130,7 @@ public class HttpEndpointIT {
 
     private void assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
-        HttpResponse response = HttpHelper.execute(method, url, input, true);
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
             Object actual = HttpHelper.readResponse(response, type);
