@@ -472,8 +472,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean assetAdministrationShellExists(String id) {
         try {
-            getAssetAdministrationShell(id, QueryModifier.DEFAULT);
-            return true;
+            return Objects.nonNull(getAssetAdministrationShell(id, QueryModifier.MINIMAL));
         }
         catch (ResourceNotFoundException e) {
             return false;
@@ -489,8 +488,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean conceptDescriptionExists(String id) {
         try {
-            getConceptDescription(id, QueryModifier.DEFAULT);
-            return true;
+            return Objects.nonNull(getConceptDescription(id, QueryModifier.DEFAULT));
         }
         catch (ResourceNotFoundException e) {
             return false;
@@ -506,8 +504,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelExists(String id) {
         try {
-            getSubmodel(id, QueryModifier.DEFAULT);
-            return true;
+            return Objects.nonNull(getSubmodel(id, QueryModifier.DEFAULT));
         }
         catch (ResourceNotFoundException e) {
             return false;
@@ -523,8 +520,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelElementExists(Reference reference) {
         try {
-            getSubmodelElement(reference, QueryModifier.DEFAULT);
-            return true;
+            return Objects.nonNull(getSubmodelElement(reference, QueryModifier.DEFAULT));
         }
         catch (ResourceNotFoundException e) {
             return false;
@@ -540,8 +536,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public default boolean submodelElementExists(SubmodelElementIdentifier identifier) {
         try {
-            getSubmodelElement(identifier, QueryModifier.DEFAULT);
-            return true;
+            return Objects.nonNull(getSubmodelElement(identifier, QueryModifier.DEFAULT));
         }
         catch (ResourceNotFoundException e) {
             return false;

@@ -64,6 +64,7 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                         .build();
             }
         }
+        //TODO potentially check if assetLinks already exist and throw ResourceAlreadyExistsException, but currently unclear how this is expected to work
         List<SpecificAssetId> newSpecificAssetIds = request.getAssetLinks().stream()
                 .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());

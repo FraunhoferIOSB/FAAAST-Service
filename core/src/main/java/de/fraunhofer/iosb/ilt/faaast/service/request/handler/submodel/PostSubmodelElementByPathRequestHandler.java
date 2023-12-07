@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -52,7 +53,8 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
 
     @Override
     public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, AssetConnectionException, MessageBusException {
+            throws ResourceNotFoundException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, AssetConnectionException, MessageBusException,
+            ResourceAlreadyExistsException {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());
         IdShortPath idShortPath = IdShortPath.parse(request.getPath());
         Reference parentReference = new ReferenceBuilder()
@@ -73,6 +75,9 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
             }
         }
         Reference childReference = childReferenceBuilder.build();
+        if (context.getPersistence().submodelElementExists(childReference)) {
+            throw new ResourceAlreadyExistsException(childReference);
+        }
         context.getPersistence().insert(parentReference, request.getSubmodelElement());
         if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
             context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));

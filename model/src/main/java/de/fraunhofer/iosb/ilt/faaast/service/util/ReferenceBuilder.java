@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -387,8 +389,25 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
      * @return the builder
      */
     public ReferenceBuilder elements(String... ids) {
+        if (Objects.isNull(ids)) {
+            return this;
+        }
+        return elements(Arrays.asList(ids));
+    }
+
+
+    /**
+     * Adds submodel elements to the reference.
+     *
+     * @param ids the ids to add
+     * @return the builder
+     */
+    public ReferenceBuilder elements(List<String> ids) {
+        if (Objects.isNull(ids)) {
+            return this;
+        }
         getBuildingInstance().getKeys().addAll(
-                Stream.of(ids)
+                ids.stream()
                         .map(x -> ReferenceHelper.newKey(KeyTypes.SUBMODEL_ELEMENT, x))
                         .collect(Collectors.toList()));
         return this;
