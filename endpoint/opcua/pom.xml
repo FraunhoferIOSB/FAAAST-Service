@@ -126,7 +126,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <modelSources>
-                                <modelSource>${project.basedir}/data</modelSource>
+                                <modelSource>${project.basedir}/src/main/resources/opcua-nodesets/</modelSource>
                             </modelSources>
                             <generates>
                                 <generate>
