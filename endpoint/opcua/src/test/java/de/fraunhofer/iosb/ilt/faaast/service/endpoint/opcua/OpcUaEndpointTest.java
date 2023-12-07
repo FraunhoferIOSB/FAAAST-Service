@@ -67,7 +67,7 @@ import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.VariableIds;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
@@ -571,7 +571,7 @@ public class OpcUaEndpointTest {
                         .idShort(propName)
                         .category("Variable")
                         .value("AZF45")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .build();
         PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
@@ -637,7 +637,7 @@ public class OpcUaEndpointTest {
                         .category("Parameter")
                         .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
                         .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
-                        .semanticID(new DefaultReference.Builder()
+                        .semanticId(new DefaultReference.Builder()
                                 .type(ReferenceTypes.MODEL_REFERENCE)
                                 .keys(new DefaultKey.Builder()
                                         .type(KeyTypes.GLOBAL_REFERENCE)
@@ -883,7 +883,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         // no kind available here, check for null
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, null);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",

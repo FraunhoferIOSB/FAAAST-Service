@@ -44,9 +44,9 @@ public class ReferenceHelperTest {
             new ReferenceSerializationInfo(
                     new DefaultReference.Builder()
                             .type(ReferenceTypes.MODEL_REFERENCE)
-                            .referredSemanticID(new DefaultReference.Builder()
+                            .referredSemanticId(new DefaultReference.Builder()
                                     .type(ReferenceTypes.EXTERNAL_REFERENCE)
-                                    .referredSemanticID(new DefaultReference.Builder()
+                                    .referredSemanticId(new DefaultReference.Builder()
                                             .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                             .keys(new DefaultKey.Builder()
                                                     .type(KeyTypes.FRAGMENT_REFERENCE)
@@ -169,10 +169,10 @@ public class ReferenceHelperTest {
     private void assertParse(ReferenceSerializationInfo referenceSerializationInfo, boolean includeReferenceType, boolean includeReferredSemanticId) {
         Reference expected = ReferenceHelper.clone(referenceSerializationInfo.reference);
         if (!includeReferenceType || !includeReferredSemanticId) {
-            expected.setReferredSemanticID(null);
+            expected.setReferredSemanticId(null);
         }
-        else if (Objects.nonNull(expected.getReferredSemanticID())) {
-            expected.getReferredSemanticID().setReferredSemanticID(null);
+        else if (Objects.nonNull(expected.getReferredSemanticId())) {
+            expected.getReferredSemanticId().setReferredSemanticId(null);
         }
         Reference actual = ReferenceHelper.parse(referenceSerializationInfo.getStringRepresentation(includeReferenceType, includeReferredSemanticId));
         Assert.assertEquals(expected, actual);

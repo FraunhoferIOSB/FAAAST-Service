@@ -29,9 +29,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
@@ -109,7 +109,7 @@ public class OpcUaAssetConnection extends
             catch (AssetConnectionException e) {
                 LOGGER.warn("Error re-creating OPC UA subscription after disconnect (endpoint: {}, AAS reference: {}, nodeId: {})",
                         config.getHost(),
-                        AasUtils.asString(subscriptionProvider.getReference()),
+                        ReferenceHelper.toString(subscriptionProvider.getReference()),
                         subscriptionProvider.getNodeId(),
                         e);
             }
@@ -125,7 +125,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA operation provider, reason: invalid configuration (reference: %s)",
-                    AasUtils.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }
@@ -139,7 +139,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA subscription provider, reason: invalid configuration (reference: %s)",
-                    AasUtils.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }
@@ -153,7 +153,7 @@ public class OpcUaAssetConnection extends
         catch (InvalidConfigurationException e) {
             throw new AssetConnectionException(String.format(
                     "failed to create OPC UA value provider, reason: invalid configuration (reference: %s)",
-                    AasUtils.asString(reference)),
+                    ReferenceHelper.toString(reference)),
                     e);
         }
     }

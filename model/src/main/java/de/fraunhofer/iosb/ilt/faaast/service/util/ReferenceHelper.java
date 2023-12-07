@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.deserialization.EnumDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -83,7 +85,7 @@ public class ReferenceHelper {
             return null;
         }
         return new DefaultReference.Builder()
-                .referredSemanticID(clone(reference.getReferredSemanticID()))
+                .referredSemanticId(clone(reference.getReferredSemanticId()))
                 .type(reference.getType())
                 .keys(reference.getKeys().stream()
                         .map(ReferenceHelper::clone)
@@ -111,7 +113,7 @@ public class ReferenceHelper {
         if (ref1Empty != ref2Empty) {
             return false;
         }
-        if (!equals(ref1.getReferredSemanticID(), ref2.getReferredSemanticID())) {
+        if (!equals(ref1.getReferredSemanticId(), ref2.getReferredSemanticId())) {
             return false;
         }
         if (ref1.getKeys().size() != ref2.getKeys().size()) {
@@ -133,7 +135,22 @@ public class ReferenceHelper {
         if (Objects.isNull(key) || Objects.isNull(type)) {
             return false;
         }
-        return type.isAssignableFrom(AasUtils.keyTypeToClass(key.getType()));
+        return type.isAssignableFrom(keyTypeToClass(key.getType()));
+    }
+
+
+    /**
+     * Gets a Java interface representing the type provided by key.
+     *
+     * @param key The KeyElements type
+     * @return a Java interface representing the provided KeyElements type or null if no matching Class/interface could
+     *         be found. It also returns abstract types like SUBMODEL_ELEMENT or DATA_ELEMENT
+     */
+    private static Class<?> keyTypeToClass(KeyTypes key) {
+        return Stream.concat(ReflectionHelper.INTERFACES.stream(), ReflectionHelper.INTERFACES_WITHOUT_DEFAULT_IMPLEMENTATION.stream())
+                .filter(x -> x.getSimpleName().equals(EnumSerializer.serializeEnumName(key.name())))
+                .findAny()
+                .orElse(null);
     }
 
 
@@ -146,7 +163,7 @@ public class ReferenceHelper {
      */
     public static void ensureKeyType(Key key, Class<?> type) {
         Ensure.requireNonNull(key, "key must be non-null");
-        Class<?> keyClass = AasUtils.keyTypeToClass(key.getType());
+        Class<?> keyClass = keyTypeToClass(key.getType());
         Ensure.requireNonNull(keyClass, String.format("unsupported key type '%s'", key.getType()));
         Ensure.require(
                 type.isAssignableFrom(keyClass),
@@ -186,7 +203,7 @@ public class ReferenceHelper {
         if (Objects.isNull(reference.getKeys()) || reference.getKeys().size() < 2) {
             return null;
         }
-        Reference result = AasUtils.clone(reference);
+        Reference result = clone(reference);
         result.getKeys().remove(result.getKeys().size() - 1);
         return result;
     }
@@ -258,9 +275,106 @@ public class ReferenceHelper {
         }
         return new DefaultReference.Builder()
                 .type(referenceType)
-                .referredSemanticID(referredSemanticId)
+                .referredSemanticId(referredSemanticId)
                 .keys(keys)
                 .build();
+    }
+
+
+    /**
+     * Parses a given string as Reference. If the given string is not a valid reference, null is returned.
+     *
+     * @param value String representation of the reference
+     * @return parsed Reference or null is given value is not a valid Reference
+     */
+    public static Reference parseReference(String value) {
+        return parseReference(value,
+                ReflectionHelper.getDefaultImplementation(Reference.class),
+                ReflectionHelper.getDefaultImplementation(Key.class));
+    }
+
+
+    /**
+     * Parses a given string as Reference using the provided implementation of Reference and Key interface. If the given
+     * string is not a valid reference, null is returned.
+     *
+     * @param value String representation of the reference
+     * @param referenceType implementation type of Reference interface
+     * @param keyType implementation type of Key interface
+     * @return parsed Reference or null is given value is not a valid Reference
+     */
+    public static Reference parseReference(String value, Class<? extends Reference> referenceType, Class<? extends Key> keyType) {
+        String reference = value;
+        if (reference == null || reference.isBlank()) {
+            return null;
+        }
+
+        try {
+            Reference result = referenceType.getConstructor().newInstance();
+            // check if optional [<ReferenceTypes>] is present, if so, check for consistency
+            //TODO: consolidate the different parse methods and check why we need to remove the first square brackets, for example"[MODEL_REFERENCE]"
+            if (reference.startsWith(SQUARE_BRACKET_LEFT)) {
+                reference = reference.substring(reference.indexOf(SQUARE_BRACKET_RIGHT) + 1);
+            }
+            result.setKeys(Stream.of(reference.split(KEY_SEPARATOR))
+                    .map(x -> parseKey(x))
+                    .collect(Collectors.toList()));
+            if (!result.getKeys().isEmpty()) {
+                if (result.getType() == null) {
+                    // deduct from first element
+                    result.setType(result.getKeys().get(0).getType() == KeyTypes.GLOBAL_REFERENCE
+                            ? ReferenceTypes.EXTERNAL_REFERENCE
+                            : ReferenceTypes.MODEL_REFERENCE);
+                }
+                else {
+                    // validate against first element
+                    if (!isCompatible(result.getKeys().get(0).getType(), result.getType())) {
+                        throw new IllegalArgumentException(String.format("invalid reference - reference type '%s' is not compatible with type of first key elemenet '%s'",
+                                result.getType(), result.getKeys().get(0)));
+                    }
+                }
+            }
+            // check that keys following SubmodelElementList have valid index (i.e. are number >= 0)
+            validateSubmodelElementListKeyValues(result.getKeys());
+            return result;
+        }
+        catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new IllegalArgumentException("error parsing reference - could not instantiate reference type", ex);
+        }
+    }
+
+
+    private static boolean isCompatible(KeyTypes keyType, ReferenceTypes referenceType) {
+        if (keyType == null && referenceType == null) {
+            return true;
+        }
+        if (keyType == null ^ referenceType == null) {
+            return false;
+        }
+        return referenceType == ReferenceTypes.EXTERNAL_REFERENCE
+                ? keyType == KeyTypes.GLOBAL_REFERENCE
+                : keyType != KeyTypes.GLOBAL_REFERENCE;
+    }
+
+
+    private static void validateSubmodelElementListKeyValues(List<Key> keys) {
+        if (keys == null || keys.size() <= 1) {
+            return;
+        }
+        for (int i = 0; i < keys.size() - 1; i++) {
+            if (keys.get(i).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST) {
+                try {
+                    if (Integer.parseInt(keys.get(i + 1).getValue()) < 0) {
+                        throw new IllegalArgumentException(String.format("invalid value for key with index %d, expected integer values >= 0, but found '%s'",
+                                i, keys.get(i + 1).getValue()));
+                    }
+                }
+                catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException(String.format("invalid value for key with index %d, expected integer values >= 0, but found '%s'",
+                            i, keys.get(i + 1).getValue()));
+                }
+            }
+        }
     }
 
 
@@ -300,7 +414,25 @@ public class ReferenceHelper {
      */
     public static KeyTypes toKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
-        return aasInterface != null ? KeyTypes.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
+        return aasInterface != null ? KeyTypes.valueOf(EnumDeserializer.deserializeEnumName(aasInterface.getSimpleName())) : null;
+    }
+
+
+    /**
+     * Formats a Reference as string.
+     *
+     * @param reference
+     *            Reference to serialize
+     * @return string representation of the reference for serialization, null if
+     *         reference is null
+     */
+    public static String asString(Reference reference) {
+        if (reference == null) {
+            return null;
+        }
+        return String.format("[%s]%s", reference.getType(),
+                reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue()))
+                        .collect(Collectors.joining(KEY_SEPARATOR)));
     }
 
 
@@ -374,7 +506,7 @@ public class ReferenceHelper {
         String result = "";
         if (includeReferenceType) {
             String referredSemanticId = includeReferredSemanticId
-                    ? toString(reference.getReferredSemanticID(), includeReferenceType, false)
+                    ? toString(reference.getReferredSemanticId(), includeReferenceType, false)
                     : "";
             result = String.format("[%s%s]",
                     toString(reference.getType()),
@@ -383,7 +515,7 @@ public class ReferenceHelper {
         }
         result += reference.getKeys().stream()
                 .map(x -> String.format("(%s)%s",
-                        AasUtils.serializeEnumName(x.getType().name()),
+                        EnumSerializer.serializeEnumName(x.getType().name()),
                         x.getValue()))
                 .collect(Collectors.joining(", "));
         return result;
@@ -440,8 +572,8 @@ public class ReferenceHelper {
         if (Objects.equals(key1.getType(), key2.getType())) {
             return true;
         }
-        Class<?> type1 = AasUtils.keyTypeToClass(key1.getType());
-        Class<?> type2 = AasUtils.keyTypeToClass(key2.getType());
+        Class<?> type1 = keyTypeToClass(key1.getType());
+        Class<?> type2 = keyTypeToClass(key2.getType());
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
@@ -475,7 +607,7 @@ public class ReferenceHelper {
 
 
     private static KeyTypes parseKeyType(String keyType) {
-        return KeyTypes.valueOf(AasUtils.deserializeEnumName(keyType));
+        return KeyTypes.valueOf(EnumDeserializer.deserializeEnumName(keyType));
     }
 
 

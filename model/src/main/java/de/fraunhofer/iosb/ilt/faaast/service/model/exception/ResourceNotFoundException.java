@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -32,12 +32,12 @@ public class ResourceNotFoundException extends Exception {
 
 
     public ResourceNotFoundException(Reference reference, Throwable cause) {
-        this(String.format("%s (reference: %s)", BASE_MSG, AasUtils.asString(reference)), cause);
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)), cause);
     }
 
 
     public ResourceNotFoundException(Reference reference) {
-        this(String.format("%s (reference: %s)", BASE_MSG, AasUtils.asString(reference)));
+        this(String.format("%s (reference: %s)", BASE_MSG, ReferenceHelper.toString(reference)));
     }
 
 

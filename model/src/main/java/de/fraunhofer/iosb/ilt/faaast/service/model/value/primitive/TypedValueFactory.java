@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationEx
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 
 
 /**
@@ -49,7 +49,7 @@ public class TypedValueFactory {
      * @return typed value representation
      * @throws ValueFormatException if value cannot be converted to datatype
      */
-    public static TypedValue<?> create(DataTypeDefXSD datatype, String value) throws ValueFormatException {
+    public static TypedValue<?> create(DataTypeDefXsd datatype, String value) throws ValueFormatException {
         return create(Datatype.fromAas4jDatatype(datatype), value);
     }
 

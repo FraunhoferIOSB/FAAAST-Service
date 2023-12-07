@@ -30,6 +30,6 @@ public interface MultiLanguagePropertyMixin {
 
 
     @JsonIgnore
-    public Reference getValueID();
+    public Reference getValueId();
 
 }

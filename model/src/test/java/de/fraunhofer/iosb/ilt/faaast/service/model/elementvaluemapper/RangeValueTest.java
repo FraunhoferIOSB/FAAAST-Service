@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ public class RangeValueTest {
     @Test
     public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultRange.Builder()
-                .valueType(DataTypeDefXSD.INT)
+                .valueType(DataTypeDefXsd.INT)
                 .max(null)
                 .min("2")
                 .build();
@@ -57,7 +57,7 @@ public class RangeValueTest {
         RangeValue rangeValue = ElementValueMapper.toValue(actual, RangeValue.class);
 
         SubmodelElement expected = new DefaultRange.Builder()
-                .valueType(DataTypeDefXSD.INT)
+                .valueType(DataTypeDefXsd.INT)
                 .min("2")
                 .max(null)
                 .build();

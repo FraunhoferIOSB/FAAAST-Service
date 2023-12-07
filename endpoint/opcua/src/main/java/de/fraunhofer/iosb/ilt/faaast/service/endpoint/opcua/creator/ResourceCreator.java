@@ -42,7 +42,7 @@ public class ResourceCreator {
     /**
      * Adds an AAS Resource to the given Node.
      *
-     * @param node The UA node in which the SpecificAssetID should be created
+     * @param node The UA node in which the SpecificAssetId should be created
      * @param aasResource The desired AAS Resource.
      * @param name The desired name.
      * @param nodeManager The corresponding Node Manager

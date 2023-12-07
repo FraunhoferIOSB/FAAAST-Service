@@ -39,7 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -79,18 +79,18 @@ public class EventExamples {
 
     private static final Property PROPERTY_INT = new DefaultProperty.Builder()
             .idShort("PROPERTY_INT")
-            .valueType(DataTypeDefXSD.INT)
+            .valueType(DataTypeDefXsd.INT)
             .value("1")
             .build();
     private static final Property PROPERTY_DOUBLE = new DefaultProperty.Builder()
             .idShort("PROPERTY_DOUBLE")
-            .valueType(DataTypeDefXSD.DOUBLE)
+            .valueType(DataTypeDefXsd.DOUBLE)
             .value("3.14")
             .build();
 
     private static final Property PROPERTY_STRING = new DefaultProperty.Builder()
             .idShort("PROPERTY_STRING")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .value("example value")
             .build();
 

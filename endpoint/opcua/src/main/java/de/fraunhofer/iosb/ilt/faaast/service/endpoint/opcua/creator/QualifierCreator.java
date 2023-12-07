@@ -134,8 +134,8 @@ public class QualifierCreator {
         setValue(qualifier.getValue(), qualifierNode, nodeManager);
 
         // ValueId
-        if (qualifier.getValueID() != null) {
-            AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueID(), AASQualifierType.VALUE_ID, nodeManager);
+        if (qualifier.getValueId() != null) {
+            AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
         }
 
         setAccessRights(qualifierNode);

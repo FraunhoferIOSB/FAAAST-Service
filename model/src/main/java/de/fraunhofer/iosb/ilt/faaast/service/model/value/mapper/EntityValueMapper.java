@@ -42,7 +42,7 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
                             x -> x != null ? x.getIdShort() : null,
                             LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
         }
-        value.setGlobalAssetId(submodelElement.getGlobalAssetID());
+        value.setGlobalAssetId(submodelElement.getGlobalAssetId());
         value.setSpecificAssetIds(submodelElement.getSpecificAssetIds());
         return value;
     }
@@ -62,7 +62,7 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
             }
 
             submodelElement.setEntityType(value.getEntityType());
-            submodelElement.setGlobalAssetID(value.getGlobalAssetId());
+            submodelElement.setGlobalAssetId(value.getGlobalAssetId());
             submodelElement.setSpecificAssetIds(value.getSpecificAssetIds());
         }
         return submodelElement;

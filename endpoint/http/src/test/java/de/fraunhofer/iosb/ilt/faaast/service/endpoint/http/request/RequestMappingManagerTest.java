@@ -119,10 +119,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -132,12 +132,12 @@ public class RequestMappingManagerTest {
 
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
     private static final String AASX_PACKAGE_ID = "examplePackageId";
-    private static final List<SpecificAssetID> ASSET_IDENTIFIERS = Arrays.asList(
-            new DefaultSpecificAssetID.Builder()
+    private static final List<SpecificAssetId> ASSET_IDENTIFIERS = Arrays.asList(
+            new DefaultSpecificAssetId.Builder()
                     .name("globalAssetId")
                     .value("http://example.org")
                     .build(),
-            new DefaultSpecificAssetID.Builder()
+            new DefaultSpecificAssetId.Builder()
                     .name("foo")
                     .value("bar")
                     .build());
@@ -354,9 +354,9 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellsByAssetId() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
-        List<SpecificAssetID> assetIds = Arrays.asList(new DefaultSpecificAssetID.Builder()
+        List<SpecificAssetId> assetIds = Arrays.asList(new DefaultSpecificAssetId.Builder()
                 .name(GLOBAL_ASSET_ID)
-                .value(AAS.getAssetInformation().getGlobalAssetID())
+                .value(AAS.getAssetInformation().getGlobalAssetId())
                 .build());
 
         Request expected = GetAllAssetAdministrationShellsByAssetIdRequest.builder()
@@ -422,7 +422,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(AasUtils.asString(dataSpecificationRef)))
+                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(dataSpecificationRef)))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -451,7 +451,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(AasUtils.asString(isCaseOf)))
+                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(isCaseOf)))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -547,12 +547,12 @@ public class RequestMappingManagerTest {
     @Test
     public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
         Request expected = GetAllSubmodelsBySemanticIdRequest.builder()
-                .semanticId(SUBMODEL.getSemanticID())
+                .semanticId(SUBMODEL.getSemanticId())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("submodels")
-                .query("semanticId=" + EncodingHelper.base64UrlEncode(serializer.write(SUBMODEL.getSemanticID())))
+                .query("semanticId=" + EncodingHelper.base64UrlEncode(serializer.write(SUBMODEL.getSemanticId())))
                 .build());
         Assert.assertEquals(expected, actual);
     }

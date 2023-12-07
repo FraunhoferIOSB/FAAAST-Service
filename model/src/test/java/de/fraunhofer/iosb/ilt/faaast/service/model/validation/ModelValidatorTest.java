@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -33,11 +33,11 @@ public class ModelValidatorTest {
 
     private static final Property PROPRERTY_1 = new DefaultProperty.Builder()
             .idShort("Property1")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .build();
     private static final Property PROPRERTY_2 = new DefaultProperty.Builder()
             .idShort("Property3")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .build();
     private static final String ID_1 = "Identifier1";
     private static final String ID_2 = "Identifier2";

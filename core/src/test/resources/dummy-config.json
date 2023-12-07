@@ -28,7 +28,7 @@
             "@class": "de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnection",
             "valueProviders":
                     {
-                        "[MODEL_REFERENCE](Property)[ID_SHORT]Temperature":
+                        "[ModelRef](Property)Temperature":
                                 {
                                     "nodeId": "some.opc.ua.node.id"
                                 }

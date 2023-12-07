@@ -53,7 +53,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -90,12 +90,12 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
         source = new DefaultProperty.Builder()
                 .idShort("source")
                 .value(Integer.toString(SOURCE_VALUE))
-                .valueType(DataTypeDefXSD.INTEGER)
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         target = new DefaultProperty.Builder()
                 .idShort("target")
                 .value(Integer.toString(TARGET_VALUE))
-                .valueType(DataTypeDefXSD.INTEGER)
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         submodel = new DefaultSubmodel.Builder()
                 .idShort("Submodel1")

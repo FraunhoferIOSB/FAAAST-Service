@@ -230,7 +230,7 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
             return result;
         }
         Reference clone = ReferenceHelper.clone(reference);
-        result.referredSemanticId(clone.getReferredSemanticID());
+        result.referredSemanticId(clone.getReferredSemanticId());
         result.type(clone.getType());
         result.getBuildingInstance().setKeys(clone.getKeys());
         return result;
@@ -515,7 +515,7 @@ public class ReferenceBuilder extends AbstractBuilder<Reference> {
      * @return the builder
      */
     public ReferenceBuilder referredSemanticId(Reference referredSemanticId) {
-        getBuildingInstance().setReferredSemanticID(referredSemanticId);
+        getBuildingInstance().setReferredSemanticId(referredSemanticId);
         return this;
     }
 

@@ -64,7 +64,7 @@ import opc.i4aas.AASReferenceElementType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementList;
 import opc.i4aas.AASSubmodelElementType;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
@@ -118,7 +118,7 @@ public class AasSubmodelElementHelper {
                 throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
-            // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
+            // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
             for (UaNode annotationNode: annotationNodes) {
                 if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
                     setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
@@ -432,7 +432,7 @@ public class AasSubmodelElementHelper {
     }
 
 
-    public static void setRangeValueAndType(DataTypeDefXSD valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
         try {
@@ -680,7 +680,7 @@ public class AasSubmodelElementHelper {
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
-        // GlobalAssetId
+        // globalAssetId
         if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
             EntityCreator.setGlobalAssetIdData(entity, value.getGlobalAssetId(), nodeManager);
         }

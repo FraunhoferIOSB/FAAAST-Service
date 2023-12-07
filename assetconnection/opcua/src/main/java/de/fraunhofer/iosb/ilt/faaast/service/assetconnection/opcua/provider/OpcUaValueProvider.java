@@ -29,9 +29,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -67,32 +67,32 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
             throw new AssetConnectionException(
                     String.format("%s - could not resolve type information (reference: %s)",
                             baseErrorMessage,
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         if (typeInfo == null) {
             throw new AssetConnectionException(
                     String.format("%s - could not resolve type information (reference: %s)",
                             baseErrorMessage,
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new AssetConnectionException(
                     String.format("%s - reference must point to element with value (reference: %s)",
                             baseErrorMessage,
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
         if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
             throw new AssetConnectionException(String.format("%s - unsupported element type (reference: %s, element type: %s)",
                     baseErrorMessage,
-                    AasUtils.asString(reference),
+                    ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
         datatype = valueTypeInfo.getDatatype();
         if (datatype == null) {
             throw new AssetConnectionException(String.format("%s - missing datatype (reference: %s)",
                     baseErrorMessage,
-                    AasUtils.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
     }
 
@@ -106,7 +106,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
         }
         catch (InterruptedException | ExecutionException | ValueConversionException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -115,11 +115,11 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
     public void setValue(DataElementValue value) throws AssetConnectionException {
         if (value == null) {
             throw new AssetConnectionException(
-                    String.format("error setting value on asset connection - value must be non-null (reference: %s)", AasUtils.asString(reference)));
+                    String.format("error setting value on asset connection - value must be non-null (reference: %s)", ReferenceHelper.toString(reference)));
         }
         if (!PropertyValue.class.isAssignableFrom(value.getClass())) {
             throw new AssetConnectionException(String.format("error setting value on asset connection - unsupported element type (reference: %s, element type: %s)",
-                    AasUtils.asString(reference),
+                    ReferenceHelper.toString(reference),
                     value.getClass()));
         }
         try {

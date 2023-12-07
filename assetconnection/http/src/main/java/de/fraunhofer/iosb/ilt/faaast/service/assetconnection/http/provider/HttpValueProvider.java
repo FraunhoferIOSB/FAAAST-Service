@@ -32,7 +32,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,16 +93,16 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
         catch (IOException | URISyntaxException e) {
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -134,7 +133,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
         }
         catch (IOException | URISyntaxException | InterruptedException e) {

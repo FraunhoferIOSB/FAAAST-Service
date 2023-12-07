@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.IOException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 
 
 /**
@@ -42,6 +41,6 @@ public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
 
     @Override
     public T deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return (T) Enum.valueOf(type, AasUtils.deserializeEnumName(parser.getText()));
+        return (T) Enum.valueOf(type, org.eclipse.digitaltwin.aas4j.v3.dataformat.core.deserialization.EnumDeserializer.deserializeEnumName(parser.getText()));
     }
 }

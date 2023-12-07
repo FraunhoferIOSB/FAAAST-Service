@@ -24,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Map;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 
 
 /**
@@ -52,7 +52,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
                                                                                 PagingInfo pagingInfo) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
+                .dataSpecification(ReferenceHelper.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
                 .build();
     }
 }

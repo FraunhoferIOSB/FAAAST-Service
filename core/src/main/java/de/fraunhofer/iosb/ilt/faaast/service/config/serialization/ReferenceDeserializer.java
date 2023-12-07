@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.serialization;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
@@ -28,6 +28,6 @@ public class ReferenceDeserializer extends KeyDeserializer {
 
     @Override
     public Reference deserializeKey(String value, DeserializationContext context) throws IOException {
-        return AasUtils.parseReference(value);
+        return ReferenceHelper.parseReference(value);
     }
 }

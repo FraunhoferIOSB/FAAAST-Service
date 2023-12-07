@@ -35,8 +35,8 @@ import opc.i4aas.AASDataTypeDefXsd;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASQualifierKindDataType;
 import opc.i4aas.AASSubmodelElementsDataType;
-import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
 
@@ -202,14 +202,14 @@ public class UaHelper {
 
 
     /**
-     * Creates a DataTypeDefXSD property.
+     * Creates a DataTypeDefXsd property.
      *
      * @param valueData the desired value data.
      * @param datatype The desired datatype value.
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASDataTypeDefXsd> createDataTypeDefProperty(ValueData valueData, DataTypeDefXSD datatype) throws StatusException {
+    public static PlainProperty<AASDataTypeDefXsd> createDataTypeDefProperty(ValueData valueData, DataTypeDefXsd datatype) throws StatusException {
         PlainProperty<AASDataTypeDefXsd> datatypeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                 valueData.getDisplayName());
         datatypeProperty.setDataTypeId(AASDataTypeDefXsd.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
@@ -222,7 +222,7 @@ public class UaHelper {
 
 
     /**
-     * Adds a DataTypeDefXSD property to the given node.
+     * Adds a DataTypeDefXsd property to the given node.
      *
      * @param parentNode The node where the property should be added.
      * @param nodeManager The corresponding NodeManager.
@@ -231,20 +231,20 @@ public class UaHelper {
      * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      */
-    public static void addDataTypeDefProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, DataTypeDefXSD value, String namespaceUri) throws StatusException {
+    public static void addDataTypeDefProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, DataTypeDefXsd value, String namespaceUri) throws StatusException {
         parentNode.addProperty(createDataTypeDefProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
     }
 
 
     /**
-     * Creates a AASSubmodelElements property.
+     * Creates a AasSubmodelElements property.
      *
      * @param valueData the desired value data.
      * @param submodelElement The desired SubmodelElement value.
      * @return The created property.
      * @throws StatusException If an error occurs
      */
-    public static PlainProperty<AASSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AASSubmodelElements submodelElement) throws StatusException {
+    public static PlainProperty<AASSubmodelElementsDataType> createAasSubmodelElementsProperty(ValueData valueData, AasSubmodelElements submodelElement) throws StatusException {
         PlainProperty<AASSubmodelElementsDataType> smelemProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
                 valueData.getDisplayName());
         smelemProperty.setDataTypeId(AASSubmodelElementsDataType.SPECIFICATION.getTypeId().asNodeId(valueData.getNodeManager().getNamespaceTable()));
@@ -257,7 +257,7 @@ public class UaHelper {
 
 
     /**
-     * Adds a AASSubmodelElements property to the given node.
+     * Adds a AasSubmodelElements property to the given node.
      *
      * @param parentNode The node where the property should be added.
      * @param nodeManager The corresponding NodeManager.
@@ -266,7 +266,7 @@ public class UaHelper {
      * @param namespaceUri The URI of the desired Namespace.
      * @throws StatusException If an error occurs
      */
-    public static void addAasSubmodelElementsProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, AASSubmodelElements value, String namespaceUri)
+    public static void addAasSubmodelElementsProperty(UaNode parentNode, NodeManagerUaNode nodeManager, String name, AasSubmodelElements value, String namespaceUri)
             throws StatusException {
         parentNode.addProperty(createAasSubmodelElementsProperty(createValueData(parentNode, nodeManager, name, namespaceUri), value));
     }

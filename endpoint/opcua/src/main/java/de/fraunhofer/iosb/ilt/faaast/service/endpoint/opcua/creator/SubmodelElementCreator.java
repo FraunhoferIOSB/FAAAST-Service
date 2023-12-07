@@ -172,8 +172,8 @@ public class SubmodelElementCreator {
             EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
 
             // SemanticId
-            if (element.getSemanticID() != null) {
-                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticID());
+            if (element.getSemanticId() != null) {
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
             }
 
             // Qualifiers

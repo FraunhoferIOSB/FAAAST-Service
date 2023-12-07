@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -88,10 +88,10 @@ public class MetadataExamples {
             .entityType(EntityType.SELF_MANAGED_ENTITY)
             .statements(new DefaultProperty.Builder()
                     .idShort("MaxRotationSpeed")
-                    .valueType(DataTypeDefXSD.INT)
+                    .valueType(DataTypeDefXsd.INT)
                     .value("5000")
                     .build())
-            .globalAssetID("http://customer.com/demo/asset/1/1/MySubAsset")
+            .globalAssetId("http://customer.com/demo/asset/1/1/MySubAsset")
             .build();
 
     public static final org.eclipse.digitaltwin.aas4j.v3.model.File FILE = new DefaultFile.Builder()
@@ -115,21 +115,21 @@ public class MetadataExamples {
     public static final Property PROPERTY_DOUBLE = new DefaultProperty.Builder()
             .category("category")
             .idShort("propDouble")
-            .valueType(DataTypeDefXSD.DOUBLE)
+            .valueType(DataTypeDefXsd.DOUBLE)
             .value("42.17")
             .build();
 
     public static final Property PROPERTY_DATETIME = new DefaultProperty.Builder()
             .category("category")
             .idShort("propDateTime")
-            .valueType(DataTypeDefXSD.DATE_TIME)
+            .valueType(DataTypeDefXsd.DATE_TIME)
             .value(ZonedDateTime.of(2022, 7, 31, 17, 8, 51, 0, ZoneOffset.UTC).toString())
             .build();
 
     public static final Property PROPERTY_INT = new DefaultProperty.Builder()
             .category("category")
             .idShort("propInt")
-            .valueType(DataTypeDefXSD.INT)
+            .valueType(DataTypeDefXsd.INT)
             .value("42")
             .build();
 
@@ -141,7 +141,7 @@ public class MetadataExamples {
 
     public static final Range RANGE_DOUBLE = new DefaultRange.Builder()
             .idShort("rangeDouble")
-            .valueType(DataTypeDefXSD.DOUBLE)
+            .valueType(DataTypeDefXsd.DOUBLE)
             .min("3.0")
             .max("5.0")
             .build();
@@ -171,7 +171,7 @@ public class MetadataExamples {
 
     public static final Range RANGE_INT = new DefaultRange.Builder()
             .idShort("rangeInt")
-            .valueType(DataTypeDefXSD.INT)
+            .valueType(DataTypeDefXsd.INT)
             .min("17")
             .max("42")
             .build();

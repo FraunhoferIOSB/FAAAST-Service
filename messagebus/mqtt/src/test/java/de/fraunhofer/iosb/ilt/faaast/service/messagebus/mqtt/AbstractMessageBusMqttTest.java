@@ -59,7 +59,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -90,18 +90,18 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private static final Property PROPERTY = new DefaultProperty.Builder()
             .idShort("ExampleProperty")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .value("bar")
             .build();
 
     private static final Property PARAMETER_IN = new DefaultProperty.Builder()
             .idShort("ParameterIn")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .build();
 
     private static final Property PARAMETER_OUT = new DefaultProperty.Builder()
             .idShort("ParameterOut")
-            .valueType(DataTypeDefXSD.STRING)
+            .valueType(DataTypeDefXsd.STRING)
             .build();
 
     private static final Operation OPERATION = new DefaultOperation.Builder()
