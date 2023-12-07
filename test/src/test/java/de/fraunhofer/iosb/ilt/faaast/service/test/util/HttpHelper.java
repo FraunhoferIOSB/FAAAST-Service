@@ -30,66 +30,79 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
+/**
+ * This class offers HTTP-related helper methods for the integration tests.
+ * IMPORTANT: by default, this classes disables SSL and hostname validation
+ */
 public class HttpHelper {
 
-    public static <T> List<T> getWithMultipleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (List<T>) readResponseList(get(url), type);
+    public static <T> List<T> getWithMultipleResult(HttpClient client, String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (List<T>) readResponseList(get(client, url), type);
     }
 
 
-    public static <T> Page<T> getPage(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return readResponsePage(get(url), type);
+    public static <T> Page<T> getPage(HttpClient client, String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return readResponsePage(get(client, url), type);
     }
 
 
-    public static <T> T getWithSingleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (T) readResponse(get(url), type);
+    public static <T> T getWithSingleResult(HttpClient client, String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(get(client, url), type);
     }
 
 
-    public static <T> T postWithSingleResult(String url, T payload, Class<T> type)
-            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException {
-        return (T) readResponse(post(url, payload), type);
+    public static <T> T postWithSingleResult(HttpClient client, String url, T payload, Class<T> type)
+            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(post(client, url, payload), type);
     }
 
 
-    public static <T> T putWithSingleResult(String url, T payload, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException {
-        return (T) readResponse(put(url, payload), type);
+    public static <T> T putWithSingleResult(HttpClient client, String url, T payload, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(put(client, url, payload), type);
     }
 
 
-    public static <T> T deleteWithSingleResult(String url, Class<T> type) throws IOException, InterruptedException, URISyntaxException, DeserializationException {
-        return (T) readResponse(delete(url), type);
+    public static <T> T deleteWithSingleResult(HttpClient client, String url, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        return (T) readResponse(delete(client, url), type);
     }
 
 
-    public static HttpResponse<String> execute(HttpMethod method, String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
+    public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url, Object payload)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         switch (method) {
             case GET:
-                return get(url);
+                return get(client, url);
             case PUT:
-                return put(url, payload);
+                return put(client, url, payload);
             case POST:
-                return post(url, payload);
+                return post(client, url, payload);
             case DELETE:
-                return delete(url);
+                return delete(client, url);
             default:
                 throw new UnsupportedOperationException(String.format("unsupported HTTP method: %s", method));
         }
     }
 
 
-    public static HttpResponse<String> execute(HttpMethod method, String url) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return execute(method, url, null);
+    public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return execute(client, method, url, null);
     }
 
 
-    public static HttpResponse<String> put(String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> put(HttpClient client, String url, Object payload)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
@@ -99,8 +112,9 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> post(String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> post(HttpClient client, String url, Object payload)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
@@ -110,8 +124,9 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> delete(String url) throws IOException, InterruptedException, URISyntaxException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> delete(HttpClient client, String url)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .DELETE()
@@ -120,8 +135,9 @@ public class HttpHelper {
     }
 
 
-    public static HttpResponse<String> get(String url) throws IOException, InterruptedException, URISyntaxException {
-        return HttpClient.newHttpClient()
+    public static HttpResponse<String> get(HttpClient client, String url)
+            throws IOException, InterruptedException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .GET()
