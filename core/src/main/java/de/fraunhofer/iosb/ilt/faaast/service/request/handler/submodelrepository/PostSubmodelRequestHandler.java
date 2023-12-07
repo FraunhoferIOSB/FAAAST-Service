@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -28,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHand
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -46,8 +48,12 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
 
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException {
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException,
+            ResourceAlreadyExistsException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
+        if (context.getPersistence().submodelExists(request.getSubmodel().getId())) {
+            throw new ResourceAlreadyExistsException(request.getSubmodel().getId(), Submodel.class);
+        }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
         syncWithAsset(reference, request.getSubmodel().getSubmodelElements());

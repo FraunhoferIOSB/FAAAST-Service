@@ -16,10 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
@@ -39,6 +41,9 @@ public class PostAssetAdministrationShellRequestHandler extends AbstractRequestH
     @Override
     public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnCreate());
+        if (context.getPersistence().assetAdministrationShellExists(request.getAas().getId())) {
+            throw new ResourceAlreadyExistsException(request.getAas().getId(), AssetAdministrationShell.class);
+        }
         context.getPersistence().save(request.getAas());
         context.getMessageBus().publish(ElementCreateEventMessage.builder()
                 .element(request.getAas())

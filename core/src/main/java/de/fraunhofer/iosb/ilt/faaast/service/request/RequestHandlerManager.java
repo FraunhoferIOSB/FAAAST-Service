@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -145,6 +146,9 @@ public class RequestHandlerManager {
         }
         catch (ResourceNotFoundException e) {
             return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
+        }
+        catch (ResourceAlreadyExistsException e) {
+            return createResponse(request, StatusCode.CLIENT_RESOURCE_CONFLICT, MessageType.ERROR, e);
         }
         catch (ValidationException e) {
             return createResponse(request, StatusCode.CLIENT_ERROR_BAD_REQUEST, MessageType.ERROR, e);

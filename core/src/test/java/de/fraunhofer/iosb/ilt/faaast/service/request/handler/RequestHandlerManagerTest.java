@@ -165,6 +165,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -702,16 +703,31 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelRequest() throws ResourceNotFoundException, Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
         PostSubmodelRequest request = new PostSubmodelRequest.Builder()
-                .submodel(environment.getSubmodels().get(0))
+                .submodel(submodel)
                 .build();
         PostSubmodelResponse actual = manager.execute(request);
         PostSubmodelResponse expected = new PostSubmodelResponse.Builder()
-                .payload(environment.getSubmodels().get(0))
+                .payload(submodel)
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(persistence).save(environment.getSubmodels().get(0));
+        verify(persistence).save(submodel);
+    }
+
+
+    @Test
+    public void testPostSubmodelRequestAlreadyExists() throws ResourceNotFoundException, Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
+        PostSubmodelRequest request = new PostSubmodelRequest.Builder()
+                .submodel(submodel)
+                .build();
+        when(persistence.submodelExists(submodel.getId()))
+                .thenReturn(true);
+        PostSubmodelResponse actual = manager.execute(request);
+        Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
+        verify(persistence, times(0)).save((Submodel) any());
     }
 
 
@@ -850,6 +866,25 @@ public class RequestHandlerManagerTest {
 
 
     @Test
+    public void testPostSubmodelElementRequestAlreadyExists() throws ResourceNotFoundException, Exception {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement submodelElement = environment.getSubmodels().get(0).getSubmodelElements().get(0);
+        PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
+                .submodelId(submodel.getId())
+                .submodelElement(submodelElement)
+                .build();
+        Reference referenceToNewElement = new ReferenceBuilder()
+                .submodel(submodel)
+                .element(submodelElement)
+                .build();
+        when(persistence.submodelElementExists(referenceToNewElement))
+                .thenReturn(true);
+        PostSubmodelElementResponse actual = manager.execute(request);
+        Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
+    }
+
+
+    @Test
     public void testGetSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement cur_submodelElement = new DefaultProperty.Builder()
@@ -928,6 +963,47 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).insert(listIdentifier, newProperty);
+    }
+
+
+    @Test
+    public void testPostSubmodelElementByPathRequestAlreadyExists() throws ResourceNotFoundException, Exception {
+        Property property1 = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXsd.STRING)
+                .value("first")
+                .build();
+        SubmodelElementList list = new DefaultSubmodelElementList.Builder()
+                .idShort("list")
+                .value(property1)
+                .build();
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .id("submodel")
+                .submodelElements(list)
+                .build();
+        IdShortPath listPath = IdShortPath.builder()
+                .path(list.getIdShort())
+                .build();
+        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
+                .thenReturn(list);
+        Property newProperty = new DefaultProperty.Builder()
+                .valueType(DataTypeDefXsd.STRING)
+                .value("new")
+                .build();
+
+        Reference referenceToNewElement = new ReferenceBuilder()
+                .submodel(submodel)
+                .elements(listPath.getElements())
+                .element(newProperty)
+                .build();
+        when(persistence.submodelElementExists(referenceToNewElement))
+                .thenReturn(true);
+        PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
+                .submodelId(submodel.getId())
+                .submodelElement(newProperty)
+                .path(listPath.toString())
+                .build();
+        PostSubmodelElementByPathResponse actual = manager.execute(request);
+        Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
     }
 
 
@@ -1224,6 +1300,20 @@ public class RequestHandlerManagerTest {
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).save(environment.getConceptDescriptions().get(0));
+    }
+
+
+    @Test
+    public void testPostConceptDescriptionRequestAlreadyExists() throws ResourceNotFoundException, Exception {
+        ConceptDescription conceptDescription = environment.getConceptDescriptions().get(0);
+        when(persistence.conceptDescriptionExists(conceptDescription.getId()))
+                .thenReturn(true);
+        PostConceptDescriptionRequest request = new PostConceptDescriptionRequest.Builder()
+                .conceptDescription(conceptDescription)
+                .build();
+        PostConceptDescriptionResponse actual = manager.execute(request);
+        Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
+        verify(persistence, times(0)).save((ConceptDescription) any());
     }
 
 
