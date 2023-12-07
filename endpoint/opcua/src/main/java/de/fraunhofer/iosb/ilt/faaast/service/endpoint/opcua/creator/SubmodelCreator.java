@@ -81,7 +81,7 @@ public class SubmodelCreator {
                 nid = nodeManager.getDefaultNodeId();
             }
 
-            LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}", submodel.getIdShort(), nid);
+            LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
             AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
             IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
@@ -96,8 +96,8 @@ public class SubmodelCreator {
             setQualifierData(qualifiers, smNode, nodeManager);
 
             // SemanticId
-            if (submodel.getSemanticID() != null) {
-                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticID());
+            if (submodel.getSemanticId() != null) {
+                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
             }
 
             // Description

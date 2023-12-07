@@ -23,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValu
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import java.util.Collection;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -80,23 +80,23 @@ public class TypeExtractorTest {
         Object data = new DefaultSubmodel.Builder()
                 .submodelElements(new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .submodelElements(new DefaultProperty.Builder()
                         .idShort("intProp1")
-                        .valueType(DataTypeDefXSD.INT)
+                        .valueType(DataTypeDefXsd.INT)
                         .build())
                 .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .idShort("collection1")
                         .value(new DefaultRange.Builder()
                                 .idShort("doubleRange1")
-                                .valueType(DataTypeDefXSD.DOUBLE)
+                                .valueType(DataTypeDefXsd.DOUBLE)
                                 .min("17.00")
                                 .max("42")
                                 .build())
                         .value(new DefaultProperty.Builder()
                                 .idShort("intProp2")
-                                .valueType(DataTypeDefXSD.INT)
+                                .valueType(DataTypeDefXsd.INT)
                                 .build())
                         .build())
                 .build();
@@ -121,11 +121,11 @@ public class TypeExtractorTest {
         Object data = new DefaultAnnotatedRelationshipElement.Builder()
                 .annotations(new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .annotations(new DefaultProperty.Builder()
                         .idShort("intProp1")
-                        .valueType(DataTypeDefXSD.INT)
+                        .valueType(DataTypeDefXsd.INT)
                         .build())
                 .idShort("annotatedRelationship1")
                 .build();
@@ -142,7 +142,7 @@ public class TypeExtractorTest {
                 .build();
         Object data = new DefaultProperty.Builder()
                 .idShort("stringProp1")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -166,11 +166,11 @@ public class TypeExtractorTest {
         Object data = List.of(
                 new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultProperty.Builder()
                         .idShort("stringProp2")
-                        .valueType(DataTypeDefXSD.INTEGER)
+                        .valueType(DataTypeDefXsd.INTEGER)
                         .build());
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -194,11 +194,11 @@ public class TypeExtractorTest {
         Object data = List.of(
                 new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultProperty.Builder()
                         .idShort("stringProp2")
-                        .valueType(DataTypeDefXSD.INTEGER)
+                        .valueType(DataTypeDefXsd.INTEGER)
                         .build());
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -230,12 +230,12 @@ public class TypeExtractorTest {
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultRange.Builder()
                         .idShort("doubleRange1")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .min("3.0")
                         .max("5.0")
                         .build())
@@ -244,10 +244,10 @@ public class TypeExtractorTest {
                         .entityType(EntityType.SELF_MANAGED_ENTITY)
                         .statements(new DefaultProperty.Builder()
                                 .idShort("MaxRotationSpeed")
-                                .valueType(DataTypeDefXSD.INT)
+                                .valueType(DataTypeDefXsd.INT)
                                 .value("5000")
                                 .build())
-                        .globalAssetID("http://customer.com/demo/asset/1/1/MySubAsset")
+                        .globalAssetId("http://customer.com/demo/asset/1/1/MySubAsset")
                         .build())
                 .build();
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
@@ -266,18 +266,18 @@ public class TypeExtractorTest {
                 .build();
         Object data = new DefaultSubmodelElementList.Builder()
                 .idShort("collection1")
-                .valueTypeListElement(DataTypeDefXSD.STRING)
-                .typeValueListElement(AASSubmodelElements.PROPERTY)
+                .valueTypeListElement(DataTypeDefXsd.STRING)
+                .typeValueListElement(AasSubmodelElements.PROPERTY)
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp2")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("bar")
                         .build())
                 .build();
@@ -290,18 +290,18 @@ public class TypeExtractorTest {
     public void testSubmodelElementListWithComplexElementType() {
         SubmodelElement complexType = new DefaultSubmodelElementList.Builder()
                 .idShort("collection1")
-                .valueTypeListElement(DataTypeDefXSD.STRING)
-                .typeValueListElement(AASSubmodelElements.PROPERTY)
+                .valueTypeListElement(DataTypeDefXsd.STRING)
+                .typeValueListElement(AasSubmodelElements.PROPERTY)
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp2")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("bar")
                         .build())
                 .build();
@@ -313,7 +313,7 @@ public class TypeExtractorTest {
                         .build())
                 .build();
         Object data = new DefaultSubmodelElementList.Builder()
-                .typeValueListElement(AASSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
+                .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
                 .value(complexType)
                 .value(complexType)
                 .build();
@@ -336,13 +336,13 @@ public class TypeExtractorTest {
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp2")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("bar")
                         .build())
                 .build();
@@ -383,12 +383,12 @@ public class TypeExtractorTest {
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultRange.Builder()
                         .idShort("doubleRange1")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .min("3.0")
                         .max("5.0")
                         .build())
@@ -397,17 +397,17 @@ public class TypeExtractorTest {
                         .entityType(EntityType.SELF_MANAGED_ENTITY)
                         .statements(new DefaultProperty.Builder()
                                 .idShort("MaxRotationSpeed")
-                                .valueType(DataTypeDefXSD.INT)
+                                .valueType(DataTypeDefXsd.INT)
                                 .value("5000")
                                 .build())
-                        .globalAssetID("http://customer.com/demo/asset/1/1/MySubAsset")
+                        .globalAssetId("http://customer.com/demo/asset/1/1/MySubAsset")
                         .build())
                 .value(new DefaultSubmodelElementCollection.Builder()
                         .idShort("collection2")
                         .value(new DefaultProperty.Builder()
                                 .category("category")
                                 .idShort("stringProp2")
-                                .valueType(DataTypeDefXSD.STRING)
+                                .valueType(DataTypeDefXsd.STRING)
                                 .value("bar")
                                 .build())
                         .build())

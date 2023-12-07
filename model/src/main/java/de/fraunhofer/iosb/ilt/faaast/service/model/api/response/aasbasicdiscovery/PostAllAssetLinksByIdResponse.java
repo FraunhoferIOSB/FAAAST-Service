@@ -16,19 +16,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscove
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
  * Response class for PostAllAssetLinksById requests.
  */
-public class PostAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<SpecificAssetID>> {
+public class PostAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<SpecificAssetId>> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<SpecificAssetID>, PostAllAssetLinksByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<List<SpecificAssetId>, PostAllAssetLinksByIdResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

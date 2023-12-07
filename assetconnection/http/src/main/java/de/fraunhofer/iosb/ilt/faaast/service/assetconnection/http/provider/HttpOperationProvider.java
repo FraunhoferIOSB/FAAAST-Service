@@ -30,7 +30,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -93,13 +92,13 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     HttpResponse.BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 }

@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscover
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -28,19 +28,19 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends AbstractRequestWithPaging<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
-    private List<SpecificAssetID> assetIdentifierPairs;
+    private List<SpecificAssetId> assetIdentifierPairs;
 
     public GetAllAssetAdministrationShellIdsByAssetLinkRequest() {
         this.assetIdentifierPairs = new ArrayList<>();
     }
 
 
-    public List<SpecificAssetID> getAssetIdentifierPairs() {
+    public List<SpecificAssetId> getAssetIdentifierPairs() {
         return assetIdentifierPairs;
     }
 
 
-    public void setAssetIdentifierPairs(List<SpecificAssetID> assetIdentifierPairs) {
+    public void setAssetIdentifierPairs(List<SpecificAssetId> assetIdentifierPairs) {
         this.assetIdentifierPairs = assetIdentifierPairs;
     }
 
@@ -70,13 +70,13 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B assetIdentifierPair(SpecificAssetID value) {
+        public B assetIdentifierPair(SpecificAssetId value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
             return getSelf();
         }
 
 
-        public B assetIdentifierPairs(List<SpecificAssetID> value) {
+        public B assetIdentifierPairs(List<SpecificAssetId> value) {
             getBuildingInstance().setAssetIdentifierPairs(value);
             return getSelf();
         }

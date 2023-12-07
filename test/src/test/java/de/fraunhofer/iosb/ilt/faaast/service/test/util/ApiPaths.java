@@ -34,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 public class ApiPaths {
@@ -236,7 +236,7 @@ public class ApiPaths {
                     assetAdministrationShells(),
                     EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
                             assetIds.entrySet().stream()
-                                    .map(x -> new DefaultSpecificAssetID.Builder()
+                                    .map(x -> new DefaultSpecificAssetId.Builder()
                                             .name(x.getKey())
                                             .value(x.getValue())
                                             .build())

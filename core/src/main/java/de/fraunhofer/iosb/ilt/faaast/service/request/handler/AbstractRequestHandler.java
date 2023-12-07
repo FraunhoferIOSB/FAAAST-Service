@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
@@ -189,12 +189,12 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Parses a {@code SpecificAssetID} as {@code AssetIdentification}.
+     * Parses a {@code SpecificAssetId} as {@code AssetIdentification}.
      *
      * @param specificAssetId the input to parse
      * @return the parsed output
      */
-    protected AssetIdentification parseSpecificAssetId(SpecificAssetID specificAssetId) {
+    protected AssetIdentification parseSpecificAssetId(SpecificAssetId specificAssetId) {
         if (Objects.isNull(specificAssetId)) {
             return null;
         }
@@ -211,12 +211,12 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Parses a list of {@code SpecificAssetID} as {@code AssetIdentification}.
+     * Parses a list of {@code SpecificAssetId} as {@code AssetIdentification}.
      *
      * @param specificAssetIds the input to parse
      * @return the parsed output
      */
-    protected List<AssetIdentification> parseSpecificAssetIds(List<SpecificAssetID> specificAssetIds) {
+    protected List<AssetIdentification> parseSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
         if (Objects.isNull(specificAssetIds)) {
             return List.of();
         }

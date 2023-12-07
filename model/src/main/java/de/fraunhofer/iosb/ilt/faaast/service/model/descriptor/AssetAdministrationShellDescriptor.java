@@ -20,7 +20,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
@@ -70,10 +70,10 @@ public interface AssetAdministrationShellDescriptor {
     public void setId(String identification);
 
 
-    public List<SpecificAssetID> getSpecificAssetIds();
+    public List<SpecificAssetId> getSpecificAssetIds();
 
 
-    public void setSpecificAssetIds(List<SpecificAssetID> specificAssetIds);
+    public void setSpecificAssetIds(List<SpecificAssetId> SpecificAssetIds);
 
 
     public List<SubmodelDescriptor> getSubmodels();

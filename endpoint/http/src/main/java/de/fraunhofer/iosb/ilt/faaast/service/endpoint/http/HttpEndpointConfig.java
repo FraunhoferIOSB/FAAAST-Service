@@ -25,14 +25,18 @@ import java.util.Objects;
 public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public static final int DEFAULT_PORT = 8080;
+    public static final boolean DEFAULT_CORS_ENABLED = false;
+    public static final boolean DEFAULT_SNI_ENABLED = true;
     private int port;
     private boolean corsEnabled;
-    private boolean httpsEnabled;
+    private boolean sniEnabled;
     private CertificateConfig certificate;
 
     public HttpEndpointConfig() {
-        this.port = DEFAULT_PORT;
-        this.certificate = CertificateConfig.builder()
+        port = DEFAULT_PORT;
+        corsEnabled = DEFAULT_CORS_ENABLED;
+        sniEnabled = DEFAULT_SNI_ENABLED;
+        certificate = CertificateConfig.builder()
                 .build();
     }
 
@@ -57,13 +61,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
-    public boolean isHttpsEnabled() {
-        return httpsEnabled;
+    public boolean isSniEnabled() {
+        return sniEnabled;
     }
 
 
-    public void setHttpsEnabled(boolean httpsEnabled) {
-        this.httpsEnabled = httpsEnabled;
+    public void setSniEnabled(boolean sniEnabled) {
+        this.sniEnabled = sniEnabled;
     }
 
 
@@ -88,14 +92,14 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         HttpEndpointConfig that = (HttpEndpointConfig) o;
         return Objects.equals(port, that.port)
                 && Objects.equals(corsEnabled, that.corsEnabled)
-                && Objects.equals(httpsEnabled, that.httpsEnabled)
+                && Objects.equals(sniEnabled, that.sniEnabled)
                 && Objects.equals(certificate, that.certificate);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port, corsEnabled, httpsEnabled, certificate);
+        return Objects.hash(port, corsEnabled, sniEnabled, certificate);
     }
 
 
@@ -117,8 +121,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
 
 
-        public B https(boolean value) {
-            getBuildingInstance().setHttpsEnabled(value);
+        public B sni(boolean value) {
+            getBuildingInstance().setSniEnabled(value);
             return getSelf();
         }
 

@@ -133,7 +133,7 @@ public class FileHelper {
         try {
             return Paths.get(new URI(path)).getFileName().toString();
         }
-        catch (URISyntaxException ex) {
+        catch (URISyntaxException | IllegalArgumentException ex) {
             if (path.contains(PATH_SEPARATOR)) {
                 return path.substring(path.lastIndexOf(PATH_SEPARATOR));
             }

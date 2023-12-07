@@ -56,6 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -100,7 +101,7 @@ public class HttpAssetConnectionTest {
     private static final String KEY_PASSWORD = "changeit";
     private static final String KEY_STORE_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE = "PKCS12";
-    private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+    private static final Reference REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()

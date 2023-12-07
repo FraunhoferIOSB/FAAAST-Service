@@ -67,7 +67,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -514,13 +514,13 @@ public abstract class AbstractHttpEndpointTest {
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -543,11 +543,11 @@ public abstract class AbstractHttpEndpointTest {
         Page<SubmodelElement> expected = Page.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -584,13 +584,13 @@ public abstract class AbstractHttpEndpointTest {
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -621,13 +621,13 @@ public abstract class AbstractHttpEndpointTest {
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultRange.Builder()
                         .idShort("range1")
                         .min("1.1")
                         .max("2.0")
-                        .valueType(DataTypeDefXSD.DOUBLE)
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
         when(service.execute(any())).thenReturn(
                 GetAllSubmodelElementsResponse.builder()

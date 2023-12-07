@@ -55,7 +55,7 @@ import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyTypesDataType;
 import opc.i4aas.AASModellingKindDataType;
 import opc.i4aas.AASQualifierType;
-import opc.i4aas.AASSpecificAssetIDType;
+import opc.i4aas.AASSpecificAssetIdType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
 
@@ -830,10 +830,10 @@ public class TestUtils {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIDType.NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIdType.NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIDType.VALUE)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIdType.VALUE)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));

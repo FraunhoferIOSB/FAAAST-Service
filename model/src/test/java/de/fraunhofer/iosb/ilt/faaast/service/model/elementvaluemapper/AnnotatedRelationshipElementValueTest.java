@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -50,7 +50,7 @@ public class AnnotatedRelationshipElementValueTest {
                 .second(value.getSecond())
                 .annotations(new DefaultProperty.Builder()
                         .idShort(value.getAnnotations().keySet().iterator().next())
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .build();
@@ -94,7 +94,7 @@ public class AnnotatedRelationshipElementValueTest {
                 .second(expected.getSecond())
                 .annotations(new DefaultProperty.Builder()
                         .idShort(expected.getAnnotations().keySet().iterator().next())
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .build();

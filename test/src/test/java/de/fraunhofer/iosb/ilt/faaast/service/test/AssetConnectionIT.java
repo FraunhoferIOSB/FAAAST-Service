@@ -16,12 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -44,12 +46,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -63,22 +67,20 @@ import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.json.JSONException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 
-public class AssetConnectionIT {
+public class AssetConnectionIT extends AbstractIntegrationTest {
 
-    private static final String HOST = "http://localhost";
     private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
 
     private static final int SOURCE_VALUE = 42;
     private static final int TARGET_VALUE = 0;
-    private static Environment environment;
     private static Service service;
+    private static Environment environment;
     private static Property source;
     private static Submodel submodel;
     private static Property target;
@@ -88,12 +90,12 @@ public class AssetConnectionIT {
         source = new DefaultProperty.Builder()
                 .idShort("source")
                 .value(Integer.toString(SOURCE_VALUE))
-                .valueType(DataTypeDefXSD.INTEGER)
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         target = new DefaultProperty.Builder()
                 .idShort("target")
                 .value(Integer.toString(TARGET_VALUE))
-                .valueType(DataTypeDefXSD.INTEGER)
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         submodel = new DefaultSubmodel.Builder()
                 .idShort("Submodel1")
@@ -189,6 +191,11 @@ public class AssetConnectionIT {
                 //        .build())
                 .endpoint(HttpEndpointConfig.builder()
                         .port(portHttp)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(httpEndpointKeyStoreFile)
+                                .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                                .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .build())
                         .build())
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
@@ -209,7 +216,8 @@ public class AssetConnectionIT {
     }
 
 
-    private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    private void assertServiceAvailabilityHttp(int port)
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
@@ -228,41 +236,31 @@ public class AssetConnectionIT {
                 .host("opc.tcp://" + "localhost:" + port)
                 .build());
         DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE);
-        Assert.assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
+        assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
     }
 
 
     private void assertTargetValue(int port, int expectedValue)
-            throws IOException, InterruptedException, URISyntaxException, JSONException {
+            throws IOException, InterruptedException, URISyntaxException, JSONException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse<String> response = HttpHelper.get(
+                httpClient,
                 new ApiPaths(HOST, port)
                         .submodelRepository()
                         .submodelInterface(submodel)
                         .submodelElement(target, Content.VALUE));
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
         String expected = String.format("{\"target\": %d}", expectedValue);
         JSONAssert.assertEquals(expected, response.body(), false);
     }
 
 
-    private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
-        Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
-        if (expected != null) {
-            Object actual = HttpHelper.readResponseList(response, type);
-            Assert.assertEquals(expected, actual);
-        }
-    }
-
-
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
-        Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
+        assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
-            Assert.assertEquals(expected, actual.getContent());
+            assertEquals(expected, actual.getContent());
         }
         return actual;
     }

@@ -166,13 +166,13 @@ import java.util.function.BiConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -187,7 +187,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
@@ -195,7 +195,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 
 public class RequestHandlerManagerTest {
@@ -275,13 +274,13 @@ public class RequestHandlerManagerTest {
                                 environment.getAssetAdministrationShells().get(0),
                                 environment.getAssetAdministrationShells().get(1)));
 
-        List<SpecificAssetID> assetIds = List.of(
-                new DefaultSpecificAssetID.Builder()
+        List<SpecificAssetId> assetIds = List.of(
+                new DefaultSpecificAssetId.Builder()
                         .name("globalAssetId")
                         .value("TestValue")
-                        .externalSubjectID(new DefaultReference.Builder().build())
+                        .externalSubjectId(new DefaultReference.Builder().build())
                         .build(),
-                new DefaultSpecificAssetID.Builder()
+                new DefaultSpecificAssetId.Builder()
                         .name("TestKey")
                         .value("TestValue")
                         .build());
@@ -908,7 +907,7 @@ public class RequestHandlerManagerTest {
         SubmodelElement expected_submodelElement = new DefaultProperty.Builder()
                 .idShort("testIdShort")
                 .value("test")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
                 .payload(expected_submodelElement)
@@ -921,7 +920,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPostSubmodelElementByPathRequest() throws ResourceNotFoundException, Exception {
         Property property1 = new DefaultProperty.Builder()
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("first")
                 .build();
         SubmodelElementList list = new DefaultSubmodelElementList.Builder()
@@ -942,7 +941,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
                 .thenReturn(list);
         Property newProperty = new DefaultProperty.Builder()
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("new")
                 .build();
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
@@ -963,7 +962,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testPostSubmodelElementByPathRequestAlreadyExists() throws ResourceNotFoundException, Exception {
         Property property1 = new DefaultProperty.Builder()
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("first")
                 .build();
         SubmodelElementList list = new DefaultSubmodelElementList.Builder()
@@ -980,7 +979,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
                 .thenReturn(list);
         Property newProperty = new DefaultProperty.Builder()
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("new")
                 .build();
 
@@ -1005,12 +1004,12 @@ public class RequestHandlerManagerTest {
     public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
         SubmodelElement currentSubmodelElement = new DefaultProperty.Builder()
                 .idShort("TestIdshort")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("TestValue")
                 .build();
         SubmodelElement newSubmodelElement = new DefaultProperty.Builder()
                 .idShort("TestIdshort")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .value("NewTestValue")
                 .build();
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
@@ -1454,18 +1453,18 @@ public class RequestHandlerManagerTest {
         SubmodelElement propertyUpdated = new DefaultProperty.Builder()
                 .idShort("propertyUpdated")
                 .value("test")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         SubmodelElement rangeUpdated = new DefaultRange.Builder()
                 .idShort("rangeUpdated")
                 .max("1.0")
                 .min("0.0")
-                .valueType(DataTypeDefXSD.DOUBLE)
+                .valueType(DataTypeDefXsd.DOUBLE)
                 .build();
         SubmodelElement propertyStatic = new DefaultProperty.Builder()
                 .idShort("propertyStatic")
                 .value("test")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         SubmodelElementCollection collection = new DefaultSubmodelElementCollection.Builder()
                 .idShort("col1")
@@ -1475,13 +1474,13 @@ public class RequestHandlerManagerTest {
         SubmodelElement propertyExpected = new DefaultProperty.Builder()
                 .idShort("propertyUpdated")
                 .value("testNew")
-                .valueType(DataTypeDefXSD.STRING)
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         SubmodelElement rangeExpected = new DefaultRange.Builder()
                 .idShort("rangeUpdated")
                 .max("2.0")
                 .min("0.0")
-                .valueType(DataTypeDefXSD.DOUBLE)
+                .valueType(DataTypeDefXsd.DOUBLE)
                 .build();
 
         Reference propertyUpdatedRef = AasUtils.toReference(parentRef, propertyUpdated);

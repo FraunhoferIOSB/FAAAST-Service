@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValu
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
@@ -91,12 +91,12 @@ public class SubmodelElementListValueTest {
                 .value(new DefaultProperty.Builder()
                         .idShort("prop1")
                         .value("testValue")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .value(new DefaultProperty.Builder()
                         .idShort("prop2")
                         .value("testValue2")
-                        .valueType(DataTypeDefXSD.STRING)
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
                 .build();
 

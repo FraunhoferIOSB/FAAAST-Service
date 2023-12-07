@@ -40,7 +40,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -161,8 +161,8 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         if (Extension.class.isAssignableFrom(type)) {
             visit((Extension) hasSemantics);
         }
-        else if (SpecificAssetID.class.isAssignableFrom(type)) {
-            visit((SpecificAssetID) hasSemantics);
+        else if (SpecificAssetId.class.isAssignableFrom(type)) {
+            visit((SpecificAssetId) hasSemantics);
         }
         else if (Submodel.class.isAssignableFrom(type)) {
             visit((Submodel) hasSemantics);

@@ -28,6 +28,6 @@ public interface PropertyMixin {
 
 
     @JsonIgnore
-    public Reference getValueID();
+    public Reference getValueId();
 
 }

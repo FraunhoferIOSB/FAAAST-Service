@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscover
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -29,7 +29,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksByIdResponse> {
 
     private String id;
-    private List<SpecificAssetID> assetLinks;
+    private List<SpecificAssetId> assetLinks;
 
     public PostAllAssetLinksByIdRequest() {
         this.assetLinks = new ArrayList<>();
@@ -46,12 +46,12 @@ public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksBy
     }
 
 
-    public List<SpecificAssetID> getAssetLinks() {
+    public List<SpecificAssetId> getAssetLinks() {
         return assetLinks;
     }
 
 
-    public void setAssetLinks(List<SpecificAssetID> assetLinks) {
+    public void setAssetLinks(List<SpecificAssetId> assetLinks) {
         this.assetLinks = assetLinks;
     }
 
@@ -88,13 +88,13 @@ public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksBy
         }
 
 
-        public B assetLink(SpecificAssetID value) {
+        public B assetLink(SpecificAssetId value) {
             getBuildingInstance().getAssetLinks().add(value);
             return getSelf();
         }
 
 
-        public B assetLinks(List<SpecificAssetID> value) {
+        public B assetLinks(List<SpecificAssetId> value) {
             getBuildingInstance().setAssetLinks(value);
             return getSelf();
         }

@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -30,9 +30,9 @@ public interface EntityMixin {
 
 
     @JsonIgnore
-    public String getGlobalAssetID();
+    public String getGlobalAssetId();
 
 
     @JsonIgnore
-    public List<SpecificAssetID> getSpecificAssetIds();
+    public List<SpecificAssetId> getSpecificAssetIds();
 }

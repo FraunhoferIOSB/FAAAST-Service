@@ -20,12 +20,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
@@ -93,13 +93,13 @@ public class SubmodelElementListHelper {
 
 
     /**
-     * Converts an {@link AASSubmodelElements} type to the corresponding Java class.
+     * Converts an {@link AasSubmodelElements} type to the corresponding Java class.
      *
      * @param submodelElementType the type to convert
      * @return the corresponding Java class
      * @throws IllegalArgumentException if the type is not a valid subtype of SubmodelElement.
      */
-    public static Class<? extends SubmodelElement> submodelElementTypeToClass(AASSubmodelElements submodelElementType) {
+    public static Class<? extends SubmodelElement> submodelElementTypeToClass(AasSubmodelElements submodelElementType) {
         switch (submodelElementType) {
             case ANNOTATED_RELATIONSHIP_ELEMENT:
                 return AnnotatedRelationshipElement.class;
@@ -169,7 +169,7 @@ public class SubmodelElementListHelper {
             return defaultResult;
         }
         Class<? extends Object> elementType = getElementType(submodelElementList);
-        Function<Object, DataTypeDefXSD> extractor = null;
+        Function<Object, DataTypeDefXsd> extractor = null;
         if (Property.class.isAssignableFrom(elementType)) {
             extractor = x -> ((Property) x).getValueType();
         }

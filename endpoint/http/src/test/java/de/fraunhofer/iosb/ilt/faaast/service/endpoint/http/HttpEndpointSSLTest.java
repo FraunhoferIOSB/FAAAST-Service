@@ -87,7 +87,6 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
                 HttpEndpointConfig.builder()
                         .port(port)
                         .cors(true)
-                        .https(true)
                         .certificate(CertificateConfig.builder()
                                 .keyStorePath(keyStoreTempFile)
                                 .keyStorePassword(KEYSTORE_PASSWORD)

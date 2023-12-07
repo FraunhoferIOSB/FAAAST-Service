@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 /**
@@ -48,12 +48,12 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
     @Override
     public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-        List<SpecificAssetID> globalKeys = request.getAssetLinks().stream()
+        List<SpecificAssetId> globalKeys = request.getAssetLinks().stream()
                 .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getName()))
                 .collect(Collectors.toList());
         if (!globalKeys.isEmpty()) {
             if (globalKeys.size() == 1 && globalKeys.get(0) != null) {
-                aas.getAssetInformation().setGlobalAssetID(globalKeys.get(0).getValue());
+                aas.getAssetInformation().setGlobalAssetId(globalKeys.get(0).getValue());
             }
             else {
                 return PostAllAssetLinksByIdResponse.builder()
@@ -65,11 +65,11 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
             }
         }
         //TODO potentially check if assetLinks already exist and throw ResourceAlreadyExistsException, but currently unclear how this is expected to work
-        List<SpecificAssetID> newSpecificAssetIds = request.getAssetLinks().stream()
+        List<SpecificAssetId> newSpecificAssetIds = request.getAssetLinks().stream()
                 .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getName()))
                 .collect(Collectors.toList());
         for (var newSpecificAssetId: newSpecificAssetIds) {
-            List<SpecificAssetID> existingLinks = aas.getAssetInformation().getSpecificAssetIds().stream()
+            List<SpecificAssetId> existingLinks = aas.getAssetInformation().getSpecificAssetIds().stream()
                     .filter(x -> Objects.equals(x.getName(), newSpecificAssetId.getName()))
                     .collect(Collectors.toList());
             if (existingLinks.isEmpty()) {
@@ -89,11 +89,11 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
             }
         }
         context.getPersistence().save(aas);
-        List<SpecificAssetID> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        if (aas.getAssetInformation().getGlobalAssetID() != null) {
-            result.add(new DefaultSpecificAssetID.Builder()
+        List<SpecificAssetId> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        if (aas.getAssetInformation().getGlobalAssetId() != null) {
+            result.add(new DefaultSpecificAssetId.Builder()
                     .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
-                    .value(aas.getAssetInformation().getGlobalAssetID())
+                    .value(aas.getAssetInformation().getGlobalAssetId())
                     .build());
         }
         return PostAllAssetLinksByIdResponse.builder()

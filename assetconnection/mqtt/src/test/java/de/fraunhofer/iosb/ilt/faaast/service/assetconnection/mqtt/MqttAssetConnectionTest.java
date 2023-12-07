@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
@@ -58,7 +59,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -79,7 +79,7 @@ import org.slf4j.event.Level;
 
 public class MqttAssetConnectionTest {
 
-    private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+    private static final Reference DEFAULT_REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";

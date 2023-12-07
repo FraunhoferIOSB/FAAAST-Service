@@ -15,23 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 
 
 /**
  * Datatypes defined in AAS specification.
  */
 public enum Datatype {
-    STRING("xs:string", StringValue.class, DataTypeDefXSD.STRING),
-    BOOLEAN("xs:boolean", BooleanValue.class, DataTypeDefXSD.BOOLEAN),
-    DECIMAL("xs:decimal", DecimalValue.class, DataTypeDefXSD.DECIMAL),
-    INTEGER("xs:integer", IntegerValue.class, DataTypeDefXSD.INTEGER),
-    DOUBLE("xs:double", DoubleValue.class, DataTypeDefXSD.DOUBLE),
-    FLOAT("xs:float", FloatValue.class, DataTypeDefXSD.FLOAT),
+    STRING("xs:string", StringValue.class, DataTypeDefXsd.STRING),
+    BOOLEAN("xs:boolean", BooleanValue.class, DataTypeDefXsd.BOOLEAN),
+    DECIMAL("xs:decimal", DecimalValue.class, DataTypeDefXsd.DECIMAL),
+    INTEGER("xs:integer", IntegerValue.class, DataTypeDefXsd.INTEGER),
+    DOUBLE("xs:double", DoubleValue.class, DataTypeDefXsd.DOUBLE),
+    FLOAT("xs:float", FloatValue.class, DataTypeDefXsd.FLOAT),
     // TODO implement all data types
     //    Date,
     //    Time,
-    DATE_TIME("xs:datetime", DateTimeValue.class, DataTypeDefXSD.DATE_TIME),
+    DATE_TIME("xs:datetime", DateTimeValue.class, DataTypeDefXsd.DATE_TIME),
     //    DateTimeStamp,
     //    gYear,
     //    gMonth,
@@ -40,10 +40,10 @@ public enum Datatype {
     //    Duration,
     //    YearMonthDuration,
     //    DayTimeDuration,
-    BYTE("xs:byte", ByteValue.class, DataTypeDefXSD.BYTE),
-    SHORT("xs:short", ShortValue.class, DataTypeDefXSD.SHORT),
-    INT("xs:int", IntValue.class, DataTypeDefXSD.INT),
-    LONG("xs:long", LongValue.class, DataTypeDefXSD.LONG), //    UnsignedByte,
+    BYTE("xs:byte", ByteValue.class, DataTypeDefXsd.BYTE),
+    SHORT("xs:short", ShortValue.class, DataTypeDefXsd.SHORT),
+    INT("xs:int", IntValue.class, DataTypeDefXsd.INT),
+    LONG("xs:long", LongValue.class, DataTypeDefXsd.LONG), //    UnsignedByte,
     //    UnsignedShort,
     //    UnsignedInt,
     //    UnsignedLong,
@@ -60,7 +60,7 @@ public enum Datatype {
     public static final Datatype DEFAULT = Datatype.STRING;
     private final Class<? extends TypedValue> implementation;
     private final String name;
-    private final DataTypeDefXSD aas4jDatatype;
+    private final DataTypeDefXsd aas4jDatatype;
 
     /**
      * Finds datatype from string. Matching is case-sensitive. If no match is found, {@link Datatype#DEFAULT} is
@@ -78,13 +78,13 @@ public enum Datatype {
 
 
     /**
-     * Finds datatype from aas4jDatatype {@link DataTypeDefXSD}. If no match is found, {@link Datatype#DEFAULT} is
+     * Finds datatype from aas4jDatatype {@link DataTypeDefXsd}. If no match is found, {@link Datatype#DEFAULT} is
      * returned.
      *
-     * @param value the {@link DataTypeDefXSD}
+     * @param value the {@link DataTypeDefXsd}
      * @return matching datatype if found, else {@link Datatype#DEFAULT}
      */
-    public static Datatype fromAas4jDatatype(DataTypeDefXSD value) {
+    public static Datatype fromAas4jDatatype(DataTypeDefXsd value) {
         return Stream.of(Datatype.values())
                 .filter(x -> value == x.getAas4jDatatype())
                 .findAny()
@@ -104,7 +104,7 @@ public enum Datatype {
     }
 
 
-    private Datatype(String name, Class<? extends TypedValue> implementation, DataTypeDefXSD aas4jDatatype) {
+    private Datatype(String name, Class<? extends TypedValue> implementation, DataTypeDefXsd aas4jDatatype) {
         this.name = name;
         this.implementation = implementation;
         this.aas4jDatatype = aas4jDatatype;
@@ -116,7 +116,7 @@ public enum Datatype {
     }
 
 
-    public DataTypeDefXSD getAas4jDatatype() {
+    public DataTypeDefXsd getAas4jDatatype() {
         return aas4jDatatype;
     }
 
