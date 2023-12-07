@@ -890,7 +890,6 @@ public class RequestHandlerManagerTest {
                 .build();
         SubmodelElementList list = new DefaultSubmodelElementList.Builder()
                 .idShort("list")
-                .value(property1)
                 .build();
         Submodel submodel = new DefaultSubmodel.Builder()
                 .id("submodel")
@@ -903,8 +902,16 @@ public class RequestHandlerManagerTest {
                 .submodelId(submodel.getId())
                 .idShortPath(listPath)
                 .build();
-        when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(QueryModifier.DEFAULT)))
+
+        when(persistence.getSubmodelElement(eq(listIdentifier), any()))
                 .thenReturn(list);
+        Reference refNewElement = new ReferenceBuilder()
+                .submodel(submodel)
+                .element(list)
+                .index(0)
+                .build();
+        when(persistence.submodelElementExists(refNewElement))
+                .thenReturn(false);
         Property newProperty = new DefaultProperty.Builder()
                 .valueType(DataTypeDefXsd.STRING)
                 .value("new")
