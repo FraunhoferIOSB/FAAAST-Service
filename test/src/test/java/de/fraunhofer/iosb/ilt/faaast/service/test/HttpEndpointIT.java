@@ -1275,65 +1275,16 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceFileAttachment()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        byte[] content = new byte[20];
-        new Random().nextBytes(content);
-        Environment defaultEnvironment = new DefaultEnvironment.Builder()
-                .assetAdministrationShells(aas)
-                .submodels(aas.getSubmodels().stream()
-                        .map(x -> {
-                            try {
-                                return EnvironmentHelper.resolve(x, environment, Submodel.class);
-                            }
-                            catch (ResourceNotFoundException ex) {
-                                return null;
-                            }
-                        })
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .collect(Collectors.toList()))
-                .conceptDescriptions(environment.getConceptDescriptions())
-                .build();
-        String fileName = "file:///TestFile.pdf";
-        HttpEntity httpEntity = MultipartEntityBuilder.create()
-                .addPart("fileName",
-                        new StringBody(fileName,
-                                ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), StandardCharsets.UTF_8)))
-                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
-                        fileName)
-                .build();
-        HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
-                .uri(new URI(apiPaths.submodelRepository()
-                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                        + "/attachment"))
-                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
-                .build(),
-                HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
-        HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
-                .uri(new URI(apiPaths.submodelRepository()
-                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                        + "/attachment"))
-                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
-                .GET()
-                .build(),
-                HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertArrayEquals(content, getFileResponse.body());
-        HttpResponse<byte[]> deleteFileResponse = httpClient.send(HttpRequest.newBuilder()
-                .uri(new URI(apiPaths.submodelRepository()
-                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
-                        + "/attachment"))
-                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
-                .DELETE()
-                .build(),
-                HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
+    public void testSubmodelInterfaceFileAttachmentWithFilePrefix()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        assertSubmodelInterfaceFileAttachment("file:///TestFile.pdf");
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceFileAttachmentWithRelativePath()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        assertSubmodelInterfaceFileAttachment("/aasx/files/documentation.pdf");
     }
 
 
@@ -2136,6 +2087,66 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             Object actual = HttpHelper.readResponse(response, type);
             Assert.assertEquals(expected, actual);
         }
+    }
+
+
+    private void assertSubmodelInterfaceFileAttachment(String fileName)
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        Environment defaultEnvironment = new DefaultEnvironment.Builder()
+                .assetAdministrationShells(aas)
+                .submodels(aas.getSubmodels().stream()
+                        .map(x -> {
+                            try {
+                                return EnvironmentHelper.resolve(x, environment, Submodel.class);
+                            }
+                            catch (ResourceNotFoundException ex) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList()))
+                .conceptDescriptions(environment.getConceptDescriptions())
+                .build();
+        HttpEntity httpEntity = MultipartEntityBuilder.create()
+                .addPart("fileName",
+                        new StringBody(fileName,
+                                ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
+                        fileName)
+                .build();
+        HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .header(HttpConstants.HEADER_CONTENT_TYPE, httpEntity.getContentType())
+                .GET()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertArrayEquals(content, getFileResponse.body());
+        HttpResponse<byte[]> deleteFileResponse = httpClient.send(HttpRequest.newBuilder()
+                .uri(new URI(apiPaths.submodelRepository()
+                        .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
+                        + "/attachment"))
+                .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                .DELETE()
+                .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), deleteFileResponse.statusCode());
     }
 
 
