@@ -875,7 +875,7 @@ public class RequestHandlerManagerTest {
                 .build();
         Reference referenceToNewElement = new ReferenceBuilder()
                 .submodel(submodel)
-                .element(submodelElement)
+                .element(submodelElement.getIdShort())
                 .build();
         when(persistence.submodelElementExists(referenceToNewElement))
                 .thenReturn(true);
