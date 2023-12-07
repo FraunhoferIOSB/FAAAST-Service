@@ -258,10 +258,10 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
-        Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
+        assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
-            Assert.assertEquals(expected, actual.getContent());
+            assertEquals(expected, actual.getContent());
         }
         return actual;
     }
