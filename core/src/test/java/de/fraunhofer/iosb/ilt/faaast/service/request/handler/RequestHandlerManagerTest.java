@@ -925,6 +925,7 @@ public class RequestHandlerManagerTest {
                 .build();
         SubmodelElementList list = new DefaultSubmodelElementList.Builder()
                 .idShort("list")
+                .value(property1)
                 .build();
         Submodel submodel = new DefaultSubmodel.Builder()
                 .id("submodel")
@@ -943,7 +944,7 @@ public class RequestHandlerManagerTest {
         Reference refNewElement = new ReferenceBuilder()
                 .submodel(submodel)
                 .element(list)
-                .index(0)
+                .index(1)
                 .build();
         when(persistence.submodelElementExists(refNewElement))
                 .thenReturn(false);

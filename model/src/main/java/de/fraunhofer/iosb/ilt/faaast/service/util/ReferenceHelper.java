@@ -288,9 +288,7 @@ public class ReferenceHelper {
      * @return parsed Reference or null is given value is not a valid Reference
      */
     public static Reference parseReference(String value) {
-        return parseReference(value,
-                ReflectionHelper.getDefaultImplementation(Reference.class),
-                ReflectionHelper.getDefaultImplementation(Key.class));
+        return parseReference(value, ReflectionHelper.getDefaultImplementation(Reference.class));
     }
 
 
@@ -300,10 +298,9 @@ public class ReferenceHelper {
      *
      * @param value String representation of the reference
      * @param referenceType implementation type of Reference interface
-     * @param keyType implementation type of Key interface
      * @return parsed Reference or null is given value is not a valid Reference
      */
-    public static Reference parseReference(String value, Class<? extends Reference> referenceType, Class<? extends Key> keyType) {
+    public static Reference parseReference(String value, Class<? extends Reference> referenceType) {
         String reference = value;
         if (reference == null || reference.isBlank()) {
             return null;

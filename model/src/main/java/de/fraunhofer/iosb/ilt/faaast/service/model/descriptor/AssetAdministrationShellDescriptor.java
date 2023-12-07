@@ -73,7 +73,7 @@ public interface AssetAdministrationShellDescriptor {
     public List<SpecificAssetId> getSpecificAssetIds();
 
 
-    public void setSpecificAssetIds(List<SpecificAssetId> SpecificAssetIds);
+    public void setSpecificAssetIds(List<SpecificAssetId> specificAssetIds);
 
 
     public List<SubmodelDescriptor> getSubmodels();
