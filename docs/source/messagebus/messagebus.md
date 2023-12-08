@@ -1,11 +1,11 @@
 # MessageBus
 
 In FA³ST Service, `MessageBus` is used for communication between different components, for example to synchronize between endpoints using different protocols.
-Therefore, the `MessageBus` is primarily designed for internal use but as it might also be useful for some appilications and scenarios there might be implementations that expose the `MessageBus` to the outside world.
+Therefore, the MessageBus is primarily designed for internal use but as it might also be useful for some applications and scenarios there might be implementations that expose the MessageBus to the outside world.
 
 ## Events
 
-The `MessageBus` works in a publish/subscribe manner based on different types of events or event messages (which are subclasses of the abstract class `EventMessage`).
+The `MessageBus` works according to the publish/subscribe principle based on different types of events or event messages (which are subclasses of the abstract class `EventMessage`).
 Subscriptions are made to a kind of event, i.e. a subclass of `EventMessage` or even `EventMessage` itself (to receive all events).
 When subscribing to a class, all events of this class or any subclass are received.
 
@@ -25,4 +25,4 @@ This is the class hierarchy of available event classes/types
 			*   `ElementDeleteEventMessage`				Triggered when an element is deleted
 			*   `ElementUpdateEventMessage`				Triggered when an element is updated
 			*   `ValueChangeEventMessage`				Triggered when the value of an element is updated, payload: old value, new value
-	*   `ErrorEventMessage`								Triggered when an error occured, payload: message, error level (INFO, WARN, ERROR)
+	*   `ErrorEventMessage`								Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)

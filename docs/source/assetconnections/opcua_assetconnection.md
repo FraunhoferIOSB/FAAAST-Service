@@ -44,20 +44,22 @@ Which application certificate to use is determined by the following steps:
 - `{securityBaseDir}/{applicationCertificate.keyStorePath}` if the file exists (default: `./{applicationCertificate.keyStorePath}`)
 - otherwise generate self-signed certificate and store it at `applicationCertificate.keyStorePath` (if `applicationCertificate.keyStorePath` is an absolute file path) or else `{securityBaseDir}/{applicationCertificate.keyStorePath}`. The generated keystore will not be password protected.
 
-You also need to make sure that the OPC UA client (which in this case is the FA³ST Service OPC UA asset connection) knwos and trusts the server certificate and vice versa.
+You also need to make sure that the OPC UA client (which in this case is the FA³ST Service OPC UA asset connection) knows and trusts the server certificate and vice versa.
 
-For the client to trust the server you need to either put the server certificate in the directory `{securityBaseDir}/pki/trusted/certs` is your server uses a self-signed certificate or if your server uses a certificate issued by a CA put the CA root certificate in `{securityBaseDir}/pki/issuers/certs` and the corresponding certificate revocation list (CRL) in `{securityBaseDir}/pki/issuers/crl`.
+For the client to trust the server you need to do one of these steps depending on the certificate of the server:
+- Self-signed-certificate: Put server certificate in {securityBaseDir}/pki/trusted/certs
+- CA Certificate: put the CA root certificate in {securityBaseDir}/pki/issuers/certs and the corresponding certificate revocation list (CRL) in {securityBaseDir}/pki/issuers/crl.
 
 If you don't have the server certificate at hand you can start FA³ST Service without providing/trusting the server certificate.
 On start-up FA³ST Service will try to connect to the server which will fail because the server certificate is not trusted yet.
-Afer that you will find the relevant files at `{securityBaseDir}/pki/rejected`.
+After that you will find the relevant files at `{securityBaseDir}/pki/rejected`.
 Copy them to the respective directories as described above.
 Once FA³ST Service tries to reconnect the connection should be established successfully.
 
 For the server to trust your client application certificate please refer to the documentation of your OPC UA server.
 
 #### Authentication Certificate
-Which authentification certificate is used is determined by a similar logic as for the application certificate besides that this certificate is not auto-generated if not present:
+Which authentication certificate is used is determined by a similar logic as for the application certificate besides that this certificate is not auto-generated if not present:
 - `authenticationCertificate.keyStorePath` if it is an absolute file path and the file exists (default: application.p12)
 - `{securityBaseDir}/{authenticationCertificate.keyStorePath}` if the file exists (default: `./{authenticationCertificate.keyStorePath}`)
 
@@ -71,7 +73,7 @@ Which authentification certificate is used is determined by a similar logic as f
 
 All NodeIds (also below) are specified in the ExpandedNodeId format (see [OPC UA Reference, Part 6](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), Section ExpandedNodeId). In the following you can see two examples.
 
-If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
+If the value is an array, it’s possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. “[2]”. If the value is a multidimensional array, multiple indices can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
 
 #### Example
 
@@ -131,7 +133,7 @@ or
 | interval | long | Interval to poll the server for changes (in ms), default: 1000, _currently not used_ |
 | arrayIndex | String | _optional_ Index of the desired array element if the value is an array |
 
-If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
+If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multidimensional array, multiple indices can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
 
 #### Example
 

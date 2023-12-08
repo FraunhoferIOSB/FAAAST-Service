@@ -3,7 +3,7 @@ The file-based persistence keeps the entire AAS Environment in a model file whic
 
 File Persistence configuration supports the following configuration parameters:
 -   `dataDir` (optional, default: `/`): Path under which the model file created by the persistence is to be saved
--   `keepInitial` (optional, default: `true`): If false the model file parsed on startup will be overriden with changes. If true a copy of the model file will be created by the persistence which keeps the changes.
+-   `keepInitial` (optional, default: `true`): If false the model file parsed on startup will be overridden with changes. If true a copy of the model file will be created by the persistence which keeps the changes.
 -   `dataformat` (optional, default: same data format as input file): Determines the data format of the created file by file persistence. Ignored if the `keepInitial` parameter is set to false. Supported data formats are `JSON`, `XML`, `AML`, `RDF`, `AASX`, `JSONLD`, `UANODESET`.
 
 Example configuration for the file persistence:
