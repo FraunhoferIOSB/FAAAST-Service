@@ -73,7 +73,7 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <bouncycastle.version>1.70</bouncycastle.version>
+        <bouncycastle.version>1.77</bouncycastle.version>
         <checkstyle.version>10.12.6</checkstyle.version>
         <classgraph.version>4.8.165</classgraph.version>
         <commons.codec.version>1.16.0</commons.codec.version>
@@ -110,7 +110,7 @@
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.4.3</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>9.0.4</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.11.0-6</maven.plugin.prosys.codegen.version>
@@ -211,6 +211,7 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${maven.plugin.owasp.version}</version>
                     <configuration>
+                        <nvdApiServerId>NIST_NVD_API</nvdApiServerId>
                         <failBuildOnCVSS>6</failBuildOnCVSS>
                         <suppressionFiles>
                             <suppressionFile>owaspSuppressions.xml</suppressionFile>
