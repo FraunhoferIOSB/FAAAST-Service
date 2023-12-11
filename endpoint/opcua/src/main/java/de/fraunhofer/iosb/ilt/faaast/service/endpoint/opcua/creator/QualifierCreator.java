@@ -28,9 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import java.util.List;
-import opc.i4aas.AASQualifierList;
-import opc.i4aas.AASQualifierType;
-import opc.i4aas.AASSubmodelElementType;
+import opc.i4aas.objecttypes.AASQualifierList;
+import opc.i4aas.objecttypes.AASQualifierType;
+import opc.i4aas.objecttypes.AASSubmodelElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

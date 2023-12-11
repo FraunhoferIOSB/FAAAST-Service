@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
-import opc.i4aas.AASSubmodelElementType;
+import opc.i4aas.objecttypes.AASSubmodelElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;

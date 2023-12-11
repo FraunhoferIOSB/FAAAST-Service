@@ -32,8 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElement
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
-import opc.i4aas.AASEntityType;
-import opc.i4aas.AASSpecificAssetIdList;
+import opc.i4aas.objecttypes.AASEntityType;
+import opc.i4aas.objecttypes.AASSpecificAssetIdList;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
