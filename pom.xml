@@ -73,7 +73,7 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <bouncycastle.version>1.70</bouncycastle.version>
+        <bouncycastle.version>1.77</bouncycastle.version>
         <checkstyle.version>10.12.6</checkstyle.version>
         <classgraph.version>4.8.165</classgraph.version>
         <commons.codec.version>1.16.0</commons.codec.version>
