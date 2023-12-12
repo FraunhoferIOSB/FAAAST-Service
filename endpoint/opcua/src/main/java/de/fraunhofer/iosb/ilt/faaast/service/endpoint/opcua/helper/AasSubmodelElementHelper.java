@@ -190,7 +190,7 @@ public class AasSubmodelElementHelper {
                 LocalizedText.english(AASFileType.VALUE));
         property.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            property.setAccessLevel(AccessLevelType.CurrentRead);
+            property.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         property.setDescription(new LocalizedText("", ""));
         fileNode.addProperty(property);

@@ -69,7 +69,7 @@ public class BlobCreator extends SubmodelElementCreator {
             setValue(aasBlob, blobNode, nodeManager, submodel, blobRef);
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             if (ordered) {

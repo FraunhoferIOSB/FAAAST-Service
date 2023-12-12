@@ -55,8 +55,8 @@ public class IdentifiableCreator {
         identifiableNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

@@ -67,7 +67,7 @@ public class RangeCreator extends SubmodelElementCreator {
 
             if (VALUES_READ_ONLY) {
                 // ValueType read-only
-                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             if (ordered) {

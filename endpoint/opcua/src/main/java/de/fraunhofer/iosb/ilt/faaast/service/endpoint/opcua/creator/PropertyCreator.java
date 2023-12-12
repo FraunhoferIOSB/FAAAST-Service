@@ -79,11 +79,11 @@ public class PropertyCreator extends SubmodelElementCreator {
 
             if (VALUES_READ_ONLY) {
                 // ValueType read-only
-                prop.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                prop.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
 
                 // if the Submodel is null, we also make the value read-only
                 if ((submodel == null) && (prop.getValueNode() != null)) {
-                    prop.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+                    prop.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
                 }
             }
 

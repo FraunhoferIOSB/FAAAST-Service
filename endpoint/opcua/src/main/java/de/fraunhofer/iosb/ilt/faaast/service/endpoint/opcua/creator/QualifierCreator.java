@@ -147,13 +147,13 @@ public class QualifierCreator {
     private static void setAccessRights(AASQualifierType qualifierNode) {
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             if (qualifierNode.getValueNode() != null) {
-                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
             if (qualifierNode.getValueTypeNode() != null) {
-                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
             if (qualifierNode.getTypeNode() != null) {
-                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
         }
     }
@@ -183,7 +183,7 @@ public class QualifierCreator {
                 LocalizedText.english(AASQualifierType.VALUE));
         myProperty.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         myProperty.setDescription(new LocalizedText("", ""));
         node.addProperty(myProperty);

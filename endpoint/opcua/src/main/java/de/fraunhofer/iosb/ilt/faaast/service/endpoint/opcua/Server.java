@@ -47,7 +47,6 @@ import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
@@ -284,9 +283,7 @@ public class Server {
         final URL classFile = UaServer.class.getResource("/de/fraunhofer/iosb/ilt/aas/service/protocol/Server.class");
         if (classFile != null && classFile.getFile() != null) {
             final File mfFile = new File(classFile.getFile());
-            GregorianCalendar c = new GregorianCalendar();
-            c.setTimeInMillis(mfFile.lastModified());
-            buildInfo.setBuildDate(new DateTime(c));
+            buildInfo.setBuildDate(DateTime.fromMillis(mfFile.lastModified()));
         }
     }
 

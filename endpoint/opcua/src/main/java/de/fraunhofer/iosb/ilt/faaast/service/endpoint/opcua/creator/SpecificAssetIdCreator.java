@@ -156,8 +156,8 @@ public class SpecificAssetIdCreator {
         specificAssetIdNode.setValue(aasIdentifierPair.getValue());
 
         if (readOnly) {
-            specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.CurrentRead);
-            specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

@@ -36,10 +36,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -699,7 +699,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(ZonedDateTime value) {
-        return new DateTime(GregorianCalendar.from(value));
+        return DateTime.fromInstant(value.toInstant());
     }
 
 
@@ -710,7 +710,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
-        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+        return DateTime.fromInstant(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toInstant());
     }
 
 
@@ -719,7 +719,7 @@ public class ValueConverter {
         if (variant.getValue() != null) {
             // special treatment for DateTime
             if (variant.getValue() instanceof DateTime) {
-                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+                retval = ZonedDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneOffset.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();

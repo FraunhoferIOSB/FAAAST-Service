@@ -190,7 +190,7 @@ public class SubmodelElementCreator {
             DescriptionCreator.addDescriptions(node, element.getDescription());
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+                node.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
         }
     }

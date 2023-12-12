@@ -154,7 +154,7 @@ public class ConceptDescriptionCreator {
         conceptDescriptionNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 }

@@ -109,7 +109,7 @@ public class SubmodelCreator {
             SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
 
             if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
-                smNode.getKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+                smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);

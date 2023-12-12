@@ -93,7 +93,7 @@ public class FileCreator extends SubmodelElementCreator {
         }
 
         if (VALUES_READ_ONLY) {
-            fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

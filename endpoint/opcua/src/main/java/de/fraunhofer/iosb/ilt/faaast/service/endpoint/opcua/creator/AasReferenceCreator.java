@@ -195,7 +195,7 @@ public class AasReferenceCreator {
                 UnsignedInteger.valueOf(keys.length)
         });
         if (readOnly) {
-            refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
+            refNode.getKeysNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         refNode.setKeys(keys);
     }
