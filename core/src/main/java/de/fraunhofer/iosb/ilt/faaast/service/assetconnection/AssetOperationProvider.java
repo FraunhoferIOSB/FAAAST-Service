@@ -95,7 +95,9 @@ public interface AssetOperationProvider extends AssetProvider {
      */
     public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
             throws AssetConnectionException {
-        CompletableFuture.supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput))).thenAccept(x -> callback.accept(x, inoutput));
-
+        CompletableFuture
+                .supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput)))
+                .thenAccept(x -> callback.accept(x, inoutput));
     }
+
 }

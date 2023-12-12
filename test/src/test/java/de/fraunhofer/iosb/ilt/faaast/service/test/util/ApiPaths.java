@@ -516,8 +516,33 @@ public class ApiPaths {
         }
 
 
+        public String invokeValueOnly(String idShortPath) {
+            return String.format("%s/invoke/$value",
+                    submodelElement(idShortPath));
+        }
+
+
+        public String invokeAsync(String idShortPath) {
+            return String.format("%s/invoke-async",
+                    submodelElement(idShortPath));
+        }
+
+
+        public String invokeAsyncValueOnly(String idShortPath) {
+            return String.format("%s/invoke-async/$value",
+                    submodelElement(idShortPath));
+        }
+
+
         public String operationResult(String idShortPath, String handleId) {
             return String.format("%s/operation-results/%s",
+                    submodelElement(idShortPath),
+                    handleId);
+        }
+
+
+        public String operationStatus(String idShortPath, String handleId) {
+            return String.format("%s/operation-status/%s",
                     submodelElement(idShortPath),
                     handleId);
         }

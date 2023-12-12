@@ -32,7 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @param <T> type of the payload
  */
-public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper<AbstractResponseWithPayload<T>> {
+public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper<AbstractResponseWithPayload<T>, Request<AbstractResponseWithPayload<T>>> {
 
     public ResponseWithPayloadResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

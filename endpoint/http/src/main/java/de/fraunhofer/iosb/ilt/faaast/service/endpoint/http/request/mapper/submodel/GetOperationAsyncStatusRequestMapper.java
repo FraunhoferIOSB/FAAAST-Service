@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -30,25 +30,25 @@ import java.util.Map;
 
 /**
  * class to map HTTP-GET-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*),
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*).
+ * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-status/(.*),
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-status/(.*).
  */
-public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
+public class GetOperationAsyncStatusRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncStatusRequest, GetOperationAsyncStatusResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s",
+    private static final String PATTERN = String.format("submodel-elements/%s/operation-status/%s",
             pathElement(SUBMODEL_ELEMENT_PATH),
             pathElement(HANDLE_ID));
 
-    public GetOperationAsyncResultRequestMapper(ServiceContext serviceContext) {
+    public GetOperationAsyncStatusRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public GetOperationAsyncResultRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        return GetOperationAsyncResultRequest.builder()
+    public GetOperationAsyncStatusRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        return GetOperationAsyncStatusRequest.builder()
                 .path(urlParameters.get(SUBMODEL_ELEMENT_PATH))
                 .handle(OperationHandle.builder()
                         .handleId(EncodingHelper.base64UrlDecode(urlParameters.get(HANDLE_ID)))

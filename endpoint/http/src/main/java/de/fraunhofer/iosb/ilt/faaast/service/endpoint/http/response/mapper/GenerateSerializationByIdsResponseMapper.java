@@ -18,9 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -29,7 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * HTTP response mapper for {@link GenerateSerializationByIdsResponse}, serializing the requested content according to
  * the desired data format.
  */
-public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse> {
+public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse, GenerateSerializationByIdsRequest> {
 
     public GenerateSerializationByIdsResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -37,7 +37,7 @@ public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMa
 
 
     @Override
-    public void map(Request<GenerateSerializationByIdsResponse> apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
+    public void map(GenerateSerializationByIdsRequest apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
         try {
             HttpHelper.sendContent(httpResponse,
                     apiResponse.getStatusCode(),

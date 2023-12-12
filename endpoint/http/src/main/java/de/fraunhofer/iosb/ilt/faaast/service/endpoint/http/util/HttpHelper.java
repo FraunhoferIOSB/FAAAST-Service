@@ -63,6 +63,8 @@ public class HttpHelper {
                 return HttpStatus.ACCEPTED_202;
             case SUCCESS_NO_CONTENT:
                 return HttpStatus.NO_CONTENT_204;
+            case SUCCESS_FOUND:
+                return HttpStatus.FOUND_302;
             case CLIENT_ERROR_BAD_REQUEST:
                 return HttpStatus.BAD_REQUEST_400;
             case CLIENT_NOT_AUTHORIZED:
@@ -217,6 +219,25 @@ public class HttpHelper {
                     send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
                 }
             }
+        }
+    }
+
+
+    /**
+     * Sends an empty HTTP response with given statusCode and headers.
+     *
+     * @param response HTTP response object
+     * @param statusCode statusCode to send
+     * @param headers headers to be added to the response
+     * @throws IllegalArgumentException if response is null
+     * @throws IllegalArgumentException if statusCode is null
+     */
+    public static void sendEmpty(HttpServletResponse response, StatusCode statusCode, Map<String, String> headers) {
+        Ensure.requireNonNull(response, "response must be non-null");
+        Ensure.requireNonNull(statusCode, "statusCode must be non-null");
+        response.setStatus(toHttpStatusCode(statusCode));
+        if (Objects.nonNull(headers)) {
+            headers.forEach(response::addHeader);
         }
     }
 }

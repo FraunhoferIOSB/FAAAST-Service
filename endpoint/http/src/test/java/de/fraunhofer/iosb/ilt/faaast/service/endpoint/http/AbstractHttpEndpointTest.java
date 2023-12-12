@@ -36,6 +36,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
@@ -46,7 +49,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
@@ -59,6 +65,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +77,7 @@ import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
@@ -710,6 +719,66 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
+    @Test
+    public void testOperationAsync() throws Exception {
+        OperationHandle handle = OperationHandle.builder().build();
+        String handleId = EncodingHelper.base64UrlEncode(handle.getHandleId());
+        when(service.execute(any())).thenReturn(
+                InvokeOperationAsyncResponse.builder()
+                        .payload(handle)
+                        .statusCode(StatusCode.SUCCESS_ACCEPTED)
+                        .build());
+        OperationRequest operationRequest = new OperationRequest();
+        URI urlInvoke = new URI("/submodels/foo/submodel/submodel-elements/bar/invoke-async");
+        ContentResponse responseInvoke = execute(HttpMethod.POST, urlInvoke.toString(), operationRequest);
+        Assert.assertEquals(HttpStatus.ACCEPTED_202, responseInvoke.getStatus());
+        Assert.assertTrue(responseInvoke.getHeaders().contains(HttpHeader.LOCATION));
+
+        URI urlStatus = urlInvoke.resolve(responseInvoke.getHeaders().getField(HttpHeader.LOCATION).getValue());
+        when(service.execute(any())).thenReturn(
+                GetOperationAsyncStatusResponse.builder()
+                        .payload(ExecutionState.RUNNING)
+                        .success()
+                        .build());
+        ContentResponse responseStatusRunning = execute(HttpMethod.GET, urlStatus.toString());
+        Assert.assertEquals(HttpStatus.OK_200, responseStatusRunning.getStatus());
+        // check content for state == RUNNING
+
+        // check result = 404
+        when(service.execute(any())).thenReturn(
+                GetOperationAsyncStatusResponse.builder()
+                        .payload(null)
+                        .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                        .build());
+        ContentResponse responseStatusNotFound = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements/bar/operation-status/" + handleId);
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, responseStatusNotFound.getStatus());
+
+        // check COMPLETED = 302
+        when(service.execute(any())).thenReturn(
+                GetOperationAsyncStatusResponse.builder()
+                        .payload(ExecutionState.COMPLETED)
+                        .success()
+                        .build());
+        client.setFollowRedirects(false);
+        ContentResponse responseStatusCompleted = execute(HttpMethod.GET, urlStatus.toString());
+        Assert.assertEquals(HttpStatus.MOVED_TEMPORARILY_302, responseStatusCompleted.getStatus());
+        Assert.assertTrue(responseStatusCompleted.getHeaders().contains(HttpHeader.LOCATION));
+        // check content for state == COMPLETED
+
+        URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
+        when(service.execute(any())).thenReturn(
+                GetOperationAsyncResultResponse.builder()
+                        .payload(OperationResult.builder()
+                                .executionState(ExecutionState.COMPLETED)
+                                .build())
+                        .success()
+                        .build());
+        ContentResponse responseResult = execute(HttpMethod.GET, urlResult.toString(), operationRequest);
+        Assert.assertEquals(HttpStatus.OK_200, responseResult.getStatus());
+        // assert state == COMPLETED
+    }
+
+
     private void mockAasContext(ServiceContext serviceContext, String aasId) {
         doReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
@@ -878,6 +947,42 @@ public abstract class AbstractHttpEndpointTest {
             for (var text: textSnippets) {
                 Assert.assertTrue(actual.getMessages().get(0).getText().contains(text));
             }
+        }
+    }
+
+    private static class OperationRequest {
+
+        private List<OperationVariable> inputArguments = new ArrayList<>();
+        private List<OperationVariable> inoutputArguments = new ArrayList<>();
+        private long timeout = 1000;
+
+        public List<OperationVariable> getInputArguments() {
+            return inputArguments;
+        }
+
+
+        public void setInputArguments(List<OperationVariable> inputArguments) {
+            this.inputArguments = inputArguments;
+        }
+
+
+        public List<OperationVariable> getInoutputArguments() {
+            return inoutputArguments;
+        }
+
+
+        public void setInoutputArguments(List<OperationVariable> inoutputArguments) {
+            this.inoutputArguments = inoutputArguments;
+        }
+
+
+        public long getTimeout() {
+            return timeout;
+        }
+
+
+        public void setTimeout(long timeout) {
+            this.timeout = timeout;
         }
     }
 }

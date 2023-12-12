@@ -134,6 +134,23 @@
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>model</artifactId>
             <version>${aas4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
+            <artifactId>model</artifactId>
+            <version>${aas4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

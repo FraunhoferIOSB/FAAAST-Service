@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -33,6 +35,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -70,7 +76,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                 .build());
         return InvokeOperationAsyncResponse.builder()
                 .payload(operationHandle)
-                .success()
+                .statusCode(StatusCode.SUCCESS_ACCEPTED)
                 .build();
     }
 
@@ -97,8 +103,13 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.RUNNING)
                         .build());
+        AtomicBoolean timeoutOccured = new AtomicBoolean(false);
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         try {
             BiConsumer<OperationVariable[], OperationVariable[]> callback = LambdaExceptionHelper.rethrowBiConsumer((x, y) -> {
+                if (timeoutOccured.get()) {
+                    return;
+                }
                 OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
                 operationResult.setExecutionState(ExecutionState.COMPLETED);
                 operationResult.setOutputArguments(Arrays.asList(x));
@@ -115,6 +126,25 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
                     callback);
+            executor.schedule(() -> {
+                timeoutOccured.set(true);
+                // timeout -> send on messagebus
+                OperationResult operationResult = OperationResult.builder()
+                        .executionState(ExecutionState.TIMEOUT)
+                        .executionResult(Result.warning("Operation took too long to execute"))
+                        .inoutputArguments(request.getInoutputArguments())
+                        .build();
+                context.getPersistence().save(operationHandle, operationResult);
+                try {
+                    context.getMessageBus().publish(OperationFinishEventMessage.builder()
+                            .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                            .element(reference)
+                            .build());
+                }
+                catch (MessageBusException | ValueMappingException e) {
+                    LOGGER.error("error sending OperationFinishEventMessage an message bus", e);
+                }
+            }, request.getTimeout(), TimeUnit.MILLISECONDS);
         }
         catch (AssetConnectionException | ValueMappingException e) {
             OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
@@ -130,6 +160,9 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
             catch (ValueMappingException e2) {
                 LOGGER.warn("could not publish operation finished event message because mapping result to value objects failed", e2);
             }
+        }
+        finally {
+            executor.shutdown();
         }
         return operationHandle;
     }

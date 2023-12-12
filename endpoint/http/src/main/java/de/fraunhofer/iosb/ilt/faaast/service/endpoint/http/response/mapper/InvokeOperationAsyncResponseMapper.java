@@ -14,39 +14,35 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
-import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
-import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 
 /**
- * Response mapper for any responses that contain a file.
- *
+ * HTTP response mapper for {@link InvokeOperationAsyncResponse}.
  */
-public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile, Request<AbstractResponseWithFile>> {
+public class InvokeOperationAsyncResponseMapper extends AbstractResponseMapper<InvokeOperationAsyncResponse, InvokeOperationAsyncRequest> {
 
-    private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
-
-    public ResponseWithFileMapper(ServiceContext serviceContext) {
+    public InvokeOperationAsyncResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
     }
 
 
     @Override
-    public void map(Request<AbstractResponseWithFile> apiRequest, AbstractResponseWithFile apiResponse, HttpServletResponse httpResponse) {
+    public void map(InvokeOperationAsyncRequest apiRequest, InvokeOperationAsyncResponse apiResponse, HttpServletResponse httpResponse) {
         HttpHelper.sendContent(
                 httpResponse,
                 apiResponse.getStatusCode(),
-                apiResponse.getPayload().getContent(),
-                MediaType.parse(apiResponse.getPayload().getContentType()),
-                Map.of(HEADER_CONTENT_DISPOSITION, String.format(
-                        "attachment; filename=\"%s\"",
-                        FileHelper.getFilenameFromPath(apiResponse.getPayload().getPath()))));
-
+                null,
+                null,
+                Map.of("Location",
+                        String.format(
+                                "operation-status/%s",
+                                EncodingHelper.base64UrlEncode(apiResponse.getPayload().getHandleId()))));
     }
 }
