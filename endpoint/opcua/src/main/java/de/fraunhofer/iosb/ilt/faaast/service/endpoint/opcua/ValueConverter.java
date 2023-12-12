@@ -36,7 +36,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -719,7 +718,7 @@ public class ValueConverter {
         if (variant.getValue() != null) {
             // special treatment for DateTime
             if (variant.getValue() instanceof DateTime) {
-                retval = ZonedDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneOffset.systemDefault()).toString();
+                retval = ZonedDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();
