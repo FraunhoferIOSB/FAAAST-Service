@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -31,15 +29,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -69,15 +66,97 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                 .idShortPath(request.getPath())
                 .build();
         OperationHandle operationHandle = executeOperationAsync(reference, request);
-        context.getMessageBus().publish(OperationInvokeEventMessage.builder()
-                .element(reference)
-                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
-                .build());
         return InvokeOperationAsyncResponse.builder()
                 .payload(operationHandle)
                 .statusCode(StatusCode.SUCCESS_ACCEPTED)
                 .build();
+    }
+
+
+    private void handleOperationSuccess(Reference reference, OperationHandle operationHandle, OperationVariable[] inoutput, OperationVariable[] output) {
+        handleOperationResult(
+                reference,
+                operationHandle,
+                OperationResult.builder()
+                        .executionState(ExecutionState.COMPLETED)
+                        .inoutputArguments(Arrays.asList(inoutput))
+                        .outputArguments(Arrays.asList(output))
+                        .executionResult(Result.builder()
+                                .success(true)
+                                .build())
+                        .build());
+    }
+
+
+    private void handleOperationFailure(Reference reference, InvokeOperationAsyncRequest request, OperationHandle operationHandle, Throwable error) {
+        handleOperationResult(
+                reference,
+                operationHandle,
+                OperationResult.builder()
+                        .executionState(ExecutionState.FAILED)
+                        .inoutputArguments(request.getInoutputArguments())
+                        .outputArguments(List.of())
+                        .executionResult(
+                                Result.error(String.format(
+                                        "operation failed to execute (reason: %s)",
+                                        error.getMessage())))
+                        .build());
+    }
+
+
+    private void handleOperationTimeout(Reference reference, InvokeOperationAsyncRequest request, OperationHandle operationHandle) {
+        handleOperationResult(
+                reference,
+                operationHandle,
+                OperationResult.builder()
+                        .executionState(ExecutionState.TIMEOUT)
+                        .inoutputArguments(request.getInoutputArguments())
+                        .outputArguments(List.of())
+                        .executionResult(
+                                Result.warning(String.format(
+                                        "operation execution timed out after %s ms",
+                                        request.getTimeout())))
+                        .build());
+    }
+
+
+    private void handleOperationResult(
+                                       Reference reference,
+                                       OperationHandle operationHandle,
+                                       OperationResult operationResult) {
+        context.getPersistence().save(operationHandle, operationResult);
+        try {
+            context.getMessageBus().publish(OperationFinishEventMessage.builder()
+                    .element(reference)
+                    .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
+                    .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
+                    .build());
+        }
+        catch (ValueMappingException | MessageBusException e) {
+            LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
+        }
+    }
+
+
+    private void handleOperationInvoke(Reference reference,
+                                       OperationHandle operationHandle,
+                                       InvokeOperationAsyncRequest request) {
+        context.getPersistence().save(
+                operationHandle,
+                new OperationResult.Builder()
+                        .inoutputArguments(request.getInoutputArguments())
+                        .executionState(ExecutionState.RUNNING)
+                        .build());
+        try {
+            context.getMessageBus().publish(OperationInvokeEventMessage.builder()
+                    .element(reference)
+                    .input(ElementValueHelper.toValues(request.getInputArguments()))
+                    .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                    .build());
+        }
+        catch (ValueMappingException | MessageBusException e) {
+            LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
+        }
     }
 
 
@@ -97,69 +176,28 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                     ReferenceHelper.toString(reference)));
         }
         OperationHandle operationHandle = new OperationHandle();
-        context.getPersistence().save(
-                operationHandle,
-                new OperationResult.Builder()
-                        .inoutputArguments(request.getInoutputArguments())
-                        .executionState(ExecutionState.RUNNING)
-                        .build());
+        handleOperationInvoke(reference, operationHandle, request);
+
         AtomicBoolean timeoutOccured = new AtomicBoolean(false);
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         try {
-            BiConsumer<OperationVariable[], OperationVariable[]> callback = LambdaExceptionHelper.rethrowBiConsumer((x, y) -> {
-                if (timeoutOccured.get()) {
-                    return;
-                }
-                OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
-                operationResult.setExecutionState(ExecutionState.COMPLETED);
-                operationResult.setOutputArguments(Arrays.asList(x));
-                operationResult.setInoutputArguments(Arrays.asList(y));
-                context.getPersistence().save(operationHandle, operationResult);
-                context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                        .element(reference)
-                        .inoutput(ElementValueHelper.toValues(Arrays.asList(x)))
-                        .output(ElementValueHelper.toValues(Arrays.asList(y)))
-                        .build());
-            });
-            AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
-            assetOperationProvider.invokeAsync(
+            context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    callback);
+                    (output, inoutput) -> {
+                        if (timeoutOccured.get()) {
+                            return;
+                        }
+                        handleOperationSuccess(reference, operationHandle, inoutput, output);
+                    },
+                    error -> handleOperationFailure(reference, request, operationHandle, error));
             executor.schedule(() -> {
                 timeoutOccured.set(true);
-                // timeout -> send on messagebus
-                OperationResult operationResult = OperationResult.builder()
-                        .executionState(ExecutionState.TIMEOUT)
-                        .executionResult(Result.warning("Operation took too long to execute"))
-                        .inoutputArguments(request.getInoutputArguments())
-                        .build();
-                context.getPersistence().save(operationHandle, operationResult);
-                try {
-                    context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                            .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
-                            .element(reference)
-                            .build());
-                }
-                catch (MessageBusException | ValueMappingException e) {
-                    LOGGER.error("error sending OperationFinishEventMessage an message bus", e);
-                }
+                handleOperationTimeout(reference, request, operationHandle);
             }, request.getTimeout(), TimeUnit.MILLISECONDS);
         }
-        catch (AssetConnectionException | ValueMappingException e) {
-            OperationResult operationResult = context.getPersistence().getOperationResult(operationHandle);
-            operationResult.setExecutionState(ExecutionState.FAILED);
-            operationResult.setInoutputArguments(request.getInoutputArguments());
-            context.getPersistence().save(operationHandle, operationResult);
-            try {
-                context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                        .element(reference)
-                        .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
-                        .build());
-            }
-            catch (ValueMappingException e2) {
-                LOGGER.warn("could not publish operation finished event message because mapping result to value objects failed", e2);
-            }
+        catch (Exception e) {
+            handleOperationFailure(reference, request, operationHandle, e);
         }
         finally {
             executor.shutdown();

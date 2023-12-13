@@ -1547,7 +1547,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         .value("original value")
                         .build())
                 .build());
-        operationRequest.setTimeout(100000);
+        operationRequest.setTimeout(10000);
 
         Reference reference = new ReferenceBuilder()
                 .submodel(submodelId)
@@ -1645,6 +1645,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
         // assert operation result
         OperationResult expextecResult = OperationResult.builder()
+                .executionState(ExecutionState.COMPLETED)
+                .executionResult(Result.builder()
+                        .success(true)
+                        .build())
                 .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
                                 .idShort(inoutputParameterId)
@@ -1659,7 +1663,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 .value(Integer.toString(inputValue * inputValue))
                                 .build())
                         .build()))
-                .executionState(ExecutionState.COMPLETED)
                 .build();
         assertExecuteSingle(
                 HttpMethod.GET,
@@ -1858,7 +1861,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         String submodelId = "TestSubmodel6";
         String operationId = "ExampleOperation";
         OperationRequest operationRequest = new OperationRequest();
-        operationRequest.setTimeout(50);
+        operationRequest.setTimeout(5000);
 
         Reference reference = new ReferenceBuilder()
                 .submodel(submodelId)
