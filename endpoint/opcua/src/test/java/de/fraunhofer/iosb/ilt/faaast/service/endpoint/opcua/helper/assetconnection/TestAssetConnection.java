@@ -78,7 +78,8 @@ public class TestAssetConnection implements
 
 
                 @Override
-                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess, Consumer<Throwable> callbackFailure)
+                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                                        Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
                     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
