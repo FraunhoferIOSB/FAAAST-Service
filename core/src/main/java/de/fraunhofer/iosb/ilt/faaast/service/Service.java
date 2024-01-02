@@ -183,7 +183,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
-        registryHandler = new RegistryHandler(messageBus, persistence, config.getCore());
+        registryHandler = new RegistryHandler(messageBus, persistence, config);
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -205,6 +205,7 @@ public class Service implements ServiceContext {
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
         try {
+            LOGGER.info("Deleting FA³ST Service from Registry");
             registryHandler.deleteAllAasInRegistry();
         }
         catch (InterruptedException | RegistryException e) {

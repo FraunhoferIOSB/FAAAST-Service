@@ -19,12 +19,17 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -40,8 +45,10 @@ import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -62,29 +69,33 @@ public class RegistryHandler {
 
     private final Persistence persistence;
     private final CoreConfig coreConfig;
+    private final List<EndpointConfig> endpointConfigs;
     private final HttpClient httpClient;
     private final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private final AssetAdministrationShellEnvironment environment;
+    private final String AasInterface = "AAS-3.0";
 
-    public RegistryHandler(MessageBus messageBus, Persistence persistence, CoreConfig coreConfig) throws MessageBusException {
+    public RegistryHandler(MessageBus messageBus, Persistence persistence, ServiceConfig serviceConfig) throws MessageBusException {
         this.persistence = persistence;
-        this.coreConfig = coreConfig;
+        this.coreConfig = serviceConfig.getCore();
+        this.endpointConfigs = serviceConfig.getEndpoints();
         httpClient = HttpClient.newBuilder().build();
         messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, LambdaExceptionHelper.wrap(this::handleCreateEvent)));
         messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, LambdaExceptionHelper.wrap(this::handleChangeEvent)));
         messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(this::handleDeleteEvent)));
         environment = persistence.getEnvironment();
+        LOGGER.info("Registering FA³ST Service in Registry");
         try {
             if (Objects.isNull(environment) || environment.getAssetAdministrationShells().isEmpty())
                 return;
             for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-                createIdentifiableInRegistry(getAasDescriptor(aas), coreConfig.getAasRegistryBasePath());
+                createIdentifiableInRegistry(getAasDescriptor(aas, endpointConfigs), coreConfig.getAasRegistryBasePath());
             }
         }
-        catch (RegistryException | InterruptedException e) {
+        catch (RegistryException | InterruptedException | UnknownHostException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             Thread.currentThread().interrupt();
         }
@@ -113,11 +124,11 @@ public class RegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException, UnknownHostException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
             // TODO Check for race condition because aas may not be in the environment yet
-            createIdentifiableInRegistry(getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
+            createIdentifiableInRegistry(getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
         }
         else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
             AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
@@ -133,10 +144,10 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the update of an element.
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException, UnknownHostException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
-            updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier)), coreConfig.getAasRegistryBasePath());
+            updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
         }
         else if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.SUBMODEL)) {
             AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
@@ -265,11 +276,39 @@ public class RegistryHandler {
     }
 
 
-    private AbstractIdentifiableDescriptor getAasDescriptor(AssetAdministrationShell aas) {
+    private AbstractIdentifiableDescriptor getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) throws UnknownHostException {
+        List<Endpoint> endpoints = new ArrayList<>();
+        for (EndpointConfig c: endpointConfigs) {
+            endpoints.add(DefaultEndpoint.builder()
+                    .interfaceInformation(AasInterface)
+                    .protocolInformation(DefaultProtocolInformation.builder()
+                            .endpointProtocol(determineProtocol(c))
+                            .endpointAddress(InetAddress.getLocalHost().getHostAddress())
+                            .build())
+                    .build());
+        }
         return DefaultAssetAdministrationShellDescriptor.builder()
                 .from(aas)
                 .submodels(getSubmodelDescriptorsFromAas(aas))
+                .endpoints(endpoints)
                 .build();
+    }
+
+
+    //@TODO: determine protocol from config class type
+    private String determineProtocol(EndpointConfig config) {
+        if (config.getClass().toString().contains("http")) {
+            return "HTTP";
+        }
+        else if (config.getClass().toString().contains("mqtt")) {
+            return "MQTT";
+        }
+        else if (config.getClass().toString().contains("opc")) {
+            return "OPC UA";
+        }
+        else {
+            return null;
+        }
     }
 
 

@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
@@ -87,11 +88,12 @@ public class RegistryHandlerTest {
         setupMockedPersistence();
 
         // Throws registry exception because http request for creation is not mocked
-        registryHandler = new RegistryHandler(MESSAGE_BUS, PERSISTENCE,
-                CoreConfig.builder()
+        registryHandler = new RegistryHandler(MESSAGE_BUS, PERSISTENCE, ServiceConfig.builder()
+                .core(CoreConfig.builder()
                         .registryPort(wireMockRule.port())
                         .registryHost("localhost")
-                        .build());
+                        .build())
+                .build());
 
     }
 
