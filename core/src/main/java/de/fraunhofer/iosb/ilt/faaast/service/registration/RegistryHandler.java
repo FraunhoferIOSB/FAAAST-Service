@@ -76,7 +76,7 @@ public class RegistryHandler {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private final AssetAdministrationShellEnvironment environment;
-    private final String AasInterface = "AAS-3.0";
+    private final String aasInterface = "AAS-3.0";
 
     public RegistryHandler(MessageBus messageBus, Persistence persistence, ServiceConfig serviceConfig) throws MessageBusException {
         this.persistence = persistence;
@@ -95,7 +95,7 @@ public class RegistryHandler {
                 createIdentifiableInRegistry(getAasDescriptor(aas, endpointConfigs), coreConfig.getAasRegistryBasePath());
             }
         }
-        catch (RegistryException | InterruptedException | UnknownHostException e) {
+        catch (RegistryException | InterruptedException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             Thread.currentThread().interrupt();
         }
@@ -124,7 +124,7 @@ public class RegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException, UnknownHostException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
             // TODO Check for race condition because aas may not be in the environment yet
@@ -144,7 +144,7 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the update of an element.
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException, UnknownHostException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsKeyElement(eventMessage.getElement(), KeyElements.ASSET_ADMINISTRATION_SHELL)) {
             updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
@@ -276,22 +276,35 @@ public class RegistryHandler {
     }
 
 
-    private AbstractIdentifiableDescriptor getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) throws UnknownHostException {
-        List<Endpoint> endpoints = new ArrayList<>();
-        for (EndpointConfig c: endpointConfigs) {
-            endpoints.add(DefaultEndpoint.builder()
-                    .interfaceInformation(AasInterface)
-                    .protocolInformation(DefaultProtocolInformation.builder()
-                            .endpointProtocol(determineProtocol(c))
-                            .endpointAddress(InetAddress.getLocalHost().getHostAddress())
-                            .build())
-                    .build());
-        }
+    private AbstractIdentifiableDescriptor getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) {
         return DefaultAssetAdministrationShellDescriptor.builder()
                 .from(aas)
                 .submodels(getSubmodelDescriptorsFromAas(aas))
-                .endpoints(endpoints)
+                .endpoints(createEndpoints(endpointConfigs))
                 .build();
+    }
+
+
+    private List<Endpoint> createEndpoints(List<EndpointConfig> endpointConfigs) {
+        List<Endpoint> endpoints = new ArrayList<>();
+        endpointConfigs.stream().forEach(c -> endpoints.add(DefaultEndpoint.builder()
+                .interfaceInformation(aasInterface)
+                .protocolInformation(DefaultProtocolInformation.builder()
+                        .endpointProtocol(determineProtocol(c))
+                        .endpointAddress(getLocalHostAddress())
+                        .build())
+                .build()));
+        return endpoints;
+    }
+
+
+    private String getLocalHostAddress() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        }
+        catch (UnknownHostException e) {
+            return "localhost";
+        }
     }
 
 
@@ -307,7 +320,7 @@ public class RegistryHandler {
             return "OPC UA";
         }
         else {
-            return null;
+            return "";
         }
     }
 
@@ -325,8 +338,10 @@ public class RegistryHandler {
         List<SubmodelDescriptor> submodelDescriptors = new ArrayList<>();
         for (Reference submodelReference: aas.getSubmodels())
             try {
-                submodelDescriptors.add(DefaultSubmodelDescriptor.builder().from(
-                        getSubmodelFromIdentifier(submodelReference.getKeys().get(0).getValue())).build());
+                submodelDescriptors.add(DefaultSubmodelDescriptor.builder()
+                        .from(getSubmodelFromIdentifier(submodelReference.getKeys().get(0).getValue()))
+                        .endpoints(createEndpoints(endpointConfigs))
+                        .build());
             }
             catch (Exception e) {
                 LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
