@@ -27,12 +27,12 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: /shells/{aasIdentifier}/aas/submodels.
+ * class to map HTTP-GET-Request path: /shells/{aasIdentifier}/aas/submodel-refs.
  */
 public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/submodels", pathElement(AAS_ID));
+    private static final String PATTERN = String.format("shells/%s/aas/submodel-refs", pathElement(AAS_ID));
 
     public GetAllSubmodelReferencesRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
