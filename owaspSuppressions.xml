@@ -24,4 +24,9 @@
 		<cve>CVE-2016-4570</cve>
 		<cve>CVE-2016-4571</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[Is not relevant in FA³ST Service is JSON path expressions are only provided by the administrator of the system and not at run-time from user input]]></notes>
+		<packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+		<vulnerabilityName>CVE-2023-51074</vulnerabilityName>
+	</suppress>
 </suppressions>
