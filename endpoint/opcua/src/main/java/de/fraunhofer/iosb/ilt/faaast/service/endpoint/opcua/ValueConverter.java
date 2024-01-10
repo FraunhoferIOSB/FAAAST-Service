@@ -39,20 +39,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import opc.i4aas.AASAssetKindDataType;
-import opc.i4aas.AASDataTypeDefXsd;
-import opc.i4aas.AASDirectionDataType;
-import opc.i4aas.AASEntityTypeDataType;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyTypesDataType;
-import opc.i4aas.AASModellingKindDataType;
-import opc.i4aas.AASQualifierKindDataType;
-import opc.i4aas.AASStateOfEventDataType;
-import opc.i4aas.AASSubmodelElementsDataType;
+import opc.i4aas.datatypes.AASAssetKindDataType;
+import opc.i4aas.datatypes.AASDataTypeDefXsd;
+import opc.i4aas.datatypes.AASDirectionDataType;
+import opc.i4aas.datatypes.AASEntityTypeDataType;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.datatypes.AASKeyTypesDataType;
+import opc.i4aas.datatypes.AASModellingKindDataType;
+import opc.i4aas.datatypes.AASQualifierKindDataType;
+import opc.i4aas.datatypes.AASStateOfEventDataType;
+import opc.i4aas.datatypes.AASSubmodelElementsDataType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -699,7 +698,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(ZonedDateTime value) {
-        return new DateTime(GregorianCalendar.from(value));
+        return DateTime.fromInstant(value.toInstant());
     }
 
 
@@ -710,7 +709,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
-        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+        return DateTime.fromInstant(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toInstant());
     }
 
 
@@ -719,7 +718,7 @@ public class ValueConverter {
         if (variant.getValue() != null) {
             // special treatment for DateTime
             if (variant.getValue() instanceof DateTime) {
-                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+                retval = ZonedDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();

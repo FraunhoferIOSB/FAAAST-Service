@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.i4aas.AASBlobType;
+import opc.i4aas.objecttypes.AASBlobType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -69,7 +69,7 @@ public class BlobCreator extends SubmodelElementCreator {
             setValue(aasBlob, blobNode, nodeManager, submodel, blobRef);
 
             if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             if (ordered) {

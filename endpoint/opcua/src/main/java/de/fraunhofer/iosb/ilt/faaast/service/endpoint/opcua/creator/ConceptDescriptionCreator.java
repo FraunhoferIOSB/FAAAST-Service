@@ -29,10 +29,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import opc.i4aas.AASConceptDescriptionType;
-import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASReferenceType;
-import opc.i4aas.server.AASReferenceTypeNode;
+import opc.i4aas.objecttypes.AASConceptDescriptionType;
+import opc.i4aas.objecttypes.AASReferenceList;
+import opc.i4aas.objecttypes.AASReferenceType;
+import opc.i4aas.objecttypes.server.AASReferenceTypeNode;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -154,7 +154,7 @@ public class ConceptDescriptionCreator {
         conceptDescriptionNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 }

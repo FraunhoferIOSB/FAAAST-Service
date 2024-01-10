@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import opc.i4aas.AASIdentifiableType;
+import opc.i4aas.objecttypes.AASIdentifiableType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
 
@@ -55,8 +55,8 @@ public class IdentifiableCreator {
         identifiableNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

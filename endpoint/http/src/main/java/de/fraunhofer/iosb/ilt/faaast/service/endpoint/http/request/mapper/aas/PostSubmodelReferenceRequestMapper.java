@@ -28,12 +28,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * class to map HTTP-POST-Request path: /shells/{aasIdentifier}/aas/submodels.
+ * class to map HTTP-POST-Request path: /shells/{aasIdentifier}/aas/submodel-refs.
  */
 public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/submodels", pathElement(AAS_ID));
+    private static final String PATTERN = String.format("shells/%s/aas/submodel-refs", pathElement(AAS_ID));
 
     public PostSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);

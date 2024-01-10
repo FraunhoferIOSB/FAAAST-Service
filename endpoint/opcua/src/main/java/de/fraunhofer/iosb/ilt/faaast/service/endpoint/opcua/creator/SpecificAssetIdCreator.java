@@ -23,9 +23,9 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import java.util.List;
-import opc.i4aas.AASEntityType;
-import opc.i4aas.AASReferenceType;
-import opc.i4aas.AASSpecificAssetIdType;
+import opc.i4aas.objecttypes.AASEntityType;
+import opc.i4aas.objecttypes.AASReferenceType;
+import opc.i4aas.objecttypes.AASSpecificAssetIdType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.slf4j.Logger;
@@ -156,8 +156,8 @@ public class SpecificAssetIdCreator {
         specificAssetIdNode.setValue(aasIdentifierPair.getValue());
 
         if (readOnly) {
-            specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.CurrentRead);
-            specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            specificAssetIdNode.getNameNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            specificAssetIdNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

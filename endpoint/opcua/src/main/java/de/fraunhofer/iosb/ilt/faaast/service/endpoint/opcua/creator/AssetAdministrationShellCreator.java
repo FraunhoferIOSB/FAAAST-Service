@@ -32,11 +32,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
-import opc.i4aas.AASAssetAdministrationShellType;
-import opc.i4aas.AASAssetInformationType;
-import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASSpecificAssetIdList;
-import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
+import opc.i4aas.objecttypes.AASAssetAdministrationShellType;
+import opc.i4aas.objecttypes.AASAssetInformationType;
+import opc.i4aas.objecttypes.AASReferenceList;
+import opc.i4aas.objecttypes.AASSpecificAssetIdList;
+import opc.i4aas.objecttypes.server.AASAssetAdministrationShellTypeNode;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
