@@ -26,9 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASReferenceType;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.objecttypes.AASReferenceList;
+import opc.i4aas.objecttypes.AASReferenceType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +195,7 @@ public class AasReferenceCreator {
                 UnsignedInteger.valueOf(keys.length)
         });
         if (readOnly) {
-            refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
+            refNode.getKeysNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         refNode.setKeys(keys);
     }

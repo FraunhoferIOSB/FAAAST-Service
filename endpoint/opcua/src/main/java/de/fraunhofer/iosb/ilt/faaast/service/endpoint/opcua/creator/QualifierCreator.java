@@ -28,9 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import java.util.List;
-import opc.i4aas.AASQualifierList;
-import opc.i4aas.AASQualifierType;
-import opc.i4aas.AASSubmodelElementType;
+import opc.i4aas.objecttypes.AASQualifierList;
+import opc.i4aas.objecttypes.AASQualifierType;
+import opc.i4aas.objecttypes.AASSubmodelElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,13 +147,13 @@ public class QualifierCreator {
     private static void setAccessRights(AASQualifierType qualifierNode) {
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             if (qualifierNode.getValueNode() != null) {
-                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
             if (qualifierNode.getValueTypeNode() != null) {
-                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
             if (qualifierNode.getTypeNode() != null) {
-                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
         }
     }
@@ -183,7 +183,7 @@ public class QualifierCreator {
                 LocalizedText.english(AASQualifierType.VALUE));
         myProperty.setDataTypeId(Identifiers.String);
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         myProperty.setDescription(new LocalizedText("", ""));
         node.addProperty(myProperty);
