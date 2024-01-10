@@ -13,7 +13,7 @@ docker-compose up
 
 To use your own AAS environment replace the model file `/misc/examples/demoAAS.json`.
 To modify the configuration edit the file `/misc/examples/exampleConfiguration.json`.
-You can also override configuration values using environment variables. For details see [Usage with Command Line](https://faaast-service.readthedocs.io/en/latest/gettingstarted/commandline.html#).
+You can also override configuration values using environment variables. For details see [Usage with Command Line](commandline).
 
 ## Docker CLI
 

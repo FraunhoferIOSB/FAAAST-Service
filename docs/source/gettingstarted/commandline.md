@@ -53,7 +53,7 @@ In general there are 3 ways to configure your FA³ST Service:
 
 The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
 
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components see [Configuration](https://faaast-service.readthedocs.io/en/latest/gettingstarted/configuration.html).
+Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components see [Configuration](configuration).
 
 Default Configuration:
 
