@@ -743,7 +743,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(
                                 HttpMethod.DELETE,
-                                apiPaths.aasInterface(aas).submodel(submodelToDelete),
+                                apiPaths.aasInterface(aas).submodelRefs(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         List<Reference> actual = HttpHelper.getWithMultipleResult(
                 httpClient,

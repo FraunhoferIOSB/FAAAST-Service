@@ -49,8 +49,8 @@ In order to use the HTTP Endpoint the configuration settings require to include 
     -   /shells/{aasIdentifier}/aas ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
     -   /shells/{aasIdentifier}/aas/asset-information ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
     -   /shells/{aasIdentifier}/aas/asset-information/thumbnail ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /shells/{aasIdentifier}/aas/submodels ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier} ![DELETE](https://img.shields.io/badge/DELETE-red)
+    -   /shells/{aasIdentifier}/aas/submodel-refs ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
+    -   /shells/{aasIdentifier}/aas/submodel-refs/{submodelIdentifier} ![DELETE](https://img.shields.io/badge/DELETE-red)
 
 -   Submodel Repository Interface
     -   /submodels ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)

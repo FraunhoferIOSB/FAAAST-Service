@@ -263,7 +263,7 @@ public class RequestMappingManagerTest {
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels/"
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodel-refs/"
                         + EncodingHelper.base64UrlEncode(SUBMODEL.getId()))
                 .build());
         Assert.assertEquals(expected, actual);
@@ -497,7 +497,7 @@ public class RequestMappingManagerTest {
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodel-refs")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -1067,7 +1067,7 @@ public class RequestMappingManagerTest {
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodel-refs")
                 .body(serializer.write(submodelRef).getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
