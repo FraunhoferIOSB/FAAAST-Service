@@ -331,7 +331,7 @@ public class ApiPaths {
 
 
         public String submodels() {
-            return String.format("%s/submodels", assetAdministrationShell());
+            return String.format("%s/submodel-refs", assetAdministrationShell());
         }
 
 
@@ -347,6 +347,12 @@ public class ApiPaths {
 
         public String submodel(Reference reference) {
             return submodel(reference.getKeys().get(0).getValue());
+        }
+
+        public String submodelRefs(Reference reference) {
+            return String.format("%s/submodel-refs/%s",
+                    assetAdministrationShell(),
+                    EncodingHelper.base64UrlEncode(reference.getKeys().get(0).getValue()));
         }
 
 
