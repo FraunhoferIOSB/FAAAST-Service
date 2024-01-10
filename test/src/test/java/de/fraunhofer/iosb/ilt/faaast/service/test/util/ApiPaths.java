@@ -349,6 +349,7 @@ public class ApiPaths {
             return submodel(reference.getKeys().get(0).getValue());
         }
 
+
         public String submodelRefs(Reference reference) {
             return String.format("%s/submodel-refs/%s",
                     assetAdministrationShell(),
