@@ -81,6 +81,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         .executionState(ExecutionState.COMPLETED)
                         .inoutputArguments(Arrays.asList(inoutput))
                         .outputArguments(Arrays.asList(output))
+                        .success(true)
                         .build());
     }
 
@@ -96,6 +97,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         .message(MessageType.ERROR, String.format(
                                 "operation failed to execute (reason: %s)",
                                 error.getMessage()))
+                        .success(false)
                         .build());
     }
 
@@ -111,6 +113,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         .message(MessageType.WARNING, String.format(
                                 "operation execution timed out after %s ms",
                                 request.getTimeout()))
+                        .success(false)
                         .build());
     }
 

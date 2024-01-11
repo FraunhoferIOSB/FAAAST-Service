@@ -1182,6 +1182,7 @@ public class RequestHandlerManagerTest {
                                 .build()))
                         .outputArguments(operation.getInputVariables())
                         .executionState(ExecutionState.COMPLETED)
+                        .success(true)
                         .build())
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));

@@ -108,6 +108,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
+                    .success(true)
                     .build();
         }
         catch (TimeoutException e) {
@@ -115,6 +116,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
             result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
+                    .success(false)
                     .build();
             Thread.currentThread().interrupt();
         }
@@ -122,6 +124,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
             result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
+                    .success(false)
                     .build();
             Thread.currentThread().interrupt();
         }
