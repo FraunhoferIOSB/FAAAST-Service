@@ -25,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * JSON-LD serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * JSON-LD serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentSerializer implements EnvironmentSerializer {
@@ -46,7 +46,7 @@ public class JsonLDEnvironmentSerializer implements EnvironmentSerializer {
         // try {
         //     return serializer.write(environment, Lang.JSONLD).getBytes(charset);
         // }
-        // catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException e) {
         //     throw new SerializationException("RDF serialization failed", e);
         // }
     }

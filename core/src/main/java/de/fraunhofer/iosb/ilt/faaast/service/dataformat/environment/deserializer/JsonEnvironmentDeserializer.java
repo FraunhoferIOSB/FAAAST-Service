@@ -25,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 
 
 /**
- * JSON deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * JSON deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {

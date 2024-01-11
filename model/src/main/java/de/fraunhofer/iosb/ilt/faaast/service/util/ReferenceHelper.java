@@ -434,8 +434,8 @@ public class ReferenceHelper {
 
 
     /**
-     * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference} to a
-     * {@link io.adminshell.aas.v3.model.SubmodelElement}.
+     * Create an element path out of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} to a
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
      *
      * @param reference reference to the submodel element
      * @return values of the keys of the reference separated by a "."

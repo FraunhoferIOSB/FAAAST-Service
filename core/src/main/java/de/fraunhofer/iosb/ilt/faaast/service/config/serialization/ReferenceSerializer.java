@@ -24,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Serializer for type {@link io.adminshell.aas.v3.model.Reference}.
+ * Serializer for type {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference}.
  */
 public class ReferenceSerializer extends JsonSerializer<Reference> {
 

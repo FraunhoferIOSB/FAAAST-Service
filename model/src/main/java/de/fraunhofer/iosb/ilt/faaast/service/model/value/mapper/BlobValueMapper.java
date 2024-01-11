@@ -19,7 +19,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Blob} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Blob} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue}.
  */
 public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {

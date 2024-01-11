@@ -76,7 +76,7 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
      * {@link ElementValue} instance.
      *
      * @param submodelElement for which a ElementValue should be created
@@ -98,7 +98,7 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
      * {@link ElementValue} instance.
      *
      *

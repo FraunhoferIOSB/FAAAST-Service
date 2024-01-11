@@ -29,9 +29,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 /**
  * Helper class with methods to create deep copies. Following types are supported:
  * <ul>
- * <li>{@link io.adminshell.aas.v3.model.Identifiable}
- * <li>{@link io.adminshell.aas.v3.model.Referable}
- * <li>{@link io.adminshell.aas.v3.model.Environment}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Identifiable}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Referable}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}
  * </ul>
  */
 public class DeepCopyHelper {
@@ -40,7 +40,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Environment} object.
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} object.
      *
      * @param env the asset administration shell environment which should be deep copied
      * @return a deep copied instance of the asset administration shell environment
@@ -57,7 +57,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable} object.
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} object.
      *
      * @param referable which should be deep copied
      * @param <T> type of the referable
@@ -73,7 +73,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable} object.
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} object.
      *
      * @param referable which should be deep copied
      * @param outputClass of the referable
@@ -101,7 +101,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a list of {@link io.adminshell.aas.v3.model.Referable} objects.
+     * Create a deep copy of a list of {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} objects.
      *
      * @param referables list with referables which should be deep copied
      * @param outputClass of the referables

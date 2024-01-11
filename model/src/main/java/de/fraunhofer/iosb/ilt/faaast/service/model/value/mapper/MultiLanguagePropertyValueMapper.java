@@ -21,7 +21,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.MultiLanguageProperty} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}.
  */
 public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {

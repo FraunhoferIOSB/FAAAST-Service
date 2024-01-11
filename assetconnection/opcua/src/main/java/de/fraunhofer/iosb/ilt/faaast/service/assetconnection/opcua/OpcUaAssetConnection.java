@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>All asset connection operations are supported.
  *
- * <p>This implementation currently only supports submodel elements of type {@link io.adminshell.aas.v3.model.Property}
+ * <p>This implementation currently only supports submodel elements of type
+ * {@link org.eclipse.digitaltwin.aas4j.v3.model.Property}
  * resp. {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  *
  * <p>This class uses a single underlying OPC UA connection.
