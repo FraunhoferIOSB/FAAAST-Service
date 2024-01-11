@@ -4,7 +4,7 @@ This implementation of the `MessageBus` interface publishes messages via MQTT ei
 
 ## Topics & Payload
 
-Each message type is published on its own topic in the form if `[topicPrefix]/[className]`, e.g. `events/ValueChangeEventMessage`.
+Each message type is published on its own topic in the form of `[topicPrefix]/[className]`, e.g. `events/ValueChangeEventMessage`.
 The payload is a JSON serialization of the corresponding Java class with the following base structure
 
 ```json
@@ -50,7 +50,7 @@ An example `ValueChangeEvent` might look like this
 
 ```
 
-For derserialization of events the class `JsonEventDeserializer` in module `dataformat-json` can be used.
+For deserialization of events the class `JsonEventDeserializer` in module `dataformat-json` can be used.
 
 
 
