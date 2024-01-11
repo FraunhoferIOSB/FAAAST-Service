@@ -104,7 +104,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         OperationResult result;
         try {
             OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
-            result = OperationResult.builder()
+            result = new OperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
@@ -112,14 +112,14 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         }
         catch (TimeoutException e) {
             future.cancel(true);
-            result = OperationResult.builder()
+            result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
                     .build();
             Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
-            result = OperationResult.builder()
+            result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
                     .build();

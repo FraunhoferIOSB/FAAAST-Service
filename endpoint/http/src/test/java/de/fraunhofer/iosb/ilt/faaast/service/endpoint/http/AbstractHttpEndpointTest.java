@@ -36,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.BaseOperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -737,7 +738,9 @@ public abstract class AbstractHttpEndpointTest {
         URI urlStatus = urlInvoke.resolve(responseInvoke.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(ExecutionState.RUNNING)
+                        .payload(new BaseOperationResult.Builder()
+                                .executionState(ExecutionState.RUNNING)
+                                .build())
                         .success()
                         .build());
         ContentResponse responseStatusRunning = execute(HttpMethod.GET, urlStatus.toString());
@@ -756,7 +759,9 @@ public abstract class AbstractHttpEndpointTest {
         // check COMPLETED = 302
         when(service.execute(any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(ExecutionState.COMPLETED)
+                        .payload(new BaseOperationResult.Builder()
+                                .executionState(ExecutionState.COMPLETED)
+                                .build())
                         .success()
                         .build());
         client.setFollowRedirects(false);
@@ -768,7 +773,7 @@ public abstract class AbstractHttpEndpointTest {
         URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any())).thenReturn(
                 GetOperationAsyncResultResponse.builder()
-                        .payload(OperationResult.builder()
+                        .payload(new OperationResult.Builder()
                                 .executionState(ExecutionState.COMPLETED)
                                 .build())
                         .success()
@@ -792,7 +797,9 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultServerError() throws Exception {
-        Result expected = Result.error(HttpStatus.getMessage(500));
+        Result expected = Result.builder()
+                .message(MessageType.ERROR, HttpStatus.getMessage(500))
+                .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
                 .result(expected)
@@ -806,7 +813,9 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Result expected = Result.error("no matching request mapper found for URL 'shellsX'");
+        Result expected = Result.builder()
+                .message(MessageType.ERROR, "no matching request mapper found for URL 'shellsX'")
+                .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -815,7 +824,9 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        Result expected = Result.error("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)");
+        Result expected = Result.builder()
+                .message(MessageType.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+                .build();
         ContentResponse response = execute(HttpMethod.PUT, "/shells");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -824,7 +835,9 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultNotFound() throws Exception {
-        Result expected = Result.error(HttpStatus.getMessage(404));
+        Result expected = Result.builder()
+                .message(MessageType.ERROR, HttpStatus.getMessage(404))
+                .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
@@ -833,7 +846,6 @@ public abstract class AbstractHttpEndpointTest {
         String id = "foo";
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        Assert.assertFalse(actual.getSuccess());
         Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
     }
 
@@ -940,7 +952,6 @@ public abstract class AbstractHttpEndpointTest {
     private void assertContainsErrorText(ContentResponse response, int status, String... textSnippets) throws DeserializationException {
         Assert.assertEquals(status, response.getStatus());
         Result actual = new HttpJsonApiDeserializer().read(response.getContentAsString(), Result.class);
-        Assert.assertFalse(actual.getSuccess());
         Assert.assertNotNull(actual.getMessages());
         Assert.assertEquals(1, actual.getMessages().size());
         if (Objects.nonNull(textSnippets)) {

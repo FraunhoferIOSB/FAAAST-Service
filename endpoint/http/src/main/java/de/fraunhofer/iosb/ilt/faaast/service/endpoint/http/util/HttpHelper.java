@@ -127,7 +127,11 @@ public class HttpHelper {
      * @param statusCode the statusCode to send
      */
     public static void send(HttpServletResponse response, StatusCode statusCode) {
-        send(response, statusCode, Result.of(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode))));
+        send(response,
+                statusCode,
+                Result.builder()
+                        .message(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                        .build());
     }
 
 
@@ -216,7 +220,11 @@ public class HttpHelper {
                     response.getOutputStream().flush();
                 }
                 catch (IOException e) {
-                    send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+                    send(response,
+                            StatusCode.SERVER_INTERNAL_ERROR,
+                            Result.builder()
+                                    .message(MessageType.EXCEPTION, e.getMessage())
+                                    .build());
                 }
             }
         }

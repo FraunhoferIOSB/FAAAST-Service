@@ -35,7 +35,7 @@ public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandle
     @Override
     public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request) throws ResourceNotFoundException {
         return GetOperationAsyncStatusResponse.builder()
-                .payload(context.getPersistence().getOperationResult(request.getHandle()).getExecutionState())
+                .payload(context.getPersistence().getOperationResult(request.getHandle()))
                 .success()
                 .build();
     }

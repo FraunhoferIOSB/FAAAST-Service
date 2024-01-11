@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.BaseOperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 
 
 /**
  * Response class for GetOperationAsyncResult requests.
  */
-public class GetOperationAsyncStatusResponse extends AbstractResponseWithPayload<ExecutionState> {
+public class GetOperationAsyncStatusResponse extends AbstractResponseWithPayload<BaseOperationResult> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ExecutionState, GetOperationAsyncStatusResponse, Builder> {
+    public static class Builder extends AbstractBuilder<BaseOperationResult, GetOperationAsyncStatusResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

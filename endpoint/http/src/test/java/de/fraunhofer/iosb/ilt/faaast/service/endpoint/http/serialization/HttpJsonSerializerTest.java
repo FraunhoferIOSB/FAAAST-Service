@@ -50,11 +50,9 @@ public class HttpJsonSerializerTest {
                         .code(HttpStatus.getMessage(404))
                         .timestamp(dateFormat.parse("01-01-2022 00:00:00"))
                         .build())
-                .success(false)
                 .build();
         String actual = serializer.write(result);
         String expected = "{\n"
-                + "  \"success\" : false,\n"
                 + "  \"messages\" : [ {\n"
                 + "    \"messageType\" : \"Error\",\n"
                 + "    \"text\" : \"Not Found\",\n"

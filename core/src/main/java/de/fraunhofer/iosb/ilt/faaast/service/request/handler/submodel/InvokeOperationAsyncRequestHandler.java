@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
@@ -77,13 +77,10 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         handleOperationResult(
                 reference,
                 operationHandle,
-                OperationResult.builder()
+                new OperationResult.Builder()
                         .executionState(ExecutionState.COMPLETED)
                         .inoutputArguments(Arrays.asList(inoutput))
                         .outputArguments(Arrays.asList(output))
-                        .executionResult(Result.builder()
-                                .success(true)
-                                .build())
                         .build());
     }
 
@@ -92,14 +89,13 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         handleOperationResult(
                 reference,
                 operationHandle,
-                OperationResult.builder()
+                new OperationResult.Builder()
                         .executionState(ExecutionState.FAILED)
                         .inoutputArguments(request.getInoutputArguments())
                         .outputArguments(List.of())
-                        .executionResult(
-                                Result.error(String.format(
-                                        "operation failed to execute (reason: %s)",
-                                        error.getMessage())))
+                        .message(MessageType.ERROR, String.format(
+                                "operation failed to execute (reason: %s)",
+                                error.getMessage()))
                         .build());
     }
 
@@ -108,14 +104,13 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         handleOperationResult(
                 reference,
                 operationHandle,
-                OperationResult.builder()
+                new OperationResult.Builder()
                         .executionState(ExecutionState.TIMEOUT)
                         .inoutputArguments(request.getInoutputArguments())
                         .outputArguments(List.of())
-                        .executionResult(
-                                Result.warning(String.format(
-                                        "operation execution timed out after %s ms",
-                                        request.getTimeout())))
+                        .message(MessageType.WARNING, String.format(
+                                "operation execution timed out after %s ms",
+                                request.getTimeout()))
                         .build());
     }
 

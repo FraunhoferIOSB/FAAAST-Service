@@ -18,9 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -37,38 +37,17 @@ public class GetOperationAsyncStatusResponseMapper extends AbstractResponseMappe
         super(serviceContext);
     }
 
-    private static class BaseOperationResult extends Result {
-
-        private ExecutionState executionState;
-
-        public BaseOperationResult() {}
-
-
-        public BaseOperationResult(ExecutionState executionState) {
-            this.executionState = executionState;
-        }
-
-
-        public ExecutionState getExecutionState() {
-            return executionState;
-        }
-
-
-        public void setExecutionState(ExecutionState executionState) {
-            this.executionState = executionState;
-        }
-    }
 
     @Override
     public void map(GetOperationAsyncStatusRequest apiRequest, GetOperationAsyncStatusResponse apiResponse, HttpServletResponse httpResponse) {
         try {
-            switch (apiResponse.getPayload()) {
+            switch (apiResponse.getPayload().getExecutionState()) {
                 case INITIATED:
                 case RUNNING: {
                     HttpHelper.sendJson(
                             httpResponse,
                             StatusCode.SUCCESS,
-                            new HttpJsonApiSerializer().write(new BaseOperationResult(apiResponse.getPayload())));
+                            new HttpJsonApiSerializer().write(apiResponse.getPayload()));
                     break;
                 }
                 case COMPLETED:
@@ -87,7 +66,11 @@ public class GetOperationAsyncStatusResponseMapper extends AbstractResponseMappe
             }
         }
         catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            HttpHelper.send(httpResponse,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, e.getMessage())
+                            .build());
         }
 
     }

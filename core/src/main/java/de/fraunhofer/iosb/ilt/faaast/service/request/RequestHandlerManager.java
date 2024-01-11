@@ -166,7 +166,6 @@ public class RequestHandlerManager {
 
             O response = (O) ConstructorUtils.invokeConstructor(TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType());
             response.setStatusCode(statusCode);
-            response.getResult().setSuccess(false);
             response.getResult().setMessages(List.of(
                     new Message.Builder()
                             .text(message)

@@ -1613,7 +1613,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         }));
         // assert operation is still running
         BaseOperationResult expectedStatusRunning = new BaseOperationResult();
-        expectedStatusRunning.setSuccess(true);
         expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
         assertExecuteSingle(
                 HttpMethod.GET,
@@ -1644,11 +1643,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         Assert.assertTrue(locationHeader.get().contains("operation-results/"));
         operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
         // assert operation result
-        OperationResult expextecResult = OperationResult.builder()
+        OperationResult expextecResult = new OperationResult.Builder()
                 .executionState(ExecutionState.COMPLETED)
-                .executionResult(Result.builder()
-                        .success(true)
-                        .build())
                 .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
                                 .idShort(inoutputParameterId)
@@ -1744,7 +1740,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             };
         });
         // assert OperationStarted on messagebus
-        OperationResult expectedResult = OperationResult.builder()
+        OperationResult expectedResult = new OperationResult.Builder()
                 .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
                                 .idShort(inoutputParameterId)
@@ -1773,6 +1769,45 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 .element(reference)
                                 .inoutput(List.of(PropertyValue.of(Datatype.STRING, inoutputExpectedValue)))
                                 .output(List.of(PropertyValue.of(Datatype.INT, Integer.toString(inputValue * inputValue))))
+                                .build()),
+                LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
+                        HttpMethod.POST,
+                        apiPaths.submodelRepository().submodelInterface(submodelId).invoke(operationId),
+                        StatusCode.SUCCESS,
+                        operationRequest,
+                        expectedResult,
+                        OperationResult.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationSyncWithExceptionInOperation()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueFormatException {
+        String submodelId = "TestSubmodel6";
+        String operationId = "ExampleOperation";
+        OperationRequest operationRequest = new OperationRequest();
+        operationRequest.setTimeout(100000);
+
+        Reference reference = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(operationId)
+                .build();
+        mockOperation(reference, (input, inoutput) -> {
+            throw new IllegalArgumentException();
+        });
+        // assert OperationStarted on messagebus
+        OperationResult expectedResult = new OperationResult.Builder()
+                .executionState(ExecutionState.FAILED)
+                .build();
+        // assert both messages
+        assertEvents(messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
                         HttpMethod.POST,
