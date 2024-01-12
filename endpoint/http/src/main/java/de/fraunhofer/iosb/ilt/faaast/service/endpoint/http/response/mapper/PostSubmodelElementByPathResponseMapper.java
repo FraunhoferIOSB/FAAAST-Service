@@ -23,23 +23,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
- * Response mapper for {@link PostSubmodelElementResponse}.
+ * Response mapper for {@link PostSubmodelElementByPathResponse}.
  */
-public class PostSubmodelElementResponseMapper extends AbstractResponseMapper<PostSubmodelElementResponse> {
+public class PostSubmodelElementByPathResponseMapper extends AbstractResponseMapper<PostSubmodelElementByPathResponse> {
 
-    public PostSubmodelElementResponseMapper(ServiceContext serviceContext) {
+    public PostSubmodelElementByPathResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
     }
 
 
     @Override
-    public void map(Request<PostSubmodelElementResponse> apiRequest, PostSubmodelElementResponse apiResponse, HttpServletResponse httpResponse) {
+    public void map(Request<PostSubmodelElementByPathResponse> apiRequest, PostSubmodelElementByPathResponse apiResponse, HttpServletResponse httpResponse) {
         httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
+
         try {
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),
