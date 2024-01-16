@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -192,7 +193,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
             executor.schedule(() -> {
                 timeoutOccured.set(true);
                 handleOperationTimeout(reference, request, operationHandle);
-            }, request.getTimeout(), TimeUnit.MILLISECONDS);
+            }, request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
             handleOperationFailure(reference, request, operationHandle, e);

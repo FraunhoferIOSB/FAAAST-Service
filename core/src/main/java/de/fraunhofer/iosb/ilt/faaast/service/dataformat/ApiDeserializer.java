@@ -16,8 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -30,6 +34,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -863,7 +868,8 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON containg a map of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
+     * Deserializes a JSON string containg a map of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <K> expected key type of returned map
      * @param <V> expected value type of returned map
@@ -873,6 +879,19 @@ public interface ApiDeserializer {
      * @throws DeserializationException if deserialization fails
      */
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    /**
+     * Deserializes a JSON node a map of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
+     *
+     * @param <K> expected key type of returned map
+     * @param <V> expected value type of returned map
+     * @param json JSON node to deserialize
+     * @param typeInfo detailed type information for deserialization
+     * @return a map of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public <K, V extends ElementValue> Map<K, V> readValueMap(JsonNode json, TypeInfo typeInfo) throws DeserializationException;
 
 
     /**
@@ -898,6 +917,41 @@ public interface ApiDeserializer {
      * @param implementationType concrete implementation of AAS interface to use upon deserialization
      */
     public <T> void useImplementation(Class<T> interfaceType, Class<? extends T> implementationType);
+
+
+    /**
+     * Deserializes an {@link InvokeOperationRequest} with valueOnly format.For this to work, the implementation first
+     * discoveres the operation identified by the operationIdentifier using the serviceContext and extracts the type
+     * information necessary for deserialization.
+     *
+     * @param <T> the actual type of the request (sync or async)
+     * @param file the file containing the JSON
+     * @param type the actual type of the request (sync or async)
+     * @param serviceContext the service context
+     * @param operationIdentifier the identifier of the corresponding operation
+     * @return the parse InvokeOperationRequest
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException when deserialization fails
+     * @throws java.io.IOException when accessing the file fails
+     */
+    public <T extends InvokeOperationRequest> T readValueOperationRequest(File file, Class<T> type, ServiceContext serviceContext, SubmodelElementIdentifier operationIdentifier)
+            throws DeserializationException, IOException;
+
+
+    /**
+     * Deserializes an {@link InvokeOperationRequest} with valueOnly format.For this to work, the implementation first
+     * discoveres the operation identified by the operationIdentifier using the serviceContext and extracts the type
+     * information necessary for deserialization.
+     *
+     * @param <T> the actual type of the request (sync or async)
+     * @param json the json to parse
+     * @param type the actual type of the request (sync or async)
+     * @param serviceContext the service context
+     * @param operationIdentifier the identifier of the corresponding operation
+     * @return the parse InvokeOperationRequest
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException when deserialization fails
+     */
+    public <T extends InvokeOperationRequest> T readValueOperationRequest(String json, Class<T> type, ServiceContext serviceContext, SubmodelElementIdentifier operationIdentifier)
+            throws DeserializationException;
 
 
     private static String readStream(InputStream src, Charset charset) {

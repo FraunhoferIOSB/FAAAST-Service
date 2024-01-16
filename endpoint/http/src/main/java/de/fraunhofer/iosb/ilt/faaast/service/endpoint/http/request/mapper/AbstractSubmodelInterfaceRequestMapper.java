@@ -125,7 +125,7 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
         Matcher matcher = Pattern.compile(pattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
             Map<String, String> urlParameters = RegExHelper.getGroupValues(pattern, httpRequest.getPath());
-            httpRequest.setPath(withAasContext
+            httpRequest.setPath(hasAasPath(httpRequest.getPath())
                     ? removeAasPath(removeSubmodelPath(httpRequest.getPath()))
                     : removeSubmodelPath(httpRequest.getPath()));
             AbstractSubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);

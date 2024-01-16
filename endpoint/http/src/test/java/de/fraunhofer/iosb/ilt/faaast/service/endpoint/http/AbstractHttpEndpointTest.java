@@ -43,6 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
@@ -67,7 +68,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +78,6 @@ import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
@@ -729,7 +728,8 @@ public abstract class AbstractHttpEndpointTest {
                         .payload(handle)
                         .statusCode(StatusCode.SUCCESS_ACCEPTED)
                         .build());
-        OperationRequest operationRequest = new OperationRequest();
+        InvokeOperationAsyncRequest operationRequest = InvokeOperationAsyncRequest.builder()
+                .build();
         URI urlInvoke = new URI("/submodels/foo/submodel/submodel-elements/bar/invoke-async");
         ContentResponse responseInvoke = execute(HttpMethod.POST, urlInvoke.toString(), operationRequest);
         Assert.assertEquals(HttpStatus.ACCEPTED_202, responseInvoke.getStatus());
@@ -958,42 +958,6 @@ public abstract class AbstractHttpEndpointTest {
             for (var text: textSnippets) {
                 Assert.assertTrue(actual.getMessages().get(0).getText().contains(text));
             }
-        }
-    }
-
-    private static class OperationRequest {
-
-        private List<OperationVariable> inputArguments = new ArrayList<>();
-        private List<OperationVariable> inoutputArguments = new ArrayList<>();
-        private long timeout = 1000;
-
-        public List<OperationVariable> getInputArguments() {
-            return inputArguments;
-        }
-
-
-        public void setInputArguments(List<OperationVariable> inputArguments) {
-            this.inputArguments = inputArguments;
-        }
-
-
-        public List<OperationVariable> getInoutputArguments() {
-            return inoutputArguments;
-        }
-
-
-        public void setInoutputArguments(List<OperationVariable> inoutputArguments) {
-            this.inoutputArguments = inoutputArguments;
-        }
-
-
-        public long getTimeout() {
-            return timeout;
-        }
-
-
-        public void setTimeout(long timeout) {
-            this.timeout = timeout;
         }
     }
 }

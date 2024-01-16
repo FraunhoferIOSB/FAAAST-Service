@@ -1,0 +1,13 @@
+{
+    "inputArguments": {
+        "inString": "foo",
+        "inInt": 42,
+        "inDouble": 42.17
+    },
+    "inoutputArguments": {
+        "inoutString": "bar",
+        "inoutInt": -42,
+        "inoutDouble": 17.42
+    },
+    "clientTimeoutDuration": "P1Y2M3DT1H2M3S"
+}

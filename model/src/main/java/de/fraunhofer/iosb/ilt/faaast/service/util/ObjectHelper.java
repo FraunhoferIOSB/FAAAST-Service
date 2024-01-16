@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -69,5 +71,23 @@ public class ObjectHelper {
             return;
         }
         consumer.accept(obj);
+    }
+
+
+    /**
+     * Checks if two lists are equal ignoring the order of the lists.
+     *
+     * @param list1 first list
+     * @param list2 second list
+     * @return true if lists are equal ignoring order, false otherwise
+     */
+    public static boolean equalsIgnoreOrder(List<?> list1, List<?> list2) {
+        if (Objects.isNull(list1) && Objects.isNull(list2)) {
+            return true;
+        }
+        if (Objects.isNull(list1) || Objects.isNull(list2)) {
+            return false;
+        }
+        return list1.size() == list2.size() && list1.containsAll(list2);
     }
 }

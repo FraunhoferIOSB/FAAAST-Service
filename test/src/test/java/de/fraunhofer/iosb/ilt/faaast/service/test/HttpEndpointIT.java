@@ -1671,6 +1671,155 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
+    public void testSubmodelInterfaceInvokeOperationAsyncValueOnly()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        String submodelId = "TestSubmodel6";
+        String operationId = "ExampleOperation";
+        String inputParameterId = "in";
+        String inoutputParameterId = "note";
+        String outputParameterId = "square";
+        String inoutputExpectedValue = "updated value";
+        int inputValue = 4;
+        OperationRequest operationRequest = new OperationRequest();
+        operationRequest.getInputArguments().add(new DefaultOperationVariable.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(inputParameterId)
+                        .valueType(DataTypeDefXsd.INT)
+                        .value(Integer.toString(inputValue))
+                        .build())
+                .build());
+        operationRequest.getInoutputArguments().add(new DefaultOperationVariable.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(inoutputParameterId)
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("original value")
+                        .build())
+                .build());
+        operationRequest.setTimeout(10000);
+
+        Reference reference = new ReferenceBuilder()
+                .submodel(submodelId)
+                .element(operationId)
+                .build();
+        CountDownLatch condition = new CountDownLatch(1);
+        mockOperation(reference, (input, inoutput) -> {
+            Ensure.requireNonNull(input, "input must be non-null");
+            Ensure.require(input.length == 1 && Objects.nonNull(input[0].getValue()), "operation must have exactly one input parameter");
+            Ensure.require(Property.class.isAssignableFrom(input[0].getValue().getClass()), "operation input parameter must be of type Property");
+            Property propertyIn = Property.class.cast(input[0].getValue());
+            Ensure.require(
+                    propertyIn.getIdShort().equals(inputParameterId),
+                    String.format("operation input parameter must have idShort '%s'", inputParameterId));
+            Ensure.require(propertyIn.getValueType() == DataTypeDefXsd.INT, "operation input parameter must have datatype 'xs:int'");
+            int in = Integer.parseInt(propertyIn.getValue());
+
+            Ensure.requireNonNull(inoutput, "inoutput must be non-null");
+            Ensure.require(inoutput.length == 1 && Objects.nonNull(inoutput[0].getValue()), "operation must have exactly one inputput parameter");
+            Ensure.require(Property.class.isAssignableFrom(inoutput[0].getValue().getClass()), "operation inoutput parameter must be of type Property");
+            Property propertyInOut = Property.class.cast(inoutput[0].getValue());
+            Ensure.require(
+                    propertyInOut.getIdShort().equals(inoutputParameterId),
+                    String.format("operation inoutput parameter must have idShort '%s'", inoutputParameterId));
+            Ensure.require(propertyInOut.getValueType() == DataTypeDefXsd.STRING, "operation inoutput parameter must have datatype 'xs:string'");
+
+            try {
+                condition.await();
+                propertyInOut.setValue(inoutputExpectedValue);
+            }
+            catch (InterruptedException ex) {
+                throw new RuntimeException();
+            }
+            return new OperationVariable[] {
+                    new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort(outputParameterId)
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value(Integer.toString(in * in))
+                                    .build())
+                            .build()
+            };
+        });
+        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
+        // assert OperationStarted on messagebus
+        assertEvent(
+                messageBus,
+                OperationInvokeEventMessage.class,
+                null,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodelId).invokeAsyncValueOnly(operationId),
+                                    StatusCode.SUCCESS_ACCEPTED,
+                                    operationRequest, //input
+                                    null,
+                                    null);
+                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
+                            Assert.assertTrue(locationHeader.isPresent());
+                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
+                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
+                        }));
+        // assert operation is still running
+        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
+        assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS,
+                null, //input
+                expectedStatusRunning,
+                BaseOperationResult.class);
+        // assert OperationFinished on messagebus
+        assertEvent(messageBus, OperationFinishEventMessage.class, null, x -> {
+            condition.countDown();
+            Awaitility.await()
+                    .pollInterval(100, TimeUnit.MILLISECONDS)
+                    .atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                    .until(() -> HttpHelper.execute(httpClient, HttpMethod.GET, operationStatusUrl.get()).statusCode() == toHttpStatusCode(StatusCode.SUCCESS_FOUND));
+        });
+        // assert status is finished and returns 302 with correct Location header
+        AtomicReference<String> operationResultUrl = new AtomicReference<>();
+        HttpResponse responseStatusFinished = assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS_FOUND,
+                null,
+                null,
+                null);
+        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
+        Assert.assertTrue(locationHeader.isPresent());
+        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
+        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
+        // assert operation result
+        OperationResult expextecResult = new OperationResult.Builder()
+                .executionState(ExecutionState.COMPLETED)
+                .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(inoutputParameterId)
+                                .valueType(DataTypeDefXsd.STRING)
+                                .value(inoutputExpectedValue)
+                                .build())
+                        .build()))
+                .outputArguments(List.of(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(outputParameterId)
+                                .valueType(DataTypeDefXsd.INT)
+                                .value(Integer.toString(inputValue * inputValue))
+                                .build())
+                        .build()))
+                .build();
+        assertExecuteSingle(
+                HttpMethod.GET,
+                operationResultUrl.get() + "/$value",
+                StatusCode.SUCCESS,
+                null,
+                expextecResult,
+                OperationResult.class);
+    }
+
+
+    @Test
     public void testSubmodelInterfaceInvokeOperationSync()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException, ValueFormatException {
