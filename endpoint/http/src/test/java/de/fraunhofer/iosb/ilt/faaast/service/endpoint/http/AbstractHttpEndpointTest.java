@@ -415,6 +415,23 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
+    public void testGetAllAssetAdministrationShellsWithApiPrefix() throws Exception {
+        Page<AssetAdministrationShell> expected = Page.of(AASFull.AAS_1);
+        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/api/v3.0/shells");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        // TODO: server not returning character encoding
+        LOGGER.info("http response encoding: {}", response.getEncoding());
+        LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
+        Page<AssetAdministrationShell> actual = deserializer.read(new String(response.getContent(), "UTF-8"), new TypeReference<Page<AssetAdministrationShell>>() {});
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
     public void testSerializationJson() throws Exception {
         Environment expected = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(AASFull.AAS_2)

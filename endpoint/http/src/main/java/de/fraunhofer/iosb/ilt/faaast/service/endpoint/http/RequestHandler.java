@@ -59,6 +59,7 @@ public class RequestHandler extends AbstractHandler {
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
+    private final String API_PREFIX = "/api/v3.0";
 
     public RequestHandler(ServiceContext serviceContext, HttpEndpointConfig config) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -92,7 +93,7 @@ public class RequestHandler extends AbstractHandler {
         }
 
         HttpRequest httpRequest = HttpRequest.builder()
-                .path(request.getRequestURI().replaceAll("/$", ""))
+                .path(removePrefix(request.getRequestURI()).replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(request.getInputStream().readAllBytes())
                 .method(method)
@@ -116,6 +117,16 @@ public class RequestHandler extends AbstractHandler {
         }
         finally {
             baseRequest.setHandled(true);
+        }
+    }
+
+
+    private String removePrefix(String requestUri) {
+        if (requestUri.contains(API_PREFIX)) {
+            return requestUri.replaceAll(API_PREFIX, "");
+        }
+        else {
+            return requestUri;
         }
     }
 
