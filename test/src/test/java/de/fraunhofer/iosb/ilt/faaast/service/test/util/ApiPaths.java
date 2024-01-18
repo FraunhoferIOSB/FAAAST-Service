@@ -39,6 +39,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 public class ApiPaths {
 
+    private static final String API_PREFIX = "/api/v3.0";
     private final String host;
     private final int port;
 
@@ -49,7 +50,7 @@ public class ApiPaths {
 
 
     public String root() {
-        return String.format("%s:%d", host, port);
+        return String.format("%s:%d%s", host, port, API_PREFIX);
     }
 
 
