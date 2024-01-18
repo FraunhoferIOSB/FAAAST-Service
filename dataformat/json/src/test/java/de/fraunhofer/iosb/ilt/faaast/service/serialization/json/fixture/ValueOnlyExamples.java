@@ -14,8 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import java.io.File;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import javax.xml.datatype.DatatypeFactory;
@@ -78,6 +86,7 @@ public class ValueOnlyExamples {
     public static final File PROPERTY_STRING_FILE = new File(RESOURCE_PATH + "/property-string.json");
     public static final File PROPERTY_DATETIME_FILE = new File(RESOURCE_PATH + "/property-datetime.json");
     public static final File INVOKE_OPERATION_REQUEST_FILE = new File(RESOURCE_PATH + "/invoke-operation-request.json");
+    public static final File GET_OPERATION_ASYNC_RESULT_RESPONSE_FILE = new File(RESOURCE_PATH + "/get-operation-async-result-response.json");
 
     public static final Blob BLOB = new DefaultBlob.Builder()
             .idShort("blob1")
@@ -267,6 +276,62 @@ public class ValueOnlyExamples {
                     .value(new DefaultProperty.Builder()
                             .idShort("inoutDouble")
                             .valueType(DataTypeDefXsd.DOUBLE)
+                            .build())
+                    .build())
+            .build();
+
+    public static final GetOperationAsyncResultResponse GET_OPERATION_ASYNC_RESULT_RESPONSE = GetOperationAsyncResultResponse.builder()
+            .success()
+            .payload(new OperationResult.Builder()
+                    .executionState(ExecutionState.COMPLETED)
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutString")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("bar")
+                                    .build())
+                            .build())
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutInt")
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value("-42")
+                                    .build())
+                            .build())
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutDouble")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("17.42")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outString")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("foo-bar")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outInt")
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value("-24")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outDouble")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("24.24")
+                                    .build())
+                            .build())
+                    .build())
+            .result(Result.builder()
+                    .message(Message.builder()
+                            .messageType(MessageType.INFO)
+                            .text("some message text")
+                            .timestamp(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant()))
                             .build())
                     .build())
             .build();

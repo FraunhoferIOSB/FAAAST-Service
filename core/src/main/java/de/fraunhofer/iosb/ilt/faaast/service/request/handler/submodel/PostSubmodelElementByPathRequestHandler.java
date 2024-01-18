@@ -82,10 +82,12 @@ public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInt
         if (ElementValueHelper.isSerializableAsValue(request.getSubmodelElement().getClass())) {
             context.getAssetConnectionManager().setValue(childReference, ElementValueMapper.toValue(request.getSubmodelElement()));
         }
-        context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                .element(childReference)
-                .value(request.getSubmodelElement())
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementCreateEventMessage.builder()
+                    .element(childReference)
+                    .value(request.getSubmodelElement())
+                    .build());
+        }
         return PostSubmodelElementByPathResponse.builder()
                 .payload(request.getSubmodelElement())
                 .created()

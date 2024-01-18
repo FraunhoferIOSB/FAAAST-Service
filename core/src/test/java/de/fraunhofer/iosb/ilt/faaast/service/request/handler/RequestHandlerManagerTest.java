@@ -1523,7 +1523,7 @@ public class RequestHandlerManagerTest {
         //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
         //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
         //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
-        requestHandler.syncWithAsset(parentRef, submodelElements);
+        requestHandler.syncWithAsset(parentRef, submodelElements, true);
         verify(persistence).update(propertyUpdatedRef, propertyExpected);
         verify(persistence).update(rangeUpdatedRef, rangeExpected);
         verify(persistence, times(0)).update(parentRef, propertyStatic);

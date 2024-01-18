@@ -72,11 +72,13 @@ public class SetSubmodelElementValueByPathRequestHandler
             // empty on purpose
         }
         response.setStatusCode(StatusCode.SUCCESS);
-        context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                .element(reference)
-                .oldValue(oldValue)
-                .newValue(newValue)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                    .element(reference)
+                    .oldValue(oldValue)
+                    .newValue(newValue)
+                    .build());
+        }
         return response;
     }
 

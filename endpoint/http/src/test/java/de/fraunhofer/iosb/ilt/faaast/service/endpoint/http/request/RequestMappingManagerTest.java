@@ -57,10 +57,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.Get
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.DeleteAASXPackageByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.GetAASXByPackageIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.GetAllAASXPackageIdsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.PostAASXPackageRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIdShortRequest;
@@ -128,7 +124,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -160,19 +155,6 @@ public class RequestMappingManagerTest {
         serializer = new HttpJsonApiSerializer();
         serviceContext = mock(ServiceContext.class);
         mappingManager = new RequestMappingManager(serviceContext);
-    }
-
-
-    @Test
-    public void testDeleteAASXPackageById() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = DeleteAASXPackageByIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.DELETE)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
-                .build());
-        Assert.assertEquals(expected, actual);
     }
 
 
@@ -282,33 +264,6 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testGetAASXByPackageId() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAASXByPackageIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testGetAllAASXPackageIds() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAllAASXPackageIdsRequest.builder()
-                .aasId(AAS.getId())
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages")
-                .query("aasId=" + EncodingHelper.base64UrlEncode(AAS.getId()))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -996,28 +951,6 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    @Ignore("AASX not implemented yet")
-    public void testPostAASXPackage() throws IOException, InvalidRequestException, MethodNotAllowedException {
-        Assert.fail("not implemented (multipart HTTP message");
-        Request expected = PostAASXPackageRequest.builder()
-                .aasId(AAS.getId())
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .path("packages")
-                .query("aasId=" + EncodingHelper.base64UrlEncode(AAS.getId()))
-                .build());
-        Assert.assertEquals(expected, actual);
-
-        //        File example = new File("src/test/resources/example-packages.json");
-        //        execute(HttpMethod.POST, "packages",
-        //                "",
-        //                Files.readString(example.toPath()),
-        //                PostAASXPackageRequest.class);
-    }
-
-
-    @Test
     public void testPostAllAssetLinksById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostAllAssetLinksByIdRequest.builder()
                 .id(AAS.getId())
@@ -1117,21 +1050,6 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.POST)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodels")
                 .body(serializer.write(submodelRef).getBytes())
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    @Ignore("AASX not implemented yet")
-    public void testPutAASXPackageById() throws IOException, InvalidRequestException, MethodNotAllowedException {
-        Assert.fail("not implemented (requires multipart HTTP)");
-        Request expected = GetAASXByPackageIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
                 .build());
         Assert.assertEquals(expected, actual);
     }

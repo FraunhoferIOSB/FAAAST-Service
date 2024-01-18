@@ -52,9 +52,11 @@ public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
         file.setValue(request.getContent().getPath());
         context.getPersistence().update(reference, file);
         context.getFileStorage().save(file.getValue(), request.getContent().getContent());
-        context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                .element(reference)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                    .element(reference)
+                    .build());
+        }
         return PutFileByPathResponse.builder()
                 .success()
                 .build();

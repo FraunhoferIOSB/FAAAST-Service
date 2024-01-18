@@ -14,16 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import java.util.List;
 
 
 /**
- * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
+ * Mixing for {@link Result}.
  */
-public abstract class SubmodelElementListValueMixin {
+public interface ResultMixin {
 
-    @JsonValue
-    private List<ElementValue> values;
+    @JsonUnwrapped
+    public List<Message> getMessages();
 }

@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PutConceptDescriptionById requests.
  */
-public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescriptionByIdResponse> {
+public class PutConceptDescriptionByIdRequest extends Request<PutConceptDescriptionByIdResponse> {
 
     private String id;
     private ConceptDescription conceptDescription;
@@ -58,14 +57,15 @@ public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescr
             return false;
         }
         PutConceptDescriptionByIdRequest that = (PutConceptDescriptionByIdRequest) o;
-        return Objects.equals(id, that.id)
+        return super.equals(that)
+                && Objects.equals(id, that.id)
                 && Objects.equals(conceptDescription, that.conceptDescription);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, conceptDescription);
+        return Objects.hash(super.hashCode(), id, conceptDescription);
     }
 
 
@@ -73,7 +73,7 @@ public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescr
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

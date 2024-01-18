@@ -61,17 +61,21 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        context.getMessageBus().publish(OperationInvokeEventMessage.builder()
-                .element(reference)
-                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(OperationInvokeEventMessage.builder()
+                    .element(reference)
+                    .input(ElementValueHelper.toValues(request.getInputArguments()))
+                    .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                    .build());
+        }
         OperationResult operationResult = executeOperationSync(reference, request);
-        context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                .element(reference)
-                .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
-                .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(OperationFinishEventMessage.builder()
+                    .element(reference)
+                    .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
+                    .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
+                    .build());
+        }
         return InvokeOperationSyncResponse.builder()
                 .payload(operationResult)
                 .success()

@@ -119,8 +119,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     }
 
 
-    private void handleOperationResult(
-                                       Reference reference,
+    private void handleOperationResult(Reference reference,
                                        OperationHandle operationHandle,
                                        OperationResult operationResult) {
         context.getPersistence().save(operationHandle, operationResult);

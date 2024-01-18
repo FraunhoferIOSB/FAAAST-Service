@@ -15,12 +15,32 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
+import java.util.Objects;
 
 
 /**
  * Request class for InvokeOperationAsync requests.
  */
 public class InvokeOperationAsyncRequest extends InvokeOperationRequest<InvokeOperationAsyncResponse> {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InvokeOperationAsyncRequest that = (InvokeOperationAsyncRequest) o;
+        return super.equals(that);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
 
     public static Builder builder() {
         return new Builder();

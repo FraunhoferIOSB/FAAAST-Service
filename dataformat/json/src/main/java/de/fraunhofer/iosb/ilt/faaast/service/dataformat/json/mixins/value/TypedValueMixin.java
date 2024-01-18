@@ -12,19 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 
 /**
- * JSON deserializer including HTTP specific functionality.
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
  */
-public class HttpJsonApiDeserializer extends JsonApiDeserializer {
+public abstract class TypedValueMixin<T> {
 
-    @Override
-    protected void modifyMapper(JsonMapper mapper) {
-        super.modifyMapper(mapper);
-    }
+    @JsonValue
+    protected T value;
 }

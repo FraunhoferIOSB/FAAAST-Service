@@ -49,10 +49,12 @@ public class PutAssetInformationRequestHandler extends AbstractRequestHandler<Pu
         shell.setAssetInformation(request.getAssetInformation());
         context.getPersistence().save(shell);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(shell)
-                .value(shell)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(shell)
+                    .value(shell)
+                    .build());
+        }
         return response;
     }
 

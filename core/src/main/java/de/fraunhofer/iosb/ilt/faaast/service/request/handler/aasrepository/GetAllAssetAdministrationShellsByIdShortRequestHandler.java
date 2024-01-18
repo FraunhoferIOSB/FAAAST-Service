@@ -50,7 +50,7 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
                         .build(),
                 request.getOutputModifier(),
                 request.getPagingInfo());
-        if (Objects.nonNull(page.getContent())) {
+        if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(x)

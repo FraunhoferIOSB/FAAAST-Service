@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PostAssetAdministrationShell requests.
  */
-public class PostAssetAdministrationShellRequest implements Request<PostAssetAdministrationShellResponse> {
+public class PostAssetAdministrationShellRequest extends Request<PostAssetAdministrationShellResponse> {
 
     private AssetAdministrationShell aas;
 
@@ -47,13 +46,14 @@ public class PostAssetAdministrationShellRequest implements Request<PostAssetAdm
             return false;
         }
         PostAssetAdministrationShellRequest that = (PostAssetAdministrationShellRequest) o;
-        return Objects.equals(aas, that.aas);
+        return super.equals(that)
+                && Objects.equals(aas, that.aas);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aas);
+        return Objects.hash(super.hashCode(), aas);
     }
 
 
@@ -61,7 +61,7 @@ public class PostAssetAdministrationShellRequest implements Request<PostAssetAdm
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B aas(AssetAdministrationShell value) {
             getBuildingInstance().setAas(value);

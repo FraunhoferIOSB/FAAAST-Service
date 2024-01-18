@@ -12,17 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import java.util.List;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList}.
  */
-public abstract class PropertyValueMixin {
+public abstract class SubmodelElementListValueMixin {
 
     @JsonValue
-    private TypedValue value;
+    private List<ElementValue> values;
 }

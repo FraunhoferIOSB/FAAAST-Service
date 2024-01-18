@@ -54,7 +54,7 @@ public class GetAllSubmodelElementsReferenceRequestHandler
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> page = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier());
-        if (Objects.nonNull(page.getContent())) {
+        if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(AasUtils.toReference(reference, x))

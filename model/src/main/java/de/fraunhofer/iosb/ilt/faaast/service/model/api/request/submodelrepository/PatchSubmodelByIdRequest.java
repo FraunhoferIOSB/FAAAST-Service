@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PatchSubmodelByIdResponse;
 import jakarta.json.JsonMergePatch;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PatchSubmodelById requests.
  */
-public class PatchSubmodelByIdRequest implements Request<PatchSubmodelByIdResponse> {
+public class PatchSubmodelByIdRequest extends Request<PatchSubmodelByIdResponse> {
 
     private String id;
     private JsonMergePatch changes;
@@ -58,13 +57,15 @@ public class PatchSubmodelByIdRequest implements Request<PatchSubmodelByIdRespon
             return false;
         }
         PatchSubmodelByIdRequest that = (PatchSubmodelByIdRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(changes, that.changes);
+        return super.equals(that)
+                && Objects.equals(id, that.id)
+                && Objects.equals(changes, that.changes);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, changes);
+        return Objects.hash(super.hashCode(), id, changes);
     }
 
 
@@ -72,7 +73,7 @@ public class PatchSubmodelByIdRequest implements Request<PatchSubmodelByIdRespon
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PatchSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PatchSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

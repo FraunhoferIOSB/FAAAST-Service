@@ -87,6 +87,18 @@ public class ValueOnlyJsonSerializerTest {
 
 
     @Test
+    public void testInvokeOperationRequest() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.INVOKE_OPERATION_REQUEST_FILE, ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST);
+    }
+
+
+    @Test
+    public void testGetOperationAsyncResultResponse() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.GET_OPERATION_ASYNC_RESULT_RESPONSE_FILE, ValueOnlyExamples.GET_OPERATION_ASYNC_RESULT_RESPONSE);
+    }
+
+
+    @Test
     public void testMultiLanguageProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
         assertEquals(ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY_FILE, ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY);
         assertValue(ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY_FILE, ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY);

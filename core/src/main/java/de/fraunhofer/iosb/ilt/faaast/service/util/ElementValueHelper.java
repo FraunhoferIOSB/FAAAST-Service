@@ -93,7 +93,9 @@ public class ElementValueHelper {
      * @return true if an object of the type can be converted to an element value, false otherwise
      */
     public static boolean isValueOnlySupported(Class<?> type) {
-        if (isSerializableAsValue(type) || Submodel.class.isAssignableFrom(type) || ElementValue.class.isAssignableFrom(type)) {
+        if (isSerializableAsValue(type)
+                || Submodel.class.isAssignableFrom(type)
+                || ElementValue.class.isAssignableFrom(type)) {
             return true;
         }
         if (type.isArray()) {

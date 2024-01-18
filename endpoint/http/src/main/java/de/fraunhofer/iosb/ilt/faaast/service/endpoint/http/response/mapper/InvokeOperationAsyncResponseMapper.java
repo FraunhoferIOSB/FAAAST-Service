@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -42,7 +43,10 @@ public class InvokeOperationAsyncResponseMapper extends AbstractResponseMapper<I
                 null,
                 Map.of("Location",
                         String.format(
-                                "operation-status/%s",
+                                "%soperation-status/%s",
+                                apiRequest.getOutputModifier().getContent() == Content.VALUE
+                                        ? "../"
+                                        : "",
                                 EncodingHelper.base64UrlEncode(apiResponse.getPayload().getHandleId()))));
     }
 }

@@ -52,10 +52,12 @@ public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<Delete
         assetInformation.setDefaultThumbnail(null);
         aas.setAssetInformation(assetInformation);
         context.getPersistence().save(aas);
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .value(aas)
-                .element(aas)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .value(aas)
+                    .element(aas)
+                    .build());
+        }
         return DeleteThumbnailResponse.builder()
                 .success()
                 .build();

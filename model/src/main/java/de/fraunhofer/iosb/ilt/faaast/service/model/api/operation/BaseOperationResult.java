@@ -66,7 +66,7 @@ public class BaseOperationResult extends Result {
         return Objects.hash(super.hashCode(), success, executionState);
     }
 
-    protected abstract static class AbstractBuilder<T extends BaseOperationResult, B extends Result.AbstractBuilder<T, B>> extends Result.AbstractBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends BaseOperationResult, B extends AbstractBuilder<T, B>> extends Result.AbstractBuilder<T, B> {
 
         public B success(boolean value) {
             getBuildingInstance().setSuccess(value);

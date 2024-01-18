@@ -45,10 +45,12 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
         ModelValidator.validate(request.getConceptDescription(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getConceptDescription(request.getConceptDescription().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getConceptDescription());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(request.getConceptDescription())
-                .value(request.getConceptDescription())
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(request.getConceptDescription())
+                    .value(request.getConceptDescription())
+                    .build());
+        }
         return PutConceptDescriptionByIdResponse.builder()
                 .payload(request.getConceptDescription())
                 .success()

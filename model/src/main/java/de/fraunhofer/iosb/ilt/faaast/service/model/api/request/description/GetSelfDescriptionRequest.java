@@ -17,21 +17,23 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.description.GetSelfDescriptionResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for GetSelfDescription requests.
  */
-public class GetSelfDescriptionRequest implements Request<GetSelfDescriptionResponse> {
+public class GetSelfDescriptionRequest extends Request<GetSelfDescriptionResponse> {
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        return Objects.nonNull(o) &&
-                Objects.equals(getClass(), o.getClass());
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GetSelfDescriptionRequest that = (GetSelfDescriptionRequest) o;
+        return super.equals(that);
     }
 
 
@@ -45,7 +47,7 @@ public class GetSelfDescriptionRequest implements Request<GetSelfDescriptionResp
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetSelfDescriptionRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetSelfDescriptionRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
     }
 

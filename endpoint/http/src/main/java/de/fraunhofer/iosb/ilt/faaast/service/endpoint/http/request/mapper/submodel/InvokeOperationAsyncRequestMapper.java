@@ -48,6 +48,7 @@ public class InvokeOperationAsyncRequestMapper extends AbstractSubmodelInterface
     @Override
     public InvokeOperationAsyncRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         InvokeOperationAsyncRequest result;
+
         SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
                 .submodelId(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
                 .idShortPath(IdShortPath.parse(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))

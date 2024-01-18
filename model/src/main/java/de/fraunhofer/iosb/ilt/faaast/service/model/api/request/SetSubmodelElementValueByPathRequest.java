@@ -66,16 +66,6 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
     }
 
 
-    public boolean isInternal() {
-        return internal;
-    }
-
-
-    public void setInternal(boolean internal) {
-        this.internal = internal;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,8 +77,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
         SetSubmodelElementValueByPathRequest that = (SetSubmodelElementValueByPathRequest) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
-                && Objects.equals(rawValue, that.rawValue)
-                && Objects.equals(internal, that.internal);
+                && Objects.equals(rawValue, that.rawValue);
     }
 
 
@@ -119,18 +108,6 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
         public B valueParser(ElementValueParser<U> value) {
             getBuildingInstance().setValueParser(value);
-            return getSelf();
-        }
-
-
-        public B internal(boolean value) {
-            getBuildingInstance().setInternal(value);
-            return getSelf();
-        }
-
-
-        public B internal() {
-            getBuildingInstance().setInternal(true);
             return getSelf();
         }
     }

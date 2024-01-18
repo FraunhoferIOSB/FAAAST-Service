@@ -55,10 +55,12 @@ public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandle
         aas.getSubmodels().remove(submodelRefToDelete);
         context.getPersistence().save(aas);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(aas)
-                .value(aas)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(aas)
+                    .value(aas)
+                    .build());
+        }
         return response;
     }
 

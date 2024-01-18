@@ -49,9 +49,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueC
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueMapDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
@@ -363,6 +364,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
     public <T extends InvokeOperationRequest> T readValueOperationRequest(String json, Class<T> type, ServiceContext serviceContext, SubmodelElementIdentifier operationIdentifier)
             throws DeserializationException {
         GetSubmodelElementByPathRequest metadataRequest = GetSubmodelElementByPathRequest.builder()
+                .internal()
                 .submodelId(operationIdentifier.getSubmodelId())
                 .path(operationIdentifier.getIdShortPath().toString())
                 .outputModifier(OutputModifier.DEFAULT)
@@ -470,6 +472,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
+        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {

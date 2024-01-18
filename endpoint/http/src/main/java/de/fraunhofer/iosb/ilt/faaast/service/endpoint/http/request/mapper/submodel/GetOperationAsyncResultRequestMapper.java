@@ -37,7 +37,7 @@ public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterf
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s",
+    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s(/\\$value)?",
             pathElement(SUBMODEL_ELEMENT_PATH),
             pathElement(HANDLE_ID));
 

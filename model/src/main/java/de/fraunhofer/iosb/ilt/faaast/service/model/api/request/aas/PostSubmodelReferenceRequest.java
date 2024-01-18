@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PostSubmodelReferenceResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PostSubmodelReference requests.
  */
-public class PostSubmodelReferenceRequest implements Request<PostSubmodelReferenceResponse> {
+public class PostSubmodelReferenceRequest extends Request<PostSubmodelReferenceResponse> {
 
     private String id;
     private Reference submodelRef;
@@ -58,13 +57,15 @@ public class PostSubmodelReferenceRequest implements Request<PostSubmodelReferen
             return false;
         }
         PostSubmodelReferenceRequest that = (PostSubmodelReferenceRequest) o;
-        return Objects.equals(submodelRef, that.submodelRef);
+        return super.equals(that)
+                && Objects.equals(id, that.id)
+                && Objects.equals(submodelRef, that.submodelRef);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, submodelRef);
+        return Objects.hash(super.hashCode(), id, submodelRef);
     }
 
 
@@ -72,7 +73,7 @@ public class PostSubmodelReferenceRequest implements Request<PostSubmodelReferen
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

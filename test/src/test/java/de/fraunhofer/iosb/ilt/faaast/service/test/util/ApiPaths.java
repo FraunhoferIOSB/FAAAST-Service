@@ -510,9 +510,19 @@ public class ApiPaths {
         }
 
 
+        public String invoke(IdShortPath idShortPath) {
+            return invoke(idShortPath.toString());
+        }
+
+
         public String invoke(String idShortPath) {
             return String.format("%s/invoke",
                     submodelElement(idShortPath));
+        }
+
+
+        public String invokeValueOnly(IdShortPath idShortPath) {
+            return invokeValueOnly(idShortPath.toString());
         }
 
 
@@ -522,9 +532,19 @@ public class ApiPaths {
         }
 
 
+        public String invokeAsync(IdShortPath idShortPath) {
+            return invokeAsync(idShortPath.toString());
+        }
+
+
         public String invokeAsync(String idShortPath) {
             return String.format("%s/invoke-async",
                     submodelElement(idShortPath));
+        }
+
+
+        public String invokeAsyncValueOnly(IdShortPath idShortPath) {
+            return invokeAsyncValueOnly(idShortPath.toString());
         }
 
 

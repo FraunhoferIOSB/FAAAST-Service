@@ -47,10 +47,12 @@ public class DeleteAssetAdministrationShellByIdRequestHandler
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteAssetAdministrationShell(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                .element(shell)
-                .value(shell)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementDeleteEventMessage.builder()
+                    .element(shell)
+                    .value(shell)
+                    .build());
+        }
         return response;
     }
 

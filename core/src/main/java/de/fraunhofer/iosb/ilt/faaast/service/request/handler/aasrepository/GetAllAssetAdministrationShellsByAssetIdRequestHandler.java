@@ -49,11 +49,13 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
                         .build(),
                 request.getOutputModifier(),
                 request.getPagingInfo());
-        page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
-                x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
-                        .element(x)
-                        .value(x)
-                        .build())));
+        if (!request.isInternal()) {
+            page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
+                    x -> context.getMessageBus().publish(ElementReadEventMessage.builder()
+                            .element(x)
+                            .value(x)
+                            .build())));
+        }
         return GetAllAssetAdministrationShellsByAssetIdResponse.builder()
                 .payload(page)
                 .success()

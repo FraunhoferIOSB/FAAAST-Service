@@ -22,6 +22,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeO
  */
 public class InvokeOperationSyncRequest extends InvokeOperationRequest<InvokeOperationSyncResponse> {
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InvokeOperationSyncRequest that = (InvokeOperationSyncRequest) o;
+        return super.equals(that);
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
