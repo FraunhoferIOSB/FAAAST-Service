@@ -17,13 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetInformationResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for GetAssetInformation requests.
  */
-public class GetAssetInformationRequest implements Request<GetAssetInformationResponse> {
+public class GetAssetInformationRequest extends Request<GetAssetInformationResponse> {
 
     private String id;
 
@@ -42,13 +41,17 @@ public class GetAssetInformationRequest implements Request<GetAssetInformationRe
         if (this == o) {
             return true;
         }
-        return !(o == null || getClass() != o.getClass());
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GetAssetInformationRequest that = (GetAssetInformationRequest) o;
+        return super.equals(that) && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -56,7 +59,7 @@ public class GetAssetInformationRequest implements Request<GetAssetInformationRe
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAssetInformationRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

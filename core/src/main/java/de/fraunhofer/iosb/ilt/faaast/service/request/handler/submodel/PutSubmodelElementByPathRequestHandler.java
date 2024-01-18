@@ -63,7 +63,7 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
         context.getPersistence().update(reference, newSubmodelElement);
-        if (Objects.isNull(oldSubmodelElement)) {
+        if (Objects.isNull(oldSubmodelElement) && !request.isInternal()) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)
                     .value(newSubmodelElement)
@@ -75,17 +75,21 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
             ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
             if (!Objects.equals(oldValue, newValue)) {
                 context.getAssetConnectionManager().setValue(reference, newValue);
-                context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                        .element(reference)
-                        .oldValue(oldValue)
-                        .newValue(newValue)
-                        .build());
+                if (!request.isInternal()) {
+                    context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                            .element(reference)
+                            .oldValue(oldValue)
+                            .newValue(newValue)
+                            .build());
+                }
             }
         }
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(newSubmodelElement)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(newSubmodelElement)
+                    .build());
+        }
         return PutSubmodelElementByPathResponse.builder()
                 .payload(newSubmodelElement)
                 .success()

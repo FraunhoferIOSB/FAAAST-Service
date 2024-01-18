@@ -12,17 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}.
+ * Mixing for {@link GetOperationAsyncResultResponse}.
+ *
+ * @param <T> type of payload
  */
-public class ReferenceElementValueMixin {
+public abstract class GetOperationAsyncResultResponseValueMixin<T> {
 
     @JsonUnwrapped
-    private Reference value;
+    protected T payload;
 }

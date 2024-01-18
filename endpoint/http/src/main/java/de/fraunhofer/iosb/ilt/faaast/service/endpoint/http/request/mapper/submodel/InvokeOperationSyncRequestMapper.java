@@ -15,9 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
@@ -43,8 +47,28 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
 
     @Override
     public InvokeOperationSyncRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        InvokeOperationSyncRequest request = parseBody(httpRequest, InvokeOperationSyncRequest.class);
-        request.setPath(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)));
-        return request;
+        InvokeOperationSyncRequest result;
+        SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
+                .submodelId(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
+                .idShortPath(IdShortPath.parse(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
+                .build();
+        if (outputModifier.getContent() == Content.VALUE) {
+            try {
+                result = deserializer.readValueOperationRequest(
+                        httpRequest.getBodyAsString(),
+                        InvokeOperationSyncRequest.class,
+                        serviceContext,
+                        identifier);
+            }
+            catch (DeserializationException e) {
+                throw new InvalidRequestException(e);
+            }
+        }
+        else {
+            result = parseBody(httpRequest, InvokeOperationSyncRequest.class);
+        }
+        result.setSubmodelId(identifier.getSubmodelId());
+        result.setPath(identifier.getIdShortPath().toString());
+        return result;
     }
 }

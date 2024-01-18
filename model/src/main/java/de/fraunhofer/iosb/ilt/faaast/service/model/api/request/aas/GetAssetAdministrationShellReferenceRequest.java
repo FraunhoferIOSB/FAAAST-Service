@@ -56,7 +56,8 @@ public class GetAssetAdministrationShellReferenceRequest extends AbstractRequest
             return false;
         }
         GetAssetAdministrationShellReferenceRequest that = (GetAssetAdministrationShellReferenceRequest) o;
-        return super.equals(that) && Objects.equals(id, that.id);
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 

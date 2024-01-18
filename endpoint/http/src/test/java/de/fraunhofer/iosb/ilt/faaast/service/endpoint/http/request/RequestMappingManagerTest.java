@@ -57,10 +57,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.Get
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.DeleteAASXPackageByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.GetAASXByPackageIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.GetAllAASXPackageIdsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasxfileserver.PostAASXPackageRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIdShortRequest;
@@ -99,10 +95,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import jakarta.json.Json;
@@ -111,6 +109,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import javax.xml.datatype.DatatypeFactory;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -118,13 +117,13 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -156,19 +155,6 @@ public class RequestMappingManagerTest {
         serializer = new HttpJsonApiSerializer();
         serviceContext = mock(ServiceContext.class);
         mappingManager = new RequestMappingManager(serviceContext);
-    }
-
-
-    @Test
-    public void testDeleteAASXPackageById() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = DeleteAASXPackageByIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.DELETE)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
-                .build());
-        Assert.assertEquals(expected, actual);
     }
 
 
@@ -278,33 +264,6 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/asset-information/thumbnail")
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testGetAASXByPackageId() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAASXByPackageIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testGetAllAASXPackageIds() throws InvalidRequestException, MethodNotAllowedException {
-        Request expected = GetAllAASXPackageIdsRequest.builder()
-                .aasId(AAS.getId())
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages")
-                .query("aasId=" + EncodingHelper.base64UrlEncode(AAS.getId()))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -818,6 +777,7 @@ public class RequestMappingManagerTest {
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.NORMAL)
+                .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H2M3S"))
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -833,20 +793,38 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationAsyncContentValue() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Operation operation = DeepCopyHelper.deepCopy(OPERATION);
+        ((Property) operation.getInputVariables().get(0).getValue()).setValue("foo");
+        ((Property) operation.getInoutputVariables().get(0).getValue()).setValue("bar");
         Request expected = InvokeOperationAsyncRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(OPERATION_REF))
-                .inputArguments(OPERATION.getInputVariables())
-                .inoutputArguments(OPERATION.getInoutputVariables())
+                .inputArguments(operation.getInputVariables())
+                .inoutputArguments(operation.getInoutputVariables())
                 .content(Content.VALUE)
+                .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H"))
                 .build();
-
+        when(serviceContext.execute(any())).thenReturn(
+                GetSubmodelElementByPathResponse.builder()
+                        .payload(OPERATION)
+                        .success()
+                        .build());
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke-async/$value")
-                .body(serializer.write(expected).getBytes())
+                .body("{\n"
+                        + "	\"inputArguments\":\n"
+                        + "	{\n"
+                        + "		\"ExampleProperty1\": \"foo\"\n"
+                        + "	},\n"
+                        + "	\"inoutputArguments\":\n"
+                        + "	{\n"
+                        + "		\"ExampleProperty3\": \"bar\"\n"
+                        + "	},\n"
+                        + "	\"clientTimeoutDuration\": \"PT1H\"\n"
+                        + "}")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -854,12 +832,19 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        when(serviceContext.execute(any())).thenReturn(
+                GetSubmodelElementByPathResponse.builder()
+                        .payload(OPERATION)
+                        .success()
+                        .build());
+
         Request expected = InvokeOperationSyncRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.NORMAL)
+                .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H2M3S"))
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -875,20 +860,38 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationSyncContentValue() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Operation operation = DeepCopyHelper.deepCopy(OPERATION);
+        ((Property) operation.getInputVariables().get(0).getValue()).setValue("foo");
+        ((Property) operation.getInoutputVariables().get(0).getValue()).setValue("bar");
         Request expected = InvokeOperationSyncRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(OPERATION_REF))
-                .inputArguments(OPERATION.getInputVariables())
-                .inoutputArguments(OPERATION.getInoutputVariables())
+                .inputArguments(operation.getInputVariables())
+                .inoutputArguments(operation.getInoutputVariables())
                 .content(Content.VALUE)
+                .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H2M3S"))
                 .build();
-
+        when(serviceContext.execute(any())).thenReturn(
+                GetSubmodelElementByPathResponse.builder()
+                        .payload(OPERATION)
+                        .success()
+                        .build());
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("submodels/" + EncodingHelper.base64UrlEncode(SUBMODEL.getId()) + "/submodel/submodel-elements/"
                         + ReferenceHelper.toPath(OPERATION_REF)
                         + "/invoke/$value")
-                .body(serializer.write(expected).getBytes())
+                .body("{\n"
+                        + "	\"inputArguments\":\n"
+                        + "	{\n"
+                        + "		\"ExampleProperty1\": \"foo\"\n"
+                        + "	},\n"
+                        + "	\"inoutputArguments\":\n"
+                        + "	{\n"
+                        + "		\"ExampleProperty3\": \"bar\"\n"
+                        + "	},\n"
+                        + "	\"clientTimeoutDuration\": \"PT1H2M3S\"\n"
+                        + "}")
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -944,28 +947,6 @@ public class RequestMappingManagerTest {
                 .body("{\"category\": \"NewCategory\"}".getBytes())
                 .build());
         Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    @Ignore("AASX not implemented yet")
-    public void testPostAASXPackage() throws IOException, InvalidRequestException, MethodNotAllowedException {
-        Assert.fail("not implemented (multipart HTTP message");
-        Request expected = PostAASXPackageRequest.builder()
-                .aasId(AAS.getId())
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .path("packages")
-                .query("aasId=" + EncodingHelper.base64UrlEncode(AAS.getId()))
-                .build());
-        Assert.assertEquals(expected, actual);
-
-        //        File example = new File("src/test/resources/example-packages.json");
-        //        execute(HttpMethod.POST, "packages",
-        //                "",
-        //                Files.readString(example.toPath()),
-        //                PostAASXPackageRequest.class);
     }
 
 
@@ -1069,21 +1050,6 @@ public class RequestMappingManagerTest {
                 .method(HttpMethod.POST)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getId()) + "/aas/submodel-refs")
                 .body(serializer.write(submodelRef).getBytes())
-                .build());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    @Ignore("AASX not implemented yet")
-    public void testPutAASXPackageById() throws IOException, InvalidRequestException, MethodNotAllowedException {
-        Assert.fail("not implemented (requires multipart HTTP)");
-        Request expected = GetAASXByPackageIdRequest.builder()
-                .packageId(AASX_PACKAGE_ID)
-                .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("packages/" + EncodingHelper.base64UrlEncode(AASX_PACKAGE_ID))
                 .build());
         Assert.assertEquals(expected, actual);
     }

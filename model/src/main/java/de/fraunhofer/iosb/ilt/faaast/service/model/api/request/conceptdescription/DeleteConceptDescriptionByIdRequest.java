@@ -17,13 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescripti
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for DeleteConceptDescriptionById requests.
  */
-public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConceptDescriptionByIdResponse> {
+public class DeleteConceptDescriptionByIdRequest extends Request<DeleteConceptDescriptionByIdResponse> {
 
     private String id;
 
@@ -46,13 +45,14 @@ public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConcep
             return false;
         }
         DeleteConceptDescriptionByIdRequest that = (DeleteConceptDescriptionByIdRequest) o;
-        return Objects.equals(id, that.id);
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -60,7 +60,7 @@ public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConcep
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

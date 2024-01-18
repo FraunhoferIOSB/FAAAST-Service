@@ -30,8 +30,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAssetAdministrationShellByIdResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAssetAdministrationShellByIdRequestHandler extends AbstractRequestHandler<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {
 
@@ -43,10 +42,12 @@ public class GetAssetAdministrationShellByIdRequestHandler extends AbstractReque
     @Override
     public GetAssetAdministrationShellByIdResponse process(GetAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(shell)
-                .value(shell)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(shell)
+                    .value(shell)
+                    .build());
+        }
         return GetAssetAdministrationShellByIdResponse.builder()
                 .payload(shell)
                 .success()

@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
@@ -863,12 +862,10 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         OperationHandle operationHandle = new OperationHandle();
         persistence.save(operationHandle, expected);
         expected.setExecutionState(ExecutionState.COMPLETED);
-        expected.setExecutionResult(new Result.Builder()
-                .message(new Message.Builder()
+        expected.setMessages(List.of(
+                new Message.Builder()
                         .code("test")
-                        .build())
-                .success(true)
-                .build());
+                        .build()));
         persistence.save(operationHandle, expected);
         OperationResult actual = persistence.getOperationResult(operationHandle);
         Assert.assertEquals(expected, actual);

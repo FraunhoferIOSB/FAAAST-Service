@@ -19,9 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ObjectHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
@@ -32,11 +35,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
  */
 public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
-    private static final long DEFAULT_TIMEOUT = 1000;
+    private static final Duration DEFAULT_TIMEOUT = DatatypeFactory.newDefaultInstance().newDuration(3000);
     protected String path;
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
-    protected long timeout;
+    protected Duration timeout;
 
     protected InvokeOperationRequest() {
         super(OutputModifierConstraints.builder()
@@ -92,8 +95,8 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         InvokeOperationRequest that = (InvokeOperationRequest) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
-                && Objects.equals(inputArguments, that.inputArguments)
-                && Objects.equals(inoutputArguments, that.inoutputArguments)
+                && ObjectHelper.equalsIgnoreOrder(inputArguments, that.inputArguments)
+                && ObjectHelper.equalsIgnoreOrder(inoutputArguments, that.inoutputArguments)
                 && Objects.equals(timeout, that.timeout);
     }
 
@@ -104,12 +107,12 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     }
 
 
-    public long getTimeout() {
+    public Duration getTimeout() {
         return timeout;
     }
 
 
-    public void setTimeout(long timeout) {
+    public void setTimeout(Duration timeout) {
         this.timeout = timeout;
     }
 
@@ -127,7 +130,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         }
 
 
-        public B timeout(long value) {
+        public B timeout(Duration value) {
             getBuildingInstance().setTimeout(value);
             return getSelf();
         }

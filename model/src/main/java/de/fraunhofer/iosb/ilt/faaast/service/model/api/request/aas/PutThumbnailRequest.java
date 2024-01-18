@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PutThumbnail requests.
  */
-public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
+public class PutThumbnailRequest extends Request<PutThumbnailResponse> {
 
     private String id;
     private TypedInMemoryFile content;
@@ -58,14 +57,15 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
             return false;
         }
         PutThumbnailRequest that = (PutThumbnailRequest) o;
-        return Objects.equals(id, that.id)
+        return super.equals(that)
+                && Objects.equals(id, that.id)
                 && Objects.equals(content, that.content);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, content);
+        return Objects.hash(super.hashCode(), id, content);
     }
 
 
@@ -73,7 +73,7 @@ public class PutThumbnailRequest implements Request<PutThumbnailResponse> {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutThumbnailRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutThumbnailRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

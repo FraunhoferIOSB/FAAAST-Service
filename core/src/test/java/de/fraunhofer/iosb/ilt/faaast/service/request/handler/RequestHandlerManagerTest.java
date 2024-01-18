@@ -38,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -163,6 +164,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -487,7 +489,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testPutDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
+    public void testDeleteThumbnailRequest() throws ResourceNotFoundException, Exception {
         InMemoryFile file = InMemoryFile.builder()
                 .path("my/path/image.png")
                 .content("foo".getBytes())
@@ -512,7 +514,7 @@ public class RequestHandlerManagerTest {
                 .id(aasId)
                 .build();
         PutThumbnailResponse send = manager.execute(putThumbnailRequestRequest);
-        Assert.assertTrue(send.getResult().getSuccess());
+        Assert.assertTrue(send.getResult().getMessages().isEmpty());
         GetThumbnailResponse actual = manager.execute(request);
         GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
                 .payload(new TypedInMemoryFile.Builder()
@@ -527,14 +529,14 @@ public class RequestHandlerManagerTest {
                 .id(aasId)
                 .build();
         DeleteThumbnailResponse deleted = manager.execute(deleteThumbnailRequest);
-        Assert.assertTrue(deleted.getResult().getSuccess());
+        Assert.assertTrue(deleted.getResult().getMessages().isEmpty());
         GetThumbnailResponse fail = manager.execute(request);
-        Assert.assertFalse(fail.getResult().getSuccess());
+        Assert.assertFalse(fail.getResult().getMessages().isEmpty());
     }
 
 
     @Test
-    public void testPutGetFileRequest() throws ResourceNotFoundException, Exception {
+    public void testPutFileRequest() throws ResourceNotFoundException, Exception {
         TypedInMemoryFile expectedFile = new TypedInMemoryFile.Builder()
                 .path("file:///TestFile.pdf")
                 .content("foo".getBytes())
@@ -552,7 +554,7 @@ public class RequestHandlerManagerTest {
                 .content(expectedFile)
                 .build();
         PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
-        Assert.assertTrue(putFileByPathResponse.getResult().getSuccess());
+        Assert.assertTrue(putFileByPathResponse.getResult().getMessages().isEmpty());
         GetFileByPathRequest request = new GetFileByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .path(file.getIdShort())
@@ -1180,6 +1182,7 @@ public class RequestHandlerManagerTest {
                                 .build()))
                         .outputArguments(operation.getInputVariables())
                         .executionState(ExecutionState.COMPLETED)
+                        .success(true)
                         .build())
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1196,7 +1199,8 @@ public class RequestHandlerManagerTest {
 
 
         @Override
-        public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
+        public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                                Consumer<Throwable> callbackFailure)
                 throws AssetConnectionException {
             // intentionally left empty
         }
@@ -1385,7 +1389,9 @@ public class RequestHandlerManagerTest {
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
         GetSubmodelByIdResponse actual = manager.execute(request);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
-                .result(Result.error("Resource not found with id"))
+                .result(Result.builder()
+                        .message(MessageType.ERROR, "Resource not found with id")
+                        .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1399,7 +1405,9 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.error("Resource not found with id"))
+                .result(Result.builder()
+                        .message(MessageType.ERROR, "Resource not found with id")
+                        .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1515,7 +1523,7 @@ public class RequestHandlerManagerTest {
         //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
         //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
         //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
-        requestHandler.syncWithAsset(parentRef, submodelElements);
+        requestHandler.syncWithAsset(parentRef, submodelElements, true);
         verify(persistence).update(propertyUpdatedRef, propertyExpected);
         verify(persistence).update(rangeUpdatedRef, rangeExpected);
         verify(persistence, times(0)).update(parentRef, propertyStatic);

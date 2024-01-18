@@ -517,14 +517,59 @@ public class ApiPaths {
         }
 
 
+        public String invoke(IdShortPath idShortPath) {
+            return invoke(idShortPath.toString());
+        }
+
+
         public String invoke(String idShortPath) {
             return String.format("%s/invoke",
                     submodelElement(idShortPath));
         }
 
 
+        public String invokeValueOnly(IdShortPath idShortPath) {
+            return invokeValueOnly(idShortPath.toString());
+        }
+
+
+        public String invokeValueOnly(String idShortPath) {
+            return String.format("%s/invoke/$value",
+                    submodelElement(idShortPath));
+        }
+
+
+        public String invokeAsync(IdShortPath idShortPath) {
+            return invokeAsync(idShortPath.toString());
+        }
+
+
+        public String invokeAsync(String idShortPath) {
+            return String.format("%s/invoke-async",
+                    submodelElement(idShortPath));
+        }
+
+
+        public String invokeAsyncValueOnly(IdShortPath idShortPath) {
+            return invokeAsyncValueOnly(idShortPath.toString());
+        }
+
+
+        public String invokeAsyncValueOnly(String idShortPath) {
+            return String.format("%s/invoke-async/$value",
+                    submodelElement(idShortPath));
+        }
+
+
         public String operationResult(String idShortPath, String handleId) {
             return String.format("%s/operation-results/%s",
+                    submodelElement(idShortPath),
+                    handleId);
+        }
+
+
+        public String operationStatus(String idShortPath, String handleId) {
+            return String.format("%s/operation-status/%s",
                     submodelElement(idShortPath),
                     handleId);
         }

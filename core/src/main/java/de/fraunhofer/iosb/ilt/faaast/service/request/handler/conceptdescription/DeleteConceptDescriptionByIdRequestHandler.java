@@ -46,10 +46,12 @@ public class DeleteConceptDescriptionByIdRequestHandler extends AbstractRequestH
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteConceptDescription(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                .element(conceptDescription)
-                .value(conceptDescription)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementDeleteEventMessage.builder()
+                    .element(conceptDescription)
+                    .value(conceptDescription)
+                    .build());
+        }
         return response;
     }
 

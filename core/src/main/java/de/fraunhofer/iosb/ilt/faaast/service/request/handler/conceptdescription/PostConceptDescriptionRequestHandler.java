@@ -45,10 +45,12 @@ public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler
             throw new ResourceAlreadyExistsException(request.getConceptDescription().getId(), ConceptDescription.class);
         }
         context.getPersistence().save(request.getConceptDescription());
-        context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                .element(request.getConceptDescription())
-                .value(request.getConceptDescription())
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementCreateEventMessage.builder()
+                    .element(request.getConceptDescription())
+                    .value(request.getConceptDescription())
+                    .build());
+        }
         return PostConceptDescriptionResponse.builder()
                 .payload(request.getConceptDescription())
                 .created()

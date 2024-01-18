@@ -46,10 +46,12 @@ public class GetAssetAdministrationShellByIdReferenceRequestHandler
     public GetAssetAdministrationShellByIdReferenceResponse process(GetAssetAdministrationShellByIdReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         Reference reference = ReferenceBuilder.forAas(shell);
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(shell)
-                .value(shell)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(shell)
+                    .value(shell)
+                    .build());
+        }
         return GetAssetAdministrationShellByIdReferenceResponse.builder()
                 .payload(reference)
                 .success()

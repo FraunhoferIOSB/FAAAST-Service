@@ -28,7 +28,7 @@ import java.util.Map;
  * Response mapper for any responses that contain a file.
  *
  */
-public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile> {
+public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile, Request<AbstractResponseWithFile>> {
 
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 

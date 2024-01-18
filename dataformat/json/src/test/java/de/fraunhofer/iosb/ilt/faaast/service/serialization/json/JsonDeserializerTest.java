@@ -14,9 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -161,6 +171,28 @@ public class JsonDeserializerTest {
     @Test
     public void testSubmodelElementList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         assertValue(ValueOnlyExamples.ELEMENT_LIST, ValueOnlyExamples.ELEMENT_LIST_FILE);
+    }
+
+
+    @Test
+    public void testInvokeOperationRequestSync() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        when(serviceContext.execute(any()))
+                .thenReturn(GetSubmodelElementByPathResponse.builder()
+                        .payload(ValueOnlyExamples.CONTEXT_OPERATION_INVOKE)
+                        .success()
+                        .build());
+        InvokeOperationRequest expected = ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST;
+
+        InvokeOperationSyncRequest actual = deserializer.readValueOperationRequest(
+                ValueOnlyExamples.INVOKE_OPERATION_REQUEST_FILE,
+                InvokeOperationSyncRequest.class,
+                serviceContext,
+                SubmodelElementIdentifier.builder()
+                        .submodelId("http://example.org/submodels/1")
+                        .idShortPath(IdShortPath.parse("my.test.operation"))
+                        .build());
+        Assert.assertEquals(expected, actual);
     }
 
 

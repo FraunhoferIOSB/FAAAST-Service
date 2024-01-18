@@ -63,17 +63,21 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
             if (!Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
                 context.getPersistence().update(reference, submodelElement);
-                context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                        .element(reference)
-                        .oldValue(oldValue)
-                        .newValue(valueFromAssetConnection.get())
-                        .build());
+                if (!request.isInternal()) {
+                    context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                            .element(reference)
+                            .oldValue(oldValue)
+                            .newValue(valueFromAssetConnection.get())
+                            .build());
+                }
             }
         }
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(reference)
-                .value(submodelElement)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(reference)
+                    .value(submodelElement)
+                    .build());
+        }
         return GetSubmodelElementByPathResponse.builder()
                 .payload(submodelElement)
                 .success()

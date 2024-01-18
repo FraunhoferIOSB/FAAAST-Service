@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PutSubmodelByIdResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PutSubmodelById requests.
  */
-public class PutSubmodelByIdRequest implements Request<PutSubmodelByIdResponse> {
+public class PutSubmodelByIdRequest extends Request<PutSubmodelByIdResponse> {
 
     private String id;
     private Submodel submodel;
@@ -58,13 +57,15 @@ public class PutSubmodelByIdRequest implements Request<PutSubmodelByIdResponse> 
             return false;
         }
         PutSubmodelByIdRequest that = (PutSubmodelByIdRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(submodel, that.submodel);
+        return super.equals(that)
+                && Objects.equals(id, that.id)
+                && Objects.equals(submodel, that.submodel);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, submodel);
+        return Objects.hash(super.hashCode(), id, submodel);
     }
 
 
@@ -72,7 +73,7 @@ public class PutSubmodelByIdRequest implements Request<PutSubmodelByIdResponse> 
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

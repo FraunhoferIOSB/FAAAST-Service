@@ -15,11 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.DEFAULT_TIMEOUT;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvents;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
@@ -27,35 +34,54 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.ValueOnlyJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
@@ -65,6 +91,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
@@ -78,17 +105,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -100,11 +139,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -116,10 +157,20 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 public class HttpEndpointIT extends AbstractIntegrationTest {
 
+    private static SubmodelElementIdentifier operationSquareIdentifier;
+    private static Operation operationSquare;
+    private static final String OPERATION_SQUARE_INPUT_PARAMETER_ID = "in";
+    private static final String OPERATION_SQUARE_INOUTPUT_PARAMETER_ID = "note";
+    private static final String OPERATION_SQUARE_OUTPUT_PARAMETER_ID = "square";
+    private static final String OPERATION_SQUARE_INOUTPUT_PARAMETER_INITIAL_VALUE = "original value";
+    private static final String OPERATION_SQUARE_INOUTPUT_PARAMETER_EXPECTED_VALUE = "updated value";
+    private static final Duration DEFAULT_OPERATION_TIMEOUT = DatatypeFactory.newDefaultInstance().newDuration("PT10S");
     private static Service service;
     private static Environment environment;
     private static ApiPaths apiPaths;
     private static MessageBus messageBus;
+    private static AssetConnectionManager assetConnectionManager;
+    private static RequestHandlerManager requestHandlerManager;
     private static final Path pathForTestSubmodel3 = Path.builder()
             .child("ExampleRelationshipElement")
             .child("ExampleAnnotatedRelationshipElement")
@@ -158,6 +209,11 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Before
     public void init() throws Exception {
         environment = AASFull.createEnvironment();
+        operationSquare = (Operation) AASFull.getFAAASTSubmodel(environment)
+                .getSubmodelElements().stream()
+                .filter(x -> Operation.class.isAssignableFrom(x.getClass()))
+                .findFirst().get();
+        operationSquareIdentifier = SubmodelElementIdentifier.fromReference(EnvironmentHelper.asReference(operationSquare, environment));
         ServiceConfig serviceConfig = ServiceConfig.builder()
                 .core(CoreConfig.builder()
                         .requestHandlerThreadPoolSize(2)
@@ -179,15 +235,46 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
                 .build();
-        service = new Service(serviceConfig);
+        service = spy(new Service(serviceConfig));
         messageBus = service.getMessageBus();
+        injectSpyAssetConnectionManager(serviceConfig);
         service.start();
+    }
+
+
+    private void injectSpyAssetConnectionManager(ServiceConfig serviceConfig) throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
+        assetConnectionManager = spy(service.getAssetConnectionManager());
+        setField(service, "assetConnectionManager", assetConnectionManager);
+        requestHandlerManager = new RequestHandlerManager(new RequestExecutionContext(
+                serviceConfig.getCore(),
+                getField(service, "persistence", Persistence.class),
+                getField(service, "fileStorage", FileStorage.class),
+                messageBus,
+                assetConnectionManager));
+        setField(service, "requestHandler", requestHandlerManager);
+        List<Endpoint> endpoints = (List<Endpoint>) getField(service, "endpoints", List.class);
+        for (var endpoint: endpoints) {
+            setField(endpoint, "serviceContext", service);
+        }
     }
 
 
     @After
     public void shutdown() {
         service.stop();
+    }
+
+
+    private void mockOperation(Reference reference, BiFunction<OperationVariable[], OperationVariable[], OperationVariable[]> logic) {
+        when(assetConnectionManager.hasOperationProvider(reference))
+                .thenReturn(true);
+        when(assetConnectionManager.getOperationProvider(reference))
+                .thenReturn(new AssetOperationProvider() {
+                    @Override
+                    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+                        return logic.apply(input, inoutput);
+                    }
+                });
     }
 
 
@@ -1451,6 +1538,480 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
+    public void testSubmodelInterfaceInvokeOperationAsync()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        int inputValue = 4;
+        Reference reference = operationSquareIdentifier.toReference();
+        CountDownLatch condition = new CountDownLatch(1);
+        mockOperation(reference, (input, inoutput) -> {
+            try {
+                condition.await();
+                return operationSqaureDefaultImplementation(input, inoutput);
+            }
+            catch (InterruptedException ex) {
+                throw new RuntimeException();
+            }
+        });
+        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
+        // assert OperationStarted on messagebus
+
+        assertEvent(
+                messageBus,
+                OperationInvokeEventMessage.class,
+                null,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId())
+                                            .invokeAsync(operationSquareIdentifier.getIdShortPath()),
+                                    StatusCode.SUCCESS_ACCEPTED,
+                                    getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), inputValue), //input
+                                    null,
+                                    null);
+                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
+
+                            Assert.assertTrue(locationHeader.isPresent());
+                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
+                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
+                        }));
+        // assert operation is still running
+        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+
+        expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
+
+        assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS,
+                null, //input
+                expectedStatusRunning,
+                BaseOperationResult.class);
+        // assert OperationFinished on messagebus
+        assertEvent(messageBus, OperationFinishEventMessage.class,
+                null, x -> {
+                    condition.countDown();
+
+                    Awaitility.await()
+                            .pollInterval(100, TimeUnit.MILLISECONDS)
+                            .atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                            .until(() -> HttpHelper.execute(httpClient, HttpMethod.GET, operationStatusUrl.get()).statusCode() == toHttpStatusCode(StatusCode.SUCCESS_FOUND));
+                });
+        // assert status is finished and returns 302 with correct Location header
+        AtomicReference<String> operationResultUrl = new AtomicReference<>();
+        HttpResponse responseStatusFinished = assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS_FOUND,
+                null,
+                null,
+                null);
+        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
+
+        Assert.assertTrue(locationHeader.isPresent());
+        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
+        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
+        // assert operation result
+        OperationResult expectedResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
+        assertExecuteSingle(
+                HttpMethod.GET,
+                operationResultUrl.get(),
+                StatusCode.SUCCESS,
+                null,
+                expectedResult,
+                OperationResult.class);
+    }
+
+
+    public static OperationResult getOperationSqaureExpectedResult(ExecutionState executionState, int inputValue) {
+        return getOperationSqaureExpectedResult(executionState, inputValue, OPERATION_SQUARE_INOUTPUT_PARAMETER_EXPECTED_VALUE);
+    }
+
+
+    public static OperationResult getOperationSqaureExpectedResult(ExecutionState executionState, int inputValue, String inoutputValue) {
+        OperationResult.Builder builder = new OperationResult.Builder()
+                .executionState(executionState)
+                .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(OPERATION_SQUARE_INOUTPUT_PARAMETER_ID)
+                                .valueType(DataTypeDefXsd.STRING)
+                                .value(inoutputValue)
+                                .build())
+                        .build()));
+        if (executionState == ExecutionState.COMPLETED) {
+            builder
+                    .success(true)
+                    .outputArguments(List.of(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort(OPERATION_SQUARE_OUTPUT_PARAMETER_ID)
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value(Integer.toString(inputValue * inputValue))
+                                    .build())
+                            .build()));
+
+        }
+        return builder.build();
+    }
+
+
+    private static <T extends InvokeOperationRequest> T getOperationSqaureInvokeRequest(T.AbstractBuilder<T, ?> builder, int inputValue) {
+        return getOperationSqaureInvokeRequest(
+                builder,
+                inputValue,
+                OPERATION_SQUARE_INOUTPUT_PARAMETER_INITIAL_VALUE,
+                DEFAULT_OPERATION_TIMEOUT.toString());
+    }
+
+
+    private static <T extends InvokeOperationRequest> T getOperationSqaureInvokeRequest(
+                                                                                        T.AbstractBuilder<T, ?> builder,
+                                                                                        int inputValue,
+                                                                                        String inoutputValue,
+                                                                                        String timeout) {
+        return builder.inputArgument(new DefaultOperationVariable.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(OPERATION_SQUARE_INPUT_PARAMETER_ID)
+                        .valueType(DataTypeDefXsd.INT)
+                        .value(Integer.toString(inputValue))
+                        .build())
+                .build())
+                .inoutputArgument(new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(OPERATION_SQUARE_INOUTPUT_PARAMETER_ID)
+                                .valueType(DataTypeDefXsd.STRING)
+                                .value(inoutputValue)
+                                .build())
+                        .build())
+                .timeout(DatatypeFactory.newDefaultInstance().newDuration(timeout))
+                .build();
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationAsyncValueOnly()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, JSONException {
+        int inputValue = 4;
+
+        Reference reference = operationSquareIdentifier.toReference();
+        CountDownLatch condition = new CountDownLatch(1);
+        mockOperation(reference, (input, inoutput) -> {
+            try {
+                condition.await();
+                return operationSqaureDefaultImplementation(input, inoutput);
+            }
+            catch (InterruptedException ex) {
+                throw new RuntimeException();
+            }
+        });
+        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
+        // assert OperationStarted on messagebus
+        assertEvent(
+                messageBus,
+                OperationInvokeEventMessage.class,
+                null,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId())
+                                            .invokeAsyncValueOnly(operationSquareIdentifier.getIdShortPath()),
+                                    StatusCode.SUCCESS_ACCEPTED,
+                                    //                                    getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), inputValue),
+                                    new JsonApiSerializer().write(
+                                            getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), inputValue),
+                                            new OutputModifier.Builder()
+                                                    .content(Content.VALUE)
+                                                    .build()),
+                                    null,
+                                    null);
+                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
+
+                            Assert.assertTrue(locationHeader.isPresent());
+                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
+                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
+                        }));
+        // assert operation is still running
+        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
+        assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS,
+                null, //input
+                expectedStatusRunning,
+                BaseOperationResult.class);
+        // assert OperationFinished on messagebus
+        assertEvent(messageBus, OperationFinishEventMessage.class,
+                null, x -> {
+                    condition.countDown();
+                    Awaitility.await()
+                            .pollInterval(100, TimeUnit.MILLISECONDS)
+                            .atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                            .until(() -> HttpHelper.execute(httpClient, HttpMethod.GET, operationStatusUrl.get()).statusCode() == toHttpStatusCode(StatusCode.SUCCESS_FOUND));
+                });
+        // assert status is finished and returns 302 with correct Location header
+        AtomicReference<String> operationResultUrl = new AtomicReference<>();
+        HttpResponse responseStatusFinished = assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS_FOUND,
+                null,
+                null,
+                null);
+        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
+        Assert.assertTrue(locationHeader.isPresent());
+        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
+        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
+        // assert operation result
+        OperationResult expextecResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
+        HttpResponse response = assertExecuteSingle(
+                HttpMethod.GET,
+                operationResultUrl.get() + "/$value",
+                StatusCode.SUCCESS,
+                null,
+                null,
+                OperationResult.class);
+        String expectedPayload = new ValueOnlyJsonSerializer().write(expextecResult);
+        JSONAssert.assertEquals(expectedPayload, response.body().toString(), false);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationSync()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueFormatException, ValueMappingException {
+        int inputValue = 4;
+        Reference reference = operationSquareIdentifier.toReference();
+        mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
+        // assert OperationStarted on messagebus
+        InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue);
+        OperationResult expectedResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
+        // assert both messages
+        assertEvents(messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
+                                .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
+                                .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
+                                .build()),
+                LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
+                        HttpMethod.POST,
+                        apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId()).invoke(operationSquareIdentifier.getIdShortPath()),
+                        StatusCode.SUCCESS,
+                        request,
+                        expectedResult,
+                        OperationResult.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationSyncValueOnly()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueFormatException, ValueMappingException {
+        int inputValue = 4;
+        Reference reference = operationSquareIdentifier.toReference();
+        mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
+        // assert OperationStarted on messagebus
+        InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue);
+        final OperationResult expectedResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
+        // assert both messages
+        assertEvents(messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
+                                .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
+                                .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
+                                .build()),
+                LambdaExceptionHelper.wrap(x -> {
+                    var response = assertExecuteSingle(
+                            HttpMethod.POST,
+                            apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId()).invokeValueOnly(operationSquareIdentifier.getIdShortPath()),
+                            StatusCode.SUCCESS,
+                            new ValueOnlyJsonSerializer().write(request),
+                            null,
+                            OperationResult.class);
+                    String expectedPayload = new ValueOnlyJsonSerializer().write(expectedResult);
+                    JSONAssert.assertEquals(expectedPayload, response.body().toString(), false);
+                }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationSyncWithExceptionInOperation()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueFormatException, ValueMappingException {
+        Reference reference = operationSquareIdentifier.toReference();
+        mockOperation(reference, (input, inoutput) -> {
+            throw new IllegalArgumentException();
+        });
+        // assert OperationStarted on messagebus
+        InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), -1);
+        OperationResult expectedResult = new OperationResult.Builder()
+                .executionState(ExecutionState.FAILED)
+                .inoutputArguments(request.getInoutputArguments())
+                .build();
+        assertEvents(messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build()),
+                LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
+                        HttpMethod.POST,
+                        apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId()).invoke(operationSquareIdentifier.getIdShortPath()),
+                        StatusCode.SUCCESS,
+                        getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), -1),
+                        expectedResult,
+                        OperationResult.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationAsyncWithTimeout()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueMappingException {
+        Reference reference = operationSquareIdentifier.toReference();
+        mockOperation(reference, (input, inoutput) -> {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException ex) {
+                throw new RuntimeException();
+            }
+            return null;
+        });
+        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
+        InvokeOperationAsyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), -1, "", "PT0.1S");
+        assertEvents(
+                messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build()),
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId())
+                                            .invokeAsync(operationSquareIdentifier.getIdShortPath()),
+                                    StatusCode.SUCCESS_ACCEPTED,
+                                    request,
+                                    null,
+                                    null);
+                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
+                            Assert.assertTrue(locationHeader.isPresent());
+                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
+                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
+                        }));
+        // assert status is finished and returns 302 with correct Location header
+        AtomicReference<String> operationResultUrl = new AtomicReference<>();
+        HttpResponse responseStatusFinished = assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS_FOUND,
+                null,
+                null,
+                null);
+        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
+        Assert.assertTrue(locationHeader.isPresent());
+        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
+        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
+        // assert operation result
+        HttpResponse responseResult = HttpHelper.execute(
+                httpClient,
+                HttpMethod.GET,
+                operationResultUrl.get());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), responseResult.statusCode());
+        OperationResult actualResult = HttpHelper.readResponse(responseResult, OperationResult.class);
+        Assert.assertEquals(ExecutionState.TIMEOUT, actualResult.getExecutionState());
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceInvokeOperationAsyncWithExceptionInOperation()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException, ValueMappingException {
+        Reference reference = operationSquareIdentifier.toReference();
+        mockOperation(reference, (input, inoutput) -> {
+            throw new UnsupportedOperationException("not implemented");
+        });
+        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
+        InvokeOperationAsyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), -1);
+        assertEvents(
+                messageBus,
+                List.of(
+                        OperationInvokeEventMessage.builder()
+                                .element(reference)
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build(),
+                        OperationFinishEventMessage.builder()
+                                .element(reference)
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                                .build()),
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId())
+                                            .invokeAsync(operationSquareIdentifier.getIdShortPath()),
+                                    StatusCode.SUCCESS_ACCEPTED,
+                                    request,
+                                    null,
+                                    null);
+                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
+                            Assert.assertTrue(locationHeader.isPresent());
+                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
+                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
+                        }));
+        // assert status is finished and returns 302 with correct Location header
+        AtomicReference<String> operationResultUrl = new AtomicReference<>();
+        HttpResponse responseStatusFinished = assertExecuteSingle(
+                HttpMethod.GET,
+                operationStatusUrl.get(),
+                StatusCode.SUCCESS_FOUND,
+                null,
+                null,
+                null);
+        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
+        Assert.assertTrue(locationHeader.isPresent());
+        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
+        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
+        // assert operation result
+        HttpResponse responseResult = HttpHelper.execute(
+                httpClient,
+                HttpMethod.GET,
+                operationResultUrl.get());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), responseResult.statusCode());
+        OperationResult actualResult = HttpHelper.readResponse(responseResult, OperationResult.class);
+        Assert.assertEquals(ExecutionState.FAILED, actualResult.getExecutionState());
+    }
+
+
+    @Test
     public void testSubmodelInterfaceUpdateSubmodel()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(0);
@@ -1707,6 +2268,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             HttpResponse<String> response = HttpHelper.get(
                                     httpClient,
                                     apiPaths.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE));
+
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(expected, response.body(), false);
                         }));
@@ -1752,6 +2314,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                     apiPaths.aasInterface(aas)
                                             .submodelInterface(submodel)
                                             .submodel(Level.DEEP, Content.PATH));
+
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
                         }));
@@ -1776,6 +2339,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                     apiPaths.aasInterface(aas)
                                             .submodelInterface(submodel)
                                             .submodel(Level.CORE, Content.PATH));
+
                             Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
                             JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
                         }));
@@ -2078,7 +2642,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private void assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
+    private HttpResponse assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
@@ -2086,6 +2650,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             Object actual = HttpHelper.readResponse(response, type);
             Assert.assertEquals(expected, actual);
         }
+        return response;
     }
 
 
@@ -2151,10 +2716,76 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     private static void clearSubmodelElementCollections(Submodel submodel) {
         submodel.getSubmodelElements().forEach(x -> {
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
+            if (SubmodelElementCollection.class
+                    .isAssignableFrom(x.getClass())) {
                 ((SubmodelElementCollection) x).getValue().clear();
             }
         });
+    }
+
+
+    private static <T> T getField(Object obj, String fieldName, Class<T> type) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return type.cast(field.get(obj));
+    }
+
+
+    private static void setField(Object obj, String fieldName, Object value) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+
+
+    private static OperationVariable[] operationSqaureDefaultImplementation(OperationVariable[] input, OperationVariable[] inoutput) {
+        Ensure.requireNonNull(input, "input must be non-null");
+        Ensure.require(input.length == 1 && Objects.nonNull(input[0].getValue()), "operation must have exactly one input parameter");
+        Ensure.require(Property.class
+                .isAssignableFrom(input[0].getValue().getClass()), "operation input parameter must be of type Property");
+        Property propertyIn = Property.class
+                .cast(input[0].getValue());
+        Ensure.require(
+                propertyIn.getIdShort().equals(OPERATION_SQUARE_INPUT_PARAMETER_ID),
+                String.format("operation input parameter must have idShort '%s'", OPERATION_SQUARE_INPUT_PARAMETER_ID));
+        Ensure.require(propertyIn.getValueType() == DataTypeDefXsd.INT, "operation input parameter must have datatype 'xs:int'");
+        int in = Integer.parseInt(propertyIn.getValue());
+
+        Ensure.requireNonNull(inoutput, "inoutput must be non-null");
+        Ensure.require(inoutput.length == 1 && Objects.nonNull(inoutput[0].getValue()), "operation must have exactly one inputput parameter");
+        Ensure.require(Property.class
+                .isAssignableFrom(inoutput[0].getValue().getClass()), "operation inoutput parameter must be of type Property");
+        Property propertyInOut = Property.class
+                .cast(inoutput[0].getValue());
+        Ensure.require(
+                propertyInOut.getIdShort().equals(OPERATION_SQUARE_INOUTPUT_PARAMETER_ID),
+                String.format("operation inoutput parameter must have idShort '%s'", OPERATION_SQUARE_INOUTPUT_PARAMETER_ID));
+        Ensure.require(propertyInOut.getValueType() == DataTypeDefXsd.STRING, "operation inoutput parameter must have datatype 'xs:string'");
+        propertyInOut.setValue(OPERATION_SQUARE_INOUTPUT_PARAMETER_EXPECTED_VALUE);
+        return new OperationVariable[] {
+                new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort(OPERATION_SQUARE_OUTPUT_PARAMETER_ID)
+                                .valueType(DataTypeDefXsd.INT)
+                                .value(Integer.toString(in * in))
+                                .build())
+                        .build()
+        };
+
+    }
+
+    private static class BaseOperationResult extends Result {
+
+        private ExecutionState executionState;
+
+        public ExecutionState getExecutionState() {
+            return executionState;
+        }
+
+
+        public void setExecutionState(ExecutionState executionState) {
+            this.executionState = executionState;
+        }
     }
 
 }

@@ -34,11 +34,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -104,7 +106,8 @@ public class EventExamples {
     private static final FileValue FILE_VALUE;
     private static final ReferenceElementValue REFERENCE_ELEMENT_VALUE;
     private static final SubmodelElementCollectionValue SUBMODEL_ELEMENT_COLLECTION_VALUE;
-    private static final List<ElementValue> ALL_ELEMENT_VALUE_TYPES;
+    private static final SubmodelElementListValue SUBMODEL_ELEMENT_LIST_VALUE;
+    private static final Map<String, ElementValue> ALL_ELEMENT_VALUE_TYPES_MAP;
 
     static {
         try {
@@ -145,18 +148,23 @@ public class EventExamples {
                             .value("nested_property_string", PROPERTY_VALUE_STRING)
                             .build())
                     .build();
-            ALL_ELEMENT_VALUE_TYPES = List.of(
-                    PROPERTY_VALUE_INT,
-                    PROPERTY_VALUE_DOUBLE,
-                    PROPERTY_VALUE_STRING,
-                    RANGE_VALUE,
-                    RELATIONSHIP_ELEMENT_VALUE,
-                    ANNOTATED_RELATIONSHIP_ELEMENT_VALUE,
-                    MULTILANGUAGE_PROPERTY_VALUE,
-                    FILE_VALUE,
-                    REFERENCE_ELEMENT_VALUE,
-                    SUBMODEL_ELEMENT_COLLECTION_VALUE);
-
+            SUBMODEL_ELEMENT_LIST_VALUE = SubmodelElementListValue.builder()
+                    .value(PROPERTY_VALUE_INT)
+                    .value(PROPERTY_VALUE_DOUBLE)
+                    .value(PROPERTY_VALUE_STRING)
+                    .build();
+            ALL_ELEMENT_VALUE_TYPES_MAP = new HashMap<>();
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyInt", PROPERTY_VALUE_INT);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyDouble", PROPERTY_VALUE_DOUBLE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("propertyString", PROPERTY_VALUE_STRING);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("range", RANGE_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("relationshipElement", RELATIONSHIP_ELEMENT_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("annotatedRelationshipElement", ANNOTATED_RELATIONSHIP_ELEMENT_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("multilanguageProperty", MULTILANGUAGE_PROPERTY_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("file", FILE_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("referenceElement", REFERENCE_ELEMENT_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("submodelElementCollection", SUBMODEL_ELEMENT_COLLECTION_VALUE);
+            ALL_ELEMENT_VALUE_TYPES_MAP.put("submodelElementList", SUBMODEL_ELEMENT_LIST_VALUE);
         }
         catch (ValueFormatException | ValueMappingException e) {
             throw new IllegalStateException("Error initializing data strcutures for test", e);
@@ -171,14 +179,14 @@ public class EventExamples {
 
     public static OperationInvokeEventMessage OPERATION_INVOKE_EVENT = OperationInvokeEventMessage.builder()
             .element(REFERENCE)
-            .input(ALL_ELEMENT_VALUE_TYPES)
-            .inoutput(ALL_ELEMENT_VALUE_TYPES)
+            .input(ALL_ELEMENT_VALUE_TYPES_MAP)
+            .inoutput(ALL_ELEMENT_VALUE_TYPES_MAP)
             .build();
 
     public static OperationFinishEventMessage OPERATION_FINISH_EVENT = OperationFinishEventMessage.builder()
             .element(REFERENCE)
-            .output(ALL_ELEMENT_VALUE_TYPES)
-            .inoutput(ALL_ELEMENT_VALUE_TYPES)
+            .output(ALL_ELEMENT_VALUE_TYPES_MAP)
+            .inoutput(ALL_ELEMENT_VALUE_TYPES_MAP)
             .build();
 
     public static ValueReadEventMessage VALUE_READ_EVENT = ValueReadEventMessage.builder()

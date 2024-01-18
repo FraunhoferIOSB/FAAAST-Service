@@ -718,11 +718,15 @@ public class OpcUaAssetConnectionTest {
             final AtomicReference<OperationVariable[]> operationResult = new AtomicReference<>();
             final AtomicReference<OperationVariable[]> operationInout = new AtomicReference<>();
             CountDownLatch condition = new CountDownLatch(1);
-            connection.getOperationProviders().get(reference).invokeAsync(inputVariables, inoutputVariables, (res, inout) -> {
-                operationResult.set(res);
-                operationInout.set(inout);
-                condition.countDown();
-            });
+            connection.getOperationProviders().get(reference).invokeAsync(
+                    inputVariables,
+                    inoutputVariables,
+                    (res, inout) -> {
+                        operationResult.set(res);
+                        operationInout.set(inout);
+                        condition.countDown();
+                    },
+                    error -> Assert.fail(error.getMessage()));
             condition.await(getWaitTime(), TimeUnit.MILLISECONDS);
             actual = operationResult.get();
             inoutputVariables = operationInout.get();

@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PutAssetAdministrationShellByIdResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PutAssetAdministrationShellById requests.
  */
-public class PutAssetAdministrationShellByIdRequest implements Request<PutAssetAdministrationShellByIdResponse> {
+public class PutAssetAdministrationShellByIdRequest extends Request<PutAssetAdministrationShellByIdResponse> {
 
     private String id;
     private AssetAdministrationShell aas;
@@ -58,13 +57,15 @@ public class PutAssetAdministrationShellByIdRequest implements Request<PutAssetA
             return false;
         }
         PutAssetAdministrationShellByIdRequest that = (PutAssetAdministrationShellByIdRequest) o;
-        return Objects.equals(aas, that.aas);
+        return super.equals(that)
+                && Objects.equals(id, that.id)
+                && Objects.equals(aas, that.aas);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aas);
+        return Objects.hash(super.hashCode(), id, aas);
     }
 
 
@@ -72,7 +73,7 @@ public class PutAssetAdministrationShellByIdRequest implements Request<PutAssetA
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

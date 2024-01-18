@@ -30,14 +30,14 @@ import java.util.Map;
 
 /**
  * class to map HTTP-GET-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*),
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*).
+ * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*),
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*).
  */
 public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s",
+    private static final String PATTERN = String.format("submodel-elements/%s/operation-results/%s(/\\$value)?",
             pathElement(SUBMODEL_ELEMENT_PATH),
             pathElement(HANDLE_ID));
 

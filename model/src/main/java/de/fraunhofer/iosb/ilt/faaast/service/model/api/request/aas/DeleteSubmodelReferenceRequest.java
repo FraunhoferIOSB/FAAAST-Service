@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteSubmodelReferenceResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for DeleteSubmodelReference requests.
  */
-public class DeleteSubmodelReferenceRequest implements Request<DeleteSubmodelReferenceResponse> {
+public class DeleteSubmodelReferenceRequest extends Request<DeleteSubmodelReferenceResponse> {
 
     private String id;
     private Reference submodelRef;
@@ -58,13 +57,14 @@ public class DeleteSubmodelReferenceRequest implements Request<DeleteSubmodelRef
             return false;
         }
         DeleteSubmodelReferenceRequest that = (DeleteSubmodelReferenceRequest) o;
-        return Objects.equals(submodelRef, that.submodelRef);
+        return super.equals(that)
+                && Objects.equals(submodelRef, that.submodelRef);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(submodelRef);
+        return Objects.hash(super.hashCode(), submodelRef);
     }
 
 
@@ -72,7 +72,7 @@ public class DeleteSubmodelReferenceRequest implements Request<DeleteSubmodelRef
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

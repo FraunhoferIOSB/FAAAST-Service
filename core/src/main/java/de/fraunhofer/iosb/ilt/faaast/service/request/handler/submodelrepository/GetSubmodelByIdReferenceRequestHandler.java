@@ -32,11 +32,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 /**
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdReferenceRequest} in
- * the
- * service and to send the corresponding response
+ * the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdReferenceResponse}.
- * Is
- * responsible for communication with the persistence and sends the corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetSubmodelByIdReferenceRequestHandler extends AbstractRequestHandler<GetSubmodelByIdReferenceRequest, GetSubmodelByIdReferenceResponse> {
 
@@ -50,10 +48,12 @@ public class GetSubmodelByIdReferenceRequestHandler extends AbstractRequestHandl
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getId(), request.getOutputModifier());
         Reference reference = ReferenceBuilder.forSubmodel(submodel);
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(reference)
-                .value(submodel)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(reference)
+                    .value(submodel)
+                    .build());
+        }
         return GetSubmodelByIdReferenceResponse.builder()
                 .payload(reference)
                 .success()
