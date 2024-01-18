@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
@@ -140,18 +141,22 @@ public class ElementValueHelper {
 
 
     /**
-     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable} to a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
+     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable} to a map of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue} with their idShort as keys.
      *
      * @param variables list of operation variables
-     * @return the corresponding list of element values
+     * @return the corresponding map of element values and their idShorts
      * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if mapping of element values
      *             fails
      */
-    public static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
+    public static Map<String, ElementValue> toValueMap(List<OperationVariable> variables) throws ValueMappingException {
         return variables.stream()
-                .map(LambdaExceptionHelper.rethrowFunction(
-                        x -> ElementValueMapper.toValue(x.getValue())))
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .map(OperationVariable::getValue)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        x -> x.getIdShort(),
+                        LambdaExceptionHelper.rethrowFunction(
+                                x -> ElementValueMapper.toValue(x))));
     }
 }

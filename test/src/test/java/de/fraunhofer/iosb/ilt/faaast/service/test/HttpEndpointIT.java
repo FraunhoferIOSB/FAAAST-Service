@@ -69,8 +69,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
@@ -1783,30 +1781,31 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testSubmodelInterfaceInvokeOperationSync()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueFormatException {
+            KeyManagementException, ValueFormatException, ValueMappingException {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
         // assert OperationStarted on messagebus
+        InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue);
         OperationResult expectedResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
         // assert both messages
         assertEvents(messageBus,
                 List.of(
                         OperationInvokeEventMessage.builder()
                                 .element(reference)
-                                .input(List.of(PropertyValue.of(Datatype.INT, Integer.toString(inputValue))))
-                                .inoutput(List.of(PropertyValue.of(Datatype.STRING, OPERATION_SQUARE_INOUTPUT_PARAMETER_INITIAL_VALUE)))
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build(),
                         OperationFinishEventMessage.builder()
                                 .element(reference)
-                                .inoutput(List.of(PropertyValue.of(Datatype.STRING, OPERATION_SQUARE_INOUTPUT_PARAMETER_EXPECTED_VALUE)))
-                                .output(List.of(PropertyValue.of(Datatype.INT, Integer.toString(inputValue * inputValue))))
+                                .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
+                                .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
                         HttpMethod.POST,
                         apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId()).invoke(operationSquareIdentifier.getIdShortPath()),
                         StatusCode.SUCCESS,
-                        getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue),
+                        request,
                         expectedResult,
                         OperationResult.class)));
     }
@@ -1815,31 +1814,32 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testSubmodelInterfaceInvokeOperationSyncValueOnly()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueFormatException {
+            KeyManagementException, ValueFormatException, ValueMappingException {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
         // assert OperationStarted on messagebus
+        InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue);
         final OperationResult expectedResult = getOperationSqaureExpectedResult(ExecutionState.COMPLETED, inputValue);
         // assert both messages
         assertEvents(messageBus,
                 List.of(
                         OperationInvokeEventMessage.builder()
                                 .element(reference)
-                                .input(List.of(PropertyValue.of(Datatype.INT, Integer.toString(inputValue))))
-                                .inoutput(List.of(PropertyValue.of(Datatype.STRING, OPERATION_SQUARE_INOUTPUT_PARAMETER_INITIAL_VALUE)))
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build(),
                         OperationFinishEventMessage.builder()
                                 .element(reference)
-                                .inoutput(List.of(PropertyValue.of(Datatype.STRING, OPERATION_SQUARE_INOUTPUT_PARAMETER_EXPECTED_VALUE)))
-                                .output(List.of(PropertyValue.of(Datatype.INT, Integer.toString(inputValue * inputValue))))
+                                .inoutput(ElementValueHelper.toValueMap(expectedResult.getInoutputArguments()))
+                                .output(ElementValueHelper.toValueMap(expectedResult.getOutputArguments()))
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> {
                     var response = assertExecuteSingle(
                             HttpMethod.POST,
                             apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId()).invokeValueOnly(operationSquareIdentifier.getIdShortPath()),
                             StatusCode.SUCCESS,
-                            new ValueOnlyJsonSerializer().write(getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), inputValue)),
+                            new ValueOnlyJsonSerializer().write(request),
                             null,
                             OperationResult.class);
                     String expectedPayload = new ValueOnlyJsonSerializer().write(expectedResult);
@@ -1866,12 +1866,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 List.of(
                         OperationInvokeEventMessage.builder()
                                 .element(reference)
-                                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build(),
                         OperationFinishEventMessage.builder()
                                 .element(reference)
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build()),
                 LambdaExceptionHelper.wrap(x -> assertExecuteSingle(
                         HttpMethod.POST,
@@ -1904,12 +1904,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 List.of(
                         OperationInvokeEventMessage.builder()
                                 .element(reference)
-                                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build(),
                         OperationFinishEventMessage.builder()
                                 .element(reference)
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build()),
                 LambdaExceptionHelper.wrap(
                         x -> {
@@ -1965,12 +1965,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 List.of(
                         OperationInvokeEventMessage.builder()
                                 .element(reference)
-                                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build(),
                         OperationFinishEventMessage.builder()
                                 .element(reference)
-                                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                                 .build()),
                 LambdaExceptionHelper.wrap(
                         x -> {

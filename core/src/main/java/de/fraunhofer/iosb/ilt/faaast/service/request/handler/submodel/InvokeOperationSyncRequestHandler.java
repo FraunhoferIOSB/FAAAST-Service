@@ -64,16 +64,16 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         if (!request.isInternal()) {
             context.getMessageBus().publish(OperationInvokeEventMessage.builder()
                     .element(reference)
-                    .input(ElementValueHelper.toValues(request.getInputArguments()))
-                    .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                    .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                    .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                     .build());
         }
         OperationResult operationResult = executeOperationSync(reference, request);
         if (!request.isInternal()) {
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
                     .element(reference)
-                    .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
-                    .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
+                    .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
+                    .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
                     .build());
         }
         return InvokeOperationSyncResponse.builder()

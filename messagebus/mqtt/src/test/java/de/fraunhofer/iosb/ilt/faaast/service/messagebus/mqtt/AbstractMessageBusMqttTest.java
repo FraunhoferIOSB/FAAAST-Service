@@ -160,12 +160,12 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private static final OperationInvokeEventMessage OPERATION_INVOKE_MESSAGE = OperationInvokeEventMessage.builder()
             .element(OPERATION_REFERENCE)
-            .input(List.of((new PropertyValue(new StringValue("input")))))
+            .input(PARAMETER_IN.getIdShort(), new PropertyValue(new StringValue("input")))
             .build();
 
     private static final OperationFinishEventMessage OPERATION_FINISH_MESSAGE = OperationFinishEventMessage.builder()
             .element(OPERATION_REFERENCE)
-            .output(List.of((new PropertyValue(new StringValue("result")))))
+            .output(PARAMETER_OUT.getIdShort(), new PropertyValue(new StringValue("result")))
             .build();
 
     private static final ErrorEventMessage ERROR_MESSAGE = ErrorEventMessage.builder()

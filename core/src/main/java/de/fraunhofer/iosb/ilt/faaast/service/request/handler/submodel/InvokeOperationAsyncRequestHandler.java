@@ -126,8 +126,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         try {
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
                     .element(reference)
-                    .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
-                    .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
+                    .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
+                    .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
                     .build());
         }
         catch (ValueMappingException | MessageBusException e) {
@@ -148,8 +148,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
         try {
             context.getMessageBus().publish(OperationInvokeEventMessage.builder()
                     .element(reference)
-                    .input(ElementValueHelper.toValues(request.getInputArguments()))
-                    .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                    .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                    .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                     .build());
         }
         catch (ValueMappingException | MessageBusException e) {
