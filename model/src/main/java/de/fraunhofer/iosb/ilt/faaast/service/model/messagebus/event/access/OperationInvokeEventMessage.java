@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -25,31 +25,31 @@ import java.util.Objects;
  */
 public class OperationInvokeEventMessage extends ExecuteEventMessage {
 
-    private List<ElementValue> input;
-    private List<ElementValue> inoutput;
+    private Map<String, ElementValue> input;
+    private Map<String, ElementValue> inoutput;
 
     public OperationInvokeEventMessage() {
-        this.input = new ArrayList<>();
-        this.inoutput = new ArrayList<>();
+        this.input = new HashMap<>();
+        this.inoutput = new HashMap<>();
     }
 
 
-    public List<ElementValue> getInput() {
+    public Map<String, ElementValue> getInput() {
         return input;
     }
 
 
-    public void setInput(List<ElementValue> input) {
+    public void setInput(Map<String, ElementValue> input) {
         this.input = input;
     }
 
 
-    public List<ElementValue> getInoutput() {
+    public Map<String, ElementValue> getInoutput() {
         return inoutput;
     }
 
 
-    public void setInoutput(List<ElementValue> inoutput) {
+    public void setInoutput(Map<String, ElementValue> inoutput) {
         this.inoutput = inoutput;
     }
 
@@ -81,14 +81,26 @@ public class OperationInvokeEventMessage extends ExecuteEventMessage {
 
     public abstract static class AbstractBuilder<T extends OperationInvokeEventMessage, B extends AbstractBuilder<T, B>> extends ExecuteEventMessage.AbstractBuilder<T, B> {
 
-        public B input(List<ElementValue> value) {
+        public B input(Map<String, ElementValue> value) {
             getBuildingInstance().setInput(value);
             return getSelf();
         }
 
 
-        public B inoutput(List<ElementValue> value) {
+        public B input(String name, ElementValue value) {
+            getBuildingInstance().getInput().put(name, value);
+            return getSelf();
+        }
+
+
+        public B inoutput(Map<String, ElementValue> value) {
             getBuildingInstance().setInoutput(value);
+            return getSelf();
+        }
+
+
+        public B inoutput(String name, ElementValue value) {
+            getBuildingInstance().getInoutput().put(name, value);
             return getSelf();
         }
     }

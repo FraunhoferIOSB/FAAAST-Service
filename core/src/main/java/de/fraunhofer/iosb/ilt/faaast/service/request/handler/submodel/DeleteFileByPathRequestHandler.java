@@ -55,15 +55,17 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
         file.setValue("");
         file.setContentType("");
         context.getPersistence().update(reference, file);
-        context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                .element(reference)
-                .oldValue(ElementValueMapper.toValue(oldFile))
-                .newValue(ElementValueMapper.toValue(file))
-                .build());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(file)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                    .element(reference)
+                    .oldValue(ElementValueMapper.toValue(oldFile))
+                    .newValue(ElementValueMapper.toValue(file))
+                    .build());
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(file)
+                    .build());
+        }
         return DeleteFileByPathResponse.builder()
                 .success()
                 .build();

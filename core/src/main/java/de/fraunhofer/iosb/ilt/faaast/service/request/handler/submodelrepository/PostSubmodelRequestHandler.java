@@ -56,11 +56,13 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
         }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements());
-        context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                .element(reference)
-                .value(request.getSubmodel())
-                .build());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementCreateEventMessage.builder()
+                    .element(reference)
+                    .value(request.getSubmodel())
+                    .build());
+        }
         return PostSubmodelResponse.builder()
                 .payload(request.getSubmodel())
                 .created()

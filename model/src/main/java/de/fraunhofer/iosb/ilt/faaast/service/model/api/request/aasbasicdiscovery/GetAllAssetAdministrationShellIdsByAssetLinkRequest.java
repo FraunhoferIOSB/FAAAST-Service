@@ -54,13 +54,14 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends Abstrac
             return false;
         }
         GetAllAssetAdministrationShellIdsByAssetLinkRequest that = (GetAllAssetAdministrationShellIdsByAssetLinkRequest) o;
-        return Objects.equals(assetIdentifierPairs, that.assetIdentifierPairs);
+        return super.equals(that)
+                && Objects.equals(assetIdentifierPairs, that.assetIdentifierPairs);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(assetIdentifierPairs);
+        return Objects.hash(super.hashCode(), assetIdentifierPairs);
     }
 
 

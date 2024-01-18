@@ -21,9 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.junit.Assert;
 
@@ -88,5 +90,46 @@ public class MessageBusHelper {
         condition.await(timeout, TimeUnit.MILLISECONDS);
         messageBus.unsubscribe(subscriptionId);
         Assert.assertTrue(String.format("%s expected on message bus but none received", eventType.getSimpleName()), eventReceived.get());
+    }
+
+
+    /**
+     * Executes a trigger and waits for matching events on message bus.
+     *
+     * @param messageBus the message bus to use
+     * @param events the expected events in the order they are expected to be received
+     * @param trigger code that should be executed to trigger an event message being sent on the message bus
+     * @throws InterruptedException if no matching event if received before timeout
+     * @throws MessageBusException if un-/subscribing from/to the message bus fails
+     */
+    public static void assertEvents(MessageBus messageBus, List<EventMessage> events, Consumer<Void> trigger)
+            throws InterruptedException, MessageBusException {
+        assertEvents(messageBus, events, trigger, DEFAULT_TIMEOUT);
+    }
+
+
+    /**
+     * Executes a trigger and waits for matching events on message bus.
+     *
+     * @param messageBus the message bus to use
+     * @param events the expected events in the order they are expected to be received
+     * @param trigger code that should be executed to trigger an event message being sent on the message bus
+     * @param timeout timeout (in milliseconds)
+     * @throws InterruptedException if no matching event if received before timeout
+     * @throws MessageBusException if un-/subscribing from/to the message bus fails
+     */
+    public static void assertEvents(MessageBus messageBus, List<EventMessage> events, Consumer<Void> trigger, long timeout)
+            throws InterruptedException, MessageBusException {
+        CountDownLatch condition = new CountDownLatch(events.size());
+        AtomicInteger counter = new AtomicInteger(0);
+        SubscriptionId subscriptionId = messageBus.subscribe(SubscriptionInfo.create(EventMessage.class, x -> {
+            Assert.assertEquals(events.get(counter.get()), x);
+            counter.incrementAndGet();
+            condition.countDown();
+        }));
+        trigger.accept(null);
+        condition.await(timeout, TimeUnit.MILLISECONDS);
+        messageBus.unsubscribe(subscriptionId);
+        Assert.assertEquals("number of message(s) on message bus", events.size(), counter.get());
     }
 }

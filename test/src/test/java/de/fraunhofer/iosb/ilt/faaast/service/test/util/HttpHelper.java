@@ -33,11 +33,12 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
- * This class offers HTTP-related helper methods for the integration tests.
- * IMPORTANT: by default, this classes disables SSL and hostname validation
+ * This class offers HTTP-related helper methods for the integration tests. IMPORTANT: by default, this classes disables
+ * SSL and hostname validation
  */
 public class HttpHelper {
 
@@ -118,7 +119,9 @@ public class HttpHelper {
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
                         .header(HttpConstants.HEADER_CONTENT_TYPE, MediaType.JSON.toString())
-                        .POST(HttpRequest.BodyPublishers.ofString(new JsonApiSerializer().write(payload)))
+                        .POST(HttpRequest.BodyPublishers.ofString(Objects.nonNull(payload) && String.class.isAssignableFrom(payload.getClass())
+                                ? (String) payload
+                                : new JsonApiSerializer().write(payload)))
                         .build(),
                         BodyHandlers.ofString());
     }

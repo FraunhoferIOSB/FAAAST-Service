@@ -17,13 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscover
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.DeleteAllAssetLinksByIdResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for DeleteAllAssetLinksById requests.
  */
-public class DeleteAllAssetLinksByIdRequest implements Request<DeleteAllAssetLinksByIdResponse> {
+public class DeleteAllAssetLinksByIdRequest extends Request<DeleteAllAssetLinksByIdResponse> {
 
     private String id;
 
@@ -46,13 +45,14 @@ public class DeleteAllAssetLinksByIdRequest implements Request<DeleteAllAssetLin
             return false;
         }
         DeleteAllAssetLinksByIdRequest that = (DeleteAllAssetLinksByIdRequest) o;
-        return Objects.equals(id, that.id);
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -60,7 +60,7 @@ public class DeleteAllAssetLinksByIdRequest implements Request<DeleteAllAssetLin
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

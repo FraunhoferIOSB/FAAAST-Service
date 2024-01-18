@@ -41,10 +41,12 @@ public class GetAssetInformationRequestHandler extends AbstractRequestHandler<Ge
     @Override
     public GetAssetInformationResponse process(GetAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(shell)
-                .value(shell)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(shell)
+                    .value(shell)
+                    .build());
+        }
         return GetAssetInformationResponse.builder()
                 .payload(shell.getAssetInformation())
                 .success()

@@ -27,8 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.ElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.SubmodelElementCollectionValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.TypedValueDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event.EventMessageMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;

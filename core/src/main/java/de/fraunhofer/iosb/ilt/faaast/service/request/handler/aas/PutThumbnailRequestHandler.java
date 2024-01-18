@@ -55,10 +55,12 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
                 .content(request.getContent().getContent())
                 .path(path)
                 .build());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .value(aas)
-                .element(aas)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .value(aas)
+                    .element(aas)
+                    .build());
+        }
         return PutThumbnailResponse.builder()
                 .success()
                 .build();

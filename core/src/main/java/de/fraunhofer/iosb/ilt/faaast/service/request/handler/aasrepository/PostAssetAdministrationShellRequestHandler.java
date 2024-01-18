@@ -45,10 +45,12 @@ public class PostAssetAdministrationShellRequestHandler extends AbstractRequestH
             throw new ResourceAlreadyExistsException(request.getAas().getId(), AssetAdministrationShell.class);
         }
         context.getPersistence().save(request.getAas());
-        context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                .element(request.getAas())
-                .value(request.getAas())
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementCreateEventMessage.builder()
+                    .element(request.getAas())
+                    .value(request.getAas())
+                    .build());
+        }
         return PostAssetAdministrationShellResponse.builder()
                 .payload(request.getAas())
                 .created()

@@ -65,7 +65,7 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);
         cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
-        if (Objects.isNull(oldSubmodelElement)) {
+        if (!request.isInternal() && Objects.isNull(oldSubmodelElement)) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)
                     .value(newSubmodelElement)
@@ -77,17 +77,21 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
             ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
             if (!Objects.equals(oldValue, newValue)) {
                 context.getAssetConnectionManager().setValue(reference, newValue);
-                context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                        .element(reference)
-                        .oldValue(oldValue)
-                        .newValue(newValue)
-                        .build());
+                if (!request.isInternal()) {
+                    context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                            .element(reference)
+                            .oldValue(oldValue)
+                            .newValue(newValue)
+                            .build());
+                }
             }
         }
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(newSubmodelElement)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(newSubmodelElement)
+                    .build());
+        }
         return PatchSubmodelElementByPathResponse.builder()
                 .payload(newSubmodelElement)
                 .success()

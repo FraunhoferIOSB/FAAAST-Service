@@ -49,10 +49,12 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
         context.getPersistence().deleteSubmodel(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence());
-        context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                .element(submodel)
-                .value(submodel)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementDeleteEventMessage.builder()
+                    .element(submodel)
+                    .value(submodel)
+                    .build());
+        }
         return response;
     }
 }

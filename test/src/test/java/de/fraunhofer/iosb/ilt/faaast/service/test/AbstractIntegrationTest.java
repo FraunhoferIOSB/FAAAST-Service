@@ -53,10 +53,12 @@ public class AbstractIntegrationTest {
         PORT = PortHelper.findFreePort();
         generateHttpEndpointCertificate();
         httpClient = SslHelper.disableHostnameVerification(
-                HttpClient.newBuilder().sslContext(SslHelper.newContextAcceptingCertificates(
-                        httpEndpointKeyStoreFile,
-                        HTTP_ENDPOINT_KEYSTORE_TYPE,
-                        HTTP_ENDPOINT_KEYSTORE_PASSWORD)));
+                HttpClient.newBuilder()
+                        .followRedirects(HttpClient.Redirect.NEVER)
+                        .sslContext(SslHelper.newContextAcceptingCertificates(
+                                httpEndpointKeyStoreFile,
+                                HTTP_ENDPOINT_KEYSTORE_TYPE,
+                                HTTP_ENDPOINT_KEYSTORE_PASSWORD)));
     }
 
 

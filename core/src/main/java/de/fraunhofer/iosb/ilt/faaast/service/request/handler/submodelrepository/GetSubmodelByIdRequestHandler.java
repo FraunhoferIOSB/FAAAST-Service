@@ -48,11 +48,13 @@ public class GetSubmodelByIdRequestHandler extends AbstractRequestHandler<GetSub
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getId(), request.getOutputModifier());
         Reference reference = AasUtils.toReference(submodel);
-        syncWithAsset(reference, submodel.getSubmodelElements());
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(reference)
-                .value(submodel)
-                .build());
+        syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(reference)
+                    .value(submodel)
+                    .build());
+        }
         return GetSubmodelByIdResponse.builder()
                 .payload(submodel)
                 .success()

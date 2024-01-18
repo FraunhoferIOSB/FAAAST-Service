@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedExtentMo
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedLevelModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -33,7 +32,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractRequestWithModifier<T extends Response> implements Request<T> {
+public abstract class AbstractRequestWithModifier<T extends Response> extends Request<T> {
 
     private OutputModifierConstraints outputModifierConstraints;
     protected OutputModifier outputModifier;
@@ -137,17 +136,18 @@ public abstract class AbstractRequestWithModifier<T extends Response> implements
             return false;
         }
         AbstractRequestWithModifier that = (AbstractRequestWithModifier) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
+                && Objects.equals(outputModifier, that.outputModifier)
                 && Objects.equals(outputModifierConstraints, that.outputModifierConstraints);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, outputModifierConstraints);
+        return Objects.hash(super.hashCode(), outputModifier, outputModifierConstraints);
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractRequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractRequestWithModifier, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B outputModifier(OutputModifier value) {
             getBuildingInstance().setOutputModifier(value);

@@ -53,11 +53,13 @@ public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSub
         context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(request.getSubmodel())
-                .build());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(request.getSubmodel())
+                    .build());
+        }
         return PutSubmodelByIdResponse.builder()
                 .payload(request.getSubmodel())
                 .success()

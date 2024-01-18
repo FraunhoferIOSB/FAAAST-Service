@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
@@ -44,18 +45,25 @@ public interface AssetOperationProvider extends AssetProvider {
         final String BASE_ERROR_MSG = "inoutput argument mismatch";
         final AtomicReference<OperationVariable[]> result = new AtomicReference<>();
         final AtomicReference<OperationVariable[]> modifiedInoutput = new AtomicReference<>();
+        final AtomicReference<Throwable> error = new AtomicReference<>();
         CountDownLatch condition = new CountDownLatch(1);
-        invokeAsync(input, inoutput, (x, y) -> {
-            result.set(x);
-            modifiedInoutput.set(y);
-            condition.countDown();
-        });
+        invokeAsync(
+                input,
+                inoutput,
+                (x, y) -> {
+                    result.set(x);
+                    modifiedInoutput.set(y);
+                    condition.countDown();
+                }, e -> error.set(e));
         try {
             condition.await();
         }
         catch (InterruptedException x) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("invoking operation failed because of timeout", x);
+        }
+        if (Objects.nonNull(error.get())) {
+            throw new AssetConnectionException("invoking operation failed because of error in implementation", error.get());
         }
         if (inoutput == null && result.get() != null && result.get().length > 0) {
             throw new IllegalArgumentException(String.format("%s - provided: none, actual: %d", BASE_ERROR_MSG, result.get().length));
@@ -88,14 +96,23 @@ public interface AssetOperationProvider extends AssetProvider {
      * @param input input parameters
      * @param inoutput inoutput parameters, i.e. parameters that are passed as input to the operation but can be
      *            modified while execution
-     * @param callback callback handler that is called when the operation is finished providing the result and inoutput
-     *            variables
+     * @param callbackSuccess callback handler that is called when the operation is finished successfully providing the
+     *            result and
+     *            inoutput variables
+     * @param callbackFailure callback handler that is called when execution the operation fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when invoking operation on
      *             asset connection fails
      */
-    public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
+    public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                                    Consumer<Throwable> callbackFailure)
             throws AssetConnectionException {
-        CompletableFuture.supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput))).thenAccept(x -> callback.accept(x, inoutput));
-
+        CompletableFuture
+                .supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput)))
+                .thenAccept(x -> callbackSuccess.accept(x, inoutput))
+                .exceptionally(e -> {
+                    callbackFailure.accept(e);
+                    return null;
+                });
     }
+
 }

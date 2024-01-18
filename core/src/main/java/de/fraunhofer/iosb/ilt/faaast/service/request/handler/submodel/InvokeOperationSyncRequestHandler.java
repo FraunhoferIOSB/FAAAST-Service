@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -60,17 +61,21 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        context.getMessageBus().publish(OperationInvokeEventMessage.builder()
-                .element(reference)
-                .input(ElementValueHelper.toValues(request.getInputArguments()))
-                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(OperationInvokeEventMessage.builder()
+                    .element(reference)
+                    .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                    .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                    .build());
+        }
         OperationResult operationResult = executeOperationSync(reference, request);
-        context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                .element(reference)
-                .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
-                .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(OperationFinishEventMessage.builder()
+                    .element(reference)
+                    .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
+                    .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
+                    .build());
+        }
         return InvokeOperationSyncResponse.builder()
                 .payload(operationResult)
                 .success()
@@ -103,25 +108,28 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         });
         OperationResult result;
         try {
-            OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
-            result = OperationResult.builder()
+            OperationVariable[] outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
+            result = new OperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
+                    .success(true)
                     .build();
         }
         catch (TimeoutException e) {
             future.cancel(true);
-            result = OperationResult.builder()
+            result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
+                    .success(false)
                     .build();
             Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
-            result = OperationResult.builder()
+            result = new OperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
+                    .success(false)
                     .build();
             Thread.currentThread().interrupt();
         }

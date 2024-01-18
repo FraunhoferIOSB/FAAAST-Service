@@ -52,10 +52,12 @@ public class GetSubmodelElementByPathReferenceRequestHandler
                 .idShortPath(request.getPath())
                 .build();
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(reference)
-                .value(submodelElement)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(reference)
+                    .value(submodelElement)
+                    .build());
+        }
         return GetSubmodelElementByPathReferenceResponse.builder()
                 .payload(reference)
                 .success()

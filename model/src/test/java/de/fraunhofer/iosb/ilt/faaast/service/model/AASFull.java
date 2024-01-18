@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -67,6 +68,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 
 public class AASFull {
 
+    private static final String FAAAST_SUBMODEL_ID = "https://example.org/FAAAST/submodel/1";
     public static final AssetAdministrationShell AAS_1 = createAAS1();
     public static final AssetAdministrationShell AAS_2 = createAAS2();
     public static final AssetAdministrationShell AAS_3 = createAAS3();
@@ -78,6 +80,7 @@ public class AASFull {
     public static final Submodel SUBMODEL_5 = createSubmodel5();
     public static final Submodel SUBMODEL_6 = createSubmodel6();
     public static final Submodel SUBMODEL_7 = createSubmodel7();
+    public static final Submodel SUBMODEL_8 = createSubmodel8();
     public final static ConceptDescription CONCEPT_DESCRIPTION_1 = createConceptDescription1();
     public final static ConceptDescription CONCEPT_DESCRIPTION_2 = createConceptDescription2();
     public final static ConceptDescription CONCEPT_DESCRIPTION_3 = createConceptDescription3();
@@ -1675,6 +1678,49 @@ public class AASFull {
     }
 
 
+    public static Submodel createSubmodel8() {
+        return new DefaultSubmodel.Builder()
+                .idShort("FAAASTSpecificSubmodel")
+                .id(FAAAST_SUBMODEL_ID)
+                .kind(ModellingKind.INSTANCE)
+                .submodelElements(new DefaultOperation.Builder()
+                        .idShort("Square")
+                        .inputVariables(new DefaultOperationVariable.Builder()
+                                .value(new DefaultProperty.Builder()
+                                        .idShort("in")
+                                        .category("VARIABLE")
+                                        .description(new DefaultLangStringTextType.Builder().text("The input value to be squared").language("en-us").build())
+                                        .description(new DefaultLangStringTextType.Builder().text("Eingangsparameter").language("de").build())
+                                        .value(null)
+                                        .valueType(DataTypeDefXsd.INT)
+                                        .build())
+                                .build())
+                        .inoutputVariables(new DefaultOperationVariable.Builder()
+                                .value(new DefaultProperty.Builder()
+                                        .idShort("note")
+                                        .category("VARIABLE")
+                                        .description(new DefaultLangStringTextType.Builder().text("note field that might be changed during execution").language("en-us").build())
+                                        .description(
+                                                new DefaultLangStringTextType.Builder().text("Notizenfled dass während Ausführung aktualisiert werden kann").language("de").build())
+                                        .value(null)
+                                        .valueType(DataTypeDefXsd.STRING)
+                                        .build())
+                                .build())
+                        .outputVariables(new DefaultOperationVariable.Builder()
+                                .value(new DefaultProperty.Builder()
+                                        .idShort("square")
+                                        .category("VARIABLE")
+                                        .description(new DefaultLangStringTextType.Builder().text("sqaure of the input").language("en-us").build())
+                                        .description(new DefaultLangStringTextType.Builder().text("Quadratzahl des Eingangsparameters").language("de").build())
+                                        .value(null)
+                                        .valueType(DataTypeDefXsd.INT)
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+
     public static ConceptDescription createConceptDescription1() {
         return new DefaultConceptDescription.Builder()
                 .idShort("TestConceptDescription")
@@ -1792,6 +1838,14 @@ public class AASFull {
     }
 
 
+    public static Submodel getFAAASTSubmodel(Environment environment) {
+        return environment.getSubmodels().stream()
+                .filter(x -> Objects.equals(x.getId(), FAAAST_SUBMODEL_ID))
+                .findFirst()
+                .orElseThrow();
+    }
+
+
     public static Environment createEnvironment() {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(createAAS1())
@@ -1805,6 +1859,7 @@ public class AASFull {
                 .submodels(createSubmodel5())
                 .submodels(createSubmodel6())
                 .submodels(createSubmodel7())
+                .submodels(createSubmodel8())
                 .conceptDescriptions(createConceptDescription1())
                 .conceptDescriptions(createConceptDescription2())
                 .conceptDescriptions(createConceptDescription3())

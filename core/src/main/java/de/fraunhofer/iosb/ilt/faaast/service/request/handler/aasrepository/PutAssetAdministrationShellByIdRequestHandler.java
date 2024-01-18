@@ -46,10 +46,12 @@ public class PutAssetAdministrationShellByIdRequestHandler extends AbstractReque
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getAssetAdministrationShell(request.getAas().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getAas());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(request.getAas())
-                .value(request.getAas())
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(request.getAas())
+                    .value(request.getAas())
+                    .build());
+        }
         return PutAssetAdministrationShellByIdResponse.builder()
                 .payload(request.getAas())
                 .success()

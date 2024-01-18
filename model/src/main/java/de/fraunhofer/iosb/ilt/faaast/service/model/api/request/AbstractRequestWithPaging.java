@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -26,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractRequestWithPaging<T extends Response> implements Request<T> {
+public abstract class AbstractRequestWithPaging<T extends Response> extends Request<T> {
 
     protected PagingInfo pagingInfo;
 
@@ -59,16 +58,17 @@ public abstract class AbstractRequestWithPaging<T extends Response> implements R
             return false;
         }
         AbstractRequestWithPaging that = (AbstractRequestWithPaging) o;
-        return Objects.equals(pagingInfo, that.pagingInfo);
+        return super.equals(that)
+                && Objects.equals(pagingInfo, that.pagingInfo);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(pagingInfo);
+        return Objects.hash(super.hashCode(), pagingInfo);
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractRequestWithPaging, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractRequestWithPaging, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B pagingInfo(PagingInfo value) {
             getBuildingInstance().setPagingInfo(value);

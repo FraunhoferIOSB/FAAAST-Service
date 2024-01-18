@@ -26,8 +26,9 @@ import java.util.Objects;
  * Base class for mapping protocol-agnostic API responses to HTTP .
  *
  * @param <T> type of the response this class can be handled
+ * @param <U> type of the request
  */
-public abstract class AbstractResponseMapper<T extends Response> {
+public abstract class AbstractResponseMapper<T extends Response, U extends Request<T>> {
 
     protected final ServiceContext serviceContext;
 
@@ -42,7 +43,7 @@ public abstract class AbstractResponseMapper<T extends Response> {
      * @param apiResponse the API response that shall be sent as a response to the apiRequest
      * @param httpResponse the HTTP response object to write to
      */
-    public abstract void map(Request<T> apiRequest, T apiResponse, HttpServletResponse httpResponse);
+    public abstract void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse);
 
 
     @Override
