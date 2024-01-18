@@ -1,8 +1,8 @@
 # Configuration
 
-This section gives a short introduction how the configuration file works.
+This section gives a short introduction on how the configuration file works.
 
-The basic structure of a configuration is the following
+The basic structure of a configuration file is the following
 
 ```json
 {
@@ -44,7 +44,7 @@ The basic structure of a configuration is the following
 ```
 
 As FA³ST is designed to be easily extendable, the configuration supports to change the used implementation for any of those interfaces without the need to change or recompile the code.
-To tell the Service which implementation of an interface to use, each dynamically configurable configuration block contains the `@class` node specifying the fully qualified name of the implementation class. Each block then contains additionals nodes as defined by the configuration class associated with the implementation class.
+To tell the Service which implementation of an interface to use, each dynamically configurable configuration block contains the `@class` node specifying the fully qualified name of the implementation class. Each block then contains additional nodes as defined by the configuration class.
 For example, the `HttpEndpoint` defines the property `port` in its configuration class ([HttpEndpointConfig.java#L23](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpointConfig.java#L27)).
 
 Therefore, the configuration block for a `HttpEndpoint` on port 8080 would look like this:
@@ -57,7 +57,7 @@ Therefore, the configuration block for a `HttpEndpoint` on port 8080 would look 
 ```
 
 
-For FA³ST to able to load an implementation that is not pre-packaged with FA³ST, you need to put a JAR file containing the respective class in the same directory as the FA³ST Service JAR. Furthermore, all dependencies of that class need also be resolvable which you can achieve by either packaging them into the same JAR (e.g. using the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/)) or manually providing the required JAR files alongside the implementation.
+For FA³ST to be able to load an implementation that is not pre-packaged with FA³ST, you need to put a JAR file containing the respective class in the same directory as the FA³ST Service JAR. Furthermore, all dependencies of that class need also be resolvable. This can be achieved by either packaging them into the same JAR (e.g. using the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/)) or manually providing the required JAR files alongside the implementation.
 
 
 
@@ -99,7 +99,7 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 
 Multiple components of FA³ST Service make use of certificates, either by using them for their own services or by trusting the provided certificates.
 The default way to exchange certificates in FA³ST Service is via [Java KeyStore](https://docs.oracle.com/javase/8/docs/api/java/security/KeyStore.html)s.
-To simplify configuration, the same configurtion object is re-used across different components.
+To simplify configuration, the same configuration object is re-used across different components.
 The structure of the certificate-related configuration object is explained in the following.
 
 | Name | Allowed Value | Description |

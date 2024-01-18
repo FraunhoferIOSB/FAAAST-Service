@@ -1,6 +1,6 @@
 # Internal MessageBus
 
-This is the default implementation of the `MessageBus` interface and it is implemented using Java method calls.
+This is the default implementation of the MessageBus interface which is implemented using Java method calls.
 Therefore, it can only be accessed from code when FA³ST Service is used as an embedded library.
 
 ## Configuration

@@ -8,18 +8,18 @@ To start a FA³ST Service from the command line:
 cd /starter
 mvn clean package
 ```
-2.  Move to the generated `.jar` file
+2. Move to the generated `.jar` file
 
 ```sh
 cd starter/target
 ```
-3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use an example AASEnvironment from us [here](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/misc/examples/demoAAS.json).
+3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use an example AASEnvironment from us [here](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/misc/examples/demoAAS.json).
 
 ```sh
 java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 ```
 
-Currently we supporting following formats of the Asset Administration Shell Environment model:
+Currently, we support the following formats of the Asset Administration Shell Environment model:
 >json, json-ld, aml, xml, opcua nodeset, rdf
 
 
@@ -53,7 +53,7 @@ In general there are 3 ways to configure your FA³ST Service:
 
 The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
 
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section.
+Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components see [Configuration](configuration).
 
 Default Configuration:
 
@@ -75,9 +75,9 @@ Default Configuration:
 }
 ```
 
-The FA³ST Service Starter consider following environment variables:
--   `faaast_config` to use a own configuration file
--   `faaast_model` to use a Asset Administration Environment file
+The FA³ST Service Starter considers the following environment variables:
+- `faaast_config`: use your own configuration file
+- `faaast_model`: use an Asset Administration Environment file
 
 Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)), with '_' as a separator and with the prefix `faaast_config_extension_`:
 -   `faaast_config_extension_[underscore_separated_path]`

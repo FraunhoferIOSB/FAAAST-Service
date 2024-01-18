@@ -28,14 +28,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * Serializer that writes a {@link io.adminshell.aas.v3.model.Environment} and related files.
+ * Serializer that writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
  */
 public interface EnvironmentSerializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -47,7 +47,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param context the context to serialize
      * @return serialized versin of input
@@ -59,7 +59,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -73,7 +73,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
@@ -87,7 +87,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.Environment} and related files as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files as byte[].
      *
      * @param environment the environment to serialize
      * @param files related files to serialize
@@ -100,7 +100,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -115,7 +115,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to a
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to a
      * {@link File}.
      *
      * @param file the {@link File} to write to
@@ -132,7 +132,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.Environment} as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} as byte[].
      *
      * @param environment the environment to serialize
      * @return input serialized as byte[]
@@ -144,7 +144,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}.
      *
      * @param out the {@link OutputStream} to write to
      * @param environment {@link Environment} to write to
@@ -157,7 +157,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} to a {@link File}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} to a {@link File}.
      *
      * @param file the {@link File} to write to
      * @param environment the {@link Environment} to serialize
@@ -170,7 +170,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.Environment} and related files as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files as byte[].
      *
      * @param context the context to serialize
      * @param charset the charset to use
@@ -183,7 +183,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -198,7 +198,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
@@ -213,7 +213,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -230,7 +230,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} and related files to a
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to a
      * {@link File}.
      *
      * @param file the {@link File} to write to
@@ -249,7 +249,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.Environment} as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -262,7 +262,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
@@ -276,7 +276,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.Environment} to a {@link File}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} to a {@link File}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use

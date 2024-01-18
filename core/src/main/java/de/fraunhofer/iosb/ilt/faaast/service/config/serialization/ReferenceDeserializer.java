@@ -22,7 +22,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Deserializer for keys of type {@link io.adminshell.aas.v3.model.Reference}.
+ * Deserializer for keys of type {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference}.
  */
 public class ReferenceDeserializer extends KeyDeserializer {
 

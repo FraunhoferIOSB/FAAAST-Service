@@ -19,7 +19,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.ReferenceElement} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}.
  */
 public class ReferenceElementValueMapper implements DataValueMapper<ReferenceElement, ReferenceElementValue> {

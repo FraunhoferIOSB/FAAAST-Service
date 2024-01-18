@@ -47,10 +47,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Deseriliazer for API calls. Deserializes not only whole {@link io.adminshell.aas.v3.model.Environment} but also other
- * elements like
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel} or
- * {@link io.adminshell.aas.v3.model.SubmodelElement}.
+ * Deseriliazer for API calls. Deserializes not only whole {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}
+ * but also other elements like
+ * {@link org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell},
+ * {@link org.eclipse.digitaltwin.aas4j.v3.model.Submodel} or
+ * {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}.
  */
 public interface ApiDeserializer {
 

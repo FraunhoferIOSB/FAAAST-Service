@@ -22,7 +22,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Range} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Range} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue}.
  */
 public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {

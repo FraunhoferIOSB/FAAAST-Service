@@ -25,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer;
 
 
 /**
- * XML deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * XML deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentDeserializer implements EnvironmentDeserializer {

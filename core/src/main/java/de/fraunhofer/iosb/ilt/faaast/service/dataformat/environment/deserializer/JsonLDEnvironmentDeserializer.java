@@ -24,7 +24,7 @@ import java.nio.charset.Charset;
 
 
 /**
- * JSON-LD deserializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * JSON-LD deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentDeserializer implements EnvironmentDeserializer {

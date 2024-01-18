@@ -31,7 +31,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * RDF serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * RDF serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentSerializer implements EnvironmentSerializer {
@@ -45,7 +45,7 @@ public class RdfEnvironmentSerializer implements EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.Environment} and related files as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -62,7 +62,7 @@ public class RdfEnvironmentSerializer implements EnvironmentSerializer {
         // try {
         //     return serializer.write(environment, rdfLanguage).getBytes(charset);
         // }
-        // catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException e) {
         //     throw new SerializationException("RDF serialization failed", e);
         // }
     }

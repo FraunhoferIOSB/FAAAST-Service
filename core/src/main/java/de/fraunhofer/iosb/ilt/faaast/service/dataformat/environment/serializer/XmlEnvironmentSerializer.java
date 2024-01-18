@@ -26,7 +26,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * XML serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * XML serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentSerializer implements EnvironmentSerializer {

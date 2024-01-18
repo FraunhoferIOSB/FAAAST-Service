@@ -30,7 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.UaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import java.util.List;
-import opc.i4aas.AASSubmodelType;
+import opc.i4aas.objecttypes.AASSubmodelType;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
@@ -109,7 +109,7 @@ public class SubmodelCreator {
             SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
 
             if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
-                smNode.getKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+                smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);

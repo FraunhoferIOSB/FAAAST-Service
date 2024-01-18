@@ -60,7 +60,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
 
 /**
- * Visitor for elements of an {@link io.adminshell.aas.v3.model.AssetAdministrationShell}.
+ * Visitor for elements of an {@link org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
  */
 public interface AssetAdministrationShellElementVisitor {
 

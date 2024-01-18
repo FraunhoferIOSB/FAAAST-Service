@@ -21,7 +21,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
 /**
- * The result of invoking an {@link io.adminshell.aas.v3.model.Operation}.
+ * The result of invoking an {@link org.eclipse.digitaltwin.aas4j.v3.model.Operation}.
  */
 public class OperationResult extends BaseOperationResult {
 

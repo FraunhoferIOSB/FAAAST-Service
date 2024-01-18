@@ -141,7 +141,7 @@ public class ElementValueHelper {
 
 
     /**
-     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable} to a map of
+     * Converts a list of {@link org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable} to a map of
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue} with their idShort as keys.
      *
      * @param variables list of operation variables

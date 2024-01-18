@@ -25,7 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.AnnotatedRelationshipElement} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}.
  */
 public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<AnnotatedRelationshipElement, AnnotatedRelationshipElementValue> {

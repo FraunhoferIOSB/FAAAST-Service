@@ -26,7 +26,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * JSON serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * JSON serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentSerializer implements EnvironmentSerializer {

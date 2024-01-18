@@ -85,7 +85,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         // The WriteMask defines the writable attributes, except for Value,
         // which is controlled by UserAccessLevel (above)
 
-        return AttributeWriteMask.of(AttributeWriteMask.Fields.values());
+        return AttributeWriteMask.of(AttributeWriteMask.Options.values());
     }
 
 

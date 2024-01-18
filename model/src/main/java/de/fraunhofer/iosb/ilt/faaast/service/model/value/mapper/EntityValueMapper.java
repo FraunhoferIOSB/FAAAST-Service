@@ -24,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Entity} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Entity} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}.
  */
 public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {

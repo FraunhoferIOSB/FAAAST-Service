@@ -28,7 +28,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * AASX serializer for {@link io.adminshell.aas.v3.model.Environment}s and related files.
+ * AASX serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentSerializer implements EnvironmentSerializer {

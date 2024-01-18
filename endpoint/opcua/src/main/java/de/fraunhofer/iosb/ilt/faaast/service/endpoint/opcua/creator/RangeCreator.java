@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import opc.i4aas.AASRangeType;
+import opc.i4aas.objecttypes.AASRangeType;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -67,7 +67,7 @@ public class RangeCreator extends SubmodelElementCreator {
 
             if (VALUES_READ_ONLY) {
                 // ValueType read-only
-                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
             }
 
             if (ordered) {
