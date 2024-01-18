@@ -78,6 +78,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -116,6 +117,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 public class HttpEndpointIT extends AbstractIntegrationTest {
 
+    private static final String LOCATION_HEADER = "Location";
     private static Service service;
     private static Environment environment;
     private static ApiPaths apiPaths;
@@ -293,8 +295,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     public void testAASRepositoryCreateAssetAdministrationShells()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
+        String id = "http://newOne";
         AssetAdministrationShell expected = new DefaultAssetAdministrationShell.Builder()
-                .id("http://newOne")
+                .id(id)
                 .idShort("newOne")
                 .description(new DefaultLangStringTextType.Builder()
                         .text("Täst")
@@ -305,13 +308,18 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.aasRepository().assetAdministrationShells(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                AssetAdministrationShell.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.aasRepository().assetAdministrationShells(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    AssetAdministrationShell.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
+                        }));
         Assert.assertTrue(HttpHelper.getPage(
                 httpClient,
                 apiPaths.aasRepository().assetAdministrationShells(),
@@ -696,9 +704,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         List<Reference> expected = aas.getSubmodels();
+        String name = "test";
         Reference newReference = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
-                        .value("test")
+                        .value(name)
                         .build())
                 .build();
         expected.add(newReference);
@@ -707,13 +716,18 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 ElementUpdateEventMessage.class,
                 aas,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.aasInterface(aas).submodels(),
-                                StatusCode.SUCCESS_CREATED,
-                                newReference,
-                                newReference,
-                                Reference.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.aasInterface(aas).submodels(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    newReference,
+                                    newReference,
+                                    Reference.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(name)), location.get());
+                        }));
         assertExecuteMultiple(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).submodels(),
@@ -879,8 +893,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     public void testConceptDescriptionRepositoryCreateConceptDescription()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
+        String id = "http://example.org/foo";
         ConceptDescription expected = new DefaultConceptDescription.Builder()
-                .id("http://example.org/foo")
+                .id(id)
                 .idShort("created")
                 .build();
         assertEvent(
@@ -888,13 +903,18 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                ConceptDescription.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.conceptDescriptionRepository().conceptDescriptions(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    ConceptDescription.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
+                        }));
         Assert.assertTrue(HttpHelper.getPage(
                 httpClient,
                 apiPaths.conceptDescriptionRepository().conceptDescriptions(),
@@ -1018,21 +1038,27 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
             KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(0);
+        String id = "newProperty";
         SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
+                .idShort(id)
                 .build();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", id), location.get());
+                        }));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
                 apiPaths.submodelRepository().submodelInterface(submodel).submodelElements(),
@@ -1050,18 +1076,24 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
+        int expectedIndex = submodelElementList.getValue().size();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementList),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementList),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%d", expectedIndex), location.get());
+                        }));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
                 httpClient,
                 apiPaths.submodelRepository()
@@ -1081,21 +1113,27 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             KeyManagementException {
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
+        String id = "newProperty";
         SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
+                .idShort(id)
                 .build();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementCollection),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(submodelElementCollection),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%s", id), location.get());
+                        }));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
                 httpClient,
                 apiPaths.submodelRepository()
@@ -1506,21 +1544,27 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        String id = "newProperty";
         SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
+                .idShort(id)
                 .build();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", id), location.get());
+                        }));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
                 apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElements(),
@@ -1539,20 +1583,26 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
+        int expectedIndex = submodelElementList.getValue().size();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.aasInterface(aas)
-                                        .submodelInterface(submodel)
-                                        .submodelElement(submodelElementList),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.aasInterface(aas)
+                                            .submodelInterface(submodel)
+                                            .submodelElement(submodelElementList),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%d", expectedIndex), location.get());
+                        }));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
                 httpClient,
                 apiPaths.aasInterface(aas)
@@ -1573,23 +1623,29 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         Submodel submodel = environment.getSubmodels().get(2);
         SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodel.getSubmodelElements().get(6);
+        String id = "newProperty";
         SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
+                .idShort(id)
                 .build();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.aasInterface(aas.getId())
-                                        .submodelInterface(submodel)
-                                        .submodelElement(submodelElementCollection),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.aasInterface(aas.getId())
+                                            .submodelInterface(submodel)
+                                            .submodelElement(submodelElementCollection),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    SubmodelElement.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format(".%s", id), location.get());
+                        }));
         SubmodelElement actual = HttpHelper.getWithSingleResult(
                 httpClient,
                 apiPaths.aasInterface(aas.getId())
@@ -1859,21 +1915,27 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     public void testSubmodelRepositoryCreateSubmodel()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
+        String id = "newSubmodel";
         Submodel expected = new DefaultSubmodel.Builder()
-                .id("newSubmodel")
+                .id(id)
                 .build();
         assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> assertExecuteSingle(
-                                HttpMethod.POST,
-                                apiPaths.submodelRepository().submodels(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                Submodel.class)));
+                        x -> {
+                            var response = assertExecuteSingle(
+                                    HttpMethod.POST,
+                                    apiPaths.submodelRepository().submodels(),
+                                    StatusCode.SUCCESS_CREATED,
+                                    expected,
+                                    expected,
+                                    Submodel.class);
+                            Optional<String> location = response.headers().firstValue(LOCATION_HEADER);
+                            Assert.assertTrue(location.isPresent());
+                            Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(id)), location.get());
+                        }));
         Assert.assertTrue(HttpHelper.getPage(
                 httpClient,
                 apiPaths.submodelRepository().submodels(),
@@ -2078,7 +2140,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private void assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
+    private HttpResponse assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
@@ -2086,6 +2148,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             Object actual = HttpHelper.readResponse(response, type);
             Assert.assertEquals(expected, actual);
         }
+        return response;
     }
 
 
