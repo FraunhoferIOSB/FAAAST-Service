@@ -50,6 +50,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
+
 /**
  * HTTP handler that actually handles all requests to the endpoint by finding the matching request class, deserializing
  * the request, executing it using the serviceContext and serializing the result.
@@ -73,6 +74,7 @@ public class RequestHandler extends AbstractHandler {
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
     }
+
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -98,7 +100,8 @@ public class RequestHandler extends AbstractHandler {
         HttpMethod method;
         try {
             method = HttpMethod.valueOf(request.getMethod());
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_METHOD_NOT_ALLOWED,
@@ -122,31 +125,36 @@ public class RequestHandler extends AbstractHandler {
                 .build();
         try {
             executeAndSend(response, requestMappingManager.map(httpRequest));
-        } catch (MethodNotAllowedException e) {
+        }
+        catch (MethodNotAllowedException e) {
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_METHOD_NOT_ALLOWED,
                     Result.builder()
                             .message(MessageType.ERROR, e.getMessage())
                             .build());
-        } catch (InvalidRequestException | IllegalArgumentException e) {
+        }
+        catch (InvalidRequestException | IllegalArgumentException e) {
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_ERROR_BAD_REQUEST,
                     Result.builder()
                             .message(MessageType.ERROR, e.getMessage())
                             .build());
-        } catch (SerializationException | RuntimeException e) {
+        }
+        catch (SerializationException | RuntimeException e) {
             HttpHelper.send(
                     response,
                     StatusCode.SERVER_INTERNAL_ERROR,
                     Result.builder()
                             .message(MessageType.EXCEPTION, e.getMessage())
                             .build());
-        } finally {
+        }
+        finally {
             baseRequest.setHandled(true);
         }
     }
+
 
     private void setCORSHeader(HttpServletResponse response) {
         response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
@@ -154,9 +162,11 @@ public class RequestHandler extends AbstractHandler {
         response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
     }
 
+
     private boolean isPreflightedCORSRequest(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.name());
     }
+
 
     private void handlePreflightedCORSRequest(String url, HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
         try {
@@ -176,10 +186,12 @@ public class RequestHandler extends AbstractHandler {
             if (allowedMethods.containsAll(requestedHTTPMethods)) {
                 response.setHeader(ACCESS_CONTROL_MAX_AGE_HEADER, String.valueOf(DEFAULT_PREFLIGHT_MAX_AGE));
                 HttpHelper.sendContent(response, StatusCode.SUCCESS_NO_CONTENT, null, MediaType.PLAIN_TEXT_UTF_8);
-            } else {
+            }
+            else {
                 HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
             }
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e) {
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_ERROR_BAD_REQUEST,
@@ -189,10 +201,12 @@ public class RequestHandler extends AbstractHandler {
                                     CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
                                     request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)))
                             .build());
-        } finally {
+        }
+        finally {
             baseRequest.setHandled(true);
         }
     }
+
 
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
             throws SerializationException {
@@ -213,10 +227,12 @@ public class RequestHandler extends AbstractHandler {
 
         if (isSuccessful(apiResponse)) {
             responseMappingManager.map(apiRequest, apiResponse, response);
-        } else {
+        }
+        else {
             HttpHelper.sendJson(response, apiResponse.getStatusCode(), serializer.write(apiResponse.getResult()));
         }
     }
+
 
     private static boolean isSuccessful(Response response) {
         return Objects.nonNull(response)
