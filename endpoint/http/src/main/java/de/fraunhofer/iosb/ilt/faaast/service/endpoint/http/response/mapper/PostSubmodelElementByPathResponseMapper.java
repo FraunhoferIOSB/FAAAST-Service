@@ -18,13 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -39,7 +47,29 @@ public class PostSubmodelElementByPathResponseMapper extends AbstractResponseMap
 
     @Override
     public void map(Request<PostSubmodelElementByPathResponse> apiRequest, PostSubmodelElementByPathResponse apiResponse, HttpServletResponse httpResponse) {
-        httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
+        PostSubmodelElementByPathRequest request = ((PostSubmodelElementByPathRequest) apiRequest);
+        IdShortPath path = IdShortPath.parse(request.getPath());
+        if (path.isEmpty()) {
+            httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
+        }
+        else {
+            Reference parentReference = new ReferenceBuilder()
+                    .submodel(request.getSubmodelId())
+                    .idShortPath(path)
+                    .build();
+            try {
+                SubmodelElement parent = EnvironmentHelper.resolve(parentReference, serviceContext.getAASEnvironment(), SubmodelElement.class);
+                if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+                    httpResponse.addHeader("Location", String.format(".%d", ((SubmodelElementList) parent).getValue().size() - 1));
+                }
+                else {
+                    httpResponse.addHeader("Location", String.format(".%s", apiResponse.getPayload().getIdShort()));
+                }
+            }
+            catch (ResourceNotFoundException ex) {
+                httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
+            }
+        }
 
         try {
             HttpHelper.sendJson(httpResponse,
