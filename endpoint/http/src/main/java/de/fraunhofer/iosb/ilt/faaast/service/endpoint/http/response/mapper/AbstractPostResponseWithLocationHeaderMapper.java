@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
@@ -29,21 +28,33 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
- * Generic response mapper for any responses that contain a payload.It is used when no more specific mapper is present.
+ * Abstract base class for requests that return a Location header.
  *
- * @param <T> type of the payload
+ * @param <T> type of the response
  * @param <U> type of the request
  */
-public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends AbstractResponseMapper<T, U> {
+public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends ResponseWithPayloadResponseMapper<T, U> {
 
-    public ResponseWithPayloadResponseMapper(ServiceContext serviceContext) {
+    protected AbstractPostResponseWithLocationHeaderMapper(ServiceContext serviceContext) {
         super(serviceContext);
     }
+
+
+    /**
+     * Computes the location header.
+     *
+     * @param apiRequest the corresponding API request
+     * @param apiResponse the corresponding API response
+     * @return the location header to use
+     * @throws Exception if computing the header fails
+     */
+    protected abstract String computeLocationHeader(U apiRequest, T apiResponse) throws Exception;
 
 
     @Override
     public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
         try {
+            httpResponse.addHeader("Location", computeLocationHeader(apiRequest, apiResponse));
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),
                     new HttpJsonApiSerializer().write(
@@ -52,7 +63,7 @@ public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPay
                                     ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
                                     : OutputModifier.DEFAULT));
         }
-        catch (SerializationException e) {
+        catch (Exception e) {
             HttpHelper.send(
                     httpResponse,
                     StatusCode.SERVER_INTERNAL_ERROR,
