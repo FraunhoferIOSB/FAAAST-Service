@@ -44,10 +44,11 @@ public interface ServiceContext {
     /**
      * Executes a request.
      *
+     * @param <T> type of expected response
      * @param request request to execute
      * @return result of executing the request
      */
-    public Response execute(Request request);
+    public <T extends Response> T execute(Request<T> request);
 
 
     /**

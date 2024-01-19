@@ -15,22 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
@@ -38,7 +28,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 /**
  * Response mapper for {@link PostSubmodelElementByPathResponse}.
  */
-public class PostSubmodelElementByPathResponseMapper extends AbstractResponseMapper<PostSubmodelElementByPathResponse> {
+public class PostSubmodelElementByPathResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelElementByPathResponse> {
 
     public PostSubmodelElementByPathResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -46,43 +36,20 @@ public class PostSubmodelElementByPathResponseMapper extends AbstractResponseMap
 
 
     @Override
-    public void map(Request<PostSubmodelElementByPathResponse> apiRequest, PostSubmodelElementByPathResponse apiResponse, HttpServletResponse httpResponse) {
+    protected String computeLocationHeader(Request<PostSubmodelElementByPathResponse> apiRequest, PostSubmodelElementByPathResponse apiResponse) {
         PostSubmodelElementByPathRequest request = ((PostSubmodelElementByPathRequest) apiRequest);
         IdShortPath path = IdShortPath.parse(request.getPath());
         if (path.isEmpty()) {
-            httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
+            return apiResponse.getPayload().getIdShort();
         }
-        else {
-            Reference parentReference = new ReferenceBuilder()
-                    .submodel(request.getSubmodelId())
-                    .idShortPath(path)
-                    .build();
-            try {
-                SubmodelElement parent = EnvironmentHelper.resolve(parentReference, serviceContext.getAASEnvironment(), SubmodelElement.class);
-                if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-                    httpResponse.addHeader("Location", String.format(".%d", ((SubmodelElementList) parent).getValue().size() - 1));
-                }
-                else {
-                    httpResponse.addHeader("Location", String.format(".%s", apiResponse.getPayload().getIdShort()));
-                }
-            }
-            catch (ResourceNotFoundException ex) {
-                httpResponse.addHeader("Location", String.format("/%s", apiResponse.getPayload().getIdShort()));
-            }
+        GetSubmodelElementByPathResponse serviceResponse = serviceContext.execute(GetSubmodelElementByPathRequest.builder()
+                .submodelId(request.getSubmodelId())
+                .path(request.getPath())
+                .build());
+        SubmodelElement parent = serviceResponse.getPayload();
+        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            return String.format(".%d", ((SubmodelElementList) parent).getValue().size() - 1);
         }
-
-        try {
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(
-                            apiResponse.getPayload(),
-                            AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
-                                    ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
-                                    : OutputModifier.DEFAULT));
-        }
-        catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
-        }
+        return String.format(".%s", apiResponse.getPayload().getIdShort());
     }
-
 }

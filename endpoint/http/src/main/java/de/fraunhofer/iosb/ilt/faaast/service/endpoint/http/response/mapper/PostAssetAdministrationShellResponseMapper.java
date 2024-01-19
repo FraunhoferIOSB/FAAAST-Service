@@ -15,23 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
  * Response mapper for {@link PostAssetAdministrationShellResponse}.
  */
-public class PostAssetAdministrationShellResponseMapper extends AbstractResponseMapper<PostAssetAdministrationShellResponse> {
+public class PostAssetAdministrationShellResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostAssetAdministrationShellResponse> {
 
     public PostAssetAdministrationShellResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -39,20 +31,7 @@ public class PostAssetAdministrationShellResponseMapper extends AbstractResponse
 
 
     @Override
-    public void map(Request<PostAssetAdministrationShellResponse> apiRequest, PostAssetAdministrationShellResponse apiResponse, HttpServletResponse httpResponse) {
-        httpResponse.addHeader("Location", String.format("/%s", EncodingHelper.base64UrlEncode(apiResponse.getPayload().getId())));
-        try {
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(
-                            apiResponse.getPayload(),
-                            AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
-                                    ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
-                                    : OutputModifier.DEFAULT));
-        }
-        catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
-        }
+    protected String computeLocationHeader(Request<PostAssetAdministrationShellResponse> apiRequest, PostAssetAdministrationShellResponse apiResponse) {
+        return String.format("/%s", EncodingHelper.base64UrlEncode(apiResponse.getPayload().getId()));
     }
-
 }
