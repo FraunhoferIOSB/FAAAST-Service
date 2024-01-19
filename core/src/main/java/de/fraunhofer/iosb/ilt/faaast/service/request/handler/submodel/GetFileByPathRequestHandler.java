@@ -48,9 +48,11 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
                 .idShortPath(request.getPath())
                 .build();
         File file = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier(), File.class);
-        context.getMessageBus().publish(ValueReadEventMessage.builder()
-                .element(reference)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ValueReadEventMessage.builder()
+                    .element(reference)
+                    .build());
+        }
         return GetFileByPathResponse.builder()
                 .payload(new TypedInMemoryFile.Builder()
                         .content(context.getFileStorage().get(file.getValue()))

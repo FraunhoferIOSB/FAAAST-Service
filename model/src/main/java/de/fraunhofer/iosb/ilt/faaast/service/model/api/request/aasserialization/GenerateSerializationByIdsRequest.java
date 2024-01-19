@@ -20,13 +20,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for GenerateSerializationByIds requests.
  */
-public class GenerateSerializationByIdsRequest implements Request<GenerateSerializationByIdsResponse> {
+public class GenerateSerializationByIdsRequest extends Request<GenerateSerializationByIdsResponse> {
 
     private List<String> aasIds;
     private List<String> submodelIds;
@@ -90,7 +89,8 @@ public class GenerateSerializationByIdsRequest implements Request<GenerateSerial
             return false;
         }
         GenerateSerializationByIdsRequest that = (GenerateSerializationByIdsRequest) o;
-        return Objects.equals(includeConceptDescriptions, that.includeConceptDescriptions)
+        return super.equals(that)
+                && Objects.equals(includeConceptDescriptions, that.includeConceptDescriptions)
                 && Objects.equals(aasIds, that.aasIds)
                 && Objects.equals(submodelIds, that.submodelIds)
                 && Objects.equals(serializationFormat, that.serializationFormat);
@@ -99,7 +99,7 @@ public class GenerateSerializationByIdsRequest implements Request<GenerateSerial
 
     @Override
     public int hashCode() {
-        return Objects.hash(aasIds, submodelIds, includeConceptDescriptions, serializationFormat);
+        return Objects.hash(super.hashCode(), aasIds, submodelIds, includeConceptDescriptions, serializationFormat);
     }
 
 
@@ -107,7 +107,7 @@ public class GenerateSerializationByIdsRequest implements Request<GenerateSerial
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B aasIds(List<String> value) {
             getBuildingInstance().setAasIds(value);

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -28,11 +29,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
- * Generic response mapper for any responses that contain a payload. It is used when no more specific mapper is present.
+ * Generic response mapper for any responses that contain a payload.It is used when no more specific mapper is present.
  *
  * @param <T> type of the payload
+ * @param <U> type of the request
  */
-public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPayload> extends AbstractResponseMapper<T> {
+public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends AbstractResponseMapper<T, U> {
 
     public ResponseWithPayloadResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -40,7 +42,7 @@ public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPay
 
 
     @Override
-    public void map(Request<T> apiRequest, T apiResponse, HttpServletResponse httpResponse) {
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
         try {
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),
@@ -51,7 +53,12 @@ public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPay
                                     : OutputModifier.DEFAULT));
         }
         catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            HttpHelper.send(
+                    httpResponse,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, e.getMessage())
+                            .build());
         }
     }
 }

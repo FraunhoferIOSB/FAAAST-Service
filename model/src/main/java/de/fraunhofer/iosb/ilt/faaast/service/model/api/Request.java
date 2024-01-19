@@ -14,11 +14,63 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+
+
 /**
  * A request represents a protocol-agnostic operation as defined in the AAS specification Part 2.
  *
  * @param <T> type of the corresponding response
  */
-public interface Request<T extends Response> {
+public abstract class Request<T extends Response> {
 
+    private boolean internal;
+
+    protected Request() {
+        this.internal = false;
+    }
+
+
+    public boolean isInternal() {
+        return internal;
+    }
+
+
+    public void setInternal(boolean internal) {
+        this.internal = internal;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Request<?> that = (Request<?>) o;
+        return Objects.equals(internal, that.internal);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(internal);
+    }
+
+    public abstract static class AbstractBuilder<T extends Request, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B internal(boolean value) {
+            getBuildingInstance().setInternal(value);
+            return getSelf();
+        }
+
+
+        public B internal() {
+            getBuildingInstance().setInternal(true);
+            return getSelf();
+        }
+    }
 }

@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMapp
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -38,6 +39,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,6 +57,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
+    private static final String API_PREFIX = "/api/v3.0";
     private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
@@ -73,10 +78,21 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if (!request.getRequestURI().startsWith(API_PREFIX)) {
+            HttpHelper.send(
+                    response,
+                    StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
+                    Result.builder()
+                            .message(MessageType.ERROR, String.format("Resource not found '%s'", request.getRequestURI()))
+                            .build());
+            baseRequest.setHandled(true);
+            return;
+        }
+        String url = request.getRequestURI().replaceFirst(API_PREFIX, "");
         if (config.isCorsEnabled()) {
             setCORSHeader(response);
             if (isPreflightedCORSRequest(request)) {
-                handlePreflightedCORSRequest(request, response, baseRequest);
+                handlePreflightedCORSRequest(url, request, response, baseRequest);
                 return;
             }
         }
@@ -86,13 +102,18 @@ public class RequestHandler extends AbstractHandler {
             method = HttpMethod.valueOf(request.getMethod());
         }
         catch (IllegalArgumentException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(String.format("Unknown method '%s'", request.getMethod())));
+            HttpHelper.send(
+                    response,
+                    StatusCode.CLIENT_METHOD_NOT_ALLOWED,
+                    Result.builder()
+                            .message(MessageType.ERROR, String.format("Unknown method '%s'", request.getMethod()))
+                            .build());
             baseRequest.setHandled(true);
             return;
         }
 
         HttpRequest httpRequest = HttpRequest.builder()
-                .path(request.getRequestURI().replaceAll("/$", ""))
+                .path(url.replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(request.getInputStream().readAllBytes())
                 .method(method)
@@ -106,13 +127,28 @@ public class RequestHandler extends AbstractHandler {
             executeAndSend(response, requestMappingManager.map(httpRequest));
         }
         catch (MethodNotAllowedException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(e.getMessage()));
+            HttpHelper.send(
+                    response,
+                    StatusCode.CLIENT_METHOD_NOT_ALLOWED,
+                    Result.builder()
+                            .message(MessageType.ERROR, e.getMessage())
+                            .build());
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, Result.error(e.getMessage()));
+            HttpHelper.send(
+                    response,
+                    StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                    Result.builder()
+                            .message(MessageType.ERROR, e.getMessage())
+                            .build());
         }
         catch (SerializationException | RuntimeException e) {
-            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            HttpHelper.send(
+                    response,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, e.getMessage())
+                            .build());
         }
         finally {
             baseRequest.setHandled(true);
@@ -132,7 +168,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
+    private void handlePreflightedCORSRequest(String url, HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
         try {
             Set<HttpMethod> requestedHTTPMethods = request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER) != null
                     ? Stream.of(request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)
@@ -141,7 +177,7 @@ public class RequestHandler extends AbstractHandler {
                             .map(x -> HttpMethod.valueOf(x.trim()))
                             .collect(Collectors.toSet())
                     : new HashSet<>();
-            Set<HttpMethod> allowedMethods = requestMappingManager.getSupportedMethods(request.getRequestURI().replaceAll("/$", ""));
+            Set<HttpMethod> allowedMethods = requestMappingManager.getSupportedMethods(url.replaceAll("/$", ""));
             allowedMethods.add(HttpMethod.OPTIONS);
             response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
                     allowedMethods.stream()
@@ -156,10 +192,15 @@ public class RequestHandler extends AbstractHandler {
             }
         }
         catch (RuntimeException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST,
-                    Result.exception(String.format("invalid value for %s: %s",
-                            CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
-                            request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER))));
+            HttpHelper.send(
+                    response,
+                    StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, String.format(
+                                    "invalid value for %s: %s",
+                                    CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
+                                    request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)))
+                            .build());
         }
         finally {
             baseRequest.setHandled(true);
@@ -175,14 +216,32 @@ public class RequestHandler extends AbstractHandler {
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception("empty API response"));
+            HttpHelper.send(
+                    response,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, "empty API response")
+                            .build());
             return;
         }
-        if (apiResponse.getResult() != null && !apiResponse.getResult().getSuccess()) {
-            HttpHelper.sendJson(response, apiResponse.getStatusCode(), serializer.write(apiResponse.getResult()));
-        }
-        else {
+
+        if (isSuccessful(apiResponse)) {
             responseMappingManager.map(apiRequest, apiResponse, response);
         }
+        else {
+            HttpHelper.sendJson(response, apiResponse.getStatusCode(), serializer.write(apiResponse.getResult()));
+        }
+    }
+
+
+    private static boolean isSuccessful(Response response) {
+        return Objects.nonNull(response)
+                && response.getStatusCode().isSuccess()
+                && Objects.nonNull(response.getResult())
+                && Optional.ofNullable(response.getResult().getMessages())
+                        .orElse(List.of())
+                        .stream()
+                        .map(x -> x.getMessageType())
+                        .noneMatch(x -> Objects.equals(x, MessageType.ERROR) || Objects.equals(x, MessageType.EXCEPTION));
     }
 }

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -29,9 +30,10 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Abstract base class for requests that return a Location header.
  *
- * @param <T> type of the actual response
+ * @param <T> type of the response
+ * @param <U> type of the request
  */
-public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends AbstractResponseWithPayload> extends ResponseWithPayloadResponseMapper<T> {
+public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends ResponseWithPayloadResponseMapper<T, U> {
 
     protected AbstractPostResponseWithLocationHeaderMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -46,11 +48,11 @@ public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends Abs
      * @return the location header to use
      * @throws Exception if computing the header fails
      */
-    protected abstract String computeLocationHeader(Request<T> apiRequest, T apiResponse) throws Exception;
+    protected abstract String computeLocationHeader(U apiRequest, T apiResponse) throws Exception;
 
 
     @Override
-    public void map(Request<T> apiRequest, T apiResponse, HttpServletResponse httpResponse) {
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
         try {
             httpResponse.addHeader("Location", computeLocationHeader(apiRequest, apiResponse));
             HttpHelper.sendJson(httpResponse,
@@ -62,7 +64,12 @@ public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends Abs
                                     : OutputModifier.DEFAULT));
         }
         catch (Exception e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            HttpHelper.send(
+                    httpResponse,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, e.getMessage())
+                            .build());
         }
     }
 }

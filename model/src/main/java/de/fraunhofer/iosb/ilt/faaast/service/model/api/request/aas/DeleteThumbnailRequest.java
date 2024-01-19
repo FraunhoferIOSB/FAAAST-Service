@@ -17,13 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for DeleteThumbnail requests.
  */
-public class DeleteThumbnailRequest implements Request<DeleteThumbnailResponse> {
+public class DeleteThumbnailRequest extends Request<DeleteThumbnailResponse> {
 
     private String id;
 
@@ -46,13 +45,14 @@ public class DeleteThumbnailRequest implements Request<DeleteThumbnailResponse> 
             return false;
         }
         DeleteThumbnailRequest that = (DeleteThumbnailRequest) o;
-        return Objects.equals(id, that.id);
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -60,7 +60,7 @@ public class DeleteThumbnailRequest implements Request<DeleteThumbnailResponse> 
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteThumbnailRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteThumbnailRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

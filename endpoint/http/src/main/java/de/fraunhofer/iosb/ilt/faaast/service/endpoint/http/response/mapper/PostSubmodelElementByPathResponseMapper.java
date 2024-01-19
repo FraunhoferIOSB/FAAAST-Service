@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
@@ -28,7 +27,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 /**
  * Response mapper for {@link PostSubmodelElementByPathResponse}.
  */
-public class PostSubmodelElementByPathResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelElementByPathResponse> {
+public class PostSubmodelElementByPathResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelElementByPathResponse, PostSubmodelElementByPathRequest> {
 
     public PostSubmodelElementByPathResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -36,15 +35,14 @@ public class PostSubmodelElementByPathResponseMapper extends AbstractPostRespons
 
 
     @Override
-    protected String computeLocationHeader(Request<PostSubmodelElementByPathResponse> apiRequest, PostSubmodelElementByPathResponse apiResponse) {
-        PostSubmodelElementByPathRequest request = ((PostSubmodelElementByPathRequest) apiRequest);
-        IdShortPath path = IdShortPath.parse(request.getPath());
+    protected String computeLocationHeader(PostSubmodelElementByPathRequest apiRequest, PostSubmodelElementByPathResponse apiResponse) {
+        IdShortPath path = IdShortPath.parse(apiRequest.getPath());
         if (path.isEmpty()) {
             return apiResponse.getPayload().getIdShort();
         }
         GetSubmodelElementByPathResponse serviceResponse = serviceContext.execute(GetSubmodelElementByPathRequest.builder()
-                .submodelId(request.getSubmodelId())
-                .path(request.getPath())
+                .submodelId(apiRequest.getSubmodelId())
+                .path(apiRequest.getPath())
                 .build());
         SubmodelElement parent = serviceResponse.getPayload();
         if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {

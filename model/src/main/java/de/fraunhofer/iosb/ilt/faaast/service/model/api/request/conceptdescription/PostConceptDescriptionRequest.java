@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PostConceptDescription requests.
  */
-public class PostConceptDescriptionRequest implements Request<PostConceptDescriptionResponse> {
+public class PostConceptDescriptionRequest extends Request<PostConceptDescriptionResponse> {
 
     private ConceptDescription conceptDescription;
 
@@ -47,13 +46,14 @@ public class PostConceptDescriptionRequest implements Request<PostConceptDescrip
             return false;
         }
         PostConceptDescriptionRequest that = (PostConceptDescriptionRequest) o;
-        return Objects.equals(conceptDescription, that.conceptDescription);
+        return super.equals(that)
+                && Objects.equals(conceptDescription, that.conceptDescription);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(conceptDescription);
+        return Objects.hash(super.hashCode(), conceptDescription);
     }
 
 
@@ -61,7 +61,7 @@ public class PostConceptDescriptionRequest implements Request<PostConceptDescrip
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostConceptDescriptionRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostConceptDescriptionRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B conceptDescription(ConceptDescription value) {
             getBuildingInstance().setConceptDescription(value);

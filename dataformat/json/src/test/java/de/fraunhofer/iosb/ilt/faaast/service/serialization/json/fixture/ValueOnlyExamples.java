@@ -14,9 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import java.io.File;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import javax.xml.datatype.DatatypeFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -24,6 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
@@ -40,6 +51,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
@@ -73,6 +85,8 @@ public class ValueOnlyExamples {
     public static final File PROPERTY_DOUBLE_FILE = new File(RESOURCE_PATH + "/property-double.json");
     public static final File PROPERTY_STRING_FILE = new File(RESOURCE_PATH + "/property-string.json");
     public static final File PROPERTY_DATETIME_FILE = new File(RESOURCE_PATH + "/property-datetime.json");
+    public static final File INVOKE_OPERATION_REQUEST_FILE = new File(RESOURCE_PATH + "/invoke-operation-request.json");
+    public static final File GET_OPERATION_ASYNC_RESULT_RESPONSE_FILE = new File(RESOURCE_PATH + "/get-operation-async-result-response.json");
 
     public static final Blob BLOB = new DefaultBlob.Builder()
             .idShort("blob1")
@@ -224,6 +238,149 @@ public class ValueOnlyExamples {
             .submodelElements(ELEMENT_COLLECTION)
             .submodelElements(new DefaultOperation.Builder()
                     .idShort("operation1")
+                    .build())
+            .build();
+
+    public static final Operation CONTEXT_OPERATION_INVOKE = new DefaultOperation.Builder()
+            .inputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inString")
+                            .valueType(DataTypeDefXsd.STRING)
+                            .build())
+                    .build())
+            .inputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inInt")
+                            .valueType(DataTypeDefXsd.INT)
+                            .build())
+                    .build())
+            .inputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inDouble")
+                            .valueType(DataTypeDefXsd.DOUBLE)
+                            .build())
+                    .build())
+            .inoutputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutString")
+                            .valueType(DataTypeDefXsd.STRING)
+                            .build())
+                    .build())
+            .inoutputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutInt")
+                            .valueType(DataTypeDefXsd.INT)
+                            .build())
+                    .build())
+            .inoutputVariables(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutDouble")
+                            .valueType(DataTypeDefXsd.DOUBLE)
+                            .build())
+                    .build())
+            .build();
+
+    public static final GetOperationAsyncResultResponse GET_OPERATION_ASYNC_RESULT_RESPONSE = GetOperationAsyncResultResponse.builder()
+            .success()
+            .payload(new OperationResult.Builder()
+                    .executionState(ExecutionState.COMPLETED)
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutString")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("bar")
+                                    .build())
+                            .build())
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutInt")
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value("-42")
+                                    .build())
+                            .build())
+                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("inoutDouble")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("17.42")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outString")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("foo-bar")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outInt")
+                                    .valueType(DataTypeDefXsd.INT)
+                                    .value("-24")
+                                    .build())
+                            .build())
+                    .outputArgument(new DefaultOperationVariable.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("outDouble")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("24.24")
+                                    .build())
+                            .build())
+                    .build())
+            .result(Result.builder()
+                    .message(Message.builder()
+                            .messageType(MessageType.INFO)
+                            .text("some message text")
+                            .timestamp(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant()))
+                            .build())
+                    .build())
+            .build();
+
+    public static final InvokeOperationSyncRequest INVOKE_OPERATION_SYNC_REQUEST = InvokeOperationSyncRequest.builder()
+            .submodelId("http://example.org/submodels/1")
+            .path("my.test.operation")
+            .timeout(DatatypeFactory.newDefaultInstance().newDuration("P1Y2M3DT1H2M3S"))
+            .inputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inString")
+                            .valueType(DataTypeDefXsd.STRING)
+                            .value("foo")
+                            .build())
+                    .build())
+            .inputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inInt")
+                            .valueType(DataTypeDefXsd.INT)
+                            .value("42")
+                            .build())
+                    .build())
+            .inputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inDouble")
+                            .valueType(DataTypeDefXsd.DOUBLE)
+                            .value("42.17")
+                            .build())
+                    .build())
+            .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutString")
+                            .valueType(DataTypeDefXsd.STRING)
+                            .value("bar")
+                            .build())
+                    .build())
+            .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutInt")
+                            .valueType(DataTypeDefXsd.INT)
+                            .value("-42")
+                            .build())
+                    .build())
+            .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .value(new DefaultProperty.Builder()
+                            .idShort("inoutDouble")
+                            .valueType(DataTypeDefXsd.DOUBLE)
+                            .value("17.42")
+                            .build())
                     .build())
             .build();
 

@@ -17,13 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscover
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetLinksByIdResponse;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for GetAllAssetLinksById requests.
  */
-public class GetAllAssetLinksByIdRequest implements Request<GetAllAssetLinksByIdResponse> {
+public class GetAllAssetLinksByIdRequest extends Request<GetAllAssetLinksByIdResponse> {
 
     private String id;
 
@@ -60,7 +59,7 @@ public class GetAllAssetLinksByIdRequest implements Request<GetAllAssetLinksById
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

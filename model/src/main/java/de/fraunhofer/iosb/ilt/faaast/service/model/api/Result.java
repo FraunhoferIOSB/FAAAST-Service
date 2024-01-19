@@ -25,22 +25,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class Result {
 
-    private boolean success;
     private List<Message> messages;
 
     public Result() {
-        this.success = true;
         this.messages = new ArrayList<>();
-    }
-
-
-    public boolean getSuccess() {
-        return success;
-    }
-
-
-    public void setSuccess(boolean success) {
-        this.success = success;
     }
 
 
@@ -63,76 +51,13 @@ public class Result {
             return false;
         }
         Result result = (Result) o;
-        return Objects.equals(success, result.success)
-                && Objects.equals(messages, result.messages);
+        return Objects.equals(messages, result.messages);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(success, messages);
-    }
-
-
-    /**
-     * Creates a new instance with given values and sets success flag according to the messageType.
-     *
-     * @param messageType the messageType to set
-     * @param message the message to set
-     * @return new instance with given values
-     */
-    public static Result of(MessageType messageType, String message) {
-        return builder()
-                .success(messageType == MessageType.INFO || messageType == MessageType.WARNING)
-                .message(Message.builder()
-                        .messageType(messageType)
-                        .text(message)
-                        .build())
-                .build();
-    }
-
-
-    /**
-     * Creates a new instance with given message type INFO and given message.
-     *
-     * @param message the message to set
-     * @return new instance with given values
-     */
-    public static Result info(String message) {
-        return of(MessageType.INFO, message);
-    }
-
-
-    /**
-     * Creates a new instance with given message type WARNING and given message.
-     *
-     * @param message the message to set
-     * @return new instance with given values
-     */
-    public static Result warning(String message) {
-        return of(MessageType.WARNING, message);
-    }
-
-
-    /**
-     * Creates a new instance with given message type ERROR and given message.
-     *
-     * @param message the message to set
-     * @return new instance with given values
-     */
-    public static Result error(String message) {
-        return of(MessageType.ERROR, message);
-    }
-
-
-    /**
-     * Creates a new instance with given message type EXCEPTION and given message.
-     *
-     * @param message the message to set
-     * @return new instance with given values
-     */
-    public static Result exception(String message) {
-        return of(MessageType.EXCEPTION, message);
+        return Objects.hash(messages);
     }
 
 
@@ -140,13 +65,7 @@ public class Result {
         return new Builder();
     }
 
-    private abstract static class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B success(boolean value) {
-            getBuildingInstance().setSuccess(value);
-            return getSelf();
-        }
-
+    protected abstract static class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B messages(List<Message> value) {
             getBuildingInstance().setMessages(value);
@@ -156,6 +75,16 @@ public class Result {
 
         public B message(Message value) {
             getBuildingInstance().getMessages().add(value);
+            return getSelf();
+        }
+
+
+        public B message(MessageType messageType, String messageText) {
+            getBuildingInstance().getMessages().add(
+                    Message.builder()
+                            .messageType(messageType)
+                            .text(messageText)
+                            .build());
             return getSelf();
         }
 

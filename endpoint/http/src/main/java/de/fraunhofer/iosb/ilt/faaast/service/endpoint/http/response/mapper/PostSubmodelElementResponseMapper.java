@@ -15,14 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 
 
 /**
  * Response mapper for {@link PostSubmodelElementResponse}.
  */
-public class PostSubmodelElementResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelElementResponse> {
+public class PostSubmodelElementResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelElementResponse, PostSubmodelElementRequest> {
 
     public PostSubmodelElementResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -30,7 +30,7 @@ public class PostSubmodelElementResponseMapper extends AbstractPostResponseWithL
 
 
     @Override
-    protected String computeLocationHeader(Request<PostSubmodelElementResponse> apiRequest, PostSubmodelElementResponse apiResponse) {
+    protected String computeLocationHeader(PostSubmodelElementRequest apiRequest, PostSubmodelElementResponse apiResponse) {
         return String.format("/%s", apiResponse.getPayload().getIdShort());
     }
 }

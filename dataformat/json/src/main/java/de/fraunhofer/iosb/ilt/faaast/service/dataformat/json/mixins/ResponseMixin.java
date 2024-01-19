@@ -14,14 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
+ * Mixing for {@link Response}.
  */
-public abstract class TypedValueMixin<T> {
+public interface ResponseMixin {
 
-    @JsonValue
-    protected T value;
+    @JsonIgnore
+    public StatusCode getStatusCode();
+
+
+    @JsonUnwrapped()
+    public Result getResult();
+
 }

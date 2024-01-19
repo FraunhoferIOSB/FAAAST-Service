@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;

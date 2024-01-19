@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PostSubmodel requests.
  */
-public class PostSubmodelRequest implements Request<PostSubmodelResponse> {
+public class PostSubmodelRequest extends Request<PostSubmodelResponse> {
 
     private Submodel submodel;
 
@@ -47,13 +46,14 @@ public class PostSubmodelRequest implements Request<PostSubmodelResponse> {
             return false;
         }
         PostSubmodelRequest that = (PostSubmodelRequest) o;
-        return Objects.equals(submodel, that.submodel);
+        return super.equals(that)
+                && Objects.equals(submodel, that.submodel);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(submodel);
+        return Objects.hash(super.hashCode(), submodel);
     }
 
 
@@ -61,7 +61,7 @@ public class PostSubmodelRequest implements Request<PostSubmodelResponse> {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);

@@ -20,13 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PostAllAssetLinksById requests.
  */
-public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksByIdResponse> {
+public class PostAllAssetLinksByIdRequest extends Request<PostAllAssetLinksByIdResponse> {
 
     private String id;
     private List<SpecificAssetId> assetLinks;
@@ -65,14 +64,15 @@ public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksBy
             return false;
         }
         PostAllAssetLinksByIdRequest that = (PostAllAssetLinksByIdRequest) o;
-        return Objects.equals(id, that.id)
+        return super.equals(that)
+                && Objects.equals(id, that.id)
                 && Objects.equals(assetLinks, that.assetLinks);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, assetLinks);
+        return Objects.hash(super.hashCode(), id, assetLinks);
     }
 
 
@@ -80,7 +80,7 @@ public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksBy
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

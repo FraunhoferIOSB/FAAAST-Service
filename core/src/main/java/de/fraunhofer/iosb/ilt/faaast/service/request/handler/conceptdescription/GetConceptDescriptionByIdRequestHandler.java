@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
@@ -41,7 +42,7 @@ public class GetConceptDescriptionByIdRequestHandler extends AbstractRequestHand
     @Override
     public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), request.getOutputModifier());
-        if (conceptDescription != null) {
+        if (!request.isInternal() && Objects.nonNull(conceptDescription)) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(conceptDescription)
                     .value(conceptDescription)

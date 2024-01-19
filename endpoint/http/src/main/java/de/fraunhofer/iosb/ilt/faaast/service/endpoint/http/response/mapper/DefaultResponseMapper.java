@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Generic response mapper for any responses without payload. It is used when no more specific mapper is present.
  */
-public class DefaultResponseMapper extends AbstractResponseMapper<AbstractResponse> {
+public class DefaultResponseMapper extends AbstractResponseMapper<AbstractResponse, Request<AbstractResponse>> {
 
     public DefaultResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

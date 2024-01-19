@@ -48,10 +48,12 @@ public class GetSubmodelReferenceRequestHandler extends AbstractSubmodelInterfac
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), request.getOutputModifier());
         Reference reference = ReferenceBuilder.forSubmodel(submodel);
-        context.getMessageBus().publish(ElementReadEventMessage.builder()
-                .element(reference)
-                .value(submodel)
-                .build());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementReadEventMessage.builder()
+                    .element(reference)
+                    .value(submodel)
+                    .build());
+        }
         return GetSubmodelReferenceResponse.builder()
                 .payload(reference)
                 .success()

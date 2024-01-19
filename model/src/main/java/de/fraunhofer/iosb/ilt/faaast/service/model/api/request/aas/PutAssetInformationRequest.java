@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetInformationResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Request class for PutAssetInformation requests.
  */
-public class PutAssetInformationRequest implements Request<PutAssetInformationResponse> {
+public class PutAssetInformationRequest extends Request<PutAssetInformationResponse> {
 
     private String id;
     private AssetInformation assetInfo;
@@ -58,13 +57,15 @@ public class PutAssetInformationRequest implements Request<PutAssetInformationRe
             return false;
         }
         PutAssetInformationRequest that = (PutAssetInformationRequest) o;
-        return Objects.equals(assetInfo, that.assetInfo);
+        return super.equals(that)
+                && Objects.equals(id, that.id)
+                && Objects.equals(assetInfo, that.assetInfo);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, assetInfo);
+        return Objects.hash(super.hashCode(), id, assetInfo);
     }
 
 
@@ -72,7 +73,7 @@ public class PutAssetInformationRequest implements Request<PutAssetInformationRe
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
         public B assetInformation(AssetInformation value) {
             getBuildingInstance().setAssetInformation(value);

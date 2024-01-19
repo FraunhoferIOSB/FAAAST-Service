@@ -52,11 +52,13 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
         cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
-        syncWithAsset(reference, updated.getSubmodelElements());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(updated)
-                .build());
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(updated)
+                    .build());
+        }
         return PatchSubmodelByIdResponse.builder()
                 .payload(updated)
                 .success()

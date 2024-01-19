@@ -40,7 +40,8 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 ## API
 
 ### Supported API calls
-
+-   Current API prefix
+    -   /api/v3.0
 -   Asset Administration Shell Repository Interface
     -   /shells ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
     -   /shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)

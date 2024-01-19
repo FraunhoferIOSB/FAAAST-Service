@@ -50,11 +50,13 @@ public class PatchSubmodelRequestHandler extends AbstractRequestHandler<PatchSub
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
-        syncWithAsset(reference, updated.getSubmodelElements());
-        context.getMessageBus().publish(ElementUpdateEventMessage.builder()
-                .element(reference)
-                .value(updated)
-                .build());
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal());
+        if (!request.isInternal()) {
+            context.getMessageBus().publish(ElementUpdateEventMessage.builder()
+                    .element(reference)
+                    .value(updated)
+                    .build());
+        }
         return PatchSubmodelResponse.builder()
                 .payload(updated)
                 .success()

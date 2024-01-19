@@ -97,12 +97,12 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Check for each SubmodelElement if there is an AssetConnection. If yes read the value from it and compare it to
-     * the current value.If they differ from each other update the submodelelement with the value from the
-     * AssetConnection.
+     * Check for each SubmodelElement if there is an AssetConnection.If yes read the value from it and compare it to the
+     * current value.If they differ from each other update the submodelelement with the value from the AssetConnection.
      *
      * @param parent of the SubmodelElement List
      * @param submodelElements List of SubmodelElements which should be considered and updated
+     * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
      * @throws ResourceNotFoundException if reference does not point to valid element
      * @throws ResourceNotAContainerElementException if reference does not point to valid element
      * @throws AssetConnectionException if reading value from asset connection fails
@@ -110,7 +110,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      *             asset connection fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
-    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements)
+    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException {
         if (parent == null || submodelElements == null) {
             return;
@@ -126,7 +126,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 }
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
-                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValue());
+                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValue(), publishOnMessageBus);
             }
         }
 
@@ -138,11 +138,13 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             context.getPersistence().update(reference, newElement);
             submodelElements.remove(oldElement);
             submodelElements.add(newElement);
-            context.getMessageBus().publish(ValueChangeEventMessage.builder()
-                    .element(reference)
-                    .oldValue(ElementValueMapper.toValue(oldElement))
-                    .newValue(ElementValueMapper.toValue(newElement))
-                    .build());
+            if (publishOnMessageBus) {
+                context.getMessageBus().publish(ValueChangeEventMessage.builder()
+                        .element(reference)
+                        .oldValue(ElementValueMapper.toValue(oldElement))
+                        .newValue(ElementValueMapper.toValue(newElement))
+                        .build());
+            }
         }
     }
 

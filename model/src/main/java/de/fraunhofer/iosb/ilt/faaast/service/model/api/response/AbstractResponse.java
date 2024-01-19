@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -44,10 +44,7 @@ public abstract class AbstractResponse implements Response {
 
     protected AbstractResponse() {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        this.result = Result.builder()
-                .success(false)
-                .message(new Message())
-                .build();
+        this.result = Result.builder().build();
     }
 
 
@@ -60,7 +57,6 @@ public abstract class AbstractResponse implements Response {
     @Override
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
-        this.result.setSuccess(statusCode.isSuccess());
     }
 
 
@@ -72,7 +68,9 @@ public abstract class AbstractResponse implements Response {
      */
     public void setError(StatusCode statusCode, String message) {
         setStatusCode(statusCode);
-        setResult(Result.error(message));
+        setResult(Result.builder()
+                .message(MessageType.ERROR, message)
+                .build());
     }
 
 
@@ -123,7 +121,10 @@ public abstract class AbstractResponse implements Response {
 
         public B error(StatusCode statusCode, String message) {
             getBuildingInstance().setStatusCode(statusCode);
-            getBuildingInstance().setResult(Result.error(message));
+            getBuildingInstance().setResult(
+                    Result.builder()
+                            .message(MessageType.ERROR, message)
+                            .build());
             return getSelf();
         }
     }

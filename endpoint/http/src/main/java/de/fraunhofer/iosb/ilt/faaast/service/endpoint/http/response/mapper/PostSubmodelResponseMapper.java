@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 
@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 /**
  * Response mapper for {@link PostSubmodelResponse}.
  */
-public class PostSubmodelResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelResponse> {
+public class PostSubmodelResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostSubmodelResponse, PostSubmodelRequest> {
 
     public PostSubmodelResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -31,7 +31,7 @@ public class PostSubmodelResponseMapper extends AbstractPostResponseWithLocation
 
 
     @Override
-    protected String computeLocationHeader(Request<PostSubmodelResponse> apiRequest, PostSubmodelResponse apiResponse) {
+    protected String computeLocationHeader(PostSubmodelRequest apiRequest, PostSubmodelResponse apiResponse) {
         return String.format("/%s", EncodingHelper.base64UrlEncode(apiResponse.getPayload().getId()));
     }
 }

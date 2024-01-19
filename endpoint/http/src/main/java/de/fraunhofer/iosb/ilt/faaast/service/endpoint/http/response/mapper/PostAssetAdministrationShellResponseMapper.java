@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 
@@ -23,7 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 /**
  * Response mapper for {@link PostAssetAdministrationShellResponse}.
  */
-public class PostAssetAdministrationShellResponseMapper extends AbstractPostResponseWithLocationHeaderMapper<PostAssetAdministrationShellResponse> {
+public class PostAssetAdministrationShellResponseMapper
+        extends AbstractPostResponseWithLocationHeaderMapper<PostAssetAdministrationShellResponse, PostAssetAdministrationShellRequest> {
 
     public PostAssetAdministrationShellResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -31,7 +32,7 @@ public class PostAssetAdministrationShellResponseMapper extends AbstractPostResp
 
 
     @Override
-    protected String computeLocationHeader(Request<PostAssetAdministrationShellResponse> apiRequest, PostAssetAdministrationShellResponse apiResponse) {
+    protected String computeLocationHeader(PostAssetAdministrationShellRequest apiRequest, PostAssetAdministrationShellResponse apiResponse) {
         return String.format("/%s", EncodingHelper.base64UrlEncode(apiResponse.getPayload().getId()));
     }
 }
