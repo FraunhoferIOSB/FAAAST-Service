@@ -29,6 +29,11 @@
             <artifactId>jakarta.json-api</artifactId>
             <version>${jakarta.json-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bin-api.version}</version>
+        </dependency>
         <!-- Fixes CVE-2023-42503 -->
         <dependency>
             <groupId>org.apache.commons</groupId>

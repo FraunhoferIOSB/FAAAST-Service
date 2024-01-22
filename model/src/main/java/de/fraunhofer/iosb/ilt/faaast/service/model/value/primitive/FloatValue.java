@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,7 @@ public class FloatValue extends TypedValue<Float> {
 
     @Override
     public String asString() {
-        return Float.toString(value);
+        return DatatypeConverter.printFloat(value);
     }
 
 
@@ -45,7 +46,7 @@ public class FloatValue extends TypedValue<Float> {
             return;
         }
         try {
-            this.setValue(Float.parseFloat(value));
+            this.setValue(DatatypeConverter.parseFloat(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public String asString() {
-        return Double.toString(value);
+        return DatatypeConverter.printDouble(value);
     }
 
 
@@ -45,7 +46,7 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(Double.parseDouble(value));
+            this.setValue(DatatypeConverter.parseDouble(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);

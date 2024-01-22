@@ -28,8 +28,8 @@ public enum Datatype {
     INTEGER("xs:integer", IntegerValue.class, DataTypeDefXsd.INTEGER),
     DOUBLE("xs:double", DoubleValue.class, DataTypeDefXsd.DOUBLE),
     FLOAT("xs:float", FloatValue.class, DataTypeDefXsd.FLOAT),
+    DATE("xs:date", DateValue.class, DataTypeDefXsd.DATE),
     // TODO implement all data types
-    //    Date,
     //    Time,
     DATE_TIME("xs:datetime", DateTimeValue.class, DataTypeDefXsd.DATE_TIME),
     //    DateTimeStamp,
