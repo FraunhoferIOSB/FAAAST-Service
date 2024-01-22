@@ -63,6 +63,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelI
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
@@ -446,7 +447,13 @@ public class JsonApiDeserializer implements ApiDeserializer {
                                 propertyName));
             }
             SubmodelElement temp = DeepCopyHelper.deepCopy(parameterTemplate.get(entry.getKey()));
-            ElementValueMapper.setValue(temp, entry.getValue());
+            try {
+                ElementValueMapper.setValue(temp, entry.getValue());
+            }
+            catch (ValueMappingException ex) {
+                throw new DeserializationException(
+                        String.format("error deserializing value for operation variable '%s'", propertyName));
+            }
             result.add(new DefaultOperationVariable.Builder()
                     .value(temp)
                     .build());

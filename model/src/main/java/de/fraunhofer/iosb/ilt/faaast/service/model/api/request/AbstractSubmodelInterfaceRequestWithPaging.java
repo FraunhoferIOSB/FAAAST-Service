@@ -58,7 +58,7 @@ public abstract class AbstractSubmodelInterfaceRequestWithPaging<T extends Respo
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractSubmodelInterfaceRequestWithPaging that = (AbstractSubmodelInterfaceRequestWithPaging) o;
+        AbstractSubmodelInterfaceRequestWithPaging<T> that = (AbstractSubmodelInterfaceRequestWithPaging<T>) o;
         return super.equals(that)
                 && Objects.equals(pagingInfo, that.pagingInfo);
     }

@@ -135,7 +135,7 @@ public abstract class AbstractRequestWithModifier<T extends Response> extends Re
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractRequestWithModifier that = (AbstractRequestWithModifier) o;
+        AbstractRequestWithModifier<T> that = (AbstractRequestWithModifier<T>) o;
         return super.equals(that)
                 && Objects.equals(outputModifier, that.outputModifier)
                 && Objects.equals(outputModifierConstraints, that.outputModifierConstraints);

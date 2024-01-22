@@ -34,7 +34,7 @@ import org.junit.Test;
 public class EntityValueTest {
 
     @Test
-    public void testSetValueMapping() throws ValueFormatException {
+    public void testSetValueMapping() throws ValueFormatException, ValueMappingException {
         SubmodelElement actual = new DefaultEntity.Builder()
                 .statements(new DefaultProperty.Builder()
                         .idShort("property")
@@ -48,7 +48,7 @@ public class EntityValueTest {
 
 
     @Test
-    public void testEntitySetValueMappingWithNull() throws ValueFormatException {
+    public void testEntitySetValueMappingWithNull() throws ValueFormatException, ValueMappingException {
         SubmodelElement actual = new DefaultEntity.Builder()
                 .statements(new DefaultProperty.Builder()
                         .idShort("property")

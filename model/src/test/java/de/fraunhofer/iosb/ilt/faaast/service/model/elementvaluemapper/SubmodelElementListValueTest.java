@@ -70,7 +70,7 @@ public class SubmodelElementListValueTest {
 
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultSubmodelElementList.Builder()
                 .value(new DefaultProperty.Builder()
                         .idShort("prop1")
@@ -106,7 +106,7 @@ public class SubmodelElementListValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultSubmodelElementList.Builder()
                 .value((List<SubmodelElement>) null)
                 .build();

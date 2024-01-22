@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 
@@ -37,7 +38,7 @@ public class FileValueMapper implements DataValueMapper<File, FileValue> {
 
 
     @Override
-    public File setValue(File submodelElement, FileValue value) {
+    public File setValue(File submodelElement, FileValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
         submodelElement.setContentType(value.getContentType());

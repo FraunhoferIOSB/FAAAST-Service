@@ -29,7 +29,7 @@ import org.junit.Test;
 public class RangeValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultRange.Builder()
                 .build();
         RangeValue value = RangeValue.builder()

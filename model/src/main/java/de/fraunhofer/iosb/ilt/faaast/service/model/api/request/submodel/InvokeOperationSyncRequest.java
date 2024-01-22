@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import java.util.Objects;
 
 
 /**
@@ -32,6 +33,12 @@ public class InvokeOperationSyncRequest extends InvokeOperationRequest<InvokeOpe
         }
         InvokeOperationSyncRequest that = (InvokeOperationSyncRequest) o;
         return super.equals(that);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

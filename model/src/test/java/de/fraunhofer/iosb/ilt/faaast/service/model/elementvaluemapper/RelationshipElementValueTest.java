@@ -31,7 +31,7 @@ import org.junit.Test;
 public class RelationshipElementValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultRelationshipElement.Builder()
                 .build();
         RelationshipElementValue value = createRelationshipElementValue();
@@ -45,7 +45,7 @@ public class RelationshipElementValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultRelationshipElement.Builder()
                 .build();
         RelationshipElementValue value = RelationshipElementValue.builder()

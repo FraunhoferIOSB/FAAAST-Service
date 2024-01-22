@@ -49,7 +49,7 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
 
 
     @Override
-    public AnnotatedRelationshipElement setValue(AnnotatedRelationshipElement submodelElement, AnnotatedRelationshipElementValue value) {
+    public AnnotatedRelationshipElement setValue(AnnotatedRelationshipElement submodelElement, AnnotatedRelationshipElementValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
 
         submodelElement.setFirst(value.getFirst());

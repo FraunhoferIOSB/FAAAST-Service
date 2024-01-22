@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
@@ -264,10 +263,15 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         }
         TypedValue<?> newValue = valueConverter.convert(value, targetType);
         Property newProperty = DeepCopyHelper.deepCopy(element, Property.class);
-        ElementValueMapper.setValue(newProperty,
-                PropertyValue.builder()
-                        .value(newValue)
-                        .build());
+        try {
+            ElementValueMapper.setValue(newProperty,
+                    PropertyValue.builder()
+                            .value(newValue)
+                            .build());
+        }
+        catch (ValueMappingException ex) {
+            throw new AssetConnectionException(String.format("Error updating value from asset connection (idShort: %s)", element.getIdShort()));
+        }
         return new DefaultOperationVariable.Builder()
                 .value(newProperty)
                 .build();
@@ -303,15 +307,20 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     }
 
 
-    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws ValueConversionException {
+    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws AssetConnectionException {
         for (var param: inoutputParameters.entrySet()) {
             String idShortMapped = mapOutputIdShortToArgumentName(param.getKey());
             if (hasOutputArgument(idShortMapped)) {
                 Optional<OperationVariable> ov = Stream.of(inoutputs).filter(y -> Objects.equals(param.getKey(), y.getValue().getIdShort())).findAny();
                 if (ov.isPresent()) {
-                    ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
-                            getOutputArgument(methodResult, idShortMapped),
-                            ((PropertyValue) param.getValue()).getValue().getDataType())));
+                    try {
+                        ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
+                                getOutputArgument(methodResult, idShortMapped),
+                                ((PropertyValue) param.getValue()).getValue().getDataType())));
+                    }
+                    catch (ValueMappingException ex) {
+                        throw new AssetConnectionException(String.format("Error parsing operation inoutput parameter (idShort: %s)", idShortMapped));
+                    }
                 }
             }
         }

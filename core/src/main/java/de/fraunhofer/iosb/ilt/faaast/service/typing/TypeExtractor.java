@@ -51,6 +51,9 @@ public class TypeExtractor {
         }
     }
 
+    private TypeExtractor() {}
+
+
     private static TypeInfo extractTypeInfoForSubmodelElement(SubmodelElement submodelElement) {
         Class<?> type = submodelElement.getClass();
         ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
@@ -98,7 +101,7 @@ public class TypeExtractor {
         ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
         builder.type(Collection.class);
         builder.contentType(TypeToken.of(collection.getClass()).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
-        Iterator iterator = collection.iterator();
+        Iterator<?> iterator = collection.iterator();
         int i = 0;
         while (iterator.hasNext()) {
             builder.element(i, extractTypeInfo(iterator.next()));

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 
@@ -37,7 +38,7 @@ public class RelationshipElementValueMapper implements DataValueMapper<Relations
 
 
     @Override
-    public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) {
+    public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setFirst(value.getFirst());
         submodelElement.setSecond(value.getSecond());

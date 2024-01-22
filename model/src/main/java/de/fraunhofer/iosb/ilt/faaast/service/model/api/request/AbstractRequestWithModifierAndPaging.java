@@ -59,7 +59,7 @@ public abstract class AbstractRequestWithModifierAndPaging<T extends AbstractPag
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractRequestWithModifierAndPaging that = (AbstractRequestWithModifierAndPaging) o;
+        AbstractRequestWithModifierAndPaging<T> that = (AbstractRequestWithModifierAndPaging<T>) o;
         return super.equals(that)
                 && Objects.equals(pagingInfo, that.pagingInfo);
     }

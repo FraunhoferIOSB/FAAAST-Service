@@ -178,7 +178,7 @@ public class PahoClient {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keystore);
 
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
             sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
 

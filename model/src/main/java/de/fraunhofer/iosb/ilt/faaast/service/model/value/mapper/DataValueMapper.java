@@ -44,10 +44,11 @@ public interface DataValueMapper<I extends SubmodelElement, O extends ElementVal
      * @param submodelElement the submodel element to set the value on
      * @param value the value to set
      * @return the updated submodel element with the new value
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException is seeting the value fails
      * @throws IllegalArgumentException if submodelElement is null
      * @throws IllegalArgumentException if value is null
      */
-    public default I setValue(I submodelElement, O value) {
+    public default I setValue(I submodelElement, O value) throws ValueMappingException {
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Ensure.requireNonNull(value, "value must be non-null");
         return submodelElement;

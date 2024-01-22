@@ -49,6 +49,7 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
             case TokenTypes.CLASS_DEF: {
                 classHierarchy.pop();
                 updateCurrentlyInBuilder();
+                break;
             }
             default:
         }
@@ -63,6 +64,7 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
             case TokenTypes.ENUM_DEF: {
                 classHierarchy.push(ast);
                 updateCurrentlyInBuilder();
+                break;
             }
             default:
         }

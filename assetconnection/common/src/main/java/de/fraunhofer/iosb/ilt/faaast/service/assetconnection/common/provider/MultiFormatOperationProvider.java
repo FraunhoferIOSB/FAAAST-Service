@@ -81,17 +81,27 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         Map<String, DataElementValue> output = format.read(response, mapping);
         for (int i = 0; i < inoutput.length; i++) {
             if (output.containsKey(inoutput[i].getValue().getIdShort())) {
-                ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
+                try {
+                    ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
+                }
+                catch (ValueMappingException e) {
+                    throw new AssetConnectionException("error reading inoutput parameters", e);
+                }
             }
         }
         return Stream.of(getOutputParameters())
-                .map(x -> {
+                .map(LambdaExceptionHelper.rethrowFunction(x -> {
                     SubmodelElement newValue = DeepCopyHelper.deepCopy(x.getValue(), SubmodelElement.class);
-                    ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
+                    try {
+                        ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
+                    }
+                    catch (ValueMappingException e) {
+                        throw new AssetConnectionException("error reading output parameters", e);
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(newValue)
                             .build();
-                })
+                }))
                 .toArray(OperationVariable[]::new);
     }
 

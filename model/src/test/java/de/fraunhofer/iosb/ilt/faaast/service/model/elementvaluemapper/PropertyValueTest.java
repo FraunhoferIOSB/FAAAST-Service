@@ -30,7 +30,7 @@ import org.junit.Test;
 public class PropertyValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         PropertyValue value = new PropertyValue(new StringValue("foo"));
         SubmodelElement expected = new DefaultProperty.Builder()
                 .valueType(value.getValue().getDataType().getAas4jDatatype())
@@ -44,7 +44,7 @@ public class PropertyValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         PropertyValue value = new PropertyValue();
         SubmodelElement expected = new DefaultProperty.Builder()
                 .valueType(null)

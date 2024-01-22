@@ -40,7 +40,7 @@ public class RangeValueDeserializer extends ContextAwareElementValueDeserializer
 
     @Override
     public RangeValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        RangeValue.Builder builder = RangeValue.builder();
+        RangeValue.Builder<?> builder = RangeValue.builder();
         if (node.has(JsonFieldNames.RANGE_VALUE_MIN)) {
             builder = builder.min(context.readTreeAsValue(node.get(JsonFieldNames.RANGE_VALUE_MIN), TypedValue.class));
         }

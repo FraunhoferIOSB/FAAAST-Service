@@ -27,7 +27,7 @@ import org.junit.Test;
 public class BlobValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultBlob.Builder()
                 .build();
         BlobValue value = BlobValue.builder()
@@ -44,7 +44,7 @@ public class BlobValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultBlob.Builder()
                 .contentType(null)
                 .value(null)

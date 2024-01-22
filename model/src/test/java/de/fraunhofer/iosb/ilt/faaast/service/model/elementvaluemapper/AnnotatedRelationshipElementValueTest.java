@@ -38,7 +38,7 @@ import org.junit.Test;
 public class AnnotatedRelationshipElementValueTest {
 
     @Test
-    public void testSetValueMapping() throws ValueFormatException {
+    public void testSetValueMapping() throws ValueFormatException, ValueMappingException {
         SubmodelElement actual = new DefaultAnnotatedRelationshipElement.Builder()
                 .annotations(new DefaultProperty.Builder()
                         .idShort("property")
@@ -60,7 +60,7 @@ public class AnnotatedRelationshipElementValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultAnnotatedRelationshipElement.Builder()
                 .annotations((List<DataElement>) null)
                 .first(null)

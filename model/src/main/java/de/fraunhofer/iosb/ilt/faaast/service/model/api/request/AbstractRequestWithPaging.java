@@ -57,7 +57,7 @@ public abstract class AbstractRequestWithPaging<T extends Response> extends Requ
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractRequestWithPaging that = (AbstractRequestWithPaging) o;
+        AbstractRequestWithPaging<T> that = (AbstractRequestWithPaging<T>) o;
         return super.equals(that)
                 && Objects.equals(pagingInfo, that.pagingInfo);
     }

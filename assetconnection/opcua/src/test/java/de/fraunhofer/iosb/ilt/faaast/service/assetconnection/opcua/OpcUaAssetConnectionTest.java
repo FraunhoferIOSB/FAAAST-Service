@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -666,7 +667,12 @@ public class OpcUaAssetConnectionTest {
                     Property property = new DefaultProperty.Builder()
                             .idShort(x.getKey())
                             .build();
-                    ElementValueMapper.setValue(property, x.getValue());
+                    try {
+                        ElementValueMapper.setValue(property, x.getValue());
+                    }
+                    catch (ValueMappingException ex) {
+                        Assert.fail();
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(property)
                             .build();
@@ -677,7 +683,12 @@ public class OpcUaAssetConnectionTest {
                     Property property = new DefaultProperty.Builder()
                             .idShort(x.getKey())
                             .build();
-                    ElementValueMapper.setValue(property, x.getValue());
+                    try {
+                        ElementValueMapper.setValue(property, x.getValue());
+                    }
+                    catch (ValueMappingException ex) {
+                        Assert.fail();
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(property)
                             .build();
@@ -688,7 +699,12 @@ public class OpcUaAssetConnectionTest {
                     Property property = new DefaultProperty.Builder()
                             .idShort(x.getKey())
                             .build();
-                    ElementValueMapper.setValue(property, x.getValue());
+                    try {
+                        ElementValueMapper.setValue(property, x.getValue());
+                    }
+                    catch (ValueMappingException ex) {
+                        Assert.fail();
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(property)
                             .build();
@@ -699,7 +715,12 @@ public class OpcUaAssetConnectionTest {
                     Property property = new DefaultProperty.Builder()
                             .idShort(x.getKey())
                             .build();
-                    ElementValueMapper.setValue(property, x.getValue());
+                    try {
+                        ElementValueMapper.setValue(property, x.getValue());
+                    }
+                    catch (ValueMappingException ex) {
+                        Assert.fail();
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(property)
                             .build();

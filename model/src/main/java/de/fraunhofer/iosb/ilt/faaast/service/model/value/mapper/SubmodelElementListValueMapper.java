@@ -21,8 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,8 +28,6 @@ import org.slf4j.LoggerFactory;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}.
  */
 public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelElementList, SubmodelElementListValue> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementListValueMapper.class);
 
     @Override
     public SubmodelElementListValue toValue(SubmodelElementList submodelElement) throws ValueMappingException {
@@ -53,7 +49,7 @@ public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelE
 
 
     @Override
-    public SubmodelElementList setValue(SubmodelElementList submodelElement, SubmodelElementListValue value) {
+    public SubmodelElementList setValue(SubmodelElementList submodelElement, SubmodelElementListValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         int elementSize = Objects.nonNull(submodelElement.getValue())
                 ? submodelElement.getValue().size()
@@ -62,9 +58,10 @@ public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelE
                 ? value.getValues().size()
                 : 0;
         if (elementSize < valueSize) {
-            // TODO better to throw exception?
-            LOGGER.warn("Loss of information - setting a value with size {} to a SubmodelElementList of size {} results in loss of information",
-                    valueSize, elementSize);
+            throw new ValueMappingException(String.format(
+                    "Loss of information - setting a value with size %d to a SubmodelElementList of size %d results in loss of information",
+                    valueSize,
+                    elementSize));
         }
 
         for (int i = 0; i < Math.min(elementSize, valueSize); i++) {

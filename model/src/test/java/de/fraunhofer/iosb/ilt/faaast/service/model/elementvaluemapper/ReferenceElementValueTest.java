@@ -31,7 +31,7 @@ import org.junit.Test;
 public class ReferenceElementValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultReferenceElement.Builder()
                 .value(new DefaultReference.Builder()
                         .build())
@@ -46,7 +46,7 @@ public class ReferenceElementValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultReferenceElement.Builder()
                 .value(null)
                 .build();

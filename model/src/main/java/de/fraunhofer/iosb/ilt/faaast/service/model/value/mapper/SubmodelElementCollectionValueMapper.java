@@ -49,7 +49,7 @@ public class SubmodelElementCollectionValueMapper implements DataValueMapper<Sub
 
 
     @Override
-    public SubmodelElementCollection setValue(SubmodelElementCollection submodelElement, SubmodelElementCollectionValue value) {
+    public SubmodelElementCollection setValue(SubmodelElementCollection submodelElement, SubmodelElementCollectionValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         if (submodelElement.getValue() != null) {
             for (SubmodelElement element: submodelElement.getValue()) {

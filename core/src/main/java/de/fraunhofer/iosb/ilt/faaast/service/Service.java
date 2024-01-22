@@ -265,8 +265,6 @@ public class Service implements ServiceContext {
         }
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
-            // TODO maybe be less restrictive and only print warning
-            //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {

@@ -63,7 +63,7 @@ public abstract class AbstractResponseMapper<T extends Response, U extends Reque
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AbstractResponseMapper other = (AbstractResponseMapper) obj;
+        final AbstractResponseMapper<T, U> other = (AbstractResponseMapper<T, U>) obj;
         return Objects.equals(this.serviceContext, other.serviceContext);
     }
 

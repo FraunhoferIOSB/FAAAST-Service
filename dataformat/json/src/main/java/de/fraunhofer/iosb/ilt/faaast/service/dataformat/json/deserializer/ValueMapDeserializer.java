@@ -77,7 +77,7 @@ public class ValueMapDeserializer extends MapDeserializer {
                         element.getKey()));
             }
             context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(element.getKey()));
-            Class type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
+            Class<?> type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
             result.put(element.getKey(), context.readTreeAsValue(element.getValue(), type));
         }
         return result;

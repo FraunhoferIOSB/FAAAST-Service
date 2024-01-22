@@ -67,7 +67,7 @@ public class AssetConnectionManager {
                 return new Thread(target, String.format("asset connection establisher - %d", count.getAndIncrement()));
             }
         };
-        scheduledExecutorService = Executors.newScheduledThreadPool(connections.size(), threadFactory);
+        scheduledExecutorService = Executors.newScheduledThreadPool(this.connections.size(), threadFactory);
     }
 
 

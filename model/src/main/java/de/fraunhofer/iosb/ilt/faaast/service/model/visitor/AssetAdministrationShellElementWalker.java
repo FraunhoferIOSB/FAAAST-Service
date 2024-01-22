@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -579,12 +578,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                         .filter(x -> x.getName().equals("visit"))
                         .filter(x -> x.getParameterCount() == 1)
                         .filter(x -> x.getParameters()[0].getType().isAssignableFrom(obj.getClass()))
-                        .sorted(new Comparator<Method>() {
-                            @Override
-                            public int compare(Method m1, Method m2) {
-                                return -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType());
-                            }
-                        })
+                        .sorted((Method m1, Method m2) -> -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType()))
                         .findFirst();
                 if (method.isPresent()) {
                     method.get().invoke(this, obj);
@@ -630,12 +624,8 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                         .filter(x -> x.getName().equals("visit"))
                         .filter(x -> x.getParameterCount() == 1)
                         .filter(x -> x.getParameters()[0].getType().isAssignableFrom(obj.getClass()))
-                        .sorted(new Comparator<Method>() {
-                            @Override
-                            public int compare(Method m1, Method m2) {
-                                return -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType());
-                            }
-                        }).collect(Collectors.toList());
+                        .sorted((Method m1, Method m2) -> -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType()))
+                        .collect(Collectors.toList());
                 for (Method method: methods) {
                     try {
                         method.setAccessible(true);

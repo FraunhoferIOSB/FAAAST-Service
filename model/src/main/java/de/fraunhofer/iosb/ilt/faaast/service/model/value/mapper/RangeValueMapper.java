@@ -45,7 +45,7 @@ public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {
 
 
     @Override
-    public Range setValue(Range submodelElement, RangeValue value) {
+    public Range setValue(Range submodelElement, RangeValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         if (value.getMin() != null && value.getMin().getValue() != null) {
             submodelElement.setValueType(value.getMin().getDataType().getAas4jDatatype());

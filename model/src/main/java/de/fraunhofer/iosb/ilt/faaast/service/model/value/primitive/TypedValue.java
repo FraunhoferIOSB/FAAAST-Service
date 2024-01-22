@@ -55,7 +55,7 @@ public abstract class TypedValue<T> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final TypedValue other = (TypedValue) obj;
+        final TypedValue<T> other = (TypedValue<T>) obj;
         return Objects.equals(value, other.value);
     }
 

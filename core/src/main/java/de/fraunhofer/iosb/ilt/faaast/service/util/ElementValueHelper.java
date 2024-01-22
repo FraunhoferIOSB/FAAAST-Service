@@ -70,18 +70,18 @@ public class ElementValueHelper {
         if (obj == null) {
             return true;
         }
-        Class type = obj.getClass();
+        Class<?> type = obj.getClass();
         if (type.isArray()) {
-            return Stream.of((Object[]) obj).allMatch(x -> isValueOnlySupported(x));
+            return Stream.of((Object[]) obj).allMatch(ElementValueHelper::isValueOnlySupported);
         }
         if (Collection.class.isAssignableFrom(type)) {
-            return ((Collection) obj).stream().allMatch(x -> isValueOnlySupported(x));
+            return ((Collection) obj).stream().allMatch(ElementValueHelper::isValueOnlySupported);
         }
         if (Map.class.isAssignableFrom(type)) {
-            return ((Map) obj).values().stream().allMatch(x -> isValueOnlySupported(x));
+            return ((Map) obj).values().stream().allMatch(ElementValueHelper::isValueOnlySupported);
         }
         if (Page.class.isAssignableFrom(type)) {
-            return ((Page) obj).getContent().stream().allMatch(x -> isValueOnlySupported(x));
+            return ((Page) obj).getContent().stream().allMatch(ElementValueHelper::isValueOnlySupported);
         }
         return isValueOnlySupported(type);
     }

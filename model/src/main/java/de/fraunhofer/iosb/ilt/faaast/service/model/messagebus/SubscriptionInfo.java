@@ -124,7 +124,7 @@ public class SubscriptionInfo {
     public void setSubscribedEvents(Set<Class<?>> subscribedEvents) {
         if (subscribedEvents != null) {
             this.subscribedEvents = subscribedEvents.stream()
-                    .filter(x -> EventMessage.class.isAssignableFrom(x))
+                    .filter(EventMessage.class::isAssignableFrom)
                     .collect(Collectors.toSet());
         }
         else {

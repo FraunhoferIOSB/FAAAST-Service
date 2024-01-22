@@ -43,7 +43,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
     }
 
 
-    private Class getInlineTypeInfo(JsonNode root) {
+    private Class<?> getInlineTypeInfo(JsonNode root) {
         if (Objects.isNull(root) || !root.hasNonNull(JsonFieldNames.EVENT_MODELTYPE)) {
             return null;
         }

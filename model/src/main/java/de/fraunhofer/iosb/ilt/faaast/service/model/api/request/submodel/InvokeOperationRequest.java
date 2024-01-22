@@ -92,7 +92,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InvokeOperationRequest that = (InvokeOperationRequest) o;
+        InvokeOperationRequest<T> that = (InvokeOperationRequest<T>) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && ObjectHelper.equalsIgnoreOrder(inputArguments, that.inputArguments)

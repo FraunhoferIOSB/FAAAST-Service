@@ -63,11 +63,13 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
         context.getPersistence().update(reference, newSubmodelElement);
-        if (Objects.isNull(oldSubmodelElement) && !request.isInternal()) {
-            context.getMessageBus().publish(ElementCreateEventMessage.builder()
-                    .element(reference)
-                    .value(newSubmodelElement)
-                    .build());
+        if (Objects.isNull(oldSubmodelElement)) {
+            if (!request.isInternal()) {
+                context.getMessageBus().publish(ElementCreateEventMessage.builder()
+                        .element(reference)
+                        .value(newSubmodelElement)
+                        .build());
+            }
         }
         else if (Objects.equals(oldSubmodelElement.getClass(), newSubmodelElement.getClass())
                 && ElementValueHelper.isSerializableAsValue(oldSubmodelElement.getClass())) {

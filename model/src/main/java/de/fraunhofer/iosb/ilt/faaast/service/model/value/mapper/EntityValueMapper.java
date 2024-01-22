@@ -49,7 +49,7 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
 
 
     @Override
-    public Entity setValue(Entity submodelElement, EntityValue value) {
+    public Entity setValue(Entity submodelElement, EntityValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         if (value != null) {
             for (SubmodelElement statement: submodelElement.getStatements()) {

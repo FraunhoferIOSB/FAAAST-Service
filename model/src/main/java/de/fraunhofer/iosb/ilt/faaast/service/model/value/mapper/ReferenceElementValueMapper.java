@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 
@@ -36,7 +37,7 @@ public class ReferenceElementValueMapper implements DataValueMapper<ReferenceEle
 
 
     @Override
-    public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) {
+    public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
         return submodelElement;

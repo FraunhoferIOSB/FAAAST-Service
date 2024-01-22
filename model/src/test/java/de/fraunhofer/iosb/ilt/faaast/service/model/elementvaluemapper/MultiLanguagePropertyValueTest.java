@@ -55,7 +55,7 @@ public class MultiLanguagePropertyValueTest {
 
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultMultiLanguageProperty.Builder()
                 .build();
         MultiLanguagePropertyValue value = MultiLanguagePropertyValue.builder()
@@ -71,7 +71,7 @@ public class MultiLanguagePropertyValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultMultiLanguageProperty.Builder()
                 .build();
         MultiLanguagePropertyValue value = MultiLanguagePropertyValue.builder()

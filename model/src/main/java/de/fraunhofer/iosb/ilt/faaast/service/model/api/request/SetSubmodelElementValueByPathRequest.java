@@ -74,7 +74,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SetSubmodelElementValueByPathRequest that = (SetSubmodelElementValueByPathRequest) o;
+        SetSubmodelElementValueByPathRequest<T> that = (SetSubmodelElementValueByPathRequest<T>) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(rawValue, that.rawValue);
@@ -121,8 +121,8 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
 
         @Override
-        protected SetSubmodelElementValueByPathRequest newBuildingInstance() {
-            return new SetSubmodelElementValueByPathRequest();
+        protected SetSubmodelElementValueByPathRequest<T> newBuildingInstance() {
+            return new SetSubmodelElementValueByPathRequest<>();
         }
     }
 }

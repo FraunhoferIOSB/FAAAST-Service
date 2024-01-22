@@ -309,12 +309,11 @@ public class ReferenceHelper {
         try {
             Reference result = referenceType.getConstructor().newInstance();
             // check if optional [<ReferenceTypes>] is present, if so, check for consistency
-            //TODO: consolidate the different parse methods and check why we need to remove the first square brackets, for example"[MODEL_REFERENCE]"
             if (reference.startsWith(SQUARE_BRACKET_LEFT)) {
                 reference = reference.substring(reference.indexOf(SQUARE_BRACKET_RIGHT) + 1);
             }
             result.setKeys(Stream.of(reference.split(KEY_SEPARATOR))
-                    .map(x -> parseKey(x))
+                    .map(ReferenceHelper::parseKey)
                     .collect(Collectors.toList()));
             if (!result.getKeys().isEmpty()) {
                 if (result.getType() == null) {

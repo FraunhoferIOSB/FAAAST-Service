@@ -43,6 +43,9 @@ public class ElementValueMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValueMapper.class);
     private static Map<Class<? extends SubmodelElement>, ? extends DataValueMapper> mappers;
 
+    private ElementValueMapper() {}
+
+
     private static void init() {
         if (mappers == null) {
             ScanResult scanResult = new ClassGraph()
@@ -178,20 +181,20 @@ public class ElementValueMapper {
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement
-     * @param <I> type of the input/output SubmodelElement
-     * @param <O> type of the input ElementValue
+     * @param <T> type of the input/output SubmodelElement
      * @return the SubmodelElement instance with the ElementValue values set
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if setting the value fails
      * @throws IllegalArgumentException if submodelElement is null
      * @throws IllegalArgumentException is no mapper for type of submodelElement
      */
-    public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
+    public static <T extends SubmodelElement> T setValue(T submodelElement, ElementValue elementValue) throws ValueMappingException {
         init();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Ensure.requireNonNull(elementValue, "elementValue must be non-null");
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
-        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
+        return (T) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
     }
 
 }

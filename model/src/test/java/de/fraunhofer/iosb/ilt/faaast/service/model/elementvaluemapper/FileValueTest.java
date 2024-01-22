@@ -27,7 +27,7 @@ import org.junit.Test;
 public class FileValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultFile.Builder()
                 .build();
         FileValue value = FileValue.builder()
@@ -44,7 +44,7 @@ public class FileValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultFile.Builder()
                 .build();
         FileValue value = FileValue.builder()

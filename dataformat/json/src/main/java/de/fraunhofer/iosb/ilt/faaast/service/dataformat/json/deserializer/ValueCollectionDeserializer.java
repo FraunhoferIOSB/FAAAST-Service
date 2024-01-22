@@ -67,7 +67,7 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
         }
         for (int i = 0; i < node.size(); i++) {
             context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(i));
-            Class type = ((TypeInfo) typeInfo.getElements().get(i)).getType();
+            Class<?> type = ((TypeInfo) typeInfo.getElements().get(i)).getType();
             Object element = context.readTreeAsValue(node.get(i), type);
             result.add(element);
         }

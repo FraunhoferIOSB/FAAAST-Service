@@ -45,7 +45,7 @@ public class PropertyValueMapper implements DataValueMapper<Property, PropertyVa
 
 
     @Override
-    public Property setValue(Property submodelElement, PropertyValue value) {
+    public Property setValue(Property submodelElement, PropertyValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         TypedValue<?> propertyValue = value.getValue();
         if (propertyValue != null) {

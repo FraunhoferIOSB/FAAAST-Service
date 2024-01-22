@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 
@@ -37,7 +38,7 @@ public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
 
 
     @Override
-    public Blob setValue(Blob submodelElement, BlobValue value) {
+    public Blob setValue(Blob submodelElement, BlobValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
         submodelElement.setContentType(value.getContentType());
