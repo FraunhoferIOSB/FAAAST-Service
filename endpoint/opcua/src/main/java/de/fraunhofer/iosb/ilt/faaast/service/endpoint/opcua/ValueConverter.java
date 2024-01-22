@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -697,7 +698,7 @@ public class ValueConverter {
      * @param value The input Java date time
      * @return The OPC UA date time
      */
-    public static DateTime createDateTime(ZonedDateTime value) {
+    public static DateTime createDateTime(OffsetDateTime value) {
         return DateTime.fromInstant(value.toInstant());
     }
 
@@ -709,7 +710,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
-        return DateTime.fromInstant(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toInstant());
+        return DateTime.fromInstant(value.atZone(OffsetDateTime.now(ZoneId.systemDefault()).getOffset()).toInstant());
     }
 
 
@@ -718,7 +719,7 @@ public class ValueConverter {
         if (variant.getValue() != null) {
             // special treatment for DateTime
             if (variant.getValue() instanceof DateTime) {
-                retval = ZonedDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
+                retval = OffsetDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();
@@ -735,9 +736,9 @@ public class ValueConverter {
         if (value == null) {
             retval = Variant.NULL;
         }
-        else if (value instanceof ZonedDateTime) {
+        else if (value instanceof OffsetDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((ZonedDateTime) value));
+            retval = new Variant(createDateTime((OffsetDateTime) value));
         }
         else if (value instanceof LocalDateTime) {
             // special treatment for DateTime
@@ -760,7 +761,7 @@ public class ValueConverter {
             retval = Long.valueOf(retval.toString());
         }
         else if (typedValue instanceof DateTimeValue) {
-            retval = ValueConverter.createDateTime((ZonedDateTime) retval);
+            retval = ValueConverter.createDateTime((OffsetDateTime) retval);
         }
         return retval;
     }

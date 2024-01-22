@@ -15,14 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.math.BigInteger;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -133,12 +132,12 @@ public class ValueConverter {
             BuiltinDataType builtinDataType = BuiltinDataType.fromNodeId(targetType);
             if (value.getValue() != null && Objects.equals(builtinDataType.getBackingClass(), value.getValue().getClass())) {
                 if ((value.getDataType() == Datatype.DATE_TIME) && (targetType == Identifiers.DateTime)) {
-                    return new Variant(new DateTime(((ZonedDateTime) value.getValue()).toInstant()));
+                    return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
                 }
                 return new Variant(value.getValue());
             }
             if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(Identifiers.DateTime))) {
-                return new Variant(new DateTime(((ZonedDateTime) value.getValue()).toInstant()));
+                return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
             return new Variant(ImplicitConversions.convert(value.getValue(), builtinDataType));
         }
@@ -149,7 +148,7 @@ public class ValueConverter {
             try {
                 if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
-                            ZonedDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toString());
+                            OffsetDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.systemDefault()).toString());
                 }
                 else {
                     return TypedValueFactory.create(targetType, value.getValue().toString());

@@ -30,7 +30,7 @@ public enum Datatype {
     FLOAT("xs:float", FloatValue.class, DataTypeDefXsd.FLOAT),
     DATE("xs:date", DateValue.class, DataTypeDefXsd.DATE),
     // TODO implement all data types
-    //    Time,
+    TIME("xs:time", TimeValue.class, DataTypeDefXsd.TIME),
     DATE_TIME("xs:datetime", DateTimeValue.class, DataTypeDefXsd.DATE_TIME),
     //    DateTimeStamp,
     //    gYear,

@@ -21,15 +21,12 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Calendar;
-import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * A date value.
  */
-public class DateValue extends TypedValue<OffsetDateTime> {
-
-    private boolean isLocal = false;
+public class DateValue extends AbstractDateTimeValue<OffsetDateTime> {
 
     public DateValue() {
         super();
@@ -41,48 +38,30 @@ public class DateValue extends TypedValue<OffsetDateTime> {
     }
 
 
-    private static boolean isLocal(String value) {
-        try {
-            DateTimeFormatter.ISO_LOCAL_DATE.parse(value);
-            return true;
-        }
-        catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-
-    @Override
-    public void fromString(String value) throws ValueFormatException {
-        if (StringUtils.isAllBlank(value)) {
-            this.setValue(null);
-            return;
-        }
-        try {
-            Calendar calendar = DatatypeConverter.parseDate(value);
-            ZoneOffset offset = calendar.getTimeZone().toZoneId().getRules().getOffset(Instant.now());
-            setValue(calendar.getTime().toInstant().atOffset(offset));
-            isLocal = isLocal(value);
-        }
-        catch (IllegalArgumentException e) {
-            throw new ValueFormatException(
-                    String.format("unable to parse value (value: %s, type: %s)",
-                            value, getDataType()),
-                    e);
-        }
-    }
-
-
-    @Override
-    public String asString() {
-        return DateTimeFormatter.ofPattern(isLocal ? "yyyy-MM-dd" : "yyyy-MM-ddXXX")
-                .format(value);
-    }
-
-
     @Override
     public Datatype getDataType() {
         return Datatype.DATE;
+    }
+
+
+    @Override
+    protected DateTimeFormatter getFormatLocal() {
+        return DateTimeFormatter.ISO_LOCAL_DATE;
+    }
+
+
+    @Override
+    protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
+        Calendar calendar = DatatypeConverter.parseDate(value);
+        return calendar.getTime().toInstant().atOffset(offset);
+    }
+
+
+    @Override
+    protected OffsetDateTime parseOffset(String value) throws DateTimeParseException {
+        Calendar calendar = DatatypeConverter.parseDate(value);
+        ZoneOffset offset = calendar.getTimeZone().toZoneId().getRules().getOffset(Instant.now());
+        return calendar.getTime().toInstant().atOffset(offset);
     }
 
 }

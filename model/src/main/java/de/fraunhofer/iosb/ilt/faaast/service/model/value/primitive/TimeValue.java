@@ -14,49 +14,49 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 
 /**
- * A datetime value.
+ * A time value.
  */
-public class DateTimeValue extends AbstractDateTimeValue<OffsetDateTime> {
+public class TimeValue extends AbstractDateTimeValue<OffsetTime> {
 
-    public DateTimeValue() {
+    public TimeValue() {
         super();
     }
 
 
-    public DateTimeValue(OffsetDateTime value) {
+    public TimeValue(OffsetTime value) {
         super(value);
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DATE_TIME;
+        return Datatype.DATE;
     }
 
 
     @Override
     protected DateTimeFormatter getFormatLocal() {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return DateTimeFormatter.ISO_LOCAL_TIME;
     }
 
 
     @Override
-    protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
-        return OffsetDateTime.of(LocalDateTime.parse(value), offset);
+    protected OffsetTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
+        return OffsetTime.of(LocalTime.parse(value), offset);
     }
 
 
     @Override
-    protected OffsetDateTime parseOffset(String value) throws DateTimeParseException {
-        return OffsetDateTime.parse(value);
+    protected OffsetTime parseOffset(String value) throws DateTimeParseException {
+        return OffsetTime.parse(value);
     }
 
 }
