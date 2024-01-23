@@ -181,6 +181,51 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     Identifiers.UtcTime,
                     new Variant(DateTime.now())
             },
+            {
+                    "DateString",
+                    Identifiers.String,
+                    new Variant("2000-01-01+12:05")
+            },
+            {
+                    "TimeString",
+                    Identifiers.String,
+                    new Variant("14:23:00.527634+03:00")
+            },
+            {
+                    "DateTimeString",
+                    Identifiers.String,
+                    new Variant("2000-01-01T14:23:00.66372+14:00")
+            },
+            {
+                    "YearString",
+                    Identifiers.String,
+                    new Variant("2000+03:00")
+            },
+            {
+                    "MonthString",
+                    Identifiers.String,
+                    new Variant("--02+03:00")
+            },
+            {
+                    "DayString",
+                    Identifiers.String,
+                    new Variant("---04+03:00")
+            },
+            {
+                    "YearMonthString",
+                    Identifiers.String,
+                    new Variant("2000-02+03:00")
+            },
+            {
+                    "MonthDayString",
+                    Identifiers.String,
+                    new Variant("--02-04+03:00")
+            },
+            {
+                    "DurationString",
+                    Identifiers.String,
+                    new Variant("-P1Y2M3DT1H")
+            }
     };
 
     private static final Object[][] STATIC_ARRAY_NODES = new Object[][] {

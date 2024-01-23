@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
@@ -22,10 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.datatype.DatatypeFactory;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
@@ -43,12 +46,33 @@ public class ValueConverter {
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
 
     public ValueConverter() {
-        this.aasToOpcUaConverters = new HashMap<>();
+        this.aasToOpcUaConverters = new HashMap<>() {};
         this.opcUaToAasConverters = new HashMap<>();
         register(Datatype.INTEGER, Identifiers.Integer, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
                 return new Variant(((BigInteger) value.getValue()).intValueExact());
+            }
+        });
+        register(Datatype.DURATION, Identifiers.Duration, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(Long.valueOf(((DurationValue) value).getValue().getTimeInMillis(new Date())).doubleValue());
+            }
+        });
+        register(Datatype.DURATION, Identifiers.Double, new OpcUaToAasValueConverter() {
+            public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+                if (Objects.isNull(value) || value.isNull()) {
+                    return null;
+                }
+                try {
+                    return new DurationValue(
+                            DatatypeFactory.newDefaultInstance().newDuration(
+                                    Double.valueOf(value.getValue().toString()).longValue()));
+                }
+                catch (NumberFormatException e) {
+                    throw new ValueConversionException(e);
+                }
             }
         });
     }
@@ -126,6 +150,9 @@ public class ValueConverter {
 
         @Override
         public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+            if (Objects.isNull(value) || Objects.isNull(value.getValue())) {
+                return new Variant(null);
+            }
             if (!BuiltinDataType.isBuiltin(targetType)) {
                 throw new ValueConversionException(String.format("encountered unsupported OPC UA data type (node id: %s)", targetType));
             }
@@ -139,7 +166,11 @@ public class ValueConverter {
             if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(Identifiers.DateTime))) {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
             }
-            return new Variant(ImplicitConversions.convert(value.getValue(), builtinDataType));
+            Object implicit = ImplicitConversions.convert(value.getValue(), builtinDataType);
+            if (Objects.isNull(implicit) && Objects.equals(String.class, builtinDataType.getBackingClass())) {
+                return new Variant(value.asString());
+            }
+            return new Variant(implicit);
         }
 
 
