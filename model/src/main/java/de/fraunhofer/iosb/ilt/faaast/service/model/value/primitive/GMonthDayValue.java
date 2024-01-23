@@ -27,13 +27,6 @@ import java.time.temporal.ChronoField;
  */
 public class GMonthDayValue extends AbstractDateTimeValue<OffsetDateTime> {
 
-    private static final DateTimeFormatter BASE_FORMAT = new DateTimeFormatterBuilder()
-            .append(DateTimeFormatter.ofPattern("--MM-dd"))
-            .parseDefaulting(ChronoField.YEAR, 0)
-            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-            .toFormatter();
-
     public GMonthDayValue() {
         super();
     }
@@ -51,19 +44,12 @@ public class GMonthDayValue extends AbstractDateTimeValue<OffsetDateTime> {
 
 
     @Override
-    protected DateTimeFormatter getFormatLocal() {
+    protected DateTimeFormatter getFormatBase() {
         return new DateTimeFormatterBuilder()
-                .append(BASE_FORMAT)
-                .parseDefaulting(ChronoField.OFFSET_SECONDS, 0)
-                .toFormatter();
-    }
-
-
-    @Override
-    protected DateTimeFormatter getFormatOffset() {
-        return new DateTimeFormatterBuilder()
-                .append(BASE_FORMAT)
-                .appendZoneOrOffsetId()
+                .append(DateTimeFormatter.ofPattern("--MM-dd"))
+                .parseDefaulting(ChronoField.YEAR, 0)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
                 .toFormatter();
     }
 

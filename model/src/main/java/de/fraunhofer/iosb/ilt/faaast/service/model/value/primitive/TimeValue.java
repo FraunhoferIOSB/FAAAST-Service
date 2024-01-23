@@ -43,7 +43,7 @@ public class TimeValue extends AbstractDateTimeValue<OffsetTime> {
 
 
     @Override
-    protected DateTimeFormatter getFormatLocal() {
+    protected DateTimeFormatter getFormatBase() {
         return DateTimeFormatter.ISO_LOCAL_TIME;
     }
 

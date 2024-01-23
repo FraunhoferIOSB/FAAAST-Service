@@ -27,14 +27,6 @@ import java.time.temporal.ChronoField;
  */
 public class GYearValue extends AbstractDateTimeValue<OffsetDateTime> {
 
-    private static final DateTimeFormatter FORMAT_BASE = new DateTimeFormatterBuilder()
-            .append(DateTimeFormatter.ofPattern("yyyy"))
-            .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
-            .parseDefaulting(ChronoField.DAY_OF_YEAR, 1)
-            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-            .toFormatter();
-
     public GYearValue() {
         super();
     }
@@ -52,19 +44,13 @@ public class GYearValue extends AbstractDateTimeValue<OffsetDateTime> {
 
 
     @Override
-    protected DateTimeFormatter getFormatLocal() {
+    protected DateTimeFormatter getFormatBase() {
         return new DateTimeFormatterBuilder()
-                .append(FORMAT_BASE)
-                .parseDefaulting(ChronoField.OFFSET_SECONDS, 0)
-                .toFormatter();
-    }
-
-
-    @Override
-    protected DateTimeFormatter getFormatOffset() {
-        return new DateTimeFormatterBuilder()
-                .append(FORMAT_BASE)
-                .appendZoneOrOffsetId()
+                .append(DateTimeFormatter.ofPattern("yyyy"))
+                .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
+                .parseDefaulting(ChronoField.DAY_OF_YEAR, 1)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
                 .toFormatter();
     }
 
