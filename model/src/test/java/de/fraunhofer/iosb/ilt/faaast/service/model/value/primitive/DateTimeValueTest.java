@@ -24,12 +24,12 @@ import org.junit.Test;
 
 public class DateTimeValueTest {
 
-    private static DateTimeFormatter dateTimeFormatted = new DateTimeFormatterBuilder()
+    private static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
             .append(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
             .toFormatter();
 
     @Test
-    public void testNormalOnly() throws ValueFormatException {
+    public void testSimple() throws ValueFormatException {
         String value = "2000-01-01T14:23:00";
         OffsetDateTime expected = OffsetDateTime.of(2000, 1, 1, 14, 23, 0, 0, OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
         TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
@@ -41,7 +41,7 @@ public class DateTimeValueTest {
     @Test
     public void testWithUTC() throws ValueFormatException {
         String value = "2000-01-01T14:23:00Z";
-        OffsetDateTime expected = OffsetDateTime.parse(value, dateTimeFormatted);
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
         TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -51,7 +51,7 @@ public class DateTimeValueTest {
     @Test
     public void testWithMillisAndUTC() throws ValueFormatException {
         String value = "2000-01-01T14:23:00.66372Z";
-        OffsetDateTime expected = OffsetDateTime.parse(value, dateTimeFormatted);
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
         TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -61,7 +61,7 @@ public class DateTimeValueTest {
     @Test
     public void testWithOffset() throws ValueFormatException {
         String value = "2000-01-01T14:23:00+14:00";
-        OffsetDateTime expected = OffsetDateTime.parse(value, dateTimeFormatted);
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
         TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -71,7 +71,7 @@ public class DateTimeValueTest {
     @Test
     public void testWithMillisAndOffset() throws ValueFormatException {
         String value = "2000-01-01T14:23:00.66372+14:00";
-        OffsetDateTime expected = OffsetDateTime.parse(value, dateTimeFormatted);
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
         TypedValue actual = TypedValueFactory.create(Datatype.DATE_TIME, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());

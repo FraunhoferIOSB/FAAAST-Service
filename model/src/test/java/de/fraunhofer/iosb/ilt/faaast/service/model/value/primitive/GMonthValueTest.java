@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -23,20 +22,31 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class DateValueTest {
+public class GMonthValueTest {
 
-    private static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
-            .append(DateTimeFormatter.ISO_OFFSET_DATE)
+    private static final DateTimeFormatter FORMAT_BASE = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ofPattern("--MM"))
+            .parseDefaulting(ChronoField.YEAR, 0)
+            .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
             .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
             .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+            .toFormatter();
+
+    private static final DateTimeFormatter FORMAT_LOCAL = new DateTimeFormatterBuilder()
+            .append(FORMAT_BASE)
             .parseDefaulting(ChronoField.OFFSET_SECONDS, 0)
+            .toFormatter();
+
+    private static final DateTimeFormatter FORMAT_OFFSET = new DateTimeFormatterBuilder()
+            .append(FORMAT_BASE)
+            .appendZoneOrOffsetId()
             .toFormatter();
 
     @Test
     public void testSimple() throws ValueFormatException {
-        String value = "2000-01-01";
-        OffsetDateTime expected = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
-        TypedValue actual = TypedValueFactory.create(Datatype.DATE, value);
+        String value = "--04";
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_LOCAL);
+        TypedValue actual = TypedValueFactory.create(Datatype.GMONTH, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
@@ -44,9 +54,9 @@ public class DateValueTest {
 
     @Test
     public void testWithUTC() throws ValueFormatException {
-        String value = "2000-01-01Z";
-        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
-        TypedValue actual = TypedValueFactory.create(Datatype.DATE, value);
+        String value = "--04Z";
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_OFFSET);
+        TypedValue actual = TypedValueFactory.create(Datatype.GMONTH, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
@@ -54,9 +64,9 @@ public class DateValueTest {
 
     @Test
     public void testWithOffset() throws ValueFormatException {
-        String value = "2000-01-01+12:05";
-        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT);
-        TypedValue actual = TypedValueFactory.create(Datatype.DATE, value);
+        String value = "--04+03:00";
+        OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_OFFSET);
+        TypedValue actual = TypedValueFactory.create(Datatype.GMONTH, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
