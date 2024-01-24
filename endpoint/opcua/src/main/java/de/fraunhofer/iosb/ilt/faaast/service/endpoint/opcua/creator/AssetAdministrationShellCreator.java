@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import com.prosysopc.ua.StatusException;
-import com.prosysopc.ua.UaBrowsePath;
+import com.prosysopc.ua.UaBrowseNamePath;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.server.instantiation.TypeDefinitionBasedNodeBuilderConfiguration;
@@ -75,7 +75,7 @@ public class AssetAdministrationShellCreator {
         TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
         Reference derivedFrom = aas.getDerivedFrom();
         if (derivedFrom != null) {
-            UaBrowsePath bp = UaBrowsePath.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType,
+            UaBrowseNamePath bp = UaBrowseNamePath.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType,
                     UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
             conf.addOptional(bp);
         }
