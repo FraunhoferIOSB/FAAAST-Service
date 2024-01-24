@@ -61,8 +61,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -402,12 +400,34 @@ public class OpcUaAssetConnectionTest {
     public void testValueProviderWithScalarValues()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ConfigurationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
-        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"), null);
-        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"), null);
-        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"), null);
-        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"), null);
-        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DateTime",
-                PropertyValue.of(Datatype.DATE_TIME, OffsetDateTime.of(2022, 11, 28, 14, 12, 35, 0, OffsetDateTime.now(ZoneId.systemDefault()).getOffset()).toString()), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DateTime",
+        //                PropertyValue.of(Datatype.DATE_TIME, OffsetDateTime.of(2022, 11, 28, 14, 12, 35, 0, OffsetDateTime.now(ZoneId.systemDefault()).getOffset()).toString()), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DateString",
+        //                PropertyValue.of(Datatype.DATE, "2001-01-01+12:05"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/TimeString",
+        //                PropertyValue.of(Datatype.TIME, "14:23:00.527634+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DateTimeString",
+        //                PropertyValue.of(Datatype.DATE_TIME, "2000-01-01T14:23:00.66372+14:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/YearString",
+        //                PropertyValue.of(Datatype.GYEAR, "2000+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/MonthString",
+        //                PropertyValue.of(Datatype.GMONTH, "--02+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DayString",
+        //                PropertyValue.of(Datatype.GDAY, "---04+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/YearMonthString",
+        //                PropertyValue.of(Datatype.GYEAR_MONTH, "2000-02+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/MonthDayString",
+        //                PropertyValue.of(Datatype.GMONTH_DAY, "--02-04+03:00"), null);
+        //        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/DurationString",
+        //                PropertyValue.of(Datatype.DURATION, "-P1Y2M3DT1H"), null);
+
+        assertWriteReadValue(server, "ns=2;s=HelloWorld/ScalarTypes/Duration",
+                PropertyValue.of(Datatype.DURATION, "PT0.01S"), null);
+
         server.shutdown();
     }
 

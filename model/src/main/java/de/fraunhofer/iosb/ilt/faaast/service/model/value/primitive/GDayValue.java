@@ -46,7 +46,7 @@ public class GDayValue extends AbstractDateTimeValue<OffsetDateTime> {
     @Override
     protected DateTimeFormatter getFormatBase() {
         return new DateTimeFormatterBuilder()
-                .append(DateTimeFormatter.ofPattern("--dd"))
+                .append(DateTimeFormatter.ofPattern("---dd"))
                 .parseDefaulting(ChronoField.YEAR, 0)
                 .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
                 .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)

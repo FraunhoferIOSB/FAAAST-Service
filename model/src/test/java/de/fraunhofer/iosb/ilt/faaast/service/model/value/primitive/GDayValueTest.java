@@ -25,7 +25,7 @@ import org.junit.Test;
 public class GDayValueTest {
 
     private static final DateTimeFormatter FORMAT_BASE = new DateTimeFormatterBuilder()
-            .append(DateTimeFormatter.ofPattern("--dd"))
+            .append(DateTimeFormatter.ofPattern("---dd"))
             .parseDefaulting(ChronoField.YEAR, 0)
             .parseDefaulting(ChronoField.MONTH_OF_YEAR, 1)
             .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
@@ -44,7 +44,7 @@ public class GDayValueTest {
 
     @Test
     public void testSimple() throws ValueFormatException {
-        String value = "--04";
+        String value = "---04";
         OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_LOCAL);
         TypedValue actual = TypedValueFactory.create(Datatype.GDAY, value);
         Assert.assertEquals(expected, actual.getValue());
@@ -54,7 +54,7 @@ public class GDayValueTest {
 
     @Test
     public void testWithUTC() throws ValueFormatException {
-        String value = "--04Z";
+        String value = "---04Z";
         OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_OFFSET);
         TypedValue actual = TypedValueFactory.create(Datatype.GDAY, value);
         Assert.assertEquals(expected, actual.getValue());
@@ -64,7 +64,7 @@ public class GDayValueTest {
 
     @Test
     public void testWithOffset() throws ValueFormatException {
-        String value = "--04+03:00";
+        String value = "---04+03:00";
         OffsetDateTime expected = OffsetDateTime.parse(value, FORMAT_OFFSET);
         TypedValue actual = TypedValueFactory.create(Datatype.GDAY, value);
         Assert.assertEquals(expected, actual.getValue());

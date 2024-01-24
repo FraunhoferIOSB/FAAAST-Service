@@ -51,6 +51,6 @@ public class DurationValue extends TypedValue<Duration> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.INT;
+        return Datatype.DURATION;
     }
 }
