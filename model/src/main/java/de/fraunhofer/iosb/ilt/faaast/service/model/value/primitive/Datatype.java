@@ -40,19 +40,19 @@ public enum Datatype {
     BYTE("xs:byte", ByteValue.class, DataTypeDefXsd.BYTE),
     SHORT("xs:short", ShortValue.class, DataTypeDefXsd.SHORT),
     INT("xs:int", IntValue.class, DataTypeDefXsd.INT),
-    LONG("xs:long", LongValue.class, DataTypeDefXsd.LONG), //    UnsignedByte,
-    //    UnsignedShort,
-    //    UnsignedInt,
-    //    UnsignedLong,
-    //    PositiveInteger,
-    //    NonNegativeInteger,
-    //    NegativeInteger,
-    //    NonPositiveInteger,
-    //    HexBinary,
-    //    Base64Binary,
-    //    AnyURI,
-    //    LangString
-    ;
+    LONG("xs:long", LongValue.class, DataTypeDefXsd.LONG),
+    UNSIGNED_BYTE("xs:unsignedByte", UnsignedByteValue.class, DataTypeDefXsd.UNSIGNED_BYTE),
+    UNSIGNED_SHORT("xs:unsignedShort", UnsignedShortValue.class, DataTypeDefXsd.UNSIGNED_SHORT),
+    UNSIGNED_INT("xs:unsignedInt", UnsignedIntValue.class, DataTypeDefXsd.UNSIGNED_INT),
+    UNSIGNED_LONG("xs:unsignedLong", UnsignedLongValue.class, DataTypeDefXsd.UNSIGNED_LONG),
+    POSITIVE_INTEGER("xs:positiveInteger", PositiveIntegerValue.class, DataTypeDefXsd.POSITIVE_INTEGER),
+    NON_NEGATIVE_INTEGER("xs:nonNegativeInteger", NonNegativeIntegerValue.class, DataTypeDefXsd.NON_NEGATIVE_INTEGER),
+    NEGATIVE_INTEGER("xs:negativeInteger", NegativeIntegerValue.class, DataTypeDefXsd.NEGATIVE_INTEGER),
+    NON_POSITIVE_INTEGER("xs:nonPositiveInteger", NonPositiveIntegerValue.class, DataTypeDefXsd.NON_POSITIVE_INTEGER),
+    HEX_BINARY("xs:hexBinary", HexBinaryValue.class, DataTypeDefXsd.HEX_BINARY),
+    BASE64_BINARY("xs:base64Binary", Base64BinaryValue.class, DataTypeDefXsd.BASE64BINARY),
+    ANY_URI("xs:anyURI", AnyURIValue.class, DataTypeDefXsd.ANY_URI),
+    LANG_STRING("rdf:langString", LangStringValue.class, DataTypeDefXsd.STRING);
 
     public static final Datatype DEFAULT = Datatype.STRING;
     private final Class<? extends TypedValue> implementation;
