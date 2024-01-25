@@ -423,7 +423,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addQualifier(parent, value);
             }
             else if (value instanceof SubmodelElement) {
-                addSubmodelElement(parent, value, element);
+                addSubmodelElement(parent, value, parentRef);
             }
         }
         else if (LOG.isDebugEnabled()) {

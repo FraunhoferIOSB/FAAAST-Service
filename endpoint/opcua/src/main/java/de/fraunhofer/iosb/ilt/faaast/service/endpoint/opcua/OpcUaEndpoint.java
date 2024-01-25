@@ -25,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
@@ -187,6 +189,19 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
         catch (Exception e) {
             LOGGER.error("writeValue error", e);
+        }
+
+        return retval;
+    }
+
+
+    public SubmodelElement readValue(String submodelId, Reference refElement) throws StatusException {
+        LOGGER.info("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
+        SubmodelElement retval = null;
+        GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
+        Response response = service.execute(request);
+        if ((response.getStatusCode() == StatusCode.SUCCESS) && (GetSubmodelElementByPathResponse.class.isAssignableFrom(response.getClass()))) {
+            retval = ((GetSubmodelElementByPathResponse) response).getPayload();
         }
 
         return retval;

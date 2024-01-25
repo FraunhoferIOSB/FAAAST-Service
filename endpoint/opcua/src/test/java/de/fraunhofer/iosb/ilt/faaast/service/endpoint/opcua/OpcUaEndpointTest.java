@@ -44,12 +44,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -59,7 +58,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import opc.i4aas.VariableIds;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -68,10 +66,8 @@ import opc.i4aas.datatypes.AASModellingKindDataType;
 import opc.i4aas.objecttypes.AASEntityType;
 import opc.i4aas.objecttypes.AASRelationshipElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
@@ -246,32 +242,15 @@ public class OpcUaEndpointTest {
         Long oldValue = Long.valueOf(4370);
         Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
 
-        CountDownLatch condition = new CountDownLatch(1);
-        final AtomicReference<EventMessage> response = new AtomicReference<>();
-        service.getMessageBus().subscribe(SubscriptionInfo.create(
-                ValueChangeEventMessage.class,
-                x -> {
-                    response.set(x);
-                    condition.countDown();
-                }));
+        Long newValue = Long.valueOf(9999);
 
-        Integer newValue = 9999;
-        List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_OPER_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value(TestConstants.ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(keys)
+        // set new value in service
+        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_OPER_DATA_NAME)
+                .path(TestConstants.ROTATION_SPEED_NAME)
+                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
                 .build();
-        ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
-        valueChangeMessage.setElement(propRef);
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, oldValue.toString()));
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
-        service.getMessageBus().publish(valueChangeMessage);
-
-        // check MessageBus
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(valueChangeMessage, response.get());
+        Response response = service.execute(request);
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // read new value
         value = client.readValue(targets[0].getTargetId());
@@ -320,7 +299,7 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testPropertyChangeFromMessageBus() throws SecureIdentityException, IOException, ServiceException, Exception {
+    public void testPropertyChange() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -346,23 +325,15 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testPropertyChangeFromMessageBus ValueType Null", targets);
         Assert.assertTrue("testPropertyChangeFromMessageBus ValueType empty", targets.length > 0);
 
-        List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.SUBMODEL_TECH_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().type(KeyTypes.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder()
-                .type(ReferenceTypes.MODEL_REFERENCE)
-                .keys(keys)
+        Long newValue = Long.valueOf(5005);
+
+        // set new value in service
+        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_TECH_DATA_NAME)
+                .path(TestConstants.MAX_ROTATION_SPEED_NAME)
+                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
                 .build();
-
-        CountDownLatch condition = new CountDownLatch(1);
-        ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
-        valueChangeMessage.setElement(propRef);
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, "5000"));
-        Integer newValue = 5005;
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
-        service.getMessageBus().publish(valueChangeMessage);
-
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        Response response = service.execute(request);
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
