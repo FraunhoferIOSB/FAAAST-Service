@@ -108,7 +108,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         SubmodelElementData data = nodeManager.getAasData(nodeId);
         try {
             if (data != null) {
-                LOGGER.info("onReadValue: Node {}", nodeId);
+                LOGGER.debug("onReadValue: Node {}", nodeId);
                 if (data.getType() == SubmodelElementData.Type.PROPERTY_VALUE) {
                     SubmodelElement elem = endpoint.readValue(data.getSubmodel().getId(), data.getReference());
                     if ((elem != null) && (Property.class.isAssignableFrom(elem.getClass()))) {
@@ -124,10 +124,6 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 else {
                     LOGGER.trace("onReadValue: type {} currently not supported", data.getType());
                 }
-            }
-            else {
-                LOGGER.debug("onReadValue: Node {}: SubmodelElementData not found", nodeId);
-                rv = false;
             }
         }
         catch (ValueMappingException ex) {
