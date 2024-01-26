@@ -195,7 +195,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    public SubmodelElement readValue(String submodelId, Reference refElement) throws StatusException {
+    /**
+     * Reads the value of the desired SubmodelElement from the service.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @param refElement The reference to the element.
+     * @return The value of the desired SubmodelElement, null if the read failed.
+     */
+    public SubmodelElement readValue(String submodelId, Reference refElement) {
         LOGGER.info("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
         SubmodelElement retval = null;
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
@@ -205,6 +212,17 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Checks if the referenced element has a Value Provider.
+     *
+     * @param refElement The reference to the element.
+     * @return True if it has a Value Provider, false otherwise.
+     */
+    public boolean hasValueProvider(Reference refElement) {
+        return service.hasValueProvider(refElement);
     }
 
 

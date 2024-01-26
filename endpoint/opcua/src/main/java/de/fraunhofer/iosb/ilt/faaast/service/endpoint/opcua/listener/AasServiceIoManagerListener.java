@@ -108,21 +108,23 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         SubmodelElementData data = nodeManager.getAasData(nodeId);
         try {
             if (data != null) {
-                LOGGER.debug("onReadValue: Node {}", nodeId);
-                if (data.getType() == SubmodelElementData.Type.PROPERTY_VALUE) {
-                    SubmodelElement elem = endpoint.readValue(data.getSubmodel().getId(), data.getReference());
-                    if ((elem != null) && (Property.class.isAssignableFrom(elem.getClass()))) {
-                        PropertyValue typedValue = ElementValueMapper.toValue((Property) elem, PropertyValue.class);
-                        dv.setValue(new Variant(ValueConverter.convertTypedValue(typedValue.getValue())));
-                        dv.setStatusCode(StatusCode.GOOD);
-                        dv.setSourceTimestamp(DateTime.currentTime());
-                        dv.setServerTimestamp(DateTime.currentTime());
-                        // return true to indicate that the read call was handled
-                        rv = true;
+                if (endpoint.hasValueProvider(data.getReference())) {
+                    LOGGER.debug("onReadValue: Node {}", nodeId);
+                    if (data.getType() == SubmodelElementData.Type.PROPERTY_VALUE) {
+                        SubmodelElement elem = endpoint.readValue(data.getSubmodel().getId(), data.getReference());
+                        if ((elem != null) && (Property.class.isAssignableFrom(elem.getClass()))) {
+                            PropertyValue typedValue = ElementValueMapper.toValue((Property) elem, PropertyValue.class);
+                            dv.setValue(new Variant(ValueConverter.convertTypedValue(typedValue.getValue())));
+                            dv.setStatusCode(StatusCode.GOOD);
+                            dv.setSourceTimestamp(DateTime.currentTime());
+                            dv.setServerTimestamp(DateTime.currentTime());
+                            // return true to indicate that the read call was handled
+                            rv = true;
+                        }
                     }
-                }
-                else {
-                    LOGGER.trace("onReadValue: type {} currently not supported", data.getType());
+                    else {
+                        LOGGER.trace("onReadValue: type {} currently not supported", data.getType());
+                    }
                 }
             }
         }
