@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -162,6 +163,12 @@ public class Service implements ServiceContext {
     @Override
     public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
+    }
+
+
+    @Override
+    public boolean hasValueProvider(Reference reference) {
+        return Objects.nonNull(assetConnectionManager.getValueProvider(reference));
     }
 
 

@@ -78,4 +78,13 @@ public interface ServiceContext {
      * @throws IllegalArgumentException if reference does not point to an operation
      */
     public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException;
+
+
+    /**
+     * Checks if an element is backed by a {@link ValueProvider}.
+     *
+     * @param reference the reference to the element
+     * @return true if element is backed by a {@link ValueProvider}, otherwise false
+     */
+    public boolean hasValueProvider(Reference reference);
 }
