@@ -14,49 +14,54 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.time.LocalDateTime;
+import jakarta.xml.bind.DatatypeConverter;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Calendar;
 
 
 /**
- * A datetime value.
+ * A date value.
  */
-public class DateTimeValue extends AbstractDateTimeValue<OffsetDateTime> {
+public class DateValue extends AbstractDateTimeValue<OffsetDateTime> {
 
-    public DateTimeValue() {
+    public DateValue() {
         super();
     }
 
 
-    public DateTimeValue(OffsetDateTime value) {
+    public DateValue(OffsetDateTime value) {
         super(value);
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DATE_TIME;
+        return Datatype.DATE;
     }
 
 
     @Override
     protected DateTimeFormatter getFormatBase() {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return DateTimeFormatter.ISO_LOCAL_DATE;
     }
 
 
     @Override
     protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
-        return OffsetDateTime.of(LocalDateTime.parse(value), offset);
+        Calendar calendar = DatatypeConverter.parseDate(value);
+        return calendar.getTime().toInstant().atOffset(offset);
     }
 
 
     @Override
     protected OffsetDateTime parseOffset(String value) throws DateTimeParseException {
-        return OffsetDateTime.parse(value);
+        Calendar calendar = DatatypeConverter.parseDate(value);
+        ZoneOffset offset = calendar.getTimeZone().toZoneId().getRules().getOffset(Instant.now());
+        return calendar.getTime().toInstant().atOffset(offset);
     }
 
 }

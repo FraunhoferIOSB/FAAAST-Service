@@ -14,28 +14,27 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * An unsigned byte value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class UnsignedByteValue extends TypedValue<Short> {
 
-    public DoubleValue() {
+    public UnsignedByteValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public UnsignedByteValue(Short value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return DatatypeConverter.printDouble(value);
+        return Short.toString(value);
     }
 
 
@@ -46,7 +45,11 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            Short valueShort = Short.parseShort(value);
+            if (valueShort < 0 || valueShort > 255) {
+                throw new ValueFormatException(String.format("value must be between 0 and 255 (actual value: %s)", value));
+            }
+            this.setValue(valueShort);
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
@@ -56,7 +59,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.UNSIGNED_BYTE;
     }
 
 }

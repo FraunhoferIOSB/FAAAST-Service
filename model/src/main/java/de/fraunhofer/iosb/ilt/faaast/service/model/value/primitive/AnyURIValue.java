@@ -14,28 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * An URI value conforming to RFC3987. Unfortunately, java.net.URI does not support RFC3987 and there is actually no
+ * other class implementing this RFC so we stay with simple string for now.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class AnyURIValue extends TypedValue<String> {
 
-    public DoubleValue() {
+    public AnyURIValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public AnyURIValue(String value) {
         super(value);
-    }
-
-
-    @Override
-    public String asString() {
-        return DatatypeConverter.printDouble(value);
     }
 
 
@@ -46,7 +40,7 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            this.setValue(value);
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
@@ -56,7 +50,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.ANY_URI;
     }
 
 }

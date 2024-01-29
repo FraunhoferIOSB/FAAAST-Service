@@ -14,49 +14,55 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 
 
 /**
- * A datetime value.
+ * A month value.
  */
-public class DateTimeValue extends AbstractDateTimeValue<OffsetDateTime> {
+public class GMonthDayValue extends AbstractDateTimeValue<OffsetDateTime> {
 
-    public DateTimeValue() {
+    public GMonthDayValue() {
         super();
     }
 
 
-    public DateTimeValue(OffsetDateTime value) {
+    public GMonthDayValue(OffsetDateTime value) {
         super(value);
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DATE_TIME;
+        return Datatype.GMONTH_DAY;
     }
 
 
     @Override
     protected DateTimeFormatter getFormatBase() {
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return new DateTimeFormatterBuilder()
+                .append(DateTimeFormatter.ofPattern("--MM-dd"))
+                .parseDefaulting(ChronoField.YEAR, 0)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .toFormatter();
     }
 
 
     @Override
     protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
-        return OffsetDateTime.of(LocalDateTime.parse(value), offset);
+        return OffsetDateTime.parse(value, getFormatLocal());
     }
 
 
     @Override
     protected OffsetDateTime parseOffset(String value) throws DateTimeParseException {
-        return OffsetDateTime.parse(value);
+        return OffsetDateTime.parse(value, getFormatOffset());
     }
 
 }

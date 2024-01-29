@@ -14,28 +14,35 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 
 
 /**
- * A double value.
+ * A string with language value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class LangStringValue extends TypedValue<AbstractLangString> {
 
-    public DoubleValue() {
+    private static final String SEPARATOR = "@";
+
+    public LangStringValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public LangStringValue(AbstractLangString value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return DatatypeConverter.printDouble(value);
+        if (Objects.isNull(value)) {
+            return "";
+        }
+        return String.format("%s@%s", value.getText(), value.getLanguage());
     }
 
 
@@ -45,18 +52,22 @@ public class DoubleValue extends TypedValue<Double> {
             this.setValue(null);
             return;
         }
-        try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+        if (!value.contains(SEPARATOR)) {
+            throw new ValueFormatException("LangString must be of format [text]@[language-tag], e.g. foo@en");
         }
-        catch (NumberFormatException e) {
-            throw new ValueFormatException(e);
+        if (value.lastIndexOf(SEPARATOR) == value.length() - 1) {
+            throw new ValueFormatException("LangString must have a non-empty language tag");
         }
+        this.setValue(new DefaultLangStringTextType.Builder()
+                .text(value.substring(0, value.lastIndexOf(SEPARATOR)))
+                .language(value.substring(value.lastIndexOf(SEPARATOR) + 1))
+                .build());
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.LANG_STRING;
     }
 
 }

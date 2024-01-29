@@ -14,28 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
+import java.math.BigInteger;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * A negative integer value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class NegativeIntegerValue extends TypedValue<BigInteger> {
 
-    public DoubleValue() {
+    public NegativeIntegerValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public NegativeIntegerValue(BigInteger value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return DatatypeConverter.printDouble(value);
+        return String.valueOf(value);
     }
 
 
@@ -46,7 +46,12 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            BigInteger valueInt = new BigInteger(value);
+            if (valueInt.signum() >= 0) {
+                throw new ValueFormatException(String.format("value must be negative (actual value: %s)", value));
+            }
+            this.setValue(valueInt);
+
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
@@ -56,7 +61,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.NEGATIVE_INTEGER;
     }
 
 }

@@ -14,28 +14,29 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * An unsigned int value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class UnsignedIntValue extends TypedValue<Long> {
 
-    public DoubleValue() {
+    private static final long MAX_VALUE = (Integer.MAX_VALUE * 2l) + 1;
+
+    public UnsignedIntValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public UnsignedIntValue(Long value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return DatatypeConverter.printDouble(value);
+        return Long.toString(value);
     }
 
 
@@ -46,7 +47,12 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            Long valueLong = Long.parseLong(value);
+            if (valueLong < 0 || valueLong > MAX_VALUE) {
+                throw new ValueFormatException(String.format("value must be between 0 and %d (actual value: %s)", MAX_VALUE, value));
+            }
+            this.setValue(valueLong);
+
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
@@ -56,7 +62,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.UNSIGNED_INT;
     }
 
 }

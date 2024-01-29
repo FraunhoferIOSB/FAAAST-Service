@@ -45,13 +45,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnecti
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
@@ -750,8 +748,8 @@ public class OpcUaEndpointFullTest {
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
                 AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
 
-        ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE));
-        DateTime dtnew = new DateTime(GregorianCalendar.from(zdtnew));
+        OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
+        DateTime dtnew = new DateTime(odtnew.toInstant().toEpochMilli());
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 
         System.out.println("disconnect client");

@@ -19,23 +19,23 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * A hex binary value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class HexBinaryValue extends TypedValue<byte[]> {
 
-    public DoubleValue() {
+    public HexBinaryValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public HexBinaryValue(byte[] value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return DatatypeConverter.printDouble(value);
+        return DatatypeConverter.printHexBinary(value);
     }
 
 
@@ -46,7 +46,7 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            this.setValue(DatatypeConverter.parseHexBinary(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);
@@ -56,7 +56,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.HEX_BINARY;
     }
 
 }

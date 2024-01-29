@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
@@ -123,7 +123,7 @@ public class MetadataExamples {
             .category("category")
             .idShort("propDateTime")
             .valueType(DataTypeDefXsd.DATE_TIME)
-            .value(ZonedDateTime.of(2022, 7, 31, 17, 8, 51, 0, ZoneOffset.UTC).toString())
+            .value(OffsetDateTime.of(2022, 7, 31, 17, 8, 51, 0, ZoneOffset.UTC).toString())
             .build();
 
     public static final Property PROPERTY_INT = new DefaultProperty.Builder()

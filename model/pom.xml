@@ -29,6 +29,11 @@
             <artifactId>jakarta.json-api</artifactId>
             <version>${jakarta.json-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind-api.version}</version>
+        </dependency>
         <!-- Fixes CVE-2023-42503 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -92,6 +97,11 @@
                     <artifactId>license-maven-plugin</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${glassfish.jaxb-runtime}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

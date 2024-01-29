@@ -14,28 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A double value.
+ * An duration value, ISO8601.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class DurationValue extends TypedValue<Duration> {
 
-    public DoubleValue() {
+    public DurationValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public DurationValue(Duration value) {
         super(value);
-    }
-
-
-    @Override
-    public String asString() {
-        return DatatypeConverter.printDouble(value);
     }
 
 
@@ -46,9 +41,9 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue(DatatypeConverter.parseDouble(value));
+            this.setValue(DatatypeFactory.newDefaultInstance().newDuration(value));
         }
-        catch (NumberFormatException e) {
+        catch (Exception e) {
             throw new ValueFormatException(e);
         }
     }
@@ -56,7 +51,6 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.DURATION;
     }
-
 }

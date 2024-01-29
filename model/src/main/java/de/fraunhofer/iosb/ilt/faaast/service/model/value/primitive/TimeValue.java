@@ -14,49 +14,49 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import jakarta.xml.bind.DatatypeConverter;
-import org.apache.commons.lang3.StringUtils;
+import java.time.LocalTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 
 /**
- * A double value.
+ * A time value.
  */
-public class DoubleValue extends TypedValue<Double> {
+public class TimeValue extends AbstractDateTimeValue<OffsetTime> {
 
-    public DoubleValue() {
+    public TimeValue() {
         super();
     }
 
 
-    public DoubleValue(Double value) {
+    public TimeValue(OffsetTime value) {
         super(value);
     }
 
 
     @Override
-    public String asString() {
-        return DatatypeConverter.printDouble(value);
-    }
-
-
-    @Override
-    public void fromString(String value) throws ValueFormatException {
-        if (StringUtils.isAllBlank(value)) {
-            this.setValue(null);
-            return;
-        }
-        try {
-            this.setValue(DatatypeConverter.parseDouble(value));
-        }
-        catch (NumberFormatException e) {
-            throw new ValueFormatException(e);
-        }
-    }
-
-
-    @Override
     public Datatype getDataType() {
-        return Datatype.DOUBLE;
+        return Datatype.DATE;
+    }
+
+
+    @Override
+    protected DateTimeFormatter getFormatBase() {
+        return DateTimeFormatter.ISO_LOCAL_TIME;
+    }
+
+
+    @Override
+    protected OffsetTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
+        return OffsetTime.of(LocalTime.parse(value), offset);
+    }
+
+
+    @Override
+    protected OffsetTime parseOffset(String value) throws DateTimeParseException {
+        return OffsetTime.parse(value);
     }
 
 }
