@@ -123,7 +123,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
 
         public B disableSyncWithAsset() {
-            getBuildingInstance().setSyncWithAsset(false);;
+            getBuildingInstance().setSyncWithAsset(false);
             return getSelf();
         }
     }

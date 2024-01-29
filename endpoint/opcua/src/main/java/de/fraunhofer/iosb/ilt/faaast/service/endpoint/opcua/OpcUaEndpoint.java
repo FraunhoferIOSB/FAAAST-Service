@@ -203,7 +203,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @return The value of the desired SubmodelElement, null if the read failed.
      */
     public SubmodelElement readValue(String submodelId, Reference refElement) {
-        LOGGER.info("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
+        }
         SubmodelElement retval = null;
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
         Response response = service.execute(request);
