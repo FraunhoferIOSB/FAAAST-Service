@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,11 +28,9 @@ public class HexBinaryValueTest {
                 3,
                 4
         };
-        String value = Stream.of(expected)
-                .map(x -> String.format("%02x", x))
-                .collect(Collectors.joining());
+        String value = "01020304";
         TypedValue actual = TypedValueFactory.create(Datatype.HEX_BINARY, value);
-        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertArrayEquals(expected, (byte[]) actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
 
