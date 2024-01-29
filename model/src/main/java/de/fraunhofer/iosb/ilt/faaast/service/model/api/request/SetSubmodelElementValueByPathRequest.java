@@ -27,10 +27,10 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
     private String path;
     private T rawValue;
     private ElementValueParser valueParser;
-    private boolean internal;
+    private boolean syncWithAsset;
 
     public SetSubmodelElementValueByPathRequest() {
-        this.internal = false;
+        this.syncWithAsset = true;
         this.path = "";
         this.valueParser = ElementValueParser.DEFAULT;
     }
@@ -66,6 +66,16 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
     }
 
 
+    public boolean isSyncWithAsset() {
+        return syncWithAsset;
+    }
+
+
+    protected void setSyncWithAsset(boolean syncWithAsset) {
+        this.syncWithAsset = syncWithAsset;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -83,7 +93,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, rawValue, internal);
+        return Objects.hash(super.hashCode(), path, rawValue, syncWithAsset);
     }
 
 
@@ -108,6 +118,12 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
         public B valueParser(ElementValueParser<U> value) {
             getBuildingInstance().setValueParser(value);
+            return getSelf();
+        }
+
+
+        public B disableSyncWithAsset() {
+            getBuildingInstance().setSyncWithAsset(false);;
             return getSelf();
         }
     }

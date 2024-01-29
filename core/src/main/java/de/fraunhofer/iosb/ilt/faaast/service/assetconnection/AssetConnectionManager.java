@@ -135,7 +135,7 @@ public class AssetConnectionManager {
                     Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
                             .submodelId(subscriptionInfo.getKey().getKeys().get(0).getValue())
                             .path(ReferenceHelper.toPath(subscriptionInfo.getKey()))
-                            .internal()
+                            .disableSyncWithAsset()
                             .value(data)
                             .build());
                     if (!response.getStatusCode().isSuccess()) {

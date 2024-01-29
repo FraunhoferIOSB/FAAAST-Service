@@ -25,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
@@ -190,6 +192,37 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Reads the value of the desired SubmodelElement from the service.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @param refElement The reference to the element.
+     * @return The value of the desired SubmodelElement, null if the read failed.
+     */
+    public SubmodelElement readValue(String submodelId, Reference refElement) {
+        LOGGER.info("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
+        SubmodelElement retval = null;
+        GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
+        Response response = service.execute(request);
+        if ((response.getStatusCode() == StatusCode.SUCCESS) && (GetSubmodelElementByPathResponse.class.isAssignableFrom(response.getClass()))) {
+            retval = ((GetSubmodelElementByPathResponse) response).getPayload();
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Checks if the referenced element has a Value Provider.
+     *
+     * @param refElement The reference to the element.
+     * @return True if it has a Value Provider, false otherwise.
+     */
+    public boolean hasValueProvider(Reference refElement) {
+        return service.hasValueProvider(refElement);
     }
 
 
