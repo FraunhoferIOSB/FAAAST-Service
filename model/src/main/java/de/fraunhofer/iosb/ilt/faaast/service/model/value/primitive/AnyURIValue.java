@@ -18,7 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * A hex binary value.
+ * An URI value conforming to RFC3987. Unfortunately, java.net.URI does not support RFC3987 and there is actually no
+ * other class implementing this RFC so we stay with simple string for now.
  */
 public class AnyURIValue extends TypedValue<String> {
 
@@ -29,12 +30,6 @@ public class AnyURIValue extends TypedValue<String> {
 
     public AnyURIValue(String value) {
         super(value);
-    }
-
-
-    @Override
-    public String asString() {
-        return value;
     }
 
 

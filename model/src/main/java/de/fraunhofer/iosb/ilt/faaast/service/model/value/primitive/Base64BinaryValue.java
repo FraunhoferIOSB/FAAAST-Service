@@ -14,27 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * A hex binary value.
  */
-public class Base64BinaryValue extends TypedValue<String> {
+public class Base64BinaryValue extends TypedValue<byte[]> {
 
     public Base64BinaryValue() {
         super();
     }
 
 
-    public Base64BinaryValue(String value) {
+    public Base64BinaryValue(byte[] value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return value;
+        return Base64.getEncoder().encodeToString(value);
     }
 
 
@@ -45,7 +46,7 @@ public class Base64BinaryValue extends TypedValue<String> {
             return;
         }
         try {
-            this.setValue(value);
+            this.setValue(Base64.getDecoder().decode(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);

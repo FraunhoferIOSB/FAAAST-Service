@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,8 +23,9 @@ public class Base64BinaryValueTest {
 
     @Test
     public void testBase64Binary() throws ValueFormatException {
-        String expected = "a3Vtb3dhc2hlcmU=";
-        TypedValue actual = TypedValueFactory.create(Datatype.BASE64_BINARY, expected);
+        String value = "test";
+        byte[] expected = Base64.getEncoder().encode(value.getBytes());
+        TypedValue actual = TypedValueFactory.create(Datatype.BASE64_BINARY, Base64.getEncoder().encodeToString(value.getBytes()));
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(expected, actual.asString());
     }
