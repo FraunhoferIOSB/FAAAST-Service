@@ -20,17 +20,15 @@ import org.junit.Test;
 
 public class UnsignedIntValueTest {
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        Long expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_INT, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_INT, value);
     }
 
 
     @Test
-    public void testLargeNumber() throws ValueFormatException {
+    public void testMax() throws ValueFormatException {
         String value = "4294967295";
         Long expected = Long.valueOf(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_INT, value);

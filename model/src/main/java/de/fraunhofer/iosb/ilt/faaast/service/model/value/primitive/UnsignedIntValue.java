@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UnsignedIntValue extends TypedValue<Long> {
 
+    private static final long MAX_VALUE = (Integer.MAX_VALUE * 2l) + 1;
+
     public UnsignedIntValue() {
         super();
     }
@@ -46,12 +48,10 @@ public class UnsignedIntValue extends TypedValue<Long> {
         }
         try {
             Long valueLong = Long.parseLong(value);
-            if (valueLong > -1 && valueLong < Long.MAX_VALUE) {
-                this.setValue(valueLong);
+            if (valueLong < 0 || valueLong > MAX_VALUE) {
+                throw new ValueFormatException(String.format("value must be between 0 and %d (actual value: %s)", MAX_VALUE, value));
             }
-            else {
-                this.setValue(null);
-            }
+            this.setValue(valueLong);
 
         }
         catch (NumberFormatException e) {

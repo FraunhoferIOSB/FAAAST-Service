@@ -46,13 +46,10 @@ public class UnsignedByteValue extends TypedValue<Short> {
         }
         try {
             Short valueShort = Short.parseShort(value);
-            if (valueShort > -1 && valueShort < 256) {
-                this.setValue(valueShort);
+            if (valueShort < 0 || valueShort > 255) {
+                throw new ValueFormatException(String.format("value must be between 0 and 255 (actual value: %s)", value));
             }
-            else {
-                this.setValue(null);
-            }
-
+            this.setValue(valueShort);
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);

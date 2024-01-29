@@ -14,27 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import jakarta.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * A hex binary value.
  */
-public class HexBinaryValue extends TypedValue<String> {
+public class HexBinaryValue extends TypedValue<byte[]> {
 
     public HexBinaryValue() {
         super();
     }
 
 
-    public HexBinaryValue(String value) {
+    public HexBinaryValue(byte[] value) {
         super(value);
     }
 
 
     @Override
     public String asString() {
-        return value;
+        return DatatypeConverter.printHexBinary(value);
     }
 
 
@@ -45,7 +46,7 @@ public class HexBinaryValue extends TypedValue<String> {
             return;
         }
         try {
-            this.setValue(value);
+            this.setValue(DatatypeConverter.parseHexBinary(value));
         }
         catch (NumberFormatException e) {
             throw new ValueFormatException(e);

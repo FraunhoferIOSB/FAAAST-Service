@@ -49,12 +49,10 @@ public class NonPositiveIntegerValueTest {
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testPositive() throws ValueFormatException {
         String value = "5";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
     }
 
 }

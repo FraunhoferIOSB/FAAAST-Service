@@ -23,11 +23,11 @@ public class Base64BinaryValueTest {
 
     @Test
     public void testBase64Binary() throws ValueFormatException {
-        String value = "test";
-        byte[] expected = Base64.getEncoder().encode(value.getBytes());
-        TypedValue actual = TypedValueFactory.create(Datatype.BASE64_BINARY, Base64.getEncoder().encodeToString(value.getBytes()));
-        Assert.assertEquals(expected, actual.getValue());
-        Assert.assertEquals(expected, actual.asString());
+        byte[] expected = "test".getBytes();
+        String value = Base64.getEncoder().encodeToString(expected);
+        TypedValue actual = TypedValueFactory.create(Datatype.BASE64_BINARY, value);
+        Assert.assertArrayEquals(expected, (byte[]) actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 }

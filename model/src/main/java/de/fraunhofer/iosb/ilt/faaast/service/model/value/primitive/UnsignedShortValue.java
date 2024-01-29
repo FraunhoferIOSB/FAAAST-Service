@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UnsignedShortValue extends TypedValue<Integer> {
 
+    private static final Integer MAX_VALUE = Short.MAX_VALUE * 2 + 1;
+
     public UnsignedShortValue() {
         super();
     }
@@ -46,12 +48,10 @@ public class UnsignedShortValue extends TypedValue<Integer> {
         }
         try {
             Integer valueInt = Integer.parseInt(value);
-            if (valueInt > -1 && valueInt < 65536) {
-                this.setValue(valueInt);
+            if (valueInt < 0 || valueInt > MAX_VALUE) {
+                throw new ValueFormatException(String.format("value must be between 0 and %d (actual value: %s)", MAX_VALUE, value));
             }
-            else {
-                this.setValue(null);
-            }
+            this.setValue(valueInt);
 
         }
         catch (NumberFormatException e) {

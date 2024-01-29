@@ -22,15 +22,6 @@ import org.junit.Test;
 public class PositiveIntegerValueTest {
 
     @Test
-    public void testNegative() throws ValueFormatException {
-        String value = "-1";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
-    }
-
-
-    @Test
     public void testLargeNumber() throws ValueFormatException {
         String value = "8889496729588";
         BigInteger expected = new BigInteger(value);
@@ -50,12 +41,17 @@ public class PositiveIntegerValueTest {
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testZero() throws ValueFormatException {
         String value = "0";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
+    }
+
+
+    @Test(expected = ValueFormatException.class)
+    public void testNegative() throws ValueFormatException {
+        String value = "-1";
+        TypedValueFactory.create(Datatype.POSITIVE_INTEGER, value);
     }
 
 }

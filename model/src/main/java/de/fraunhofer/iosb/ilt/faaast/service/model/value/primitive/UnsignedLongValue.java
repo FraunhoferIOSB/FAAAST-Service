@@ -23,6 +23,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UnsignedLongValue extends TypedValue<BigInteger> {
 
+    private static final BigInteger MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE)
+            .multiply(BigInteger.TWO)
+            .add(BigInteger.ONE);
+
     public UnsignedLongValue() {
         super();
     }
@@ -47,12 +51,11 @@ public class UnsignedLongValue extends TypedValue<BigInteger> {
         }
         try {
             BigInteger valueInt = new BigInteger(value);
-            if (valueInt.signum() > -1) {
-                this.setValue(valueInt);
+            if (valueInt.compareTo(BigInteger.ZERO) == -1
+                    || valueInt.compareTo(MAX_VALUE) == 1) {
+                throw new ValueFormatException(String.format("value must be between 0 and %d (actual value: %s)", MAX_VALUE, value));
             }
-            else {
-                this.setValue(null);
-            }
+            this.setValue(valueInt);
 
         }
         catch (NumberFormatException e) {

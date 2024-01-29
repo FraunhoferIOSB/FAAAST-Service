@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,11 +22,62 @@ import org.junit.Test;
 public class LangStringValueTest {
 
     @Test
-    public void testBase64Binary() throws ValueFormatException {
-        String expected = "Hello@en";
-        TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, expected);
+    public void testNormal() throws ValueFormatException {
+        DefaultLangStringTextType expected = new DefaultLangStringTextType.Builder()
+                .text("Hello")
+                .language("en")
+                .build();
+        String value = "Hello@en";
+        TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
         Assert.assertEquals(expected, actual.getValue());
-        Assert.assertEquals(expected, actual.asString());
+        Assert.assertEquals(value, actual.asString());
+    }
+
+
+    @Test(expected = ValueFormatException.class)
+    public void testEmptyLanguage() throws ValueFormatException {
+        String value = "Hello@";
+        TypedValueFactory.create(Datatype.LANG_STRING, value);
+    }
+
+
+    @Test(expected = ValueFormatException.class)
+    public void testNoLanguage() throws ValueFormatException {
+        String value = "Hello";
+        TypedValueFactory.create(Datatype.LANG_STRING, value);
+    }
+
+
+    @Test
+    public void testEmptyString() throws ValueFormatException {
+        DefaultLangStringTextType expected = null;
+        String value = "";
+        TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
+    }
+
+
+    @Test
+    public void testNull() throws ValueFormatException {
+        DefaultLangStringTextType expected = null;
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals("", actual.asString());
+    }
+
+
+    @Test
+    public void testOnlyLanguage() throws ValueFormatException {
+        DefaultLangStringTextType expected = new DefaultLangStringTextType.Builder()
+                .text("")
+                .language("en")
+                .build();
+        String value = "@en";
+        TypedValue actual = TypedValueFactory.create(Datatype.LANG_STRING, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 }

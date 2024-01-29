@@ -20,21 +20,17 @@ import org.junit.Test;
 
 public class UnsignedByteValueTest {
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        Short expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_BYTE, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_BYTE, value);
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testErrorByte() throws ValueFormatException {
         String value = "500";
-        Short expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_BYTE, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_BYTE, value);
     }
 
 

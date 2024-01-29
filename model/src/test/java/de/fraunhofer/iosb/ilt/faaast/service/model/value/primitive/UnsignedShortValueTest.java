@@ -20,19 +20,17 @@ import org.junit.Test;
 
 public class UnsignedShortValueTest {
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        Integer expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
     }
 
 
     @Test
-    public void testLargeNumber() throws ValueFormatException {
+    public void testMax() throws ValueFormatException {
         String value = "65535";
-        Integer expected = 65535;
+        Integer expected = Integer.parseInt(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
@@ -42,7 +40,7 @@ public class UnsignedShortValueTest {
     @Test
     public void testExplicitPlusPrefix() throws ValueFormatException {
         String value = "+10000";
-        Integer expected = 10000;
+        Integer expected = Integer.parseInt(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals("10000", actual.asString());
@@ -52,19 +50,17 @@ public class UnsignedShortValueTest {
     @Test
     public void testZero() throws ValueFormatException {
         String value = "0";
-        Integer expected = 0;
+        Integer expected = Integer.parseInt(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testOverMaximum() throws ValueFormatException {
         String value = "65536";
-        Integer expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_SHORT, value);
     }
 
 }

@@ -21,22 +21,27 @@ import org.junit.Test;
 
 public class UnsignedLongValueTest {
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_LONG, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.UNSIGNED_LONG, value);
     }
 
 
     @Test
-    public void testLargeNumber() throws ValueFormatException {
-        String value = "8889496729588";
+    public void testMax() throws ValueFormatException {
+        String value = "18446744073709551615";
         BigInteger expected = new BigInteger(value);
         TypedValue actual = TypedValueFactory.create(Datatype.UNSIGNED_LONG, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
+    }
+
+
+    @Test(expected = ValueFormatException.class)
+    public void testTooLarge() throws ValueFormatException {
+        String value = "18446744073709551616";
+        TypedValueFactory.create(Datatype.UNSIGNED_LONG, value);
     }
 
 

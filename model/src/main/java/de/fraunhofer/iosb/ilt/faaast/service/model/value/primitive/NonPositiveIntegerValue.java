@@ -47,12 +47,10 @@ public class NonPositiveIntegerValue extends TypedValue<BigInteger> {
         }
         try {
             BigInteger valueInt = new BigInteger(value);
-            if (valueInt.signum() < 1) {
-                this.setValue(valueInt);
+            if (valueInt.signum() > 0) {
+                throw new ValueFormatException(String.format("value must be negative (actual value: %s)", value));
             }
-            else {
-                this.setValue(null);
-            }
+            this.setValue(valueInt);
 
         }
         catch (NumberFormatException e) {

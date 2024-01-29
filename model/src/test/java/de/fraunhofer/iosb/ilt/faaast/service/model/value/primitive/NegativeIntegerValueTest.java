@@ -40,21 +40,24 @@ public class NegativeIntegerValueTest {
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testZero() throws ValueFormatException {
         String value = "0";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
     }
 
 
-    @Test
+    @Test(expected = ValueFormatException.class)
+    public void testNegativeZero() throws ValueFormatException {
+        String value = "-0";
+        TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
+    }
+
+
+    @Test(expected = ValueFormatException.class)
     public void testPositive() throws ValueFormatException {
         String value = "5";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.NEGATIVE_INTEGER, value);
     }
 
 }

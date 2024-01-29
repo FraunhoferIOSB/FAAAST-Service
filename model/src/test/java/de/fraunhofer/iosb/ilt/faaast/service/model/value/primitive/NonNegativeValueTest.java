@@ -21,12 +21,10 @@ import org.junit.Test;
 
 public class NonNegativeValueTest {
 
-    @Test
+    @Test(expected = ValueFormatException.class)
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        BigInteger expected = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_NEGATIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
+        TypedValueFactory.create(Datatype.NON_NEGATIVE_INTEGER, value);
     }
 
 
