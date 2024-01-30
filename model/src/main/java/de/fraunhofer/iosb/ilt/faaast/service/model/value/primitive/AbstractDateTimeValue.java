@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.time.OffsetTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -32,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class AbstractDateTimeValue<T extends Temporal> extends TypedValue<T> {
 
-    protected static final ZoneOffset DEFAULT_OFFSET = OffsetTime.now(ZoneId.systemDefault()).getOffset();
     private boolean isLocal = false;
 
     protected AbstractDateTimeValue() {
@@ -85,11 +81,10 @@ public abstract class AbstractDateTimeValue<T extends Temporal> extends TypedVal
      * Parses the value as local value, i.e. without offset.
      *
      * @param value the value to parse
-     * @param offset the offset to use
      * @return the parsed value
      * @throws DateTimeParseException if parsing fails
      */
-    protected abstract T parseLocal(String value, ZoneOffset offset) throws DateTimeParseException;
+    protected abstract T parseLocal(String value) throws DateTimeParseException;
 
 
     /**
@@ -121,7 +116,7 @@ public abstract class AbstractDateTimeValue<T extends Temporal> extends TypedVal
 
     private T parse(String value) {
         return isLocal(value)
-                ? parseLocal(value, DEFAULT_OFFSET)
+                ? parseLocal(value)
                 : parseOffset(value);
     }
 

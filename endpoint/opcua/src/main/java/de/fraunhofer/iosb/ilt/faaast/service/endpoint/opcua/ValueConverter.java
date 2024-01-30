@@ -37,7 +37,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;

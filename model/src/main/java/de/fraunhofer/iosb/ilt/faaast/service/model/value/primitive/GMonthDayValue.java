@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -55,7 +54,7 @@ public class GMonthDayValue extends AbstractDateTimeValue<OffsetDateTime> {
 
 
     @Override
-    protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
+    protected OffsetDateTime parseLocal(String value) throws DateTimeParseException {
         return OffsetDateTime.parse(value, getFormatLocal());
     }
 

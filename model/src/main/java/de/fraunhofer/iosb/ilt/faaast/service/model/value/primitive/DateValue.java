@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import jakarta.xml.bind.DatatypeConverter;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -51,9 +52,10 @@ public class DateValue extends AbstractDateTimeValue<OffsetDateTime> {
 
 
     @Override
-    protected OffsetDateTime parseLocal(String value, ZoneOffset offset) throws DateTimeParseException {
-        Calendar calendar = DatatypeConverter.parseDate(value);
-        return calendar.getTime().toInstant().atOffset(offset);
+    protected OffsetDateTime parseLocal(String value) throws DateTimeParseException {
+        Instant instant = DatatypeConverter.parseDate(value).getTime().toInstant();
+        ZoneOffset offset = ZoneId.systemDefault().getRules().getOffset(instant);
+        return instant.atOffset(offset);
     }
 
 

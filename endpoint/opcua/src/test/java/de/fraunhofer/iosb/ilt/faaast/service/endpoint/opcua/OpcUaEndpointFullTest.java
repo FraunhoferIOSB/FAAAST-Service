@@ -744,12 +744,12 @@ public class OpcUaEndpointFullTest {
         NodeId propValueNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
 
-        DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getTimeZone("UTC"));
+        DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getDefault());
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
                 AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
 
         OffsetDateTime odtnew = OffsetDateTime.now(ZoneId.systemDefault());
-        DateTime dtnew = new DateTime(odtnew.toInstant().toEpochMilli());
+        DateTime dtnew = DateTime.fromInstant(odtnew.toInstant());
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 
         System.out.println("disconnect client");
