@@ -34,6 +34,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class RangeCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RangeCreator.class);
 
     /**
      * Adds an AAS range object to the given node.
@@ -56,30 +59,38 @@ public class RangeCreator extends SubmodelElementCreator {
      */
     public static void addAasRange(UaNode node, Range aasRange, Reference rangeRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasRange != null)) {
-            String name = aasRange.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
+        try {
+            if ((node != null) && (aasRange != null)) {
+                String name = aasRange.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(rangeRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
 
-            addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
+                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
 
-            if (VALUES_READ_ONLY) {
-                // ValueType read-only
-                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            }
+                if (VALUES_READ_ONLY) {
+                    // ValueType read-only
+                    rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+                }
 
-            if (ordered) {
-                node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(rangeNode);
-            }
+                if (ordered) {
+                    node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(rangeNode);
+                }
 
-            if (rangeRef != null) {
-                nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
+                if (rangeRef != null) {
+                    nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
+                }
             }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasRange Exception", ex);
         }
     }
 

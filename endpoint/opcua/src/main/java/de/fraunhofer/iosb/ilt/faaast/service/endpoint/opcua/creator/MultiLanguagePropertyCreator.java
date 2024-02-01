@@ -32,6 +32,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,6 +41,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiLanguagePropertyCreator.class);
 
     /**
      * Adds an AAS Multi Language Property to the given node.
@@ -55,40 +58,54 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
     public static void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Reference multiLangRef, Submodel submodel, boolean ordered,
                                                    AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasMultiLang != null)) {
-            String name = aasMultiLang.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
+        try {
+            if ((node != null) && (aasMultiLang != null)) {
+                String name = aasMultiLang.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(multiLangRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASMultiLanguagePropertyType multiLangNode = nodeManager.createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(multiLangNode, aasMultiLang, nodeManager);
 
-            List<LangStringTextType> values = aasMultiLang.getValue();
-            if (values != null) {
-                if (multiLangNode.getValueNode() == null) {
-                    AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size(), nodeManager);
+                setMultiLanguagePropertyValues(aasMultiLang, multiLangNode, nodeManager);
+
+                nodeManager.addSubmodelElementAasMap(multiLangNode.getValueNode().getNodeId(),
+                        new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
+
+                nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
+
+                if (ordered) {
+                    node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(multiLangNode);
                 }
 
-                multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
+                nodeManager.addReferable(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
+            }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasMultiLanguageProperty Exception", ex);
+        }
+    }
+
+
+    private static void setMultiLanguagePropertyValues(MultiLanguageProperty aasMultiLang, AASMultiLanguagePropertyType multiLangNode, AasServiceNodeManager nodeManager)
+            throws StatusException {
+        List<LangStringTextType> values = aasMultiLang.getValue();
+        if (values != null) {
+            if (multiLangNode.getValueNode() == null) {
+                AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size(), nodeManager);
             }
 
-            if (aasMultiLang.getValueId() != null) {
-                AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
-            }
+            multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
+        }
 
-            nodeManager.addSubmodelElementAasMap(multiLangNode.getValueNode().getNodeId(),
-                    new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
-
-            nodeManager.addSubmodelElementOpcUA(multiLangRef, multiLangNode);
-
-            if (ordered) {
-                node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(multiLangNode);
-            }
-
-            nodeManager.addReferable(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
+        if (aasMultiLang.getValueId() != null) {
+            AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, nodeManager);
         }
     }
 

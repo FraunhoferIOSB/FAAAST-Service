@@ -31,6 +31,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class RelationshipElementCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipElementCreator.class);
 
     /**
      * Adds an AAS Relationship Element to the given node.
@@ -54,41 +57,49 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
     public static void addAasRelationshipElement(UaNode node, RelationshipElement aasRelElem, Reference relElemRef, Submodel submodel, boolean ordered,
                                                  AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasRelElem != null)) {
-            String name = aasRelElem.getIdShort();
-            AASRelationshipElementType relElemNode;
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            if (aasRelElem instanceof AnnotatedRelationshipElement) {
-                relElemNode = createAnnotatedRelationshipElement((AnnotatedRelationshipElement) aasRelElem, relElemRef, submodel, nid, nodeManager);
-            }
-            else {
-                relElemNode = nodeManager.createInstance(AASRelationshipElementType.class, nid, browseName, LocalizedText.english(name));
-            }
-
-            if (relElemNode != null) {
-                addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
-
-                AasReferenceCreator.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
-                AasReferenceCreator.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
-
-                nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getKeysNode().getNodeId(),
-                        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
-                nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getKeysNode().getNodeId(),
-                        new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
-
-                nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
-
-                if (ordered) {
-                    node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);
+        try {
+            if ((node != null) && (aasRelElem != null)) {
+                String name = aasRelElem.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(relElemRef);
+                }
+                AASRelationshipElementType relElemNode;
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                if (aasRelElem instanceof AnnotatedRelationshipElement) {
+                    relElemNode = createAnnotatedRelationshipElement((AnnotatedRelationshipElement) aasRelElem, relElemRef, submodel, nid, nodeManager);
                 }
                 else {
-                    node.addComponent(relElemNode);
+                    relElemNode = nodeManager.createInstance(AASRelationshipElementType.class, nid, browseName, LocalizedText.english(name));
                 }
 
-                nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
+                if (relElemNode != null) {
+                    addSubmodelElementBaseData(relElemNode, aasRelElem, nodeManager);
+
+                    AasReferenceCreator.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
+                    AasReferenceCreator.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
+
+                    nodeManager.addSubmodelElementAasMap(relElemNode.getFirstNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+                    nodeManager.addSubmodelElementAasMap(relElemNode.getSecondNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+
+                    nodeManager.addSubmodelElementOpcUA(relElemRef, relElemNode);
+
+                    if (ordered) {
+                        node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);
+                    }
+                    else {
+                        node.addComponent(relElemNode);
+                    }
+
+                    nodeManager.addReferable(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
+                }
             }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasRelationshipElement Exception", ex);
         }
     }
 

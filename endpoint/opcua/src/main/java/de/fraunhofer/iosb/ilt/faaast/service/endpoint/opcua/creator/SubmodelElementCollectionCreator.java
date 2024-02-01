@@ -58,26 +58,34 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
     public static void addAasSubmodelElementCollection(UaNode node, SubmodelElementCollection aasColl, Reference collectionRef, Submodel submodel,
                                                        AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
-        if ((node != null) && (aasColl != null)) {
-            String name = aasColl.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASSubmodelElementCollectionType collNode;
+        try {
+            if ((node != null) && (aasColl != null)) {
+                String name = aasColl.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(collectionRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASSubmodelElementCollectionType collNode;
 
-            collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, LocalizedText.english(name));
+                collNode = nodeManager.createInstance(AASSubmodelElementCollectionType.class, nid, browseName, LocalizedText.english(name));
 
-            addSubmodelElementBaseData(collNode, aasColl, nodeManager);
+                addSubmodelElementBaseData(collNode, aasColl, nodeManager);
 
-            // SubmodelElements 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
+                // SubmodelElements 
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("addAasSubmodelElementCollection ({}): add {} SubmodelElements; Ref {}", name, aasColl.getValue().size(), ReferenceHelper.toString(collectionRef));
+                }
+                addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
+
+                node.addComponent(collNode);
+
+                nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
             }
-            addSubmodelElements(collNode, aasColl.getValue(), collectionRef, submodel, false, nodeManager);
-
-            node.addComponent(collNode);
-
-            nodeManager.addReferable(collectionRef, new ObjectData(aasColl, collNode, submodel));
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasSubmodelElementCollection Exception", ex);
         }
     }
 

@@ -31,6 +31,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class EventCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventCreator.class);
 
     /**
      * Adds an AAS EventElement to the given node.
@@ -75,22 +78,31 @@ public class EventCreator extends SubmodelElementCreator {
      */
     private static void addAasBasicEventElement(UaNode node, BasicEventElement aasEvent, Reference eventRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ValueFormatException {
-        String name = aasEvent.getIdShort();
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-        NodeId nid = nodeManager.getDefaultNodeId();
-        AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
-        addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
+        try {
+            String name = aasEvent.getIdShort();
+            if ((name == null) || name.isEmpty()) {
+                name = getNameFromReference(eventRef);
+            }
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBasicEventElementType.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASBasicEventElementType eventNode = nodeManager.createInstance(AASBasicEventElementType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
-        setBasicEventElementData(eventNode, aasEvent, nodeManager);
+            setBasicEventElementData(eventNode, aasEvent, nodeManager);
 
-        if (ordered) {
-            node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            if (ordered) {
+                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(eventNode);
+            }
+
+            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
         }
-        else {
-            node.addComponent(eventNode);
+        catch (Exception ex) {
+            LOGGER.error("addAasBasicEventElement Exception", ex);
         }
-
-        nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
     }
 
 

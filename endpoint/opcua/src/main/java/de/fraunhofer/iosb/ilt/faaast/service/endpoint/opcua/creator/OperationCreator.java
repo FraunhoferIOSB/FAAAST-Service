@@ -60,6 +60,9 @@ public class OperationCreator extends SubmodelElementCreator {
     public static void addAasOperation(UaNode node, Operation aasOperation, Reference operationRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager) {
         try {
             String name = aasOperation.getIdShort();
+            if ((name == null) || name.isEmpty()) {
+                name = getNameFromReference(operationRef);
+            }
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));

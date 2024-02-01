@@ -27,6 +27,8 @@ import opc.i4aas.objecttypes.AASCapabilityType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class CapabilityCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityCreator.class);
 
     /**
      * Adds an AAS Capability to the given node.
@@ -49,21 +52,29 @@ public class CapabilityCreator extends SubmodelElementCreator {
      */
     public static void addAasCapability(UaNode node, Capability aasCapability, Reference capabilityRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasCapability != null)) {
-            String name = aasCapability.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
+        try {
+            if ((node != null) && (aasCapability != null)) {
+                String name = aasCapability.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(capabilityRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
 
-            if (ordered) {
-                node.addReference(capabilityNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(capabilityNode);
-            }
+                if (ordered) {
+                    node.addReference(capabilityNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(capabilityNode);
+                }
 
-            nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
+                nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
+            }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasCapability Exception", ex);
         }
     }
 
