@@ -56,32 +56,40 @@ public class BlobCreator extends SubmodelElementCreator {
      */
     public static void addAasBlob(UaNode node, Blob aasBlob, Reference blobRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasBlob != null)) {
-            String name = aasBlob.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
+        try {
+            if ((node != null) && (aasBlob != null)) {
+                String name = aasBlob.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(blobRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
-            // ContentType
-            blobNode.setContentType(aasBlob.getContentType());
+                // ContentType
+                blobNode.setContentType(aasBlob.getContentType());
 
-            setValue(aasBlob, blobNode, nodeManager, submodel, blobRef);
+                setValue(aasBlob, blobNode, nodeManager, submodel, blobRef);
 
-            if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+                if (AasServiceNodeManager.VALUES_READ_ONLY) {
+                    blobNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+                }
+
+                if (ordered) {
+                    node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(blobNode);
+                }
+
+                if (blobRef != null) {
+                    nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
+                }
             }
-
-            if (ordered) {
-                node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(blobNode);
-            }
-
-            if (blobRef != null) {
-                nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
-            }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasBlob Exception", ex);
         }
     }
 

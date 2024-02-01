@@ -65,36 +65,44 @@ public class SubmodelElementListCreator extends SubmodelElementCreator {
     public static void addAasSubmodelElementList(UaNode node, SubmodelElementList aasList, Reference listRef, Submodel submodel,
                                                  AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
-        if ((node != null) && (aasList != null)) {
-            String name = aasList.getIdShort();
-            String namespaceUri = opc.i4aas.ObjectTypeIds.AASSubmodelElementListType.getNamespaceUri();
-            QualifiedName browseName = UaQualifiedName.from(namespaceUri, name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
+        try {
+            if ((node != null) && (aasList != null)) {
+                String name = aasList.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(listRef);
+                }
+                String namespaceUri = opc.i4aas.ObjectTypeIds.AASSubmodelElementListType.getNamespaceUri();
+                QualifiedName browseName = UaQualifiedName.from(namespaceUri, name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
 
-            LOGGER.debug("addAasSubmodelElementList: Name {}; NodeId {}", name, nid);
-            AASSubmodelElementListType collNode = nodeManager.createInstance(AASSubmodelElementListType.class, nid, browseName, LocalizedText.english(name));
+                LOGGER.debug("addAasSubmodelElementList: Name {}; NodeId {}", name, nid);
+                AASSubmodelElementListType collNode = nodeManager.createInstance(AASSubmodelElementListType.class, nid, browseName, LocalizedText.english(name));
 
-            addSubmodelElementBaseData(collNode, aasList, nodeManager);
+                addSubmodelElementBaseData(collNode, aasList, nodeManager);
 
-            if (collNode.getOrderRelevantNode() == null) {
-                UaHelper.addBooleanUaProperty(collNode, nodeManager, AASSubmodelElementListType.ORDER_RELEVANT, aasList.getOrderRelevant(),
-                        namespaceUri);
+                if (collNode.getOrderRelevantNode() == null) {
+                    UaHelper.addBooleanUaProperty(collNode, nodeManager, AASSubmodelElementListType.ORDER_RELEVANT, aasList.getOrderRelevant(),
+                            namespaceUri);
+                }
+                else {
+                    collNode.setOrderRelevant(aasList.getOrderRelevant());
+                }
+
+                setValueTypeListElement(aasList.getValueTypeListElement(), collNode, nodeManager, namespaceUri);
+                setTypeValueListElement(aasList.getTypeValueListElement(), collNode, nodeManager, namespaceUri);
+                setSemanticIdListElement(aasList.getSemanticIdListElement(), collNode, namespaceUri, nodeManager);
+
+                // add SubmodelElements 
+                addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
+
+                node.addComponent(collNode);
+
+                nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
             }
-            else {
-                collNode.setOrderRelevant(aasList.getOrderRelevant());
-            }
-
-            setValueTypeListElement(aasList.getValueTypeListElement(), collNode, nodeManager, namespaceUri);
-            setTypeValueListElement(aasList.getTypeValueListElement(), collNode, nodeManager, namespaceUri);
-            setSemanticIdListElement(aasList.getSemanticIdListElement(), collNode, namespaceUri, nodeManager);
-
-            // add SubmodelElements 
-            addSubmodelElementList(collNode, aasList.getValue(), submodel, listRef, nodeManager);
-
-            node.addComponent(collNode);
-
-            nodeManager.addReferable(listRef, new ObjectData(aasList, collNode, submodel));
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasSubmodelElementList Exception", ex);
         }
     }
 

@@ -58,6 +58,9 @@ public class PropertyCreator extends SubmodelElementCreator {
     public static void addAasProperty(UaNode node, Property aasProperty, Reference propertyRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager) {
         try {
             String name = aasProperty.getIdShort();
+            if ((name == null) || name.isEmpty()) {
+                name = getNameFromReference(propertyRef);
+            }
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
 

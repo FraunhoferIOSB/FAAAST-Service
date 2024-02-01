@@ -28,6 +28,8 @@ import opc.i4aas.objecttypes.AASReferenceElementType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,6 +37,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
      * Adds an AAS reference element to the given node.
@@ -50,31 +53,39 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
      */
     public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasRefElem != null)) {
-            String name = aasRefElem.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
+        try {
+            if ((node != null) && (aasRefElem != null)) {
+                String name = aasRefElem.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(refElemRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
-            setValue(aasRefElem, refElemNode, nodeManager);
+                setValue(aasRefElem, refElemNode, nodeManager);
 
-            if (refElemNode.getValueNode() != null) {
-                nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                        new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+                if (refElemNode.getValueNode() != null) {
+                    nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+                }
+
+                nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
+
+                if (ordered) {
+                    node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(refElemNode);
+                }
+
+                nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
             }
-
-            nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
-
-            if (ordered) {
-                node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(refElemNode);
-            }
-
-            nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasReferenceElement Exception", ex);
         }
     }
 

@@ -38,6 +38,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,6 +47,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * OPC UA address space.
  */
 public class EntityCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCreator.class);
 
     /**
      * Adds an AAS entity to the given node.
@@ -64,43 +67,51 @@ public class EntityCreator extends SubmodelElementCreator {
      */
     public static void addAasEntity(UaNode node, Entity aasEntity, Reference entityRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException, ValueFormatException {
-        if ((node != null) && (aasEntity != null)) {
-            String name = aasEntity.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
+        try {
+            if ((node != null) && (aasEntity != null)) {
+                String name = aasEntity.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(entityRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
-            // EntityType
-            entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
+                // EntityType
+                entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
 
-            nodeManager.addSubmodelElementAasMap(entityNode.getEntityTypeNode().getNodeId(),
-                    new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
+                nodeManager.addSubmodelElementAasMap(entityNode.getEntityTypeNode().getNodeId(),
+                        new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
 
-            // GlobalAssetId
-            if (aasEntity.getGlobalAssetId() != null) {
-                addGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
+                // GlobalAssetId
+                if (aasEntity.getGlobalAssetId() != null) {
+                    addGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
+                }
+
+                // SpecificAssetIds
+                List<SpecificAssetId> specificAssetId = aasEntity.getSpecificAssetIds();
+                if (specificAssetId != null) {
+                    setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
+                }
+
+                // Statements
+                SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
+
+                nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
+
+                if (ordered) {
+                    node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(entityNode);
+                }
+
+                nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
             }
-
-            // SpecificAssetIds
-            List<SpecificAssetId> specificAssetId = aasEntity.getSpecificAssetIds();
-            if (specificAssetId != null) {
-                setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
-            }
-
-            // Statements
-            SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
-
-            nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
-
-            if (ordered) {
-                node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(entityNode);
-            }
-
-            nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasEntity Exception", ex);
         }
     }
 
