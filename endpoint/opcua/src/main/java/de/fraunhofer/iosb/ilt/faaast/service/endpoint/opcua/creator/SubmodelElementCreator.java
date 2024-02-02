@@ -206,7 +206,7 @@ public class SubmodelElementCreator {
             throw new IllegalArgumentException("unable to extract path");
         }
         else {
-            retval = path.getElements().get(path.getElements().size());
+            retval = path.getElements().get(path.getElements().size() - 1);
         }
         return retval;
     }
