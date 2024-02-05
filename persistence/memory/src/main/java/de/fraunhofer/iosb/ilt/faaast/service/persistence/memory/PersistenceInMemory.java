@@ -45,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -337,6 +338,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), environment);
 
         Collection<SubmodelElement> container;
+        boolean acceptEmptyIdShort = false;
         if (Submodel.class.isAssignableFrom(parent.getClass())) {
             container = ((Submodel) parent).getSubmodelElements();
         }
@@ -345,6 +347,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
             container = ((SubmodelElementList) parent).getValue();
+            acceptEmptyIdShort = true;
         }
         else {
             throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
@@ -353,9 +356,15 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                     SubmodelElementCollection.class,
                     SubmodelElementList.class));
         }
+        if (!acceptEmptyIdShort && StringHelper.isBlank(submodelElement.getIdShort())) {
+            throw new IllegalArgumentException("idShort most be non-empty");
+        }
         CollectionHelper.put(container,
                 container.stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
+                        .filter(StringHelper.isBlank(submodelElement.getIdShort())
+                                ? x -> false
+                                : x -> !StringHelper.isBlank(x.getIdShort())
+                                        && x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
                         .findFirst()
                         .orElse(null),
                 submodelElement);
