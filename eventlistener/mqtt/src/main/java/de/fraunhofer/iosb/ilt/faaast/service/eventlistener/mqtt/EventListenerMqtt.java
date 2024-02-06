@@ -20,7 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
@@ -29,6 +30,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 public class EventListenerMqtt implements EventListener<EventListenerMqttConfig> {
 
     private EventListenerMqttConfig config;
+    private Environment environment;
+    private String rule;
 
     public EventListenerMqtt() {
 
@@ -38,9 +41,10 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     @Override
     public void init(CoreConfig coreConfig, EventListenerMqttConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
-        EnvironmentContext environmentContext = null;
+        Ensure.requireNonNull(config.getRule(), "rule must be non-null");
+        this.rule = config.getRule();
         try {
-            environmentContext = config.loadInitialModelAndFiles();
+            this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);

@@ -53,6 +53,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>eventlistener-mqtt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>filestorage-filesystem</artifactId>
             <version>${project.version}</version>
         </dependency>

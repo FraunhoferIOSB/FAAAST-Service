@@ -22,12 +22,45 @@ import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListenerConfig;
  */
 public class EventListenerMqttConfig extends EventListenerConfig<EventListenerMqtt> {
 
+    public String getHost() {
+        return host;
+    }
+
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    private String host;
+
+    public String getRule() {
+        return rule;
+    }
+
+
+    public void setRule(String rule) {
+        this.rule = rule;
+    }
+
+    private String rule;
+
     public static Builder builder() {
         return new Builder();
     }
 
     private abstract static class AbstractBuilder<T extends EventListenerMqttConfig, B extends AbstractBuilder<T, B>>
             extends EventListenerConfig.AbstractBuilder<EventListenerMqtt, T, B> {
+
+        public B host(String value) {
+            getBuildingInstance().setHost(value);
+            return getSelf();
+        }
+
+
+        public B rule(String value) {
+            getBuildingInstance().setRule(value);
+            return getSelf();
+        }
 
     }
 

@@ -235,7 +235,10 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
-        eventListener.start();
+        if (!Objects.isNull(eventListener)) {
+            LOGGER.info("Starting event listener...");
+            eventListener.start();
+        }
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -254,7 +257,9 @@ public class Service implements ServiceContext {
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");
         messageBus.stop();
-        eventListener.stop();
+        if (!Objects.isNull(eventListener)) {
+            eventListener.stop();
+        }
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
     }
