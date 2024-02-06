@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
@@ -41,7 +42,7 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
         try {
             return EnvironmentContext.builder()
-                    .environment(deserializer.read(in, charset))
+                    .environment(deserializer.read(in, charset, Environment.class))
                     .build();
         }
         catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException e) {

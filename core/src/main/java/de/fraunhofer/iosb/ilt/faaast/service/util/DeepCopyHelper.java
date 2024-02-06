@@ -48,7 +48,7 @@ public class DeepCopyHelper {
      */
     public static Environment deepCopy(Environment env) {
         try {
-            return new JsonDeserializer().read(new JsonSerializer().write(env));
+            return new JsonDeserializer().read(new JsonSerializer().write(env), Environment.class);
         }
         catch (SerializationException | DeserializationException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
@@ -92,7 +92,7 @@ public class DeepCopyHelper {
                     String.format("type mismatch - can not create deep copy of instance of type %s with target type %s", referable.getClass(), outputClass));
         }
         try {
-            return (T) new JsonDeserializer().readReferable(new JsonSerializer().write(referable), outputClass);
+            return (T) new JsonDeserializer().read(new JsonSerializer().write(referable), outputClass);
         }
         catch (SerializationException | DeserializationException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);

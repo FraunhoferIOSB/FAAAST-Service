@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
-            <artifactId>dataformat-core</artifactId>
+            <artifactId>aas4j-dataformat-core</artifactId>
             <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
@@ -64,12 +64,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
-            <artifactId>dataformat-json</artifactId>
+            <artifactId>aas4j-dataformat-json</artifactId>
             <version>${aas4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>aas4j-model</artifactId>
             <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
