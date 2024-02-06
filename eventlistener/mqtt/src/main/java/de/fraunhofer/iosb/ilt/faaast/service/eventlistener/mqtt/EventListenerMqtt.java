@@ -31,7 +31,6 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
 
     private EventListenerMqttConfig config;
     private Environment environment;
-    private String rule;
 
     public EventListenerMqtt() {
 
@@ -42,13 +41,13 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     public void init(CoreConfig coreConfig, EventListenerMqttConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
         Ensure.requireNonNull(config.getRule(), "rule must be non-null");
-        this.rule = config.getRule();
         try {
             this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
         }
+
     }
 
 
