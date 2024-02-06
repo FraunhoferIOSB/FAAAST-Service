@@ -52,12 +52,11 @@
             <artifactId>endpoint-http</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- TODO re-add once OPC UA Endpoint is updated to AAS4j -->
-        <!--<dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-opcua</artifactId>
             <version>${project.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>messagebus-internal</artifactId>
@@ -126,13 +125,13 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
-            <artifactId>dataformat-core</artifactId>
+            <artifactId>aas4j-dataformat-core</artifactId>
             <version>${aas4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>aas4j-model</artifactId>
             <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>

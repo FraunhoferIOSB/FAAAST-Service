@@ -149,7 +149,7 @@ public class JsonSerializerTest {
 
 
     private void assertAdminShellIoSerialization(List<Referable> referables) throws Exception {
-        String expected = new org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer().write(referables);
+        String expected = new org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer().writeList(referables);
         String actual = serializer.write(referables, new OutputModifier.Builder().build());
         assertEquals(expected, actual);
     }
