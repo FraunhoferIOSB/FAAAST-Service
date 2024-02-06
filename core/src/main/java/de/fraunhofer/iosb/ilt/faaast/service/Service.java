@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -71,6 +72,7 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private FileStorage fileStorage;
     private RequestHandlerManager requestHandler;
+    private EventListener eventListener;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -233,6 +235,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
+        eventListener.start();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -251,6 +254,7 @@ public class Service implements ServiceContext {
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");
         messageBus.stop();
+        eventListener.stop();
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
     }
@@ -263,6 +267,12 @@ public class Service implements ServiceContext {
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
+        if (config.getEventListener() == null) {
+            LOGGER.warn("no event listener found, starting service without");
+        }
+        else {
+            eventListener = (EventListener) config.getEventListener().newInstance(config.getCore(), this);
+        }
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {

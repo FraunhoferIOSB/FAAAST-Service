@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListenerConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
@@ -44,6 +45,8 @@ public class ServiceConfig {
     private MessageBusConfig messageBus;
 
     private PersistenceConfig persistence;
+
+    private EventListenerConfig eventListener;
 
     public ServiceConfig() {
         this.assetConnections = new ArrayList<>();
@@ -111,6 +114,16 @@ public class ServiceConfig {
     }
 
 
+    public EventListenerConfig getEventListener() {
+        return eventListener;
+    }
+
+
+    public void setEventListener(EventListenerConfig eventListener) {
+        this.eventListener = eventListener;
+    }
+
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -127,13 +140,14 @@ public class ServiceConfig {
                 && Objects.equals(this.assetConnections, other.assetConnections)
                 && Objects.equals(this.endpoints, other.endpoints)
                 && Objects.equals(this.persistence, other.persistence)
-                && Objects.equals(this.fileStorage, other.fileStorage);
+                && Objects.equals(this.fileStorage, other.fileStorage)
+                && Objects.equals(this.eventListener, other.eventListener);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage);
+        return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage, eventListener);
     }
 
 
@@ -186,6 +200,7 @@ public class ServiceConfig {
         private PersistenceConfig persistence;
         private FileStorageConfig fileStorage;
         private MessageBusConfig messageBus;
+        private EventListenerConfig eventListener;
 
         public Builder() {
             this.core = new CoreConfig();
@@ -291,6 +306,18 @@ public class ServiceConfig {
 
 
         /**
+         * Adds an event listener.
+         *
+         * @param value the event listener to add
+         * @return the builder
+         */
+        public Builder eventListener(EventListenerConfig value) {
+            this.eventListener = value;
+            return this;
+        }
+
+
+        /**
          * Builds a new instance of ServiceConfig as defined by the builder.
          *
          * @return a new instance of ServiceConfig as defined by the builder
@@ -303,6 +330,7 @@ public class ServiceConfig {
             result.setPersistence(persistence);
             result.setFileStorage(fileStorage);
             result.setMessageBus(messageBus);
+            result.setEventListener(eventListener);
             return result;
         }
 

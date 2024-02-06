@@ -38,6 +38,7 @@
         <module>core</module>
         <module>model</module>
         <module>endpoint/http</module>
+        <module>eventlistener/mqtt</module>
         <module>messagebus/internal</module>
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
