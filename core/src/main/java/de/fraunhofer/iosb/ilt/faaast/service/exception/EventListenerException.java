@@ -12,30 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.eventlistener;
-
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
-
+package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 /**
- * Generic interface for event listener implementations.
- *
- * @param <C> type of the corresponding configuration class
+ * This class represents exceptions related to {@link de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener}.
  */
-public interface EventListener<C extends EventListenerConfig> extends Configurable<C> {
+public class EventListenerException extends Exception {
 
-    /**
-     * Connects to the message bus and subscribes to events.
-     *
-     */
-    public void start() throws EventListenerException;
+    public EventListenerException() {
+        super();
+    }
 
 
-    /**
-     * Stops the event listener.
-     *
-     */
-    public void stop();
+    public EventListenerException(String s) {
+        super(s);
+    }
 
+
+    public EventListenerException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public EventListenerException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -31,6 +32,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
 
     private EventListenerMqttConfig config;
     private Environment environment;
+    private PahoClient client;
 
     public EventListenerMqtt() {
 
@@ -47,7 +49,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
         }
-
+        client = new PahoClient(config);
     }
 
 
@@ -58,13 +60,13 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
 
 
     @Override
-    public void start() {
-
+    public void start() throws EventListenerException {
+        client.start();
     }
 
 
     @Override
     public void stop() {
-
+        client.stop();
     }
 }

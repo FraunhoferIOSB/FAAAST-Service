@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,9 +79,9 @@ public class PahoClient {
     /**
      * Starts the client connection.
      *
-     * @throws MessageBusException if message bus fails to start
+     * @throws EventListenerException if EventListener fails to start
      */
-    public void start() throws MessageBusException {
+    public void start() throws EventListenerException {
         String endpoint = buildEndpoint();
         MqttConnectOptions options = new MqttConnectOptions();
         try {
@@ -92,7 +92,7 @@ public class PahoClient {
             }
         }
         catch (GeneralSecurityException | IOException e) {
-            throw new MessageBusException("error setting up SSL for MQTT message bus", e);
+            throw new EventListenerException("error setting up SSL for MQTT event listener", e);
         }
         if (!Objects.isNull(config.getUsername())) {
             options.setUserName(config.getUsername());
@@ -110,7 +110,7 @@ public class PahoClient {
             mqttClient.setCallback(new MqttCallbackExtended() {
                 @Override
                 public void connectionLost(Throwable throwable) {
-                    logger.warn("MQTT message bus connection lost");
+                    logger.warn("MQTT event listener connection lost");
                 }
 
 
@@ -129,7 +129,7 @@ public class PahoClient {
 
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
-                    logger.debug("MQTT MessageBus Client connected to broker.");
+                    logger.debug("MQTT EventListener Client connected to broker.");
 
                 }
 
@@ -139,7 +139,7 @@ public class PahoClient {
             logger.debug("connected to MQTT broker: {}", endpoint);
         }
         catch (MqttException e) {
-            throw new MessageBusException("Failed to connect to MQTT server", e);
+            throw new EventListenerException("Failed to connect to MQTT server", e);
         }
     }
 
@@ -162,7 +162,7 @@ public class PahoClient {
             mqttClient = null;
         }
         catch (MqttException e) {
-            logger.debug("MQTT message bus did not stop gracefully", e);
+            logger.debug("MQTT EventListener did not stop gracefully", e);
         }
     }
 
@@ -183,29 +183,6 @@ public class PahoClient {
             sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
 
             return sslContext.getSocketFactory();
-        }
-    }
-
-
-    /**
-     * Publishes the message.
-     *
-     * @param topic the topic to publish on
-     * @param content the message to publish
-     * @throws MessageBusException if publishing the message fails
-     */
-    public void publish(String topic, String content) throws MessageBusException {
-        if (!mqttClient.isConnected()) {
-            logger.debug("received data but MQTT connection is closed, trying to connect...");
-            start();
-        }
-        MqttMessage msg = new MqttMessage(content.getBytes());
-        try {
-            mqttClient.publish(topic, msg);
-            logger.info("message published - topic: {}, data: {}", topic, content);
-        }
-        catch (MqttException e) {
-            throw new MessageBusException("publishing message on MQTT message bus failed", e);
         }
     }
 
