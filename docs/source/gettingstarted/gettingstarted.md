@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
--   Java 11+
+Java 17
 
 ## Usage
 
@@ -32,18 +32,6 @@ implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.5.0'
 
 One of the maven plugins in our build script leads to an error while resolving the dependency tree in gradle. Therefore, you need to add the following code snippet in your `build.gradle`. This code snippet removes the classifier of the transitive dependency `com.google.inject:guice`.
 
-```text
-configurations.all {
-	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-		if (details.requested.module.toString() == "com.google.inject:guice") {
-			details.artifactSelection{
-				it.selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null);
-			}
-		}
-	}
-}
-```
-
 ## Building from Source
 
 ### Prerequisites
@@ -58,7 +46,7 @@ mvn clean install
 
 ## Example
 
-This example shows how to start a FA³ST Service given your custom AAS model (called `model.json` for simplicity but can be any relative or absolute path to an AAS model in any supported data format, e.g. JSON, XML, RDF or AASX). The service will expose an HTTP endpoint on default port 8080.
+This example shows how to start a FA³ST Service given your custom AAS model (called `model.json` for simplicity but can be any relative or absolute path to an AAS model in any supported data format, e.g. JSON, XML, or AASX). The service will expose an HTTP endpoint on default port 8080.
 
 ### Via Command-line Interface (CLI)
 
@@ -71,15 +59,15 @@ java -jar starter-{version}.jar -m model.json
 
 ```java
 Service service = new Service(ServiceConfig.builder()
-		.core(CoreConfig.builder()
-				.requestHandlerThreadPoolSize(2)
-				.build())
-		.persistence(PersistenceInMemoryConfig.builder()
-				.environment(AASEnvironmentHelper
-						.fromFile(new File("{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json")))
-				.build())
-		.endpoint(HttpEndpointConfig.builder().build())
-		.messageBus(MessageBusInternalConfig.builder().build())
-		.build());
+	.core(CoreConfig.builder()
+		.requestHandlerThreadPoolSize(2)
+		.build())
+	.persistence(PersistenceInMemoryConfig.builder()
+		.initialModelFile(new File("{pathTo}\\FAAAST-Service\\misc\\examples\\model.aasx"))
+		.build())
+	.endpoint(HttpEndpointConfig.builder().build())
+	.messageBus(MessageBusInternalConfig.builder().build())
+	.fileStorage(FileStorageInMemoryConfig.builder().build())
+	.build());
 service.start();
 ```
