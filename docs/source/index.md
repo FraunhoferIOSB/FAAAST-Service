@@ -21,6 +21,7 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 
 ```{toctree} 
+:hidden:
 :caption: Getting Started (new)
 gettingstarted/gettingstarted.md
 ```{toctree} 
