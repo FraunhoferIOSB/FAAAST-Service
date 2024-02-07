@@ -22,13 +22,7 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 ```{toctree} 
 :hidden:
-:caption: Getting Started (new)
-gettingstarted/gettingstarted.md
-```{toctree} 
-
-```{toctree} 
-:hidden:
-:caption: Getting Started (old)
+:caption: Getting Started
 :maxdepth: 3
 gettingstarted/gettingstarted.md
 gettingstarted/commandline.md

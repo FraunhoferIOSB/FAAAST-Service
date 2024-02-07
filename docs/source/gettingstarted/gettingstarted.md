@@ -1,3 +1,8 @@
+```{toctree} 
+:maxdepth: 3
+
+```{toctree} 
+
 SOme info text about getting started
 ## Prerequisites
 
