@@ -1,5 +1,4 @@
-# Getting Started
-
+SOme info text about getting started
 ## Prerequisites
 
 Java 17
