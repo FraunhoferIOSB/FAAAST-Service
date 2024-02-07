@@ -75,8 +75,8 @@ File-based <filestorages/filesystem_filestorage.md>
 ```
 
 ```{toctree}
-:hidden:
-:caption: MessageBus
+
+:caption: MessageBus <messagebus/messagebus.md>
 :maxdepth: 3
 General <messagebus/messagebus.md>
 Internal <messagebus/internal_messagebus.md>
