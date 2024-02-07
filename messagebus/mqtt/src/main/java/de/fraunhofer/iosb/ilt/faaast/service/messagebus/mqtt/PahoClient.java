@@ -202,7 +202,7 @@ public class PahoClient {
         MqttMessage msg = new MqttMessage(content.getBytes());
         try {
             mqttClient.publish(topic, msg);
-            logger.info("message published - topic: {}, data: {}", topic, content);
+            logger.debug("message published - topic: {}, data: {}", topic, content);
         }
         catch (MqttException e) {
             throw new MessageBusException("publishing message on MQTT message bus failed", e);

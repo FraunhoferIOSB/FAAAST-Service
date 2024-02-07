@@ -17,12 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -32,10 +46,17 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
 
     private EventListenerMqttConfig config;
     private Environment environment;
+    private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
+    private final JsonEventSerializer serializer;
+    private final JsonEventDeserializer deserializer;
     private PahoClient client;
+    private SubscriptionId subscriptionId;
+    private Rule rule;
 
     public EventListenerMqtt() {
-
+        subscriptions = new ConcurrentHashMap<>();
+        serializer = new JsonEventSerializer();
+        deserializer = new JsonEventDeserializer();
     }
 
 
@@ -43,13 +64,14 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     public void init(CoreConfig coreConfig, EventListenerMqttConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
         Ensure.requireNonNull(config.getRule(), "rule must be non-null");
+        this.rule = new Rule(config.getRule());
         try {
             this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
         }
-        client = new PahoClient(config);
+        client = new PahoClient(config, new RuleHandler());
     }
 
 
@@ -62,11 +84,58 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     @Override
     public void start() throws EventListenerException {
         client.start();
+        subscriptionId = subscribe(SubscriptionInfo.create(EventMessage.class, x -> {
+            System.out.println(x);
+        }));
     }
 
 
     @Override
     public void stop() {
+        unsubscribe(subscriptionId);
         client.stop();
+    }
+
+    public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
+        Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
+        subscriptionInfo.getSubscribedEvents()
+                .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream()
+                        .forEach(e -> client.subscribe(config.getTopicPrefix() + e.getSimpleName(), (t, message) -> {
+                            EventMessage event = deserializer.read(message.toString(), e);
+                            if (subscriptionInfo.getFilter().test(event.getElement())) {
+                                subscriptionInfo.getHandler().accept(event);
+                            }
+                        })));
+
+        SubscriptionId subscriptionId = new SubscriptionId();
+        subscriptions.put(subscriptionId, subscriptionInfo);
+        return subscriptionId;
+    }
+
+
+    private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
+        try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
+                .enableClassInfo().scan()) {
+            if (Modifier.isAbstract(messageType.getModifiers())) {
+                return scanResult
+                        .getSubclasses(messageType.getName())
+                        .filter(x -> !x.isAbstract())
+                        .loadClasses(EventMessage.class);
+            }
+            else {
+                List<Class<EventMessage>> list = new ArrayList<>();
+                list.add((Class<EventMessage>) messageType);
+                return list;
+            }
+        }
+    }
+
+    public void unsubscribe(SubscriptionId id) {
+        SubscriptionInfo info = subscriptions.get(id);
+        Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
+        subscriptions.get(id).getSubscribedEvents().stream().forEach(a -> //find all events for given abstract or event
+                determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> //unsubscribe from all events
+                        client.unsubscribe(config.getTopicPrefix() + e.getSimpleName())));
+        subscriptions.remove(id);
     }
 }

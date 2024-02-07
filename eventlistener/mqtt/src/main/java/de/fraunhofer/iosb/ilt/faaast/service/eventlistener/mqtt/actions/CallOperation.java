@@ -14,4 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions;
 
-public class CallOperation {}
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+
+public class CallOperation implements Action {
+    private Reference reference;
+
+    public CallOperation(Reference reference){
+        this.reference = reference;
+    }
+}

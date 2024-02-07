@@ -51,9 +51,11 @@ public class PahoClient {
     private static final Logger logger = LoggerFactory.getLogger(PahoClient.class);
     private MqttClient mqttClient;
     private EventListenerMqttConfig config;
+    private RuleHandler ruleHandler;
 
-    public PahoClient(EventListenerMqttConfig config) {
+    public PahoClient(EventListenerMqttConfig config, RuleHandler ruleHandler) {
         this.config = config;
+        this.ruleHandler = ruleHandler;
     }
 
 
@@ -123,7 +125,6 @@ public class PahoClient {
                 @Override
                 public void messageArrived(String string, MqttMessage mm) throws Exception {
                     // intentionally left empty
-
                 }
 
 

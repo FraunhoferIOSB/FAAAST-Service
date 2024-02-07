@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
@@ -232,7 +233,7 @@ public class Service implements ServiceContext {
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
-    public void start() throws MessageBusException, EndpointException {
+    public void start() throws MessageBusException, EndpointException, EventListenerException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
         if (!Objects.isNull(eventListener)) {

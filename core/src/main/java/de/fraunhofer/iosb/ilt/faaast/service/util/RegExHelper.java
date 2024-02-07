@@ -101,7 +101,7 @@ public class RegExHelper {
      * empty list is return.
      *
      * @param pattern the pattern to evaluate
-     * @param input the value to evaludate the pattern against
+     * @param input the value to evaluate the pattern against
      * @return group names and their corresponding value
      */
     public static Map<String, String> getGroupValues(String pattern, String input) {
