@@ -20,7 +20,9 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 -   can be used via command-line interface (CLI), as docker container or embedded library
 
 
+```{toctree} 
 gettingstarted/gettingstarted.md
+```{toctree} 
 
 ```{toctree} 
 :hidden:
