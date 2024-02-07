@@ -24,7 +24,7 @@ gettingstarted/gettingstarted.md
 
 ```{toctree} 
 :hidden:
-:caption: Getting Started
+:caption: Getting Started (old)
 :maxdepth: 3
 gettingstarted/gettingstarted.md
 gettingstarted/commandline.md
