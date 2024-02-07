@@ -23,7 +23,7 @@ public class Rule {
     public Rule(String rule) {
         elements = new ArrayList<>();
         actions = new ArrayList<>();
-        fromString(rule);
+        parse(rule);
     }
 
     private void addElement(Reference reference) {
@@ -34,7 +34,7 @@ public class Rule {
         actions.add(action);
     }
 
-    public void fromString(String input) {
+    public void parse(String input) {
         Pattern pattern = Pattern.compile(PATTERN_ELEMENTS);
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {

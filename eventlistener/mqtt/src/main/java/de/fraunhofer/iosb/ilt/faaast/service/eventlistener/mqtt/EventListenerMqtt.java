@@ -26,7 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -52,6 +54,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     private PahoClient client;
     private SubscriptionId subscriptionId;
     private Rule rule;
+    private RuleHandler ruleHandler;
 
     public EventListenerMqtt() {
         subscriptions = new ConcurrentHashMap<>();
@@ -65,13 +68,14 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         this.config = config;
         Ensure.requireNonNull(config.getRule(), "rule must be non-null");
         this.rule = new Rule(config.getRule());
+        this.ruleHandler = new RuleHandler();
         try {
             this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
             throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
         }
-        client = new PahoClient(config, new RuleHandler());
+        client = new PahoClient(config);
     }
 
 
@@ -84,9 +88,11 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     @Override
     public void start() throws EventListenerException {
         client.start();
-        subscriptionId = subscribe(SubscriptionInfo.create(EventMessage.class, x -> {
-            System.out.println(x);
-        }));
+        subscriptionId = subscribe(SubscriptionInfo.create(ValueChangeEventMessage.class, LambdaExceptionHelper.wrap(x -> {
+            if(this.ruleHandler.match(this.rule, x.getElement())) {
+                this.ruleHandler.handle(this.rule, x.getNewValue());
+            }
+        })));
     }
 
 

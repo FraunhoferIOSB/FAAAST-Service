@@ -1,12 +1,31 @@
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
-public class RuleHandler {
-    public void handle() {
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
+public class RuleHandler {
+    private ScriptEngineManager manager;
+    private ScriptEngine engine;
+
+    public RuleHandler() {
+        manager = new ScriptEngineManager();
+        engine = manager.getEngineByName("JavaScript");
     }
 
-    public boolean match(Rule rule) {
+    public void handle(Rule rule, ElementValue value) throws EventListenerException {
+        try {
+            Object result = engine.eval("console.log('Hello from JavaScript');");
+        } catch (ScriptException e) {
+            throw new EventListenerException(e);
+        }
+    }
 
-        return false;
+    public boolean match(Rule rule, Reference reference) {
+        return rule.elements.contains(reference);
     }
 }
