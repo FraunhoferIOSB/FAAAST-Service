@@ -1,5 +1,9 @@
 # Architecture
 
+## Sub-section 1 of Architecture 
+
+## Sub-section 2 of Architecture 
+
 ![FA³ST Service Architecture](../images/fa3st-service-default-implementations.png)
 
 FA³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:

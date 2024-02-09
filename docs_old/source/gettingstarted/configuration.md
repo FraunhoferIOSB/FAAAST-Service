@@ -1,5 +1,11 @@
 # Configuration
 
+## Sub-section 1 of Configuration 
+
+### Sub-section 1.1 of Configuration  (should not be visible in navigatio)
+
+## Sub-section 2 of Configuration 
+
 This section gives a short introduction on how the configuration file works.
 
 The basic structure of a configuration file is the following

@@ -1,6 +1,7 @@
 # Usage with Command Line
 
-To start a FA³ST Service from the command line:
+To start a FA³ST Service from the command line you need a compiled JAR file of the `starter` module.
+
 
 1.  Move to the starter project and build the project
 

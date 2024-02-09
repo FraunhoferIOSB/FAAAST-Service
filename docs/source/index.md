@@ -6,15 +6,15 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 ## Implemented AAS Specifications
 | Specification | Version |
 |:--| -- |
-| Details of the Asset Administration Shell - Part 1<br />The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01<br />(based on [admin-shell-io/java-model](https://github.com/admin-shell-io/java-model))
-| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02<br />([specification](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf))<br />([swagger](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02)) |
+| Details of the Asset Administration Shell - Part 1<br />The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0
+| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 3.0.1<br />([specification](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf)) |
 
 ## Features
 
--   supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
+-   supports several dataformats for the Asset Administration Shell Environment: `AASX, JSON, XML`
 -   easy configuration via JSON file
 -   easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
--   uses existing open source implementation of AAS datamodel and de-/serializers [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model)
+-   uses existing open source implementation of AAS datamodel and de-/serializers [Eclipse AAS4J](https://github.com/eclipse-aas4j/aas4j)
 -   synchronization between multiple endpoints
 -   connecting to assets using arbitrary communication protocols
 -   can be used via command-line interface (CLI), as docker container or embedded library
@@ -22,85 +22,27 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 ```{toctree} 
 :hidden:
-:caption: Getting Started
-:maxdepth: 3
-gettingstarted/gettingstarted.md
-gettingstarted/commandline.md
-gettingstarted/configuration.md
-gettingstarted/docker.md
+:caption: Basics
+basics/getting-started.md
+basics/installation.md
+basics/usage.md
 ```
 
 ```{toctree} 
 :hidden:
-:caption: Architecture
-:maxdepth: 3
-General <architecture/architecture.md>
+:caption: Interfaces
+interfaces/endpoint.md
+interfaces/asset-connection.md
+interfaces/persistence.md
+interfaces/file-storage.md
+interfaces/message-bus.md
 ```
 
 ```{toctree} 
 :hidden:
-:caption: Endpoints
-:maxdepth: 3
-General <endpoints/endpoint.md>
-HTTP <endpoints/http_endpoint.md>
-OPC UA <endpoints/opcua_endpoint.md>
-```
-
-```{toctree} 
-:hidden:
-:caption: Asset Connections
-:maxdepth: 3
-General <assetconnections/assetconnection.md>
-HTTP <assetconnections/http_assetconnection.md>
-MQTT <assetconnections/mqtt_assetconnection.md>
-OPC UA <assetconnections/opcua_assetconnection.md>
-```
-
-```{toctree} 
-:hidden:
-:caption: Persistence
-:maxdepth: 3
-General <persistences/persistence.md>
-In-Memory <persistences/inmemory_persistence.md>
-File-based <persistences/file_persistence.md>
-```
-
-```{toctree} 
-:hidden:
-:caption: Filestorage
-:maxdepth: 3
-General <filestorages/filestorage.md>
-In-Memory <filestorages/inmemory_filestorage.md>
-File-based <filestorages/filesystem_filestorage.md>
-```
-
-```{toctree}
-MessageBus <messagebus/messagebus.md>
-:maxdepth: 3
-General <messagebus/messagebus.md>
-Internal <messagebus/internal_messagebus.md>
-MQTT <messagebus/mqtt_messagebus.md>
-```
-
-```{toctree}
-:hidden:
-:caption: Examples
-:maxdepth: 3
-Custom Asset Connection <examples/assetconnection-custom.md>
-```
-
-```{toctree} 
-:hidden:
-:caption: About
-:maxdepth: 2
-about/about.md
-about/contributing.md
-about/recommended.md
-```
-
-```{toctree}
-:hidden:
-:caption: Changelog
-:maxdepth: 2
-changelog/changelog.md
+:caption: Other
+other/release-notes.md
+other/about-the-project.md
+other/contributing.md
+other/recommended-documents-and-links.md
 ```

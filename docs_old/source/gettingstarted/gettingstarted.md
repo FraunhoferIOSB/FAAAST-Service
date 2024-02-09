@@ -1,5 +1,6 @@
-SOme info text about getting started
-## Prerequisites
+# Getting Started
+
+## Should not be visible in navigation
 
 Java 17
 
