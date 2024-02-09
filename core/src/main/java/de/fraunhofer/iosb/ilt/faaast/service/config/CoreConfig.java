@@ -29,12 +29,20 @@ public class CoreConfig {
 
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
+    private static final String DEFAULT_REGISTRY_HOST = "localhost";
+    private static final int DEFAULT_REGISTRY_PORT = 8090;
+    private static final String DEFAULT_AAS_REGISTRY_BASE_PATH = "/registry/shell-descriptors";
+    private static final String DEFAULT_SUBMODEL_REGISTRY_BASE_PATH = "/registry/submodel-descriptors";
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
     private ModelValidatorConfig validationOnLoad;
     private ModelValidatorConfig validationOnCreate;
     private ModelValidatorConfig validationOnUpdate;
+    private String registryHost;
+    private int registryPort;
+    private String aasRegistryBasePath;
+    private String submodelRegistryBasePath;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -57,6 +65,10 @@ public class CoreConfig {
                 .validateIdentifierUniqueness(true)
                 .validateValueTypes(true)
                 .build();
+        this.registryHost = DEFAULT_REGISTRY_HOST;
+        this.registryPort = DEFAULT_REGISTRY_PORT;
+        this.aasRegistryBasePath = DEFAULT_AAS_REGISTRY_BASE_PATH;
+        this.submodelRegistryBasePath = DEFAULT_SUBMODEL_REGISTRY_BASE_PATH;
     }
 
 
@@ -115,6 +127,46 @@ public class CoreConfig {
     }
 
 
+    public String getRegistryHost() {
+        return registryHost;
+    }
+
+
+    public void setRegistryHost(String registryHost) {
+        this.registryHost = registryHost;
+    }
+
+
+    public int getRegistryPort() {
+        return registryPort;
+    }
+
+
+    public void setRegistryPort(int registryPort) {
+        this.registryPort = registryPort;
+    }
+
+
+    public String getAasRegistryBasePath() {
+        return aasRegistryBasePath;
+    }
+
+
+    public void setAasRegistryBasePath(String aasRegistryBasePath) {
+        this.aasRegistryBasePath = aasRegistryBasePath;
+    }
+
+
+    public String getSubmodelRegistryBasePath() {
+        return submodelRegistryBasePath;
+    }
+
+
+    public void setSubmodelRegistryBasePath(String submodelRegistryBasePath) {
+        this.submodelRegistryBasePath = submodelRegistryBasePath;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
@@ -154,6 +206,30 @@ public class CoreConfig {
 
         public Builder assetConnectionRetryInterval(long value) {
             getBuildingInstance().setAssetConnectionRetryInterval(value);
+            return getSelf();
+        }
+
+
+        public Builder registryHost(String value) {
+            getBuildingInstance().setRegistryHost(value);
+            return getSelf();
+        }
+
+
+        public Builder registryPort(int value) {
+            getBuildingInstance().setRegistryPort(value);
+            return getSelf();
+        }
+
+
+        public Builder aasRegistryBasePath(String value) {
+            getBuildingInstance().setAasRegistryBasePath(value);
+            return getSelf();
+        }
+
+
+        public Builder submodelRegistryBasePath(String value) {
+            getBuildingInstance().setSubmodelRegistryBasePath(value);
             return getSelf();
         }
 

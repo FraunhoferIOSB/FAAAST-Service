@@ -6,6 +6,7 @@
 *   General
 	*   Unified way to configure certificate information ([See details](#providing-certificates-in-configuration)). Affected components: HTTP Asset Connection, OPC UA Asset Connection, HTTP Endpoint, MQTT MessageBus
 	*   Environment variables now use `_` instead of `.` as a separator
+	*   Automatic synchronisation of asset administration shells and submodels with the FA³ST Registry
 * HTTP Endpoint
 	*   Now supports HTTPS
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one

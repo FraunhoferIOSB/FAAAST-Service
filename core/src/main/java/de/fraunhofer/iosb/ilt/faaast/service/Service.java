@@ -30,7 +30,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.registration.RegistryHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -57,6 +59,7 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private RequestHandlerManager requestHandler;
+    private RegistryHandler registryHandler;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -180,6 +183,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
+        registryHandler = new RegistryHandler(messageBus, persistence, config);
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -200,6 +204,14 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
+        try {
+            LOGGER.info("Deleting FA³ST Service from Registry");
+            registryHandler.deleteAllAasInRegistry();
+        }
+        catch (InterruptedException | RegistryException e) {
+            LOGGER.error(String.format("Deregistration in Registry failed: %s", e.getMessage()), e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 

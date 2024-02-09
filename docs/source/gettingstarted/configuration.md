@@ -6,40 +6,44 @@ The basic structure of a configuration is the following
 
 ```json
 {
-	"core" : {
-		"requestHandlerThreadPoolSize": 2,      // how many threads are used for executing requests
-		"assetConnectionRetryInterval": 1000,   // interval in ms in which to retry establishing asset connections
-		"validationOnLoad": {					// (optional) which validation rules to use when loading the model at startup
-			"validateConstraints": true,
-			"valueTypeValidation": true,
-			"idShortUniqueness": true,
-			"identifierUniqueness": true
-		},
-		"validationOnCreate": {                 // (optional) which validation rules to use when creating elements via API
-			"validateConstraints": false,
-			"valueTypeValidation": true,
-			"idShortUniqueness": true,
-			"identifierUniqueness": true
-		},
-		"validationOnUpdate": {                 // (optional) which validation rules to use when updating elements via API
-			"validateConstraints": false,
-			"valueTypeValidation": true,
-			"idShortUniqueness": true,
-			"identifierUniqueness": true
-		}
-	},
-	"endpoints" : [
-		// endpoint configurations, multiple allowed
-	],
-	"persistence" : {
-		// persistence configuration
-	},
-	"messageBus" : {
-		// message bus configuration
-	},
-	"assetConnections": [
-		// asset connection configurations, multiple allowed
-	]
+  "core": {
+    "requestHandlerThreadPoolSize": 2,    // how many threads are used for executing requests
+    "assetConnectionRetryInterval": 1000,    // interval in ms in which to retry establishing asset connections
+    "validationOnLoad": {      // (optional) which validation rules to use when loading the model at startup
+      "validateConstraints": true,
+      "valueTypeValidation": true,
+      "idShortUniqueness": true,
+      "identifierUniqueness": true
+    },
+    "validationOnCreate": {      // (optional) which validation rules to use when creating elements via API
+      "validateConstraints": false,
+      "valueTypeValidation": true,
+      "idShortUniqueness": true,
+      "identifierUniqueness": true
+    },
+    "validationOnUpdate": {      // (optional) which validation rules to use when updating elements via API
+      "validateConstraints": false,
+      "valueTypeValidation": true,
+      "idShortUniqueness": true,
+      "identifierUniqueness": true
+    },
+    "registryHost": "localhost",
+    "registryPort": 8090,
+    "aasRegistryBasePath": "/registry/shell-descriptors",
+    "submodelRegistryBasePath": "/registry/submodel-descriptors"
+  },
+  "endpoints": [
+    // endpoint configurations, multiple allowed
+  ],
+  "persistence": {
+    // persistence configuration
+  },
+  "messageBus": {
+    // message bus configuration
+  },
+  "assetConnections": [
+    // asset connection configurations, multiple allowed
+  ]
 }
 ```
 

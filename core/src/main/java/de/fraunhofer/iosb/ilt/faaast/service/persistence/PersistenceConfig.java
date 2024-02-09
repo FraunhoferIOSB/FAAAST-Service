@@ -82,11 +82,13 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
             if (!initialModelFile.isFile()) {
                 throw new InvalidConfigurationException(String.format("model file is not file (file: %s)", initialModelFile));
             }
-            return EnvironmentSerializationManager
+            initialModel = EnvironmentSerializationManager
                     .deserialize(initialModelFile)
                     .getEnvironment();
+            return initialModel;
         }
-        return new DefaultAssetAdministrationShellEnvironment.Builder().build();
+        initialModel = new DefaultAssetAdministrationShellEnvironment.Builder().build();
+        return this.initialModel;
     }
 
 

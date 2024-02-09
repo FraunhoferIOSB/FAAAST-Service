@@ -24,7 +24,11 @@
                             "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
-                        }
+                        },
+              "registryHost" : "localhost",
+              "registryPort" : 8090,
+              "aasRegistryBasePath" : "/registry/shell-descriptors",
+              "submodelRegistryBasePath" : "/registry/submodel-descriptors"
             },
     "assetConnections": [
         {
