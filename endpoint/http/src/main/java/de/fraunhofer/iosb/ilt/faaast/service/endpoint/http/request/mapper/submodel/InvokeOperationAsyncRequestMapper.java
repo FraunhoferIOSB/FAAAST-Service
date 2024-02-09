@@ -32,8 +32,8 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke-async.
+ * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke-async.
  */
 public class InvokeOperationAsyncRequestMapper extends AbstractSubmodelInterfaceRequestMapper<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 

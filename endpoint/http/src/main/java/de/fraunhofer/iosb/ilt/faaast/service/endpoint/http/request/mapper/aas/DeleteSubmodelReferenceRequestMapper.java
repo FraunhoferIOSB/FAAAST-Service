@@ -27,13 +27,13 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}/aas/submodel-refs/{submodelIdentifier}.
+ * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}/submodel-refs/{submodelIdentifier}.
  */
 public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/submodel-refs/%s",
+    private static final String PATTERN = String.format("shells/%s/submodel-refs/%s",
             pathElement(AAS_ID),
             pathElement(SUBMODEL_ID));
 

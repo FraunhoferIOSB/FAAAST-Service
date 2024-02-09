@@ -30,8 +30,8 @@ import java.util.Map;
 
 /**
  * class to map HTTP-GET-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*),
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/(.*).
+ * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/(.*),
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/(.*).
  */
 public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 

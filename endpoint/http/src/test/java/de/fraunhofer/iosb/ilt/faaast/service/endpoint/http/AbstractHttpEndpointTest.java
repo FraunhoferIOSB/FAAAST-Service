@@ -240,35 +240,12 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testParamContentNormal() throws Exception {
-        String id = "foo";
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
-                .statusCode(StatusCode.SUCCESS)
-                .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=normal");
-        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-    }
-
-
-    @Test
-    @Ignore("content=trimmed currently under discussion")
-    public void testParamContentTrimmed() throws Exception {
-        String id = "";
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
-                .statusCode(StatusCode.SUCCESS)
-                .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=trimmed");
-        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-    }
-
-
-    @Test
     public void testParamContentReference() throws Exception {
         String id = "foo";
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas?content=reference");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -279,7 +256,7 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/aas/$foo?level=foo");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
         assertContainsErrorText(response, HttpStatus.BAD_REQUEST_400, "unsupported content modifier 'foo'");
     }
 
@@ -289,7 +266,7 @@ public abstract class AbstractHttpEndpointTest {
         when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/bogus/aas");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -331,7 +308,7 @@ public abstract class AbstractHttpEndpointTest {
                 .payload(null)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
-                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
+                + "/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -344,7 +321,7 @@ public abstract class AbstractHttpEndpointTest {
                 .payload(null)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
-                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&content=");
+                + "/submodel-elements/ExampleRelationshipElement?level=normal&content=");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -357,7 +334,7 @@ public abstract class AbstractHttpEndpointTest {
                 .payload(null)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
-                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
+                + "/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -536,7 +513,7 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(Page.of(submodelElements))
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
@@ -563,7 +540,7 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
                 .content(Content.METADATA)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
@@ -581,7 +558,7 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", Content.REFERENCE);
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", Content.REFERENCE);
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         Page<Reference> actual = deserializer.read(new String(response.getContent()), new TypeReference<Page<Reference>>() {});
         Assert.assertEquals(expected, actual);
@@ -606,7 +583,7 @@ public abstract class AbstractHttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel-elements", new OutputModifier.Builder()
                 .content(Content.NORMAL)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
@@ -653,7 +630,7 @@ public abstract class AbstractHttpEndpointTest {
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
-                String.format("/shells/%s/aas/submodels/%s/submodel/submodel-elements",
+                String.format("/shells/%s/submodels/%s/submodel-elements",
                         EncodingHelper.base64UrlEncode(aasId),
                         EncodingHelper.base64UrlEncode(submodelId)),
                 new OutputModifier.Builder()
@@ -701,7 +678,7 @@ public abstract class AbstractHttpEndpointTest {
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
         ContentResponse response = execute(
-                HttpMethod.POST, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel/submodel-elements",
+                HttpMethod.POST, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements",
                 new DefaultProperty.Builder().build());
         Assert.assertEquals(HttpStatus.CONFLICT_409, response.getStatus());
     }
@@ -731,7 +708,7 @@ public abstract class AbstractHttpEndpointTest {
                         .build());
         InvokeOperationAsyncRequest operationRequest = InvokeOperationAsyncRequest.builder()
                 .build();
-        URI urlInvoke = new URI("/submodels/foo/submodel/submodel-elements/bar/invoke-async");
+        URI urlInvoke = new URI("/submodels/foo/submodel-elements/bar/invoke-async");
         ContentResponse responseInvoke = execute(HttpMethod.POST, urlInvoke.toString(), operationRequest);
         Assert.assertEquals(HttpStatus.ACCEPTED_202, responseInvoke.getStatus());
         Assert.assertTrue(responseInvoke.getHeaders().contains(HttpHeader.LOCATION));
@@ -754,7 +731,7 @@ public abstract class AbstractHttpEndpointTest {
                         .payload(null)
                         .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                         .build());
-        ContentResponse responseStatusNotFound = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements/bar/operation-status/" + handleId);
+        ContentResponse responseStatusNotFound = execute(HttpMethod.GET, "/submodels/foo/submodel-elements/bar/operation-status/" + handleId);
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, responseStatusNotFound.getStatus());
 
         // check COMPLETED = 302
@@ -806,7 +783,7 @@ public abstract class AbstractHttpEndpointTest {
                 .result(expected)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode("Whatever") + "/aas");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode("foo"));
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
@@ -845,7 +822,7 @@ public abstract class AbstractHttpEndpointTest {
                 .result(expected)
                 .build());
         String id = "foo";
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel/submodel-elements/Invalid");
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
     }

@@ -30,8 +30,8 @@ import java.util.Map;
 
 /**
  * class to map HTTP-GET-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/$reference,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/$reference.
+ * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/$reference,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/$reference.
  */
 public class GetSubmodelElementByPathReferenceRequestMapper
         extends AbstractSubmodelInterfaceRequestMapper<GetSubmodelElementByPathReferenceRequest, GetSubmodelElementByPathReferenceResponse> {

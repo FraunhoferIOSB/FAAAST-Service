@@ -313,7 +313,7 @@ public class ApiPaths {
 
 
         public String assetAdministrationShell() {
-            return String.format("%s/shells/%s/aas",
+            return String.format("%s/shells/%s",
                     root(),
                     EncodingHelper.base64UrlEncode(identifier));
         }
@@ -390,19 +390,19 @@ public class ApiPaths {
 
 
         public String submodel() {
-            return String.format("%s/submodel", root);
+            return String.format("%s", root);
         }
 
 
         public String submodel(Level level) {
-            return String.format("%s/submodel?%s",
+            return String.format("%s?%s",
                     root,
                     level(level));
         }
 
 
         public String submodel(Level level, Content content) {
-            return String.format("%s/submodel%s?%s",
+            return String.format("%s%s?%s",
                     root,
                     content(content),
                     level(level));
@@ -410,7 +410,7 @@ public class ApiPaths {
 
 
         public String submodel(Content content) {
-            return String.format("%s/submodel%s",
+            return String.format("%s%s",
                     root,
                     content(content));
         }
