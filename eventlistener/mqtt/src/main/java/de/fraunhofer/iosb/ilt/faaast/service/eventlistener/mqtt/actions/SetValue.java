@@ -14,4 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions;
 
-public class SetValue implements Action {}
+public class SetValue implements Action {
+    @Override
+    public void execute() {
+
+    }
+}

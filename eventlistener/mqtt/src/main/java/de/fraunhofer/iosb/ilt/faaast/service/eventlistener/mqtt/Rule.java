@@ -1,49 +1,65 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions.Action;
-import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions.CallOperation;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+
 
 public class Rule {
 
-    List<Reference> elements;
-    List<Action> actions;
-    private String PATTERN_ELEMENTS = "\\$(.*?)\\$";
-    private String PATTERN_ACTIONS = "\\!(.*?)\\!";
+    private List<Reference> elements;
+    private List<Action> actions;
 
-    public Rule(String rule) {
-        elements = new ArrayList<>();
-        actions = new ArrayList<>();
-        parse(rule);
+    public List<Reference> getElements() {
+        return elements;
     }
 
-    private void addElement(Reference reference) {
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
+
+    public String getExpression() {
+        return expression;
+    }
+
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
+    private String expression;
+
+    public Rule(String rule) {
+        this.elements = new ArrayList<>();
+        this.actions = new ArrayList<>();
+        this.expression = rule;
+    }
+
+
+    public void addElement(Reference reference) {
         elements.add(reference);
     }
 
-    private void addAction(Action action) {
+
+    public void addAction(Action action) {
         actions.add(action);
     }
 
-    public void parse(String input) {
-        Pattern pattern = Pattern.compile(PATTERN_ELEMENTS);
-        Matcher matcher = pattern.matcher(input);
-        while (matcher.find()) {
-            addElement(ReferenceHelper.parse(matcher.group(1)));
-        }
-        pattern = Pattern.compile(PATTERN_ACTIONS);
-        matcher = pattern.matcher(input);
-        while (matcher.find()) {
-            addAction(new CallOperation(ReferenceHelper.parse(matcher.group(1))));
-        }
-    }
 }

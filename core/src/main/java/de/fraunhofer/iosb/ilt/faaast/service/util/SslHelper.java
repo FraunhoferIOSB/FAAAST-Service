@@ -70,7 +70,7 @@ public class SslHelper {
      */
     public static HttpClient disableHostnameVerification(HttpClient.Builder builder) {
         // setting custom HostnameVerifier not possible (see https://bugs.openjdk.java.net/browse/JDK-8213309), 
-        // therefore, this is the least invasive way to to this
+        // therefore, this is the least invasive way to do this
         Properties properties = System.getProperties();
         Boolean temp = Boolean.parseBoolean(properties.getProperty(KEY_DISABLE_HOSTNAME_VERIFICATION));
         properties.setProperty(KEY_DISABLE_HOSTNAME_VERIFICATION, Boolean.TRUE.toString());

@@ -31,14 +31,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
@@ -73,7 +71,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
             this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
         catch (DeserializationException | InvalidConfigurationException e) {
-            throw new ConfigurationInitializationException("error initializing in-memory file storage", e);
+            throw new ConfigurationInitializationException("error initializing event listener", e);
         }
         client = new PahoClient(config);
     }
@@ -88,11 +86,10 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     @Override
     public void start() throws EventListenerException {
         client.start();
-        subscriptionId = subscribe(SubscriptionInfo.create(ValueChangeEventMessage.class, LambdaExceptionHelper.wrap(x -> {
-            if(this.ruleHandler.match(this.rule, x.getElement())) {
-                this.ruleHandler.handle(this.rule, x.getNewValue());
-            }
-        })));
+        subscriptionId = subscribe(SubscriptionInfo.create(ValueChangeEventMessage.class,
+                LambdaExceptionHelper.wrap(x -> {
+                    this.ruleHandler.handle(this.rule, x.getNewValue(), x.getElement());
+                })));
     }
 
 
@@ -101,6 +98,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         unsubscribe(subscriptionId);
         client.stop();
     }
+
 
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
@@ -136,12 +134,13 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         }
     }
 
+
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
         subscriptions.get(id).getSubscribedEvents().stream().forEach(a -> //find all events for given abstract or event
-                determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> //unsubscribe from all events
-                        client.unsubscribe(config.getTopicPrefix() + e.getSimpleName())));
+        determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> //unsubscribe from all events
+        client.unsubscribe(config.getTopicPrefix() + e.getSimpleName())));
         subscriptions.remove(id);
     }
 }
