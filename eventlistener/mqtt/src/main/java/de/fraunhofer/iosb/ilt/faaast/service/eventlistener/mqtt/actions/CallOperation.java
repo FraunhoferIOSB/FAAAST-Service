@@ -14,68 +14,39 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions;
 
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
-import java.io.File;
-import java.io.IOException;
-import java.net.http.HttpClient;
-import java.nio.file.Files;
-import java.security.GeneralSecurityException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.HttpProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 public class CallOperation implements Action {
     private final Reference reference;
-    protected HttpClient httpClient;
-    protected int PORT;
-    protected final String HTTP_ENDPOINT_KEYSTORE_TYPE = "PKCS12";
-    protected final String HTTP_ENDPOINT_KEYSTORE_PASSWORD = "random-pw";
-    protected File httpEndpointKeyStoreFile;
-    protected final CertificateInformation HTTP_ENDPOINT_KEYSTORE_CERTIFICATE_INFORMATION = CertificateInformation.builder()
-            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:eventlistener")
-            .commonName("FA³ST Service Event Listener")
-            .countryCode("DE")
-            .localityName("Karlsruhe")
-            .organization("Fraunhofer IOSB")
-            .organizationUnit("ILT")
-            .build();
 
     public CallOperation(Reference reference) {
         this.reference = reference;
-        PORT = PortHelper.findFreePort();
-        try {
-            generateHttpEndpointCertificate();
-            httpClient = SslHelper.disableHostnameVerification(
-                    HttpClient.newBuilder()
-                            .followRedirects(HttpClient.Redirect.NEVER)
-                            .sslContext(SslHelper.newContextAcceptingCertificates(
-                                    httpEndpointKeyStoreFile,
-                                    HTTP_ENDPOINT_KEYSTORE_TYPE,
-                                    HTTP_ENDPOINT_KEYSTORE_PASSWORD)));
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 
     @Override
-    public void execute() {
-        //HttpResponse response = HttpHelper.execute(httpClient, );
+    public void execute(HttpProvider httpProvider) throws EventListenerException {
+        try {
+            HttpResponse response = HttpHelper.execute(
+                    httpProvider.getHttpClient(),
+                    URI.create("https://" + httpProvider.getBaseUrl() + ReferenceHelper.toPath(reference)).toURL(),
+                    "path",
+                    "format",
+                    "method",
+                    HttpRequest.BodyPublishers.noBody(),
+                    HttpResponse.BodyHandlers.ofString(), null);
+        }
+        catch (Exception e) {
+            throw new EventListenerException(e);
+        }
     }
 
-
-    private void generateHttpEndpointCertificate() throws IOException, GeneralSecurityException {
-        httpEndpointKeyStoreFile = Files.createTempFile("http-endpoint-cert", "").toFile();
-        httpEndpointKeyStoreFile.deleteOnExit();
-        KeyStoreHelper.save(
-                KeyStoreHelper.generateSelfSigned(HTTP_ENDPOINT_KEYSTORE_CERTIFICATE_INFORMATION),
-                httpEndpointKeyStoreFile,
-                HTTP_ENDPOINT_KEYSTORE_TYPE,
-                null,
-                HTTP_ENDPOINT_KEYSTORE_PASSWORD,
-                HTTP_ENDPOINT_KEYSTORE_PASSWORD);
-    }
 }

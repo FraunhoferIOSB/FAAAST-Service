@@ -32,10 +32,12 @@ public class RuleHandler {
     private ScriptEngine engine;
     private String PATTERN_ELEMENTS = "\\$(.*?)\\$";
     private String PATTERN_ACTIONS = "\\!(.*?)\\!";
+    private HttpProvider httpProvider;
 
-    public RuleHandler() {
+    public RuleHandler(String baseUrl) {
         this.manager = new ScriptEngineManager();
         this.engine = this.manager.getEngineByName("JavaScript");
+        this.httpProvider = new HttpProvider(baseUrl);
     }
 
 
@@ -47,7 +49,7 @@ public class RuleHandler {
             }
             engine.eval(rule.getExpression());
             if ((boolean) engine.get("result")) {
-                rule.getActions().get(0).execute();
+                rule.getActions().get(0).execute(httpProvider);
             }
         }
         catch (ScriptException e) {

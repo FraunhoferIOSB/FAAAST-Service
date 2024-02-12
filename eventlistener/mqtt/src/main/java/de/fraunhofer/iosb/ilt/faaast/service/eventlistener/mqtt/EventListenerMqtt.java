@@ -66,7 +66,7 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         this.config = config;
         Ensure.requireNonNull(config.getRule(), "rule must be non-null");
         this.rule = new Rule(config.getRule());
-        this.ruleHandler = new RuleHandler();
+        this.ruleHandler = new RuleHandler(config.getHost());
         try {
             this.environment = config.loadInitialModelAndFiles().getEnvironment();
         }
