@@ -21,10 +21,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Base64;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class CallOperation implements Action {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Action.class);
     private final Reference reference;
 
     public CallOperation(Reference reference) {
@@ -35,14 +39,42 @@ public class CallOperation implements Action {
     @Override
     public void execute(HttpProvider httpProvider) throws EventListenerException {
         try {
+            LOGGER.debug("Event listener will execute action: call operation");
+            String inputArguments = "{\n" +
+                    "    \"inputArguments\": [\n" +
+                    "        {\n" +
+                    "            \"value\": {\n" +
+                    "                \"idShort\": \"input1\",\n" +
+                    "                \"valueType\": \"xs:int\",\n" +
+                    "                \"value\": \"23\",\n" +
+                    "                \"modelType\": \"Property\"\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"value\": {\n" +
+                    "                \"idShort\": \"input2\",\n" +
+                    "                \"valueType\": \"xs:int\",\n" +
+                    "                \"value\": \"4\",\n" +
+                    "                \"modelType\": \"Property\"\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    ],\n" +
+                    "    \"timeout\": 100000\n" +
+                    "}";
+            String submodelId = ReferenceHelper.getParent(reference).getKeys().get(0).getValue();
             HttpResponse response = HttpHelper.execute(
                     httpProvider.getHttpClient(),
-                    URI.create("https://" + httpProvider.getBaseUrl() + ReferenceHelper.toPath(reference)).toURL(),
-                    "path",
-                    "format",
-                    "method",
-                    HttpRequest.BodyPublishers.noBody(),
-                    HttpResponse.BodyHandlers.ofString(), null);
+                    URI.create("https://" + httpProvider.getBaseUrl()
+                            + ":8080/api/v3.0/submodels/"
+                            + Base64.getEncoder().encodeToString(submodelId.getBytes())
+                            + "/submodel/submodel-elements/").toURL(),
+                    ReferenceHelper.toPath(reference)
+                            + "/invoke",
+                    "JSON",
+                    "POST",
+                    HttpRequest.BodyPublishers.ofByteArray(inputArguments.getBytes()),
+                    HttpResponse.BodyHandlers.ofByteArray(), null);
+            LOGGER.debug("Event listener successfully executed the action.");
         }
         catch (Exception e) {
             throw new EventListenerException(e);

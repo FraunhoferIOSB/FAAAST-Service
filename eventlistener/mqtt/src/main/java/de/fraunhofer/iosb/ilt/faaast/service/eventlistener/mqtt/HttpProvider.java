@@ -14,30 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
-import java.io.File;
-import java.io.IOException;
 import java.net.http.HttpClient;
-import java.nio.file.Files;
-import java.security.GeneralSecurityException;
 
 
 public class HttpProvider {
 
     protected HttpClient httpClient;
-    protected final String HTTP_ENDPOINT_KEYSTORE_TYPE = "PKCS12";
-    protected final String HTTP_ENDPOINT_KEYSTORE_PASSWORD = "random-pw";
-    protected File httpEndpointKeyStoreFile;
-    protected final CertificateInformation HTTP_ENDPOINT_KEYSTORE_CERTIFICATE_INFORMATION = CertificateInformation.builder()
-            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:eventlistener")
-            .commonName("FA³ST Service Event Listener")
-            .countryCode("DE")
-            .localityName("Karlsruhe")
-            .organization("Fraunhofer IOSB")
-            .organizationUnit("ILT")
-            .build();
 
     public String getBaseUrl() {
         return baseUrl;
@@ -48,31 +31,11 @@ public class HttpProvider {
     public HttpProvider(String baseUrl) {
         try {
             this.baseUrl = baseUrl;
-            generateHttpEndpointCertificate();
-            httpClient = SslHelper.disableHostnameVerification(
-                    HttpClient.newBuilder()
-                            .followRedirects(HttpClient.Redirect.NEVER)
-                            .sslContext(SslHelper.newContextAcceptingCertificates(
-                                    httpEndpointKeyStoreFile,
-                                    HTTP_ENDPOINT_KEYSTORE_TYPE,
-                                    HTTP_ENDPOINT_KEYSTORE_PASSWORD)));
+            httpClient = SslHelper.newClientAcceptingAllCertificates();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    private void generateHttpEndpointCertificate() throws IOException, GeneralSecurityException {
-        httpEndpointKeyStoreFile = Files.createTempFile("http-endpoint-cert", "").toFile();
-        httpEndpointKeyStoreFile.deleteOnExit();
-        KeyStoreHelper.save(
-                KeyStoreHelper.generateSelfSigned(HTTP_ENDPOINT_KEYSTORE_CERTIFICATE_INFORMATION),
-                httpEndpointKeyStoreFile,
-                HTTP_ENDPOINT_KEYSTORE_TYPE,
-                null,
-                HTTP_ENDPOINT_KEYSTORE_PASSWORD,
-                HTTP_ENDPOINT_KEYSTORE_PASSWORD);
     }
 
 
