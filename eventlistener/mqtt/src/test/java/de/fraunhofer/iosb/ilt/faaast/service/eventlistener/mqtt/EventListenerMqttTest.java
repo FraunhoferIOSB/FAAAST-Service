@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
 public class EventListenerMqttTest {
 
-    public EventListenerMqttConfig getFileStorageConfig() {
+    public EventListenerMqttConfig getEventListenerConfig() {
         return EventListenerMqttConfig.builder()
                 .build();
     }

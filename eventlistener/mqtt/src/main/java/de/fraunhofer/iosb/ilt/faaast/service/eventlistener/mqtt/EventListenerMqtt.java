@@ -16,13 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.EventListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -36,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
@@ -45,9 +41,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 public class EventListenerMqtt implements EventListener<EventListenerMqttConfig> {
 
     private EventListenerMqttConfig config;
-    private Environment environment;
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
-    private final JsonEventSerializer serializer;
     private final JsonEventDeserializer deserializer;
     private PahoClient client;
     private SubscriptionId subscriptionId;
@@ -56,7 +50,6 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
 
     public EventListenerMqtt() {
         subscriptions = new ConcurrentHashMap<>();
-        serializer = new JsonEventSerializer();
         deserializer = new JsonEventDeserializer();
     }
 
@@ -67,12 +60,6 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
         Ensure.requireNonNull(config.getRule(), "rule must be non-null");
         this.rule = new Rule(config.getRule());
         this.ruleHandler = new RuleHandler(config.getHost());
-        try {
-            this.environment = config.loadInitialModelAndFiles().getEnvironment();
-        }
-        catch (DeserializationException | InvalidConfigurationException e) {
-            throw new ConfigurationInitializationException("error initializing event listener", e);
-        }
         client = new PahoClient(config);
     }
 

@@ -129,7 +129,6 @@ public class PahoClient {
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
                     logger.debug("MQTT EventListener Client connected to broker.");
-
                 }
 
             });
