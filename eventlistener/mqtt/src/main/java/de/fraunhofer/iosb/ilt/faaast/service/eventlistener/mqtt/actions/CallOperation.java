@@ -39,28 +39,8 @@ public class CallOperation implements Action {
     @Override
     public void execute(HttpProvider httpProvider) throws EventListenerException {
         try {
+            String inputArguments = "{}";
             LOGGER.debug("Event listener will execute action: call operation");
-            String inputArguments = "{\n" +
-                    "    \"inputArguments\": [\n" +
-                    "        {\n" +
-                    "            \"value\": {\n" +
-                    "                \"idShort\": \"input1\",\n" +
-                    "                \"valueType\": \"xs:int\",\n" +
-                    "                \"value\": \"23\",\n" +
-                    "                \"modelType\": \"Property\"\n" +
-                    "            }\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"value\": {\n" +
-                    "                \"idShort\": \"input2\",\n" +
-                    "                \"valueType\": \"xs:int\",\n" +
-                    "                \"value\": \"4\",\n" +
-                    "                \"modelType\": \"Property\"\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"timeout\": 100000\n" +
-                    "}";
             String submodelId = ReferenceHelper.getParent(reference).getKeys().get(0).getValue();
             HttpResponse response = HttpHelper.execute(
                     httpProvider.getHttpClient(),
