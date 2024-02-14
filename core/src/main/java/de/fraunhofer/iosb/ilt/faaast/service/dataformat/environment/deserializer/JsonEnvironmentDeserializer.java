@@ -45,7 +45,7 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
                     .environment(deserializer.read(in, charset, Environment.class))
                     .build();
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

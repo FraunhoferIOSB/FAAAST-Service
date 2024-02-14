@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
