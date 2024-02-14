@@ -44,7 +44,7 @@ public class XmlEnvironmentDeserializer implements EnvironmentDeserializer {
                     .environment(deserializer.read(in, charset))
                     .build();
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException e) {
             throw new DeserializationException("XML deserialization failed", e);
         }
     }

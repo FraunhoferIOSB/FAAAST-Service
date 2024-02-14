@@ -46,7 +46,7 @@ public class AasxEnvironmentSerializer implements EnvironmentSerializer {
             serializer.write(environment, files, out);
             return out.toByteArray();
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException | IOException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException | IOException e) {
             throw new SerializationException("AASX serialization failed", e);
         }
     }

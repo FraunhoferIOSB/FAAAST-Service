@@ -41,7 +41,7 @@ public class AasxEnvironmentDeserializer implements EnvironmentDeserializer {
                     .files(deserializer.getRelatedFiles())
                     .build();
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | InvalidFormatException | IOException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException | InvalidFormatException | IOException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

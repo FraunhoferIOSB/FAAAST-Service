@@ -46,7 +46,7 @@ public class XmlEnvironmentSerializer implements EnvironmentSerializer {
         try {
             return serializer.write(environment).getBytes(charset);
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.SerializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException e) {
             throw new SerializationException("XML serialization failed", e);
         }
     }
