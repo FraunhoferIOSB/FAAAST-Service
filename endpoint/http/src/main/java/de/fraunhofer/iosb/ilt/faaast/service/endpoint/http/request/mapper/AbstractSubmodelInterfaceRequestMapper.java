@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
 
 /**
  * Base class for requests that are part of the Submodel Interface API. This class exposes the URL both as the
- * stand-alone URL (e.g. submodels/{submodelIdentifier}/submodel/...) as well as the AAS-contextualied version (e.g.
- * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/...).
+ * stand-alone URL (e.g. submodels/{submodelIdentifier}/...) as well as the AAS-contextualied version (e.g.
+ * /shells/{aasIdentifier}/submodels/{submodelIdentifier}/...).
  *
  * @param <T> actual type of the request
  * @param <R> actual type of the response
@@ -45,17 +45,16 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
 
     protected static final String AAS_ID = RegExHelper.uniqueGroupName();
     protected static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    protected static final String AAS_PATH_PATTERN = String.format("shells/%s/aas/", pathElement(AAS_ID));
-    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/%s/submodel", pathElement(SUBMODEL_ID));
+    protected static final String AAS_PATH_PATTERN = String.format("shells/%s/", pathElement(AAS_ID));
+    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/%s", pathElement(SUBMODEL_ID));
     protected String contextualizedUrlPattern;
 
     /**
-     * urlPattern must not contain initial part of URL up to ".../submodel/" as this is automatically added within this
-     * constructor.
+     * urlPattern must not contain initial part of URL identifying the submodel.
      *
      * @param serviceContext the service context
      * @param method the HTTP method for this request
-     * @param urlPattern the URL pattern, but only the part after ".../submodel/"
+     * @param urlPattern the URL pattern
      * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
      *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
      */

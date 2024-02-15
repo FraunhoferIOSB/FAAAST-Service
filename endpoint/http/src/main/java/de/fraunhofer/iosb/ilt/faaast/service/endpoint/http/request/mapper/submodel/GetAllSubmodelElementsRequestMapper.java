@@ -28,8 +28,8 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel/submodel-elements,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements.
+ * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel-elements,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements.
  */
 public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfaceRequestMapperWithPaging<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 

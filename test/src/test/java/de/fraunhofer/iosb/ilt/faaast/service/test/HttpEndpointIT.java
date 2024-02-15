@@ -453,7 +453,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShell()
+    public void testAASRepositoryGetAssetAdministrationShellById()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         assertEvent(
@@ -472,7 +472,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShellContentReference()
+    public void testAASRepositoryGetAssetAdministrationShellByIdContentReference()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Reference expected = ReferenceBuilder.forAas(aas);
@@ -492,7 +492,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShellUsingSubmodelIdReturnsResourceNotFound()
+    public void testAASRepositoryGetAssetAdministrationShellByIdUsingSubmodelIdReturnsResourceNotFound()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
         String submodelId = environment.getSubmodels().get(1).getId();
@@ -506,7 +506,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShellNotExists()
+    public void testAASRepositoryGetAssetAdministrationShellByIdNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
         HttpResponse<String> response = HttpHelper.get(

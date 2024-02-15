@@ -28,12 +28,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 
 
 /**
- * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/aas.
+ * class to map HTTP-PUT-Request path: shells/{aasIdentifier}.
  */
 public class PutAssetAdministrationShellRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/?", pathElement(AAS_ID));
+    private static final String PATTERN = String.format("shells/%s/?", pathElement(AAS_ID));
 
     public PutAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);

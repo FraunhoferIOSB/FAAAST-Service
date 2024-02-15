@@ -36,8 +36,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath},
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}.
+ * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}/submodel-elements/{idShortPath},
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}.
  */
 public class SetSubmodelElementValueByPathRequestMapper
         extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {

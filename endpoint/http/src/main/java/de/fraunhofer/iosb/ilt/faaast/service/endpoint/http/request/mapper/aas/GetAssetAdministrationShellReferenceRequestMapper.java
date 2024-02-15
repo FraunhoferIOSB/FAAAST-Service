@@ -28,13 +28,13 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: shells/{aasIdentifier}/aas/$reference.
+ * class to map HTTP-GET-Request path: shells/{aasIdentifier}/$reference.
  */
 public class GetAssetAdministrationShellReferenceRequestMapper
         extends AbstractRequestMapperWithOutputModifier<GetAssetAdministrationShellReferenceRequest, GetAssetAdministrationShellReferenceResponse> {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/\\$reference", pathElement(AAS_ID));
+    private static final String PATTERN = String.format("shells/%s/\\$reference", pathElement(AAS_ID));
 
     public GetAssetAdministrationShellReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN, Content.METADATA, Content.NORMAL, Content.PATH, Content.VALUE);

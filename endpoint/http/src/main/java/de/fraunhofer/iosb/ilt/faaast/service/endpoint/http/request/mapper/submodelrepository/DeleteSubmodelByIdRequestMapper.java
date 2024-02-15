@@ -31,7 +31,7 @@ import java.util.Map;
 public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("(?!.*/submodel)submodels/%s", pathElement(SUBMODEL_ID));
+    private static final String PATTERN = String.format("submodels/%s", pathElement(SUBMODEL_ID));
 
     public DeleteSubmodelByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

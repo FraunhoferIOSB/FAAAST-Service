@@ -41,6 +41,6 @@ public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
 
     @Override
     public T deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return (T) Enum.valueOf(type, org.eclipse.digitaltwin.aas4j.v3.dataformat.core.deserialization.EnumDeserializer.deserializeEnumName(parser.getText()));
+        return (T) Enum.valueOf(type, org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer.deserializeEnumName(parser.getText()));
     }
 }

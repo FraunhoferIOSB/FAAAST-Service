@@ -29,8 +29,8 @@ import java.util.Map;
 
 /**
  * Base class for requests that are part of the Submodel Interface API and includes paging information. This class
- * exposes the URL both as the stand-alone URL (e.g. submodels/{submodelIdentifier}/submodel/...) as well as the
- * AAS-contextualied version (e.g. /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/...).
+ * exposes the URL both as the stand-alone URL (e.g. submodels/{submodelIdentifier}/...) as well as the
+ * AAS-contextualied version (e.g. /shells/{aasIdentifier}/submodels/{submodelIdentifier}/...).
  *
  * @param <T> type of request
  * @param <R> type of response to the request

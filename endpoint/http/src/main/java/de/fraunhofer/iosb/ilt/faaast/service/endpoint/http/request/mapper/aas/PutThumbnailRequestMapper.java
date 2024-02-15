@@ -31,12 +31,12 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/aas/asset-information/thumbnail.
+ * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/asset-information/thumbnail.
  */
 public class PutThumbnailRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/%s/aas/asset-information/thumbnail", pathElement(AAS_ID));
+    private static final String PATTERN = String.format("shells/%s/asset-information/thumbnail", pathElement(AAS_ID));
 
     public PutThumbnailRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);

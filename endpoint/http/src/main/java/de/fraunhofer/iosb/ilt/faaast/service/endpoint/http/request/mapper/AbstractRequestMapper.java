@@ -71,7 +71,7 @@ public abstract class AbstractRequestMapper {
 
     /**
      * Utility method to create named regex groups used to represent URL path elements that are variable, e.g.
-     * <i>/shells/[id]/aas/</i>.
+     * <i>/shells/[id]/</i>.
      *
      * @param name the name of the regex group
      * @return a string representation of a named regex group with given {@code name}

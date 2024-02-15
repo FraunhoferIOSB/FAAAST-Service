@@ -33,8 +33,8 @@ import java.util.Map;
 
 /**
  * class to map HTTP-PUT-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/attachment,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/attachment.
+ * submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment.
  */
 public class PutFileByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutFileByPathRequest, PutFileByPathResponse> {
 

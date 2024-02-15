@@ -27,8 +27,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel.
+ * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier},
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}.
  */
 public class PostSubmodelElementRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 

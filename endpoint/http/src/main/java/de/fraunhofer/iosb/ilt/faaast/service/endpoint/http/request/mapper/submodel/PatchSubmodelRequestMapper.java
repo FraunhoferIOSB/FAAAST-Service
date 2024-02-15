@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * class to map HTTP-PATCH-Request paths: submodels/{submodelIdentifier}/submodel,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel.
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel.
  */
 public class PatchSubmodelRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PatchSubmodelRequest, PatchSubmodelResponse> {
 

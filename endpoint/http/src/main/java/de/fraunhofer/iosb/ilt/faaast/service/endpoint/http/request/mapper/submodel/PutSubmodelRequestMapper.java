@@ -28,7 +28,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 /**
  * class to map HTTP-PUT-Request paths: submodels/{submodelIdentifier}/submodel,
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel.
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel.
  */
 public class PutSubmodelRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelRequest, PutSubmodelResponse> {
 

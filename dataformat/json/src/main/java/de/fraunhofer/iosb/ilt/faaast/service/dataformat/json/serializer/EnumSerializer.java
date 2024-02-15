@@ -30,7 +30,7 @@ public class EnumSerializer extends JsonSerializer<Enum> {
     public void serialize(Enum value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (value != null) {
             if (ReflectionHelper.ENUMS.contains(value.getClass())) {
-                gen.writeString(org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer.serializeEnumName(value.name()));
+                gen.writeString(org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer.serializeEnumName(value.name()));
             }
             else {
                 provider.findValueSerializer(Enum.class).serialize(value, gen, provider);
