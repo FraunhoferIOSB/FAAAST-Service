@@ -56,8 +56,8 @@ public class Timespan {
 
 
     public Timespan(ZonedDateTime start, ZonedDateTime end) {
-        this.start = Optional.of(start);
-        this.end = Optional.of(end);
+        this.start = Optional.ofNullable(start);
+        this.end = Optional.ofNullable(end);
     }
 
 
