@@ -1,7 +1,7 @@
 # Release Notes
 
 <!--start:changelog-header-->
-## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+## 0.6.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
 *   General
@@ -38,7 +38,7 @@
 *   Starter
 	*   Improved error logging
 
-## Release version 0.5.0
+## 0.5.0
 
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
@@ -78,7 +78,7 @@
 *   Miscellaneous
 	*   Now using dockerfile to build docker container instead of jib maven plugin
 
-## Release version 0.4.0
+## 0.4.0
 
 **New Features**
 *   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
@@ -91,7 +91,7 @@
 *   Fixed error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
 *   Removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
 
-## Release version 0.3.0
+## 0.3.0
 
 **New Features**
 *   Asset Connection
@@ -123,14 +123,14 @@
 	*   No longer release `test` module
 	*   Create javadoc jar for parent POM
 
-## Release version 0.2.1
+## 0.2.1
 
 **Bugfixes**
 *   Asset connections could not be started with OperationProvider
 
 *   Returning wrong HTTP responses in some cases
 
-## Release version 0.2.0
+## 0.2.0
 
 **New Features**
 *   Persistence
@@ -183,6 +183,6 @@
 
 *   Replace AASEnvironmentHelper with methods of EnvironmentSerialization
 
-## Release version 0.1.0
+## 0.1.0
 
 First release!

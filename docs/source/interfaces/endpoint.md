@@ -1,46 +1,51 @@
 # Endpoint
 
-`Endpoint` implementations allow to communicate with the AAS from the outside, e.g. users or external applications. 
+The `Endpoint` interface is repsonsible for communication with the AAS from the outside, e.g. users or external applications. 
 An instance of FA³ST Service can serve multiple endpoints at the same time.
 Endpoints will be synchronized, meaning if a FA³ST Service offers multiple endpoint such as HTTP(S) and OPC UA at the same time, changes done via one of the endpoints like updating a value is reflected in the other.
 
 The following is an example of the relevant part of the configuration part comprising both an HTTP(S) and OPC UA endpoint
 
-```json
-"endpoints": [
-	{
-		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-		"port": 8080,
-		"corsEnabled": true
-	},
-	{
-		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
-		"tcpPort": 8081
-	}
-]
+```{code-block} json
+:caption: Example configuration for running both an HTTP and OPC UA endpoint.
+:lineno-start: 1
+{
+	"endpoints": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+			"port": 8080,
+			"corsEnabled": true
+		},
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
+			"tcpPort": 8081
+		}
+	],
+	// ...
+}
 ```
 
 ## HTTP
 
 
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
-It will always use HTTPS. The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
-Exchanging Information via Application
-Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V1.0RC02), Apr, 26th 2022
+In accordance to the specification, only HTTPS is supported since AAS v3.0. 
+The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0) and the corresponding [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1).
 
-### Configuration Parameters
+### Configuration
 
-| Name | Allowed Value | Description                                                                                                                                                                                                                     |
-|:--| -- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| port | Integer | _optional_ The port to use, default: 8080                                                                                                                                                                                       |
-| corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false                     |
-| sniEnabled | Boolean | _optional_ If Server Name Identification (SNI) should be enabled. THis should only be disabled for testing purposes as it may present a security risk., default: true                     |
-| certificate; | Object | _optional_  The HTTPS certificate to use, if none is provided a self-signed certificate will be generated [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
+:::{table} Configuration properties of HTTP Endpoint.
+| Name                        | Allowed Value                                               | Description                                                                                                                                                                              | Default Value           |
+| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| certificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate |
+| corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                   |
+| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 8080                    |
+| sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                    |
+:::
 
-#### Example
-
-In order to use the HTTP Endpoint the configuration settings require to include an HTTP Endpoint configuration, like the one below:
-```json
+```{code-block} json
+:caption: Example configuration section for HTTP Endpoint.
+:lineno-start: 1
 {
 	"endpoints": [
 		{
@@ -56,143 +61,91 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 				"keyPassword": "changeit"
 			}
 		}
-	]
+	],
+	// ...
 }
 ```
 
 ### API
 
-#### Supported API calls
--   Current API prefix
-    -   /api/v3.0
--   Asset Administration Shell Repository Interface
-    -   /shells ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
+FA³ST Service supports the following APIs as defined by the [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
 
--   Asset Administration Shell Interface
-    -   /shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
-    -   /shells/{aasIdentifier}/asset-information ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
-    -   /shells/{aasIdentifier}/asset-information/thumbnail ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /shells/{aasIdentifier}/submodel-refs ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/submodel-refs/{submodelIdentifier} ![DELETE](https://img.shields.io/badge/DELETE-red)
-
--   Submodel Repository Interface
-    -   /submodels ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /submodels/{submodelIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-
--   Submodel Interface
-    -   /submodels/{submodelIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
-    -   /submodels/{submodelIdentifier}/submodel-elements ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /submodels/{submodelIdentifier}/submodel-elements/{idShortPath} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /submodels/{submodelIdentifier}/submodel-elements/{idShortPath} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
-
--   Submodel Interface (combined with Asset Administration Shell Interface)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen), ![PUT](https://img.shields.io/badge/PUT-orange), ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange), ![DELETE](https://img.shields.io/badge/DELETE-red)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
-
--   Concept Description Repository Interface
-    -   /concept-descriptions ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /concept-descriptions/{cdIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
-
--   Asset Administration Shell Basic Discovery
-    -   /lookup/shells ![GET](https://img.shields.io/badge/GET-blue)
-    -   /lookup/shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) ![DELETE](https://img.shields.io/badge/DELETE-red)
-
--   Asset Administration Shell Serialization Interface
-    -   /serialization ![GET](https://img.shields.io/badge/GET-blue)
-
-#### Optional query parameters
-
--   level=deep|core
--   content=normal|value|path
--   extent=WithoutBLOBValue/WithBLOBValue
--   InvokeOperation supports async=true/false
-
-They are added to the URL as regular query params
-
-```sh
-https://url:port?level=deep&content=value
-```
-
-FA³ST Service currently supports only content=value and content=normal
-
-
-#### Unsupported API calls
-
--   Asset Administration Shell Registry Interface (out-of-scope)
--   Submodel Registry Interface (out-of-scope)
--   AASX File Server Interface (probably supported in future)
-    -   /packages
-    -   /packages/{packageId}
-
-### Example
-
-Sample HTTP Call for Operation _GetSubmodelElementByPath_
-using the parameters
--   _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
--   _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
-
-using the query-parameters _level=deep_ and _content=normal_.
-
-> To avoid problems with IRIs in URLs the identifiers shall be BASE64-URL-encoded before using them as parameters in the HTTP APIs. IdshortPaths are URL-encoded to handle including square brackets.
-
-```sh
-https://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
-```
+-	Asset Administration Shell API
+-	Submodel API
+-	Asset Administration Shell Repository API
+-	Submodel Repository API
+-	Concept Description API
+-	Asset Administration Shell Basic Discovery API
+-	Serialization API
+-	Description API
 
 
 ## OPC UA
 
-The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via OPC UA.
-For detailed information on OPC UA see
-[About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/)
+The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via [OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/).
 
-The OPC UA Endpoint is based on the [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/).
-The release version of this Companion Specification is based on the document [Details of the Asset Administration Shell - Part 1 Version 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V2.html).
+Unfortunately, there is currently no official mapping of the AAS API to OPC UA for AAS v3.0.
+Nevertheless, FA³ST Service decided to still provide an OPC UA endpoint even though it is not (yet) standard-compliant.
+This implementation is based on the [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/) which defines a mapping between AAS and OPC UA for AAS v2.0 enriched with some custom adjustments and extensions to be used with AAS v3.0.
 
-This implementation is based on [Details of the Asset Administration Shell - Part 1 Version 3](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html).
-Therefore, the current implementation is actually not compatible with the Companion Specification.
-
-The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/).
-If you want to build the OPC UA Endpoint, you need a valid license for the SDK.
-
-You can purchase a [Prosys OPC UA License](https://www.prosysopc.com/products/opc-ua-java-sdk/purchase/). As the OPC UA Endpoint is a server, you need a "Client & Server" license.
-
+The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/) which means in case you want to compile the OPC UA Endpoint yourself, you need a valid license for the SDK (which you can buy [here](https://www.prosysopc.com/products/opc-ua-java-sdk/purchase/).
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
+However, this is not necesarry for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
+The developers of the Prosys OPC UA SDK have been so kind to allow us to publish that pre-compiled version as part of this open-source project under the condition that all classes related to their SDK are obfuscated.
+
 
 ### Configuration Parameters
 
 OPC UA Endpoint configuration supports the following configuration parameters
-| Name | Allowed Value | Description                                                                                                                                                                                                                     |
-|:--| -- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| tcpPort | Integer | _optional_ The port to use, default: 4840 |
-| secondsTillShutdown | Integer | _optional_ The number of seconds the server waits for clients to disconnect, default: 2 |
-| discoveryServerUrl | String | _optional_ URL of the discovery server, default: empty String |
-| serverCertificateBasePath | String | _optional_ Path where the server application certificates are stored, default: "PKI/CA" |
-| supportedSecurityPolicies | List | _optional_ List of supported security Policies, default: "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" and "AES256_SHA256_RSAPSS" |
-| supportedAuthentications | List | _optional_ List of supported authentication types, default: "Anonymous" |
-| userMap | Map | _optional_ Map with user authentication credentials, default: empty |
-| userCertificateBasePath | String | _optional_ Path where the certificates for user authentication are saved, default: "USERS_PKI/CA" |
 
--   `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
--   `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shut down. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint stops immediately. Default is 2.
--   `discoveryServerUrl` is the URL which is used for registration with a discovery server. An empty String disables discovery server registration. Default is an empty String.
--   `serverCertificateBasePath` is the path where the server application certificates are stored. Default is "PKI/CA". Below this path, further subdirectories are created. In "private" the certificates and private keys of the OPC UA Endpoint are saved. The filename of the base server application certificate is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.der", the filename of the corresponding private key is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.pem". If this application certificate is missing, a self-signed certificate is automatically created on start. In "rejected" unknown (rejected) certificates from connecting clients are saved. In "certs" trusted certificates for clients are saved. To trust the certificate of a client, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers/certs" the certificates of trusted CAs are saved. In "issuers/crl" the certificate revocation lists of the corresponding trusted CA certificates are saved.
--   `supportedSecurityPolicies` is the list of supported security Policies. The security Policies included in the list will be available in the OPC UA Endpoint. Possible values are: NONE, BASIC128RSA15, BASIC256, BASIC256SHA256, AES128_SHA256_RSAOAEP, AES256_SHA256_RSAPSS. If the list is empty, the default value is "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" and "AES256_SHA256_RSAPSS". Please note, that BASIC128RSA15 and BASIC256 are deprecated, as they are considered unsafe.
--   `supportedAuthentications` is the list of supported authentication types. The authentication types included in the list will be available in the OPC UA Endpoint. Possible values are: Anonymous, UserName, Certificate. If the list is empty, the default value is "Anonymous".
--   `userMap` is a map with user authentication credentials for the OPC UA Endpoint. The key of the map is the username and the value is the password. If the map is empty, authentication with username and password is not possible. This value is only relevant, when "UserName" is included in `supportedAuthentications`.
--   `userCertificateBasePath` is the path where the certificates for user authentication are saved. Default is "USERS_PKI/CA". Below this path, further subdirectories are created. In "rejected", certificates from unknown (rejected) users are saved. In "certs" certificates for trusted users are saved. To trust the certificate of a user, move it from "rejected" to "certs". In "crl" the certificate revocation list for a corresponding CA certificate saved in "certs" is saved. In "issuers/certs" the certificates of trusted CAs are saved. In "issuers/crl" the certificate revocation lists of the corresponding trusted CA certificates are saved. This value is only relevant, when "Certificate" is included in `supportedAuthentications`.
+| Name                                 | Allowed Value                                                                                        | Description                                                                                                                        | Default Value                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| discoveryServerUrl<br>*(optional)*        | String                                                                                               | URL of the discovery server.<br>If empty, discovery server registration is disabled.                                               |                                                                            |
+| secondsTillShutdown<br>*(optional)*       | Integer                                                                                              | The number of seconds the server waits for clients to disconnect                                                                   | 2                                                                          |
+| serverCertificateBasePath<br>*(optional)* | String                                                                                               | Path where the server application certificates are stored                                                                          | PKI/CA                                                                     |
+| supportedAuthentications<br>*(optional)*  | Anonymous<br>UserName<br>Certificate                                                                 | List of supported authentication types                                                                                             | Anonymous                                                                  |
+| supportedSecurityPolicies<br>*(optional)* | NONE<br>BASIC128RSA15<br>BASIC256<br>BASIC256SHA256<br>AES128_SHA256_RSAOAEP<br>AES256_SHA256_RSAPSS | List of supported security policies                                                                                                | NONE,<br>BASIC256SHA256,<br>AES128_SHA256_RSAOAEP,<br>AES256_SHA256_RSAPSS |
+| tcpPort<br>*(optional)*                   | Integer                                                                                              | The port to use for TCP                                                                                                            | 4840                                                                       |
+| userMap<br>*(optional)*                   | Map<String, String>                                                                                  | A map containing usernames and password.<br>If *UserName* is not included in `supportedAuthentications`, this property is ignored. | *empty*                                                                    |
+| userCertificateBasePath<br>*(optional)*   | String                                                                                               | Path where the certificates for user authentication are saved                                                                      | USERS_PKI/CA                                                               |
 
-#### Example
+### Certificate Management
 
-In order to use the OPC UA Endpoint, the configuration settings require to include an OPC UA Endpoint configuration, like the one below:
-```json
+The path provided with the `serverCertificateBasePath` configuration property stores the server and client application certificates and contains the following subdirectories
+
+-	`/certs`: trusted client certificates
+-	`/crl`: certificate revocation list for client certificates
+-	`/issuers/certs`: certificates of trusted CAs
+-	`/issuers/crl`: certificate revocation list for CA certificates
+-	`/issuers/rejected`:	rejected CA certificates
+-	`/private`: certificates for the OPC UA server
+-	`/rejected`: unkown/rejected client certificates
+
+To provision the OPC UA Endpoint to use an existing certificate for the server, save the certificate file as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.der` and the private key as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.pem` where `{hostname}` is the host name of your machine.
+
+Then an unkown client connects to the OPC UA Endpoint, the connection will be rejected and its client certificate will be stored in `/rejected`.
+To trust the certificate of a client and allow the connection, move the file to `/certs`.
+
+The path provided with the `userCertificateBasePath` configuration property stores the user certificates and contains the following subdirectories
+
+-	`/certs`: trusted user certificates
+-	`/crl`: certificate revocation list for user certificates
+-	`/issuers/certs`: certificates of trusted CAs
+-	`/issuers/crl`: certificate revocation list for CA certificates
+-	`/issuers/rejected`:	rejected CA certificates
+-	`/rejected`: unkown/rejected client certificates
+
+Similar to the client certificates, unknown user certificates are stored in `/rejected` the first time a new certificate is encountered.
+To trust this certificate, simply move it to `/certs`.
+
+and `userCertificateBasePath` point to directories where the corresponding certificates are stored.
+These directories contain the following subdirectories:
+
+
+```{code-block} json
+:caption: Example configuration for OPC UA Endpoint.
+:lineno-start: 1
+
 {
 	"endpoints": [
 		{
@@ -208,31 +161,38 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 			"supportedSecurityPolicies" : [ "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" ],
 			"supportedAuthentications" : [ "Anonymous", "UserName" ]
 		}
-	]
+	],
+	//...
 }
 ```
+### OPC UA Client Libraries
 
-To connect to the OPC UA Endpoint, you need an OPC UA Client.
-Here are some examples of OPC UA Clients:
--   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
-UaExpert is a free test client for OPC UA. A registration for the website is required.
+To connect to the OPC UA Endpoint, you need an OPC UA Client. Here are some example libraries and tools you can use:
 
--   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
-Free Java-based OPC UA Client. A registration for the website is required.
+-   [Eclipse Milo](https://github.com/eclipse/milo): Open Source SDK for Java.
 
--   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
-C#-based sample code from the OPC Foundation.
+-   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html): Free OPC UA test client (registration on website required for download).
 
--   [Eclipse Milo](https://github.com/eclipse/milo)
-Java-based Open Source SDK for Java.
+-   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/): Free OPC UA test client (registration on website required for download).
 
-Here you can see a sample Screenshot with UaExpert.
-![Screenshot with UaExpert](../images/OpcUaEndpoint.png "Screenshot with UaExpert")
+-   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples): C#-based sample code from the OPC Foundation.
 
-### Supported Functions
--   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
 
--   Write Values
+
+```{figure} ../images/opc-ua-endpoint.png
+:width: 800px
+:align: center
+Screenshot showing UaExpert connected to a FA³ST Service via OPC UA Endpoint.
+```
+
+### API
+
+As stated, there is currently no official mapping of the AAS API to OPC UA for AAS v3.0 but FA³ST Service implements its proprietary adaption of the mapping for AAS v2.0.
+
+
+#### Supported Functionality
+
+-   Writing values for the following types
     -   Property
     -   Range
     -   Blob
@@ -240,21 +200,20 @@ Here you can see a sample Screenshot with UaExpert.
     -   ReferenceElement
     -   RelationshipElement
     -   Entity
+-   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
 
-### Not (yet) Supported Functions
--   Events
 
--   Write Values
+#### Not (yet) Supported Functionality
+
+-	Updating the model, i.e., adding new elements at runtime is not possible
+-   Writing values for the following types
     -   DataSpecifications
     -   Qualifier
     -   Category
     -   ModelingKind
-
 -   AASDataTypeDefXsd
     -   Base64Binary
     -   UnsignedInt
     -   UnsignedLong
     -   UnsignedShort
     -   UnsignedByte
-
-

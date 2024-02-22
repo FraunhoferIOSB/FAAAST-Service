@@ -1,117 +1,100 @@
 # Usage
 
-Currently, we support the following formats of the Asset Administration Shell Environment model:
->json, xml, aasx
+## Command-Line Interface (CLI)
 
-## Command Line Interface (CLI)
-
-```sh
-cd /starter/target
-java -jar starter-{version}.jar -m model.json
-```
-
-In general there are 3 ways to configure your FA³ST Service:
-
-1.  Default values
-2.  Commandline parameters
-3.  Environment Variables
-
-The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
-
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components see [Configuration](configuration).
-
-Default Configuration:
-
-```json
-{
-	"core" : {
-		"requestHandlerThreadPoolSize" : 2
-	},
-	"endpoints" : [ {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-		"port" : 8080
-	} ],
-	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
-	},
-	"messageBus" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
-	}
-}
-```
-
-The FA³ST Service Starter considers the following environment variables:
-- `faaast_config`: use your own configuration file
-- `faaast_model`: use an Asset Administration Environment file
-
-Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)), with '_' as a separator and with the prefix `faaast_config_extension_`:
--   `faaast_config_extension_[underscore_separated_path]`
-
-If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast_config_extension_core_requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast_config_extension_endpoints[0]_port=8081`.
-
-You could also use properties to adjust configuration components. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
+To start FA³ST Service from command-line you need to run the `starter` module by calling
 
 ```sh
-java -jar starter-{version}.jar -m {path/to/your/AASEnvironment} core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
+> java -jar starter-{version}.jar
 ```
 
-### Supported Arguments
+When started without arguments, FA³ST Service will try to auto-detect a configuration file named `config.json` and a model file named `model.[ext]` where `[ext]` is a supported file extension like `json`, `xml`, or `aasx`.
+
+To manually pass a model file `my-model.aasx` and a configuration file `my-config.json` run the following command:
+
+```sh
+> java -jar starter-{version}.jar --model my-model.aasx --config my-config.json
+```
+
+:::{table} Supported CLI arguments and environment variables.
+| CLI (short) | CLI (long)          | Environment variable                                           | Allowed<br>Values                       | Description                                                                                                                                              | Default<br>Value |
+| ----------- | ------------------- | -------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| -c          | --config            | faaast_config                                                  | <file path>                             | The config file to use.                                                                                                                                  | config.json      |
+| -e          | --empty-model       |                                                                |                                         | Starts the FAST service with an empty Asset Administration Shell Environment.                                                                            |                  |
+|             | --endpoint          |                                                                | HTTP<br>OPCUA                           | Additional endpoints that should be started.                                                                                                             |                  |
+| -h          | --help              |                                                                |                                         | Print help message and exit.                                                                                                                             |                  | 
+|             | --loglevel-external | faaast_loglevel_external                                       | TRACE<br>DEBUG<br>INFO<br>WARN<br>ERROR | Sets the log level for external packages.<br>This overrides the log level defined by other commands such as *-q* or *-v*.                                | WARN             |
+|             | --loglevel-faaast   | faaast_loglevel_faaast                                         | TRACE<br>DEBUG<br>INFO<br>WARN<br>ERROR | Sets the log level for FA³ST packages.<br>This overrides the log level defined by other commands such as *-q* or *-v*.                                   | WARN             |
+| -m          | --model             |                                                                | <file path>                             | The model file to load.                                                                                                                                  | model.*          |
+|             | --no-validation     | faaast_no_validation                                           |                                         | Disables all validation, overrides validation defined in the configuration Environment.                                                                  |                  |
+| -q          | --quite             |                                                                |                                         | Reduces log output (*ERROR* for FAST packages, *ERROR* for all other packages).<br>Default information about the starting process will still be printed. |                  |
+| -v          | --verbose           |                                                                |                                         | Enables verbose logging (*INFO* for FAST packages, *WARN* for all other packages).                                                                       |                  |
+| -V          | --version           |                                                                |                                         | Print version information and exit.                                                                                                                      |                  |
+| -vv         |                     |                                                                |                                         | Enables very verbose logging (*DEBUG* for FAST packages, *INFO* for all other packages).                                                                 |                  |
+| -vvv        |                     |                                                                |                                         | Enables very very verbose logging (*TRACE* for FAST packages, *DEBUG* for all other packages).                                                           |                  |
+|             | {key}={value}       | faaast_config_extension_{key}<br>with *{key}* separated by *_* | any                                     | Additional properties to override values of configuration using [JSONPath](https://goessner.net/articles/JsonPath/) notation without starting *$.*       |                  |
+:::
+
+### Overriding Config Properties
+
+As indicated by the last row in the above table, any config property can be overridden both via CLI or via environment variables.
+
+#### Via CLI
+
+Via CLI this is done by using the JSONPath expression to the property within the config file but without the `$.` part JSONPath expression typically start with.
+
+For example, to override the `requestHandlerThreadPoolSize` property call FA³ST Service like this
+
+```sh
+> java -jar starter-{version}.jar [any other CLI arguments] core.requestHandlerThreadPoolSize=42
+```
+
+To access configuration properties inside an array or list use array notation, e.g., `endpoints[0].port=8081`
 
 
-| Name (short)  | Name (long)                 | Allowed Values                  | Default Value    | Description                                                                                                                                           |
-| ------------- | --------------------------- | ------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-c`          | `--config`                  | <file path>                     | config.json      | The config file to use.                                                                                                                               |
-|               | `--emptyModel`              | <boolean>                       | false            | Starts the FAST service with an empty Asset Administration Shell Environment.                                                                         |
-|               | `--endpoint`                | HTTP, OPCUA                     | <none>           | Additional endpoints that should be started.                                                                                                          |
-| `-h`          | `--help`                    |                                 |                  | Print help message and exit.                                                                                                                          |
-|               | `--loglevel-external`       | TRACE, DEBUG, INFO, WARN, ERROR | WARN             | Sets the log level for external packages. This overrides the log level defined by other commands such as `-q` or `-v`.                                |
-|               | `--loglevel-faaast`         | TRACE, DEBUG, INFO, WARN, ERROR | WARN             | Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as `-q` or `-v`.                                   |
-| `-m`          | `--model`                   | <file path>                     | aasenvironment.* | The model file to load.                                                                                                                               |
-|               | `--[no-]autoCompleteConfig` | <boolean>                       | true             | Autocompletes the configuration with default values for required configuration sections.                                                              |
-|               | `--no-validation`           | <boolean>                       | false            | Disables validation, overrides validation defined in the configuration Environment.                                                                                                                        |
-| `-q`          | `--quite`                   |                                 |                  | Reduces log output (ERROR for FAST packages, ERROR for all other packages). Default information about the starting process will still be printed.     |
-| `-v`          | `--verbose`                 |                                 |                  | Enables verbose logging (`INFO` for FAST packages, `WARN` for all other packages).                                                                    |
-| `-V`          | `--version`                 |                                 |                  | Print version information and exit.                                                                                                                   |
-| `-vv`         |                             |                                 |                  | Enables very verbose logging (`DEBUG` for FAST packages, `INFO` for all other packages).                                                              |
-| `-vvv`        |                             |                                 |                  | Enables very very verbose logging (`TRACE` for FAST packages, `DEBUG` for all other packages).                                                        |
-|               | `<key=value>`               | any                             |                  | Additional properties to override values of configuration using JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/) | 
+#### Via Environment Variables
+
+Overriding configuration properties via environment variables is similar to overriding them via CLI with two differences
+
+1. Add the prefix *faaast_config_extension_*
+2. Replace `.` that separate the JSONPath with `_`
+
+Applying the previous examples yields `faaast_config_extension_core_requestHandlerThreadPoolSize=42` to update the property `requestHandlerThreadPoolSize` and `faaast_config_extension_endpoints[0]_port=8081` to update the port of the HTTP endpoint.
 
 
 ## Docker
 
-### Docker-Compose
+FA³ST Service is available on [DockerHub](https://hub.docker.com/r/fraunhoferiosb/faaast-service) with multiple tags
 
-Clone this repository, navigate to `/misc/docker/` and run this command inside it.
+-	`latest`: The latests released version, equals to the latests tag `major.minor.bugfix`
+-	`major.minor.0-SNAPSHOT`: Snapshot build of the current code on the `main` branch of FA³ST Service. This includes all upcoming features not yet relased.
+-	`major.minor.bugfix`: This tag is available for each officially released version of FA³ST. It is stable, i.e., no updates or bugfixes will ever be applied.
+-	`major.minor`: This tag is available for each minor release of FA³ST Service and will be updated with bugfixes over time. It is therefore recommended to use these tags over the `major.minor.bugfix` ones.
 
-```sh
-cd misc/docker
-docker-compose up
-```
-
-To use your own AAS environment replace the model file `/misc/examples/demoAAS.json`.
-To modify the configuration edit the file `/misc/examples/exampleConfiguration.json`.
-You can also override configuration values using environment variables. For details see [Usage with Command Line](commandline).
-
-### Docker CLI
-
-To start the FA³ST Service with an empty AAS environment execute this command.
+To run FA³ST Service via docker with an empty model and default configuration execute
 
 ```sh
-docker run --rm -P fraunhoferiosb/faaast-service '--emptyModel' '--no-modelValidation'
+> docker run fraunhoferiosb/faaast-service
 ```
 
-To start the FA³ST Service with your own AAS environment, place the JSON-file (in this example `demoAAS.json`) containing your environment in the current directory and modify the command accordingly.
+To make you of the full power of docker and FA³ST Service, you can also mount files to the container and pass arguments via CLI or environment variables like this
 
 ```sh
-docker run --rm -v ../examples/demoAAS.json:/AASEnv.json -e faaast.model=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
+> docker run -v {path to your model file}:/model.json -e faaast.model=model.json fraunhoferiosb/faaast-service '--no-validation'
 ```
 
-Similarly, you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.config` environment variable for that).
+FA³ST Service also comes with a docker compose file located at `/misc/docker/docker-compose.yml` which can be executed by navigation to the directory `/misc/docker` and execute `docker-compose up`.
 
 
 ## From Java Code
 
-```java
+You can run FA³ST Service directly from your Java code as embedded library.
+This way, you can create your configuration and model directly in code and don't have to create the as files (but you still can load them from files if you want to).
+The following code snippet shows how to create and run a new FA³ST Service from code using a model file.
+
+```{code-block} java
+:caption: Create a FA³ST Service from code.
+:lineno-start: 1
 Service service = new Service(ServiceConfig.builder()
 	.core(CoreConfig.builder()
 		.requestHandlerThreadPoolSize(2)

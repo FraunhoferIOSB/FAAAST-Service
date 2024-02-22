@@ -1,31 +1,31 @@
-# Message Bus
+# MessageBus
 
-In FA³ST Service, `MessageBus` is used for communication between different components, for example to synchronize between endpoints using different protocols.
+The MessageBus interface is used for communication between different components, for example to synchronize between endpoints.
 Therefore, the MessageBus is primarily designed for internal use but as it might also be useful for some applications and scenarios there might be implementations that expose the MessageBus to the outside world.
 
 ## Events
 
-The `MessageBus` works according to the publish/subscribe principle based on different types of events or event messages (which are subclasses of the abstract class `EventMessage`).
+The MessageBus works according to the publish/subscribe principle based on different types of events or event messages (which are subclasses of the abstract class `EventMessage`).
 Subscriptions are made to a kind of event, i.e. a subclass of `EventMessage` or even `EventMessage` itself (to receive all events).
 When subscribing to a class, all events of this class or any subclass are received.
 
 This is the class hierarchy of available event classes/types
 
-*   `EventMessage`	[abstract]							Superclass for all events, payload: a `Reference` to the subject element
-	*   `AccessEventMessage` [abstract]					Superclass for all types of access-based events
-		*   `ReadEventMessage` [abstract]				Superclass for all types of read-events, triggered each time an element is read via API
-			*   `ElementReadEventMessage`				Triggered when a `Referable` is read via API, payload: the referable (serialized according to the request, i.e. using the requested `SerializationModifier`)
-			*   `ValueReadEventMessage`					Triggered when the value of an element is read via API, payload: the element value
-		*   `ExecuteEventMessage` [abstract]			Superclass for all events related to executing operations
-			*   `OperationInvokeEventMessage`			Triggered when an operation is invoked/started, payload: input and inoutput parameters
-			*   `OperationFinishEventMessage`			Triggered when an operation is finished, payload: output and inoutput parameters
-	*   `ChangeEventMessage` [abstract]					Superclass for all types of changes
-		*   `ElementChangeEventMessage` [abstract]		Superclass for all types of structural changes, payload: the updated element
-			*   `ElementCreateEventMessage`				Triggered when an element is created
-			*   `ElementDeleteEventMessage`				Triggered when an element is deleted
-			*   `ElementUpdateEventMessage`				Triggered when an element is updated
-			*   `ValueChangeEventMessage`				Triggered when the value of an element is updated, payload: old value, new value
-	*   `ErrorEventMessage`								Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)
+-   `EventMessage` *(abstract)*:						Superclass for all events, payload: a `Reference` to the subject element
+	-   `AccessEventMessage` *(abstract)*:				Superclass for all types of access-based events
+		-   `ReadEventMessage` *(abstract)*:			Superclass for all types of read-events, triggered each time an element is read via API
+			-   `ElementReadEventMessage`:				Triggered when a `Referable` is read via API, payload: the referable (serialized according to the request, i.e. using the requested `SerializationModifier`)
+			-   `ValueReadEventMessage`:				Triggered when the value of an element is read via API, payload: the element value
+		-   `ExecuteEventMessage` *(abstract)*:			Superclass for all events related to executing operations
+			-   `OperationInvokeEventMessage`:			Triggered when an operation is invoked/started, payload: input and inoutput parameters
+			-   `OperationFinishEventMessage`:			Triggered when an operation is finished, payload: output and inoutput parameters
+	-   `ChangeEventMessage` *(abstract)*:				Superclass for all types of changes
+		-   `ElementChangeEventMessage` *(abstract)*:	Superclass for all types of structural changes, payload: the updated element
+			-   `ElementCreateEventMessage`:			Triggered when an element is created
+			-   `ElementDeleteEventMessage`:			Triggered when an element is deleted
+			-   `ElementUpdateEventMessage`:			Triggered when an element is updated
+			-   `ValueChangeEventMessage`:				Triggered when the value of an element is updated, payload: old value, new value
+	-   `ErrorEventMessage`:							Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)
 
 
 ## Internal
@@ -35,19 +35,17 @@ Therefore, it can only be accessed from code when FA³ST Service is used as an e
 
 ### Configuration
 
-This class does not offer any configuration properties.
+This implementation does not offer any configuration properties.
 
-
-#### Example
-
-```json
+```{code-block} json
+:caption: Example configuration for Internal MessageBus.
+:lineno-start: 1
 {
-	...,
 	"messageBus":
 	{
 		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
 	},
-	...
+	//...
 }
 ```
 
@@ -60,16 +58,23 @@ This implementation of the `MessageBus` interface publishes messages via MQTT ei
 Each message type is published on its own topic in the form of `[topicPrefix]/[className]`, e.g. `events/ValueChangeEventMessage`.
 The payload is a JSON serialization of the corresponding Java class with the following base structure
 
-```json
+```{code-block} json
+:caption: JSON structure of serialized MessageBus events.
+:lineno-start: 1
 {
 	"@type": "[event type]",
-	"element": { [default JSON serialization of Reference] },
-	[event-specific properties]
+	"element": { 
+		// [default JSON serialization of Reference] 
+	},
+	// [event-specific properties]
 }
 ```
 
-An example `ValueChangeEvent` might look like this
-```json
+An example `ValueChangeEvent` might look like this:
+
+```{code-block} json
+:caption: JSON serialization of an example ValueChangeEvent.
+:lineno-start: 1
 {
     "@type": "ValueChangeEvent",
     "element":
@@ -100,65 +105,66 @@ An example `ValueChangeEvent` might look like this
         "value": 1
     }
 }
-
 ```
 
 For deserialization of events the class `JsonEventDeserializer` in module `dataformat-json` can be used.
 
 
-
 ### Configuration
 
+:::{table} Configuration properties of MQTT MessageBus.
+| Name                              | Allowed Value                                               | Description                                                                                                                                   | Default Value              |
+| --------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| clientCertificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The client certificate to use. If not set, SSL will be disabled.                                                                              |                            |
+| clientId<br>*(optional)*          | String                                                      | ClientId to use when connecting to the MQTT server.                                                                                           | FAST MQTT MessageBus       |
+| host<br>*(optional)*              | String                                                      | The host name of the MQTT server without prefix, e.g., 192.168.0.1.                                                                           | localhost                  |
+| password<br>*(optional)*          | String                                                      | Password used to connect to the MQTT server.                                                                                                  |                            |
+| port<br>*(optional)*              | Integer                                                     | The port to use for TCP communication.                                                                                                        | 1883                       |
+| serverCertificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The server certificate to use. If not set, SSL will be disabled.                                                                              |                            |
+| sslPort<br>*(optional)*           | Integer                                                     | The port to use for secure TCP communication.                                                                                                 | 8883                       |
+| sslWebsocketPort<br>*(optional)*  | Integer                                                     | The port to use for secure websocket communication.                                                                                           | 443                        |
+| topicPrefix<br>*(optional)*       | String                                                      | Prefix to use for the topic names.                                                                                                            | events/                    |
+| useInternalServer<br>*(optional)* | Boolean                                                     | If true, FA³ST Service starts its own MQTT server.<br>If false, FA³ST Service uses external MQTT server.                                      | true                       |
+| username<br>*(optional)*          | String                                                      | Username used to connect to the MQTT server.                                                                                                  |                            |
+| users<br>*(optional)*             | Map<String, String>                                         | Map of usernames and passwords of users that are allowed to connect to the MQTT server.<br>This is only used when `useInternalServer` is true | *empty list*               |
+| useWebsocket<br>*(optional)*      | Boolean                                                     | If true uses websocket, otherwise TCP.                                                                                                        | false                      |
+| websocketPort<br>*(optional)*     | Integer                                                     | The port to use for TCP communication                                                                                                         | 9001                       |
+:::
 
-| Name | Allowed Value(s) | Description |
-|:--| -- | -- |
-| useInternalServer | Boolean | _optional_ If true FA³ST Service starts its own MQTT server, if false uses an external server, default: true |
-| useWebsocket | Boolean | _optional_ If true uses websocket, otherwise TCP, default: false |
-| port | Integer | _optional_ The port to use for TCP communication, default 1883 |
-| sslPort | Integer | _optional_ The port to use for secure TCP communication, default 8883 |
-| host | String | _optional_ The host name of the MQTT server (without prefix, e.g 192.168.0.1), default: localhost |
-| websocketPort | Integer | _optional_ The port to use for TCP communication, default 9001 | 
-| sslWebsocketPort | Integer |   _optional_ The port to use for secure websocket communication, default 443 |
-| serverCertificate | Object | _optional_  The server certificate to use. If not provided, SSL will be disabled [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
-| clientCertificate | Object | _optional_  The client certificate to use. If not provided, SSL will be disabled [See details](../../gettingstarted/configuration#providing-certificates-in-configuration) |
-| users | Map | _optional_ Map of usernames and passwords of users that are allowed to connect to the MQTT server. This is only used when `useInternalServer` is true, default: empty |
-| username | String | _optional_ Username used to connect to the MQTT server |
-| password | String | _optional_ Password used to connect to the MQTT server |
-| clientId | String | _optional_ ClientId to use when connecting to the MQTT server, default: FAST MQTT MessageBus |
-| topicPrefix | String | _optional_ Prefix to use for the topic names, default: events/ |
-
-
-#### Example
-
-```json
+```{code-block} json
+:caption: Example configuration for MQTT MessageBus.
+:lineno-start: 1
 {
-	"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt",
-	"useInternalServer": true,
-	"port": 1883,
-	"sslPort": 8883,
-	"host": "localhost",
-	"websocketPort": 9001,
-	"sslWebsocketPort": 443,
-	"serverCertificate": {
-		"keyStoreType": "PKCS12",
-		"keyStorePath": "C:\faaast\MyKeyStore.p12",
-		"keyStorePassword": "changeit",
-		"keyAlias": "server-key",
-		"keyPassword": "changeit"
+	"messageBus": {
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqtt",
+		"useInternalServer": true,
+		"port": 1883,
+		"sslPort": 8883,
+		"host": "localhost",
+		"websocketPort": 9001,
+		"sslWebsocketPort": 443,
+		"serverCertificate": {
+			"keyStoreType": "PKCS12",
+			"keyStorePath": "C:\faaast\MyKeyStore.p12",
+			"keyStorePassword": "changeit",
+			"keyAlias": "server-key",
+			"keyPassword": "changeit"
+		},
+		"clientCertificate": {
+			"keyStoreType": "PKCS12",
+			"keyStorePath": "C:\faaast\MyKeyStore.p12",
+			"keyStorePassword": "changeit",
+			"keyAlias": "client-key",
+			"keyPassword": "changeit"
+		},
+		"users": {
+			"user1": "password1"
+		},
+		"username": "messagebus-user",
+		"password": "messagebus-password",
+		"clientId": "CustomClientId",
+		"topicPrefix": "faaast/events/"
 	},
-	"clientCertificate": {
-		"keyStoreType": "PKCS12",
-		"keyStorePath": "C:\faaast\MyKeyStore.p12",
-		"keyStorePassword": "changeit",
-		"keyAlias": "client-key",
-		"keyPassword": "changeit"
-	},
-	"users": {
-		"user1": "password1"
-	},
-	"username": "messagebus-user",
-	"password": "messagebus-password",
-	"clientId": "CustomClientId",
-	"topicPrefix": "faaast/events/"
+	//...
 }
 ```

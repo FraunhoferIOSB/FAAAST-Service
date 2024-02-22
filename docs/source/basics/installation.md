@@ -1,18 +1,18 @@
 # Installation
 
-Lore ipsum...
+## Requirements
 
-## Download
+-	Java Runtime 17 or newer
 
-### Precompiled JAR
+## Precompiled JAR
 
 <!--start:download-release-->
-[Download latest RELEASE version (0.5.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.5.0/starter-0.5.0.jar)<!--end:download-release-->
+{download}`Latest RELEASE version (0.5.0) <https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.5.0/starter-0.5.0.jar>`<!--end:download-release-->
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (0.6.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=0.6.0-SNAPSHOT)<!--end:download-snapshot-->
+{download}`Latest SNAPSHOT version (0.6.0-SNAPSHOT) <https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=0.6.0-SNAPSHOT>`<!--end:download-snapshot-->
 
-### Maven Dependency
+## Maven Dependency
 
 ```xml
 <dependency>
@@ -22,17 +22,13 @@ Lore ipsum...
 </dependency>
 ```
 
-### Gradle Dependency
+## Gradle Dependency
 
-```text
+```groovy
 implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.5.0'
 ```
 
 ## Build from Source
-
-### Prerequisites
-
--   Maven
 
 ```sh
 git clone https://github.com/FraunhoferIOSB/FAAAST-Service

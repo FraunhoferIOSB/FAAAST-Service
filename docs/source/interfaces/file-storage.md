@@ -1,58 +1,56 @@
-# File Storage
+# FileStorage
 
-The file-storage interface provides functionality for storing referenced files (e.g. asset thumbnail, SubmodelElement File).
-
-Example of a file-storage configuration:
-```json
-{
-	"filestorage" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemory"
-	}
-}
-```
+The FileStorage interface is responsible for managing auxiliary files like thumbnails or files referenced the the AAS model.
 
 ## In-Memory
 
-The in-memory-based filestorage keeps all files stored in-memory.
+The In-Memory FileStorage keeps all files stored in memory.
+This means, that once FA³ST Service is stopped or crashes, all changes made during runtime are lost.
 
-### Configuration Parameters
+### Configuration
 
-In-memory-based FileStorage does not support any configuration parameters.
+In-Memory FileStorage does not support any configuration parameters.
 
-#### Example
 
-Example configuration for the in-memory-based FileStorage:
+### Example
 
-```json
+```{code-block} json
+:caption: Example configuration for In-Memory FileStorage.
+:lineno-start: 1
 {
 	"filestorage" : {
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageInMemory"
-	}
+	},
+	//...
 }
 ```
 
-## File System
+## FileSystem
 
-The file system-based FileStorage keeps all files stored in the file system of the local machine.
+The FileSystem-based FileStorage keeps all files stored in the file system of the local machine.
 Any change request, such as changing a file, results in a change in the file system.
 Thus, changes are stored permanently.
 
-### Configuration Parameters
+### Configuration
 
-| Name | Allowed Value | Description |
-|:--| -- | -- |
-| path | String |  _optional_ The path/directory to use to store the files, default: . |
-| existingDataPath | String |  _optional_ A path/directory containing data that should be available on start-up. This data will never be modified or deleted. , default: null |
+:::{table} Configuration properties of FileSystem FileStorage.
+| Name                             | Allowed Value | Description                                                                                                            | Default Value              |
+| -------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| existingDataPath<br>*(optional)* | String        | A path/directory containing data that should be available on start-up.<br>This data will never be modified or deleted. |                            |
+| path<br>*(optional)*             | String        | The path/directory to use for storing the files.                                                                       | .                          |
+:::
 
 #### Example
 
-Example configuration for the Filesystem-based FileStorage:
-
-```json
+```{code-block} json
+:caption: Example configuration for FileSystem FileStorage.
+:lineno-start: 1
 {
 	"filestorage" : {
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFileSystem",
 		"path": "./my/file/cache",
 		"existingDataPath": "./my/initial/data"
-	}
+	},
+	//...
 }
+```

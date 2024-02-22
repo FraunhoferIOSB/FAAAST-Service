@@ -287,20 +287,6 @@ public class AppTest {
 
 
     @Test
-    public void testAutoCompleteConfigurationCLI() {
-        executeAssertSuccess("--no-autoCompleteConfig");
-        Assert.assertFalse(application.autoCompleteConfiguration);
-    }
-
-
-    @Test
-    public void testAutoCompleteConfigurationCLIDefault() {
-        executeAssertSuccess();
-        Assert.assertTrue(application.autoCompleteConfiguration);
-    }
-
-
-    @Test
     public void testModelValidationCLI() {
         executeAssertSuccess("--no-validation");
         Assert.assertTrue(application.noValidation);

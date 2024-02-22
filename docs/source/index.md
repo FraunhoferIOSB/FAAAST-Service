@@ -1,23 +1,31 @@
 # FA³ST Service 
-![FA³ST Logo Light](./images/Fa3st-Service_positiv.png "FA³ST Service Logo")
 
-The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification by Plattform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and provides an easy-to-use re-active AAS (Type 2) hosting custom AAS models.
+The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service enables creation of Digital Twins (DTs) in accordance to the [Asset Administration Shell (AAS) specification ](https://industrialdigitaltwin.org/en/content-hub/aasspecifications).
+FA³ST Service is a software that, when started, offers one or more AAS-compliant APIs to interact with a DT. 
+Optionally, it can be started given an existing AAS model file and/or a configuration file.
+FA³T Service also allows synchronizing a DT with the asset(s) it represent via so-called *AssetConnection*.
+
+```{figure} images/overview.png
+:width: 700px
+:align: center
+FA³ST Service: Non-Technical View.
+```
 
 ## Implemented AAS Specifications
-| Specification | Version |
-|:--| -- |
-| Details of the Asset Administration Shell - Part 1<br />The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0
-| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 3.0.1<br />([specification](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf)) |
+-	Details of the Asset Administration Shell - Part 1: Metamodel v3.0 ([specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0))
+-	Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0.1 ([specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002-3-0)) ([OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1))
+
+
 
 ## Features
 
--   supports several dataformats for the Asset Administration Shell Environment: `AASX, JSON, XML`
--   easy configuration via JSON file
--   easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
--   uses existing open source implementation of AAS datamodel and de-/serializers [Eclipse AAS4J](https://github.com/eclipse-aas4j/aas4j)
--   synchronization between multiple endpoints
--   connecting to assets using arbitrary communication protocols
--   can be used via command-line interface (CLI), as docker container or embedded library
+-	Easy to use even for non-developers via command-line interface (CLI), docker container, or embedded library
+-	Configuration via a single JSON file
+-	Open Architecture: easily extendable and configurable
+-	Asset Synchronization: synchronize your assets and DTs using arbitrary communication protocols
+-	Allows accessing your DT using multiple endpoints at the same time, e.g., HTTPS and OPC UA
+-	Uses existing open source implementation of AAS datamodel and de-/serializers [Eclipse AAS4J](https://github.com/eclipse-aas4j/aas4j)
+-   Supports several dataformats for the Asset Administration Shell Environment: `AASX, JSON, XML`
 
 
 ```{toctree} 

@@ -6,20 +6,9 @@ Furthermore, the AAS covers all stages of the lifecycle of an asset starting in 
 To guarantee the interoperability of assets Industrie 4.0 defines an information metamodel for the AAS covering all important aspects as type/instance concept, events, predefined data specification templates, security aspects, mapping of data formats and many more. Moreover, interfaces and operations for a registry, a repository, publish and discovery are specified.
 At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier, FA³ST provides an implementation of several tools to allow for easy and fast creation and management of AAS-compliant Digital Twins.
 
-## Roadmap
-
-The next milestone is the release of version 1.0.0 on Maven Central and Dockerhub.
-
-Some of the features we are working on include
--   improve stability/robustness
--   improve usability
--   additional implementations of the persistence interface
-	-   file-based (✔️)
-	-   database-backed
-
--   support for additional APIs
-	-   Administration Shell Serialization Interface (✔️)
-	-   AASX Server Interface
+:::{important}
+FA³ST is currently in the process of becoming an Eclipse project which will be finalized after releasing v1.0.0 here.
+:::
 
 ## Contact
 
