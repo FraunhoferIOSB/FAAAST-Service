@@ -182,10 +182,6 @@ public class App implements Runnable {
      * @param args CLI arguments
      */
     public static void main(String[] args) {
-        args = new String[] {
-                "--endpoint",
-                "OPCUA"
-        };
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
