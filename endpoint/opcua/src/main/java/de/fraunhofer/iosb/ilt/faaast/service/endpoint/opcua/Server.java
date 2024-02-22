@@ -33,7 +33,6 @@ import com.prosysopc.ua.stack.core.MessageSecurityMode;
 import com.prosysopc.ua.stack.core.UserTokenPolicy;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
-import com.prosysopc.ua.stack.transport.security.KeyPair;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
@@ -173,7 +172,6 @@ public class Server {
 
 
     private void setApplicationIdentity(final PkiDirectoryCertificateStore applicationCertificateStore) throws IOException, SecureIdentityException, UaServerException {
-        String hostName;
         ApplicationDescription appDescription = new ApplicationDescription();
         // 'localhost' (all lower case) in the ApplicationName and
         // ApplicationURI is converted to the actual host name of the computer
@@ -189,17 +187,11 @@ public class Server {
         uaServer.setPort(Protocol.OpcTcp, tcpPort);
         LOGGER.trace("Loading certificates..");
         File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
-        KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, null, 3650, false,
-                CERT_KEY_SIZE);
         int[] keySizes = new int[] {
                 CERT_KEY_SIZE
         };
         final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", null,
                 privatePath, null, keySizes, true);
-        hostName = ApplicationIdentity.getActualHostName();
-        identity.setHttpsCertificate(
-                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, null, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
         uaServer.setApplicationIdentity(identity);
     }
 
