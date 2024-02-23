@@ -274,7 +274,7 @@ public class AppTest {
 
     @Test
     public void testUseEmptyModelCLI() {
-        executeAssertSuccess("--emptyModel");
+        executeAssertSuccess("--empty-model");
         Assert.assertTrue(application.useEmptyModel);
     }
 
@@ -283,20 +283,6 @@ public class AppTest {
     public void testUseEmptyModelCLIDefault() {
         executeAssertSuccess();
         Assert.assertFalse(application.useEmptyModel);
-    }
-
-
-    @Test
-    public void testAutoCompleteConfigurationCLI() {
-        executeAssertSuccess("--no-autoCompleteConfig");
-        Assert.assertFalse(application.autoCompleteConfiguration);
-    }
-
-
-    @Test
-    public void testAutoCompleteConfigurationCLIDefault() {
-        executeAssertSuccess();
-        Assert.assertTrue(application.autoCompleteConfiguration);
     }
 
 

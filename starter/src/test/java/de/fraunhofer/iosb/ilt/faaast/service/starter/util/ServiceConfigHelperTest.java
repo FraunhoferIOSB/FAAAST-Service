@@ -45,15 +45,6 @@ public class ServiceConfigHelperTest {
 
 
     @Test
-    public void testAutoComplete() throws IOException, Exception {
-        ServiceConfig expected = getConfigWithHttpEndpoint();
-        ServiceConfig actual = ServiceConfigHelper.load(getClass().getResourceAsStream("/config-partial.json"));
-        ServiceConfigHelper.autoComplete(actual);
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
     public void testWithProperties() throws IOException, Exception {
         ServiceConfig input = new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder()

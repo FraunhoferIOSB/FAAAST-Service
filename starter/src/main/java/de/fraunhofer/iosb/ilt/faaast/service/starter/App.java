@@ -106,19 +106,19 @@ public class App implements Runnable {
     protected static final String ENV_KEY_PREFIX = "faaast";
     protected static final String ENV_PATH_CONFIG_FILE = envPath(ENV_KEY_PREFIX, "config");
     protected static final String ENV_PATH_MODEL_FILE = envPath(ENV_KEY_PREFIX, "model");
+    protected static final String ENV_PATH_LOGLEVEL_EXTERNAL = envPath(ENV_KEY_PREFIX, "loglevel_external");
+    protected static final String ENV_PATH_LOGLEVEL_FAAAAST = envPath(ENV_KEY_PREFIX, "loglevel_faaast");
+    protected static final String ENV_PATH_NO_VALIDATION = envPath(ENV_KEY_PREFIX, "no_validation");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
     // model
-    protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
-    protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
+    protected static final String MODEL_FILENAME_DEFAULT = "model.*";
+    protected static final String MODEL_FILENAME_PATTERN = "model\\..*";
     private static final Configuration JSON_PATH_CONFIG = Configuration
             .builder()
             .mappingProvider(new JacksonMappingProvider())
             .jsonProvider(new JacksonJsonNodeJsonProvider())
             .build()
             .addOptions(com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS);
-
-    @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
-    public boolean autoCompleteConfiguration = true;
 
     @Option(names = {
             "-c",
@@ -137,7 +137,10 @@ public class App implements Runnable {
     @Parameters(description = "Additional properties to override values of configuration using JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)")
     public Map<String, String> properties = new HashMap<>();
 
-    @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
+    @Option(names = {
+            "-e",
+            "--empty-model"
+    }, negatable = false, description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyModel = false;
 
     @Option(names = "--no-validation", negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
@@ -250,7 +253,15 @@ public class App implements Runnable {
 
 
     private void validate(ServiceConfig config) {
-        if (noValidation) {
+        boolean disableValidation;
+        if (getEnvValue(ENV_PATH_NO_VALIDATION) != null
+                && !getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL).isBlank()) {
+            disableValidation = Boolean.parseBoolean(getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL));
+        }
+        else {
+            disableValidation = noValidation;
+        }
+        if (disableValidation) {
             config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
             config.getCore().setValidationOnCreate(ModelValidatorConfig.NONE);
             config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
@@ -303,8 +314,14 @@ public class App implements Runnable {
         if (logLevelFaaast != null) {
             FaaastFilter.setLevelFaaast(logLevelFaaast);
         }
+        if (getEnvValue(ENV_PATH_LOGLEVEL_FAAAAST) != null && !getEnvValue(ENV_PATH_LOGLEVEL_FAAAAST).isBlank()) {
+            FaaastFilter.setLevelFaaast(Level.toLevel(getEnvValue(ENV_PATH_LOGLEVEL_FAAAAST), FaaastFilter.getLevelFaaast()));
+        }
         if (logLevelExternal != null) {
             FaaastFilter.setLevelExternal(logLevelExternal);
+        }
+        if (getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL) != null && !getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL).isBlank()) {
+            FaaastFilter.setLevelExternal(Level.toLevel(getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL), FaaastFilter.getLevelExternal()));
         }
         LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
         LOGGER.info("Using log level for external packages: {}", FaaastFilter.getLevelExternal());
@@ -323,9 +340,7 @@ public class App implements Runnable {
         catch (IOException e) {
             throw new InitializationException("Error loading config file", e);
         }
-        if (autoCompleteConfiguration) {
-            ServiceConfigHelper.autoComplete(config);
-        }
+        ServiceConfigHelper.autoComplete(config);
         withModel(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
@@ -488,15 +503,17 @@ public class App implements Runnable {
             LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
             return;
         }
-        Optional<File> defaultModel = findDefaultModel();
-        if (defaultModel.isPresent()) {
-            LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
-            config.getPersistence().setInitialModelFile(defaultModel.get());
-            if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-                config.getFileStorage().setInitialModelFile(defaultModel.get());
+        if (!useEmptyModel) {
+            Optional<File> defaultModel = findDefaultModel();
+            if (defaultModel.isPresent()) {
+                LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
+                config.getPersistence().setInitialModelFile(defaultModel.get());
+                if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+                    config.getFileStorage().setInitialModelFile(defaultModel.get());
+                }
+                modelFile = new File(defaultModel.get().getAbsolutePath());
+                return;
             }
-            modelFile = new File(defaultModel.get().getAbsolutePath());
-            return;
         }
         if (useEmptyModel) {
             LOGGER.info("Model: empty (CLI)");
