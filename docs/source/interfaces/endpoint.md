@@ -68,14 +68,14 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 
 FA³ST Service supports the following APIs as defined by the [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
 
--	Asset Administration Shell API
--	Submodel API
--	Asset Administration Shell Repository API
--	Submodel Repository API
--	Concept Description API
--	Asset Administration Shell Basic Discovery API
--	Serialization API
--	Description API
+- Asset Administration Shell API
+- Submodel API
+- Asset Administration Shell Repository API
+- Submodel Repository API
+- Concept Description API
+- Asset Administration Shell Basic Discovery API
+- Serialization API
+- Description API
 
 #### Invoking Operations
 
@@ -165,13 +165,13 @@ OPC UA Endpoint configuration supports the following configuration parameters
 
 The path provided with the `serverCertificateBasePath` configuration property stores the server and client application certificates and contains the following subdirectories
 
--	`/certs`: trusted client certificates
--	`/crl`: certificate revocation list for client certificates
--	`/issuers/certs`: certificates of trusted CAs
--	`/issuers/crl`: certificate revocation list for CA certificates
--	`/issuers/rejected`:	rejected CA certificates
--	`/private`: certificates for the OPC UA server
--	`/rejected`: unkown/rejected client certificates
+- `/certs`: trusted client certificates
+- `/crl`: certificate revocation list for client certificates
+- `/issuers/certs`: certificates of trusted CAs
+- `/issuers/crl`: certificate revocation list for CA certificates
+- `/issuers/rejected`:	rejected CA certificates
+- `/private`: certificates for the OPC UA server
+- `/rejected`: unkown/rejected client certificates
 
 To provision the OPC UA Endpoint to use an existing certificate for the server, save the certificate file as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.der` and the private key as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.pem` where `{hostname}` is the host name of your machine.
 
@@ -180,12 +180,12 @@ To trust the certificate of a client and allow the connection, move the file to 
 
 The path provided with the `userCertificateBasePath` configuration property stores the user certificates and contains the following subdirectories
 
--	`/certs`: trusted user certificates
--	`/crl`: certificate revocation list for user certificates
--	`/issuers/certs`: certificates of trusted CAs
--	`/issuers/crl`: certificate revocation list for CA certificates
--	`/issuers/rejected`:	rejected CA certificates
--	`/rejected`: unkown/rejected client certificates
+- `/certs`: trusted user certificates
+- `/crl`: certificate revocation list for user certificates
+- `/issuers/certs`: certificates of trusted CAs
+- `/issuers/crl`: certificate revocation list for CA certificates
+- `/issuers/rejected`:	rejected CA certificates
+- `/rejected`: unkown/rejected client certificates
 
 Similar to the client certificates, unknown user certificates are stored in `/rejected` the first time a new certificate is encountered.
 To trust this certificate, simply move it to `/certs`.
@@ -219,13 +219,10 @@ These directories contain the following subdirectories:
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client. Here are some example libraries and tools you can use:
 
--   [Eclipse Milo](https://github.com/eclipse/milo): Open Source SDK for Java.
-
--   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html): Free OPC UA test client (registration on website required for download).
-
--   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/): Free OPC UA test client (registration on website required for download).
-
--   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples): C#-based sample code from the OPC Foundation.
+- [Eclipse Milo](https://github.com/eclipse/milo): Open Source SDK for Java.
+- [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html): Free OPC UA test client (registration on website required for download).
+- [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/): Free OPC UA test client (registration on website required for download).
+- [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples): C#-based sample code from the OPC Foundation.
 
 
 
@@ -242,28 +239,28 @@ As stated, there is currently no official mapping of the AAS API to OPC UA for A
 
 #### Supported Functionality
 
--   Writing values for the following types
-    -   Property
-    -   Range
-    -   Blob
-    -   MultiLanguageProperty
-    -   ReferenceElement
-    -   RelationshipElement
-    -   Entity
--   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
+- Writing values for the following types
+	- Property
+	- Range
+	- Blob
+	- MultiLanguageProperty
+	- ReferenceElement
+	- RelationshipElement
+	- Entity
+- Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
 
 
 #### Not (yet) Supported Functionality
 
--	Updating the model, i.e., adding new elements at runtime is not possible
--   Writing values for the following types
-    -   DataSpecifications
-    -   Qualifier
-    -   Category
-    -   ModelingKind
--   AASDataTypeDefXsd
-    -   Base64Binary
-    -   UnsignedInt
-    -   UnsignedLong
-    -   UnsignedShort
-    -   UnsignedByte
+- Updating the model, i.e., adding new elements at runtime is not possible
+- Writing values for the following types
+	- DataSpecifications
+	- Qualifier
+	- Category
+	- ModelingKind
+- AASDataTypeDefXsd
+	- Base64Binary
+	- UnsignedInt
+	- UnsignedLong
+	- UnsignedShort
+	- UnsignedByte

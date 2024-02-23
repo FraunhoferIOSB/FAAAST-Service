@@ -11,21 +11,21 @@ When subscribing to a class, all events of this class or any subclass are receiv
 
 This is the class hierarchy of available event classes/types
 
--   `EventMessage` *(abstract)*:						Superclass for all events, payload: a `Reference` to the subject element
-	-   `AccessEventMessage` *(abstract)*:				Superclass for all types of access-based events
-		-   `ReadEventMessage` *(abstract)*:			Superclass for all types of read-events, triggered each time an element is read via API
-			-   `ElementReadEventMessage`:				Triggered when a `Referable` is read via API, payload: the referable (serialized according to the request, i.e. using the requested `SerializationModifier`)
-			-   `ValueReadEventMessage`:				Triggered when the value of an element is read via API, payload: the element value
-		-   `ExecuteEventMessage` *(abstract)*:			Superclass for all events related to executing operations
-			-   `OperationInvokeEventMessage`:			Triggered when an operation is invoked/started, payload: input and inoutput parameters
-			-   `OperationFinishEventMessage`:			Triggered when an operation is finished, payload: output and inoutput parameters
-	-   `ChangeEventMessage` *(abstract)*:				Superclass for all types of changes
-		-   `ElementChangeEventMessage` *(abstract)*:	Superclass for all types of structural changes, payload: the updated element
-			-   `ElementCreateEventMessage`:			Triggered when an element is created
-			-   `ElementDeleteEventMessage`:			Triggered when an element is deleted
-			-   `ElementUpdateEventMessage`:			Triggered when an element is updated
-			-   `ValueChangeEventMessage`:				Triggered when the value of an element is updated, payload: old value, new value
-	-   `ErrorEventMessage`:							Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)
+- `EventMessage` *(abstract)*:						Superclass for all events, payload: a `Reference` to the subject element
+	- `AccessEventMessage` *(abstract)*:			Superclass for all types of access-based events
+		- `ReadEventMessage` *(abstract)*:			Superclass for all types of read-events, triggered each time an element is read via API
+			- `ElementReadEventMessage`:			Triggered when a `Referable` is read via API, payload: the referable (serialized according to the request, i.e. using the requested `SerializationModifier`)
+			- `ValueReadEventMessage`:				Triggered when the value of an element is read via API, payload: the element value
+		- `ExecuteEventMessage` *(abstract)*:		Superclass for all events related to executing operations
+			- `OperationInvokeEventMessage`:		Triggered when an operation is invoked/started, payload: input and inoutput parameters
+			- `OperationFinishEventMessage`:		Triggered when an operation is finished, payload: output and inoutput parameters
+	- `ChangeEventMessage` *(abstract)*:			Superclass for all types of changes
+		- `ElementChangeEventMessage` *(abstract)*:	Superclass for all types of structural changes, payload: the updated element
+			- `ElementCreateEventMessage`:			Triggered when an element is created
+			- `ElementDeleteEventMessage`:			Triggered when an element is deleted
+			- `ElementUpdateEventMessage`:			Triggered when an element is updated
+			- `ValueChangeEventMessage`:			Triggered when the value of an element is updated, payload: old value, new value
+	- `ErrorEventMessage`:							Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)
 
 
 ## Internal

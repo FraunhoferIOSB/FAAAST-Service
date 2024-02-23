@@ -15,9 +15,9 @@ The top half shows a examplenary AAS model that we which to synchronize with the
 In the center we have the AssetConnection interface which holds multiple of so-called *Prodiver*s.
 There are three types of providers:
 
--	ValueProdiver: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
--	OperationProvider: for forwarding operation invocation requests to the asset and translating the response back to be AAS-compliant
--	SubscriptionProvider: for subscribing to changes on the asset and therefore continuously updating the value of the corresponding AAS element
+- ValueProdiver: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
+- OperationProvider: for forwarding operation invocation requests to the asset and translating the response back to be AAS-compliant
+- SubscriptionProvider: for subscribing to changes on the asset and therefore continuously updating the value of the corresponding AAS element
 
 The mapping between AAS elements and providers is defined in the configuration of the AssetConnection.
 Therefore, the configuration section for all implementations of the AssetConnection interface share the following common structure.
@@ -76,11 +76,11 @@ Mapping, Querying templating, etc
 
 ### Supported Providers
 
--   ValueProvider
-    -   read ✔️
-	-   write ✔️
--   OperationProvider ✔️
--   SubscriptionProvider ✔️ (via polling)
+- ValueProvider
+	- read ✔️
+	- write ✔️
+- OperationProvider ✔️
+- SubscriptionProvider ✔️ (via polling)
 
 ### Configuration
 
@@ -188,11 +188,11 @@ Mapping, Querying templating, etc
 
 ### Supported Providers
 
--   ValueProvider
-    -   read ❌
-	-   write ✔️
--   OperationProvider ❌
--   SubscriptionProvider ✔️
+- ValueProvider
+	- read ❌
+	- write ✔️
+- OperationProvider ❌
+- SubscriptionProvider ✔️
 
 ### Configuration
 
@@ -251,11 +251,11 @@ Mapping, Querying templating, etc
 
 ### Supported Providers
 
--   ValueProvider
-    -   read ✔️
-	-   write ✔️
--   OperationProvider ✔️
--   SubscriptionProvider ✔️
+- ValueProvider
+	- read ✔️
+	- write ✔️
+- OperationProvider ✔️
+- SubscriptionProvider ✔️
 
 ### Configuration
 

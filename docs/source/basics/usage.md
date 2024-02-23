@@ -66,10 +66,10 @@ Applying the previous examples yields `faaast_config_extension_core_requestHandl
 
 FA³ST Service is available on [DockerHub](https://hub.docker.com/r/fraunhoferiosb/faaast-service) with multiple tags
 
--	`latest`: The latests released version, equals to the latests tag `major.minor.bugfix`
--	`major.minor.0-SNAPSHOT`: Snapshot build of the current code on the `main` branch of FA³ST Service. This includes all upcoming features not yet relased.
--	`major.minor.bugfix`: This tag is available for each officially released version of FA³ST. It is stable, i.e., no updates or bugfixes will ever be applied.
--	`major.minor`: This tag is available for each minor release of FA³ST Service and will be updated with bugfixes over time. It is therefore recommended to use these tags over the `major.minor.bugfix` ones.
+- `latest`: The latests released version, equals to the latests tag `major.minor.bugfix`
+- `major.minor.0-SNAPSHOT`: Snapshot build of the current code on the `main` branch of FA³ST Service. This includes all upcoming features not yet relased.
+- `major.minor.bugfix`: This tag is available for each officially released version of FA³ST. It is stable, i.e., no updates or bugfixes will ever be applied.
+- `major.minor`: This tag is available for each minor release of FA³ST Service and will be updated with bugfixes over time. It is therefore recommended to use these tags over the `major.minor.bugfix` ones.
 
 To run FA³ST Service via docker with an empty model and default configuration execute
 

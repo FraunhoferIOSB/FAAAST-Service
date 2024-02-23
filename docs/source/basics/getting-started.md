@@ -16,12 +16,12 @@ High-Level Architecture of FA³ST Service.
 
 The interfaces provide the following functionalities:
 
--	`Endpoint`:           Communication with the DT from the outside
-- 	`MessageBus`:         Communication & synchronization between components
--	`De-/Serializer`:     De-/Serialization of AAS models in from/to data formats
--	`Persistence`:        Persistent storage of data (model + values)
--	`FileStorage`:        Peristent storage of complementary files (e.g. PDF files linked from the AAS)
--	`AssetConnection`:    Synchronization with underlying asset(s)
+- `Endpoint`:           Communication with the DT from the outside
+-  `MessageBus`:         Communication & synchronization between components
+- `De-/Serializer`:     De-/Serialization of AAS models in from/to data formats
+- `Persistence`:        Persistent storage of data (model + values)
+- `FileStorage`:        Peristent storage of complementary files (e.g. PDF files linked from the AAS)
+- `AssetConnection`:    Synchronization with underlying asset(s)
 
 ## Configuration
 
