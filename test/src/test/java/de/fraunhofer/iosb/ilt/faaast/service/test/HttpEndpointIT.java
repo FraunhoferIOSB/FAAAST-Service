@@ -2535,6 +2535,33 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
+    public void testSubmodelRepositoryDeleteSubmodelInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
+            KeyManagementException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        Submodel expected = environment.getSubmodels().get(1);
+        Page<Submodel> before = HttpHelper.getPage(
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
+                Submodel.class);
+        Assert.assertTrue(before.getContent().contains(expected));
+        assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecute(HttpMethod.DELETE,
+                                apiPaths.aasRepository().submodelRepositoryInterface(aas).submodel(expected),
+                                StatusCode.SUCCESS_NO_CONTENT)));
+        Page<Submodel> actual = HttpHelper.getPage(
+                httpClient,
+                apiPaths.submodelRepository().submodels(),
+                Submodel.class);
+        Assert.assertFalse(actual.getContent().contains(expected));
+    }
+
+
+    @Test
     public void testSubmodelRepositoryGetSubmodel()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(1);

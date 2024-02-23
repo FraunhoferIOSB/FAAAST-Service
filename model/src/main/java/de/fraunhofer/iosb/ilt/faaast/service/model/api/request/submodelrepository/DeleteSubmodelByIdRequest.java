@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
 import java.util.Objects;
 
@@ -22,19 +22,7 @@ import java.util.Objects;
 /**
  * Request class for DeleteSubmodelById requests.
  */
-public class DeleteSubmodelByIdRequest extends Request<DeleteSubmodelByIdResponse> {
-
-    private String id;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+public class DeleteSubmodelByIdRequest extends AbstractSubmodelInterfaceRequest<DeleteSubmodelByIdResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -45,14 +33,13 @@ public class DeleteSubmodelByIdRequest extends Request<DeleteSubmodelByIdRespons
             return false;
         }
         DeleteSubmodelByIdRequest that = (DeleteSubmodelByIdRequest) o;
-        return super.equals(that)
-                && Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -60,12 +47,9 @@ public class DeleteSubmodelByIdRequest extends Request<DeleteSubmodelByIdRespons
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteSubmodelByIdRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<DeleteSubmodelByIdRequest, Builder> {

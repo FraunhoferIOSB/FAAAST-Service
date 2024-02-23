@@ -208,7 +208,7 @@ public class RequestMappingManagerTest {
     @Test
     public void testDeleteSubmodelById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteSubmodelByIdRequest.builder()
-                .id(SUBMODEL.getId())
+                .submodelId(SUBMODEL.getId())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)

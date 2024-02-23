@@ -17,31 +17,29 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.DeleteSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: submodels/{submodelIdentifier}.
+ * class to map HTTP-DELETE-Request paths: submodels/{submodelIdentifier},
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}.
  */
-public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
+public class DeleteSubmodelByIdRequestMapper extends AbstractSubmodelInterfaceRequestMapper<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
-    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodels/%s", pathElement(SUBMODEL_ID));
+    private static final String PATTERN = "";
 
     public DeleteSubmodelByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.DELETE, PATTERN);
+        super(serviceContext, HttpMethod.DELETE, PATTERN, Content.METADATA, Content.PATH, Content.REFERENCE, Content.VALUE);
     }
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
-        return DeleteSubmodelByIdRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
-                .build();
+    public DeleteSubmodelByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return DeleteSubmodelByIdRequest.builder().build();
     }
 }
