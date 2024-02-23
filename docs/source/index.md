@@ -28,6 +28,13 @@ FA³ST Service: Non-Technical View.
 -   Supports several dataformats for the Asset Administration Shell Environment: `AASX, JSON, XML`
 
 
+:::{caution}
+At the moment there is no security specification available for the AAS. Therefore FA³ST does not implement any security mechanisms. 
+They will be implemented as soon as a security specification is available.
+We strongly recommend to be careful when using external AAS models or submodels.
+:::
+
+
 ```{toctree} 
 :hidden:
 :caption: Basics

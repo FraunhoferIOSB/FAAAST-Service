@@ -47,21 +47,19 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 :caption: Example configuration section for HTTP Endpoint.
 :lineno-start: 1
 {
-	"endpoints": [
-		{
-			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-			"port": 8080,
-			"corsEnabled": true,
-			"sniEnabled": true,
-			"certificate": {
-				"keyStoreType": "PKCS12",
-				"keyStorePath": "C:\faaast\MyKeyStore.p12",
-				"keyStorePassword": "changeit",
-				"keyAlias": "server-key",
-				"keyPassword": "changeit"
-			}
+	"endpoints": [ {
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+		"port": 8080,
+		"corsEnabled": true,
+		"sniEnabled": true,
+		"certificate": {
+			"keyStoreType": "PKCS12",
+			"keyStorePath": "C:\faaast\MyKeyStore.p12",
+			"keyStorePassword": "changeit",
+			"keyAlias": "server-key",
+			"keyPassword": "changeit"
 		}
-	],
+	} ],
 	// ...
 }
 ```
@@ -79,6 +77,60 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 -	Serialization API
 -	Description API
 
+#### Invoking Operations
+
+To invoke an operation, make a `POST` request to the according URL, e.g. `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
+
+:::{tip}
+You can invoke operations asynchronuously by calling `.../invoke-async` instead of `.../invoke` in which case you get back a `handleId` instead of the result.
+To monitor the execution state call `.../operation-status/{handleId}` and once finished you can get the result calling `.../operation-results/{handleId}` or `.../operation-results/{handleId}/$value` for the ValueOnly serialization.
+:::
+
+Depeneding on the in & inoutput arguments, the payload should look like this.
+
+```{code-block} json
+:caption: Example payload for invoking operations synchronously
+:lineno-start: 1
+{
+	"inputArguments": [ {
+		"value": {
+			"modelType": "Property",
+			"value": "4",
+			"valueType": "xs:int",
+			"idShort": "in"
+		},
+		// additional input arguments
+	} ],
+	"inoutputArguments": [ {
+		"value": {
+			"modelType": "Property",
+			"value": "original value",
+			"valueType": "xs:string",
+			"idShort": "note"
+		},
+		// additional inoutput arguments
+	} ],
+	"clientTimeoutDuration": "PT10S"   // ISO8601 duration, here: 10 seconds
+}
+```
+
+An easier, or at least less verbose way, of invoking operations is by using the ValueOnly serialization.
+For this, add `/$value` to the end of the URL, i.e. resulting in either `.../invoke/$value` or `.../invoke-async/$value`.
+The payload will be simplified and look similar to this
+
+```{code-block} json
+:caption: Example payload for invoking operations with ValueOnly
+:lineno-start: 1
+{
+	"inputArguments": {
+		"in": 4
+	},
+	"inoutputArguments": {
+		"note": "original value"
+	},
+	"clientTimeoutDuration": "PT10S"
+}
+```
 
 ## OPC UA
 
@@ -147,8 +199,7 @@ These directories contain the following subdirectories:
 :lineno-start: 1
 
 {
-	"endpoints": [
-		{
+	"endpoints": [ {
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
 			"tcpPort" : 18123,
 			"secondsTillShutdown" : 5,
@@ -160,8 +211,7 @@ These directories contain the following subdirectories:
 			"userCertificateBasePath" : "USERS_PKI/CA",
 			"supportedSecurityPolicies" : [ "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" ],
 			"supportedAuthentications" : [ "Anonymous", "UserName" ]
-		}
-	],
+	} ],
 	//...
 }
 ```

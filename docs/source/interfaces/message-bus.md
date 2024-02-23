@@ -41,8 +41,7 @@ This implementation does not offer any configuration properties.
 :caption: Example configuration for Internal MessageBus.
 :lineno-start: 1
 {
-	"messageBus":
-	{
+	"messageBus": {
 		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
 	},
 	//...
@@ -77,8 +76,7 @@ An example `ValueChangeEvent` might look like this:
 :lineno-start: 1
 {
     "@type": "ValueChangeEvent",
-    "element":
-    {
+    "element": {
         "keys": [
             {
                 "idType": "Iri",
@@ -90,16 +88,13 @@ An example `ValueChangeEvent` might look like this:
                 "type": "Property",
                 "value": "property"
             }
-        ]
-    },
-    "oldValue":
-    {
+    ] },
+    "oldValue": {
         "modelType": "Property",
         "dataType": "int",
         "value": 0
     },
-    "newValue":
-    {
+    "newValue": {
         "modelType": "Property",
         "dataType": "int",
         "value": 1

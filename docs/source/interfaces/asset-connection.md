@@ -26,33 +26,31 @@ Therefore, the configuration section for all implementations of the AssetConnect
 :caption: Common configuration structure for all AssetConnection implementations.
 :lineno-start: 1
 {
-	"assetConnections": [
+	"assetConnections": [ {
+		"@class": "...",
+		// connection-level configuration
+		"valueProviders":
 		{
-			"@class": "...",
-			// connection-level configuration
-			"valueProviders":
+			"{serialized Reference of AAS element}":
 			{
-				"{serialized Reference of AAS element}":
-				{
-					// value provider configuration
-				}
-			},
-			"operationProviders":
+				// value provider configuration
+			}
+		},
+		"operationProviders":
+		{
+			"{serialized Reference of AAS element}":
 			{
-				"{serialized Reference of AAS element}":
-				{
-					// operation provider configuration
-				}
-			},
-			"subscriptionProviders":
+				// operation provider configuration
+			}
+		},
+		"subscriptionProviders":
+		{
+			"{serialized Reference of AAS element}":
 			{
-				"{serialized Reference of AAS element}":
-				{
-					// subscription provider configuration
-				}
+				// subscription provider configuration
 			}
 		}
-	],
+	}],
 	//...
 }
 ```
@@ -352,20 +350,14 @@ Which authentication certificate is used is determined by a similar logic as for
 {
 	"nodeId": "nsu=com:example;s=foo",
 	"parentNodeId": "nsu=com:example;s=fooObject",
-	"inputArgumentMapping": 
-	[
-		{
-			"idShort": "ExampleInputId",
-			"argumentName": "ExampleInput"
-		}
-	],
-	"outputArgumentMapping": 
-	[
-		{
-			"idShort": "ExampleOutputId",
-			"argumentName": "ExampleOutput"
-		}
-	]
+	"inputArgumentMapping": [ {
+		"idShort": "ExampleInputId",
+		"argumentName": "ExampleInput"
+	} ],
+	"outputArgumentMapping": [ {
+		"idShort": "ExampleOutputId",
+		"argumentName": "ExampleOutput"
+	} ]
 }
 ```
 
@@ -413,28 +405,21 @@ Which authentication certificate is used is determined by a similar logic as for
 		"keyAlias": "auth-cert",
 		"keyPassword": "changeit"
 	},
-	"valueProviders":
-	{
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
-		{
+	"valueProviders": {
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1": {
 			"nodeId": "some.node.id.property.1"
 		},
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property2":
-		{
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property2": {
 			"nodeId": "some.node.id.property.2"
 		}
 	},
-	"operationProviders":
-	{
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Operation)[ID_SHORT]Operation1":
-		{
+	"operationProviders": {
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Operation)[ID_SHORT]Operation1": {
 			"nodeId": "some.node.id.operation.1"
 		}
 	},
-	"subscriptionProviders":
-	{
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property3":
-		{
+	"subscriptionProviders": {
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property3": {
 			"nodeId": "some.node.id.property.3",
 			"interval": 1000
 		}
