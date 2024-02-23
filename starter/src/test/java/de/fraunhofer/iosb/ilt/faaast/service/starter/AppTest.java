@@ -274,7 +274,7 @@ public class AppTest {
 
     @Test
     public void testUseEmptyModelCLI() {
-        executeAssertSuccess("--emptyModel");
+        executeAssertSuccess("--empty-model");
         Assert.assertTrue(application.useEmptyModel);
     }
 
