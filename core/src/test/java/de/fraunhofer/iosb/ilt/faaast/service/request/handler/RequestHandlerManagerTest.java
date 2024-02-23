@@ -786,7 +786,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodel(eq(environment.getSubmodels().get(0).getId()), any()))
                 .thenReturn(environment.getSubmodels().get(0));
         DeleteSubmodelByIdRequest request = new DeleteSubmodelByIdRequest.Builder()
-                .id(environment.getSubmodels().get(0).getId())
+                .submodelId(environment.getSubmodels().get(0).getId())
                 .build();
         DeleteSubmodelByIdResponse actual = manager.execute(request);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()

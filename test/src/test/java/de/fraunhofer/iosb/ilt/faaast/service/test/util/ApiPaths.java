@@ -150,12 +150,34 @@ public class ApiPaths {
         public String assetAdministrationShell(AssetAdministrationShell aas, Content content) {
             return assetAdministrationShell(aas.getId(), content);
         }
+
+
+        public SubmodelRespositoryInterface submodelRepositoryInterface(AssetAdministrationShell aas) {
+            return new SubmodelRespositoryInterface(assetAdministrationShell(aas));
+        }
+
+
+        public SubmodelRespositoryInterface submodelRepositoryInterface(String identifier) {
+            return new SubmodelRespositoryInterface(assetAdministrationShell(identifier));
+        }
     }
 
     public class SubmodelRespositoryInterface {
 
+        private final String root;
+
+        private SubmodelRespositoryInterface() {
+            this.root = ApiPaths.this.root();
+        }
+
+
+        private SubmodelRespositoryInterface(String root) {
+            this.root = root;
+        }
+
+
         public String submodels() {
-            return String.format("%s/submodels", ApiPaths.this.root());
+            return String.format("%s/submodels", root);
         }
 
 
