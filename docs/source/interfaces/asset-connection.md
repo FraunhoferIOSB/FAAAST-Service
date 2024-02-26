@@ -56,7 +56,7 @@ Therefore, the configuration section for all implementations of the AssetConnect
 ```
 
 The value of `{serialized Reference of AAS element}` is the Reference to the AAS element serialized using the rules described in [Section 7.2.3 of AAS Specification - Part 1](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf).
-An example value could look like this `[ModelRef](Submodel)urn:aas:id:example:submodel:1,(Property)Property1`.
+An example value could look like this `[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1`.
 The available configuration properties for connection-level and the providers are implementation-specific.
 This is necessary because different protocols require different types of information, e.g. for OPC UA an AAS element could be mapped to an OPC UA node which means the configuration must contain the node ID, while for MQTT we need a topic on which to listen and maybe even information about the payload format.
 
@@ -100,7 +100,7 @@ Mapping, Querying templating, etc
 
 :::{table} Configuration properties of HTTP AssetConnection Value Provider.
 | Name                        | Allowed Value      | Description                                                                                                                                     | Default Value |
-| ----------------------------| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| --------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | format                      | JSON<br>XML        | Content format of the payload.                                                                                                                  |               |
 | headers<br>*(optional)*     | Map<String,String> | Headers to send with each request.<br>Overrides connection-level headers.                                                                       | *empty list*  |
 | path                        | String             | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                         |               |
@@ -128,7 +128,7 @@ Mapping, Querying templating, etc
 
 :::{table} Configuration properties of HTTP AssetConnection Operation Provider.
 | Name                        | Allowed Value      | Description                                                                                                                                                                                 | Default Value |
-| ----------------------------| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| --------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | format                      | JSON<br>XML        | Content format of the payload.                                                                                                                                                              |               |
 | headers<br>*(optional)*     | Map<String,String> | Headers to send with each request.<br>Overrides connection-level headers.                                                                                                                   | *empty list*  |
 | method<br>*(optional)*      | PUT<br>POST        | HTTP method to use.                                                                                                                                                                         | POST          |
@@ -159,7 +159,7 @@ Mapping, Querying templating, etc
 
 :::{table} Configuration properties of HTTP AssetConnection Subscription Provider.
 | Name                        | Allowed Value      | Description                                                                                                                                     | Default Value |
-| ----------------------------| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| --------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | format                      | JSON<br>XML        | Content format of the payload.                                                                                                                  |               |
 | headers<br>*(optional)*     | Map<String,String> | Headers to send with each request.<br>Overrides connection-level headers.                                                                       | *empty list*  |
 | interval<br>*(optional)*    | long               | Interval to poll the server for changes (in ms).                                                                                                | 100           |
@@ -200,7 +200,7 @@ Mapping, Querying templating, etc
 
 :::{table} Configuration properties of MQTT AssetConnection.
 | Name                     | Allowed Value | Description                                         | Default Value        |
-| -------------------------| ------------- | --------------------------------------------------- | -------------------- |
+| ------------------------ | ------------- | --------------------------------------------------- | -------------------- |
 | clientId<br>*(optional)* | String        | Id of the MQTT client used to connect to the server | *randomly generated* |
 | password*(optional)*     | String        | Password for connecting to the MQTT server          |                      |
 | serverUri                | String        | URL of the MQTT server, e.g. *tcp://localhost:1883* |                      |
@@ -406,20 +406,20 @@ Which authentication certificate is used is determined by a similar logic as for
 		"keyPassword": "changeit"
 	},
 	"valueProviders": {
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1": {
 			"nodeId": "some.node.id.property.1"
 		},
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property2": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property2": {
 			"nodeId": "some.node.id.property.2"
 		}
 	},
 	"operationProviders": {
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Operation)[ID_SHORT]Operation1": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Operation)Operation1": {
 			"nodeId": "some.node.id.operation.1"
 		}
 	},
 	"subscriptionProviders": {
-		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property3": {
+		"[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property3": {
 			"nodeId": "some.node.id.property.3",
 			"interval": 1000
 		}
