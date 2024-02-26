@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -72,4 +73,10 @@ public interface SubmodelDescriptor {
 
 
     public void setSupplementalSemanticIds(List<Reference> suplementalSemanticIds);
+
+
+    public List<Extension> getExtensions();
+
+
+    public void setExtensions(List<Extension> extensions);
 }

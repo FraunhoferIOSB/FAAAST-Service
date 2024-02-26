@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
@@ -29,10 +30,12 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
 
     private Reference semanticId;
     private List<Reference> supplementalSemanticIds;
+    private List<Extension> extensions;
 
     public DefaultSubmodelDescriptor() {
         semanticId = null;
         supplementalSemanticIds = new ArrayList<>();
+        extensions = new ArrayList<>();
     }
 
 
@@ -61,6 +64,18 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
 
 
     @Override
+    public List<Extension> getExtensions() {
+        return extensions;
+    }
+
+
+    @Override
+    public void setExtensions(List<Extension> extensions) {
+        this.extensions = extensions;
+    }
+
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -71,13 +86,14 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
         DefaultSubmodelDescriptor that = (DefaultSubmodelDescriptor) o;
         return super.equals(that)
                 && Objects.equals(semanticId, that.semanticId)
-                && Objects.equals(supplementalSemanticIds, that.supplementalSemanticIds);
+                && Objects.equals(supplementalSemanticIds, that.supplementalSemanticIds)
+                && Objects.equals(extensions, that.extensions);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), semanticId, supplementalSemanticIds);
+        return Objects.hash(super.hashCode(), semanticId, supplementalSemanticIds, extensions);
     }
 
 
@@ -106,6 +122,18 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
         }
 
 
+        public B extension(Extension value) {
+            getBuildingInstance().getExtensions().add(value);
+            return getSelf();
+        }
+
+
+        public B extensions(List<Extension> value) {
+            getBuildingInstance().setExtensions(value);
+            return getSelf();
+        }
+
+
         public B from(SubmodelDescriptor other) {
             if (Objects.nonNull(other)) {
                 idShort(other.getIdShort());
@@ -116,6 +144,7 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
                 id(other.getId());
                 semanticId(other.getSemanticId());
                 supplementalSemanticIds(other.getSupplementalSemanticIds());
+                extensions(other.getExtensions());
             }
             return getSelf();
         }
