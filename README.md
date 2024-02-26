@@ -1,7 +1,7 @@
 # FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/) [![Documentation Status](https://readthedocs.org/projects/faaast-service/badge/?version=latest)](https://faaast-service.readthedocs.io/en/latest/?badge=latest) <a href="https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service" ><img src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" alt="SonarCloud badge" width="105"/></a>
 
-![FA³ST Logo Light](./docs/source/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
-![FA³ST Logo Dark](./docs/source/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
+![FA³ST Logo Light](./docs/source/images/logo-positiv.png/#gh-light-mode-only "FA³ST Service Logo")
+![FA³ST Logo Dark](./docs/source/images/logo-negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service enables you to create digital twins based on the [Asset Administration Shell (AAS) specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications) with ease.
 It is an implementation of the re-active or type 2 AAS, which means you can load existing AAS models and interact with them via API.
@@ -14,20 +14,23 @@ The features of FA³ST Service include
 - can be used as CLI, docker container, or embedded library
 
 
-For more details on FA³ST Service see the full documenation :blue_book: [here](https://faaast-service.readthedocs.io/).
+> [!TIP]
+> For more details on FA³ST Service see the [:blue_book: **full documenation**](https://faaast-service.readthedocs.io/).
 
-|-----------------------------|
 
 ## Implemented AAS Specifications
 
 - AAS Part 1: Metamodel v3.0 [Specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0)
-- AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002-3-0) - [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
+- AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002-3-0), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
 
-## Prerequisites
-
-Java 17
 
 ## Usage
+
+> [!IMPORTANT]
+> At the moment there is no security specification available for the AAS.
+> Therefore FA³ST Service does not implement any security mechanisms.
+> They will be implemented as soon as a security specification is available.
+> We strongly recommend to be careful when using external AAS models or submodels.
 
 ### Download pre-compiled JAR
 
@@ -35,7 +38,7 @@ Java 17
 [Download latest RELEASE version (0.5.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.5.0/starter-0.5.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (0.6.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=0.6.0-SNAPSHOT)<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (1.0.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=1.0.0-SNAPSHOT)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 ```xml
@@ -53,19 +56,11 @@ implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.5.0'
 
 ## Building from Source
 
-### Prerequisites
-
-- Maven
-
 ```sh
 git clone https://github.com/FraunhoferIOSB/FAAAST-Service
 cd FAAAST-Service
 mvn clean install
 ```
-
-## Changelog
-
-You can find the detailed changelog [here](docs/source/changelog/changelog.md).
 
 ## Contributing
 
