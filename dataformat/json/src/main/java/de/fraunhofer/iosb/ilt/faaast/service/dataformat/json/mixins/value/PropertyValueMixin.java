@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 
 
 /**

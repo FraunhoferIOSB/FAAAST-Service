@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import java.util.Objects;
 
@@ -23,20 +23,9 @@ import java.util.Objects;
 /**
  * Request class for PutThumbnail requests.
  */
-public class PutThumbnailRequest extends Request<PutThumbnailResponse> {
+public class PutThumbnailRequest extends AbstractRequestWithId<PutThumbnailResponse> {
 
-    private String id;
     private TypedInMemoryFile content;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public TypedInMemoryFile getContent() {
         return content;
@@ -58,14 +47,13 @@ public class PutThumbnailRequest extends Request<PutThumbnailResponse> {
         }
         PutThumbnailRequest that = (PutThumbnailRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(content, that.content);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, content);
+        return Objects.hash(super.hashCode(), content);
     }
 
 
@@ -73,13 +61,7 @@ public class PutThumbnailRequest extends Request<PutThumbnailResponse> {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutThumbnailRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PutThumbnailRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B content(TypedInMemoryFile value) {
             getBuildingInstance().setContent(value);

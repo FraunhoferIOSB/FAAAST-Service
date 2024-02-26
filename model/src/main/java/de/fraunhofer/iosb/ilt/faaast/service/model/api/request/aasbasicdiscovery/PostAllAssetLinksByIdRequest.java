@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,23 +25,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 /**
  * Request class for PostAllAssetLinksById requests.
  */
-public class PostAllAssetLinksByIdRequest extends Request<PostAllAssetLinksByIdResponse> {
+public class PostAllAssetLinksByIdRequest extends AbstractRequestWithId<PostAllAssetLinksByIdResponse> {
 
-    private String id;
     private List<SpecificAssetId> assetLinks;
 
     public PostAllAssetLinksByIdRequest() {
         this.assetLinks = new ArrayList<>();
-    }
-
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
     }
 
 
@@ -65,14 +54,13 @@ public class PostAllAssetLinksByIdRequest extends Request<PostAllAssetLinksByIdR
         }
         PostAllAssetLinksByIdRequest that = (PostAllAssetLinksByIdRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(assetLinks, that.assetLinks);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, assetLinks);
+        return Objects.hash(super.hashCode(), assetLinks);
     }
 
 
@@ -80,13 +68,7 @@ public class PostAllAssetLinksByIdRequest extends Request<PostAllAssetLinksByIdR
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B assetLink(SpecificAssetId value) {
             getBuildingInstance().getAssetLinks().add(value);

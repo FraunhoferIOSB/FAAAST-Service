@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
+package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

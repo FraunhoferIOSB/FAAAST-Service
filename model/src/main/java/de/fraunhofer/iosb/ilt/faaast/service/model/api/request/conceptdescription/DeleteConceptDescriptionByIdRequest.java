@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse;
 import java.util.Objects;
 
@@ -22,19 +22,7 @@ import java.util.Objects;
 /**
  * Request class for DeleteConceptDescriptionById requests.
  */
-public class DeleteConceptDescriptionByIdRequest extends Request<DeleteConceptDescriptionByIdResponse> {
-
-    private String id;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String cdIdentifier) {
-        this.id = cdIdentifier;
-    }
-
+public class DeleteConceptDescriptionByIdRequest extends AbstractRequestWithId<DeleteConceptDescriptionByIdResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -45,14 +33,13 @@ public class DeleteConceptDescriptionByIdRequest extends Request<DeleteConceptDe
             return false;
         }
         DeleteConceptDescriptionByIdRequest that = (DeleteConceptDescriptionByIdRequest) o;
-        return super.equals(that)
-                && Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -60,12 +47,9 @@ public class DeleteConceptDescriptionByIdRequest extends Request<DeleteConceptDe
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<DeleteConceptDescriptionByIdRequest, Builder> {

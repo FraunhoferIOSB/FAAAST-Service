@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PostSubmodelReferenceResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -23,20 +23,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 /**
  * Request class for PostSubmodelReference requests.
  */
-public class PostSubmodelReferenceRequest extends Request<PostSubmodelReferenceResponse> {
+public class PostSubmodelReferenceRequest extends AbstractRequestWithId<PostSubmodelReferenceResponse> {
 
-    private String id;
     private Reference submodelRef;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public Reference getSubmodelRef() {
         return submodelRef;
@@ -58,14 +47,13 @@ public class PostSubmodelReferenceRequest extends Request<PostSubmodelReferenceR
         }
         PostSubmodelReferenceRequest that = (PostSubmodelReferenceRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(submodelRef, that.submodelRef);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, submodelRef);
+        return Objects.hash(super.hashCode(), submodelRef);
     }
 
 
@@ -73,13 +61,7 @@ public class PostSubmodelReferenceRequest extends Request<PostSubmodelReferenceR
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PostSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B submodelRef(Reference value) {
             getBuildingInstance().setSubmodelRef(value);

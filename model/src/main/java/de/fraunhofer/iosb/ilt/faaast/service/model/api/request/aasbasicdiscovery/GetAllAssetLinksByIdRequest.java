@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetLinksByIdResponse;
 import java.util.Objects;
 
@@ -22,19 +22,7 @@ import java.util.Objects;
 /**
  * Request class for GetAllAssetLinksById requests.
  */
-public class GetAllAssetLinksByIdRequest extends Request<GetAllAssetLinksByIdResponse> {
-
-    private String id;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+public class GetAllAssetLinksByIdRequest extends AbstractRequestWithId<GetAllAssetLinksByIdResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -45,13 +33,13 @@ public class GetAllAssetLinksByIdRequest extends Request<GetAllAssetLinksByIdRes
             return false;
         }
         GetAllAssetLinksByIdRequest that = (GetAllAssetLinksByIdRequest) o;
-        return Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -59,13 +47,7 @@ public class GetAllAssetLinksByIdRequest extends Request<GetAllAssetLinksByIdRes
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-    }
+    public abstract static class AbstractBuilder<T extends GetAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<GetAllAssetLinksByIdRequest, Builder> {
 

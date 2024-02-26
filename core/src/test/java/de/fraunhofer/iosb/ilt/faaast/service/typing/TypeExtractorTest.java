@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import java.util.Collection;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;

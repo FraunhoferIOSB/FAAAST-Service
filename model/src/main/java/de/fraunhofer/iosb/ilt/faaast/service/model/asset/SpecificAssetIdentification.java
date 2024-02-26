@@ -15,17 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Represents specific asset identification information.
  */
-public class SpecificAssetIdentification implements AssetIdentification {
+public class SpecificAssetIdentification extends AssetIdentification {
 
     private String key;
-
-    private String value;
 
     public String getKey() {
         return key;
@@ -34,16 +31,6 @@ public class SpecificAssetIdentification implements AssetIdentification {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-
-    public String getValue() {
-        return value;
-    }
-
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
 
@@ -56,14 +43,14 @@ public class SpecificAssetIdentification implements AssetIdentification {
             return false;
         }
         SpecificAssetIdentification that = (SpecificAssetIdentification) o;
-        return Objects.equals(key, that.key)
-                && Objects.equals(value, that.value);
+        return super.equals(that)
+                && Objects.equals(key, that.key);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value);
+        return Objects.hash(super.hashCode(), key);
     }
 
 
@@ -71,16 +58,10 @@ public class SpecificAssetIdentification implements AssetIdentification {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends AssetIdentification.AbstractBuilder<T, B> {
 
         public B key(String value) {
             getBuildingInstance().setKey(value);
-            return getSelf();
-        }
-
-
-        public B value(String value) {
-            getBuildingInstance().setValue(value);
             return getSelf();
         }
     }

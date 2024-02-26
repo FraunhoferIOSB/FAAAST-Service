@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import jakarta.xml.bind.DatatypeConverter;
 import java.time.Instant;
 import java.time.OffsetDateTime;
