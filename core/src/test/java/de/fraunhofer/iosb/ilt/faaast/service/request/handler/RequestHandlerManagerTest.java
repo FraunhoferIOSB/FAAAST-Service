@@ -835,7 +835,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException, Exception {
         Reference reference = ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0));
-        when(persistence.getSubmodelElements(eq(SubmodelElementIdentifier.fromReference(reference)), any()))
+        when(persistence.getSubmodelElements(eq(SubmodelElementIdentifier.fromReference(reference)), any(), any()))
                 .thenReturn(Page.of(environment.getSubmodels().get(0).getSubmodelElements()));
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())

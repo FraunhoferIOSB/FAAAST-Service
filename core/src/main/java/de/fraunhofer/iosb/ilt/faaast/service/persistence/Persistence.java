@@ -103,20 +103,69 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param identifier the identifier of the SubmodelElement
      * @param modifier the modifier
+     * @param paging paging information
      * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
      *         identified by path
      * @throws ResourceNotFoundException if there is no element with the given path
      * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
      *             i.e. cannot have any child elements
      */
-    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier)
+    public default Page<SubmodelElement> getSubmodelElements(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging)
             throws ResourceNotFoundException, ResourceNotAContainerElementException {
         return findSubmodelElements(
                 SubmodelElementSearchCriteria.builder()
                         .parent(identifier)
                         .build(),
                 modifier,
-                PagingInfo.ALL);
+                paging);
+    }
+
+
+    /**
+     * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} that are supported by valueOnly serialization.
+     *
+     * @param identifier the identifier of the SubmodelElement
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s that are supported by
+     *         valueOnly serialization of the element identified by path
+     * @throws ResourceNotFoundException if there is no element with the given path
+     * @throws ResourceNotAContainerElementException if the element identified by the path is not a container element,
+     *             i.e. cannot have any child elements
+     */
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(SubmodelElementIdentifier identifier, QueryModifier modifier, PagingInfo paging)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        return findSubmodelElements(
+                SubmodelElementSearchCriteria.builder()
+                        .parent(identifier)
+                        .valueOnly()
+                        .build(),
+                modifier,
+                paging);
+    }
+
+
+    /**
+     * Gets all children {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of a
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel},
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection}, or
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList} that are supported by valueOnly serialization.
+     *
+     * @param reference the reference to the parent/container element
+     * @param modifier the modifier
+     * @param paging paging information
+     * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s that are supported by
+     *         valueOnly serialization of the element identified by reference
+     * @throws ResourceNotFoundException if there is no element with the given reference
+     * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
+     *             element, i.e. cannot have any child elements
+     */
+    public default Page<SubmodelElement> getSubmodelElementsValueOnly(Reference reference, QueryModifier modifier, PagingInfo paging)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        return getSubmodelElementsValueOnly(SubmodelElementIdentifier.fromReference(reference), modifier, paging);
     }
 
 
@@ -405,14 +454,16 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param reference the reference to the parent/container element
      * @param modifier the modifier
+     * @param paging paging information
      * @return a list of all child {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s of the element
      *         identified by reference
      * @throws ResourceNotFoundException if there is no element with the given reference
      * @throws ResourceNotAContainerElementException if the element identified by the reference is not a container
      *             element, i.e. cannot have any child elements
      */
-    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier) throws ResourceNotFoundException, ResourceNotAContainerElementException {
-        return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier);
+    public default Page<SubmodelElement> getSubmodelElements(Reference reference, QueryModifier modifier, PagingInfo paging)
+            throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        return getSubmodelElements(SubmodelElementIdentifier.fromReference(reference), modifier, paging);
     }
 
 

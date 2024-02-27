@@ -406,7 +406,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                         .submodelId(submodelId)
                         .idShortPath(path)
                         .build(),
-                QueryModifier.DEFAULT)
+                QueryModifier.DEFAULT,
+                PagingInfo.ALL)
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -443,7 +444,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceBuilder.forSubmodel(submodelId, submodelElementId);
         Collection<SubmodelElement> expected = EnvironmentHelper.resolve(reference, environment, SubmodelElementCollection.class).getValue();
         List<SubmodelElement> actual = persistence
-                .getSubmodelElements(reference, QueryModifier.DEFAULT)
+                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL)
                 .getContent();
         Assert.assertEquals(expected, actual);
     }
@@ -456,7 +457,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceBuilder.forSubmodel(submodelId, submodelElementId);
         List<SubmodelElement> expected = EnvironmentHelper.resolve(reference, environment, SubmodelElementList.class).getValue();
         List<SubmodelElement> actual = persistence
-                .getSubmodelElements(reference, QueryModifier.DEFAULT)
+                .getSubmodelElements(reference, QueryModifier.DEFAULT, PagingInfo.ALL)
                 .getContent();
         Assert.assertEquals(expected, actual);
     }

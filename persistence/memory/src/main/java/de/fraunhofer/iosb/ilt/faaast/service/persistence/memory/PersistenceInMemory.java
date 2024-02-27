@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -244,6 +245,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
+        if (criteria.getValueOnly()) {
+            result = filterByHasValueOnlySerialization(result);
+        }
         return preparePagedResult(result, modifier, paging);
     }
 
@@ -428,6 +432,11 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public void save(OperationHandle handle, OperationResult result) {
         operationStates.put(handle, result);
+    }
+
+
+    private static <T> Stream<T> filterByHasValueOnlySerialization(Stream<T> stream) {
+        return stream.filter(ElementValueHelper::isValueOnlySupported);
     }
 
 
