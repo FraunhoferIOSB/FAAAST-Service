@@ -22,21 +22,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryP
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsValueRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsValueResponse;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel-elements,
- * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements.
+ * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel-elements/$value,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/$value.
  */
-public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfaceRequestMapperWithPaging<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsValueRequestMapper
+        extends AbstractSubmodelInterfaceRequestMapperWithPaging<GetAllSubmodelElementsValueRequest, GetAllSubmodelElementsValueResponse> {
 
-    private static final String PATTERN = "submodel-elements";
+    private static final String PATTERN = "submodel-elements/\\$value";
 
-    public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE, Content.VALUE);
+    public GetAllSubmodelElementsValueRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.METADATA, Content.NORMAL, Content.PATH, Content.REFERENCE);
     }
 
 
@@ -47,8 +48,8 @@ public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfa
 
 
     @Override
-    public GetAllSubmodelElementsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
-        return GetAllSubmodelElementsRequest.builder()
+    public GetAllSubmodelElementsValueRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
+        return GetAllSubmodelElementsValueRequest.builder()
                 .build();
     }
 

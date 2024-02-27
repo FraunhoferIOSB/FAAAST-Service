@@ -28,13 +28,16 @@ public class SubmodelElementSearchCriteria {
     public static final SubmodelElementSearchCriteria NONE = new SubmodelElementSearchCriteria();
     private static final SubmodelElementIdentifier DEFAULT_PARENT = null;
     private static final Reference DEFAULT_SEMANTIC_ID = null;
+    private static final boolean DEFAULT_VALUE_ONLY = false;
 
     private SubmodelElementIdentifier parent;
     private Reference semanticId;
+    private boolean valueOnly;
 
     public SubmodelElementSearchCriteria() {
         this.parent = DEFAULT_PARENT;
         this.semanticId = DEFAULT_SEMANTIC_ID;
+        this.valueOnly = DEFAULT_VALUE_ONLY;
     }
 
 
@@ -68,6 +71,16 @@ public class SubmodelElementSearchCriteria {
     }
 
 
+    public boolean getValueOnly() {
+        return valueOnly;
+    }
+
+
+    public void setValueOnly(boolean valueOnly) {
+        this.valueOnly = valueOnly;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -78,13 +91,14 @@ public class SubmodelElementSearchCriteria {
         }
         SubmodelElementSearchCriteria other = (SubmodelElementSearchCriteria) o;
         return Objects.equals(parent, other.parent)
-                && Objects.equals(semanticId, other.semanticId);
+                && Objects.equals(semanticId, other.semanticId)
+                && Objects.equals(valueOnly, other.valueOnly);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(parent, semanticId);
+        return Objects.hash(parent, semanticId, valueOnly);
     }
 
 
@@ -102,6 +116,18 @@ public class SubmodelElementSearchCriteria {
 
         public B semanticId(Reference value) {
             getBuildingInstance().setSemanticId(value);
+            return getSelf();
+        }
+
+
+        public B valueOnly(boolean value) {
+            getBuildingInstance().setValueOnly(value);
+            return getSelf();
+        }
+
+
+        public B valueOnly() {
+            getBuildingInstance().setValueOnly(true);
             return getSelf();
         }
 

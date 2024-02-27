@@ -50,6 +50,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
         context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
+        context.getPersistence().deleteSubmodel(request.getSubmodelId());
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
         syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());

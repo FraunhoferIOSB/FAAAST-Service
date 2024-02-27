@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsValueRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsValueResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -40,18 +40,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsValueRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsValueRequest, GetAllSubmodelElementsValueResponse> {
 
-    public GetAllSubmodelElementsRequestHandler(RequestExecutionContext context) {
+    public GetAllSubmodelElementsValueRequestHandler(RequestExecutionContext context) {
         super(context);
     }
 
 
     @Override
-    public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
+    public GetAllSubmodelElementsValueResponse doProcess(GetAllSubmodelElementsValueRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
-        Page<SubmodelElement> page = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), request.getPagingInfo());
+        Page<SubmodelElement> page = context.getPersistence().getSubmodelElementsValueOnly(reference, request.getOutputModifier(), request.getPagingInfo());
         syncWithAsset(reference, page.getContent(), !request.isInternal());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
@@ -60,7 +60,7 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
                             .value(x)
                             .build())));
         }
-        return GetAllSubmodelElementsResponse.builder()
+        return GetAllSubmodelElementsValueResponse.builder()
                 .payload(page)
                 .success()
                 .build();
