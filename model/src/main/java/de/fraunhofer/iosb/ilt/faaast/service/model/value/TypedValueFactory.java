@@ -75,7 +75,12 @@ public class TypedValueFactory {
             return result;
         }
         catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new TypeInstantiationException(String.format("could not create typed value (datatype: %s, value: %s)", datatype.getName(), value, e));
+            throw new TypeInstantiationException(
+                    String.format(
+                            "could not create typed value (datatype: %s, value: %s)",
+                            datatype.getName(),
+                            value),
+                    e);
         }
 
     }
