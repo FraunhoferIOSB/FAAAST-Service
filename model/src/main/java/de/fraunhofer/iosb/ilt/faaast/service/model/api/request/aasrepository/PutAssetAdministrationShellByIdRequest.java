@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PutAssetAdministrationShellByIdResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -23,9 +23,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 /**
  * Request class for PutAssetAdministrationShellById requests.
  */
-public class PutAssetAdministrationShellByIdRequest extends Request<PutAssetAdministrationShellByIdResponse> {
+public class PutAssetAdministrationShellByIdRequest extends AbstractRequestWithId<PutAssetAdministrationShellByIdResponse> {
 
-    private String id;
     private AssetAdministrationShell aas;
 
     public AssetAdministrationShell getAas() {
@@ -35,16 +34,6 @@ public class PutAssetAdministrationShellByIdRequest extends Request<PutAssetAdmi
 
     public void setAas(AssetAdministrationShell aas) {
         this.aas = aas;
-    }
-
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
     }
 
 
@@ -58,14 +47,13 @@ public class PutAssetAdministrationShellByIdRequest extends Request<PutAssetAdmi
         }
         PutAssetAdministrationShellByIdRequest that = (PutAssetAdministrationShellByIdRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(aas, that.aas);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, aas);
+        return Objects.hash(super.hashCode(), aas);
     }
 
 
@@ -73,13 +61,8 @@ public class PutAssetAdministrationShellByIdRequest extends Request<PutAssetAdmi
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B aas(AssetAdministrationShell value) {
             getBuildingInstance().setAas(value);

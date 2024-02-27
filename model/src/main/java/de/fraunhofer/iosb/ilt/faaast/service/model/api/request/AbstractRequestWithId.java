@@ -12,24 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import java.util.Objects;
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 
 /**
- * Utility class to store conversion type information.
+ * Abstract baseclass for request with an Id.
+ *
+ * @param <T> type of the corresponding response
  */
-public class ConversionTypeInfo {
+public class AbstractRequestWithId<T extends Response> extends Request<T> {
 
-    private final Datatype aasDatatype;
-    private final NodeId opcUaDatatype;
+    protected String id;
 
-    public ConversionTypeInfo(Datatype aasDatatype, NodeId opcUaDatatype) {
-        this.aasDatatype = aasDatatype;
-        this.opcUaDatatype = opcUaDatatype;
+    public String getId() {
+        return id;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 
@@ -41,14 +46,22 @@ public class ConversionTypeInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ConversionTypeInfo that = (ConversionTypeInfo) o;
-        return Objects.equals(aasDatatype, that.aasDatatype)
-                && Objects.equals(opcUaDatatype, that.opcUaDatatype);
+        AbstractRequestWithId<T> that = (AbstractRequestWithId<T>) o;
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aasDatatype, opcUaDatatype);
+        return Objects.hash(super.hashCode(), id);
+    }
+
+    public abstract static class AbstractBuilder<T extends AbstractRequestWithId, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
     }
 }

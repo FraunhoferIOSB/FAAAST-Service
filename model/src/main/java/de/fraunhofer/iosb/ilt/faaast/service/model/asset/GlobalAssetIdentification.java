@@ -14,26 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
-import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
-
-
 /**
  * Represents a global asset identification.
  */
-public class GlobalAssetIdentification implements AssetIdentification {
-
-    private String value;
-
-    public String getValue() {
-        return value;
-    }
-
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
+public class GlobalAssetIdentification extends AssetIdentification {
 
     @Override
     public boolean equals(Object o) {
@@ -44,13 +28,13 @@ public class GlobalAssetIdentification implements AssetIdentification {
             return false;
         }
         GlobalAssetIdentification that = (GlobalAssetIdentification) o;
-        return Objects.equals(value, that.value);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return super.hashCode();
     }
 
 
@@ -58,12 +42,8 @@ public class GlobalAssetIdentification implements AssetIdentification {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends AssetIdentification.AbstractBuilder<T, B> {
 
-        public B value(String value) {
-            getBuildingInstance().setValue(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<GlobalAssetIdentification, Builder> {

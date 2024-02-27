@@ -14,7 +14,50 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+
+
 /**
  * Information to identify an asset.
  */
-public interface AssetIdentification {}
+public abstract class AssetIdentification {
+
+    protected String value;
+
+    public String getValue() {
+        return value;
+    }
+
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AssetIdentification that = (AssetIdentification) o;
+        return Objects.equals(value, that.value);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
+    public abstract static class AbstractBuilder<T extends AssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+    }
+}

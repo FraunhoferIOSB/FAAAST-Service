@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -23,20 +23,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 /**
  * Request class for PutConceptDescriptionById requests.
  */
-public class PutConceptDescriptionByIdRequest extends Request<PutConceptDescriptionByIdResponse> {
+public class PutConceptDescriptionByIdRequest extends AbstractRequestWithId<PutConceptDescriptionByIdResponse> {
 
-    private String id;
     private ConceptDescription conceptDescription;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String cdIdentifier) {
-        this.id = cdIdentifier;
-    }
-
 
     public ConceptDescription getConceptDescription() {
         return conceptDescription;
@@ -58,14 +47,13 @@ public class PutConceptDescriptionByIdRequest extends Request<PutConceptDescript
         }
         PutConceptDescriptionByIdRequest that = (PutConceptDescriptionByIdRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(conceptDescription, that.conceptDescription);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, conceptDescription);
+        return Objects.hash(super.hashCode(), conceptDescription);
     }
 
 
@@ -73,13 +61,7 @@ public class PutConceptDescriptionByIdRequest extends Request<PutConceptDescript
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B conceptDescription(ConceptDescription value) {
             getBuildingInstance().setConceptDescription(value);

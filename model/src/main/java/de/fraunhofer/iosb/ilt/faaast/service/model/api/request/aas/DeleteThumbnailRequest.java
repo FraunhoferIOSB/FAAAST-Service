@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import java.util.Objects;
 
@@ -22,19 +22,7 @@ import java.util.Objects;
 /**
  * Request class for DeleteThumbnail requests.
  */
-public class DeleteThumbnailRequest extends Request<DeleteThumbnailResponse> {
-
-    private String id;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+public class DeleteThumbnailRequest extends AbstractRequestWithId<DeleteThumbnailResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -45,14 +33,13 @@ public class DeleteThumbnailRequest extends Request<DeleteThumbnailResponse> {
             return false;
         }
         DeleteThumbnailRequest that = (DeleteThumbnailRequest) o;
-        return super.equals(that)
-                && Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -60,12 +47,8 @@ public class DeleteThumbnailRequest extends Request<DeleteThumbnailResponse> {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteThumbnailRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteThumbnailRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<DeleteThumbnailRequest, Builder> {

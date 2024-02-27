@@ -3,28 +3,41 @@
 <!--start:changelog-header-->
 ## 1.0.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
+:::{important}
+Version 1.0.0 is a major update and has breaking changes to all previous versions.
+:::
+
+
 **New Features & Major Changes**
 - General
+	- Updated to AAS metamodel & API v3.0, i.e. older model file (compliant with v2.x, v3.xRCxx) can no longer be loaded with FA³ST Service as-is but have be converted to v3.0
+	- Now requires Java 17+
+	- Replaced AAS model & de-/serialization library, now using [AAS4J](https://github.com/eclipse-aas4j/aas4j) (previously [Java Model](https://github.com/admin-shell-io/java-model/) and [Java Serializer](https://github.com/admin-shell-io/java-serializer)
+	- Default filename for model files changed to `model.*` (previously `aasenvironment.*`)
 	- Unified way to configure certificate information ([See details](#providing-certificates-in-configuration)). Affected components: HTTP Asset Connection, OPC UA Asset Connection, HTTP Endpoint, MQTT MessageBus
 	- Environment variables now use `_` instead of `.` as a separator
-- HTTP Endpoint
-	- Now supports HTTPS
-	- Now supports AASX serialization
-	- Now supports upload, deletion and modification of asset thumbnails and file attachments.
-- MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
-- OPC UA Endpoint
-	- Adapted OPC UA Information model to AAS specification version 3.0.1
-	- Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
-- Validation
-	- More fine-grained configuration of validation via configuration file
-	- Enabled validation for API calls creating or updating elements (basic validation enabled by default)
-	- Renamed CLI argument `--no-modelValidation` to `--no-validation`. It now enables any validation when used (overriding validation configuration in configuration file is present).
+	- Validation - **currently completely disabled as AAS4J does not yet offer validation support**
+		- More fine-grained configuration of validation via configuration file
+		- Enabled validation for API calls creating or updating elements (basic validation enabled by default)
+		- Renamed CLI argument `--no-modelValidation` to `--no-validation`. It now enables any validation when used (overriding validation configuration in configuration file is present)
+	- Renamed CLI argument `--emptyModel` to `--empty-model`
+- Endpoint
+	- HTTP
+		- Updated to [AAS API specification v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
+			- HTTP no longer supported, only HTTPS
+		- Added support for AASX serialization
+		- Added support for uploading, deleting and modifying of asset thumbnails and file attachments through API
+	- OPC UA Endpoint
+		- Updated OPC UA Information model to AAS specification version 3.0. As there is no official mapping of AAS v3.0 to OPC UA, the current mapping is proprietary
+		- Added support for configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
+- MessageBus
+	- MQTT-based MessagBus now available that supports running both as embedded MQTT server or using external one
 - Asset Connection
 	- HTTP
 		- Now provides a way to explicitely trust server certificates, e.g. useful when servers are using a self-signed certificate
 - File-storage
-	- New file-storage interface provides functionality to store referenced files like thumbnails and files in SubmodelElements.
-	- Implementations for filesystem- and memory-based storages.
+	- New file-storage interface provides functionality to store referenced files like thumbnails and files in SubmodelElements
+	- Implementations for filesystem- and memory-based storages
     
 **Internal changes & bugfixes**
 - General

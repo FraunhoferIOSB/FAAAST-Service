@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetInformationResponse;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
@@ -23,20 +23,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
 /**
  * Request class for PutAssetInformation requests.
  */
-public class PutAssetInformationRequest extends Request<PutAssetInformationResponse> {
+public class PutAssetInformationRequest extends AbstractRequestWithId<PutAssetInformationResponse> {
 
-    private String id;
     private AssetInformation assetInfo;
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public AssetInformation getAssetInformation() {
         return assetInfo;
@@ -58,14 +47,13 @@ public class PutAssetInformationRequest extends Request<PutAssetInformationRespo
         }
         PutAssetInformationRequest that = (PutAssetInformationRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(assetInfo, that.assetInfo);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, assetInfo);
+        return Objects.hash(super.hashCode(), assetInfo);
     }
 
 
@@ -73,16 +61,10 @@ public class PutAssetInformationRequest extends Request<PutAssetInformationRespo
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
 
         public B assetInformation(AssetInformation value) {
             getBuildingInstance().setAssetInformation(value);
-            return getSelf();
-        }
-
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
             return getSelf();
         }
     }

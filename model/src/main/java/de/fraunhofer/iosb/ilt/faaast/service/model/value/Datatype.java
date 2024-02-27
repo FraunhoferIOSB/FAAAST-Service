@@ -12,8 +12,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
+package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AnyURIValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Base64BinaryValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ByteValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.FloatValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.GDayValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.GMonthDayValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.GMonthValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.GYearMonthValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.GYearValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.LangStringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.LongValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ShortValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedByteValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedIntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedLongValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedShortValue;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 

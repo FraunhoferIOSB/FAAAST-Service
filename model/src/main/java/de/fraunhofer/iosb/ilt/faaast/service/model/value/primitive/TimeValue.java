@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
