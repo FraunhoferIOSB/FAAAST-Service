@@ -14,9 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel;
 
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelResponse;
-import jakarta.json.JsonMergePatch;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EqualsHelper;
 import java.util.Objects;
 
 
@@ -47,7 +48,7 @@ public class PatchSubmodelRequest extends AbstractSubmodelInterfaceRequest<Patch
         }
         PatchSubmodelRequest that = (PatchSubmodelRequest) o;
         return super.equals(that)
-                && Objects.equals(changes, that.changes);
+                && EqualsHelper.equals(changes, that.changes);
     }
 
 

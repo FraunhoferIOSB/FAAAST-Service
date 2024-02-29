@@ -633,7 +633,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         assertSerialization(
                 List.of(environment.getAssetAdministrationShells().get(0)),
                 true,
-                MediaType.XML_UTF_8,
+                MediaType.APPLICATION_XML_UTF_8,
                 DataFormat.XML);
     }
 

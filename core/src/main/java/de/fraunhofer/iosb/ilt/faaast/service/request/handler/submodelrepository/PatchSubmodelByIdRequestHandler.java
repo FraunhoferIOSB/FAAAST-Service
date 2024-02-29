@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PatchSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -45,9 +46,10 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
 
     @Override
     public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
+            InvalidRequestException {
         Submodel current = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
-        Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
+        Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);

@@ -18,6 +18,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
@@ -96,7 +99,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import jakarta.json.Json;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -830,12 +832,10 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testPatchSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JsonProcessingException {
         Request expected = PatchSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getId())
-                .changes(Json.createMergePatch(Json.createObjectBuilder()
-                        .add("category", "NewCategory")
-                        .build()))
+                .changes(new ObjectMapper().readValue("{ \"category\": \"NewCategory\"}", JsonMergePatch.class))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
@@ -847,13 +847,11 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPatchSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testPatchSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException, JsonProcessingException {
         Request expected = PatchSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
-                .changes(Json.createMergePatch(Json.createObjectBuilder()
-                        .add("category", "NewCategory")
-                        .build()))
+                .changes(new ObjectMapper().readValue("{ \"category\": \"NewCategory\"}", JsonMergePatch.class))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)

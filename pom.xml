@@ -96,6 +96,7 @@
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>4.10.0</jena.version>
         <jetty.version>11.0.19</jetty.version>
+        <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.0</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.8.0</jsonpath.version>

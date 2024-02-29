@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 
 /**
@@ -43,7 +44,11 @@ public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMa
             HttpHelper.sendContent(httpResponse,
                     apiResponse.getStatusCode(),
                     EnvironmentSerializationManager.serializerFor(apiResponse.getDataformat()).write(apiResponse.getPayload()),
-                    apiResponse.getDataformat().getContentType());
+                    apiResponse.getDataformat().getContentType(),
+                    Map.of("Content-Disposition",
+                            String.format(
+                                    "attachment; filename=\"download.%s\"",
+                                    apiResponse.getDataformat().getFileExtensions().get(0))));
         }
         catch (SerializationException e) {
             HttpHelper.send(
