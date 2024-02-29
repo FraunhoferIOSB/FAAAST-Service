@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -23,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -35,8 +38,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import jakarta.json.JsonMergePatch;
-import jakarta.json.JsonValue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,7 +48,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -177,16 +181,20 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * Creates an updated element based on a JSON merge patch.
      *
      * @param <T> the type of the element to update
-     * @param changes the JSON merge patch containing the changes to apply
+     * @param patch the JSON merge patch containing the changes to apply
      * @param targetBean the original element to apply the update to
      * @param type the type information
      * @return the updated element
      */
-    protected <T> T mergePatch(JsonMergePatch changes, T targetBean, Class<T> type) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonValue target = mapper.convertValue(targetBean, JsonValue.class);
-        JsonValue result = changes.apply(target);
-        return mapper.convertValue(result, type);
+    protected <T> T applyMergePatch(JsonMergePatch patch, T targetBean, Class<T> type) throws InvalidRequestException {
+        try {
+            JsonNode json = new JsonSerializer().toNode(targetBean);
+            JsonNode updatedJson = patch.apply(json);
+            return new JsonDeserializer().read(updatedJson, type);
+        }
+        catch (JsonPatchException | IllegalArgumentException | DeserializationException e) {
+            throw new InvalidRequestException("Error applying JSON merge patch", e);
+        }
     }
 
 

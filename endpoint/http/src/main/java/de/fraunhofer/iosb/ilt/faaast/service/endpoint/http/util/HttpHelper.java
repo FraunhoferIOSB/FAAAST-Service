@@ -218,6 +218,7 @@ public class HttpHelper {
                 try {
                     response.getOutputStream().write(content);
                     response.getOutputStream().flush();
+                    response.setContentLengthLong(content.length);
                 }
                 catch (IOException e) {
                     send(response,

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -26,13 +29,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import jakarta.json.Json;
-import jakarta.json.JsonMergePatch;
-import jakarta.json.JsonReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -253,16 +252,15 @@ public abstract class AbstractRequestMapper {
      *             JSON Merge Patch
      */
     protected JsonMergePatch parseMergePatch(String json) throws InvalidRequestException {
-        try (StringReader stringReader = new StringReader(json)) {
-            try (JsonReader jsonReader = Json.createReader(stringReader)) {
-                return Json.createMergePatch(jsonReader.readValue());
-            }
-            catch (Exception e) {
-                throw new InvalidRequestException(String.format("unable to create JSON merge patch (reason: %s, JSON payload: %s)",
-                        e.getMessage(),
-                        json),
-                        e);
-            }
+
+        try {
+            return new ObjectMapper().readValue(json, JsonMergePatch.class);
+        }
+        catch (JsonProcessingException e) {
+            throw new InvalidRequestException(String.format("unable to create JSON merge patch (reason: %s, JSON payload: %s)",
+                    e.getMessage(),
+                    json),
+                    e);
         }
 
     }

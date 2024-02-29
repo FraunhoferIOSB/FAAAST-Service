@@ -62,22 +62,32 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
 
     @Override
     public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException, IOException {
-        DefaultEnvironment environment = new DefaultEnvironment.Builder()
-                .assetAdministrationShells(
-                        request.getAasIds().stream()
-                                .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
-                                .collect(Collectors.toList()))
-                .submodels(request.getSubmodelIds().stream()
-                        .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
-                        .collect(Collectors.toList()))
-                .conceptDescriptions(request.getIncludeConceptDescriptions()
-                        ? context.getPersistence().findConceptDescriptions(
-                                ConceptDescriptionSearchCriteria.NONE,
-                                OUTPUT_MODIFIER,
-                                PagingInfo.ALL)
-                                .getContent()
-                        : List.of())
-                .build();
+        DefaultEnvironment environment;
+        if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {
+            environment = new DefaultEnvironment.Builder()
+                    .assetAdministrationShells(context.getPersistence().getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent())
+                    .submodels(context.getPersistence().getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL).getContent())
+                    .conceptDescriptions(context.getPersistence().getAllConceptDescriptions(OutputModifier.DEFAULT, PagingInfo.ALL).getContent())
+                    .build();
+        }
+        else {
+            environment = new DefaultEnvironment.Builder()
+                    .assetAdministrationShells(
+                            request.getAasIds().stream()
+                                    .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
+                                    .collect(Collectors.toList()))
+                    .submodels(request.getSubmodelIds().stream()
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
+                            .collect(Collectors.toList()))
+                    .conceptDescriptions(request.getIncludeConceptDescriptions()
+                            ? context.getPersistence().findConceptDescriptions(
+                                    ConceptDescriptionSearchCriteria.NONE,
+                                    OUTPUT_MODIFIER,
+                                    PagingInfo.ALL)
+                                    .getContent()
+                            : List.of())
+                    .build();
+        }
         List<InMemoryFile> files = new ArrayList<>();
         AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {

@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -588,6 +590,19 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                 LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
+    }
+
+
+    /**
+     * Visit a page by visiting all elements.
+     *
+     * @param page the page to visit
+     */
+    public void visit(Page page) {
+        if (Objects.isNull(page) || Objects.isNull(page.getContent())) {
+            return;
+        }
+        page.getContent().forEach(this::visit);
     }
 
 

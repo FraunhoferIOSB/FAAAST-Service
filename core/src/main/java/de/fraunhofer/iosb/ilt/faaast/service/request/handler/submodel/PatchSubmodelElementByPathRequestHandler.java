@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -52,16 +53,17 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
 
     @Override
     public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
+            InvalidRequestException {
         Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
-        Submodel updated = mergePatch(request.getChanges(), current, Submodel.class);
+        Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         context.getPersistence().save(updated);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
         SubmodelElement oldSubmodelElement = context.getPersistence().getSubmodelElement(reference, QueryModifier.DEFAULT);
-        SubmodelElement newSubmodelElement = mergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
+        SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
         ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);
         cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());

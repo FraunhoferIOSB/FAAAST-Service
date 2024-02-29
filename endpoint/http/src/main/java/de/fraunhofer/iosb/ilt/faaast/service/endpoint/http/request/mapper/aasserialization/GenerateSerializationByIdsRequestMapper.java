@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,18 +61,28 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
             builder.includeConceptDescriptions(Boolean.valueOf(httpRequest.getQueryParameter(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS)));
         }
         if (httpRequest.hasHeader(HttpConstants.HEADER_ACCEPT)) {
-            builder.serializationFormat(
-                    HttpHelper.parseCommaSeparatedList(httpRequest.getHeader(HttpConstants.HEADER_ACCEPT))
-                            .stream()
-                            .map(MediaType::parse)
-                            .flatMap(x -> matchingDataFormats(x).stream())
-                            .sorted(Comparator.comparingInt(DataFormat::getPriority))
-                            .findFirst()
-                            .orElseThrow(() -> new InvalidRequestException(String.format(
-                                    "requested data format not valid (%s)",
-                                    httpRequest.getHeader(HttpConstants.HEADER_ACCEPT)))));
+            builder.serializationFormat(determineDataFormat(httpRequest.getHeader(HttpConstants.HEADER_ACCEPT)));
         }
         return builder.build();
+    }
+
+
+    private static DataFormat determineDataFormat(String acceptHeaderValue) throws InvalidRequestException {
+        List<MediaType> acceptedTypes = HttpHelper.parseCommaSeparatedList(acceptHeaderValue)
+                .stream()
+                .map(MediaType::parse)
+                .map(MediaType::withoutParameters)
+                .collect(Collectors.toList());
+        for (MediaType type: acceptedTypes) {
+            Optional<DataFormat> match = Stream.of(DataFormat.values())
+                    .filter(x -> x.getContentType().withoutParameters().is(type))
+                    .sorted(Comparator.comparingInt(DataFormat::getPriority))
+                    .findFirst();
+            if (match.isPresent()) {
+                return match.get();
+            }
+        }
+        throw new InvalidRequestException(String.format("requested data format not valid (%s)", acceptHeaderValue));
     }
 
 

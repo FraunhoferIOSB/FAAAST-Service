@@ -383,7 +383,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), environment);
 
         if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
-            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1));
+            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1).substring(1, 2));
             ((SubmodelElementList) parent).getValue().set(index, submodelElement);
             return;
         }
