@@ -240,8 +240,14 @@ public class IdShortPath {
 
 
         public B path(String value) {
+            getBuildingInstance().elements = new ArrayList<>();
+            pathSegment(value);
+            return getSelf();
+        }
+
+
+        public B pathSegment(String value) {
             if (Objects.nonNull(value)) {
-                getBuildingInstance().elements = new ArrayList<>();
                 var matcher = PATH_ELEMENT_PATTERN.matcher(value);
                 while (matcher.find()) {
                     getBuildingInstance().elements.add(matcher.group());
