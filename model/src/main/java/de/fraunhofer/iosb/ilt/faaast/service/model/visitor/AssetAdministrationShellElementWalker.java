@@ -598,7 +598,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
      *
      * @param page the page to visit
      */
-    public void visit(Page page) {
+    public void visit(Page<?> page) {
         if (Objects.isNull(page) || Objects.isNull(page.getContent())) {
             return;
         }

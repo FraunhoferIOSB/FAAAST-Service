@@ -16,6 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
@@ -47,10 +50,7 @@ public class GetSubmodelElementByPathReferenceRequestHandler
     @Override
     public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException {
-        Reference reference = new ReferenceBuilder()
-                .submodel(request.getSubmodelId())
-                .idShortPath(request.getPath())
-                .build();
+        Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath());
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
@@ -62,5 +62,28 @@ public class GetSubmodelElementByPathReferenceRequestHandler
                 .payload(reference)
                 .success()
                 .build();
+    }
+
+
+    private Reference resolveReferenceWithTypes(String submodelId, String idShortPath) throws ResourceNotFoundException {
+        ReferenceBuilder builder = new ReferenceBuilder();
+        builder.submodel(submodelId);
+        IdShortPath.Builder pathBuilder = IdShortPath.builder();
+        for (String pathElement: IdShortPath.parse(idShortPath).getElements()) {
+            IdShortPath subPath = pathBuilder.pathSegment(pathElement).build();
+            SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(
+                    SubmodelElementIdentifier.builder()
+                            .submodelId(submodelId)
+                            .idShortPath(subPath)
+                            .build(),
+                    QueryModifier.MINIMAL);
+            if (pathElement.startsWith("[") && pathElement.endsWith("]")) {
+                builder.element(pathElement.substring(1, pathElement.length() - 1), submodelElement.getClass());
+            }
+            else {
+                builder.element(submodelElement);
+            }
+        }
+        return builder.build();
     }
 }
