@@ -12,7 +12,7 @@ How AssetConnection works in FA³ST Service.
 ```
 
 The top half shows a examplenary AAS model that we which to synchronize with the underlying asset.
-In the center we have the AssetConnection interface which holds multiple of so-called *Prodiver*s.
+In the center we have the AssetConnection interface which holds multiple of so-called *Provider*s.
 There are three types of providers:
 
 - ValueProdiver: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
