@@ -31,8 +31,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -72,7 +70,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
                 .stream()
                 .map(MediaType::parse)
                 .map(MediaType::withoutParameters)
-                .collect(Collectors.toList());
+                .toList();
         for (MediaType type: acceptedTypes) {
             Optional<DataFormat> match = Stream.of(DataFormat.values())
                     .filter(x -> x.getContentType().withoutParameters().is(type))
@@ -83,13 +81,6 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
             }
         }
         throw new InvalidRequestException(String.format("requested data format not valid (%s)", acceptHeaderValue));
-    }
-
-
-    private Set<DataFormat> matchingDataFormats(MediaType mimetype) {
-        return Stream.of(DataFormat.values())
-                .filter(x -> x.getContentType().is(mimetype))
-                .collect(Collectors.toSet());
     }
 
 
