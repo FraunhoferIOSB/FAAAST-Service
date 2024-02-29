@@ -142,7 +142,7 @@ This implementation is based on the [OPC UA Companion Specification OPC UA for A
 
 The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/) which means in case you want to compile the OPC UA Endpoint yourself, you need a valid license for the SDK (which you can buy [here](https://www.prosysopc.com/products/opc-ua-java-sdk/purchase/).
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
-However, this is not necesarry for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
+However, this is not necessary for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
 The developers of the Prosys OPC UA SDK have been so kind to allow us to publish that pre-compiled version as part of this open-source project under the condition that all classes related to their SDK are obfuscated.
 
 
