@@ -112,7 +112,7 @@ As every interface implementation may require different configuration properties
 }
 ```
 
-Which properties are available for each implementation should be documented, e.g., for all default implementations these properties are documented in the corrsponding page of the documentation for each of the implementations.
+Which properties are available for each implementation should be documented, e.g., for all default implementations these properties are documented in the corresponding page of the documentation for each of the implementations.
 
 The following shows an example of a configuration using and HTTP endpoint with port 8080.
 
