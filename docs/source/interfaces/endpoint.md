@@ -86,7 +86,7 @@ You can invoke operations asynchronuously by calling `.../invoke-async` instead 
 To monitor the execution state call `.../operation-status/{handleId}` and once finished you can get the result calling `.../operation-results/{handleId}` or `.../operation-results/{handleId}/$value` for the ValueOnly serialization.
 :::
 
-Depeneding on the in & inoutput arguments, the payload should look like this.
+Depending on the in & inoutput arguments, the payload should look like this.
 
 ```{code-block} json
 :caption: Example payload for invoking operations synchronously
