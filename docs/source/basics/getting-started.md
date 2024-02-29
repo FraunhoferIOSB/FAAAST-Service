@@ -140,7 +140,7 @@ This can be achieved by either packaging them into the same JAR (e.g. using the 
 
 Multiple components of FA³ST Service make use of certificates, either by using them for their own services or by trusting the provided certificates.
 The default way to exchange certificates in FA³ST Service is via [Java KeyStore](https://docs.oracle.com/javase/8/docs/api/java/security/KeyStore.html)s.
-To simplify configuration, the same configuration object is re-used across different components.
+To simplify configuration, the same configuration object is re-used across different components, for example in the [HTTP Endpoint](#endpoint-http).
 The structure of the certificate-related configuration object is explained in the following.
 
 :::{table} Configuration properties of generic certificate section.

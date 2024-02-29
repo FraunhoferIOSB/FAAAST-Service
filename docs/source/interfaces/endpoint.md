@@ -24,7 +24,7 @@ The following is an example of the relevant part of the configuration part compr
 	// ...
 }
 ```
-
+(endpoint-http)=
 ## HTTP
 
 
@@ -175,7 +175,7 @@ The path provided with the `serverCertificateBasePath` configuration property st
 
 To provision the OPC UA Endpoint to use an existing certificate for the server, save the certificate file as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.der` and the private key as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.pem` where `{hostname}` is the host name of your machine.
 
-Then an unkown client connects to the OPC UA Endpoint, the connection will be rejected and its client certificate will be stored in `/rejected`.
+When an unkown client connects to the OPC UA Endpoint, the connection will be rejected and its client certificate will be stored in `/rejected`.
 To trust the certificate of a client and allow the connection, move the file to `/certs`.
 
 The path provided with the `userCertificateBasePath` configuration property stores the user certificates and contains the following subdirectories
