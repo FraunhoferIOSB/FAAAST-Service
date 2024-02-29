@@ -79,7 +79,7 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 
 #### Invoking Operations
 
-To invoke an operation, make a `POST` request to the according URL, e.g. `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
+To invoke an operation, make a `POST` request according to this URL example: `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
 
 :::{tip}
 You can invoke operations asynchronuously by calling `.../invoke-async` instead of `.../invoke` in which case you get back a `handleId` instead of the result.
