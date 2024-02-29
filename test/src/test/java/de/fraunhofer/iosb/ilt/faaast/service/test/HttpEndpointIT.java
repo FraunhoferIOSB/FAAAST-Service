@@ -1325,7 +1325,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement submodelElement = submodel.getSubmodelElements().get(0);
-        Reference expected = ReferenceBuilder.forSubmodel(submodel.getId(), submodelElement.getIdShort());
+        Reference expected = new ReferenceBuilder()
+                .submodel(submodel)
+                .element(submodelElement)
+                .build();
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
