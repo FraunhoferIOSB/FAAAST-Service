@@ -3,7 +3,7 @@
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service enables creation of Digital Twins (DTs) in accordance to the [Asset Administration Shell (AAS) specification ](https://industrialdigitaltwin.org/en/content-hub/aasspecifications).
 FA³ST Service is a software that, when started, offers one or more AAS-compliant APIs to interact with a DT. 
 Optionally, it can be started given an existing AAS model file and/or a configuration file.
-FA³T Service also allows synchronizing a DT with the asset(s) it represent via so-called *AssetConnection*.
+FA³ST Service also allows synchronizing a DT with the asset(s) it represent via so-called *AssetConnection*.
 
 ```{figure} images/overview.png
 :width: 700px
