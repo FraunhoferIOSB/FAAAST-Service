@@ -283,7 +283,7 @@ In OPC UA , certificates can be used for two purposes:
 - encryption & signing of messages, and
 - authentication of a client.
 
-We call the certificate used of encryption _application certificate_ and the one used for authenticating a client _authentication certificate_.
+We call the certificate used for encryption _application certificate_ and the one used for authenticating a client _authentication certificate_.
 You can choose to use only one of these options or both.
 If using both, you can use different or the same certificates.
 
