@@ -15,7 +15,7 @@ The top half shows a examplenary AAS model that we which to synchronize with the
 In the center we have the AssetConnection interface which holds multiple of so-called *Provider*s.
 There are three types of providers:
 
-- ValueProdiver: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
+- ValueProvider: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
 - OperationProvider: for forwarding operation invocation requests to the asset and translating the response back to be AAS-compliant
 - SubscriptionProvider: for subscribing to changes on the asset and therefore continuously updating the value of the corresponding AAS element
 
