@@ -1,6 +1,6 @@
 # Endpoint
 
-The `Endpoint` interface is repsonsible for communication with the AAS from the outside, e.g. users or external applications. 
+The `Endpoint` interface is responsible for communication with the AAS from the outside, e.g. users or external applications. 
 An instance of FA³ST Service can serve multiple endpoints at the same time.
 Endpoints will be synchronized, meaning if a FA³ST Service offers multiple endpoint such as HTTP(S) and OPC UA at the same time, changes done via one of the endpoints like updating a value is reflected in the other.
 
