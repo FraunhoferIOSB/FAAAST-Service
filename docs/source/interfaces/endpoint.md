@@ -1,6 +1,6 @@
 # Endpoint
 
-The `Endpoint` interface is repsonsible for communication with the AAS from the outside, e.g. users or external applications. 
+The `Endpoint` interface is responsible for communication with the AAS from the outside, e.g. users or external applications. 
 An instance of FA³ST Service can serve multiple endpoints at the same time.
 Endpoints will be synchronized, meaning if a FA³ST Service offers multiple endpoint such as HTTP(S) and OPC UA at the same time, changes done via one of the endpoints like updating a value is reflected in the other.
 
@@ -24,7 +24,7 @@ The following is an example of the relevant part of the configuration part compr
 	// ...
 }
 ```
-
+(endpoint-http)=
 ## HTTP
 
 
@@ -79,14 +79,14 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 
 #### Invoking Operations
 
-To invoke an operation, make a `POST` request to the according URL, e.g. `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
+To invoke an operation, make a `POST` request according to this URL example: `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
 
 :::{tip}
 You can invoke operations asynchronuously by calling `.../invoke-async` instead of `.../invoke` in which case you get back a `handleId` instead of the result.
 To monitor the execution state call `.../operation-status/{handleId}` and once finished you can get the result calling `.../operation-results/{handleId}` or `.../operation-results/{handleId}/$value` for the ValueOnly serialization.
 :::
 
-Depeneding on the in & inoutput arguments, the payload should look like this.
+Depending on the in & inoutput arguments, the payload should look like this.
 
 ```{code-block} json
 :caption: Example payload for invoking operations synchronously
@@ -142,7 +142,7 @@ This implementation is based on the [OPC UA Companion Specification OPC UA for A
 
 The OPC UA Endpoint is built with the [Prosys OPC UA SDK for Java](https://www.prosysopc.com/products/opc-ua-java-sdk/) which means in case you want to compile the OPC UA Endpoint yourself, you need a valid license for the SDK (which you can buy [here](https://www.prosysopc.com/products/opc-ua-java-sdk/purchase/).
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
-However, this is not necesarry for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
+However, this is not necessary for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
 The developers of the Prosys OPC UA SDK have been so kind to allow us to publish that pre-compiled version as part of this open-source project under the condition that all classes related to their SDK are obfuscated.
 
 
@@ -175,7 +175,7 @@ The path provided with the `serverCertificateBasePath` configuration property st
 
 To provision the OPC UA Endpoint to use an existing certificate for the server, save the certificate file as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.der` and the private key as `{serverCertificateBasePath}/private/Fraunhofer IOSB AAS OPC UA Server@{hostname}_2048.pem` where `{hostname}` is the host name of your machine.
 
-Then an unkown client connects to the OPC UA Endpoint, the connection will be rejected and its client certificate will be stored in `/rejected`.
+When an unkown client connects to the OPC UA Endpoint, the connection will be rejected and its client certificate will be stored in `/rejected`.
 To trust the certificate of a client and allow the connection, move the file to `/certs`.
 
 The path provided with the `userCertificateBasePath` configuration property stores the user certificates and contains the following subdirectories

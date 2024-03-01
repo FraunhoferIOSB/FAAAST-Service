@@ -17,7 +17,7 @@ High-Level Architecture of FA³ST Service.
 The interfaces provide the following functionalities:
 
 - `Endpoint`:           Communication with the DT from the outside
--  `MessageBus`:         Communication & synchronization between components
+- `MessageBus`:         Communication & synchronization between FA³ST Service components
 - `De-/Serializer`:     De-/Serialization of AAS models in from/to data formats
 - `Persistence`:        Persistent storage of data (model + values)
 - `FileStorage`:        Peristent storage of complementary files (e.g. PDF files linked from the AAS)
@@ -112,7 +112,7 @@ As every interface implementation may require different configuration properties
 }
 ```
 
-Which properties are available for each implementation should be documented, e.g., for all default implementations these properties are documented in the corrsponding page of the documentation for each of the implementations.
+Which properties are available for each implementation should be documented, e.g., for all default implementations these properties are documented in the corresponding page of the documentation for each of the implementations.
 
 The following shows an example of a configuration using and HTTP endpoint with port 8080.
 
@@ -140,7 +140,7 @@ This can be achieved by either packaging them into the same JAR (e.g. using the 
 
 Multiple components of FA³ST Service make use of certificates, either by using them for their own services or by trusting the provided certificates.
 The default way to exchange certificates in FA³ST Service is via [Java KeyStore](https://docs.oracle.com/javase/8/docs/api/java/security/KeyStore.html)s.
-To simplify configuration, the same configuration object is re-used across different components.
+To simplify configuration, the same configuration object is re-used across different components, for example in the [HTTP Endpoint](#endpoint-http).
 The structure of the certificate-related configuration object is explained in the following.
 
 :::{table} Configuration properties of generic certificate section.

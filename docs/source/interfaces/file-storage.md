@@ -1,6 +1,6 @@
 # FileStorage
 
-The FileStorage interface is responsible for managing auxiliary files like thumbnails or files referenced the the AAS model.
+The FileStorage interface is responsible for managing auxiliary files like thumbnails or files referenced by the AAS model.
 
 ## In-Memory
 

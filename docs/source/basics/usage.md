@@ -89,7 +89,7 @@ FA³ST Service also comes with a docker compose file located at `/misc/docker/do
 ## From Java Code
 
 You can run FA³ST Service directly from your Java code as embedded library.
-This way, you can create your configuration and model directly in code and don't have to create the as files (but you still can load them from files if you want to).
+This way, you can create your configuration and model directly in code and don't have to create them as files (you can still load them from files if you want to).
 The following code snippet shows how to create and run a new FA³ST Service from code using a model file.
 
 ```{code-block} java

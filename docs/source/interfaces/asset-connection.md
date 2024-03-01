@@ -11,11 +11,11 @@ The following figure depicts how asset synchronization works in more detail.
 How AssetConnection works in FA³ST Service.
 ```
 
-The top half shows a examplenary AAS model that we which to synchronize with the underlying asset.
-In the center we have the AssetConnection interface which holds multiple of so-called *Prodiver*s.
+The top half shows a examplenary AAS model that we want to synchronize with the underlying asset.
+In the center we have the AssetConnection interface which holds multiple of so-called *Provider*s.
 There are three types of providers:
 
-- ValueProdiver: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
+- ValueProvider: for reading data from and writing data to to asset whenever the value of the corresponding AAS element is read/written
 - OperationProvider: for forwarding operation invocation requests to the asset and translating the response back to be AAS-compliant
 - SubscriptionProvider: for subscribing to changes on the asset and therefore continuously updating the value of the corresponding AAS element
 
@@ -283,7 +283,7 @@ In OPC UA , certificates can be used for two purposes:
 - encryption & signing of messages, and
 - authentication of a client.
 
-We call the certificate used of encryption _application certificate_ and the one used for authenticating a client _authentication certificate_.
+We call the certificate used for encryption _application certificate_ and the one used for authenticating a client _authentication certificate_.
 You can choose to use only one of these options or both.
 If using both, you can use different or the same certificates.
 
