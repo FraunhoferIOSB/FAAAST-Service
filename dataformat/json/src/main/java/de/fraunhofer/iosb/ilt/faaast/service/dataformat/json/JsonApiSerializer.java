@@ -25,10 +25,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubm
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResultMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ServiceSpecificationProfileMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.PagingMetadataSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -79,6 +81,7 @@ public class JsonApiSerializer implements ApiSerializer {
         mapper.addMixIn(Page.class, PageMixin.class);
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
         mapper.addMixIn(Result.class, ResultMixin.class);
+        mapper.addMixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class);
     }
 
 
