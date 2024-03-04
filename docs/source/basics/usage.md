@@ -35,33 +35,6 @@ To manually pass a model file `my-model.aasx` and a configuration file `my-confi
 |             | {key}={value}       | faaast_config_extension_{key}<br>with *{key}* separated by *_* | any                                     | Additional properties to override values of configuration using [JSONPath](https://goessner.net/articles/JsonPath/) notation without starting *$.*       |                  |
 :::
 
-### Overriding Config Properties
-
-As indicated by the last row in the above table, any config property can be overridden both via CLI or via environment variables.
-
-#### Via CLI
-
-Via CLI this is done by using the JSONPath expression to the property within the config file but without the `$.` part JSONPath expression typically start with.
-
-For example, to override the `requestHandlerThreadPoolSize` property call FA³ST Service like this
-
-```sh
-> java -jar starter-{version}.jar [any other CLI arguments] core.requestHandlerThreadPoolSize=42
-```
-
-To access configuration properties inside an array or list use array notation, e.g., `endpoints[0].port=8081`
-
-
-#### Via Environment Variables
-
-Overriding configuration properties via environment variables is similar to overriding them via CLI with two differences
-
-1. Add the prefix *faaast_config_extension_*
-2. Replace `.` that separate the JSONPath with `_`
-
-Applying the previous examples yields `faaast_config_extension_core_requestHandlerThreadPoolSize=42` to update the property `requestHandlerThreadPoolSize` and `faaast_config_extension_endpoints[0]_port=8081` to update the port of the HTTP endpoint.
-
-
 ## Docker
 
 FA³ST Service is available on [DockerHub](https://hub.docker.com/r/fraunhoferiosb/faaast-service) with multiple tags
