@@ -77,6 +77,18 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 - Serialization API
 - Description API
 
+#### Using HTTP PATCH
+
+As the AAS specification is currently does not properly specify show HTTP PATCH requests are expected to work, FA³ST Service follows the well-established [RFC 7386 JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7386).
+In short, this means that as payload you can send a JSON document that only contains the properties of the original document you want to update.
+To delete elements set the value explicitely to null.
+
+As a consequence, URLs for all different content modifiers, i.e. `/$metadata`, `/$value`, as well as the call without any modifiers, are redundant and provide exactly the same functionality in FA³ST Service.
+
+:::{caution}
+Arrays in JSON objects can only be replaced, i.e. if you want to update a single element within an array you first need to get the current value of the array, modify the element to be updated and then send the whole array as part of the PATCH payload.
+:::
+
 #### Invoking Operations
 
 To invoke an operation, make a `POST` request according to this URL example: `/submodels/{submodelId (base64-URL-encoded)}/submodel-elements/{idShortPath to operation}/invoke`.
