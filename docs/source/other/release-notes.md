@@ -25,6 +25,7 @@ Version 1.0.0 is a major update and has breaking changes to all previous version
 	- HTTP
 		- Updated to [AAS API specification v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
 			- HTTP no longer supported, only HTTPS
+			- all URLs are now prefixed with /api/v3.0/
 		- Added support for AASX serialization
 		- Added support for uploading, deleting and modifying of asset thumbnails and file attachments through API
 	- OPC UA Endpoint
