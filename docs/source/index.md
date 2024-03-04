@@ -37,10 +37,12 @@ We strongly recommend to be careful when using external AAS models or submodels.
 
 ```{toctree} 
 :hidden:
+:titlesonly:
 :caption: Basics
 basics/getting-started.md
 basics/installation.md
 basics/usage.md
+basics/configuration.md
 ```
 
 ```{toctree} 
