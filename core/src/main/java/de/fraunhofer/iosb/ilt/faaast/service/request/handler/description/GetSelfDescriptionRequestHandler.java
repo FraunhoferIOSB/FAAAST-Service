@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.description;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.description.GetSelfDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -40,13 +41,12 @@ public class GetSelfDescriptionRequestHandler extends AbstractRequestHandler<Get
     public GetSelfDescriptionResponse process(GetSelfDescriptionRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         return GetSelfDescriptionResponse.builder()
                 .payload(ServiceDescription.builder()
-                        .profile(ServiceSpecificationProfile.AAS_FULL)
                         .profile(ServiceSpecificationProfile.AAS_REPOSITORY_FULL)
+                        .profile(ServiceSpecificationProfile.SUBMODEL_REPOSITORY_FULL)
                         .profile(ServiceSpecificationProfile.CONCEPT_DESCRIPTION_FULL)
                         .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
-                        .profile(ServiceSpecificationProfile.SUBMODEL_FULL)
-                        .profile(ServiceSpecificationProfile.SUBMODEL_REPOSITORY_FULL)
                         .build())
+                .statusCode(StatusCode.SUCCESS)
                 .build();
     }
 
