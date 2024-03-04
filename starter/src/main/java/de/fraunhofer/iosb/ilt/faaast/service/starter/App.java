@@ -31,7 +31,6 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
@@ -42,6 +41,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverrideSource;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.EndpointType;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
@@ -266,29 +268,35 @@ public class App implements Runnable {
             config.getCore().setValidationOnCreate(ModelValidatorConfig.NONE);
             config.getCore().setValidationOnUpdate(ModelValidatorConfig.NONE);
         }
+
+        if (!config.getCore().getValidationOnLoad().isEnabled()) {
+            LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
+            return;
+        }
+        LOGGER.debug("Validating model...");
+        LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
+        LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
+        LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
+        if (useEmptyModel) {
+            return;
+        }
+        Environment model = config.getPersistence().getInitialModel();
+        if (Objects.isNull(model) && Objects.isNull(config.getPersistence().getInitialModelFile())) {
+            return;
+        }
         try {
-            Environment model = config.getPersistence().getInitialModel() == null
-                    ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
-                    : config.getPersistence().getInitialModel();
-            if (!config.getCore().getValidationOnLoad().isEnabled()) {
-                LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
-                return;
-            }
-            LOGGER.debug("Validating model...");
-            LOGGER.debug("Constraint validation: {}", config.getCore().getValidationOnLoad().getValidateConstraints());
-            LOGGER.debug("IdShort uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdShortUniqueness());
-            LOGGER.debug("Identifier uniqueness validation: {}", config.getCore().getValidationOnLoad().getIdentifierUniqueness());
+            model = EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment();
             ModelValidator.validate(model, config.getCore().getValidationOnLoad());
             LOGGER.info("Model successfully validated");
-        }
-        catch (DeserializationException e) {
-            throw new InitializationException("Error loading model file", e);
         }
         catch (ValidationException e) {
             throw new InitializationException(
                     String.format("Model validation failed with the following error(s):%s%s",
                             System.lineSeparator(),
                             e.getMessage()));
+        }
+        catch (Exception e) {
+            throw new InitializationException("Error loading model file", e);
         }
 
     }
@@ -579,7 +587,7 @@ public class App implements Runnable {
      *
      * @return map of config overrides
      */
-    protected Map<String, String> getConfigOverrides() {
+    protected List<ConfigOverride> getConfigOverrides() {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION))
                 .filter(x -> !properties.containsKey(x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length() - 1)))
@@ -596,19 +604,14 @@ public class App implements Runnable {
                 result.put(property.getKey(), property.getValue());
             }
         }
-        if (!result.isEmpty()) {
-            LOGGER.info("Overriding config parameter: {}{}",
-                    System.lineSeparator(),
-                    result.entrySet().stream()
-                            .map(x -> indent(
-                                    String.format("%s=%s [%s]",
-                                            x.getKey(),
-                                            x.getValue(),
-                                            properties.containsKey(x.getKey()) ? "CLI" : "ENV"),
-                                    1))
-                            .collect(Collectors.joining(System.lineSeparator())));
-        }
-        return result;
+        return result.entrySet().stream()
+                .map(x -> ConfigOverride.builder()
+                        .originalKey(x.getKey())
+                        .updatedKey(x.getKey())
+                        .value(x.getValue())
+                        .source(properties.containsKey(x.getKey()) ? ConfigOverrideSource.CLI : ConfigOverrideSource.ENV)
+                        .build())
+                .toList();
     }
 
 
@@ -619,20 +622,37 @@ public class App implements Runnable {
      *
      * @return map of config overrides
      */
-    protected Map<String, String> getConfigOverrides(ServiceConfig config) {
-        return replaceSeparators(config, getConfigOverrides());
+    protected List<ConfigOverride> getConfigOverrides(ServiceConfig config) {
+        List<ConfigOverride> result = getConfigOverrides();
+        result = replaceSeparators(config, result);
+        if (!result.isEmpty()) {
+            LOGGER.info("Overriding config parameter: {}{}",
+                    System.lineSeparator(),
+                    result.stream()
+                            .map(x -> indent(
+                                    String.format("%s=%s [%s]",
+                                            x.getUpdatedKey(),
+                                            x.getValue(),
+                                            x.getSource()),
+                                    1))
+                            .collect(Collectors.joining(System.lineSeparator())));
+        }
+        return result;
     }
 
 
-    private Map<String, String> replaceSeparators(ServiceConfig config, Map<String, String> configOverrides) {
-        Map<String, String> result = new HashMap<>();
+    private List<ConfigOverride> replaceSeparators(ServiceConfig config, List<ConfigOverride> configOverrides) {
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
-        configOverrides.forEach((k, v) -> {
-            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_ALTERNATIVE_SEPARATOR)));
-            String newPath = getNewPathRecursive(document, pathParts.get(0), pathParts, 1);
-            result.put(newPath, v);
-        });
-        return result;
+        return configOverrides.stream()
+                .map(x -> {
+                    List<String> pathParts = new LinkedList<>(Arrays.asList(x.getOriginalKey().split(ENV_PATH_ALTERNATIVE_SEPARATOR)));
+                    return ConfigOverride.builder()
+                            .originalKey(x.getOriginalKey())
+                            .updatedKey(getNewPathRecursive(document, pathParts.get(0), pathParts, 1))
+                            .value(x.getValue())
+                            .source(x.getSource())
+                            .build();
+                }).toList();
     }
 
 

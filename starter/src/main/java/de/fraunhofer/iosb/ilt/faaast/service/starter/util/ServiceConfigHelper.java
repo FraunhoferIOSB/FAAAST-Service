@@ -39,11 +39,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -148,18 +148,18 @@ public class ServiceConfigHelper {
      * @return a new config with updated properties
      * @throws JsonProcessingException if deserializing updated config fails
      */
-    public static ServiceConfig withProperties(ServiceConfig config, Map<String, ?> properties) throws JsonProcessingException {
+    public static ServiceConfig withProperties(ServiceConfig config, List<ConfigOverride> properties) throws JsonProcessingException {
         if (properties == null || properties.isEmpty()) {
             return config;
         }
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
-        properties.forEach((k, v) -> {
-            String jsonPath = String.format("$.%s", k);
+        properties.forEach(x -> {
+            String jsonPath = String.format("$.%s", x.getUpdatedKey());
             try {
-                document.set(jsonPath, v);
+                document.set(jsonPath, x.getValue());
             }
             catch (JsonPathException e) {
-                throw new JsonPathException(String.format("updating property failed (key: %s, value: %s)", k, v), e);
+                throw new JsonPathException(String.format("updating property failed (key: %s, value: %s)", x.getUpdatedKey(), x.getValue()), e);
             }
         });
         return mapper.treeToValue(document.json(), ServiceConfig.class);
