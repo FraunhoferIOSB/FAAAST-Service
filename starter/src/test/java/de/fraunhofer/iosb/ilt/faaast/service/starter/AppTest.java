@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBusConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverrideSource;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.EndpointType;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
@@ -27,10 +30,12 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,71 +120,121 @@ public class AppTest {
 
     @Test
     public void testGetConfigOverrides() throws Exception {
-        Map<String, String> cliProperties = new HashMap<>();
-        cliProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "3");
-        cliProperties.put(ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName());
-        Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "4");
-        envProperties.put(ParameterConstants.ENDPOINT_0_PORT, "1337");
-        Map<String, String> expected = new HashMap<>(envProperties);
-        expected.putAll(cliProperties);
-        String[] args = cliProperties.entrySet().stream()
-                .map(x -> String.format("%s=%s", x.getKey(), x.getValue()))
+        List<ConfigOverride> expected = List.of(
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.ENDPOINT_0_CLASS)
+                        .value(HttpEndpoint.class.getCanonicalName())
+                        .source(ConfigOverrideSource.CLI)
+                        .build(),
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE)
+                        .value("3")
+                        .source(ConfigOverrideSource.CLI)
+                        .build(),
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.ENDPOINT_0_PORT)
+                        .value("1337")
+                        .source(ConfigOverrideSource.ENV)
+                        .build());
+        List<ConfigOverride> input = new ArrayList<>(expected);
+        input.add(ConfigOverride.builder()
+                .originalKey(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE)
+                .value("4")
+                .source(ConfigOverrideSource.ENV)
+                .build());
+        String[] args = input.stream()
+                .filter(x -> x.getSource() == ConfigOverrideSource.CLI)
+                .map(x -> String.format("%s=%s", x.getOriginalKey(), x.getValue()))
                 .toArray(String[]::new);
-        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+        Map<String, String> env = input.stream()
+                .filter(x -> x.getSource() == ConfigOverrideSource.ENV)
+                .collect(Collectors.toMap(
+                        x -> x.getOriginalKey(),
+                        x -> x.getValue()));
+        List<ConfigOverride> actual = withEnv(env).execute(() -> {
             new CommandLine(application).execute(args);
             return application.getConfigOverrides();
         });
-        Assert.assertEquals(expected, actual);
+        Assert.assertTrue(expected.containsAll(actual));
+        Assert.assertTrue(actual.containsAll(expected));
     }
 
 
     @Test
     public void testSeparatorReplacement() throws Exception {
-        Map<String, String> expected = new HashMap<>();
-        expected.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_AFTER, "1");
-        expected.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_AFTER, "1");
-
-        Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_BEFORE, "1");
-        envProperties.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_BEFORE, "1");
-
-        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+        List<ConfigOverride> expected = List.of(
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_BEFORE)
+                        .updatedKey(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_AFTER)
+                        .value("1")
+                        .source(ConfigOverrideSource.ENV)
+                        .build(),
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.MESSAGEBUS_UNDERSCORE_BEFORE)
+                        .updatedKey(ParameterConstants.MESSAGEBUS_UNDERSCORE_AFTER)
+                        .value("1")
+                        .source(ConfigOverrideSource.ENV)
+                        .build());
+        Map<String, String> env = expected.stream()
+                .filter(x -> x.getSource() == ConfigOverrideSource.ENV)
+                .collect(Collectors.toMap(
+                        x -> x.getOriginalKey(),
+                        x -> x.getValue()));
+        List<ConfigOverride> actual = withEnv(env).execute(() -> {
             return application.getConfigOverrides(dummyMessageBusConfig);
         });
-        Assert.assertEquals(expected, actual);
+        Assert.assertTrue(expected.containsAll(actual));
+        Assert.assertTrue(actual.containsAll(expected));
     }
 
 
     @Test
     public void testNestedSeparatorReplacement() throws Exception {
-        Map<String, String> expected = new HashMap<>();
-        expected.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER, "1");
-        expected.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_AFTER, "1");
-
-        Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE, "1");
-        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_BEFORE, "1");
-
-        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+        List<ConfigOverride> expected = List.of(
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE)
+                        .updatedKey(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER)
+                        .value("1")
+                        .source(ConfigOverrideSource.ENV)
+                        .build(),
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_BEFORE)
+                        .updatedKey(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_AFTER)
+                        .value("1")
+                        .source(ConfigOverrideSource.ENV)
+                        .build());
+        Map<String, String> env = expected.stream()
+                .filter(x -> x.getSource() == ConfigOverrideSource.ENV)
+                .collect(Collectors.toMap(
+                        x -> x.getOriginalKey(),
+                        x -> x.getValue()));
+        List<ConfigOverride> actual = withEnv(env).execute(() -> {
             return application.getConfigOverrides(dummyMessageBusConfig);
         });
-        Assert.assertEquals(expected, actual);
+        Assert.assertTrue(expected.containsAll(actual));
+        Assert.assertTrue(actual.containsAll(expected));
     }
 
 
     @Test
     public void testPraefixSeparatorReplacement() throws Exception {
-        Map<String, String> expected = new HashMap<>();
-        expected.put(ParameterConstants.MESSAGEBUS_PREFIX_AFTER, "1");
-
-        Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.MESSAGEBUS_PREFIX_BEFORE, "1");
-
-        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+        List<ConfigOverride> expected = List.of(
+                ConfigOverride.builder()
+                        .originalKey(ParameterConstants.MESSAGEBUS_PREFIX_BEFORE)
+                        .updatedKey(ParameterConstants.MESSAGEBUS_PREFIX_AFTER)
+                        .value("1")
+                        .source(ConfigOverrideSource.ENV)
+                        .build());
+        Map<String, String> env = expected.stream()
+                .filter(x -> x.getSource() == ConfigOverrideSource.ENV)
+                .collect(Collectors.toMap(
+                        x -> x.getOriginalKey(),
+                        x -> x.getValue()));
+        List<ConfigOverride> actual = withEnv(env).execute(() -> {
             return application.getConfigOverrides(dummyMessageBusConfig);
         });
-        Assert.assertEquals(expected, actual);
+        Assert.assertTrue(expected.containsAll(actual));
+        Assert.assertTrue(actual.containsAll(expected));
     }
 
 

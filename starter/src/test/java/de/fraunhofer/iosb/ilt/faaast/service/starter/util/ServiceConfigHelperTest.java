@@ -22,9 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverrideSource;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,9 +62,22 @@ public class ServiceConfigHelperTest {
                 .build();
         ServiceConfig expected = getConfigWithHttpEndpoint();
         ServiceConfig actual = ServiceConfigHelper.withProperties(input,
-                Map.of(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, expected.getCore().getRequestHandlerThreadPoolSize(),
-                        ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName(),
-                        ParameterConstants.ENDPOINT_0_PORT, 8080));
+                List.of(
+                        ConfigOverride.builder()
+                                .originalKey(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE)
+                                .value(Integer.toString(expected.getCore().getRequestHandlerThreadPoolSize()))
+                                .source(ConfigOverrideSource.ENV)
+                                .build(),
+                        ConfigOverride.builder()
+                                .originalKey(ParameterConstants.ENDPOINT_0_CLASS)
+                                .value(HttpEndpoint.class.getCanonicalName())
+                                .source(ConfigOverrideSource.ENV)
+                                .build(),
+                        ConfigOverride.builder()
+                                .originalKey(ParameterConstants.ENDPOINT_0_PORT)
+                                .value("8080")
+                                .source(ConfigOverrideSource.ENV)
+                                .build()));
         Assert.assertEquals(expected, actual);
     }
 
