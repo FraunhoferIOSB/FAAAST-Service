@@ -384,7 +384,10 @@ public class App implements Runnable {
             LOGGER.info("Press CTRL + C to stop");
         }
         catch (Exception e) {
-            LOGGER.error("Unexpected exception encountered while executing FA³ST Service", e);
+            LOGGER.error(String.format(
+                    "Unexpected exception encountered while executing FA³ST Service (%s)",
+                    e.getMessage()),
+                    e);
         }
     }
 
