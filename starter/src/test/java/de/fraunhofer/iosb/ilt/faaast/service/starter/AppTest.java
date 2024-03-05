@@ -16,11 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverride;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.model.ConfigOverrideSource;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.model.EndpointType;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +106,9 @@ public class AppTest {
             if (!Objects.equals(App.ENV_PATH_CONFIG_FILE, key)
                     && !Objects.equals(App.ENV_PATH_MODEL_FILE, key)
                     && !Objects.equals(App.envPathWithAlternativeSeparator(App.ENV_PATH_CONFIG_FILE), key)
-                    && !Objects.equals(App.envPathWithAlternativeSeparator(App.ENV_PATH_MODEL_FILE), key)) {
+                    && !Objects.equals(App.envPathWithAlternativeSeparator(App.ENV_PATH_MODEL_FILE), key)
+                    && !key.startsWith(App.ENV_PREFIX_CONFIG_EXTENSION)
+                    && !key.startsWith(App.envPathWithAlternativeSeparator(App.ENV_PREFIX_CONFIG_EXTENSION))) {
                 key = key.startsWith(App.ENV_PREFIX_CONFIG_EXTENSION)
                         ? key
                         : String.format("%s%s", App.ENV_PREFIX_CONFIG_EXTENSION, key);
@@ -217,7 +221,7 @@ public class AppTest {
 
 
     @Test
-    public void testPraefixSeparatorReplacement() throws Exception {
+    public void testPrefixSeparatorReplacement() throws Exception {
         List<ConfigOverride> expected = List.of(
                 ConfigOverride.builder()
                         .originalKey(ParameterConstants.MESSAGEBUS_PREFIX_BEFORE)
@@ -235,6 +239,34 @@ public class AppTest {
         });
         Assert.assertTrue(expected.containsAll(actual));
         Assert.assertTrue(actual.containsAll(expected));
+    }
+
+
+    @Test
+    public void testConfigOverrideViaEnvironmentUnderscoreSeparated() throws Exception {
+        ServiceConfig expected = ServiceConfigHelper.getDefaultServiceConfig();
+        ((HttpEndpointConfig) expected.getEndpoints().get(0)).setPort(1234);
+        ServiceConfig config = ServiceConfigHelper.getDefaultServiceConfig();
+        Map<String, String> env = Map.of("endpoints[0]_port", "1234");
+        List<ConfigOverride> overrides = withEnv(env).execute(() -> {
+            return application.getConfigOverrides(config);
+        });
+        ServiceConfig actual = ServiceConfigHelper.withProperties(config, overrides);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testConfigOverrideViaEnvironmentDotSeparated() throws Exception {
+        ServiceConfig expected = ServiceConfigHelper.getDefaultServiceConfig();
+        ((HttpEndpointConfig) expected.getEndpoints().get(0)).setPort(1234);
+        ServiceConfig config = ServiceConfigHelper.getDefaultServiceConfig();
+        Map<String, String> env = Map.of("faaast.config.extension.endpoints[0].port", "1234");
+        List<ConfigOverride> overrides = withEnv(env).execute(() -> {
+            return application.getConfigOverrides(config);
+        });
+        ServiceConfig actual = ServiceConfigHelper.withProperties(config, overrides);
+        Assert.assertEquals(expected, actual);
     }
 
 
