@@ -45,6 +45,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileStorageFilesystem.class);
     private static final String MSG_FILE_NOT_FOUND = "could not find file for path '%s'";
+    private static final String PREFIX_LOCAL_FILE = "file:///";
     private Map<String, Path> existingFiles;
     private FileStorageFilesystemConfig config;
 
@@ -153,7 +154,18 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
 
     private String encodeFilePath(String filePath) {
-        return Base64.getUrlEncoder().encodeToString(filePath.getBytes());
+        return Base64.getUrlEncoder().encodeToString(localize(filePath).getBytes());
+    }
+
+
+    private String localize(String filePath) {
+        if (Objects.isNull(filePath)) {
+            return "";
+        }
+        if (filePath.startsWith(PREFIX_LOCAL_FILE)) {
+            return filePath.substring(PREFIX_LOCAL_FILE.length());
+        }
+        return filePath;
     }
 
 

@@ -46,8 +46,8 @@ Thus, changes are stored permanently.
 :caption: Example configuration for FileSystem FileStorage.
 :lineno-start: 1
 {
-	"filestorage" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFileSystem",
+	"fileStorage" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystem",
 		"path": "./my/file/cache",
 		"existingDataPath": "./my/initial/data"
 	},
