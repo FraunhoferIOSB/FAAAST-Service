@@ -113,30 +113,32 @@ public class ServiceConfigHelper {
     /**
      * Tries to auto-complete a configuration by adding default values for missing mandatory parts.
      *
-     * @param serviceConfig the config to auto-complete
+     * @param config the config to auto-complete
+     * @return the modified config
      */
-    public static void autoComplete(ServiceConfig serviceConfig) {
+    public static ServiceConfig autoComplete(ServiceConfig config) {
         ServiceConfig defaultConfig = getDefaultServiceConfig();
-        if (serviceConfig.getCore() == null) {
-            serviceConfig.setCore(defaultConfig.getCore());
+        if (config.getCore() == null) {
+            config.setCore(defaultConfig.getCore());
             LOGGER.debug("No configuration for core found - using default");
         }
-        if (serviceConfig.getEndpoints() == null || serviceConfig.getEndpoints().isEmpty()) {
-            serviceConfig.setEndpoints(defaultConfig.getEndpoints());
+        if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
+            config.setEndpoints(defaultConfig.getEndpoints());
             LOGGER.debug("No configuration for endpoints found - using default");
         }
-        if (serviceConfig.getPersistence() == null) {
-            serviceConfig.setPersistence(defaultConfig.getPersistence());
+        if (config.getPersistence() == null) {
+            config.setPersistence(defaultConfig.getPersistence());
             LOGGER.debug("No configuration for persistence found - using default");
         }
-        if (serviceConfig.getFileStorage() == null) {
-            serviceConfig.setFileStorage(defaultConfig.getFileStorage());
+        if (config.getFileStorage() == null) {
+            config.setFileStorage(defaultConfig.getFileStorage());
             LOGGER.debug("No configuration for file storage found - using default");
         }
-        if (serviceConfig.getMessageBus() == null) {
-            serviceConfig.setMessageBus(defaultConfig.getMessageBus());
+        if (config.getMessageBus() == null) {
+            config.setMessageBus(defaultConfig.getMessageBus());
             LOGGER.debug("No configuration for messageBus found - using default");
         }
+        return config;
     }
 
 

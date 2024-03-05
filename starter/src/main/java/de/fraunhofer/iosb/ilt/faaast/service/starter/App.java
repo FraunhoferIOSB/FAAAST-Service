@@ -59,11 +59,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -112,6 +112,7 @@ public class App implements Runnable {
     protected static final String ENV_PATH_LOGLEVEL_FAAAAST = envPath(ENV_KEY_PREFIX, "loglevel_faaast");
     protected static final String ENV_PATH_NO_VALIDATION = envPath(ENV_KEY_PREFIX, "no_validation");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
+    protected static final String ENV_PREFIX_CONFIG_EXTENSION_ALTERNATIVE = envPathWithAlternativeSeparator(ENV_PREFIX_CONFIG_EXTENSION);
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "model.*";
     protected static final String MODEL_FILENAME_PATTERN = "model\\..*";
@@ -348,23 +349,10 @@ public class App implements Runnable {
         catch (IOException e) {
             throw new InitializationException("Error loading config file", e);
         }
-        ServiceConfigHelper.autoComplete(config);
-        withModel(config);
-        try {
-            ServiceConfigHelper.apply(config, endpoints.stream()
-                    .map(LambdaExceptionHelper.rethrowFunction(
-                            x -> x.getImplementation().getDeclaredConstructor().newInstance()))
-                    .collect(Collectors.toList()));
-        }
-        catch (InvalidConfigurationException | ReflectiveOperationException e) {
-            throw new InitializationException("Adding endpoints to config failed", e);
-        }
-        try {
-            config = ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
-        }
-        catch (JsonProcessingException e) {
-            throw new InitializationException("Overriding config properties failed", e);
-        }
+        config = ServiceConfigHelper.autoComplete(config);
+        config = withModel(config);
+        config = withEndpoints(config);
+        config = withOverrides(config);
         validate(config);
         if (!dryRun) {
             runService(config);
@@ -384,7 +372,10 @@ public class App implements Runnable {
             LOGGER.info("Press CTRL + C to stop");
         }
         catch (Exception e) {
-            LOGGER.error("Unexpected exception encountered while executing FA³ST Service", e);
+            LOGGER.error(String.format(
+                    "Unexpected exception encountered while executing FA³ST Service (%s)",
+                    e.getMessage()),
+                    e);
         }
     }
 
@@ -497,19 +488,19 @@ public class App implements Runnable {
     }
 
 
-    private void withModel(ServiceConfig config) {
+    private ServiceConfig withModel(ServiceConfig config) {
         String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             withModelFromCommandLine(config, fileExtension);
-            return;
+            return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
             withModelFromEnvironmentVariable(config, fileExtension);
-            return;
+            return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
-            return;
+            return config;
         }
         if (!useEmptyModel) {
             Optional<File> defaultModel = findDefaultModel();
@@ -520,7 +511,7 @@ public class App implements Runnable {
                     config.getFileStorage().setInitialModelFile(defaultModel.get());
                 }
                 modelFile = new File(defaultModel.get().getAbsolutePath());
-                return;
+                return config;
             }
         }
         if (useEmptyModel) {
@@ -532,6 +523,31 @@ public class App implements Runnable {
         LOGGER.info("Model validation is disabled when using empty model");
         config.getCore().setValidationOnLoad(ModelValidatorConfig.NONE);
         config.getPersistence().setInitialModel(new DefaultEnvironment.Builder().build());
+        return config;
+    }
+
+
+    private ServiceConfig withEndpoints(ServiceConfig config) {
+        try {
+            ServiceConfigHelper.apply(config, endpoints.stream()
+                    .map(LambdaExceptionHelper.rethrowFunction(
+                            x -> x.getImplementation().getDeclaredConstructor().newInstance()))
+                    .collect(Collectors.toList()));
+            return config;
+        }
+        catch (InvalidConfigurationException | ReflectiveOperationException e) {
+            throw new InitializationException("Adding endpoints to config failed", e);
+        }
+    }
+
+
+    private ServiceConfig withOverrides(ServiceConfig config) {
+        try {
+            return ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
+        }
+        catch (JsonProcessingException e) {
+            throw new InitializationException("Overriding config properties failed", e);
+        }
     }
 
 
@@ -582,36 +598,59 @@ public class App implements Runnable {
     }
 
 
+    private List<ConfigOverride> getConfigOverridesFromEnv() {
+        return List.of(ENV_PREFIX_CONFIG_EXTENSION, ENV_PREFIX_CONFIG_EXTENSION_ALTERNATIVE)
+                .stream()
+                .flatMap(prefix -> System.getenv().entrySet().stream()
+                        .filter(x -> x.getKey().startsWith(prefix))
+                        .filter(x -> !properties.containsKey(x.getKey().substring(prefix.length() - 1)))
+                        .map(x -> ConfigOverride.builder()
+                                .originalKey(x.getKey().substring(prefix.length()))
+                                .value(x.getValue())
+                                .source(ConfigOverrideSource.ENV)
+                                .build()))
+                .toList();
+    }
+
+
+    private List<ConfigOverride> getConfigOverridesFromCli() {
+        return properties.entrySet().stream()
+                .map(x -> {
+                    String key = x.getKey();
+                    if (key.startsWith(ENV_PREFIX_CONFIG_EXTENSION)) {
+                        key = key.substring(ENV_PREFIX_CONFIG_EXTENSION.length());
+                        LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", key,
+                                ENV_PREFIX_CONFIG_EXTENSION);
+                    }
+                    return ConfigOverride.builder()
+                            .originalKey(key)
+                            .value(x.getValue())
+                            .source(ConfigOverrideSource.CLI)
+                            .build();
+                }).toList();
+    }
+
+
+    private List<ConfigOverride> enforceSourcePrecedence(List<ConfigOverride> overrides) {
+        Predicate<ConfigOverride> condition = x -> x.getSource() == ConfigOverrideSource.ENV
+                && overrides.stream().anyMatch(y -> y.getSource() == ConfigOverrideSource.CLI && Objects.equals(x.getUpdatedKey(), y.getUpdatedKey()));
+        return overrides.stream()
+                .filter(condition.negate())
+                .toList();
+    }
+
+
     /**
      * Collects config overrides from environment and CLI parameters.
      *
      * @return map of config overrides
      */
     protected List<ConfigOverride> getConfigOverrides() {
-        Map<String, String> envParameters = System.getenv().entrySet().stream()
-                .filter(x -> x.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION))
-                .filter(x -> !properties.containsKey(x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length() - 1)))
-                .collect(Collectors.toMap(x -> x.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length()),
-                        Entry::getValue));
-        Map<String, String> result = new HashMap<>(envParameters);
-        for (var property: properties.entrySet()) {
-            if (property.getKey().startsWith(ENV_PREFIX_CONFIG_EXTENSION)) {
-                String realKey = property.getKey().substring(ENV_PREFIX_CONFIG_EXTENSION.length());
-                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_PREFIX_CONFIG_EXTENSION);
-                result.put(realKey, property.getValue());
-            }
-            else {
-                result.put(property.getKey(), property.getValue());
-            }
-        }
-        return result.entrySet().stream()
-                .map(x -> ConfigOverride.builder()
-                        .originalKey(x.getKey())
-                        .updatedKey(x.getKey())
-                        .value(x.getValue())
-                        .source(properties.containsKey(x.getKey()) ? ConfigOverrideSource.CLI : ConfigOverrideSource.ENV)
-                        .build())
-                .toList();
+        return enforceSourcePrecedence(
+                Stream.concat(
+                        getConfigOverridesFromEnv().stream(),
+                        getConfigOverridesFromCli().stream())
+                        .toList());
     }
 
 
