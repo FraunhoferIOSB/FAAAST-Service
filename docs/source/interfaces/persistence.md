@@ -53,8 +53,8 @@ Each modification of the model results in writing the whole model to the file wh
 | Name                        | Allowed Value       | Description                                                                                                                                                                                                     | Default Value              |
 | ----------------------------| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | dataDir<br>*(optional)*     | String              | Path where the model file created by the persistence should be saved.                                                                                                                                           | .                          |
-| dataformat<br>*(optional)*  | Boolean             | Data format to use when storing.<br>Ignored when `keepInitial` is set to `true`.                                                                                                                                | same as `initialModelFile` |
-| keepInitial<br>*(optional)* | AASX<br>JSON<br>XML | If true, `initialModelFile` will not be modified but instead a copy will be created in `dataDir` where the changes will be saved.<br> If false, all changes will be written directly to the `initialModelFile`. | true                       |
+| dataformat<br>*(optional)*  | AASX<br>JSON<br>XML | Data format to use when storing.<br>Ignored when `keepInitial` is set to `true`.                                                                                                                                | same as `initialModelFile` |
+| keepInitial<br>*(optional)* | Boolean             | If true, `initialModelFile` will not be modified but instead a copy will be created in `dataDir` where the changes will be saved.<br> If false, all changes will be written directly to the `initialModelFile`. | true                       |
 :::
 
 ```{code-block} json

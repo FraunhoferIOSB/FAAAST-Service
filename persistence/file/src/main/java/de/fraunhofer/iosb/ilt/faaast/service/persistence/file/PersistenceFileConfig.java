@@ -45,7 +45,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
     private boolean keepInitial;
 
-    private String filename = DEFAULT_FILENAME;
+    private String filename;
 
     private DataFormat dataformat;
 
