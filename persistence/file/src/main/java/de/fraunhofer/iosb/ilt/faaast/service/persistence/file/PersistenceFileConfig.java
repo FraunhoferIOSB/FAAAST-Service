@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -104,6 +105,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
      *
      * @return file path of the initialModel file
      */
+    @JsonIgnore
     public Path getFilePath() {
         return Path.of(dataDir, filename);
     }
