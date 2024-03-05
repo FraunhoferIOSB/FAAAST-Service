@@ -15,7 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -24,33 +27,23 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class DefaultProtocolInformation implements ProtocolInformation {
 
-    private String endpointAddress;
     private String endpointProtocol;
     private String endpointProtocolVersion;
+    private String href;
+    private List<SecurityAttributeObject> securityAttributes;
     private String subprotocol;
     private String subprotocolBody;
     private String subprotocolBodyEncoding;
 
     public DefaultProtocolInformation() {
 
-        endpointAddress = null;
         endpointProtocol = null;
         endpointProtocolVersion = null;
+        href = null;
+        securityAttributes = new ArrayList();
         subprotocol = null;
         subprotocolBody = null;
         subprotocolBodyEncoding = null;
-    }
-
-
-    @Override
-    public String getEndpointAddress() {
-        return endpointAddress;
-    }
-
-
-    @Override
-    public void setEndpointAddress(String endpointAddress) {
-        this.endpointAddress = endpointAddress;
     }
 
 
@@ -75,6 +68,30 @@ public class DefaultProtocolInformation implements ProtocolInformation {
     @Override
     public void setEndpointProtocolVersion(String endpointProtocolVersion) {
         this.endpointProtocolVersion = endpointProtocolVersion;
+    }
+
+
+    @Override
+    public String getHref() {
+        return href;
+    }
+
+
+    @Override
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+
+    @Override
+    public List<SecurityAttributeObject> getSecurityAttributes() {
+        return securityAttributes;
+    }
+
+
+    @Override
+    public void setSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
+        this.securityAttributes = securityAttributes;
     }
 
 
@@ -123,9 +140,10 @@ public class DefaultProtocolInformation implements ProtocolInformation {
             return false;
         }
         DefaultProtocolInformation that = (DefaultProtocolInformation) o;
-        return Objects.equals(endpointAddress, that.endpointAddress)
-                && Objects.equals(endpointProtocol, that.endpointProtocol)
+        return Objects.equals(endpointProtocol, that.endpointProtocol)
                 && Objects.equals(endpointProtocolVersion, that.endpointProtocolVersion)
+                && Objects.equals(href, that.href)
+                && Objects.equals(securityAttributes, that.securityAttributes)
                 && Objects.equals(subprotocol, that.subprotocol)
                 && Objects.equals(subprotocolBody, that.subprotocolBody)
                 && Objects.equals(subprotocolBodyEncoding, that.subprotocolBodyEncoding);
@@ -134,7 +152,7 @@ public class DefaultProtocolInformation implements ProtocolInformation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(endpointAddress, endpointProtocol, endpointProtocolVersion, subprotocol, subprotocolBody, subprotocolBodyEncoding);
+        return Objects.hash(endpointProtocol, endpointProtocolVersion, href, securityAttributes, subprotocol, subprotocolBody, subprotocolBodyEncoding);
     }
 
 
@@ -146,19 +164,14 @@ public class DefaultProtocolInformation implements ProtocolInformation {
 
         public B from(ProtocolInformation other) {
             if (Objects.nonNull(other)) {
-                endpointAddress(other.getEndpointAddress());
                 endpointProtocol(other.getEndpointProtocol());
                 endpointProtocolVersion(other.getEndpointProtocolVersion());
+                href(other.getHref());
+                securityAttributes((other.getSecurityAttributes()));
                 subprotocol(other.getSubprotocol());
                 subprotocolBody(other.getSubprotocolBody());
                 subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
             }
-            return getSelf();
-        }
-
-
-        public B endpointAddress(String value) {
-            getBuildingInstance().setEndpointAddress(value);
             return getSelf();
         }
 
@@ -171,6 +184,24 @@ public class DefaultProtocolInformation implements ProtocolInformation {
 
         public B endpointProtocolVersion(String value) {
             getBuildingInstance().setEndpointProtocolVersion(value);
+            return getSelf();
+        }
+
+
+        public B href(String value) {
+            getBuildingInstance().setHref(value);
+            return getSelf();
+        }
+
+
+        public B securityAttribute(SecurityAttributeObject value) {
+            getBuildingInstance().getSecurityAttributes().add(value);
+            return getSelf();
+        }
+
+
+        public B securityAttributes(List<SecurityAttributeObject> value) {
+            getBuildingInstance().setSecurityAttributes(value);
             return getSelf();
         }
 
