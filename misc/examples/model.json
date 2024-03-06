@@ -1,0 +1,147 @@
+
+{
+	"assetAdministrationShells": [
+		{
+			"idShort": "ExampleAAS",
+			"description": [
+				{
+					"language": "en",
+					"text": "An Example Asset Administration Shell"
+				},
+				{
+					"language": "de",
+					"text": "Ein Beispiel-Verwaltungsschale"
+				}
+			],
+			"administration":
+			{
+				"version": "1",
+				"revision": "0"
+			},
+			"id": "https://example.com/ids/sm/3122_5150_2042_4130",
+			"assetInformation":
+			{
+				"assetKind": "Instance",
+				"globalAssetId": "https://example.org/asset/1"
+			},
+			"submodels": [
+				{
+					"type": "ExternalReference",
+					"keys": [
+						{
+							"type": "Submodel",
+							"value": "https://example.org/submodel/1"
+						}
+					]
+				},
+				{
+					"type": "ExternalReference",
+					"keys": [
+						{
+							"type": "Submodel",
+							"value": "https://example.org/submodel/2"
+						}
+					]
+				}
+			],
+			"modelType": "AssetAdministrationShell"
+		}
+	],
+	"submodels": [
+		{
+			"idShort": "ExampleSubmodel1",
+			"id": "https://example.org/submodel/1",
+			"semanticId":
+			{
+				"type": "ExternalReference",
+				"keys": [
+					{
+						"type": "GlobalReference",
+						"value": "0173-1#01-AFZ615#016"
+					}
+				]
+			},
+			"submodelElements": [
+				{
+					"category": "PARAMETER",
+					"idShort": "IntegerValue",
+					"valueType": "xs:integer",
+					"value": "5000",
+					"modelType": "Property"
+				}
+			],
+			"modelType": "Submodel"
+		},
+		{
+			"idShort": "ExampleSubmodel2",
+			"id": "https://example.org/submodel/2",
+			"submodelElements": [
+				{
+					"idShort": "ExampleCollection",
+					"value": [
+						{
+							"idShort": "CollectionEntry1",
+							"valueType": "xs:string",
+							"value": "entry1-value",
+							"modelType": "Property"
+						},
+						{
+							"idShort": "CollectionEntry2",
+							"valueType": "xs:double",
+							"value": "1.2",
+							"modelType": "Property"
+						}
+					],
+					"modelType": "SubmodelElementCollection"
+				}
+			],
+			"modelType": "Submodel"
+		}
+	],
+	"conceptDescriptions": [
+		{
+			"idShort": "ExampleConceptDescription",
+			"id": "https://example.org/concept-description/1",
+			"embeddedDataSpecifications": [
+				{
+					"dataSpecification":
+					{
+						"type": "ExternalReference",
+						"keys": [
+							{
+								"type": "GlobalReference",
+								"value": "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+							}
+						]
+					},
+					"dataSpecificationContent":
+					{
+						"preferredName": [
+							{
+								"language": "en",
+								"text": "preferredName-value-en"
+							},
+							{
+								"language": "de",
+								"text": "preferredName-value-de"
+							}
+						],
+						"shortName": [
+							{
+								"language": "en",
+								"text": "shortName-value-en"
+							},
+							{
+								"language": "de",
+								"text": "shortName-value-de"
+							}
+						],
+						"dataType": "STRING_TRANSLATABLE",
+						"modelType": "DataSpecificationIec61360"
+					}
+				}
+			],
+			"modelType": "ConceptDescription"
+		}
+	]
+}

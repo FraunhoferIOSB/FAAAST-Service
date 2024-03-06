@@ -14,43 +14,37 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
-import io.adminshell.aas.v3.model.AccessPermissionRule;
-import io.adminshell.aas.v3.model.Asset;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.BasicEvent;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.BlobCertificate;
-import io.adminshell.aas.v3.model.Capability;
-import io.adminshell.aas.v3.model.Certificate;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Constraint;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.DataSpecificationContent;
-import io.adminshell.aas.v3.model.DataSpecificationIEC61360;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.Event;
-import io.adminshell.aas.v3.model.Extension;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Formula;
-import io.adminshell.aas.v3.model.HasDataSpecification;
-import io.adminshell.aas.v3.model.HasExtensions;
-import io.adminshell.aas.v3.model.HasKind;
-import io.adminshell.aas.v3.model.HasSemantics;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifiable;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.View;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -58,33 +52,6 @@ import io.adminshell.aas.v3.model.View;
  * concrete type. All others methods are empty.
  */
 public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor extends DefaultAssetAdministrationShellElementVisitor {
-
-    @Override
-    public default void visit(Certificate certificate) {
-        if (certificate == null) {
-            return;
-        }
-        Class<?> type = certificate.getClass();
-        if (BlobCertificate.class.isAssignableFrom(type)) {
-            visit((BlobCertificate) certificate);
-        }
-    }
-
-
-    @Override
-    public default void visit(Constraint constraint) {
-        if (constraint == null) {
-            return;
-        }
-        Class<?> type = constraint.getClass();
-        if (Qualifier.class.isAssignableFrom(type)) {
-            visit((Qualifier) constraint);
-        }
-        else if (Formula.class.isAssignableFrom(type)) {
-            visit((Formula) constraint);
-        }
-    }
-
 
     @Override
     public default void visit(DataElement dataElement) {
@@ -119,20 +86,20 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
             return;
         }
         Class<?> type = dataSpecificationContent.getClass();
-        if (DataSpecificationIEC61360.class.isAssignableFrom(type)) {
-            visit((DataSpecificationIEC61360) dataSpecificationContent);
+        if (DataSpecificationIec61360.class.isAssignableFrom(type)) {
+            visit((DataSpecificationIec61360) dataSpecificationContent);
         }
     }
 
 
     @Override
-    public default void visit(Event event) {
-        if (event == null) {
+    public default void visit(EventElement eventElement) {
+        if (eventElement == null) {
             return;
         }
-        Class<?> type = event.getClass();
-        if (BasicEvent.class.isAssignableFrom(type)) {
-            visit((BasicEvent) event);
+        Class<?> type = eventElement.getClass();
+        if (BasicEventElement.class.isAssignableFrom(type)) {
+            visit((BasicEventElement) eventElement);
         }
     }
 
@@ -149,16 +116,12 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         else if (Submodel.class.isAssignableFrom(type)) {
             visit((Submodel) hasDataSpecification);
         }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) hasDataSpecification);
-        }
-        else if (Asset.class.isAssignableFrom(type)) {
-            visit((Asset) hasDataSpecification);
-        }
         else if (SubmodelElement.class.isAssignableFrom(type)) {
             visit((SubmodelElement) hasDataSpecification);
         }
-
+        else if (ConceptDescription.class.isAssignableFrom(type)) {
+            visit((ConceptDescription) hasDataSpecification);
+        }
     }
 
 
@@ -198,17 +161,14 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         if (Extension.class.isAssignableFrom(type)) {
             visit((Extension) hasSemantics);
         }
-        else if (IdentifierKeyValuePair.class.isAssignableFrom(type)) {
-            visit((IdentifierKeyValuePair) hasSemantics);
+        else if (SpecificAssetId.class.isAssignableFrom(type)) {
+            visit((SpecificAssetId) hasSemantics);
         }
         else if (Submodel.class.isAssignableFrom(type)) {
             visit((Submodel) hasSemantics);
         }
         else if (SubmodelElement.class.isAssignableFrom(type)) {
             visit((SubmodelElement) hasSemantics);
-        }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) hasSemantics);
         }
         else if (Qualifier.class.isAssignableFrom(type)) {
             visit((Qualifier) hasSemantics);
@@ -224,9 +184,6 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         Class<?> type = identifiable.getClass();
         if (AssetAdministrationShell.class.isAssignableFrom(type)) {
             visit((AssetAdministrationShell) identifiable);
-        }
-        else if (Asset.class.isAssignableFrom(type)) {
-            visit((Asset) identifiable);
         }
         else if (Submodel.class.isAssignableFrom(type)) {
             visit((Submodel) identifiable);
@@ -255,11 +212,14 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
             visit((SubmodelElementCollection) submodelElement);
         }
+        else if (SubmodelElementList.class.isAssignableFrom(type)) {
+            visit((SubmodelElementList) submodelElement);
+        }
         else if (Operation.class.isAssignableFrom(type)) {
             visit((Operation) submodelElement);
         }
-        else if (Event.class.isAssignableFrom(type)) {
-            visit((Event) submodelElement);
+        else if (EventElement.class.isAssignableFrom(type)) {
+            visit((EventElement) submodelElement);
         }
         else if (Entity.class.isAssignableFrom(type)) {
             visit((Entity) submodelElement);
@@ -279,9 +239,6 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         else if (SubmodelElement.class.isAssignableFrom(type)) {
             visit((SubmodelElement) qualifiable);
         }
-        else if (AccessPermissionRule.class.isAssignableFrom(type)) {
-            visit((AccessPermissionRule) qualifiable);
-        }
     }
 
 
@@ -296,12 +253,6 @@ public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor e
         }
         else if (SubmodelElement.class.isAssignableFrom(type)) {
             visit((SubmodelElement) referable);
-        }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) referable);
-        }
-        else if (AccessPermissionRule.class.isAssignableFrom(type)) {
-            visit((AccessPermissionRule) referable);
         }
     }
 }

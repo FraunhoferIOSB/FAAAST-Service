@@ -19,9 +19,9 @@ import java.util.function.Consumer;
 
 
 /**
- * Wrapper class for {@link io.adminshell.aas.v3.dataformat.json.JsonDeserializer}.
+ * Wrapper class for {@link org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer}.
  */
-public class DeserializerWrapper extends io.adminshell.aas.v3.dataformat.json.JsonDeserializer {
+public class DeserializerWrapper extends org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer {
 
     public DeserializerWrapper() {
 

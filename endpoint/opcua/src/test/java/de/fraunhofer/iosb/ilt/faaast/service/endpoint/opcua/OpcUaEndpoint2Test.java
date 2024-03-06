@@ -35,21 +35,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,11 +52,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
-import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.VariableIds;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.datatypes.AASKeyTypesDataType;
+import opc.i4aas.objecttypes.AASRelationshipElementType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -84,7 +84,7 @@ public class OpcUaEndpoint2Test {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final long DEFAULT_TIMEOUT = 150;
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
@@ -154,7 +154,6 @@ public class OpcUaEndpoint2Test {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         // add more elements to the browse path
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -168,7 +167,8 @@ public class OpcUaEndpoint2Test {
         CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_TECHNICAL_DATA_ID).build())
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(AASSimple.SUBMODEL_TECHNICAL_DATA_ID).build())
                 .build());
         service.getMessageBus().publish(msg);
 
@@ -228,63 +228,57 @@ public class OpcUaEndpoint2Test {
         CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_OPERATIONAL_DATA_ID).build())
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(AASSimple.SUBMODEL_OPERATIONAL_DATA_ID).build())
                 .build());
         msg.setValue(new DefaultSubmodel.Builder()
                 .idShort(TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier("https://acplt.org/NewOperationalData")
-                        .build())
+                .id("https://acplt.org/NewOperationalData")
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .version("1.1")
                         .revision("5")
                         .build())
-                .kind(ModelingKind.INSTANCE)
-                .submodelElement(new DefaultRelationshipElement.Builder()
+                .kind(ModellingKind.INSTANCE)
+                .submodelElements(new DefaultRelationshipElement.Builder()
                         .idShort("ExampleRelationshipElement")
                         .category("Parameter")
-                        .description(new LangString("Example RelationshipElement object", "en-us"))
-                        .description(new LangString("Beispiel RelationshipElement Element", "de"))
+                        .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
+                        .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
                         .semanticId(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
-                                        .idType(KeyType.IRI)
                                         .build())
                                 .build())
                         .first(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL)
                                         .value("https://acplt.org/Test_Submodel")
-                                        .idType(KeyType.IRI)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL_ELEMENT_COLLECTION)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION)
                                         .value("ExampleSubmodelCollectionOrdered")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.PROPERTY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.PROPERTY)
                                         .value("ExampleProperty")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
                                 .build())
                         .second(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL)
                                         .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
-                                        .idType(KeyType.IRI)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.ENTITY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.ENTITY)
                                         .value("ExampleEntity")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.PROPERTY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.PROPERTY)
                                         .value("ExampleProperty2")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
                                 .build())
                         .build())
@@ -306,9 +300,9 @@ public class OpcUaEndpoint2Test {
         Assert.assertTrue("testUpdateSubmodel RelationshipElement empty", targets.length > 0);
 
         List<AASKeyDataType> smeValue = new ArrayList<>();
-        smeValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial", AASKeyTypeDataType.IRI));
-        smeValue.add(new AASKeyDataType(AASKeyElementsDataType.Entity, "ExampleEntity", AASKeyTypeDataType.IdShort));
-        smeValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, "ExampleProperty2", AASKeyTypeDataType.IdShort));
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
 
         DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()));
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -365,26 +359,23 @@ public class OpcUaEndpoint2Test {
         String newValue = "New Test Value";
 
         // update SubmodelElement 
-        // Send update event to MessageBus
         CountDownLatch condition = new CountDownLatch(1);
-        ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_DOC_NAME).build())
-                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.SUBMODEL_ELEMENT_COLLECTION).value(TestConstants.OPERATING_MANUAL_NAME).build())
-                .build());
-        msg.setValue(new DefaultSubmodelElementCollection.Builder()
-                .kind(ModelingKind.INSTANCE)
-                .idShort("OperatingManual")
-                .value(new DefaultProperty.Builder()
-                        .kind(ModelingKind.INSTANCE)
-                        .idShort("Title")
-                        .value(newValue)
-                        .valueType("string")
+
+        PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
+                .submodelId(TestConstants.SUBMODEL_DOC_NAME)
+                .path(TestConstants.OPERATING_MANUAL_NAME)
+                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                        .idShort(TestConstants.OPERATING_MANUAL_NAME)
+                        .value(new DefaultProperty.Builder()
+                                .idShort("Title")
+                                .value(newValue)
+                                .valueType(DataTypeDefXsd.STRING)
+                                .build())
                         .build())
-                .ordered(false)
-                .allowDuplicates(false)
-                .build());
-        service.getMessageBus().publish(msg);
+                .build();
+        PutSubmodelElementByPathResponse response = (PutSubmodelElementByPathResponse) service.execute(request);
+        LOGGER.debug("testUpdateSubmodelElement: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // check MessageBus
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);

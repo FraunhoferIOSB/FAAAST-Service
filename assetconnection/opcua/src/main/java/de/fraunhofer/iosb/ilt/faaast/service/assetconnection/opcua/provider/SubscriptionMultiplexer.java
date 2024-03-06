@@ -22,18 +22,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.Va
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
@@ -83,27 +84,35 @@ public class SubscriptionMultiplexer {
 
 
     private void init() throws AssetConnectionException {
-        TypeInfo<?> typeInfo = serviceContext.getTypeInfo(reference);
+        TypeInfo<?> typeInfo;
+        try {
+            typeInfo = serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException ex) {
+            throw new AssetConnectionException(
+                    String.format("Could not resolve type information (reference: %s)",
+                            ReferenceHelper.toString(reference)));
+        }
         if (typeInfo == null) {
             throw new AssetConnectionException(
                     String.format("Could not resolve type information (reference: %s)",
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new AssetConnectionException(
                     String.format("Reference must point to element with value (reference: %s)",
-                            AasUtils.asString(reference)));
+                            ReferenceHelper.toString(reference)));
         }
         ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
         if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
             throw new AssetConnectionException(String.format("Unsupported element type (reference: %s, element type: %s)",
-                    AasUtils.asString(reference),
+                    ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
         datatype = valueTypeInfo.getDatatype();
         if (datatype == null) {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
-                    AasUtils.asString(reference)));
+                    ReferenceHelper.toString(reference)));
         }
         try {
             dataItem = opcUaSubscription.createDataItem(
@@ -113,7 +122,7 @@ public class SubscriptionMultiplexer {
         }
         catch (UaException e) {
             LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
-                    AasUtils.asString(reference),
+                    ReferenceHelper.toString(reference),
                     providerConfig.getNodeId(),
                     e);
         }
@@ -204,7 +213,7 @@ public class SubscriptionMultiplexer {
         catch (UaException e) {
             throw new AssetConnectionException(
                     String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-                            AasUtils.asString(reference),
+                            ReferenceHelper.toString(reference),
                             providerConfig.getNodeId()),
                     e);
         }

@@ -20,17 +20,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.ValueOnlyExamples;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,66 +44,84 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testAnnotatedRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
-        assertValue(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
+        assertEquals(ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT);
+        assertValue(ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT);
     }
 
 
     @Test
     public void testBlob() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extent.WITH_BLOB_VALUE);
-        assertEquals(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extent.WITHOUT_BLOB_VALUE);
-        assertValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extent.WITH_BLOB_VALUE);
-        assertValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extent.WITHOUT_BLOB_VALUE);
+        assertEquals(ValueOnlyExamples.BLOB_FILE_WITH_BLOB, ValueOnlyExamples.BLOB, Extent.WITH_BLOB_VALUE);
+        assertEquals(ValueOnlyExamples.BLOB_FILE_WITHOUT_BLOB, ValueOnlyExamples.BLOB, Extent.WITHOUT_BLOB_VALUE);
+        assertValue(ValueOnlyExamples.BLOB_FILE_WITH_BLOB, ValueOnlyExamples.BLOB, Extent.WITH_BLOB_VALUE);
+        assertValue(ValueOnlyExamples.BLOB_FILE_WITHOUT_BLOB, ValueOnlyExamples.BLOB, Extent.WITHOUT_BLOB_VALUE);
     }
 
 
     @Test
     public void testElementCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
-        assertValue(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
+        assertEquals(ValueOnlyExamples.ELEMENT_COLLECTION_FILE, ValueOnlyExamples.ELEMENT_COLLECTION);
+        assertValue(ValueOnlyExamples.ELEMENT_COLLECTION_FILE, ValueOnlyExamples.ELEMENT_COLLECTION);
+    }
+
+
+    @Test
+    public void testElementList() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.ELEMENT_LIST_FILE, ValueOnlyExamples.ELEMENT_LIST);
+        assertValue(ValueOnlyExamples.ELEMENT_LIST_FILE, ValueOnlyExamples.ELEMENT_LIST);
     }
 
 
     @Test
     public void testEntity() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
-        assertValue(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
+        assertEquals(ValueOnlyExamples.ENTITY_FILE, ValueOnlyExamples.ENTITY);
+        assertValue(ValueOnlyExamples.ENTITY_FILE, ValueOnlyExamples.ENTITY);
     }
 
 
     @Test
     public void testFile() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.FILE_FILE, PropertyValues.FILE);
-        assertValue(PropertyValues.FILE_FILE, PropertyValues.FILE);
+        assertEquals(ValueOnlyExamples.FILE_FILE, ValueOnlyExamples.FILE);
+        assertValue(ValueOnlyExamples.FILE_FILE, ValueOnlyExamples.FILE);
+    }
+
+
+    @Test
+    public void testInvokeOperationRequest() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.INVOKE_OPERATION_REQUEST_FILE, ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST);
+    }
+
+
+    @Test
+    public void testGetOperationAsyncResultResponse() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.GET_OPERATION_ASYNC_RESULT_RESPONSE_FILE, ValueOnlyExamples.GET_OPERATION_ASYNC_RESULT_RESPONSE);
     }
 
 
     @Test
     public void testMultiLanguageProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
-        assertValue(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
+        assertEquals(ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY_FILE, ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY);
+        assertValue(ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY_FILE, ValueOnlyExamples.MULTI_LANGUAGE_PROPERTY);
     }
 
 
     @Test(expected = SerializationException.class)
     public void testNonValue() throws SerializationException, JSONException, IOException {
-        serializer.write(AasUtils.parseReference("(Property)[IRI]foo)"));
+        serializer.write(new DefaultProperty.Builder().build());
     }
 
 
     @Test
     public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
-        assertValue(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
+        assertEquals(ValueOnlyExamples.PROPERTY_STRING_FILE, ValueOnlyExamples.PROPERTY_STRING);
+        assertValue(ValueOnlyExamples.PROPERTY_STRING_FILE, ValueOnlyExamples.PROPERTY_STRING);
     }
 
 
     @Test
     public void testList() throws SerializationException, JSONException, IOException, ValueMappingException {
-        Map<SubmodelElement, File> data = Map.of(
-                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
-                PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
+        Map<SubmodelElement, File> data = Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
+                ValueOnlyExamples.RANGE_INT, ValueOnlyExamples.RANGE_INT_FILE);
         String expected = data.entrySet().stream()
                 .map(x -> {
                     try {
@@ -126,12 +144,12 @@ public class ValueOnlyJsonSerializerTest {
     @Test
     public void testArray() throws SerializationException, JSONException, IOException {
         Object[] array = new Object[] {
-                PropertyValues.PROPERTY_STRING,
-                PropertyValues.RANGE_INT
+                ValueOnlyExamples.PROPERTY_STRING,
+                ValueOnlyExamples.RANGE_INT
         };
         String expected = String.format("[%s,%s]",
-                Files.readString(PropertyValues.PROPERTY_STRING_FILE.toPath()),
-                Files.readString(PropertyValues.RANGE_INT_FILE.toPath()));
+                Files.readString(ValueOnlyExamples.PROPERTY_STRING_FILE.toPath()),
+                Files.readString(ValueOnlyExamples.RANGE_INT_FILE.toPath()));
         String actual = serializer.write(array);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
@@ -139,11 +157,11 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testMap() throws SerializationException, JSONException, IOException {
-        Map<String, Object> map = Map.of("first", PropertyValues.PROPERTY_STRING,
-                "second", PropertyValues.RANGE_INT);
+        Map<String, Object> map = Map.of("first", ValueOnlyExamples.PROPERTY_STRING,
+                "second", ValueOnlyExamples.RANGE_INT);
         String expected = String.format("{ \"first\": %s,\"second\":%s}",
-                Files.readString(PropertyValues.PROPERTY_STRING_FILE.toPath()),
-                Files.readString(PropertyValues.RANGE_INT_FILE.toPath()));
+                Files.readString(ValueOnlyExamples.PROPERTY_STRING_FILE.toPath()),
+                Files.readString(ValueOnlyExamples.RANGE_INT_FILE.toPath()));
         String actual = serializer.write(map);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
@@ -151,30 +169,30 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testRange() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
-        assertValue(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
+        assertEquals(ValueOnlyExamples.RANGE_DOUBLE_FILE, ValueOnlyExamples.RANGE_DOUBLE);
+        assertValue(ValueOnlyExamples.RANGE_DOUBLE_FILE, ValueOnlyExamples.RANGE_DOUBLE);
     }
 
 
     @Test
     public void testReferenceElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
-        assertEquals(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
-        assertValue(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
-        assertValue(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
+        assertEquals(ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL_FILE, ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL);
+        assertEquals(ValueOnlyExamples.REFERENCE_ELEMENT_MODEL_FILE, ValueOnlyExamples.REFERENCE_ELEMENT_MODEL);
+        assertValue(ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL_FILE, ValueOnlyExamples.REFERENCE_ELEMENT_GLOBAL);
+        assertValue(ValueOnlyExamples.REFERENCE_ELEMENT_MODEL_FILE, ValueOnlyExamples.REFERENCE_ELEMENT_MODEL);
     }
 
 
     @Test
     public void testRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
-        assertValue(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
+        assertEquals(ValueOnlyExamples.RELATIONSHIP_ELEMENT_FILE, ValueOnlyExamples.RELATIONSHIP_ELEMENT);
+        assertValue(ValueOnlyExamples.RELATIONSHIP_ELEMENT_FILE, ValueOnlyExamples.RELATIONSHIP_ELEMENT);
     }
 
 
     @Test
     public void testSubmodel() throws SerializationException, JSONException, IOException {
-        assertEquals(PropertyValues.SUBMODEL_FILE, PropertyValues.SUBMODEL);
+        assertEquals(ValueOnlyExamples.SUBMODEL_FILE, ValueOnlyExamples.SUBMODEL);
     }
 
 

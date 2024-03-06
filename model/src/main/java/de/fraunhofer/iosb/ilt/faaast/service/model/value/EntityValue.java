@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import io.adminshell.aas.v3.model.EntityType;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -30,19 +30,21 @@ import java.util.Objects;
 public class EntityValue extends ElementValue {
 
     private EntityType entityType;
-    private List<Key> globalAssetId;
+    private String globalAssetId;
+    private List<SpecificAssetId> specificAssetIds;
     private Map<String, ElementValue> statements;
 
     public EntityValue() {
         this.statements = new HashMap<>();
-        this.globalAssetId = new ArrayList<>();
+        this.specificAssetIds = new ArrayList<>();
     }
 
 
-    public EntityValue(Map<String, ElementValue> statements, EntityType entityType, List<Key> globalAssetId) {
+    public EntityValue(Map<String, ElementValue> statements, EntityType entityType, String globalAssetId, List<SpecificAssetId> specificAssetIds) {
         this.statements = statements;
         this.entityType = entityType;
         this.globalAssetId = globalAssetId;
+        this.specificAssetIds = specificAssetIds;
     }
 
 
@@ -55,7 +57,10 @@ public class EntityValue extends ElementValue {
             return false;
         }
         EntityValue that = (EntityValue) o;
-        return Objects.equals(statements, that.statements) && entityType == that.entityType && Objects.equals(globalAssetId, that.globalAssetId);
+        return Objects.equals(statements, that.statements)
+                && entityType == that.entityType
+                && Objects.equals(globalAssetId, that.globalAssetId)
+                && Objects.equals(specificAssetIds, that.specificAssetIds);
     }
 
 
@@ -69,13 +74,23 @@ public class EntityValue extends ElementValue {
     }
 
 
-    public List<Key> getGlobalAssetId() {
+    public String getGlobalAssetId() {
         return globalAssetId;
     }
 
 
-    public void setGlobalAssetId(List<Key> globalAssetId) {
+    public void setGlobalAssetId(String globalAssetId) {
         this.globalAssetId = globalAssetId;
+    }
+
+
+    public List<SpecificAssetId> getSpecificAssetIds() {
+        return specificAssetIds;
+    }
+
+
+    public void setSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
+        this.specificAssetIds = specificAssetIds;
     }
 
 
@@ -91,7 +106,7 @@ public class EntityValue extends ElementValue {
 
     @Override
     public int hashCode() {
-        return Objects.hash(statements, entityType, globalAssetId);
+        return Objects.hash(statements, entityType, globalAssetId, specificAssetIds);
     }
 
 
@@ -119,8 +134,20 @@ public class EntityValue extends ElementValue {
         }
 
 
-        public B globalAssetId(List<Key> value) {
+        public B globalAssetId(String value) {
             getBuildingInstance().setGlobalAssetId(value);
+            return getSelf();
+        }
+
+
+        public B specificAssetId(SpecificAssetId value) {
+            getBuildingInstance().getSpecificAssetIds().add(value);
+            return getSelf();
+        }
+
+
+        public B specificAssetIds(List<SpecificAssetId> value) {
+            getBuildingInstance().setSpecificAssetIds(value);
             return getSelf();
         }
     }

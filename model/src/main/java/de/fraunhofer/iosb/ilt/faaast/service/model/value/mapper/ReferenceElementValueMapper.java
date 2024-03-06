@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.ReferenceElement} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}.
  */
 public class ReferenceElementValueMapper implements DataValueMapper<ReferenceElement, ReferenceElementValue> {
@@ -31,17 +31,15 @@ public class ReferenceElementValueMapper implements DataValueMapper<ReferenceEle
             return null;
         }
         ReferenceElementValue referenceElementValue = new ReferenceElementValue();
-        referenceElementValue.setKeys(submodelElement.getValue() == null ? null : submodelElement.getValue().getKeys());
+        referenceElementValue.setValue(submodelElement.getValue());
         return referenceElementValue;
     }
 
 
     @Override
-    public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) {
+    public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValue(value.getKeys() != null ? new DefaultReference.Builder()
-                .keys(value.getKeys())
-                .build() : null);
+        submodelElement.setValue(value.getValue());
         return submodelElement;
     }
 }

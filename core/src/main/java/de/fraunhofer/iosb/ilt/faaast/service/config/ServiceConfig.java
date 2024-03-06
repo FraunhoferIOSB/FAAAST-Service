@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
@@ -39,16 +40,100 @@ public class ServiceConfig {
     private List<AssetConnectionConfig> assetConnections;
     private CoreConfig core;
     private List<EndpointConfig> endpoints;
-    private PersistenceConfig persistence;
+    private FileStorageConfig fileStorage;
     private MessageBusConfig messageBus;
 
-    private static ObjectMapper getMapper() {
-        ObjectMapper mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
-        return mapper;
+    private PersistenceConfig persistence;
+
+    public ServiceConfig() {
+        this.assetConnections = new ArrayList<>();
+        this.endpoints = new ArrayList<>();
+    }
+
+
+    public List<AssetConnectionConfig> getAssetConnections() {
+        return assetConnections;
+    }
+
+
+    public void setAssetConnections(List<AssetConnectionConfig> assetConnections) {
+        this.assetConnections = assetConnections;
+    }
+
+
+    public CoreConfig getCore() {
+        return core;
+    }
+
+
+    public void setCore(CoreConfig core) {
+        this.core = core;
+    }
+
+
+    public List<EndpointConfig> getEndpoints() {
+        return endpoints;
+    }
+
+
+    public void setEndpoints(List<EndpointConfig> endpoints) {
+        this.endpoints = endpoints;
+    }
+
+
+    public FileStorageConfig getFileStorage() {
+        return fileStorage;
+    }
+
+
+    public void setFileStorage(FileStorageConfig fileStorage) {
+        this.fileStorage = fileStorage;
+    }
+
+
+    public MessageBusConfig getMessageBus() {
+        return messageBus;
+    }
+
+
+    public void setMessageBus(MessageBusConfig messageBus) {
+        this.messageBus = messageBus;
+    }
+
+
+    public PersistenceConfig getPersistence() {
+        return persistence;
+    }
+
+
+    public void setPersistence(PersistenceConfig persistence) {
+        this.persistence = persistence;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ServiceConfig other = (ServiceConfig) obj;
+        return Objects.equals(this.core, other.core)
+                && Objects.equals(this.assetConnections, other.assetConnections)
+                && Objects.equals(this.endpoints, other.endpoints)
+                && Objects.equals(this.persistence, other.persistence)
+                && Objects.equals(this.fileStorage, other.fileStorage);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage);
     }
 
 
@@ -76,124 +161,18 @@ public class ServiceConfig {
     }
 
 
-    /**
-     * Returns a new builder for this class.
-     *
-     * @return a new builder for this class
-     */
+    private static ObjectMapper getMapper() {
+        ObjectMapper mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+        return mapper;
+    }
+
+
     public static Builder builder() {
         return new Builder();
-    }
-
-
-    public ServiceConfig() {
-        this.assetConnections = new ArrayList<>();
-        this.endpoints = new ArrayList<>();
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ServiceConfig other = (ServiceConfig) obj;
-        return Objects.equals(this.core, other.core)
-                && Objects.equals(this.assetConnections, other.assetConnections)
-                && Objects.equals(this.endpoints, other.endpoints)
-                && Objects.equals(this.persistence, other.persistence);
-    }
-
-
-    /**
-     * Gets the configured asset connections.
-     *
-     * @return the configured asset connections
-     */
-    public List<AssetConnectionConfig> getAssetConnections() {
-        return assetConnections;
-    }
-
-
-    /**
-     * Sets the asset connections.
-     *
-     * @param assetConnections the asset connections to set
-     */
-    public void setAssetConnections(List<AssetConnectionConfig> assetConnections) {
-        this.assetConnections = assetConnections;
-    }
-
-
-    /**
-     * Gets the core configuration.
-     *
-     * @return the core configuration
-     */
-    public CoreConfig getCore() {
-        return core;
-    }
-
-
-    /**
-     * Sets the core configuration.
-     *
-     * @param core the core configuration to set
-     */
-    public void setCore(CoreConfig core) {
-        this.core = core;
-    }
-
-
-    /**
-     * Gets the configured endpoints.
-     *
-     * @return the configured endpoints
-     */
-    public List<EndpointConfig> getEndpoints() {
-        return endpoints;
-    }
-
-
-    /**
-     * Sets the endpoints.
-     *
-     * @param endpoints the endpoints to set
-     */
-    public void setEndpoints(List<EndpointConfig> endpoints) {
-        this.endpoints = endpoints;
-    }
-
-
-    /**
-     * Gets the persistence configuration.
-     *
-     * @return the persistence configuration
-     */
-    public PersistenceConfig getPersistence() {
-        return persistence;
-    }
-
-
-    /**
-     * Sets the persistence.
-     *
-     * @param persistence the persistence to set
-     */
-    public void setPersistence(PersistenceConfig persistence) {
-        this.persistence = persistence;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(core, assetConnections, persistence, endpoints);
     }
 
     /**
@@ -205,6 +184,7 @@ public class ServiceConfig {
         private List<AssetConnectionConfig> assetConnections;
         private List<EndpointConfig> endpoints;
         private PersistenceConfig persistence;
+        private FileStorageConfig fileStorage;
         private MessageBusConfig messageBus;
 
         public Builder() {
@@ -234,6 +214,18 @@ public class ServiceConfig {
          */
         public Builder persistence(PersistenceConfig value) {
             this.persistence = value;
+            return this;
+        }
+
+
+        /**
+         * Sets the file storage config.
+         *
+         * @param value the file storage config
+         * @return the builder
+         */
+        public Builder fileStorage(FileStorageConfig value) {
+            this.fileStorage = value;
             return this;
         }
 
@@ -309,18 +301,10 @@ public class ServiceConfig {
             result.setCore(core);
             result.setEndpoints(endpoints);
             result.setPersistence(persistence);
+            result.setFileStorage(fileStorage);
             result.setMessageBus(messageBus);
             return result;
         }
 
-    }
-
-    public MessageBusConfig getMessageBus() {
-        return messageBus;
-    }
-
-
-    public void setMessageBus(MessageBusConfig messageBus) {
-        this.messageBus = messageBus;
     }
 }

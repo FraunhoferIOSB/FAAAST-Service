@@ -21,15 +21,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,8 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
     private ScheduledFuture<?> executorHandler;
     protected final List<NewDataListener> listeners;
 
-    public CustomSubscriptionProvider(Reference reference, CustomSubscriptionProviderConfig config, ServiceContext serviceContext) throws ValueMappingException {
+    public CustomSubscriptionProvider(Reference reference, CustomSubscriptionProviderConfig config, ServiceContext serviceContext)
+            throws ValueMappingException, ResourceNotFoundException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -90,7 +92,7 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
                     fireNewDataReceived(PropertyValue.of(datatype, RandomValueGenerator.generateRandomValue(datatype).toString()));
                 }
                 catch (ValueFormatException e) {
-                    LOGGER.debug("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
                 }
             }, 0, Math.max(MINIMUM_INTERVAL, config.getInterval()), TimeUnit.MILLISECONDS);
         }

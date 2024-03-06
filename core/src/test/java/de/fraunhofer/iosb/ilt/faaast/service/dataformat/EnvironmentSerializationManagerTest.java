@@ -14,15 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import io.adminshell.aas.v3.dataformat.Deserializer;
-import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
-import io.adminshell.aas.v3.dataformat.i4aas.I4AASDeserializer;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.dataformat.xml.XmlDeserializer;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,22 +41,16 @@ public class EnvironmentSerializationManagerTest {
 
 
     @Test
-    @Ignore("Not Yet")
-    public void testFromFileAML() throws IOException, DeserializationException, Exception {
-        assertEquals("src/test/resources/AASFull.aml", new AmlDeserializer());
-    }
-
-
-    @Test
-    @Ignore("Not yet")
+    @Ignore("Curently not supported by AAS4j")
     public void testFromFileOPCUA() throws IOException, DeserializationException, Exception {
-        assertEquals("src/test/resources/AASSimple.xml", new I4AASDeserializer());
+        //assertEquals("src/test/resources/AASSimple.xml", new I4AASDeserializer());
     }
 
 
     @Test
+    @Ignore("Curently not supported by AAS4j")
     public void testFromFileRDF() throws IOException, DeserializationException, Exception {
-        assertEquals("src/test/resources/AASFull.rdf", new io.adminshell.aas.v3.dataformat.rdf.Serializer());
+        // assertEquals("src/test/resources/AASFull.rdf", new org.eclipse.digitaltwin.aas4j.v3.dataformat.rdf.Serializer());
     }
 
 
@@ -68,9 +60,16 @@ public class EnvironmentSerializationManagerTest {
     }
 
 
-    private void assertEquals(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
-        AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
-        AssetAdministrationShellEnvironment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
+    private void assertEquals(String filePath, JsonDeserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
+        Environment expected = deserializer.read(new FileInputStream(new File(filePath)), Environment.class);
+        Environment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private void assertEquals(String filePath, XmlDeserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
+        Environment expected = deserializer.read(new File(filePath));
+        Environment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
         Assert.assertEquals(expected, actual);
     }
 }

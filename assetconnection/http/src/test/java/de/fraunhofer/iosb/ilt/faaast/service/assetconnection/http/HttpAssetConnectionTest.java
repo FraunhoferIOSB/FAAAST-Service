@@ -46,20 +46,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -78,6 +75,11 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLHandshakeException;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -99,7 +101,7 @@ public class HttpAssetConnectionTest {
     private static final String KEY_PASSWORD = "changeit";
     private static final String KEY_STORE_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE = "PKCS12";
-    private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+    private static final Reference REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
@@ -147,7 +149,8 @@ public class HttpAssetConnectionTest {
     @Test
     public void testValueProviderPropertySetValueWithTemplateJSONHttps() throws AssetConnectionException,
             ConfigurationInitializationException,
-            ValueFormatException {
+            ValueFormatException,
+            ResourceNotFoundException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -159,7 +162,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderWithHeaders() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderWithHeaders() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderHeaders(Map.of(), Map.of(), Map.of(), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"), false);
@@ -169,7 +172,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testValueProviderPropertyGetValueJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "5",
@@ -202,7 +206,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueWithQueryJSON() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testValueProviderPropertyGetValueWithQueryJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "{\"foo\" : [1, 2, 5]}",
@@ -212,7 +217,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertValueProviderPropertyWriteJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 null,
@@ -222,7 +227,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueWithTemplateJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testValueProviderPropertySetValueWithTemplateJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -234,7 +240,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonGET() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonGET()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -249,7 +256,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonGET2() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonGET2()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -268,7 +276,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException {
+    public void testSubscriptionProviderPropertyJsonPOST()
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
                 RequestMethod.GET,
@@ -284,7 +293,8 @@ public class HttpAssetConnectionTest {
 
     @Test
     public void testOperationProviderPropertyJsonPOSTNoParameters() throws AssetConnectionException,
-            ConfigurationInitializationException {
+            ConfigurationInitializationException,
+            ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -300,7 +310,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1} }}",
@@ -316,7 +327,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTOutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTOutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -332,7 +344,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInputOutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"in2\": ${in2} }}",
@@ -349,7 +362,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInoutputOnly() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOSTInoutputOnly()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"inout1\": ${inout1}}}",
@@ -365,7 +379,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
@@ -394,7 +408,7 @@ public class HttpAssetConnectionTest {
                                             Map<String, String> providerHeaders,
                                             Map<String, String> expectedHeaders,
                                             boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException {
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException {
         PropertyValue value = PropertyValue.of(Datatype.INT, "5");
         assertValueProviderPropertyJson(
                 value.getValue().getDataType(),
@@ -419,7 +433,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query, boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
                 RequestMethod.GET,
@@ -435,7 +449,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query, HttpAssetConnectionConfig config)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
                 RequestMethod.GET,
@@ -457,7 +471,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyWriteJson(PropertyValue newValue, String template, String expectedResponseBody, boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 newValue.getValue().getDataType(),
                 RequestMethod.PUT,
@@ -512,7 +526,7 @@ public class HttpAssetConnectionTest {
                                                  boolean useHttps,
                                                  Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         assertValueProviderPropertyJson(
                 datatype,
                 method,
@@ -535,7 +549,7 @@ public class HttpAssetConnectionTest {
                                                  HttpAssetConnectionConfig config,
                                                  Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -584,7 +598,7 @@ public class HttpAssetConnectionTest {
                                                         String payload,
                                                         boolean useHttps,
                                                         PropertyValue... expected)
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -667,16 +681,16 @@ public class HttpAssetConnectionTest {
                                                      Map<String, TypedValue> expectedOutput,
                                                      Map<String, TypedValue> expectedInoutput,
                                                      boolean useHttps)
-            throws AssetConnectionException, ConfigurationInitializationException {
+            throws AssetConnectionException, ConfigurationInitializationException, ResourceNotFoundException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         OperationVariable[] output = toOperationVariables(expectedOutput);
         doReturn(output)
                 .when(serviceContext)
                 .getOperationOutputVariables(REFERENCE);
         if (output != null) {
-            Stream.of(output).forEach(x -> doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+            Stream.of(output).forEach(LambdaExceptionHelper.rethrowConsumer(x -> doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
                     .when(serviceContext)
-                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue())));
+                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()))));
         }
 
         String path = String.format("/test/random/%s", "foo");
@@ -730,7 +744,7 @@ public class HttpAssetConnectionTest {
                         .value(new DefaultProperty.Builder()
                                 .idShort(x.getKey())
                                 .value(x.getValue().asString())
-                                .valueType(x.getValue().getDataType().getName())
+                                .valueType(x.getValue().getDataType().getAas4jDatatype())
                                 .build())
                         .build())
                 .toArray(OperationVariable[]::new);

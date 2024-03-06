@@ -1,0 +1,24 @@
+{
+    "@type": "ElementCreateEvent",
+    "element":
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
+            },
+    "value":
+            {
+                "modelType": "Property",
+                "value": "1",
+                "valueType": "xs:int",
+                "idShort": "PROPERTY_INT"
+            }
+}

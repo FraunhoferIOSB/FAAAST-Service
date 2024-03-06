@@ -6,22 +6,19 @@
                 "assetConnectionRetryInterval": 1000,
                 "validationOnLoad":
                         {
-                            "validateConstraints": true,
-                            "valueTypeValidation": true,
+                            "validateConstraints": false,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
                 "validationOnCreate":
                         {
                             "validateConstraints": false,
-                            "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
                 "validationOnUpdate":
                         {
                             "validateConstraints": false,
-                            "valueTypeValidation": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         }
@@ -31,7 +28,7 @@
             "@class": "de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnection",
             "valueProviders":
                     {
-                        "(Property)[ID_SHORT]Temperature":
+                        "[ModelRef](Property)Temperature":
                                 {
                                     "nodeId": "some.opc.ua.node.id"
                                 }

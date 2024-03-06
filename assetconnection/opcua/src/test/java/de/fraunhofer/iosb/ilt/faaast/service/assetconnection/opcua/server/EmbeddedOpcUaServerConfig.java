@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,13 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 
 
-/**
- *
- * @author jab
- */
 public class EmbeddedOpcUaServerConfig {
 
     private static final String DEFAULT_PATH = "/test";

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
+import com.google.common.base.Objects;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
@@ -25,51 +26,56 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.AssetKind;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.EntityType;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import opc.i4aas.AASAssetKindDataType;
-import opc.i4aas.AASEntityTypeDataType;
-import opc.i4aas.AASIdentifierTypeDataType;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
-import opc.i4aas.AASModelingKindDataType;
-import opc.i4aas.AASValueTypeDataType;
+import opc.i4aas.datatypes.AASAssetKindDataType;
+import opc.i4aas.datatypes.AASDataTypeDefXsd;
+import opc.i4aas.datatypes.AASDirectionDataType;
+import opc.i4aas.datatypes.AASEntityTypeDataType;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.datatypes.AASKeyTypesDataType;
+import opc.i4aas.datatypes.AASModellingKindDataType;
+import opc.i4aas.datatypes.AASQualifierKindDataType;
+import opc.i4aas.datatypes.AASStateOfEventDataType;
+import opc.i4aas.datatypes.AASSubmodelElementsDataType;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Direction;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,25 +87,25 @@ public class ValueConverter {
 
     private static final String UNKNOWN_KEY_TYPE = "unknown KeyType: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
-    private static final ArrayList<DatatypeMapper> typeList;
-    private static final Map<ModelingKind, AASModelingKindDataType> MODELING_KIND_MAP;
-    private static final Map<IdentifierType, AASIdentifierTypeDataType> IDENTIFIER_TYPE_MAP;
+    private static final List<DatatypeMapper> typeList;
+    private static final Map<ModellingKind, AASModellingKindDataType> MODELING_KIND_MAP;
+    private static final Map<QualifierKind, AASQualifierKindDataType> QUALIFIER_KIND_MAP;
     private static final Map<AssetKind, AASAssetKindDataType> ASSET_KIND_MAP;
-    private static final ArrayList<TypeMapper<EntityType, AASEntityTypeDataType>> ENTITY_TYPE_LIST;
-    private static final ArrayList<TypeMapper<KeyElements, AASKeyElementsDataType>> KEY_ELEMENTS_LIST;
-    private static final ArrayList<TypeMapper<KeyType, AASKeyTypeDataType>> KEY_TYPE_LIST;
+    private static final List<TypeMapper<EntityType, AASEntityTypeDataType>> ENTITY_TYPE_LIST;
+    private static final List<TypeMapper<KeyTypes, AASKeyTypesDataType>> KEY_ELEMENTS_LIST;
+    private static final List<TypeMapper<Direction, AASDirectionDataType>> DIRECTION_LIST;
+    private static final List<TypeMapper<StateOfEvent, AASStateOfEventDataType>> STATE_OF_EVENT_LIST;
+    private static final List<TypeMapper<AasSubmodelElements, AASSubmodelElementsDataType>> SUBMODEL_ELEMENTS_DATATYPE;
 
     private static class DatatypeMapper {
-        private final String typeString;
         private final NodeId typeNode;
-        private final AASValueTypeDataType valueType;
         private final Datatype datatype;
+        private final AASDataTypeDefXsd dataTypeDefXsd;
 
-        public DatatypeMapper(String typeString, NodeId typeNode, AASValueTypeDataType valueType, Datatype datatype) {
-            this.typeString = typeString;
+        public DatatypeMapper(NodeId typeNode, Datatype datatype, AASDataTypeDefXsd dataTypeDefXsd) {
             this.typeNode = typeNode;
-            this.valueType = valueType;
             this.datatype = datatype;
+            this.dataTypeDefXsd = dataTypeDefXsd;
         }
     }
 
@@ -115,33 +121,31 @@ public class ValueConverter {
 
     static {
         typeList = new ArrayList<>();
-        typeList.add(new DatatypeMapper("bytestring", Identifiers.ByteString, AASValueTypeDataType.ByteString, null));
-        typeList.add(new DatatypeMapper("boolean", Identifiers.Boolean, AASValueTypeDataType.Boolean, Datatype.BOOLEAN));
-        typeList.add(new DatatypeMapper("datetime", Identifiers.DateTime, AASValueTypeDataType.DateTime, Datatype.DATE_TIME));
-        typeList.add(new DatatypeMapper("decimal", Identifiers.Decimal, AASValueTypeDataType.Int64, Datatype.DECIMAL));
-        typeList.add(new DatatypeMapper("integer", Identifiers.Integer, AASValueTypeDataType.Int64, Datatype.INTEGER));
-        typeList.add(new DatatypeMapper("int", Identifiers.Int32, AASValueTypeDataType.Int32, Datatype.INT));
-        typeList.add(new DatatypeMapper("unsignedint", Identifiers.UInt32, AASValueTypeDataType.UInt32, null));
-        typeList.add(new DatatypeMapper("long", Identifiers.Int64, AASValueTypeDataType.Int64, Datatype.LONG));
-        typeList.add(new DatatypeMapper("unsignedlong", Identifiers.UInt64, AASValueTypeDataType.UInt64, null));
-        typeList.add(new DatatypeMapper("short", Identifiers.Int16, AASValueTypeDataType.Int16, Datatype.SHORT));
-        typeList.add(new DatatypeMapper("unsignedshort", Identifiers.UInt16, AASValueTypeDataType.UInt16, null));
-        typeList.add(new DatatypeMapper("byte", Identifiers.SByte, AASValueTypeDataType.SByte, Datatype.BYTE));
-        typeList.add(new DatatypeMapper("unsignedbyte", Identifiers.Byte, AASValueTypeDataType.Byte, null));
-        typeList.add(new DatatypeMapper("double", Identifiers.Double, AASValueTypeDataType.Double, Datatype.DOUBLE));
-        typeList.add(new DatatypeMapper("float", Identifiers.Float, AASValueTypeDataType.Float, Datatype.FLOAT));
-        typeList.add(new DatatypeMapper("langstring", Identifiers.LocalizedText, AASValueTypeDataType.LocalizedText, null));
-        typeList.add(new DatatypeMapper("string", Identifiers.String, AASValueTypeDataType.String, Datatype.STRING));
-        typeList.add(new DatatypeMapper("time", Identifiers.UtcTime, AASValueTypeDataType.UtcTime, null));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, null, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
+        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
+        typeList.add(new DatatypeMapper(Identifiers.Decimal, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
+        typeList.add(new DatatypeMapper(Identifiers.Integer, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
+        typeList.add(new DatatypeMapper(Identifiers.UInt32, null, AASDataTypeDefXsd.UnsignedInt));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, null, AASDataTypeDefXsd.UnsignedLong));
+        typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
+        typeList.add(new DatatypeMapper(Identifiers.UInt16, null, AASDataTypeDefXsd.UnsignedShort));
+        typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
+        typeList.add(new DatatypeMapper(Identifiers.Byte, null, AASDataTypeDefXsd.UnsignedByte));
+        typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
+        typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
 
-        MODELING_KIND_MAP = new EnumMap<>(ModelingKind.class);
-        MODELING_KIND_MAP.put(ModelingKind.INSTANCE, AASModelingKindDataType.Instance);
-        MODELING_KIND_MAP.put(ModelingKind.TEMPLATE, AASModelingKindDataType.Template);
+        MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
+        MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
+        MODELING_KIND_MAP.put(ModellingKind.TEMPLATE, AASModellingKindDataType.Template);
 
-        IDENTIFIER_TYPE_MAP = new EnumMap<>(IdentifierType.class);
-        IDENTIFIER_TYPE_MAP.put(IdentifierType.IRDI, AASIdentifierTypeDataType.IRDI);
-        IDENTIFIER_TYPE_MAP.put(IdentifierType.IRI, AASIdentifierTypeDataType.IRI);
-        IDENTIFIER_TYPE_MAP.put(IdentifierType.CUSTOM, AASIdentifierTypeDataType.Custom);
+        QUALIFIER_KIND_MAP = new EnumMap<>(QualifierKind.class);
+        QUALIFIER_KIND_MAP.put(QualifierKind.CONCEPT_QUALIFIER, AASQualifierKindDataType.ConceptQualifier);
+        QUALIFIER_KIND_MAP.put(QualifierKind.TEMPLATE_QUALIFIER, AASQualifierKindDataType.TemplateQualifier);
+        QUALIFIER_KIND_MAP.put(QualifierKind.VALUE_QUALIFIER, AASQualifierKindDataType.ValueQualifier);
 
         ASSET_KIND_MAP = new EnumMap<>(AssetKind.class);
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKindDataType.Type);
@@ -151,39 +155,58 @@ public class ValueConverter {
         ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.CO_MANAGED_ENTITY, AASEntityTypeDataType.CoManagedEntity));
         ENTITY_TYPE_LIST.add(new TypeMapper<>(EntityType.SELF_MANAGED_ENTITY, AASEntityTypeDataType.SelfManagedEntity));
 
-        // BASIC_EVENT not available in AASKeyElementsDataType
         KEY_ELEMENTS_LIST = new ArrayList<>();
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.ACCESS_PERMISSION_RULE, AASKeyElementsDataType.AccessPermissionRule));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT, AASKeyElementsDataType.AnnotatedRelationshipElement));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.ASSET, AASKeyElementsDataType.Asset));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.ASSET_ADMINISTRATION_SHELL, AASKeyElementsDataType.AssetAdministrationShell));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.BLOB, AASKeyElementsDataType.Blob));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.CAPABILITY, AASKeyElementsDataType.Capability));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.CONCEPT_DESCRIPTION, AASKeyElementsDataType.ConceptDescription));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.CONCEPT_DICTIONARY, AASKeyElementsDataType.ConceptDictionary));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.DATA_ELEMENT, AASKeyElementsDataType.DataElement));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.ENTITY, AASKeyElementsDataType.Entity));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.EVENT, AASKeyElementsDataType.Event));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.FILE, AASKeyElementsDataType.File));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.FRAGMENT_REFERENCE, AASKeyElementsDataType.FragmentReference));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.GLOBAL_REFERENCE, AASKeyElementsDataType.GlobalReference));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.MULTI_LANGUAGE_PROPERTY, AASKeyElementsDataType.MultiLanguageProperty));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.OPERATION, AASKeyElementsDataType.Operation));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.PROPERTY, AASKeyElementsDataType.Property));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.RANGE, AASKeyElementsDataType.Range));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.REFERENCE_ELEMENT, AASKeyElementsDataType.ReferenceElement));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.RELATIONSHIP_ELEMENT, AASKeyElementsDataType.RelationshipElement));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.SUBMODEL, AASKeyElementsDataType.Submodel));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.SUBMODEL_ELEMENT, AASKeyElementsDataType.SubmodelElement));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.SUBMODEL_ELEMENT_COLLECTION, AASKeyElementsDataType.SubmodelElementCollection));
-        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyElements.VIEW, AASKeyElementsDataType.View));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT, AASKeyTypesDataType.AnnotatedRelationshipElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.ASSET_ADMINISTRATION_SHELL, AASKeyTypesDataType.AssetAdministrationShell));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.BASIC_EVENT_ELEMENT, AASKeyTypesDataType.BasicEventElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.BLOB, AASKeyTypesDataType.Blob));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.CAPABILITY, AASKeyTypesDataType.Capability));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.CONCEPT_DESCRIPTION, AASKeyTypesDataType.ConceptDescription));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.DATA_ELEMENT, AASKeyTypesDataType.DataElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.ENTITY, AASKeyTypesDataType.Entity));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.EVENT_ELEMENT, AASKeyTypesDataType.EventElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.FILE, AASKeyTypesDataType.File));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.FRAGMENT_REFERENCE, AASKeyTypesDataType.FragmentReference));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.GLOBAL_REFERENCE, AASKeyTypesDataType.GlobalReference));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.IDENTIFIABLE, AASKeyTypesDataType.Identifiable));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.MULTI_LANGUAGE_PROPERTY, AASKeyTypesDataType.MultiLanguageProperty));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.OPERATION, AASKeyTypesDataType.Operation));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.PROPERTY, AASKeyTypesDataType.Property));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.RANGE, AASKeyTypesDataType.Range));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.REFERABLE, AASKeyTypesDataType.Referable));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.REFERENCE_ELEMENT, AASKeyTypesDataType.ReferenceElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.RELATIONSHIP_ELEMENT, AASKeyTypesDataType.RelationshipElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL, AASKeyTypesDataType.Submodel));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL_ELEMENT, AASKeyTypesDataType.SubmodelElement));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL_ELEMENT_COLLECTION, AASKeyTypesDataType.SubmodelElementCollection));
+        KEY_ELEMENTS_LIST.add(new TypeMapper<>(KeyTypes.SUBMODEL_ELEMENT_LIST, AASKeyTypesDataType.SubmodelElementList));
 
-        KEY_TYPE_LIST = new ArrayList<>();
-        KEY_TYPE_LIST.add(new TypeMapper<>(KeyType.CUSTOM, AASKeyTypeDataType.Custom));
-        KEY_TYPE_LIST.add(new TypeMapper<>(KeyType.FRAGMENT_ID, AASKeyTypeDataType.FragmentId));
-        KEY_TYPE_LIST.add(new TypeMapper<>(KeyType.ID_SHORT, AASKeyTypeDataType.IdShort));
-        KEY_TYPE_LIST.add(new TypeMapper<>(KeyType.IRDI, AASKeyTypeDataType.IRDI));
-        KEY_TYPE_LIST.add(new TypeMapper<>(KeyType.IRI, AASKeyTypeDataType.IRI));
+        DIRECTION_LIST = new ArrayList<>();
+        DIRECTION_LIST.add(new TypeMapper<>(Direction.INPUT, AASDirectionDataType.Input));
+        DIRECTION_LIST.add(new TypeMapper<>(Direction.OUTPUT, AASDirectionDataType.Output));
+
+        STATE_OF_EVENT_LIST = new ArrayList<>();
+        STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.ON, AASStateOfEventDataType.On));
+        STATE_OF_EVENT_LIST.add(new TypeMapper<>(StateOfEvent.OFF, AASStateOfEventDataType.Off));
+
+        SUBMODEL_ELEMENTS_DATATYPE = new ArrayList<>();
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.ANNOTATED_RELATIONSHIP_ELEMENT, AASSubmodelElementsDataType.AnnotatedRelationShipElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.BASIC_EVENT_ELEMENT, AASSubmodelElementsDataType.BasicEventElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.BLOB, AASSubmodelElementsDataType.Blob));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.CAPABILITY, AASSubmodelElementsDataType.Capability));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.DATA_ELEMENT, AASSubmodelElementsDataType.DataElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.ENTITY, AASSubmodelElementsDataType.Entity));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.EVENT_ELEMENT, AASSubmodelElementsDataType.EventElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.FILE, AASSubmodelElementsDataType.File));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.MULTI_LANGUAGE_PROPERTY, AASSubmodelElementsDataType.MultiLanguageProperty));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.OPERATION, AASSubmodelElementsDataType.Operation));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.PROPERTY, AASSubmodelElementsDataType.Property));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.RANGE, AASSubmodelElementsDataType.Range));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.REFERENCE_ELEMENT, AASSubmodelElementsDataType.ReferenceElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.RELATIONSHIP_ELEMENT, AASSubmodelElementsDataType.RelationshipElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.SUBMODEL_ELEMENT, AASSubmodelElementsDataType.SubmodelElement));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION, AASSubmodelElementsDataType.SubmodelElementCollection));
+        SUBMODEL_ELEMENTS_DATATYPE.add(new TypeMapper<>(AasSubmodelElements.SUBMODEL_ELEMENT_LIST, AASSubmodelElementsDataType.SubmodelElementList));
     }
 
     /**
@@ -200,10 +223,12 @@ public class ValueConverter {
      * @param valueType The desired valueType
      * @return The corresponding OPC UA type (NodeId)
      */
-    public static NodeId convertValueTypeStringToNodeId(String valueType) {
+    public static NodeId convertValueTypeStringToNodeId(DataTypeDefXsd valueType) {
         NodeId retval;
 
-        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(valueType)).findAny();
+        Optional<DatatypeMapper> rv = typeList.stream()
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), valueType))
+                .findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
             retval = NodeId.NULL;
@@ -217,44 +242,22 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given String to the corresponding AASValueTypeDataType
-     *
-     * @param value The desired value.
-     * @return The corresponding AASValueTypeDataType
-     */
-    public static AASValueTypeDataType stringToValueType(String value) {
-        AASValueTypeDataType retval = null;
-
-        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(value)).findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("stringToValueType: unknown value: {}", value);
-            throw new IllegalArgumentException("unknown value: " + value);
-        }
-        else {
-            retval = rv.get().valueType;
-        }
-
-        return retval;
-    }
-
-
-    /**
-     * Converts the given datatype to the corresponding AASValueTypeDataType.
+     * Converts the given datatype to the corresponding AASDataTypeDefXsd.
      *
      * @param type The desired datatype
-     * @return The corresponding AASValueTypeDataType
+     * @return The corresponding AASDataTypeDefXsd
      */
-    public static AASValueTypeDataType datatypeToValueType(Datatype type) {
-        AASValueTypeDataType retval;
+    public static AASDataTypeDefXsd datatypeToOpcDataType(Datatype type) {
+        AASDataTypeDefXsd retval;
 
         Ensure.requireNonNull(type, "type must not be null");
         Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
         if (rv.isEmpty()) {
-            LOGGER.warn("datatypeToValueType: unknown type: {}", type);
+            LOGGER.warn("datatypeToOpcDataType: unknown type: {}", type);
             throw new IllegalArgumentException("unknown type: " + type);
         }
         else {
-            retval = rv.get().valueType;
+            retval = rv.get().dataTypeDefXsd;
         }
 
         return retval;
@@ -262,24 +265,48 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
+     * Converts the given DataTypeDefXsd to the corresponding AASDataTypeDefXsd
      *
-     * @param value the desired ModelingKind
-     * @return The corresponding AASModelingKindDataType
+     * @param value The desired value.
+     * @return The corresponding AASDataTypeDefXsd
      */
-    public static AASModelingKindDataType convertModelingKind(ModelingKind value) {
-        AASModelingKindDataType retval;
+    public static AASDataTypeDefXsd convertDataTypeDefXsd(DataTypeDefXsd value) {
+        AASDataTypeDefXsd retval = null;
+
+        Optional<DatatypeMapper> rv = typeList.stream()
+                .filter(t -> (t.datatype != null) && Objects.equal(t.datatype.getAas4jDatatype(), value))
+                .findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertDataTypeDefXsd: unknown value: {}", value);
+            throw new IllegalArgumentException("unknown value: " + value);
+        }
+        else {
+            retval = rv.get().dataTypeDefXsd;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given ModellingKind to the corresponding AASModellingKindDataType.
+     *
+     * @param value the desired ModellingKind
+     * @return The corresponding AASModellingKindDataType
+     */
+    public static AASModellingKindDataType convertModellingKind(ModellingKind value) {
+        AASModellingKindDataType retval;
 
         if (value == null) {
-            LOGGER.warn("convertModelingKind: value == null");
-            retval = AASModelingKindDataType.Instance;
+            LOGGER.warn("convertModellingKind: value == null");
+            retval = AASModellingKindDataType.Instance;
         }
         else if (MODELING_KIND_MAP.containsKey(value)) {
             retval = MODELING_KIND_MAP.get(value);
         }
         else {
-            LOGGER.warn("convertModelingKind: unknown value {}", value);
-            throw new IllegalArgumentException("unknown ModelingKind: " + value);
+            LOGGER.warn("convertModellingKind: unknown value {}", value);
+            throw new IllegalArgumentException("unknown ModellingKind: " + value);
         }
 
         return retval;
@@ -287,20 +314,26 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
+     * Converts the given QualifierKind to the corresponding AASQualifierKindDataType.
      *
-     * @param value The desired IdentifierType
-     * @return The corresponding AASIdentifierTypeDataType.
+     * @param value the desired QualifierKind
+     * @return The corresponding AASQualifierKindDataType
      */
-    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
-        AASIdentifierTypeDataType retval;
-        if (IDENTIFIER_TYPE_MAP.containsKey(value)) {
-            retval = IDENTIFIER_TYPE_MAP.get(value);
+    public static AASQualifierKindDataType convertQualifierKind(QualifierKind value) {
+        AASQualifierKindDataType retval;
+
+        if (value == null) {
+            LOGGER.warn("convertQualifierKind: value == null");
+            retval = null;
+        }
+        else if (QUALIFIER_KIND_MAP.containsKey(value)) {
+            retval = QUALIFIER_KIND_MAP.get(value);
         }
         else {
-            LOGGER.warn("convertIdentifierType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown IdentifierType: " + value);
+            LOGGER.warn("convertQualifierKind: unknown value {}", value);
+            throw new IllegalArgumentException("unknown QualifierKind: " + value);
         }
+
         return retval;
     }
 
@@ -371,11 +404,11 @@ public class ValueConverter {
      * @param value The desired AAS Lang String
      * @return The corresponding LocalizedText array
      */
-    public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangString> value) {
+    public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangStringTextType> value) {
         LocalizedText[] retval;
 
         ArrayList<LocalizedText> arr = new ArrayList<>();
-        value.forEach(ls -> arr.add(new LocalizedText(ls.getValue(), ls.getLanguage())));
+        value.forEach(ls -> arr.add(new LocalizedText(ls.getText(), ls.getLanguage())));
 
         retval = arr.toArray(LocalizedText[]::new);
 
@@ -389,13 +422,13 @@ public class ValueConverter {
      * @param value The desired Lang String Set
      * @return The corresponding LocalizedText array
      */
-    public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
+    public static List<LangStringTextType> getLangStringSetFromLocalizedText(LocalizedText[] value) {
         Ensure.requireNonNull(value, "value must not be null");
 
-        List<LangString> retval = new ArrayList<>();
+        List<LangStringTextType> retval = new ArrayList<>();
 
         for (LocalizedText lt: value) {
-            retval.add(new LangString(lt.getText(), lt.getLocaleId()));
+            retval.add(new DefaultLangStringTextType.Builder().text(lt.getText()).language(lt.getLocaleId()).build());
         }
 
         return retval;
@@ -403,17 +436,17 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+     * Converts the given KeyTypes value to the corresponding AASKeyTypesDataType
      *
-     * @param value The desired KeyElements value.
-     * @return The converted AASKeyElementsDataType.
+     * @param value The desired KeyTypes value.
+     * @return The converted AASKeyTypesDataType.
      */
-    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyElements value) {
-        AASKeyElementsDataType retval = null;
+    public static AASKeyTypesDataType getAasKeyTypesDataType(KeyTypes value) {
+        AASKeyTypesDataType retval = null;
         var rv = KEY_ELEMENTS_LIST.stream().filter(m -> m.aasObject == value).findAny();
         if (rv.isEmpty()) {
-            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
+            LOGGER.warn("getAasKeyTypesDataType: unknown value {}", value);
+            throw new IllegalArgumentException("unknown KeyTypesDataType: " + value);
         }
         else {
             retval = rv.get().opcuaObject;
@@ -424,62 +457,22 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
+     * Converts the given AASKeyTypesDataType to the corresponding KeyTypes
      *
-     * @param value The desired AASKeyElementsDataType
-     * @return The corresponding KeyElements type
+     * @param value The desired AASKeyTypesDataType
+     * @return The corresponding KeyTypes type
      */
-    public static KeyElements getKeyElements(AASKeyElementsDataType value) {
-        KeyElements retval = null;
+    public static KeyTypes getKeyTypes(AASKeyTypesDataType value) {
+        KeyTypes retval = null;
         var rv = KEY_ELEMENTS_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
         if (rv.isEmpty()) {
-            LOGGER.warn("getAasKeyElementsDataType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyElementsDataType: " + value);
+            LOGGER.warn("getAasKeyTypesDataType: unknown value {}", value);
+            throw new IllegalArgumentException("unknown KeyTypesDataType: " + value);
         }
         else {
             retval = rv.get().aasObject;
         }
 
-        return retval;
-    }
-
-
-    /**
-     * Gets the corresponding AASKeyTypeDataType from the given KeyType.
-     *
-     * @param value The desired KeyType
-     * @return The corresponding AASKeyTypeDataType
-     */
-    public static AASKeyTypeDataType getAasKeyType(KeyType value) {
-        AASKeyTypeDataType retval;
-        var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("getAasKeyType: unknown value {}", value);
-            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-        }
-        else {
-            retval = rv.get().opcuaObject;
-        }
-        return retval;
-    }
-
-
-    /**
-     * Gets the corresponding KeyType from the given AASKeyTypeDataType.
-     *
-     * @param value The desired AASKeyTypeDataType
-     * @return The corresponding KeyType
-     */
-    public static KeyType getKeyType(AASKeyTypeDataType value) {
-        KeyType retval;
-        var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
-        if (rv.isEmpty()) {
-            LOGGER.warn("getKeyType: unknown value {}", value);
-            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
-        }
-        else {
-            retval = rv.get().aasObject;
-        }
         return retval;
     }
 
@@ -497,7 +490,7 @@ public class ValueConverter {
 
         List<Key> keys = new ArrayList<>();
         for (AASKeyDataType key: value) {
-            keys.add(new DefaultKey.Builder().type(getKeyElements(key.getType())).idType(getKeyType(key.getIdType())).value(key.getValue()).build());
+            keys.add(new DefaultKey.Builder().type(getKeyTypes(key.getType())).value(key.getValue()).build());
         }
         retval = new DefaultReference.Builder().keys(keys).build();
 
@@ -555,10 +548,10 @@ public class ValueConverter {
             case MULTI_LANGUAGE_VALUE: {
                 MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
                 if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                    aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                    aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
                 }
                 else if (variant.isEmpty()) {
-                    aasMultiProp.setValues(new ArrayList<>());
+                    aasMultiProp.setValue(new ArrayList<>());
                 }
                 break;
             }
@@ -594,7 +587,7 @@ public class ValueConverter {
             }
             case ENTITY_GLOBAL_ASSET_ID: {
                 Entity aasEntity = (Entity) submodelElement;
-                aasEntity.setGlobalAssetId(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                aasEntity.setGlobalAssetId(convertVariantValueToString(variant));
                 break;
             }
             case ENTITY_TYPE: {
@@ -687,7 +680,7 @@ public class ValueConverter {
         Variant retval;
 
         if (type == SubmodelElementData.Type.PROPERTY_VALUE) {
-            retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
+            retval = createVariant(ElementValueMapper.toValue(submodelElement, PropertyValue.class).getValue().getValue());
         }
         else {
             LOGGER.warn("getSubmodelElementValue: SubmodelElement {}: unkown or invalid type {}", submodelElement.getIdShort(), type);
@@ -704,8 +697,8 @@ public class ValueConverter {
      * @param value The input Java date time
      * @return The OPC UA date time
      */
-    public static DateTime createDateTime(ZonedDateTime value) {
-        return new DateTime(GregorianCalendar.from(value));
+    public static DateTime createDateTime(OffsetDateTime value) {
+        return DateTime.fromInstant(value.toInstant());
     }
 
 
@@ -716,7 +709,7 @@ public class ValueConverter {
      * @return The OPC UA date time
      */
     public static DateTime createDateTime(LocalDateTime value) {
-        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+        return DateTime.fromInstant(value.atZone(OffsetDateTime.now(ZoneId.systemDefault()).getOffset()).toInstant());
     }
 
 
@@ -725,8 +718,7 @@ public class ValueConverter {
         if (variant.getValue() != null) {
             // special treatment for DateTime
             if (variant.getValue() instanceof DateTime) {
-                //DateTime.
-                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+                retval = OffsetDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();
@@ -743,9 +735,9 @@ public class ValueConverter {
         if (value == null) {
             retval = Variant.NULL;
         }
-        else if (value instanceof ZonedDateTime) {
+        else if (value instanceof OffsetDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((ZonedDateTime) value));
+            retval = new Variant(createDateTime((OffsetDateTime) value));
         }
         else if (value instanceof LocalDateTime) {
             // special treatment for DateTime
@@ -768,8 +760,72 @@ public class ValueConverter {
             retval = Long.valueOf(retval.toString());
         }
         else if (typedValue instanceof DateTimeValue) {
-            retval = ValueConverter.createDateTime((ZonedDateTime) retval);
+            retval = ValueConverter.createDateTime((OffsetDateTime) retval);
         }
         return retval;
     }
+
+
+    /**
+     * Converts the given Direction value to the corresponding AASDirectionDataType
+     *
+     * @param value The desired Direction value.
+     * @return The converted AASDirectionDataType.
+     */
+    public static AASDirectionDataType getAasDirectionDataType(Direction value) {
+        AASDirectionDataType retval = null;
+        var rv = DIRECTION_LIST.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("getAasDirectionDataType: unknown value {}", value);
+            throw new IllegalArgumentException("unknown Direction: " + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given StateOfEvent to the corresponding AASStateOfEventDataType.
+     *
+     * @param value The desired StateOfEvent
+     * @return The corresponding AASStateOfEventDataType
+     */
+    public static AASStateOfEventDataType getAasStateOfEventType(StateOfEvent value) {
+        AASStateOfEventDataType retval;
+        var rv = STATE_OF_EVENT_LIST.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("getAasStateOfEvent: unknown value {}", value);
+            throw new IllegalArgumentException("unknown StateOfEvent: " + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given StateOfEvent to the corresponding AASStateOfEventDataType.
+     *
+     * @param value The desired StateOfEvent
+     * @return The corresponding AASStateOfEventDataType
+     */
+    public static AASSubmodelElementsDataType getAasSubmodelElementsType(AasSubmodelElements value) {
+        AASSubmodelElementsDataType retval;
+        var rv = SUBMODEL_ELEMENTS_DATATYPE.stream().filter(m -> m.aasObject == value).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("getAasSubmodelElementsType: unknown value {}", value);
+            throw new IllegalArgumentException("unknown StateOfEvent: " + value);
+        }
+        else {
+            retval = rv.get().opcuaObject;
+        }
+
+        return retval;
+    }
+
 }

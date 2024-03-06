@@ -19,15 +19,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,9 @@ public class ElementValueMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementValueMapper.class);
     private static Map<Class<? extends SubmodelElement>, ? extends DataValueMapper> mappers;
+
+    private ElementValueMapper() {}
+
 
     private static void init() {
         if (mappers == null) {
@@ -75,25 +79,56 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
      * {@link ElementValue} instance.
      *
      * @param submodelElement for which a ElementValue should be created
-     * @param <I> type of the input SubmodelElement
-     * @param <O> type of the output ElementValue
+     * @param <T> type of the input SubmodelElement
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
      * @throws ValueMappingException is no mapper for type of submodelElement can be found
      * @throws ValueMappingException if mapping fails
      */
-    public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) throws ValueMappingException {
+    public static <T extends SubmodelElement> ElementValue toValue(T submodelElement) throws ValueMappingException {
         init();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
         if (!mappers.containsKey(aasInterface)) {
             throw new ValueMappingException("no mapper defined for AAS type " + aasInterface.getSimpleName());
         }
-        return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+        return mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+    }
+
+
+    /**
+     * Extracts the value of a {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement} into a corresponding
+     * {@link ElementValue} instance.
+     *
+     *
+     * @param submodelElement for which a ElementValue should be created
+     * @param <I> type of the input SubmodelElement
+     * @param <O> type of the output ElementValue
+     * @param type expected result type
+     * @return a value representation of the submodel element
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws ValueMappingException is no mapper for type of submodelElement can be found
+     * @throws ValueMappingException if mapping fails
+     */
+    public static <I extends SubmodelElement, O extends ElementValue> O toValue(I submodelElement, Class<O> type) throws ValueMappingException {
+        init();
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(type, "type must be non-null");
+        Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
+        if (!mappers.containsKey(aasInterface)) {
+            throw new ValueMappingException(String.format("no mapper defined for AAS type %s", aasInterface.getSimpleName()));
+        }
+        ElementValue result = mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
+        if (Objects.nonNull(result) && !type.isAssignableFrom(result.getClass())) {
+            throw new ValueMappingException(String.format("type mismatch (expected: %s but found: %s",
+                    type.getSimpleName(),
+                    result.getClass().getSimpleName()));
+        }
+        return (O) result;
     }
 
 
@@ -146,20 +181,20 @@ public class ElementValueMapper {
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement
-     * @param <I> type of the input/output SubmodelElement
-     * @param <O> type of the input ElementValue
+     * @param <T> type of the input/output SubmodelElement
      * @return the SubmodelElement instance with the ElementValue values set
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if setting the value fails
      * @throws IllegalArgumentException if submodelElement is null
      * @throws IllegalArgumentException is no mapper for type of submodelElement
      */
-    public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
+    public static <T extends SubmodelElement> T setValue(T submodelElement, ElementValue elementValue) throws ValueMappingException {
         init();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Ensure.requireNonNull(elementValue, "elementValue must be non-null");
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
-        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
+        return (T) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
     }
 
 }

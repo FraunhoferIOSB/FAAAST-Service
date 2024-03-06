@@ -17,15 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.SubmodelElementCollection} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}.
  */
 public class SubmodelElementCollectionValueMapper implements DataValueMapper<SubmodelElementCollection, SubmodelElementCollectionValue> {
@@ -36,8 +36,8 @@ public class SubmodelElementCollectionValueMapper implements DataValueMapper<Sub
             return null;
         }
         SubmodelElementCollectionValue value = SubmodelElementCollectionValue.builder().build();
-        if (submodelElement.getValues() != null && submodelElement.getValues().stream().noneMatch(Objects::isNull)) {
-            value.setValues(submodelElement.getValues().stream().collect(Collectors.toMap(
+        if (submodelElement.getValue() != null && submodelElement.getValue().stream().noneMatch(Objects::isNull)) {
+            value.setValues(submodelElement.getValue().stream().collect(Collectors.toMap(
                     Referable::getIdShort,
                     LambdaExceptionHelper.rethrowFunction(ElementValueMapper::toValue))));
         }
@@ -49,10 +49,10 @@ public class SubmodelElementCollectionValueMapper implements DataValueMapper<Sub
 
 
     @Override
-    public SubmodelElementCollection setValue(SubmodelElementCollection submodelElement, SubmodelElementCollectionValue value) {
+    public SubmodelElementCollection setValue(SubmodelElementCollection submodelElement, SubmodelElementCollectionValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
-        if (submodelElement.getValues() != null) {
-            for (SubmodelElement element: submodelElement.getValues()) {
+        if (submodelElement.getValue() != null) {
+            for (SubmodelElement element: submodelElement.getValue()) {
                 if (element != null && value.getValues() != null && value.getValues().containsKey(element.getIdShort())) {
                     ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
                 }

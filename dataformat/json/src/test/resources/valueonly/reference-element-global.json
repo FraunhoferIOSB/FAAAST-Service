@@ -1,0 +1,11 @@
+{
+    "referenceGlobal": {
+        "type": "ExternalReference",
+        "keys": [
+            {
+                "type": "GlobalReference",
+                "value": "http://customer.com/demo/aas/1/1/1234859590"
+            }
+        ]
+    }
+}

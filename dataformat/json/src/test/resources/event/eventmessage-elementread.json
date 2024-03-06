@@ -1,0 +1,24 @@
+{
+    "@type": "ElementReadEvent",
+    "element":
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
+            },
+    "value":
+            {
+                "modelType": "Property",
+                "value": "example value",
+                "valueType": "xs:string",
+                "idShort": "PROPERTY_STRING"
+            }
+}

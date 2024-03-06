@@ -14,73 +14,54 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
-import io.adminshell.aas.v3.model.AccessControl;
-import io.adminshell.aas.v3.model.AccessControlPolicyPoints;
-import io.adminshell.aas.v3.model.AccessPermissionRule;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.Asset;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.BasicEvent;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.BlobCertificate;
-import io.adminshell.aas.v3.model.Capability;
-import io.adminshell.aas.v3.model.Certificate;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Constraint;
-import io.adminshell.aas.v3.model.DataSpecificationContent;
-import io.adminshell.aas.v3.model.DataSpecificationIEC61360;
-import io.adminshell.aas.v3.model.DataSpecificationPhysicalUnit;
-import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.Event;
-import io.adminshell.aas.v3.model.EventElement;
-import io.adminshell.aas.v3.model.EventMessage;
-import io.adminshell.aas.v3.model.Extension;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Formula;
-import io.adminshell.aas.v3.model.HasExtensions;
-import io.adminshell.aas.v3.model.HasKind;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.ObjectAttributes;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Permission;
-import io.adminshell.aas.v3.model.PermissionsPerObject;
-import io.adminshell.aas.v3.model.PolicyAdministrationPoint;
-import io.adminshell.aas.v3.model.PolicyDecisionPoint;
-import io.adminshell.aas.v3.model.PolicyEnforcementPoints;
-import io.adminshell.aas.v3.model.PolicyInformationPoints;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.Security;
-import io.adminshell.aas.v3.model.SubjectAttributes;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.ValueList;
-import io.adminshell.aas.v3.model.ValueReferencePair;
-import io.adminshell.aas.v3.model.View;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventPayload;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,40 +84,25 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(Constraint constraint) {
-        if (constraint == null) {
-            return;
-        }
-        Class<?> type = constraint.getClass();
-        if (Qualifier.class.isAssignableFrom(type)) {
-            visit((Qualifier) constraint);
-        }
-        else if (Formula.class.isAssignableFrom(type)) {
-            visit((Formula) constraint);
-        }
-    }
-
-
-    @Override
     public void visit(DataSpecificationContent dataSpecificationContent) {
         if (dataSpecificationContent == null) {
             return;
         }
         Class<?> type = dataSpecificationContent.getClass();
-        if (DataSpecificationIEC61360.class.isAssignableFrom(type)) {
-            visit((DataSpecificationIEC61360) dataSpecificationContent);
+        if (DataSpecificationIec61360.class.isAssignableFrom(type)) {
+            visit((DataSpecificationIec61360) dataSpecificationContent);
         }
     }
 
 
     @Override
-    public void visit(Event event) {
+    public void visit(EventElement event) {
         if (event == null) {
             return;
         }
         Class<?> type = event.getClass();
-        if (BasicEvent.class.isAssignableFrom(type)) {
-            visit((BasicEvent) event);
+        if (BasicEventElement.class.isAssignableFrom(type)) {
+            visit((BasicEventElement) event);
         }
     }
 
@@ -176,30 +142,16 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(Asset asset) {
-        visitBefore(asset);
-        if (asset != null) {
-            visit(asset.getAdministration());
-            visit(asset.getIdentification());
-            asset.getDescriptions().forEach(x -> visit(x));
-            asset.getDisplayNames().forEach(x -> visit(x));
-            asset.getExtensions().forEach(x -> visit(x));
-            asset.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-        }
-        visitAfter(asset);
-    }
-
-
-    @Override
     public void visit(Blob blob) {
         visitBefore(blob);
         if (blob != null) {
             visit(blob.getSemanticId());
-            blob.getDescriptions().forEach(x -> visit(x));
-            blob.getDisplayNames().forEach(x -> visit(x));
-            blob.getQualifiers().forEach(x -> visit(x));
-            blob.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            blob.getExtensions().forEach(x -> visit(x));
+            blob.getSupplementalSemanticIds().forEach(this::visit);
+            blob.getDescription().forEach(this::visit);
+            blob.getDisplayName().forEach(this::visit);
+            blob.getQualifiers().forEach(this::visit);
+            blob.getEmbeddedDataSpecifications().forEach(this::visit);
+            blob.getExtensions().forEach(this::visit);
         }
         visitAfter(blob);
     }
@@ -210,27 +162,21 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(capability);
         if (capability != null) {
             visit(capability.getSemanticId());
-            capability.getDescriptions().forEach(x -> visit(x));
-            capability.getDisplayNames().forEach(x -> visit(x));
-            capability.getQualifiers().forEach(x -> visit(x));
-            capability.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            capability.getExtensions().forEach(x -> visit(x));
+            capability.getSupplementalSemanticIds().forEach(this::visit);
+            capability.getDescription().forEach(this::visit);
+            capability.getDisplayName().forEach(this::visit);
+            capability.getQualifiers().forEach(this::visit);
+            capability.getEmbeddedDataSpecifications().forEach(this::visit);
+            capability.getExtensions().forEach(this::visit);
         }
         visitAfter(capability);
     }
 
 
     @Override
-    public void visit(DataSpecificationIEC61360 dataSpecificationIEC61360) {
-        visitBefore(dataSpecificationIEC61360);
-        visitAfter(dataSpecificationIEC61360);
-    }
-
-
-    @Override
-    public void visit(DataSpecificationPhysicalUnit dataSpecificationPhysicalUnit) {
-        visitBefore(dataSpecificationPhysicalUnit);
-        visitAfter(dataSpecificationPhysicalUnit);
+    public void visit(DataSpecificationIec61360 dataSpecificationIec61360) {
+        visitBefore(dataSpecificationIec61360);
+        visitAfter(dataSpecificationIec61360);
     }
 
 
@@ -242,16 +188,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(EventElement eventElement) {
-        visitBefore(eventElement);
-        visitAfter(eventElement);
-    }
-
-
-    @Override
-    public void visit(EventMessage eventMessage) {
-        visitBefore(eventMessage);
-        visitAfter(eventMessage);
+    public void visit(EventPayload eventPayload) {
+        visitBefore(eventPayload);
+        visitAfter(eventPayload);
     }
 
 
@@ -260,20 +199,13 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(file);
         if (file != null) {
             visit(file.getSemanticId());
-            file.getDescriptions().forEach(x -> visit(x));
-            file.getDisplayNames().forEach(x -> visit(x));
-            file.getQualifiers().forEach(x -> visit(x));
-            file.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            file.getExtensions().forEach(x -> visit(x));
+            file.getDescription().forEach(this::visit);
+            file.getDisplayName().forEach(this::visit);
+            file.getQualifiers().forEach(this::visit);
+            file.getEmbeddedDataSpecifications().forEach(this::visit);
+            file.getExtensions().forEach(this::visit);
         }
         visitAfter(file);
-    }
-
-
-    @Override
-    public void visit(Identifier identifier) {
-        visitBefore(identifier);
-        visitAfter(identifier);
     }
 
 
@@ -285,23 +217,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(LangString langString) {
+    public void visit(LangStringTextType langString) {
         visitBefore(langString);
         visitAfter(langString);
-    }
-
-
-    @Override
-    public void visit(PolicyDecisionPoint policyDecisionPoint) {
-        visitBefore(policyDecisionPoint);
-        visitAfter(policyDecisionPoint);
-    }
-
-
-    @Override
-    public void visit(PolicyEnforcementPoints policyEnforcementPoints) {
-        visitBefore(policyEnforcementPoints);
-        visitAfter(policyEnforcementPoints);
     }
 
 
@@ -310,56 +228,13 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(range);
         if (range != null) {
             visit(range.getSemanticId());
-            range.getDescriptions().forEach(x -> visit(x));
-            range.getDisplayNames().forEach(x -> visit(x));
-            range.getQualifiers().forEach(x -> visit(x));
-            range.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            range.getExtensions().forEach(x -> visit(x));
+            range.getDescription().forEach(this::visit);
+            range.getDisplayName().forEach(this::visit);
+            range.getQualifiers().forEach(this::visit);
+            range.getEmbeddedDataSpecifications().forEach(this::visit);
+            range.getExtensions().forEach(this::visit);
         }
         visitAfter(range);
-    }
-
-
-    @Override
-    public void visit(AccessControl accessControl) {
-        visitBefore(accessControl);
-        if (accessControl != null) {
-            visit(accessControl.getDefaultEnvironmentAttributes());
-            visit(accessControl.getDefaultPermissions());
-            visit(accessControl.getDefaultSubjectAttributes());
-            visit(accessControl.getSelectableEnvironmentAttributes());
-            visit(accessControl.getSelectablePermissions());
-            visit(accessControl.getSelectableSubjectAttributes());
-            accessControl.getAccessPermissionRules().forEach(x -> visit(x));
-        }
-        visitAfter(accessControl);
-    }
-
-
-    @Override
-    public void visit(AccessControlPolicyPoints accessControlPolicyPoints) {
-        visitBefore(accessControlPolicyPoints);
-        if (accessControlPolicyPoints != null) {
-            visit(accessControlPolicyPoints.getPolicyAdministrationPoint());
-            visit(accessControlPolicyPoints.getPolicyDecisionPoint());
-            visit(accessControlPolicyPoints.getPolicyEnforcementPoint());
-            visit(accessControlPolicyPoints.getPolicyInformationPoints());
-        }
-        visitAfter(accessControlPolicyPoints);
-    }
-
-
-    @Override
-    public void visit(AccessPermissionRule accessPermissionRule) {
-        visitBefore(accessPermissionRule);
-        if (accessPermissionRule != null) {
-            visit(accessPermissionRule.getTargetSubjectAttributes());
-            accessPermissionRule.getDescriptions().forEach(x -> visit(x));
-            accessPermissionRule.getDisplayNames().forEach(x -> visit(x));
-            accessPermissionRule.getExtensions().forEach(x -> visit(x));
-            accessPermissionRule.getPermissionsPerObjects().forEach(x -> visit(x));
-        }
-        visitAfter(accessPermissionRule);
     }
 
 
@@ -367,7 +242,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
         visitBefore(annotatedRelationshipElement);
         if (annotatedRelationshipElement != null) {
-            annotatedRelationshipElement.getAnnotations().forEach(x -> visit(x));
+            annotatedRelationshipElement.getAnnotations().forEach(this::visit);
         }
         visitAfter(annotatedRelationshipElement);
     }
@@ -377,17 +252,14 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(AssetAdministrationShell assetAdministrationShell) {
         visitBefore(assetAdministrationShell);
         if (assetAdministrationShell != null) {
-            assetAdministrationShell.getExtensions().forEach(x -> visit(x));
-            assetAdministrationShell.getDescriptions().forEach(x -> visit(x));
-            assetAdministrationShell.getDisplayNames().forEach(x -> visit(x));
+            assetAdministrationShell.getExtensions().forEach(this::visit);
+            assetAdministrationShell.getDescription().forEach(this::visit);
+            assetAdministrationShell.getDisplayName().forEach(this::visit);
             visit(assetAdministrationShell.getAdministration());
-            visit(assetAdministrationShell.getIdentification());
             visit(assetAdministrationShell.getDerivedFrom());
-            visit(assetAdministrationShell.getSecurity());
             visit(assetAdministrationShell.getAssetInformation());
-            assetAdministrationShell.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            assetAdministrationShell.getSubmodels().forEach(x -> visit(x));
-            assetAdministrationShell.getViews().forEach(x -> visit(x));
+            assetAdministrationShell.getEmbeddedDataSpecifications().forEach(this::visit);
+            assetAdministrationShell.getSubmodels().forEach(this::visit);
         }
         visitAfter(assetAdministrationShell);
     }
@@ -397,38 +269,27 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(AssetInformation assetInformation) {
         visitBefore(assetInformation);
         if (assetInformation != null) {
-            visit(assetInformation.getGlobalAssetId());
             visit(assetInformation.getDefaultThumbnail());
-            assetInformation.getSpecificAssetIds().forEach(x -> visit(x));
-            assetInformation.getBillOfMaterials().forEach(x -> visit(x));
+            assetInformation.getSpecificAssetIds().forEach(this::visit);
         }
         visitAfter(assetInformation);
     }
 
 
     @Override
-    public void visit(BasicEvent basicEvent) {
-        visitBefore(basicEvent);
-        if (basicEvent != null) {
-            visit(basicEvent.getSemanticId());
-            basicEvent.getDescriptions().forEach(x -> visit(x));
-            basicEvent.getDisplayNames().forEach(x -> visit(x));
-            basicEvent.getQualifiers().forEach(x -> visit(x));
-            basicEvent.getExtensions().forEach(x -> visit(x));
-            basicEvent.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            visit(basicEvent.getObserved());
+    public void visit(BasicEventElement basicEventElement) {
+        visitBefore(basicEventElement);
+        if (basicEventElement != null) {
+            visit(basicEventElement.getSemanticId());
+            basicEventElement.getSupplementalSemanticIds().forEach(this::visit);
+            basicEventElement.getDescription().forEach(this::visit);
+            basicEventElement.getDisplayName().forEach(this::visit);
+            basicEventElement.getQualifiers().forEach(this::visit);
+            basicEventElement.getExtensions().forEach(this::visit);
+            basicEventElement.getEmbeddedDataSpecifications().forEach(this::visit);
+            visit(basicEventElement.getObserved());
         }
-        visitAfter(basicEvent);
-    }
-
-
-    @Override
-    public void visit(Certificate certificate) {
-        visitBefore(certificate);
-        if (certificate != null) {
-            visit(certificate.getPolicyAdministrationPoint());
-        }
-        visitAfter(certificate);
+        visitAfter(basicEventElement);
     }
 
 
@@ -437,24 +298,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(conceptDescription);
         if (conceptDescription != null) {
             visit(conceptDescription.getAdministration());
-            visit(conceptDescription.getIdentification());
-            conceptDescription.getDescriptions().forEach(x -> visit(x));
-            conceptDescription.getDisplayNames().forEach(x -> visit(x));
-            conceptDescription.getExtensions().forEach(x -> visit(x));
-            conceptDescription.getIsCaseOfs().forEach(x -> visit(x));
+            conceptDescription.getDescription().forEach(this::visit);
+            conceptDescription.getDisplayName().forEach(this::visit);
+            conceptDescription.getExtensions().forEach(this::visit);
+            conceptDescription.getIsCaseOf().forEach(this::visit);
         }
         visitAfter(conceptDescription);
     }
 
 
     @Override
-    public void visit(IdentifierKeyValuePair identifierKeyValuePair) {
-        visitBefore(identifierKeyValuePair);
-        if (identifierKeyValuePair != null) {
-            visit(identifierKeyValuePair.getSemanticId());
-            visit(identifierKeyValuePair.getExternalSubjectId());
+    public void visit(SpecificAssetId specificAssetId) {
+        visitBefore(specificAssetId);
+        if (specificAssetId != null) {
+            visit(specificAssetId.getSemanticId());
+            specificAssetId.getSupplementalSemanticIds().forEach(this::visit);
+            visit(specificAssetId.getExternalSubjectId());
         }
-        visitAfter(identifierKeyValuePair);
+        visitAfter(specificAssetId);
     }
 
 
@@ -463,25 +324,16 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(multiLanguageProperty);
         if (multiLanguageProperty != null) {
             visit(multiLanguageProperty.getSemanticId());
-            multiLanguageProperty.getDescriptions().forEach(x -> visit(x));
-            multiLanguageProperty.getDisplayNames().forEach(x -> visit(x));
-            multiLanguageProperty.getQualifiers().forEach(x -> visit(x));
-            multiLanguageProperty.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            multiLanguageProperty.getExtensions().forEach(x -> visit(x));
-            multiLanguageProperty.getValues().forEach(x -> visit(x));
+            multiLanguageProperty.getSupplementalSemanticIds().forEach(this::visit);
+            multiLanguageProperty.getDescription().forEach(this::visit);
+            multiLanguageProperty.getDisplayName().forEach(this::visit);
+            multiLanguageProperty.getQualifiers().forEach(this::visit);
+            multiLanguageProperty.getEmbeddedDataSpecifications().forEach(this::visit);
+            multiLanguageProperty.getExtensions().forEach(this::visit);
+            multiLanguageProperty.getValue().forEach(this::visit);
             visit(multiLanguageProperty.getValueId());
         }
         visitAfter(multiLanguageProperty);
-    }
-
-
-    @Override
-    public void visit(ObjectAttributes objectAttributes) {
-        visitBefore(objectAttributes);
-        if (objectAttributes != null) {
-            objectAttributes.getObjectAttributes().forEach(x -> visit(x));
-        }
-        visitAfter(objectAttributes);
     }
 
 
@@ -496,25 +348,16 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(PolicyInformationPoints policyInformationPoints) {
-        visitBefore(policyInformationPoints);
-        if (policyInformationPoints != null) {
-            policyInformationPoints.getInternalInformationPoints().forEach(x -> visit(x));
-        }
-        visitAfter(policyInformationPoints);
-    }
-
-
-    @Override
     public void visit(Property property) {
         visitBefore(property);
         if (property != null) {
             visit(property.getSemanticId());
-            property.getDescriptions().forEach(x -> visit(x));
-            property.getDisplayNames().forEach(x -> visit(x));
-            property.getQualifiers().forEach(x -> visit(x));
-            property.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            property.getExtensions().forEach(x -> visit(x));
+            property.getSupplementalSemanticIds().forEach(this::visit);
+            property.getDescription().forEach(this::visit);
+            property.getDisplayName().forEach(this::visit);
+            property.getQualifiers().forEach(this::visit);
+            property.getEmbeddedDataSpecifications().forEach(this::visit);
+            property.getExtensions().forEach(this::visit);
             visit(property.getValueId());
         }
         visitAfter(property);
@@ -535,7 +378,8 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(Reference reference) {
         visitBefore(reference);
         if (reference != null) {
-            reference.getKeys().forEach(x -> visit(x));
+            visit(reference.getReferredSemanticId());
+            reference.getKeys().forEach(this::visit);
         }
         visitAfter(reference);
     }
@@ -546,11 +390,12 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(referenceElement);
         if (referenceElement != null) {
             visit(referenceElement.getSemanticId());
-            referenceElement.getDescriptions().forEach(x -> visit(x));
-            referenceElement.getDisplayNames().forEach(x -> visit(x));
-            referenceElement.getQualifiers().forEach(x -> visit(x));
-            referenceElement.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            referenceElement.getExtensions().forEach(x -> visit(x));
+            referenceElement.getSupplementalSemanticIds().forEach(this::visit);
+            referenceElement.getDescription().forEach(this::visit);
+            referenceElement.getDisplayName().forEach(this::visit);
+            referenceElement.getQualifiers().forEach(this::visit);
+            referenceElement.getEmbeddedDataSpecifications().forEach(this::visit);
+            referenceElement.getExtensions().forEach(this::visit);
             visit(referenceElement.getValue());
         }
         visitAfter(referenceElement);
@@ -566,11 +411,12 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
             visitBefore(relationshipElement);
             if (relationshipElement != null) {
                 visit(relationshipElement.getSemanticId());
-                relationshipElement.getDescriptions().forEach(x -> visit(x));
-                relationshipElement.getDisplayNames().forEach(x -> visit(x));
-                relationshipElement.getQualifiers().forEach(x -> visit(x));
-                relationshipElement.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-                relationshipElement.getExtensions().forEach(x -> visit(x));
+                relationshipElement.getSupplementalSemanticIds().forEach(this::visit);
+                relationshipElement.getDescription().forEach(this::visit);
+                relationshipElement.getDisplayName().forEach(this::visit);
+                relationshipElement.getQualifiers().forEach(this::visit);
+                relationshipElement.getEmbeddedDataSpecifications().forEach(this::visit);
+                relationshipElement.getExtensions().forEach(this::visit);
                 visit(relationshipElement.getFirst());
                 visit(relationshipElement.getSecond());
             }
@@ -580,84 +426,20 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(Security security) {
-        visitBefore(security);
-        if (security != null) {
-            visit(security.getAccessControlPolicyPoints());
-            security.getCertificates().forEach(x -> visit(x));
-            security.getRequiredCertificateExtensions().forEach(x -> visit(x));
-        }
-        visitAfter(security);
-    }
-
-
-    @Override
-    public void visit(SubjectAttributes subjectAttributes) {
-        visitBefore(subjectAttributes);
-        if (subjectAttributes != null) {
-            subjectAttributes.getSubjectAttributes().forEach(x -> visit(x));
-        }
-        visitAfter(subjectAttributes);
-    }
-
-
-    @Override
-    public void visit(Permission permission) {
-        visitBefore(permission);
-        if (permission != null) {
-            visit(permission.getPermission());
-        }
-        visitAfter(permission);
-    }
-
-
-    @Override
-    public void visit(PermissionsPerObject permissionsPerObject) {
-        visitBefore(permissionsPerObject);
-        if (permissionsPerObject != null) {
-            visit(permissionsPerObject.getObject());
-            visit(permissionsPerObject.getTargetObjectAttributes());
-            permissionsPerObject.getPermissions().forEach(x -> visit(x));
-        }
-        visitAfter(permissionsPerObject);
-    }
-
-
-    @Override
-    public void visit(PolicyAdministrationPoint policyAdministrationPoint) {
-        visitBefore(policyAdministrationPoint);
-        if (policyAdministrationPoint != null) {
-            visit(policyAdministrationPoint.getLocalAccessControl());
-        }
-        visitAfter(policyAdministrationPoint);
-    }
-
-
-    @Override
     public void visit(Entity entity) {
         visitBefore(entity);
         if (entity != null) {
-            entity.getQualifiers().forEach(x -> visit(x));
-            entity.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            entity.getExtensions().forEach(x -> visit(x));
-            entity.getDescriptions().forEach(x -> visit(x));
-            entity.getDisplayNames().forEach(x -> visit(x));
+            entity.getQualifiers().forEach(this::visit);
+            entity.getEmbeddedDataSpecifications().forEach(this::visit);
+            entity.getExtensions().forEach(this::visit);
+            entity.getDescription().forEach(this::visit);
+            entity.getDisplayName().forEach(this::visit);
+            entity.getSpecificAssetIds().forEach(this::visit);
             visit(entity.getSemanticId());
-            visit(entity.getGlobalAssetId());
-            visit(entity.getSpecificAssetId());
-            entity.getStatements().forEach(x -> visit(x));
+            entity.getSupplementalSemanticIds().forEach(this::visit);
+            entity.getStatements().forEach(this::visit);
         }
         visitAfter(entity);
-    }
-
-
-    @Override
-    public void visit(Formula formula) {
-        visitBefore(formula);
-        if (formula != null) {
-            formula.getDependsOns().forEach(x -> visit(x));
-        }
-        visitAfter(formula);
     }
 
 
@@ -666,6 +448,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(extension);
         if (extension != null) {
             visit(extension.getSemanticId());
+            extension.getSupplementalSemanticIds().forEach(this::visit);
             visit(extension.getRefersTo());
         }
         visitAfter(extension);
@@ -673,14 +456,14 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment) {
-        visitBefore(assetAdministrationShellEnvironment);
-        if (assetAdministrationShellEnvironment != null) {
-            assetAdministrationShellEnvironment.getAssetAdministrationShells().forEach(x -> visit(x));
-            assetAdministrationShellEnvironment.getConceptDescriptions().forEach(x -> visit(x));
-            assetAdministrationShellEnvironment.getSubmodels().forEach(x -> visit(x));
+    public void visit(Environment environment) {
+        visitBefore(environment);
+        if (environment != null) {
+            environment.getAssetAdministrationShells().forEach(this::visit);
+            environment.getConceptDescriptions().forEach(this::visit);
+            environment.getSubmodels().forEach(this::visit);
         }
-        visitAfter(assetAdministrationShellEnvironment);
+        visitAfter(environment);
     }
 
 
@@ -689,14 +472,14 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(submodel);
         if (submodel != null) {
             visit(submodel.getSemanticId());
+            submodel.getSupplementalSemanticIds().forEach(this::visit);
             visit(submodel.getAdministration());
-            visit(submodel.getIdentification());
-            submodel.getDescriptions().forEach(x -> visit(x));
-            submodel.getDisplayNames().forEach(x -> visit(x));
-            submodel.getQualifiers().forEach(x -> visit(x));
-            submodel.getExtensions().forEach(x -> visit(x));
-            submodel.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            submodel.getSubmodelElements().forEach(x -> visit(x));
+            submodel.getDescription().forEach(this::visit);
+            submodel.getDisplayName().forEach(this::visit);
+            submodel.getQualifiers().forEach(this::visit);
+            submodel.getExtensions().forEach(this::visit);
+            submodel.getEmbeddedDataSpecifications().forEach(this::visit);
+            submodel.getSubmodelElements().forEach(this::visit);
         }
         visitAfter(submodel);
     }
@@ -707,14 +490,32 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(submodelElementCollection);
         if (submodelElementCollection != null) {
             visit(submodelElementCollection.getSemanticId());
-            submodelElementCollection.getDescriptions().forEach(x -> visit(x));
-            submodelElementCollection.getDisplayNames().forEach(x -> visit(x));
-            submodelElementCollection.getQualifiers().forEach(x -> visit(x));
-            submodelElementCollection.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            submodelElementCollection.getExtensions().forEach(x -> visit(x));
-            submodelElementCollection.getValues().forEach(x -> visit(x));
+            submodelElementCollection.getSupplementalSemanticIds().forEach(this::visit);
+            submodelElementCollection.getDescription().forEach(this::visit);
+            submodelElementCollection.getDisplayName().forEach(this::visit);
+            submodelElementCollection.getQualifiers().forEach(this::visit);
+            submodelElementCollection.getEmbeddedDataSpecifications().forEach(this::visit);
+            submodelElementCollection.getExtensions().forEach(this::visit);
+            submodelElementCollection.getValue().forEach(this::visit);
         }
         visitAfter(submodelElementCollection);
+    }
+
+
+    @Override
+    public void visit(SubmodelElementList submodelElementList) {
+        visitBefore(submodelElementList);
+        if (submodelElementList != null) {
+            visit(submodelElementList.getSemanticId());
+            submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
+            submodelElementList.getDescription().forEach(this::visit);
+            submodelElementList.getDisplayName().forEach(this::visit);
+            submodelElementList.getQualifiers().forEach(this::visit);
+            submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
+            submodelElementList.getExtensions().forEach(this::visit);
+            submodelElementList.getValue().forEach(this::visit);
+        }
+        visitAfter(submodelElementList);
     }
 
 
@@ -723,11 +524,12 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(operation);
         if (operation != null) {
             visit(operation.getSemanticId());
-            operation.getDescriptions().forEach(x -> visit(x));
-            operation.getDisplayNames().forEach(x -> visit(x));
-            operation.getQualifiers().forEach(x -> visit(x));
-            operation.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            operation.getExtensions().forEach(x -> visit(x));
+            operation.getSupplementalSemanticIds().forEach(this::visit);
+            operation.getDescription().forEach(this::visit);
+            operation.getDisplayName().forEach(this::visit);
+            operation.getQualifiers().forEach(this::visit);
+            operation.getEmbeddedDataSpecifications().forEach(this::visit);
+            operation.getExtensions().forEach(this::visit);
             operation.getInputVariables().forEach(x -> visit(x.getValue()));
             operation.getInoutputVariables().forEach(x -> visit(x.getValue()));
             operation.getOutputVariables().forEach(x -> visit(x.getValue()));
@@ -737,22 +539,10 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     @Override
-    public void visit(BlobCertificate blobCertificate) {
-        visitBefore(blobCertificate);
-        if (blobCertificate != null) {
-            visit(blobCertificate.getBlobCertificate());
-            visit(blobCertificate.getPolicyAdministrationPoint());
-            blobCertificate.getContainedExtensions().forEach(x -> visit(x));
-        }
-        visitAfter(blobCertificate);
-    }
-
-
-    @Override
     public void visit(ValueList valueList) {
         visitBefore(valueList);
         if (valueList != null) {
-            valueList.getValueReferencePairTypes().forEach(x -> visit(x));
+            valueList.getValueReferencePairs().forEach(this::visit);
         }
         visitAfter(valueList);
     }
@@ -765,20 +555,6 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
             visit(valueReferencePair.getValueId());
         }
         visitAfter(valueReferencePair);
-    }
-
-
-    @Override
-    public void visit(View view) {
-        visitBefore(view);
-        if (view != null) {
-            view.getDescriptions().forEach(x -> visit(x));
-            view.getDisplayNames().forEach(x -> visit(x));
-            view.getEmbeddedDataSpecifications().forEach(x -> visit(x));
-            view.getExtensions().forEach(x -> visit(x));
-            view.getContainedElements().forEach(x -> visit(x));
-        }
-        visitAfter(view);
     }
 
 
@@ -804,12 +580,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                         .filter(x -> x.getName().equals("visit"))
                         .filter(x -> x.getParameterCount() == 1)
                         .filter(x -> x.getParameters()[0].getType().isAssignableFrom(obj.getClass()))
-                        .sorted(new Comparator<Method>() {
-                            @Override
-                            public int compare(Method m1, Method m2) {
-                                return -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType());
-                            }
-                        })
+                        .sorted((Method m1, Method m2) -> -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType()))
                         .findFirst();
                 if (method.isPresent()) {
                     method.get().invoke(this, obj);
@@ -819,6 +590,19 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                 LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
+    }
+
+
+    /**
+     * Visit a page by visiting all elements.
+     *
+     * @param page the page to visit
+     */
+    public void visit(Page<?> page) {
+        if (Objects.isNull(page) || Objects.isNull(page.getContent())) {
+            return;
+        }
+        page.getContent().forEach(this::visit);
     }
 
 
@@ -855,12 +639,8 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
                         .filter(x -> x.getName().equals("visit"))
                         .filter(x -> x.getParameterCount() == 1)
                         .filter(x -> x.getParameters()[0].getType().isAssignableFrom(obj.getClass()))
-                        .sorted(new Comparator<Method>() {
-                            @Override
-                            public int compare(Method m1, Method m2) {
-                                return -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType());
-                            }
-                        }).collect(Collectors.toList());
+                        .sorted((Method m1, Method m2) -> -1 * new MostSpecificClassComparator().compare(m1.getParameters()[0].getType(), m2.getParameters()[0].getType()))
+                        .collect(Collectors.toList());
                 for (Method method: methods) {
                     try {
                         method.setAccessible(true);

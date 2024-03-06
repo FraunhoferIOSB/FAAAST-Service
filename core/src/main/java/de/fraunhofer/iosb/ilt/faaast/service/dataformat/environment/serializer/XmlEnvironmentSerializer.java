@@ -18,15 +18,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.dataformat.aasx.InMemoryFile;
-import io.adminshell.aas.v3.dataformat.xml.XmlSerializer;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * XML serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * XML serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentSerializer implements EnvironmentSerializer {
@@ -39,14 +39,14 @@ public class XmlEnvironmentSerializer implements EnvironmentSerializer {
 
 
     @Override
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException {
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
         if (files != null && !files.isEmpty()) {
             throw new UnsupportedOperationException("serializing file content is not supported for data format XML");
         }
         try {
             return serializer.write(environment).getBytes(charset);
         }
-        catch (io.adminshell.aas.v3.dataformat.SerializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException e) {
             throw new SerializationException("XML serialization failed", e);
         }
     }

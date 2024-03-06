@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>persistence-file</artifactId>
@@ -25,6 +25,11 @@
             <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dataformat-json</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -50,9 +55,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
+            <artifactId>aas4j-model</artifactId>
+            <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mycila</groupId>

@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
-import io.adminshell.aas.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 
 
 /**

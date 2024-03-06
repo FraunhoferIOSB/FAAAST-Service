@@ -18,9 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultMultiLanguageProperty;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class MultiLanguagePropertyValueTest {
                 .value("english", "en")
                 .build();
         SubmodelElement input = new DefaultMultiLanguageProperty.Builder()
-                .values(List.copyOf(expected.getLangStringSet()))
+                .value(List.copyOf(expected.getLangStringSet()))
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);
@@ -46,7 +47,7 @@ public class MultiLanguagePropertyValueTest {
         MultiLanguagePropertyValue expected = MultiLanguagePropertyValue.builder()
                 .build();
         SubmodelElement input = new DefaultMultiLanguageProperty.Builder()
-                .values(null)
+                .value((List<LangStringTextType>) null)
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);
@@ -54,7 +55,7 @@ public class MultiLanguagePropertyValueTest {
 
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultMultiLanguageProperty.Builder()
                 .build();
         MultiLanguagePropertyValue value = MultiLanguagePropertyValue.builder()
@@ -62,7 +63,7 @@ public class MultiLanguagePropertyValueTest {
                 .value("english", "en")
                 .build();
         SubmodelElement expected = new DefaultMultiLanguageProperty.Builder()
-                .values(List.copyOf(value.getLangStringSet()))
+                .value(List.copyOf(value.getLangStringSet()))
                 .build();
         ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
@@ -70,7 +71,7 @@ public class MultiLanguagePropertyValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultMultiLanguageProperty.Builder()
                 .build();
         MultiLanguagePropertyValue value = MultiLanguagePropertyValue.builder()

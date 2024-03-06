@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,28 +24,28 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * Deserializer that reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+ * Deserializer that reads a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
  */
 public interface EnvironmentDeserializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param in the InputStream to read
      * @param charset the charset to use
-     * @return the read {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files
+     * @return the read {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException;
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param in the InputStream to read
-     * @return the read {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files
+     * @return the read {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files
      * @throws DeserializationException if deserialization fails
      */
     public default EnvironmentContext read(InputStream in) throws DeserializationException {
@@ -53,10 +54,10 @@ public interface EnvironmentDeserializer {
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param file the File to read
-     * @return the read {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files
+     * @return the read {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files
      * @throws DeserializationException if deserialization fails
      */
     public default EnvironmentContext read(File file) throws DeserializationException {
@@ -65,11 +66,11 @@ public interface EnvironmentDeserializer {
 
 
     /**
-     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * reads a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param file the File to read
      * @param charset the charset to use
-     * @return the read {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files
+     * @return the read {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files
      * @throws DeserializationException if deserialization fails
      */
     public default EnvironmentContext read(File file, Charset charset) throws DeserializationException {

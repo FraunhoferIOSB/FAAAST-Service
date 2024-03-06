@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import java.io.IOException;
 
 
@@ -40,7 +40,7 @@ public class RangeValueDeserializer extends ContextAwareElementValueDeserializer
 
     @Override
     public RangeValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        RangeValue.Builder builder = RangeValue.builder();
+        RangeValue.Builder<?> builder = RangeValue.builder();
         if (node.has(JsonFieldNames.RANGE_VALUE_MIN)) {
             builder = builder.min(context.readTreeAsValue(node.get(JsonFieldNames.RANGE_VALUE_MIN), TypedValue.class));
         }

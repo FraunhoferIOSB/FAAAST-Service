@@ -41,20 +41,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultOperation;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -70,6 +59,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -91,42 +90,40 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private static final Property PROPERTY = new DefaultProperty.Builder()
             .idShort("ExampleProperty")
-            .valueType(Datatype.STRING.getName())
+            .valueType(DataTypeDefXsd.STRING)
             .value("bar")
             .build();
 
     private static final Property PARAMETER_IN = new DefaultProperty.Builder()
             .idShort("ParameterIn")
-            .valueType(Datatype.STRING.getName())
+            .valueType(DataTypeDefXsd.STRING)
             .build();
 
     private static final Property PARAMETER_OUT = new DefaultProperty.Builder()
             .idShort("ParameterOut")
-            .valueType(Datatype.STRING.getName())
+            .valueType(DataTypeDefXsd.STRING)
             .build();
 
     private static final Operation OPERATION = new DefaultOperation.Builder()
             .idShort("ExampleOperation")
-            .inputVariable(new DefaultOperationVariable.Builder()
+            .inputVariables(new DefaultOperationVariable.Builder()
                     .value(PARAMETER_IN)
                     .build())
-            .outputVariable(new DefaultOperationVariable.Builder()
+            .outputVariables(new DefaultOperationVariable.Builder()
                     .value(PARAMETER_OUT)
                     .build())
             .build();
 
     private static final Reference OPERATION_REFERENCE = new DefaultReference.Builder()
-            .key(new DefaultKey.Builder()
-                    .type(KeyElements.OPERATION)
-                    .idType(KeyType.ID_SHORT)
+            .keys(new DefaultKey.Builder()
+                    .type(KeyTypes.OPERATION)
                     .value(OPERATION.getIdShort())
                     .build())
             .build();
 
     private static final Reference PROPERTY_REFERENCE = new DefaultReference.Builder()
-            .key(new DefaultKey.Builder()
-                    .type(KeyElements.PROPERTY)
-                    .idType(KeyType.ID_SHORT)
+            .keys(new DefaultKey.Builder()
+                    .type(KeyTypes.PROPERTY)
                     .value(PROPERTY.getIdShort())
                     .build())
             .build();
@@ -163,12 +160,12 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private static final OperationInvokeEventMessage OPERATION_INVOKE_MESSAGE = OperationInvokeEventMessage.builder()
             .element(OPERATION_REFERENCE)
-            .input(List.of((new PropertyValue(new StringValue("input")))))
+            .input(PARAMETER_IN.getIdShort(), new PropertyValue(new StringValue("input")))
             .build();
 
     private static final OperationFinishEventMessage OPERATION_FINISH_MESSAGE = OperationFinishEventMessage.builder()
             .element(OPERATION_REFERENCE)
-            .output(List.of((new PropertyValue(new StringValue("result")))))
+            .output(PARAMETER_OUT.getIdShort(), new PropertyValue(new StringValue("result")))
             .build();
 
     private static final ErrorEventMessage ERROR_MESSAGE = ErrorEventMessage.builder()

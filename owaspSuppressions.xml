@@ -29,4 +29,12 @@
 		<packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
 		<vulnerabilityName>CVE-2023-51074</vulnerabilityName>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4570</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4571</cve>
+	</suppress>
 </suppressions>

@@ -20,16 +20,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
 public class CustomOperationProvider implements AssetOperationProvider {
@@ -38,6 +38,7 @@ public class CustomOperationProvider implements AssetOperationProvider {
     private final CustomOperationProviderConfig config;
     private final Reference reference;
     private final ServiceContext serviceContext;
+    private final OperationVariable[] outputVariables;
 
     public CustomOperationProvider(Reference reference, CustomOperationProviderConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         Ensure.requireNonNull(reference, "reference must be non-null");
@@ -46,13 +47,17 @@ public class CustomOperationProvider implements AssetOperationProvider {
         this.config = config;
         this.reference = reference;
         this.serviceContext = serviceContext;
-        Operation operation = AasUtils.resolve(reference, serviceContext.getAASEnvironment(), Operation.class);
-        if (operation == null) {
-            throw new ConfigurationInitializationException(String.format("%s - reference could not be resolved or does not point to an operation (reference: %s)",
-                    BASE_ERROR_MSG,
-                    AasUtils.asString(reference)));
+        try {
+            outputVariables = serviceContext.getOperationOutputVariables(reference);
         }
-        for (OperationVariable outputVariable: operation.getOutputVariables()) {
+        catch (ResourceNotFoundException e) {
+            throw new ConfigurationInitializationException(
+                    String.format(
+                            "Operation not found in AAS model (reference: %s)",
+                            ReferenceHelper.toString(reference)),
+                    e);
+        }
+        for (OperationVariable outputVariable: outputVariables) {
             if (outputVariable != null && outputVariable.getValue() != null && !Property.class.isAssignableFrom(outputVariable.getValue().getClass())) {
                 throw new ConfigurationInitializationException(String.format("%s - only output variables of type property are supported (actual type: %s)",
                         BASE_ERROR_MSG,
@@ -64,12 +69,11 @@ public class CustomOperationProvider implements AssetOperationProvider {
 
     @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        OperationVariable[] outputVariables = serviceContext.getOperationOutputVariables(reference);
         OperationVariable[] result = new OperationVariable[outputVariables.length];
         for (int i = 0; i < outputVariables.length; i++) {
             if (outputVariables[i] != null && outputVariables[i].getValue() != null) {
                 Property property = DeepCopyHelper.deepCopy(outputVariables[i].getValue(), Property.class);
-                property.setValue(RandomValueGenerator.generateRandomValue(Datatype.fromName(property.getValueType())).toString());
+                property.setValue(RandomValueGenerator.generateRandomValue(Datatype.fromAas4jDatatype(property.getValueType())).toString());
                 result[i] = new DefaultOperationVariable.Builder()
                         .value(property)
                         .build();

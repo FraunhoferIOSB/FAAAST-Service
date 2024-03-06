@@ -14,26 +14,42 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.fileupload.MultipartStream;
 
 
 /**
  * Base class for mapping HTTP requests to protocol-agnostic requests.
  */
 public abstract class AbstractRequestMapper {
+
+    private static final String MSG_ERROR_PARSING_BODY = "error parsing body";
+    protected static final String BOUNDARY = "boundary";
+    protected static final Pattern PATTERN_NAME = Pattern.compile("name=\"([^\"]+)\"");
+    protected static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile(HttpConstants.HEADER_CONTENT_TYPE + ": ([^\n^\r]+)");
 
     protected final ServiceContext serviceContext;
     protected final HttpJsonApiDeserializer deserializer;
@@ -47,20 +63,20 @@ public abstract class AbstractRequestMapper {
         this.serviceContext = serviceContext;
         this.method = method;
         this.urlPattern = urlPattern;
-        deserializer = new HttpJsonApiDeserializer();
+        this.deserializer = new HttpJsonApiDeserializer();
         init();
     }
 
 
     /**
      * Utility method to create named regex groups used to represent URL path elements that are variable, e.g.
-     * <i>/shells/[id]/aas/</i>.
+     * <i>/shells/[id]/</i>.
      *
      * @param name the name of the regex group
      * @return a string representation of a named regex group with given {@code name}
      */
     protected static final String pathElement(String name) {
-        return String.format("(?<%s>[^/]*)", name);
+        return String.format("(?<%s>[^/$]*)", name);
     }
 
 
@@ -145,11 +161,64 @@ public abstract class AbstractRequestMapper {
     protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.read(httpRequest.getBody(), type);
+            return deserializer.read(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
-            throw new InvalidRequestException("error parsing body", e);
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
+    }
+
+
+    /**
+     * Deserializes HTTP body multipart form data.
+     *
+     * @param httpRequest HTTP request
+     * @param contentType the multipart contentType containing the boundary
+     * @return deserialized payload
+     * @throws InvalidRequestException if deserialization fails
+     * @throws IllegalArgumentException if httpRequest is null
+     */
+    protected Map<String, TypedInMemoryFile> parseMultiPartBody(HttpRequest httpRequest, MediaType contentType) throws InvalidRequestException {
+        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
+        Map<String, TypedInMemoryFile> map = new HashMap<>();
+        try {
+            MultipartStream multipartStream = new MultipartStream(
+                    new ByteArrayInputStream(httpRequest.getBody()),
+                    contentType.parameters().get(BOUNDARY).get(0).getBytes(), 4096, null);
+            boolean nextPart = multipartStream.skipPreamble();
+            while (nextPart) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                String multipartHeaders = multipartStream.readHeaders();
+                multipartStream.readBodyData(output);
+                if (Objects.equals(headerMatcher(PATTERN_NAME, multipartHeaders), "fileName")) {
+                    map.put("fileName", new TypedInMemoryFile.Builder()
+                            .content(output.toByteArray())
+                            .contentType(MediaType.PLAIN_TEXT_UTF_8.toString())
+                            .build());
+                }
+                else {
+                    map.put("file", new TypedInMemoryFile.Builder()
+                            .content(output.toByteArray())
+                            .contentType(headerMatcher(PATTERN_CONTENT_TYPE, multipartHeaders))
+                            .build());
+                }
+                nextPart = multipartStream.readBoundary();
+            }
+        }
+        catch (IOException e) {
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
+        }
+        return map;
+    }
+
+
+    private String headerMatcher(Pattern pattern, String header) {
+        Matcher matcher = pattern.matcher(header);
+        String result = matcher.find() ? matcher.group(1) : null;
+        if (!Objects.isNull(result) && result.contains("charset")) {
+            result = result.split(";")[0];
+        }
+        return result;
     }
 
 
@@ -166,11 +235,34 @@ public abstract class AbstractRequestMapper {
     protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         try {
-            return deserializer.readList(httpRequest.getBody(), type);
+            return deserializer.readList(httpRequest.getBodyAsString(), type);
         }
         catch (DeserializationException e) {
-            throw new InvalidRequestException("error parsing body", e);
+            throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
+    }
+
+
+    /**
+     * Parses a string to a JSON merge patch.
+     *
+     * @param json the JSON to parse
+     * @return the parsed merge patch
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException if json cannot be parsed as
+     *             JSON Merge Patch
+     */
+    protected JsonMergePatch parseMergePatch(String json) throws InvalidRequestException {
+
+        try {
+            return new ObjectMapper().readValue(json, JsonMergePatch.class);
+        }
+        catch (JsonProcessingException e) {
+            throw new InvalidRequestException(String.format("unable to create JSON merge patch (reason: %s, JSON payload: %s)",
+                    e.getMessage(),
+                    json),
+                    e);
+        }
+
     }
 
 

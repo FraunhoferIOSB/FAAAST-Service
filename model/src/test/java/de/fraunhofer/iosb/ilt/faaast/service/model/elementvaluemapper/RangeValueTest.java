@@ -19,8 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ import org.junit.Test;
 public class RangeValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultRange.Builder()
                 .build();
         RangeValue value = RangeValue.builder()
@@ -36,7 +37,7 @@ public class RangeValueTest {
                 .max(new DoubleValue(5.1))
                 .build();
         SubmodelElement expected = new DefaultRange.Builder()
-                .valueType(value.getMin().getDataType().getName())
+                .valueType(value.getMin().getDataType().getAas4jDatatype())
                 .min(value.getMin().asString())
                 .max(value.getMax().asString())
                 .build();
@@ -48,15 +49,15 @@ public class RangeValueTest {
     @Test
     public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultRange.Builder()
-                .valueType("int")
+                .valueType(DataTypeDefXsd.INT)
                 .max(null)
                 .min("2")
                 .build();
 
-        RangeValue rangeValue = ElementValueMapper.toValue(actual);
+        RangeValue rangeValue = ElementValueMapper.toValue(actual, RangeValue.class);
 
         SubmodelElement expected = new DefaultRange.Builder()
-                .valueType("int")
+                .valueType(DataTypeDefXsd.INT)
                 .min("2")
                 .max(null)
                 .build();
@@ -72,7 +73,7 @@ public class RangeValueTest {
                 .max(new DoubleValue(5.1))
                 .build();
         SubmodelElement input = new DefaultRange.Builder()
-                .valueType(expected.getMin().getDataType().getName())
+                .valueType(expected.getMin().getDataType().getAas4jDatatype())
                 .min(expected.getMin().asString())
                 .max(expected.getMax().asString())
                 .build();

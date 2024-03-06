@@ -15,20 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.SubmodelElementListHelper;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -49,7 +51,10 @@ public class TypeExtractor {
         }
     }
 
-    private static ElementValueTypeInfo extractTypeInfoForSubmodelElement(SubmodelElement submodelElement) {
+    private TypeExtractor() {}
+
+
+    private static TypeInfo extractTypeInfoForSubmodelElement(SubmodelElement submodelElement) {
         Class<?> type = submodelElement.getClass();
         ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
         builder.type(ElementValueMapper.getValueClass(submodelElement.getClass()));
@@ -59,7 +64,14 @@ public class TypeExtractor {
         }
         else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
             SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodelElement;
-            submodelElementCollection.getValues().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            submodelElementCollection.getValue().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(type)) {
+            SubmodelElementList submodelElementList = (SubmodelElementList) submodelElement;
+            builder.element(null, ElementValueTypeInfo.builder()
+                    .type(ElementValueMapper.getValueClass(SubmodelElementListHelper.getElementType(submodelElementList)))
+                    .datatype(SubmodelElementListHelper.getDatatype(submodelElementList))
+                    .build());
         }
         else if (Entity.class.isAssignableFrom(type)) {
             Entity entity = (Entity) submodelElement;
@@ -67,11 +79,11 @@ public class TypeExtractor {
         }
         else if (Property.class.isAssignableFrom(type)) {
             Property property = (Property) submodelElement;
-            builder.datatype(Datatype.fromName(property.getValueType()));
+            builder.datatype(Datatype.fromAas4jDatatype(property.getValueType()));
         }
         else if (Range.class.isAssignableFrom(type)) {
             Range range = (Range) submodelElement;
-            builder.datatype(Datatype.fromName(range.getValueType()));
+            builder.datatype(Datatype.fromAas4jDatatype(range.getValueType()));
         }
         return builder.build();
     }
@@ -89,7 +101,7 @@ public class TypeExtractor {
         ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
         builder.type(Collection.class);
         builder.contentType(TypeToken.of(collection.getClass()).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
-        Iterator iterator = collection.iterator();
+        Iterator<?> iterator = collection.iterator();
         int i = 0;
         while (iterator.hasNext()) {
             builder.element(i, extractTypeInfo(iterator.next()));

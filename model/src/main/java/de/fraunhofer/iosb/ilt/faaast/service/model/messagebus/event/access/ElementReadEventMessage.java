@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
 
-import io.adminshell.aas.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 
 
 /**

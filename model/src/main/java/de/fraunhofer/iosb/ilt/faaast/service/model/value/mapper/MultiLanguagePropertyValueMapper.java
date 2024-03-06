@@ -14,14 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.MultiLanguageProperty} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}.
  */
 public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {
@@ -32,17 +33,15 @@ public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLa
             return null;
         }
         MultiLanguagePropertyValue multiLanguagePropertyValue = new MultiLanguagePropertyValue();
-
-        //TODO: Check Why is in AAS Model value a List and in MultilanguagePropertyValue a Set?
-        multiLanguagePropertyValue.setLangStringSet(submodelElement.getValues() != null ? new HashSet<>(submodelElement.getValues()) : new HashSet<>());
+        multiLanguagePropertyValue.setLangStringSet(Objects.nonNull(submodelElement.getValue()) ? submodelElement.getValue() : new ArrayList<>());
         return multiLanguagePropertyValue;
     }
 
 
     @Override
-    public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
+    public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValues(value.getLangStringSet() != null ? new ArrayList<>(value.getLangStringSet()) : new ArrayList<>());
+        submodelElement.setValue(value.getLangStringSet() != null ? new ArrayList<>(value.getLangStringSet()) : new ArrayList<>());
         return submodelElement;
     }
 }

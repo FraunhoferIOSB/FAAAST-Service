@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.aasx;
 
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +24,7 @@ import java.util.Objects;
 public class PackageDescription {
 
     private String packageId;
-    private List<Identifier> aasId;
+    private List<String> aasId;
 
     public String getPackageId() {
         return packageId;
@@ -37,12 +36,12 @@ public class PackageDescription {
     }
 
 
-    public List<Identifier> getAasId() {
+    public List<String> getAasId() {
         return aasId;
     }
 
 
-    public void setAasId(List<Identifier> aasId) {
+    public void setAasId(List<String> aasId) {
         this.aasId = aasId;
     }
 

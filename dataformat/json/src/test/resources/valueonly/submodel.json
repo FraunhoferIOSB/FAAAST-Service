@@ -1,0 +1,30 @@
+{
+    "collection1": {
+        "propString": "foo",
+        "rangeDouble": {
+            "min": 3.0,
+            "max": 5.0
+        },
+        "entity1": {
+            "statements":
+                    {
+                        "MaxRotationSpeed": 5000
+                    },
+            "entityType": "SelfManagedEntity",
+            "globalAssetId": {
+                "type": "ExternalReference",
+                "keys": [
+                    {
+                        "type": "GlobalReference",
+                        "value": "http://customer.com/demo/asset/1/1/MySubAsset"
+                    }
+                ]
+            }
+        }
+    },
+    "propString": "foo",
+    "rangeDouble": {
+        "min": 3,
+        "max": 5
+    }
+}

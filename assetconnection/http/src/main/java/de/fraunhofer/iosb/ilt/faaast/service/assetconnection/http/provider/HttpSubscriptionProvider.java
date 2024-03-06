@@ -21,11 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFo
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -39,6 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,13 +93,13 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (IOException | InterruptedException | URISyntaxException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -112,7 +113,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     fireNewDataReceived(readRawValue());
                 }
                 catch (AssetConnectionException e) {
-                    LOGGER.debug("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
                 }
             }, 0, Math.max(MINIMUM_INTERVAL, config.getInterval()), TimeUnit.MILLISECONDS);
         }
@@ -149,7 +150,15 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
 
     @Override
     protected TypeInfo getTypeInfo() {
-        return serviceContext.getTypeInfo(reference);
+        try {
+            return serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(String.format(
+                    "HTTP subscription provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 }

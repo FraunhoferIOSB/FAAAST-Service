@@ -18,11 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,16 +31,14 @@ import org.junit.Test;
 public class ReferenceElementValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultReferenceElement.Builder()
                 .value(new DefaultReference.Builder()
                         .build())
                 .build();
         ReferenceElementValue value = createReferenceElementValue();
         SubmodelElement expected = new DefaultReferenceElement.Builder()
-                .value(new DefaultReference.Builder()
-                        .keys(value.getKeys())
-                        .build())
+                .value(value.getValue())
                 .build();
         ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
@@ -47,12 +46,12 @@ public class ReferenceElementValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultReferenceElement.Builder()
                 .value(null)
                 .build();
         ReferenceElementValue value = ReferenceElementValue.builder()
-                .keys(null)
+                .value(null)
                 .build();
         SubmodelElement expected = new DefaultReferenceElement.Builder()
                 .build();
@@ -65,9 +64,7 @@ public class ReferenceElementValueTest {
     public void testToValueMapping() throws ValueMappingException {
         ReferenceElementValue expected = createReferenceElementValue();
         SubmodelElement input = new DefaultReferenceElement.Builder()
-                .value(new DefaultReference.Builder()
-                        .keys(expected.getKeys())
-                        .build())
+                .value(expected.getValue())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);
@@ -77,7 +74,7 @@ public class ReferenceElementValueTest {
     @Test
     public void testToValueMappingWithNull() throws ValueMappingException {
         ReferenceElementValue expected = ReferenceElementValue.builder()
-                .keys(null)
+                .value(null)
                 .build();
         SubmodelElement input = new DefaultReferenceElement.Builder()
                 .build();
@@ -88,8 +85,17 @@ public class ReferenceElementValueTest {
 
     private ReferenceElementValue createReferenceElementValue() {
         return ReferenceElementValue.builder()
-                .key(KeyType.IRI, KeyElements.SUBMODEL, "http://example.org/submodel/1")
-                .key(KeyType.ID_SHORT, KeyElements.PROPERTY, "property1")
+                .value(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
+                                .value("http://example.org/submodel/1")
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.PROPERTY)
+                                .value("property1")
+                                .build())
+                        .build())
                 .build();
     }
 

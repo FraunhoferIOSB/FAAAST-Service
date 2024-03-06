@@ -15,27 +15,27 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 
 /**
  * Base class for requests that are part of the Submodel Interface API. This class exposes the URL both as the
- * stand-alone URL (e.g. submodels/{submodelIdentifier}/submodel/...) as well as the AAS-contextualied version (e.g.
- * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/...).
+ * stand-alone URL (e.g. submodels/{submodelIdentifier}/...) as well as the AAS-contextualied version (e.g.
+ * /shells/{aasIdentifier}/submodels/{submodelIdentifier}/...).
  *
  * @param <T> actual type of the request
  * @param <R> actual type of the response
@@ -45,28 +45,31 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
 
     protected static final String AAS_ID = RegExHelper.uniqueGroupName();
     protected static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    protected static final String AAS_PATH_PATTERN = String.format("shells/%s/aas/", pathElement(AAS_ID));
-    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/%s/submodel", pathElement(SUBMODEL_ID));
+    protected static final String AAS_PATH_PATTERN = String.format("shells/%s/", pathElement(AAS_ID));
+    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/%s", pathElement(SUBMODEL_ID));
     protected String contextualizedUrlPattern;
 
     /**
-     * urlPattern must not contain initial part of URL up to ".../submodel/" as this is automatically added within this
-     * constructor.
+     * urlPattern must not contain initial part of URL identifying the submodel.
      *
      * @param serviceContext the service context
      * @param method the HTTP method for this request
-     * @param urlPattern the URL pattern, but only the part after ".../submodel/"
+     * @param urlPattern the URL pattern
+     * @param excludedContentModifiers content modifiers that are not allowed for this request as they are handled
+     *            explicitely by another request. This is requred so that the generated URL patterns do not overlap.
      */
-    protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
-        super(serviceContext, method, addSubmodelPath(urlPattern));
-        this.contextualizedUrlPattern = RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern)));
+    protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern, Content... excludedContentModifiers) {
+        super(serviceContext, method, addSubmodelPath(urlPattern), excludedContentModifiers);
+        this.contextualizedUrlPattern = ensureUrlPatternAllowsContentModifier(
+                RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern))),
+                excludedContentModifiers);
     }
 
 
     private static String addSubmodelPath(String urlPattern) {
         return String.format("%s%s%s",
                 SUBMODEL_PATH_PATTERN,
-                StringUtils.isNoneBlank(urlPattern) && !urlPattern.startsWith(HttpConstants.PATH_SEPERATOR)
+                !StringHelper.isBlank(urlPattern) && !urlPattern.startsWith(HttpConstants.PATH_SEPERATOR)
                         ? "/"
                         : "",
                 urlPattern);
@@ -121,14 +124,14 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
         Matcher matcher = Pattern.compile(pattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
             Map<String, String> urlParameters = RegExHelper.getGroupValues(pattern, httpRequest.getPath());
-            httpRequest.setPath(withAasContext
+            httpRequest.setPath(hasAasPath(httpRequest.getPath())
                     ? removeAasPath(removeSubmodelPath(httpRequest.getPath()))
                     : removeSubmodelPath(httpRequest.getPath()));
             AbstractSubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
             if (withAasContext) {
-                result.setAasId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))));
+                result.setAasId(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)));
             }
-            result.setSubmodelId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))));
+            result.setSubmodelId(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)));
             return result;
         }
         throw new InvalidRequestException(String.format("request does neither satisfy URL pattern '%s' nor contextualized URL pattern '%s'", urlPattern, contextualizedUrlPattern));

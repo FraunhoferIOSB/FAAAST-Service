@@ -23,13 +23,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event.EventMessageMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.AnnotatedRelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BlobValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.FileValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.MultiLanguagePropertyValueSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ReferenceElementValueSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.RelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event.ElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event.TypedValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -39,8 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 
 
@@ -77,12 +75,11 @@ public class JsonEventSerializer {
         module.addSerializer(BlobValue.class, new BlobValueSerializer());
         module.addSerializer(FileValue.class, new FileValueSerializer());
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
-        module.addSerializer(ReferenceElementValue.class, new ReferenceElementValueSerializer());
-        module.addSerializer(RelationshipElementValue.class, new RelationshipElementValueSerializer());
         module.addSerializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueSerializer());
         module.addSerializer(TypedValue.class, new TypedValueSerializer());
         mapper.registerModule(module);
         mapper.addMixIn(EventMessage.class, EventMessageMixin.class);
+        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
     }
 
 

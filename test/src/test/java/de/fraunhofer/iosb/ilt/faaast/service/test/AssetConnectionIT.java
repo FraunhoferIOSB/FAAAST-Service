@@ -18,66 +18,69 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelpe
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
-import com.prosysopc.ua.stack.core.UserTokenType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 
-public class AssetConnectionIT {
+public class AssetConnectionIT extends AbstractIntegrationTest {
 
-    private static final String HOST = "http://localhost";
     private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
 
     private static final int SOURCE_VALUE = 42;
     private static final int TARGET_VALUE = 0;
-    private static AssetAdministrationShellEnvironment environment;
     private static Service service;
+    private static Environment environment;
     private static Property source;
     private static Submodel submodel;
     private static Property target;
@@ -87,31 +90,25 @@ public class AssetConnectionIT {
         source = new DefaultProperty.Builder()
                 .idShort("source")
                 .value(Integer.toString(SOURCE_VALUE))
-                .valueType("integer")
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         target = new DefaultProperty.Builder()
                 .idShort("target")
                 .value(Integer.toString(TARGET_VALUE))
-                .valueType("integer")
+                .valueType(DataTypeDefXsd.INTEGER)
                 .build();
         submodel = new DefaultSubmodel.Builder()
                 .idShort("Submodel1")
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier("http://example.org/submodel/1")
-                        .build())
-                .kind(ModelingKind.INSTANCE)
-                .submodelElement(source)
-                .submodelElement(target)
+                .id("http://example.org/submodel/1")
+                .kind(ModellingKind.INSTANCE)
+                .submodelElements(source)
+                .submodelElements(target)
                 .build();
-        environment = new DefaultAssetAdministrationShellEnvironment.Builder()
+        environment = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
                         .idShort("AAS1")
-                        .identification(new DefaultIdentifier.Builder()
-                                .idType(IdentifierType.IRI)
-                                .identifier("https://example.org/aas/1")
-                                .build())
-                        .submodel(ReferenceHelper.toReference(submodel.getIdentification(), Submodel.class))
+                        .id("https://example.org/aas/1")
+                        .submodels(ReferenceBuilder.forSubmodel(submodel))
                         .build())
                 .submodels(submodel)
                 .build();
@@ -139,6 +136,8 @@ public class AssetConnectionIT {
 
 
     @Test
+    // TODO re-add once OPC UA Endpoint is updated to AAS4j
+    @Ignore
     public void testServiceStartValidAssetConnection() throws Exception {
         int http = PortHelper.findFreePort();
         int opcua = PortHelper.findFreePort();
@@ -155,6 +154,8 @@ public class AssetConnectionIT {
 
 
     @Test
+    // TODO re-add once OPC UA Endpoint is updated to AAS4j
+    @Ignore
     public void testServiceStartValidAssetConnectionDelayed() throws Exception {
         int http = PortHelper.findFreePort();
         int opcua = PortHelper.findFreePort();
@@ -182,12 +183,19 @@ public class AssetConnectionIT {
                 .persistence(PersistenceInMemoryConfig.builder()
                         .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
-                .endpoint(OpcUaEndpointConfig.builder()
-                        .tcpPort(portOpcUa)
-                        .supportedAuthentication(UserTokenType.Anonymous)
-                        .build())
+                .fileStorage(new FileStorageInMemoryConfig())
+                // TODO re-add once OPC UA Endpoint is updated to AAS4j
+                //.endpoint(OpcUaEndpointConfig.builder()
+                //        .tcpPort(portOpcUa)
+                //        .supportedAuthentication(UserTokenType.Anonymous)
+                //        .build())
                 .endpoint(HttpEndpointConfig.builder()
                         .port(portHttp)
+                        .certificate(CertificateConfig.builder()
+                                .keyStorePath(httpEndpointKeyStoreFile)
+                                .keyStoreType(HTTP_ENDPOINT_KEYSTORE_TYPE)
+                                .keyStorePassword(HTTP_ENDPOINT_KEYSTORE_PASSWORD)
+                                .build())
                         .build())
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
@@ -208,9 +216,10 @@ public class AssetConnectionIT {
     }
 
 
-    private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Object expected = environment.getAssetAdministrationShells();
-        assertExecuteMultiple(
+    private void assertServiceAvailabilityHttp(int port)
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
+        assertExecutePage(
                 HttpMethod.GET,
                 new ApiPaths(HOST, port).aasRepository().assetAdministrationShells(),
                 StatusCode.SUCCESS,
@@ -232,8 +241,9 @@ public class AssetConnectionIT {
 
 
     private void assertTargetValue(int port, int expectedValue)
-            throws IOException, InterruptedException, URISyntaxException, JSONException {
+            throws IOException, InterruptedException, URISyntaxException, JSONException, NoSuchAlgorithmException, KeyManagementException {
         HttpResponse<String> response = HttpHelper.get(
+                httpClient,
                 new ApiPaths(HOST, port)
                         .submodelRepository()
                         .submodelInterface(submodel)
@@ -244,14 +254,15 @@ public class AssetConnectionIT {
     }
 
 
-    private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        HttpResponse response = HttpHelper.execute(method, url, input);
+    private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+        HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         assertEquals(toHttpStatusCode(statusCode), response.statusCode());
+        Page<T> actual = HttpHelper.readResponsePage(response, type);
         if (expected != null) {
-            Object actual = HttpHelper.readResponseList(response, type);
-            assertEquals(expected, actual);
+            assertEquals(expected, actual.getContent());
         }
+        return actual;
     }
 
 

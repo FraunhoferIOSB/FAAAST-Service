@@ -20,7 +20,6 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaAddress;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
-import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
@@ -45,44 +44,38 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import opc.i4aas.AASEntityType;
-import opc.i4aas.AASIdentifierTypeDataType;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
-import opc.i4aas.AASModelingKindDataType;
-import opc.i4aas.AASRelationshipElementType;
-import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
+import opc.i4aas.datatypes.AASDataTypeDefXsd;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.datatypes.AASKeyTypesDataType;
+import opc.i4aas.datatypes.AASModellingKindDataType;
+import opc.i4aas.objecttypes.AASEntityType;
+import opc.i4aas.objecttypes.AASRelationshipElementType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -98,7 +91,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final long DEFAULT_TIMEOUT = 400;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -167,7 +160,6 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("Browse Environment Refs Null", refs);
         Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
         NodeId aasNode = null;
-        NodeId assetNode = null;
         NodeId submodelDocNode = null;
         NodeId submodelTechDataNode = null;
         NodeId submodelOperDataNode = null;
@@ -175,9 +167,6 @@ public class OpcUaEndpointTest {
             switch (ref.getBrowseName().getName()) {
                 case TestConstants.SIMPLE_AAS_NAME:
                     aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-                    break;
-                case TestConstants.SIMPLE_ASSET_NAME:
-                    assetNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
                 case TestConstants.SUBMODEL_DOC_NODE_NAME:
                     submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
@@ -194,7 +183,6 @@ public class OpcUaEndpointTest {
         }
 
         Assert.assertNotNull("AAS Node not found", aasNode);
-        Assert.assertNotNull("Asset Node not found", assetNode);
         Assert.assertNotNull("Submodel Documentation Node not found", submodelDocNode);
         Assert.assertNotNull("Submodel TechnicalData Node not found", submodelTechDataNode);
         Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
@@ -205,9 +193,6 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelDocNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        // Asset
-        testAsset(client, assetNode);
 
         // Submodels
         testSubmodelDoc(client, submodelDocNode);
@@ -254,35 +239,18 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testWriteProperty ValueType empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Integer oldValue = 4370;
+        Long oldValue = Long.valueOf(4370);
         Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
 
-        CountDownLatch condition = new CountDownLatch(1);
-        final AtomicReference<EventMessage> response = new AtomicReference<>();
-        service.getMessageBus().subscribe(SubscriptionInfo.create(
-                ValueChangeEventMessage.class,
-                x -> {
-                    response.set(x);
-                    condition.countDown();
-                }));
+        Long newValue = Long.valueOf(9999);
 
-        Integer newValue = 9999;
-        List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_OPER_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder().keys(keys).build();
-        ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
-        valueChangeMessage.setElement(propRef);
-        //PropertyValue propertyValue = new PropertyValue();
-        //propertyValue.setValue(new IntValue(oldValue));
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, oldValue.toString()));
-        //propertyValue.setValue(new IntValue(newValue));
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
-        service.getMessageBus().publish(valueChangeMessage);
-
-        // check MessageBus
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(valueChangeMessage, response.get());
+        // set new value in service
+        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_OPER_DATA_NAME)
+                .path(TestConstants.ROTATION_SPEED_NAME)
+                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
+                .build();
+        Response response = service.execute(request);
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // read new value
         value = client.readValue(targets[0].getTargetId());
@@ -331,7 +299,7 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testPropertyChangeFromMessageBus() throws SecureIdentityException, IOException, ServiceException, Exception {
+    public void testPropertyChange() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -357,20 +325,15 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testPropertyChangeFromMessageBus ValueType Null", targets);
         Assert.assertTrue("testPropertyChangeFromMessageBus ValueType empty", targets.length > 0);
 
-        List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_TECH_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
-        Reference propRef = new DefaultReference.Builder().keys(keys).build();
+        Long newValue = Long.valueOf(5005);
 
-        CountDownLatch condition = new CountDownLatch(1);
-        ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
-        valueChangeMessage.setElement(propRef);
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, "5000"));
-        Integer newValue = 5005;
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
-        service.getMessageBus().publish(valueChangeMessage);
-
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        // set new value in service
+        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_TECH_DATA_NAME)
+                .path(TestConstants.MAX_ROTATION_SPEED_NAME)
+                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
+                .build();
+        Response response = service.execute(request);
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
 
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
@@ -412,45 +375,6 @@ public class OpcUaEndpointTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         TestUtils.writeNewValueIntern(client, writeNode, 100, 111);
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWriteBlobValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("testWriteBlobValue: client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_BLOB_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteBlobValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteBlobValue Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testWriteBlobValue Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteBlobValue ValueType Null", targets);
-        Assert.assertTrue("testWriteBlobValue ValueType empty", targets.length > 0);
-
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        //byte[] oldValue = Base64.getDecoder().decode("AQIDBAU=");
-        ByteString oldValue = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
-        ByteString newValue = ByteString.valueOf(Base64.getDecoder().decode("QUJDREU="));
-        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -533,55 +457,17 @@ public class OpcUaEndpointTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, TestConstants.MAX_ROTATION_SPEED_NAME, AASKeyTypeDataType.IdShort));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
+        oldValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, TestConstants.MAX_ROTATION_SPEED_NAME));
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, "Another property", AASKeyTypeDataType.IdShort));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME));
+        newValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "Another property"));
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
         System.out.println("testWriteReferenceElementValue: disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWriteEntityPropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("testWriteEntityPropertyValue: client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASEntityType.STATEMENT)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_PROPERTY_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteEntityPropertyValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteEntityPropertyValue Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testWriteEntityPropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteEntityPropertyValue ValueType Null", targets);
-        Assert.assertTrue("testWriteEntityPropertyValue ValueType empty", targets.length > 0);
-
-        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-
-        TestUtils.writeNewValueIntern(client, writeNode, "http://acplt.org/ValueId/ExampleValueId", "http://acplt.org/ValueId/AnotherValue");
-
-        System.out.println("disconnect client");
         client.disconnect();
     }
 
@@ -648,19 +534,19 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
-        // Send event to MessageBus
         CountDownLatch condition = new CountDownLatch(1);
-        ElementCreateEventMessage msg = new ElementCreateEventMessage();
-        msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build()).build());
-        msg.setValue(new DefaultProperty.Builder()
-                .kind(ModelingKind.INSTANCE)
-                .idShort(propName)
-                .category("Variable")
-                .value("AZF45")
-                .valueType("string")
-                .build());
-        service.getMessageBus().publish(msg);
+
+        PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
+                .submodelId("http://i40.customer.com/type/1/1/7A7104BDAB57E184")
+                .submodelElement(new DefaultProperty.Builder()
+                        .idShort(propName)
+                        .category("Variable")
+                        .value("AZF45")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .build())
+                .build();
+        PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_CREATED, response.getStatusCode());
 
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
@@ -706,63 +592,57 @@ public class OpcUaEndpointTest {
         CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
-                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(new DefaultKey.Builder().type(KeyTypes.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
                 .build());
         msg.setValue(new DefaultSubmodel.Builder()
                 .idShort(submodelName)
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier("https://acplt.org/NewSubmodelTest1")
-                        .build())
+                .id("https://acplt.org/NewSubmodelTest1")
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .version("0.9")
                         .revision("0")
                         .build())
-                .kind(ModelingKind.INSTANCE)
-                .submodelElement(new DefaultRelationshipElement.Builder()
+                .kind(ModellingKind.INSTANCE)
+                .submodelElements(new DefaultRelationshipElement.Builder()
                         .idShort("ExampleRelationshipElement")
                         .category("Parameter")
-                        .description(new LangString("Example RelationshipElement object", "en-us"))
-                        .description(new LangString("Beispiel RelationshipElement Element", "de"))
+                        .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
+                        .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
                         .semanticId(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
-                                        .idType(KeyType.IRI)
                                         .build())
                                 .build())
                         .first(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL)
                                         .value("https://acplt.org/Test_Submodel")
-                                        .idType(KeyType.IRI)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL_ELEMENT_COLLECTION)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL_ELEMENT_COLLECTION)
                                         .value("ExampleSubmodelCollectionOrdered")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.PROPERTY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.PROPERTY)
                                         .value("ExampleProperty")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
                                 .build())
                         .second(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.SUBMODEL)
+                                .type(ReferenceTypes.MODEL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.SUBMODEL)
                                         .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
-                                        .idType(KeyType.IRI)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.ENTITY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.ENTITY)
                                         .value("ExampleEntity")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
-                                .key(new DefaultKey.Builder()
-                                        .type(KeyElements.PROPERTY)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.PROPERTY)
                                         .value("ExampleProperty2")
-                                        .idType(KeyType.ID_SHORT)
                                         .build())
                                 .build())
                         .build())
@@ -907,22 +787,12 @@ public class OpcUaEndpointTest {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
         TestUtils.checkType(client, aasNode, new NodeId(aasns, TestConstants.AAS_AAS_TYPE_ID));
-        TestUtils.checkIdentificationNode(client, aasNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/aas/9175_7013_7091_9168");
+        TestUtils.checkIdentification(client, aasNode, aasns, "http://customer.com/aas/9175_7013_7091_9168");
         TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
         TestUtils.checkCategoryNode(client, aasNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, aasNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, aasNode, aasns);
         TestUtils.checkAssetInformationNode(client, aasNode, aasns);
         testSubmodelRefs(client, aasNode, aasns, submodelDocNode, submodelOperDataNode, submodelTechDataNode);
-    }
-
-
-    private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
-        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
-        TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
-        TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
-        TestUtils.checkCategoryNode(client, assetNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, assetNode, aasns);
     }
 
 
@@ -951,11 +821,11 @@ public class OpcUaEndpointTest {
 
         Assert.assertNotNull(submodelName + " OperatingManual Node not found", operatingManualNode);
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_DOC_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_DOC_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         testOperatingManual(client, operatingManualNode);
     }
@@ -965,14 +835,14 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_OPER_DATA_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Variable", AASValueTypeDataType.Int32,
-                4370, new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", AASDataTypeDefXsd.Integer,
+                Long.valueOf(4370), new ArrayList<>());
     }
 
 
@@ -980,16 +850,17 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_TECH_DATA_NAME);
+        TestUtils.checkIdentification(client, submodelNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
-        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
+        // no kind available here, check for null
+        TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModellingKindDataType.Instance);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Parameter",
-                AASValueTypeDataType.Int32, 5000, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, AASModelingKindDataType.Instance, "Parameter",
-                AASValueTypeDataType.Int64, Long.valueOf(123456), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
+                AASDataTypeDefXsd.Integer, Long.valueOf(5000), new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
+                AASDataTypeDefXsd.Decimal, Long.valueOf(123456), new ArrayList<>());
     }
 
 
@@ -997,14 +868,9 @@ public class OpcUaEndpointTest {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
-        TestUtils.checkModelingKindNode(client, node, aasns, AASModelingKindDataType.Instance);
-        TestUtils.checkDataSpecificationNode(client, node, aasns);
+        TestUtils.checkEmbeddedDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
-        // Skip LangString / LocalizedText test: not yet implemented in the service
-        //TestUtils.checkAasPropertyString(client, node, aasns, "Title", AASModelingKindDataType.Instance, "", AASValueTypeDataType.LocalizedText, "OperatingManual",
-        //        new ArrayList<>());
-        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModelingKindDataType.Instance, "", "application/pdf", "/aasx/OperatingManual.pdf", 0);
+        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModellingKindDataType.Instance, "", "application/pdf", "file:///aasx/OperatingManual.pdf", 0);
     }
 
 

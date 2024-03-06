@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -56,8 +56,8 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
     @BeforeClass
     public static void init() throws Exception {
         port = PortHelper.findFreePort();
-        deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
+        fileStorage = mock(FileStorage.class);
         generateCertificate();
         startServer();
         startClient();
@@ -81,13 +81,12 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
         scheme = HttpScheme.HTTPS.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
                         .port(port)
                         .cors(true)
-                        .https(true)
                         .certificate(CertificateConfig.builder()
                                 .keyStorePath(keyStoreTempFile)
                                 .keyStorePassword(KEYSTORE_PASSWORD)

@@ -18,18 +18,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Serializer for type {@link io.adminshell.aas.v3.model.Reference}.
+ * Serializer for type {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference}.
  */
 public class ReferenceSerializer extends JsonSerializer<Reference> {
 
     @Override
     public void serialize(Reference value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeFieldName(AasUtils.asString(value));
+        gen.writeFieldName(ReferenceHelper.toString(value));
     }
 }

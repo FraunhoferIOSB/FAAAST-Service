@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -32,9 +32,9 @@ public abstract class AbstractIdentifiableDescriptor {
     private String idShort;
     private List<Endpoint> endpoints;
     private AdministrativeInformation administration;
-    private List<LangString> descriptions;
-    private List<LangString> displayNames;
-    private Identifier identification;
+    private List<LangStringTextType> descriptions;
+    private List<LangStringNameType> displayNames;
+    private String id;
 
     protected AbstractIdentifiableDescriptor() {
         idShort = null;
@@ -42,7 +42,6 @@ public abstract class AbstractIdentifiableDescriptor {
         administration = null;
         descriptions = new ArrayList<>();
         displayNames = new ArrayList<>();
-        identification = null;
     }
 
 
@@ -50,13 +49,13 @@ public abstract class AbstractIdentifiableDescriptor {
             String idShort,
             List<Endpoint> endpoints,
             AdministrativeInformation administration,
-            List<LangString> descriptions,
-            Identifier identification) {
+            List<LangStringTextType> descriptions,
+            String identification) {
         this.idShort = idShort;
         this.endpoints = endpoints;
         this.administration = administration;
         this.descriptions = descriptions;
-        this.identification = identification;
+        this.id = identification;
     }
 
 
@@ -90,33 +89,33 @@ public abstract class AbstractIdentifiableDescriptor {
     }
 
 
-    public List<LangString> getDescriptions() {
+    public List<LangStringTextType> getDescriptions() {
         return descriptions;
     }
 
 
-    public void setDescriptions(List<LangString> descriptions) {
+    public void setDescriptions(List<LangStringTextType> descriptions) {
         this.descriptions = descriptions;
     }
 
 
-    public List<LangString> getDisplayNames() {
+    public List<LangStringNameType> getDisplayNames() {
         return displayNames;
     }
 
 
-    public void setDisplayNames(List<LangString> displayNames) {
+    public void setDisplayNames(List<LangStringNameType> displayNames) {
         this.displayNames = displayNames;
     }
 
 
-    public Identifier getIdentification() {
-        return identification;
+    public String getId() {
+        return id;
     }
 
 
-    public void setIdentification(Identifier identification) {
-        this.identification = identification;
+    public void setId(String id) {
+        this.id = id;
     }
 
 
@@ -134,13 +133,13 @@ public abstract class AbstractIdentifiableDescriptor {
                 && Objects.equals(administration, that.administration)
                 && Objects.equals(descriptions, that.descriptions)
                 && Objects.equals(displayNames, that.displayNames)
-                && Objects.equals(identification, that.identification);
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShort, endpoints, administration, descriptions, displayNames, identification);
+        return Objects.hash(idShort, endpoints, administration, descriptions, displayNames, id);
     }
 
     public abstract static class AbstractBuilder<T extends AbstractIdentifiableDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -169,32 +168,32 @@ public abstract class AbstractIdentifiableDescriptor {
         }
 
 
-        public B descriptions(List<LangString> value) {
+        public B descriptions(List<LangStringTextType> value) {
             getBuildingInstance().setDescriptions(value);
             return getSelf();
         }
 
 
-        public B description(LangString value) {
+        public B description(LangStringTextType value) {
             getBuildingInstance().getDescriptions().add(value);
             return getSelf();
         }
 
 
-        public B displayNames(List<LangString> value) {
+        public B displayNames(List<LangStringNameType> value) {
             getBuildingInstance().setDisplayNames(value);
             return getSelf();
         }
 
 
-        public B displayName(LangString value) {
+        public B displayName(LangStringNameType value) {
             getBuildingInstance().getDisplayNames().add(value);
             return getSelf();
         }
 
 
-        public B identification(Identifier value) {
-            getBuildingInstance().setIdentification(value);
+        public B id(String value) {
+            getBuildingInstance().setId(value);
             return getSelf();
         }
     }

@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
@@ -27,10 +28,22 @@ import java.util.List;
  */
 public interface AssetAdministrationShellDescriptor {
 
-    public String getIdShort();
+    public AdministrativeInformation getAdministration();
 
 
-    public void setIdShort(String idShort);
+    public void setAdministration(AdministrativeInformation administration);
+
+
+    public AssetKind getAssetKind();
+
+
+    public void setAssetKind(AssetKind assetKind);
+
+
+    public String getAssetType();
+
+
+    public void setAssetType(String assetType);
 
 
     public List<Endpoint> getEndpoints();
@@ -39,44 +52,50 @@ public interface AssetAdministrationShellDescriptor {
     public void setEndpoints(List<Endpoint> endpoints);
 
 
-    public AdministrativeInformation getAdministration();
+    public String getGlobalAssetId();
 
 
-    public void setAdministration(AdministrativeInformation administration);
+    public void setGlobalAssetId(String globalAssetId);
 
 
-    public List<LangString> getDescriptions();
+    public String getIdShort();
 
 
-    public void setDescriptions(List<LangString> descriptions);
+    public void setIdShort(String idShort);
 
 
-    public List<LangString> getDisplayNames();
+    public String getId();
 
 
-    public void setDisplayNames(List<LangString> displayNames);
+    public void setId(String identification);
 
 
-    public Reference getGlobalAssetId();
+    public List<SpecificAssetId> getSpecificAssetIds();
 
 
-    public void setGlobalAssetId(Reference globalAssetId);
-
-
-    public Identifier getIdentification();
-
-
-    public void setIdentification(Identifier identification);
-
-
-    public List<IdentifierKeyValuePair> getSpecificAssetIds();
-
-
-    public void setSpecificAssetIds(List<IdentifierKeyValuePair> specificAssetIds);
+    public void setSpecificAssetIds(List<SpecificAssetId> specificAssetIds);
 
 
     public List<SubmodelDescriptor> getSubmodels();
 
 
     public void setSubmodels(List<SubmodelDescriptor> submodels);
+
+
+    public List<LangStringTextType> getDescriptions();
+
+
+    public void setDescriptions(List<LangStringTextType> descriptions);
+
+
+    public List<LangStringNameType> getDisplayNames();
+
+
+    public void setDisplayNames(List<LangStringNameType> displayNames);
+
+
+    public List<Extension> getExtensions();
+
+
+    public void setExtensions(List<Extension> extensions);
 }

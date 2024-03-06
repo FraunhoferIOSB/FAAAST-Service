@@ -24,7 +24,9 @@ import com.prosysopc.ua.server.io.IoManagerListener;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
@@ -34,7 +36,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +92,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         // The WriteMask defines the writable attributes, except for Value,
         // which is controlled by UserAccessLevel (above)
 
-        return AttributeWriteMask.of(AttributeWriteMask.Fields.values());
+        return AttributeWriteMask.of(AttributeWriteMask.Options.values());
     }
 
 
@@ -97,7 +104,33 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
     @Override
     public boolean onReadValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange nr, TimestampsToReturn ttr, DateTime dt, DataValue dv) throws StatusException {
-        return false;
+        boolean rv = false;
+        SubmodelElementData data = nodeManager.getAasData(nodeId);
+        try {
+            if ((data != null) && (endpoint.hasValueProvider(data.getReference()))) {
+                LOGGER.debug("onReadValue: Node {}", nodeId);
+                if (data.getType() == SubmodelElementData.Type.PROPERTY_VALUE) {
+                    SubmodelElement elem = endpoint.readValue(data.getSubmodel().getId(), data.getReference());
+                    if ((elem != null) && (Property.class.isAssignableFrom(elem.getClass()))) {
+                        PropertyValue typedValue = ElementValueMapper.toValue((Property) elem, PropertyValue.class);
+                        dv.setValue(new Variant(ValueConverter.convertTypedValue(typedValue.getValue())));
+                        dv.setStatusCode(StatusCode.GOOD);
+                        dv.setSourceTimestamp(DateTime.currentTime());
+                        dv.setServerTimestamp(DateTime.currentTime());
+                        // return true to indicate that the read call was handled
+                        rv = true;
+                    }
+                }
+                else {
+                    LOGGER.trace("onReadValue: type {} currently not supported", data.getType());
+                }
+            }
+        }
+        catch (ValueMappingException ex) {
+            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
+        }
+
+        return rv;
     }
 
 

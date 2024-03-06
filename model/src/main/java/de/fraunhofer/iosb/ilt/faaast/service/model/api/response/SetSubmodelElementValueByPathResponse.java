@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
-
-
 /**
  * Response class for SetSubmodelElementValueByPath requests.
  */

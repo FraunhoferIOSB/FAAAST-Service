@@ -14,27 +14,27 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.path;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
-import io.adminshell.aas.v3.model.AccessControl;
-import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.Certificate;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.ObjectAttributes;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.PolicyInformationPoints;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.SubjectAttributes;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
 /**
@@ -42,12 +42,25 @@ import java.util.stream.Collectors;
  */
 public class IdShortPathElementWalker extends AssetAdministrationShellElementWalker {
 
-    public static final String ID_SHORT_PATH_SEPARATOR = ".";
     private Deque<Referable> hierarchy;
-    private List<String> idShortPaths;
+    private IdShortPath path;
+    private List<IdShortPath> idShortPaths;
+    private Map<Referable, Long> submodelElementListChildCounters = new HashMap<>();
     private Level level;
-
     private int maxDepth;
+
+    private void init() {
+        maxDepth = level == Level.CORE ? 2 : Integer.MAX_VALUE;
+        hierarchy = new ArrayDeque<>();
+        path = IdShortPath.EMPTY;
+        idShortPaths = new ArrayList<>();
+    }
+
+
+    public List<IdShortPath> getIdShortPaths() {
+        return idShortPaths;
+    }
+
 
     private static boolean isContainerElement(Referable referable) {
         if (referable == null) {
@@ -55,83 +68,81 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
         }
         return AssetAdministrationShell.class.isAssignableFrom(referable.getClass())
                 || Submodel.class.isAssignableFrom(referable.getClass())
-                || SubmodelElementCollection.class.isAssignableFrom(referable.getClass());
+                || SubmodelElementCollection.class.isAssignableFrom(referable.getClass())
+                || SubmodelElementList.class.isAssignableFrom(referable.getClass());
+    }
+
+
+    private void addPath(Referable referable) {
+        if (path.isEmpty()) {
+            path = IdShortPath.builder()
+                    .from(path)
+                    .idShort(referable.getIdShort())
+                    .build();
+        }
+        else {
+            // add path segment
+            Referable parent = hierarchy.peekLast();
+            if (Objects.nonNull(parent) && SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+                if (!submodelElementListChildCounters.containsKey(parent)) {
+                    submodelElementListChildCounters.put(parent, 0L);
+                }
+                else {
+                    submodelElementListChildCounters.put(parent, submodelElementListChildCounters.get(parent) + 1);
+                }
+                path = IdShortPath.builder()
+                        .from(path)
+                        .index(submodelElementListChildCounters.get(parent))
+                        .build();
+            }
+            else {
+                path = IdShortPath.builder()
+                        .from(path)
+                        .idShort(referable.getIdShort())
+                        .build();
+            }
+        }
+        if (hierarchy.size() >= maxDepth) {
+            return;
+        }
+        idShortPaths.add(path);
     }
 
 
     public IdShortPathElementWalker(Level level) {
         this.level = level;
-        this.before = new DefaultAssetAdministrationShellElementVisitor() {
-            @Override
-            public void visit(Referable referable) {
-                if (isContainerElement(referable)) {
-                    hierarchy.add(referable);
-                }
-            }
-        };
         this.after = new DefaultAssetAdministrationShellElementVisitor() {
             @Override
             public void visit(Referable referable) {
                 if (isContainerElement(referable)) {
                     hierarchy.pollLast();
                 }
+                path = path.getParent();
             }
         };
         this.visitor = new DefaultAssetAdministrationShellElementVisitor() {
             @Override
             public void visit(Referable referable) {
-                if (referable == null) {
+                if (Objects.isNull(referable) || SubmodelElement.class.isAssignableFrom(referable.getClass())) {
                     return;
                 }
-                if (hierarchy.isEmpty()) {
-                    getIdShortPaths().add(referable.getIdShort());
+                if (isContainerElement(referable)) {
+                    hierarchy.add(referable);
+                }
+            }
+
+
+            @Override
+            public void visit(SubmodelElement element) {
+                if (Objects.isNull(element)) {
                     return;
                 }
-                String path = hierarchy.stream().map(Referable::getIdShort).collect(Collectors.joining(ID_SHORT_PATH_SEPARATOR));
-                if (!isContainerElement(referable) && hierarchy.size() < maxDepth) {
-                    getIdShortPaths().add(String.format("%s%s%s", path, ID_SHORT_PATH_SEPARATOR, referable.getIdShort()));
-                    return;
-                }
-                if (isContainerElement(referable) && hierarchy.size() <= maxDepth) {
-                    getIdShortPaths().add(path);
+                addPath(element);
+                if (isContainerElement(element)) {
+                    hierarchy.add(element);
                 }
             }
         };
-    }
-
-
-    public List<String> getIdShortPaths() {
-        return idShortPaths;
-    }
-
-
-    @Override
-    public void visit(PolicyInformationPoints element) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public void visit(AccessControl element) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public void visit(SubjectAttributes element) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public void visit(ObjectAttributes element) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public void visit(Certificate element) {
-        // intentionally left empty
     }
 
 
@@ -167,13 +178,6 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
     public void walk(Object obj) {
         init();
         super.walk(obj);
-    }
-
-
-    private void init() {
-        maxDepth = level == Level.CORE ? 2 : Integer.MAX_VALUE;
-        hierarchy = new ArrayDeque<>();
-        idShortPaths = new ArrayList<>();
     }
 
 }

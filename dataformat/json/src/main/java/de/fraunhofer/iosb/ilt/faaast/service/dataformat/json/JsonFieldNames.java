@@ -24,20 +24,19 @@ public class JsonFieldNames {
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST = "first";
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND = "second";
 
-    public static final String BLOB_VALUE_MIME_TYPE = "mimeType";
+    public static final String BLOB_VALUE_CONTENT_TYPE = "contentType";
     public static final String BLOB_VALUE_VALUE = "value";
 
     public static final String ENTITY_VALUE_ENTITY_TYPE = "entityType";
     public static final String ENTITY_VALUE_GLOBAL_ASSET_ID = "globalAssetId";
     public static final String ENTITY_VALUE_STATEMENTS = "statements";
 
-    public static final String FILE_VALUE_MIME_TYPE = "mimeType";
+    public static final String FILE_VALUE_CONTENT_TYPE = "contentType";
     public static final String FILE_VALUE_VALUE = "value";
 
     public static final String RANGE_VALUE_MAX = "max";
     public static final String RANGE_VALUE_MIN = "min";
 
-    public static final String REFERENCE_ELEMENT_VALUE_ID_TYPE = "idType";
     public static final String REFERENCE_ELEMENT_VALUE_TYPE = "type";
     public static final String REFERENCE_ELEMENT_VALUE_VALUE = "value";
 

@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
-import io.adminshell.aas.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.File} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.File} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue}.
  */
 public class FileValueMapper implements DataValueMapper<File, FileValue> {
@@ -31,16 +32,16 @@ public class FileValueMapper implements DataValueMapper<File, FileValue> {
         }
         FileValue fileValue = new FileValue();
         fileValue.setValue(submodelElement.getValue());
-        fileValue.setMimeType(submodelElement.getMimeType());
+        fileValue.setContentType(submodelElement.getContentType());
         return fileValue;
     }
 
 
     @Override
-    public File setValue(File submodelElement, FileValue value) {
+    public File setValue(File submodelElement, FileValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
-        submodelElement.setMimeType(value.getMimeType());
+        submodelElement.setContentType(value.getContentType());
         return submodelElement;
     }
 }

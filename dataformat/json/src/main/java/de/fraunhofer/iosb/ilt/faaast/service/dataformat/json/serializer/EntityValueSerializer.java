@@ -21,10 +21,13 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 /**
@@ -52,9 +55,13 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
                 provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
             }
             generator.writeEndObject();
-            generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, AasUtils.serializeEnumName(value.getEntityType().name()));
-            provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, ReferenceElementValue.builder()
-                    .keys(value.getGlobalAssetId())
+            generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, EnumSerializer.serializeEnumName(value.getEntityType().name()));
+            provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, new DefaultReference.Builder()
+                    .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                    .keys(new DefaultKey.Builder()
+                            .type(KeyTypes.GLOBAL_REFERENCE)
+                            .value(value.getGlobalAssetId())
+                            .build())
                     .build(), generator);
             generator.writeEndObject();
         }

@@ -1,0 +1,7 @@
+{
+    "modelType": "Submodel",
+    "kind": "Instance",
+    "id": "http://example.org/test",
+    "category": "category",
+    "idShort": "submodel1"
+}

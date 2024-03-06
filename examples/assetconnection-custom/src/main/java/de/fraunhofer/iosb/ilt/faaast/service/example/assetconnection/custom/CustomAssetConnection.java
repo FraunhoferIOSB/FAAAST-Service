@@ -23,9 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.prov
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 public class CustomAssetConnection extends
@@ -49,7 +50,7 @@ public class CustomAssetConnection extends
             return new CustomOperationProvider(reference, providerConfig, serviceContext);
         }
         catch (ConfigurationInitializationException e) {
-            throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -59,8 +60,8 @@ public class CustomAssetConnection extends
         try {
             return new CustomSubscriptionProvider(reference, providerConfig, serviceContext);
         }
-        catch (ValueMappingException e) {
-            throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", AasUtils.asString(reference)), e);
+        catch (ResourceNotFoundException | ValueMappingException e) {
+            throw new AssetConnectionException(String.format("creating subscription provider failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -70,8 +71,8 @@ public class CustomAssetConnection extends
         try {
             return new CustomValueProvider(reference, providerConfig, serviceContext);
         }
-        catch (ValueMappingException e) {
-            throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", AasUtils.asString(reference)), e);
+        catch (ResourceNotFoundException | ValueMappingException e) {
+            throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 

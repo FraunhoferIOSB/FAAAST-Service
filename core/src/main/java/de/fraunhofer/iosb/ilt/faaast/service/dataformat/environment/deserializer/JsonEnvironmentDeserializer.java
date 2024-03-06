@@ -15,17 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * JSON deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * JSON deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
@@ -41,10 +42,10 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
         try {
             return EnvironmentContext.builder()
-                    .environment(deserializer.read(in, charset))
+                    .environment(deserializer.read(in, charset, Environment.class))
                     .build();
         }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }

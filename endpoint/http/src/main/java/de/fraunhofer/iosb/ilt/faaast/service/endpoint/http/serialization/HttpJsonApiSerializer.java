@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
 
 /**
@@ -32,6 +30,5 @@ public class HttpJsonApiSerializer extends JsonApiSerializer {
         super.modifyMapper(mapper);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
     }
 }

@@ -1,0 +1,26 @@
+{
+    "relationship1": {
+        "first": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "http://customer.com/demo/aas/1/1/1234859590"
+                }
+            ]
+        },
+        "second": {
+            "type": "ModelReference",
+            "keys": [
+                {
+                    "type": "Submodel",
+                    "value": "http://customer.com/demo/aas/1/1/1234859590"
+                },
+                {
+                    "type": "Property",
+                    "value": "MaxRotationSpeed"
+                }
+            ]
+        }
+    }
+}

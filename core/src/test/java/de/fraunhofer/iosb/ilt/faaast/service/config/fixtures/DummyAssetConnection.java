@@ -21,10 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 public class DummyAssetConnection

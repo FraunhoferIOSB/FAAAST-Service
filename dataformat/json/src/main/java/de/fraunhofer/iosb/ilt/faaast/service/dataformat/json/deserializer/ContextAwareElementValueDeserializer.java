@@ -50,12 +50,12 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     }
 
 
-    public ContextAwareElementValueDeserializer() {
+    protected ContextAwareElementValueDeserializer() {
         this(null);
     }
 
 
-    public ContextAwareElementValueDeserializer(Class<T> type) {
+    protected ContextAwareElementValueDeserializer(Class<T> type) {
         super(type);
     }
 

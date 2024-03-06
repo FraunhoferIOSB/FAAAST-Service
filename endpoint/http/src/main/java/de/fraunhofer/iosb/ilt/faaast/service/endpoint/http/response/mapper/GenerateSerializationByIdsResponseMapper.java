@@ -18,18 +18,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 
 /**
  * HTTP response mapper for {@link GenerateSerializationByIdsResponse}, serializing the requested content according to
  * the desired data format.
  */
-public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse> {
+public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse, GenerateSerializationByIdsRequest> {
 
     public GenerateSerializationByIdsResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -37,15 +39,24 @@ public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMa
 
 
     @Override
-    public void map(Request<GenerateSerializationByIdsResponse> apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
+    public void map(GenerateSerializationByIdsRequest apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
         try {
             HttpHelper.sendContent(httpResponse,
                     apiResponse.getStatusCode(),
                     EnvironmentSerializationManager.serializerFor(apiResponse.getDataformat()).write(apiResponse.getPayload()),
-                    apiResponse.getDataformat().getContentType());
+                    apiResponse.getDataformat().getContentType(),
+                    Map.of("Content-Disposition",
+                            String.format(
+                                    "attachment; filename=\"download.%s\"",
+                                    apiResponse.getDataformat().getFileExtensions().get(0))));
         }
         catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            HttpHelper.send(
+                    httpResponse,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, e.getMessage())
+                            .build());
         }
     }
 }

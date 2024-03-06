@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 
 
 /**
@@ -40,11 +40,13 @@ public class MultiLanguagePropertyValueSerializer extends StdSerializer<MultiLan
     @Override
     public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
-            generator.writeStartObject();
-            for (LangString langString: value.getLangStringSet()) {
-                generator.writeStringField(langString.getLanguage(), langString.getValue());
+            generator.writeStartArray();
+            for (LangStringTextType langString: value.getLangStringSet()) {
+                generator.writeStartObject();
+                generator.writeStringField(langString.getLanguage(), langString.getText());
+                generator.writeEndObject();
             }
-            generator.writeEndObject();
+            generator.writeEndArray();
         }
     }
 

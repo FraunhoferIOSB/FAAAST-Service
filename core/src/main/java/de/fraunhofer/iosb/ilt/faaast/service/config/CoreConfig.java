@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -40,22 +40,20 @@ public class CoreConfig {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
         this.requestHandlerThreadPoolSize = DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE;
         this.validationOnLoad = ModelValidatorConfig.builder()
-                .validateConstraints(true)
+                // TODO currently deactived because not present in AAS4j
+                .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
         this.validationOnCreate = ModelValidatorConfig.builder()
                 .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
         this.validationOnUpdate = ModelValidatorConfig.builder()
                 .validateConstraints(false)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
-                .validateValueTypes(true)
                 .build();
     }
 
@@ -196,14 +194,6 @@ public class CoreConfig {
             getBuildingInstance().getValidationOnLoad().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnCreate().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnUpdate().setValidateIdentifierUniqueness(value);
-            return getSelf();
-        }
-
-
-        public Builder validateValueTypes(boolean value) {
-            getBuildingInstance().getValidationOnLoad().setValidateValueTypes(value);
-            getBuildingInstance().getValidationOnCreate().setValidateValueTypes(value);
-            getBuildingInstance().getValidationOnUpdate().setValidateValueTypes(value);
             return getSelf();
         }
 

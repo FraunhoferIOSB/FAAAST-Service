@@ -16,15 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
  * Generic response mapper for any responses without payload. It is used when no more specific mapper is present.
  */
-public class DefaultResponseMapper extends AbstractResponseMapper<AbstractResponse> {
+public class DefaultResponseMapper extends AbstractResponseMapper<AbstractResponse, Request<AbstractResponse>> {
 
     public DefaultResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

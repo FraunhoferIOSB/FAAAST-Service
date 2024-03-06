@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
-import io.adminshell.aas.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Blob} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Blob} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue}.
  */
 public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
@@ -31,16 +32,16 @@ public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
         }
         BlobValue blobValue = new BlobValue();
         blobValue.setValue(submodelElement.getValue());
-        blobValue.setMimeType(submodelElement.getMimeType());
+        blobValue.setContentType(submodelElement.getContentType());
         return blobValue;
     }
 
 
     @Override
-    public Blob setValue(Blob submodelElement, BlobValue value) {
+    public Blob setValue(Blob submodelElement, BlobValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
-        submodelElement.setMimeType(value.getMimeType());
+        submodelElement.setContentType(value.getContentType());
         return submodelElement;
     }
 }

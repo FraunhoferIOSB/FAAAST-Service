@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 
-import io.adminshell.aas.v3.model.Referable;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 
 
 /**

@@ -24,15 +24,13 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
-import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import opc.i4aas.AASFileType;
+import opc.i4aas.objecttypes.AASFileType;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,49 +47,55 @@ public class FileCreator extends SubmodelElementCreator {
      *
      * @param node The desired UA node
      * @param aasFile The AAS file object
+     * @param fileRef The AAS reference to the AAS file
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
      * @param nodeName The desired Name of the node. If this value is not set,
      *            the IdShort of the file is used.
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasFile(UaNode node, File aasFile, Submodel submodel, Reference parentRef, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
+    public static void addAasFile(UaNode node, File aasFile, Reference fileRef, Submodel submodel, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasFile != null)) {
-            String name = aasFile.getIdShort();
-            if ((nodeName != null) && (!nodeName.isEmpty())) {
-                name = nodeName;
+        try {
+            if ((node != null) && (aasFile != null)) {
+                String name = aasFile.getIdShort();
+                if ((nodeName != null) && (!nodeName.isEmpty())) {
+                    name = nodeName;
+                }
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(fileRef);
+                }
+
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
+
+                setFileData(aasFile, fileNode, nodeManager);
+
+                if (ordered) {
+                    node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(fileNode);
+                }
+
+                if (fileRef != null) {
+                    nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
+                }
             }
-
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
-
-            setFileData(aasFile, fileNode, nodeManager);
-
-            if (ordered) {
-                node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(fileNode);
-            }
-
-            if (parentRef != null) {
-                Reference fileRef = AasUtils.toReference(parentRef, aasFile);
-
-                nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
-            }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasFile Exception", ex);
         }
     }
 
 
     private static void setFileData(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) throws StatusException {
-        // MimeType
-        if (!aasFile.getMimeType().isEmpty()) {
-            fileNode.setMimeType(aasFile.getMimeType());
+        // ContentType
+        if (!aasFile.getContentType().isEmpty()) {
+            fileNode.setContentType(aasFile.getContentType());
         }
 
         // Value
@@ -100,7 +104,7 @@ public class FileCreator extends SubmodelElementCreator {
         }
 
         if (VALUES_READ_ONLY) {
-            fileNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            fileNode.getContentTypeNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 
@@ -111,28 +115,6 @@ public class FileCreator extends SubmodelElementCreator {
         }
 
         fileNode.setValue(aasFile.getValue());
-
-        if (!aasFile.getValue().isEmpty()) {
-            java.io.File f = new java.io.File(aasFile.getValue());
-            if (!f.exists()) {
-                LOGGER.warn("addAasFile: File '{}' does not exist!", f.getAbsolutePath());
-            }
-            else {
-                // File Object: include only when the file exists
-                QualifiedName fileBrowseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.FILE)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId fileId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.FILE);
-                FileTypeNode fileType = nodeManager.createInstance(FileTypeNode.class, fileId, fileBrowseName, LocalizedText.english(AASFileType.FILE));
-                fileType.setFile(new java.io.File(aasFile.getValue()));
-                fileType.setWritable(false);
-                fileType.setUserWritable(false);
-                if (fileType.getNodeVersion() != null) {
-                    fileType.getNodeVersion().setDescription(new LocalizedText("", ""));
-                }
-
-                fileNode.addReference(fileType, Identifiers.HasAddIn, false);
-            }
-        }
     }
 
 }

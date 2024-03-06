@@ -16,13 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 
 
 /**
@@ -40,7 +40,7 @@ public class EnvironmentHelper {
      * @param aasEnvironment which contains the asset administration shells
      * @return a filtered list of deep copied asset administration shells
      */
-    public static List<AssetAdministrationShell> getDeepCopiedShells(Predicate<AssetAdministrationShell> filter, AssetAdministrationShellEnvironment aasEnvironment) {
+    public static List<AssetAdministrationShell> getDeepCopiedShells(Predicate<AssetAdministrationShell> filter, Environment aasEnvironment) {
         List<AssetAdministrationShell> shellList = aasEnvironment.getAssetAdministrationShells()
                 .stream()
                 .filter(filter)
@@ -60,7 +60,7 @@ public class EnvironmentHelper {
      */
     public static <T extends Identifiable> void updateIdentifiableList(List<T> list, Identifiable identifiable) {
         Identifiable actualIdentifiable = list.stream()
-                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(identifiable.getIdentification().getIdentifier()))
+                .filter(x -> x.getId().equalsIgnoreCase(identifiable.getId()))
                 .findFirst()
                 .orElse(null);
 

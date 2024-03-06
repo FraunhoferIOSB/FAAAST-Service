@@ -14,16 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.Property;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Property} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Property} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  */
 public class PropertyValueMapper implements DataValueMapper<Property, PropertyValue> {
@@ -45,11 +45,11 @@ public class PropertyValueMapper implements DataValueMapper<Property, PropertyVa
 
 
     @Override
-    public Property setValue(Property submodelElement, PropertyValue value) {
+    public Property setValue(Property submodelElement, PropertyValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         TypedValue<?> propertyValue = value.getValue();
         if (propertyValue != null) {
-            submodelElement.setValueType(propertyValue.getDataType() != null ? propertyValue.getDataType().getName() : null);
+            submodelElement.setValueType(propertyValue.getDataType() != null ? propertyValue.getDataType().getAas4jDatatype() : null);
             submodelElement.setValue(propertyValue.asString());
         }
         return submodelElement;

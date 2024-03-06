@@ -24,8 +24,8 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import opc.i4aas.AASAdministrativeInformationType;
+import opc.i4aas.objecttypes.AASAdministrativeInformationType;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
 
 /**
@@ -46,7 +46,7 @@ public class AdministrativeInformationCreator {
      * @param adminInfNode The desired AdminInformation node
      * @param nodeManager The corresponding Node Manager
      * @param info The corresponding AAS AdministrativeInformation object
-     * @throws StatusException Ifd an error occurs
+     * @throws StatusException If an error occurs
      */
     public static void addAdminInformationProperties(AASAdministrativeInformationType adminInfNode, AdministrativeInformation info, AasServiceNodeManager nodeManager)
             throws StatusException {
@@ -79,7 +79,7 @@ public class AdministrativeInformationCreator {
                 LocalizedText.english(AASAdministrativeInformationType.REVISION));
         myProperty.setDataTypeId(Identifiers.String);
         if (VALUES_READ_ONLY) {
-            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         myProperty.setDescription(new LocalizedText("", ""));
         adminInfNode.addProperty(myProperty);
@@ -95,7 +95,7 @@ public class AdministrativeInformationCreator {
                 LocalizedText.english(AASAdministrativeInformationType.VERSION));
         myProperty.setDataTypeId(Identifiers.String);
         if (VALUES_READ_ONLY) {
-            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            myProperty.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         myProperty.setDescription(new LocalizedText("", ""));
         adminInfNode.addProperty(myProperty);

@@ -33,7 +33,6 @@ import com.prosysopc.ua.stack.core.MessageSecurityMode;
 import com.prosysopc.ua.stack.core.UserTokenPolicy;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
-import com.prosysopc.ua.stack.transport.security.KeyPair;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
@@ -41,18 +40,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertific
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +67,7 @@ public class Server {
     private static final String ISSUERS_PATH = "issuers";
 
     private final int tcpPort;
-    private final AssetAdministrationShellEnvironment aasEnvironment;
+    private final Environment aasEnvironment;
     private final OpcUaEndpoint endpoint;
     private final OpcUaEndpointConfig config;
 
@@ -88,7 +86,7 @@ public class Server {
      * @throws IllegalArgumentException if environment is null
      * @throws IllegalArgumentException if endpoint is null
      */
-    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
+    public Server(int portTcp, Environment environment, OpcUaEndpoint endpoint) {
         Ensure.requireNonNull(environment, "environment most be non-null");
         Ensure.requireNonNull(endpoint, "endpoint most be non-null");
         this.tcpPort = portTcp;
@@ -174,7 +172,6 @@ public class Server {
 
 
     private void setApplicationIdentity(final PkiDirectoryCertificateStore applicationCertificateStore) throws IOException, SecureIdentityException, UaServerException {
-        String hostName;
         ApplicationDescription appDescription = new ApplicationDescription();
         // 'localhost' (all lower case) in the ApplicationName and
         // ApplicationURI is converted to the actual host name of the computer
@@ -190,17 +187,11 @@ public class Server {
         uaServer.setPort(Protocol.OpcTcp, tcpPort);
         LOGGER.trace("Loading certificates..");
         File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
-        KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, null, 3650, false,
-                CERT_KEY_SIZE);
         int[] keySizes = new int[] {
                 CERT_KEY_SIZE
         };
         final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", null,
                 privatePath, null, keySizes, true);
-        hostName = ApplicationIdentity.getActualHostName();
-        identity.setHttpsCertificate(
-                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, null, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
         uaServer.setApplicationIdentity(identity);
     }
 
@@ -284,9 +275,7 @@ public class Server {
         final URL classFile = UaServer.class.getResource("/de/fraunhofer/iosb/ilt/aas/service/protocol/Server.class");
         if (classFile != null && classFile.getFile() != null) {
             final File mfFile = new File(classFile.getFile());
-            GregorianCalendar c = new GregorianCalendar();
-            c.setTimeInMillis(mfFile.lastModified());
-            buildInfo.setBuildDate(new DateTime(c));
+            buildInfo.setBuildDate(DateTime.fromMillis(mfFile.lastModified()));
         }
     }
 

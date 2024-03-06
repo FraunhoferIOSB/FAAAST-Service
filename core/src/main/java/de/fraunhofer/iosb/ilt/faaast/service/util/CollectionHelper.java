@@ -14,8 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import com.google.common.reflect.TypeToken;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -63,6 +68,41 @@ public class CollectionHelper {
                 : collection.size();
         collection.remove(oldElement);
         add(collection, idx, newElement);
+    }
+
+
+    /**
+     * Finds the most specific common supertype of all non-null elements in the collection.
+     *
+     * @param collection the collection
+     * @return the most specific common supertype of all non-null elements in the collection
+     */
+    public static Class<?> findMostSpecificCommonType(Collection<?> collection) {
+        if (Objects.isNull(collection) || collection.isEmpty()) {
+            return Object.class;
+        }
+        Set<?> nonEmptyElements = collection.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (nonEmptyElements.isEmpty()) {
+            return Object.class;
+        }
+        Iterator<?> iterator = nonEmptyElements.iterator();
+        Set<Class<?>> commonTypes = getTypes(iterator.next().getClass());
+        while (iterator.hasNext()) {
+            commonTypes.retainAll(getTypes(iterator.next().getClass()));
+        }
+        return commonTypes.stream()
+                .sorted(new MostSpecificClassComparator())
+                .findFirst()
+                .orElse(Object.class);
+    }
+
+
+    private static Set<Class<?>> getTypes(Class<?> type) {
+        return TypeToken.of(type).getTypes().rawTypes().stream()
+                .map(x -> ((Class<?>) x))
+                .collect(Collectors.toSet());
     }
 
 }

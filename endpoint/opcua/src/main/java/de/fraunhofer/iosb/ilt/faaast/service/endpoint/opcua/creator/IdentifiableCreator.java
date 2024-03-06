@@ -17,10 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import opc.i4aas.AASIdentifiableType;
+import opc.i4aas.objecttypes.AASIdentifiableType;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 
 
 /**
@@ -45,12 +43,11 @@ public class IdentifiableCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException if an error occurs
      */
-    public static void addIdentifiable(AASIdentifiableType identifiableNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
+    public static void addIdentifiable(AASIdentifiableType identifiableNode, String identifier, AdministrativeInformation adminInfo, String category,
                                        AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            identifiableNode.getIdentificationNode().setId(identifier.getIdentifier());
-            identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+            identifiableNode.setId(identifier);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -58,9 +55,8 @@ public class IdentifiableCreator {
         identifiableNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            identifiableNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifiableNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getIdNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
     }
 

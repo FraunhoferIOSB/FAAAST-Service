@@ -14,9 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -46,7 +45,7 @@ public class RangeValue<T> extends DataElementValue {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RangeValue that = (RangeValue) o;
+        RangeValue<T> that = (RangeValue<T>) o;
         return Objects.equals(that.min, min)
                 && Objects.equals(that.max, max);
     }
@@ -78,11 +77,11 @@ public class RangeValue<T> extends DataElementValue {
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public static <T> Builder<T> builder() {
+        return new Builder<>();
     }
 
-    public abstract static class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<V, T extends RangeValue<V>, B extends AbstractBuilder<V, T, B>> extends ExtendableBuilder<T, B> {
 
         public B min(TypedValue value) {
             getBuildingInstance().setMin(value);
@@ -97,7 +96,7 @@ public class RangeValue<T> extends DataElementValue {
 
     }
 
-    public static class Builder extends AbstractBuilder<RangeValue, Builder> {
+    public static class Builder<T> extends AbstractBuilder<T, RangeValue<T>, Builder<T>> {
 
         @Override
         protected Builder getSelf() {
@@ -106,8 +105,8 @@ public class RangeValue<T> extends DataElementValue {
 
 
         @Override
-        protected RangeValue newBuildingInstance() {
-            return new RangeValue();
+        protected RangeValue<T> newBuildingInstance() {
+            return new RangeValue<>();
         }
     }
 }

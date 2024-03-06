@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 public class CustomValueProviderConfig implements AssetValueProviderConfig {

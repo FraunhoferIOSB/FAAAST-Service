@@ -22,7 +22,8 @@ public class HttpConstants {
     public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String PATH_SEPERATOR = "/";
     public static final String HEADER_ACCEPT = "Accept";
-    public static final String HEADER_CONTENT_TYPE = "content-type";
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_LOCATION = "Location";
 
     private HttpConstants() {}
 }

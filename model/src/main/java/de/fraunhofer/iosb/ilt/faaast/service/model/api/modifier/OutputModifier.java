@@ -54,10 +54,19 @@ public class OutputModifier extends QueryModifier {
         return Objects.hash(super.hashCode(), content);
     }
 
-    public static abstract class AbstractBuilder<T extends OutputModifier, B extends AbstractBuilder<T, B>> extends QueryModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends OutputModifier, B extends AbstractBuilder<T, B>> extends QueryModifier.AbstractBuilder<T, B> {
 
         public B content(Content value) {
             getBuildingInstance().content = value;
+            switch (value) {
+                case METADATA:
+                case REFERENCE: {
+                    getBuildingInstance().level = Level.CORE;
+                    getBuildingInstance().extent = Extent.WITHOUT_BLOB_VALUE;
+                    break;
+                }
+                default:
+            }
             return getSelf();
         }
     }

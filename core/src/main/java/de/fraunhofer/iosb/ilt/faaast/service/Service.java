@@ -26,21 +26,34 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +69,7 @@ public class Service implements ServiceContext {
     private List<Endpoint> endpoints;
     private MessageBus messageBus;
     private Persistence persistence;
+    private FileStorage fileStorage;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -63,6 +77,7 @@ public class Service implements ServiceContext {
      *
      * @param coreConfig core configuration
      * @param persistence persistence implementation
+     * @param fileStorage fileStorage implementation
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
@@ -75,6 +90,7 @@ public class Service implements ServiceContext {
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
+            FileStorage fileStorage,
             MessageBus messageBus,
             List<Endpoint> endpoints,
             List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
@@ -92,9 +108,9 @@ public class Service implements ServiceContext {
                 .core(coreConfig)
                 .build();
         this.persistence = persistence;
+        this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
-        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
     }
 
 
@@ -117,7 +133,7 @@ public class Service implements ServiceContext {
     @Override
     public Response execute(Request request) {
         try {
-            return this.requestHandler.execute(request);
+            return requestHandler.execute(request);
         }
         catch (Exception e) {
             LOGGER.trace("Error executing request", e);
@@ -127,20 +143,57 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) {
-        return persistence.getOperationOutputVariables(reference);
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        SubmodelElement element = persistence.getSubmodelElement(reference, QueryModifier.DEFAULT);
+        if (element == null) {
+            throw new ResourceNotFoundException(String.format("reference could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
+        }
+        if (!Operation.class.isAssignableFrom(element.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    ReferenceHelper.toString(reference),
+                    element.getClass()));
+        }
+        return ((Operation) element).getOutputVariables().toArray(new OperationVariable[0]);
     }
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) {
-        return persistence.getTypeInfo(reference);
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+        return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
 
     @Override
-    public AssetAdministrationShellEnvironment getAASEnvironment() {
-        return DeepCopyHelper.deepCopy(persistence.getEnvironment());
+    public boolean hasValueProvider(Reference reference) {
+        return Objects.nonNull(assetConnectionManager.getValueProvider(reference));
+    }
+
+
+    @Override
+    public Environment getAASEnvironment() {
+        return new DefaultEnvironment.Builder()
+                .assetAdministrationShells(
+                        persistence.findAssetAdministrationShells(
+                                AssetAdministrationShellSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
+                .submodels(
+                        persistence.findSubmodels(
+                                SubmodelSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
+                .conceptDescriptions(
+                        persistence.findConceptDescriptions(
+                                ConceptDescriptionSearchCriteria.NONE,
+                                QueryModifier.DEFAULT,
+                                PagingInfo.ALL)
+                                .getContent())
+                .build();
     }
 
 
@@ -204,13 +257,11 @@ public class Service implements ServiceContext {
 
 
     private void init() throws ConfigurationException {
-        if (config.getPersistence() == null) {
-            throw new InvalidConfigurationException("config.persistence must be non-null");
-        }
+        Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
-        if (config.getMessageBus() == null) {
-            throw new InvalidConfigurationException("config.messagebus must be non-null");
-        }
+        Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
+        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
+        Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
@@ -221,8 +272,6 @@ public class Service implements ServiceContext {
         }
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
-            // TODO maybe be less restrictive and only print warning
-            //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
@@ -231,6 +280,11 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
+        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
+                this.config.getCore(),
+                this.persistence,
+                this.fileStorage,
+                this.messageBus,
+                this.assetConnectionManager));
     }
 }

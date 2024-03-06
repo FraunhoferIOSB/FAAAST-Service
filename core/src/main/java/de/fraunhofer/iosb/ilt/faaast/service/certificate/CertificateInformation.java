@@ -15,11 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.certificate;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
-import io.adminshell.aas.v3.model.builder.AbstractBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 
 
 /**

@@ -27,8 +27,12 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EntityCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -40,31 +44,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import opc.i4aas.AASAnnotatedRelationshipElementType;
-import opc.i4aas.AASBlobType;
-import opc.i4aas.AASEntityType;
-import opc.i4aas.AASFileType;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASMultiLanguagePropertyType;
-import opc.i4aas.AASPropertyType;
-import opc.i4aas.AASRangeType;
-import opc.i4aas.AASReferenceElementType;
-import opc.i4aas.AASReferenceType;
-import opc.i4aas.AASRelationshipElementType;
-import opc.i4aas.AASSubmodelElementList;
-import opc.i4aas.AASSubmodelElementType;
-import opc.i4aas.AASValueTypeDataType;
+import opc.i4aas.datatypes.AASDataTypeDefXsd;
+import opc.i4aas.objecttypes.AASAnnotatedRelationshipElementType;
+import opc.i4aas.objecttypes.AASBlobType;
+import opc.i4aas.objecttypes.AASEntityType;
+import opc.i4aas.objecttypes.AASFileType;
+import opc.i4aas.objecttypes.AASMultiLanguagePropertyType;
+import opc.i4aas.objecttypes.AASPropertyType;
+import opc.i4aas.objecttypes.AASRangeType;
+import opc.i4aas.objecttypes.AASReferenceElementType;
+import opc.i4aas.objecttypes.AASRelationshipElementType;
+import opc.i4aas.objecttypes.AASSubmodelElementList;
+import opc.i4aas.objecttypes.AASSubmodelElementType;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,12 +84,6 @@ public class AasSubmodelElementHelper {
      * Text if value is null
      */
     private static final String VALUE_NULL = "value must not be null";
-
-    /**
-     * Make certain variable values read-only, because writing would not make
-     * sense
-     */
-    private static final boolean VALUES_READ_ONLY = true;
 
     /**
      * Sonar wants a private constructor.
@@ -109,8 +105,8 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        setAasReferenceData(new DefaultReference.Builder().keys(value.getFirst()).build(), aasElement.getFirstNode(), false);
-        setAasReferenceData(new DefaultReference.Builder().keys(value.getSecond()).build(), aasElement.getSecondNode(), false);
+        AasReferenceCreator.setAasReferenceData(value.getFirst(), aasElement.getFirstNode(), false);
+        AasReferenceCreator.setAasReferenceData(value.getSecond(), aasElement.getSecondNode(), false);
 
         if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
             AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
@@ -122,7 +118,7 @@ public class AasSubmodelElementHelper {
                 throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
-            // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
+            // The Key of the Map is the IdShort of the DataElement (in our case the BrowseName)
             for (UaNode annotationNode: annotationNodes) {
                 if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
                     setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()), nodeManager);
@@ -142,8 +138,9 @@ public class AasSubmodelElementHelper {
      * @param value The new value
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
+    public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
         // changed the order because of an error in the derivation hierarchy of ElementValue
@@ -192,8 +189,8 @@ public class AasSubmodelElementHelper {
                 UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASFileType.VALUE));
         property.setDataTypeId(Identifiers.String);
-        if (VALUES_READ_ONLY) {
-            property.setAccessLevel(AccessLevelType.CurrentRead);
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            property.setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
         }
         property.setDescription(new LocalizedText("", ""));
         fileNode.addProperty(property);
@@ -234,14 +231,13 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
-            AASValueTypeDataType valueDataType;
-
-            PropertyValue typedValue = PropertyValue.of(aasProperty.getValueType(), aasProperty.getValue());
+            AASDataTypeDefXsd valueDataType;
+            PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
-                valueDataType = ValueConverter.datatypeToValueType(typedValue.getValue().getDataType());
+                valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
             }
             else {
-                valueDataType = ValueConverter.stringToValueType(aasProperty.getValueType());
+                valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             }
 
             prop.setValueType(valueDataType);
@@ -255,19 +251,21 @@ public class AasSubmodelElementHelper {
                     setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int32:
+                case Int:
                     setInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int64:
+                case Long:
+                case Integer:
+                case Decimal:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Int16:
+                case Short:
                     setInt16PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case SByte:
+                case Byte:
                     setSBytePropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -303,7 +301,7 @@ public class AasSubmodelElementHelper {
 
 
     private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+        prop.addProperty(UaHelper.createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
 
@@ -333,18 +331,7 @@ public class AasSubmodelElementHelper {
 
 
     private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        prop.addProperty(createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
-    }
-
-
-    private static PlainProperty<String> createStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<String> stringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        stringProperty.setDataTypeId(Identifiers.String);
-        stringProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            stringProperty.setValue(typedValue.getValue());
-        }
-        return stringProperty;
+        prop.addProperty(UaHelper.createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
 
@@ -445,29 +432,18 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static PlainProperty<Boolean> createBooleanProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Boolean> boolProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        boolProperty.setDataTypeId(Identifiers.Boolean);
-        boolProperty.setDescription(new LocalizedText("", ""));
-        if ((typedValue != null) && (typedValue.getValue() != null)) {
-            boolProperty.setValue(typedValue.getValue());
-        }
-        return boolProperty;
-    }
-
-
-    public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+    public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
         try {
             TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
             TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
-            AASValueTypeDataType valueDataType;
+            AASDataTypeDefXsd valueDataType;
             if (minTypedValue != null) {
-                valueDataType = ValueConverter.datatypeToValueType(minTypedValue.getDataType());
+                valueDataType = ValueConverter.datatypeToOpcDataType(minTypedValue.getDataType());
             }
             else {
-                valueDataType = ValueConverter.stringToValueType(valueType);
+                valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
             }
 
             range.setValueType(valueDataType);
@@ -481,19 +457,21 @@ public class AasSubmodelElementHelper {
                     setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case Int32:
+                case Int:
                     setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Int64:
+                case Long:
+                case Integer:
+                case Decimal:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case Int16:
+                case Short:
                     setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case SByte:
+                case Byte:
                     setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
@@ -512,11 +490,11 @@ public class AasSubmodelElementHelper {
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
                     if (minValue != null) {
-                        range.addProperty(createStringProperty(minData, minTypedValue));
+                        range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
                     }
 
                     if (maxValue != null) {
-                        range.addProperty(createStringProperty(maxData, maxTypedValue));
+                        range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
                     }
                     break;
             }
@@ -531,11 +509,11 @@ public class AasSubmodelElementHelper {
                                              TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            range.addProperty(createStringProperty(minData, minTypedValue));
+            range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            range.addProperty(createStringProperty(maxData, maxTypedValue));
+            range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
         }
     }
 
@@ -633,54 +611,12 @@ public class AasSubmodelElementHelper {
                                               TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            range.addProperty(createBooleanProperty(minData, minTypedValue));
+            range.addProperty(UaHelper.createBooleanProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            range.addProperty(createBooleanProperty(maxData, maxTypedValue));
+            range.addProperty(UaHelper.createBooleanProperty(maxData, maxTypedValue));
         }
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @throws StatusException If the operation fails
-     */
-    public static void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
-        setAasReferenceData(ref, refNode, VALUES_READ_ONLY);
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @param readOnly True if the value should be read-only
-     * @throws StatusException If the operation fails
-     */
-    public static void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
-        Ensure.requireNonNull(refNode, "refNode must be non-null");
-        Ensure.requireNonNull(ref, "ref must be non-null");
-
-        AASKeyDataType[] keys = ref.getKeys().stream().map(k -> {
-            AASKeyDataType keyValue = new AASKeyDataType();
-            keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
-            keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
-            keyValue.setValue(k.getValue());
-            return keyValue;
-        }).toArray(AASKeyDataType[]::new);
-
-        refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
-                UnsignedInteger.valueOf(keys.length)
-        });
-        if (readOnly) {
-            refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
-        }
-        refNode.setKeys(keys);
     }
 
 
@@ -711,7 +647,7 @@ public class AasSubmodelElementHelper {
         else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
             setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value, nodeManager);
         }
-        else {
+        else if (value != null) {
             LOG.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
                     value.getClass());
         }
@@ -738,15 +674,15 @@ public class AasSubmodelElementHelper {
      * @param value The new value.
      * @param nodeManager The corresponding Node Manager.
      * @throws StatusException If the operation fails
+     * @throws ValueFormatException The data format of the value is invalid
      */
-    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException {
+    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException, ValueFormatException {
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
-        // GlobalAssetId
+        // globalAssetId
         if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
-            DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
-            setAasReferenceData(ref, entity.getGlobalAssetIdNode());
+            EntityCreator.setGlobalAssetIdData(entity, value.getGlobalAssetId(), nodeManager);
         }
 
         // Statements
@@ -777,7 +713,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        file.setMimeType(value.getMimeType());
+        file.setContentType(value.getContentType());
         if (value.getValue() != null) {
             if (file.getValueNode() == null) {
                 addFileValueNode(file, nodeManager);
@@ -798,7 +734,7 @@ public class AasSubmodelElementHelper {
      */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
         // MimeType
-        blob.setMimeType(value.getMimeType());
+        blob.setContentType(value.getContentType());
 
         // Value
         if (value.getValue() != null) {
@@ -819,8 +755,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
-        setAasReferenceData(ref, refElement.getValueNode());
+        AasReferenceCreator.setAasReferenceData(value.getValue(), refElement.getValueNode());
     }
 
 
@@ -851,7 +786,7 @@ public class AasSubmodelElementHelper {
      */
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
-        List<LangString> values = new ArrayList<>(value.getLangStringSet());
+        List<LangStringTextType> values = new ArrayList<>(value.getLangStringSet());
         if (multiLangProp.getValueNode() == null) {
             addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
         }

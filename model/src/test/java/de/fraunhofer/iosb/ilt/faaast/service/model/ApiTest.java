@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.CLIENT_ERROR_BAD_REQUEST;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAASXPackageByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.DeleteAllAssetLinksByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasxfileserver.DeleteAASXPackageByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
 import org.junit.Assert;
 import org.junit.Test;
 

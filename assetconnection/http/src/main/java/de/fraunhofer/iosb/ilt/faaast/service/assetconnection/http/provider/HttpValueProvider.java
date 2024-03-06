@@ -20,10 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.Mul
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -32,6 +32,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,16 +93,16 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
         catch (IOException | URISyntaxException e) {
-            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)), e);
         }
     }
 
@@ -132,7 +133,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
@@ -144,6 +145,14 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
 
     @Override
     protected TypeInfo getTypeInfo() {
-        return serviceContext.getTypeInfo(reference);
+        try {
+            return serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(String.format(
+                    "HTTP value provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 }
