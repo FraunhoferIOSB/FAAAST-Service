@@ -136,7 +136,8 @@ public class SslHelper {
 
 
     /**
-     * Create a new {@link SSLCOntext} that accepts certificates stored in the given keyStore.All other certificates a
+     * Create a new {@link javax.net.ssl.SSLContext} that accepts certificates stored in the given keyStore.All other
+     * certificates a
      * resolved regularly.
      *
      * @param keyStorePath the path to the keyStore
@@ -184,11 +185,12 @@ public class SslHelper {
 
 
     /**
-     * Create a new {@link SSLCOntext} that accepts certificates stored in the given keyStore.All other certificates a
+     * Create a new {@link javax.net.ssl.SSLContext} that accepts certificates stored in the given keyStore.All other
+     * certificates a
      * resolved regularly.
      *
      * @param config the certificate config
-     * @return the new {@link HttpClient}
+     * @return the new {@link java.net.http.HttpClient}
      *
      * @throws GeneralSecurityException if creating a {@link TrustManager} or loading the keyStore file fails
      * @throws IOException if loading the keyStore file fails

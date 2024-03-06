@@ -33,7 +33,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest} in the service
  * and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aaaaatemp.SetSubmodelElementValueByPathResponse}. Is
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class SetSubmodelElementValueByPathRequestHandler

@@ -403,10 +403,10 @@ public class ReferenceHelper {
 
 
     /**
-     * Get the corresponding {@link KeyElements} to the given class.
+     * Get the corresponding {@link org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes} to the given class.
      *
-     * @param clazz to convert to a KeyElement
-     * @return the corresponding KeyElement of the class
+     * @param clazz to convert to a KeyTypes
+     * @return the corresponding KeyTypes of the class
      */
     public static KeyTypes toKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
@@ -417,10 +417,8 @@ public class ReferenceHelper {
     /**
      * Formats a Reference as string.
      *
-     * @param reference
-     *            Reference to serialize
-     * @return string representation of the reference for serialization, null if
-     *         reference is null
+     * @param reference Reference to serialize
+     * @return string representation of the reference for serialization, null if reference is null
      */
     public static String asString(Reference reference) {
         if (reference == null) {

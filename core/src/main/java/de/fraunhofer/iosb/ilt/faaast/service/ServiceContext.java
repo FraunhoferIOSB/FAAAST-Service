@@ -81,10 +81,11 @@ public interface ServiceContext {
 
 
     /**
-     * Checks if an element is backed by a {@link ValueProvider}.
+     * Checks if an element is backed by a {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
      *
      * @param reference the reference to the element
-     * @return true if element is backed by a {@link ValueProvider}, otherwise false
+     * @return true if element is backed by a
+     *         {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}, otherwise false
      */
     public boolean hasValueProvider(Reference reference);
 }
