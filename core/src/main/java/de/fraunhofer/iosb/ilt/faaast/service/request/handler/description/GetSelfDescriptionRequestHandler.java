@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSelfDescriptionRequest}.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest}.
  */
 public class GetSelfDescriptionRequestHandler extends AbstractRequestHandler<GetSelfDescriptionRequest, GetSelfDescriptionResponse> {
 

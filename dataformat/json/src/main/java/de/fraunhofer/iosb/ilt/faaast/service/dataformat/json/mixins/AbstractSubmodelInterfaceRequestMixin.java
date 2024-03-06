@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest}.
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest}.
  */
 public abstract class AbstractSubmodelInterfaceRequestMixin {
 

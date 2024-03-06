@@ -350,6 +350,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.plugin.javadoc.version}</version>
                     <configuration>
+                        <doclint>all,-missing</doclint>
                         <quiet>true</quiet>
                     </configuration>
                     <executions>
