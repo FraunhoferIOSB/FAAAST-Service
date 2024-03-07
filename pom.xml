@@ -117,7 +117,7 @@
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>9.0.8</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>9.0.9</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.1.0-110</maven.plugin.prosys.codegen.version>
@@ -125,7 +125,7 @@
         <maven.plugin.shade.version>3.5.1</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
-        <milo.version>0.6.11</milo.version>
+        <milo.version>0.6.12</milo.version>
         <mockito.version>5.11.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.107.Final</netty.version>
@@ -138,7 +138,7 @@
         <proguard.version>7.4.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.1.0-116</prosys.sdk.version>
-        <protobuf.version>3.25.2</protobuf.version>
+        <protobuf.version>3.25.3</protobuf.version>
         <rgxgen.version>1.4</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
@@ -304,7 +304,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.3.0</version>
+                    <version>2.4.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
@@ -350,6 +350,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.plugin.javadoc.version}</version>
                     <configuration>
+                        <doclint>all,-missing</doclint>
                         <quiet>true</quiet>
                     </configuration>
                     <executions>

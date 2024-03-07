@@ -185,6 +185,8 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @param targetBean the original element to apply the update to
      * @param type the type information
      * @return the updated element
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException if applying the merge patch
+     *             fails
      */
     protected <T> T applyMergePatch(JsonMergePatch patch, T targetBean, Class<T> type) throws InvalidRequestException {
         try {

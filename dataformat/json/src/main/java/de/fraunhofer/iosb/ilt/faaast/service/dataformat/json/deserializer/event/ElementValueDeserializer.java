@@ -29,7 +29,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue}.
  */
 public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 

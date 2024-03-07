@@ -29,7 +29,7 @@ import java.util.Objects;
 
 
 /**
- * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue}.
  */
 public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
