@@ -110,7 +110,7 @@
         <maven.plugin.compiler.version>3.12.1</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>7.0.0</maven.plugin.git.commit.id.version>
+        <maven.plugin.git.commit.id.version>8.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.11</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
