@@ -566,7 +566,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     private static <T extends Identifiable> void saveOrUpdateById(Collection<T> container, T element) {
         CollectionHelper.put(container,
                 container.stream()
-                        .filter(x -> x.getId().equalsIgnoreCase(element.getId()))
+                        .filter(x -> Objects.nonNull(x.getId()) && x.getId().equalsIgnoreCase(element.getId()))
                         .findFirst()
                         .orElse(null),
                 element);
