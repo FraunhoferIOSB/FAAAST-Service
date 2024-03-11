@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
-    public static final int DEFAULT_PORT = 8080;
+    public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_CORS_ENABLED = false;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     private int port;

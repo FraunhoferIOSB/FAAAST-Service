@@ -8,4 +8,4 @@ services:
       - faaast_model=/app/resources/model.json
       - faaast_config=/app/resources/config.json
     ports:
-      - 8080:8080
+      - 443:443
