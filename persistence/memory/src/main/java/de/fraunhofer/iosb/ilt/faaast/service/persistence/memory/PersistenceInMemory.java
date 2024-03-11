@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -444,7 +445,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (Objects.isNull(semanticId)) {
             return stream;
         }
-        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId));
+        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId)
+                || Optional.ofNullable(x.getSupplementalSemanticIds())
+                        .orElse(List.of()).stream()
+                        .anyMatch(y -> ReferenceHelper.equals(y, semanticId)));
     }
 
 
