@@ -65,7 +65,7 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
      * @return the potentially modified url pattern accepting content modifier
      */
     protected static String ensureUrlPatternAllowsContentModifier(String urlPattern, Content... excludedContentModifiers) {
-        String exampleUrl = new RgxGen(RegExHelper.removeGroupNames(urlPattern)).generate();
+        String exampleUrl = RgxGen.parse(RegExHelper.removeGroupNames(urlPattern)).generate();
         if (HAS_CONTENT_MODIFIER_PATTERN.matcher(exampleUrl).matches()) {
             return urlPattern;
         }
