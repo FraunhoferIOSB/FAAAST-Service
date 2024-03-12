@@ -76,7 +76,7 @@
         <awaitility.version>4.2.0</awaitility.version>
         <bouncycastle.version>1.77</bouncycastle.version>
         <checkstyle.version>10.14.0</checkstyle.version>
-        <classgraph.version>4.8.165</classgraph.version>
+        <classgraph.version>4.8.168</classgraph.version>
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.compress.version>1.26.0</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
