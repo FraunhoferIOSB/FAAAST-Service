@@ -88,7 +88,7 @@
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.0.0-jre</guava.version>
         <jackson.databind.version>2.16.1</jackson.databind.version>
-        <jackson.version>2.16.1</jackson.version>
+        <jackson.version>2.16.2</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
