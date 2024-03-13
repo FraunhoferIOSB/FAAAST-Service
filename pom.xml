@@ -151,7 +151,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.6</systemstubs.version>
-        <wiremock.version>2.35.1</wiremock.version>
+        <wiremock.version>2.35.2</wiremock.version>
         <woodstox.version>6.6.1</woodstox.version>
     </properties>
     <dependencies>
