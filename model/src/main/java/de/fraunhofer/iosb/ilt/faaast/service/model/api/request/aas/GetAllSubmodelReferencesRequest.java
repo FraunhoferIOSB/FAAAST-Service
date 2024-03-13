@@ -14,8 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.OutputModifierConstraints;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import java.util.Objects;
 
@@ -23,14 +22,9 @@ import java.util.Objects;
 /**
  * Request class for GetAllSubmodelReferences requests.
  */
-public class GetAllSubmodelReferencesRequest extends AbstractRequestWithModifier<GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequest extends AbstractRequestWithPaging<GetAllSubmodelReferencesResponse> {
 
     private String id;
-
-    public GetAllSubmodelReferencesRequest() {
-        super(OutputModifierConstraints.NONE);
-    }
-
 
     public String getId() {
         return id;
@@ -67,7 +61,7 @@ public class GetAllSubmodelReferencesRequest extends AbstractRequestWithModifier
     }
 
     public abstract static class AbstractBuilder<T extends GetAllSubmodelReferencesRequest, B extends AbstractBuilder<T, B>>
-            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithPaging.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);

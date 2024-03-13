@@ -60,6 +60,20 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
+     * Gets the referenced {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s of an
+     * {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
+     *
+     * @param aasId the id of the AAS
+     * @param paging paging information
+     * @return the referenced {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s of an
+     *         {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}
+     * @throws ResourceNotFoundException if there is no
+     *             {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} with the given id
+     */
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException;
+
+
+    /**
      * Gets a {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel} by id.
      *
      * @param id the id

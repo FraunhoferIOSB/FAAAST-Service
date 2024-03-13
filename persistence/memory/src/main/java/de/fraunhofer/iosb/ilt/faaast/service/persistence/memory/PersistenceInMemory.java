@@ -317,6 +317,14 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+        return preparePagedResult(
+                getAssetAdministrationShell(aasId, QueryModifier.MINIMAL).getSubmodels().stream(),
+                paging);
+    }
+
+
+    @Override
     public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) throws ConfigurationInitializationException {
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(context, "context must be non-null");
@@ -544,7 +552,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     }
 
 
-    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
         Stream<T> result = input;
         if (Objects.nonNull(paging.getCursor())) {
             result = result.skip(readCursor(paging.getCursor()));
@@ -554,16 +562,24 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         List<T> temp = result.collect(Collectors.toList());
         return Page.<T> builder()
-                .result(QueryModifierHelper.applyQueryModifier(
-                        temp.stream()
-                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                                .map(DeepCopyHelper::deepCopy)
-                                .collect(Collectors.toList()),
-                        modifier))
+                .result(temp.stream()
+                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                        .collect(Collectors.toList()))
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor(paging, temp.size()))
                         .build())
                 .build();
+    }
+
+
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+        Page<T> result = preparePagedResult(input, paging);
+        result.setContent(QueryModifierHelper.applyQueryModifier(
+                result.getContent().stream()
+                        .map(DeepCopyHelper::deepCopy)
+                        .collect(Collectors.toList()),
+                modifier));
+        return result;
     }
 
 
