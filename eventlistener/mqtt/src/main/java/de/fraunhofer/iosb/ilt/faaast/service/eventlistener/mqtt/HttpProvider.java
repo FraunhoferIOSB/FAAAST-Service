@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.net.http.HttpClient;
 
 
+/**
+ * The Http Client for event listening.
+ */
 public class HttpProvider {
 
     protected HttpClient httpClient;

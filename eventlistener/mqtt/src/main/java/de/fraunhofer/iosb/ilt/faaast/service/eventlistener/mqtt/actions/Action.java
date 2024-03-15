@@ -18,7 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.HttpProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EventListenerException;
 
 
+/**
+ * Action interface.
+ */
 public interface Action {
+
+    /**
+     * Execute the action.
+     *
+     * @param httpProvider
+     * @throws EventListenerException
+     */
     public void execute(HttpProvider httpProvider) throws EventListenerException;
 
 }

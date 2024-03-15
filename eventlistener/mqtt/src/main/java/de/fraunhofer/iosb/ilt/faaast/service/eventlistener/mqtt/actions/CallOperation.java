@@ -27,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Calls an operation.
+ */
 public class CallOperation implements Action {
     private static final Logger LOGGER = LoggerFactory.getLogger(Action.class);
     private final Reference reference;

@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.actions;
 import de.fraunhofer.iosb.ilt.faaast.service.eventlistener.mqtt.HttpProvider;
 
 
+/**
+ * Sets an value.
+ */
 public class SetValue implements Action {
     @Override
     public void execute(HttpProvider httpProvider) {

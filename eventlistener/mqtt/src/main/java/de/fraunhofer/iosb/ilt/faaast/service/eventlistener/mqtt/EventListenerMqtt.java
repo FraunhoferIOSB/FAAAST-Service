@@ -87,6 +87,12 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     }
 
 
+    /**
+     * Subscribes to the events.
+     *
+     * @param subscriptionInfo
+     * @return id
+     */
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
         subscriptionInfo.getSubscribedEvents()
@@ -122,6 +128,11 @@ public class EventListenerMqtt implements EventListener<EventListenerMqttConfig>
     }
 
 
+    /**
+     * Unsubscribes the events.
+     *
+     * @param id
+     */
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");

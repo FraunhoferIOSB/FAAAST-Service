@@ -20,6 +20,9 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
+/**
+ * A rule executed by the Script Engine.
+ */
 public class Rule {
 
     private List<Reference> elements;
@@ -46,6 +49,11 @@ public class Rule {
 
     private String expression;
 
+    /**
+     * Initialize the rule.
+     *
+     * @param rule
+     */
     public Rule(String rule) {
         this.elements = new ArrayList<>();
         this.actions = new ArrayList<>();
@@ -53,11 +61,21 @@ public class Rule {
     }
 
 
+    /**
+     * Adds an SubmodelElement to the rule.
+     *
+     * @param reference
+     */
     public void addElement(Reference reference) {
         elements.add(reference);
     }
 
 
+    /**
+     * Adds an action to the rule.
+     *
+     * @param action
+     */
     public void addAction(Action action) {
         actions.add(action);
     }

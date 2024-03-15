@@ -27,6 +27,9 @@ import javax.script.ScriptException;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
+/**
+ * The Handler executing the rule.
+ */
 public class RuleHandler {
     private ScriptEngineManager manager;
     private ScriptEngine engine;
@@ -41,6 +44,14 @@ public class RuleHandler {
     }
 
 
+    /**
+     * Evaluates the rule and executes it.
+     *
+     * @param rule
+     * @param value
+     * @param reference
+     * @throws EventListenerException
+     */
     public void handle(Rule rule, ElementValue value, Reference reference) throws EventListenerException {
         try {
             initializeRule(rule, value);
