@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.aas;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithPaging;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: /shells/{aasIdentifier}/submodel-refs.
  */
-public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapperWithPaging<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("shells/%s/submodel-refs", pathElement(AAS_ID));
@@ -40,7 +40,7 @@ public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapper
 
 
     @Override
-    public GetAllSubmodelReferencesRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllSubmodelReferencesRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo) {
         return GetAllSubmodelReferencesRequest.builder()
                 .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
                 .build();

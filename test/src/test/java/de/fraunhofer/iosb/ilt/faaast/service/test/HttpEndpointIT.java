@@ -785,18 +785,18 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceCreateSubmodel()
+    public void testAssetAdministrationShellInterfaceCreateSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        List<Reference> expected = aas.getSubmodels();
         String name = "test";
         Reference newReference = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
                         .value(name)
                         .build())
                 .build();
-        expected.add(newReference);
+        AssetAdministrationShell aas = DeepCopyHelper.deepCopy(environment.getAssetAdministrationShells().get(1));
+        aas.getSubmodels().add(newReference);
+        List<Reference> expected = aas.getSubmodels();
         assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
@@ -814,7 +814,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             Assert.assertTrue(location.isPresent());
                             Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(name)), location.get());
                         }));
-        assertExecuteMultiple(
+        assertExecutePage(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
@@ -825,17 +825,16 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceDeleteSubmodel()
+    public void testAssetAdministrationShellInterfaceDeleteSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Reference submodelToDelete = aas.getSubmodels().get(0);
         aas.getSubmodels().remove(submodelToDelete);
-        List<Reference> before = HttpHelper.getWithMultipleResult(
-                httpClient,
-                apiPaths.aasInterface(aas).submodels(),
+        Page<Reference> before = HttpHelper.readResponsePage(
+                HttpHelper.execute(httpClient, HttpMethod.GET, apiPaths.aasInterface(aas).submodels()),
                 Reference.class);
-        Assert.assertTrue(before.contains(submodelToDelete));
+        Assert.assertTrue(before.getContent().contains(submodelToDelete));
         assertEvent(
                 messageBus,
                 EventMessage.class,
@@ -845,11 +844,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 HttpMethod.DELETE,
                                 apiPaths.aasInterface(aas).submodelRefs(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
-        List<Reference> actual = HttpHelper.getWithMultipleResult(
-                httpClient,
-                apiPaths.aasInterface(aas).submodels(),
+        Page<Reference> actual = HttpHelper.readResponsePage(
+                HttpHelper.execute(httpClient, HttpMethod.GET, apiPaths.aasInterface(aas).submodels()),
                 Reference.class);
-        Assert.assertFalse(actual.contains(submodelToDelete));
+        Assert.assertFalse(actual.getContent().contains(submodelToDelete));
     }
 
 
@@ -920,11 +918,11 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceGetSubmodels()
+    public void testAssetAdministrationShellInterfaceGetSubmodelRefs()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Object expected = aas.getSubmodels();
-        assertExecuteMultiple(
+        List<Reference> expected = aas.getSubmodels();
+        assertExecutePage(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,

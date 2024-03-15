@@ -27,7 +27,7 @@ public class GetAllSubmodelsResponse extends AbstractPagedResponse<Submodel> {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<Submodel, GetAllSubmodelsResponse, Builder> {
+    public static class Builder extends AbstractPagedResponse.AbstractBuilder<Submodel, GetAllSubmodelsResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

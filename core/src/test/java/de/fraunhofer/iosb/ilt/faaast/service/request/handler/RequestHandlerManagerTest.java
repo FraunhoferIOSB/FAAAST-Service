@@ -589,16 +589,17 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelReferencesRequest() throws ResourceNotFoundException, Exception {
+        when(persistence.getSubmodelRefs(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
+                .thenReturn(Page.of(environment.getAssetAdministrationShells().get(0).getSubmodels()));
         when(persistence.getAssetAdministrationShell(eq(environment.getAssetAdministrationShells().get(0).getId()), any()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAllSubmodelReferencesRequest request = new GetAllSubmodelReferencesRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
-                .outputModifier(OutputModifier.DEFAULT)
                 .build();
         GetAllSubmodelReferencesResponse actual = manager.execute(request);
         GetAllSubmodelReferencesResponse expected = new GetAllSubmodelReferencesResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(environment.getAssetAdministrationShells().get(0).getSubmodels())
+                .payload(Page.of(environment.getAssetAdministrationShells().get(0).getSubmodels()))
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
