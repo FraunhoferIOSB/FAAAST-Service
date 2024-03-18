@@ -17,26 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapperWithPaging;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsPathResponse;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel-elements,
- * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements.
+ * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel-elements/$path,
+ * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/$path.
  */
-public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfaceRequestMapperWithPaging<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsPathRequestMapper
+        extends AbstractSubmodelInterfaceRequestMapper<GetAllSubmodelElementsPathRequest, GetAllSubmodelElementsPathResponse> {
 
-    private static final String PATTERN = "submodel-elements";
+    private static final String PATTERN = "submodel-elements/\\$path";
 
-    public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE, Content.VALUE, Content.PATH);
+    public GetAllSubmodelElementsPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.METADATA, Content.NORMAL, Content.VALUE, Content.REFERENCE);
     }
 
 
@@ -47,8 +47,8 @@ public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfa
 
 
     @Override
-    public GetAllSubmodelElementsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
-        return GetAllSubmodelElementsRequest.builder()
+    public GetAllSubmodelElementsPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllSubmodelElementsPathRequest.builder()
                 .build();
     }
 
