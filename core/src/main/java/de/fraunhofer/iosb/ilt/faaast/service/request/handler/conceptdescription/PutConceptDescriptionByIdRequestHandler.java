@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
@@ -52,8 +53,7 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
                     .build());
         }
         return PutConceptDescriptionByIdResponse.builder()
-                .payload(request.getConceptDescription())
-                .success()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
     }
 

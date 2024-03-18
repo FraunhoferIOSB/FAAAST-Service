@@ -607,9 +607,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 AssetAdministrationShell.class)));
     }
 
@@ -945,9 +945,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 AssetAdministrationShell.class)));
     }
 
@@ -1104,9 +1104,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.conceptDescriptionRepository().conceptDescription(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 ConceptDescription.class)));
         Assert.assertTrue(HttpHelper.getPage(
                 httpClient,
@@ -2062,9 +2062,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 
@@ -2087,9 +2087,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
@@ -2437,9 +2437,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasInterface(aas).submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 
@@ -2463,9 +2463,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
@@ -2685,9 +2685,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 

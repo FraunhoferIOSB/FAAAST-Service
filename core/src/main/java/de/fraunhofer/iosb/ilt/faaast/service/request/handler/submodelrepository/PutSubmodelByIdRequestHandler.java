@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PutSubmodelByIdResponse;
@@ -61,8 +62,7 @@ public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSub
                     .build());
         }
         return PutSubmodelByIdResponse.builder()
-                .payload(request.getSubmodel())
-                .success()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
     }
 
