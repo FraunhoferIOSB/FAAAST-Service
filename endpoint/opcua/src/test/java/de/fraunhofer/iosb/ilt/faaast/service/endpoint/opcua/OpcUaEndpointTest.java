@@ -250,7 +250,7 @@ public class OpcUaEndpointTest {
                 .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
                 .build();
         Response response = service.execute(request);
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
 
         // read new value
         value = client.readValue(targets[0].getTargetId());
@@ -333,7 +333,7 @@ public class OpcUaEndpointTest {
                 .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
                 .build();
         Response response = service.execute(request);
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
 
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
