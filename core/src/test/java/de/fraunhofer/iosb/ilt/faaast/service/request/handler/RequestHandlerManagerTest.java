@@ -372,8 +372,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutAssetAdministrationShellByIdResponse actual = manager.execute(request);
         PutAssetAdministrationShellByIdResponse expected = new PutAssetAdministrationShellByIdResponse.Builder()
-                .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence, times(1)).save(environment.getAssetAdministrationShells().get(0));
@@ -422,8 +421,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutAssetAdministrationShellResponse actual = manager.execute(request);
         PutAssetAdministrationShellResponse expected = new PutAssetAdministrationShellResponse.Builder()
-                .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).save(environment.getAssetAdministrationShells().get(0));
@@ -554,6 +552,10 @@ public class RequestHandlerManagerTest {
                 .content(expectedFile)
                 .build();
         PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
+        PutFileByPathResponse putFileByPathResponseExpected = PutFileByPathResponse.builder()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
+                .build();
+        Assert.assertEquals(putFileByPathResponseExpected, putFileByPathResponse);
         Assert.assertTrue(putFileByPathResponse.getResult().getMessages().isEmpty());
         GetFileByPathRequest request = new GetFileByPathRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
@@ -774,8 +776,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutSubmodelByIdResponse actual = manager.execute(request);
         PutSubmodelByIdResponse expected = new PutSubmodelByIdResponse.Builder()
-                .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).save(environment.getSubmodels().get(0));
@@ -825,8 +826,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutSubmodelResponse actual = manager.execute(request);
         PutSubmodelResponse expected = new PutSubmodelResponse.Builder()
-                .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).save(environment.getSubmodels().get(0));
@@ -1034,8 +1034,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutSubmodelElementByPathResponse actual = manager.execute(request);
         PutSubmodelElementByPathResponse expected = new PutSubmodelElementByPathResponse.Builder()
-                .payload(newSubmodelElement)
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement, DataElementValue.class));
@@ -1065,7 +1064,7 @@ public class RequestHandlerManagerTest {
 
         Response actual = manager.execute(request);
         SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(propertyValue);
@@ -1359,8 +1358,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutConceptDescriptionByIdResponse actual = manager.execute(request);
         PutConceptDescriptionByIdResponse expected = new PutConceptDescriptionByIdResponse.Builder()
-                .payload(environment.getConceptDescriptions().get(0))
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).save(environment.getConceptDescriptions().get(0));
