@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PutAssetAdministrationShellByIdResponse;
@@ -53,8 +54,7 @@ public class PutAssetAdministrationShellByIdRequestHandler extends AbstractReque
                     .build());
         }
         return PutAssetAdministrationShellByIdResponse.builder()
-                .payload(request.getAas())
-                .success()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
     }
 

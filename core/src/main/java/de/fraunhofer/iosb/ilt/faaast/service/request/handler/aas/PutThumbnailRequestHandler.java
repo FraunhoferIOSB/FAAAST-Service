@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
@@ -62,7 +63,7 @@ public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbn
                     .build());
         }
         return PutThumbnailResponse.builder()
-                .success()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
     }
 
