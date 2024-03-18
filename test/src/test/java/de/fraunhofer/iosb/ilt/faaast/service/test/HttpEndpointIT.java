@@ -695,7 +695,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
                 .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
@@ -1440,7 +1440,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putThumbnailResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putThumbnailResponse.statusCode());
         assertExecuteSingle(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).assetInformation(),
@@ -2780,7 +2780,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.submodelRepository()
                         .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")
