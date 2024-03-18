@@ -73,9 +73,9 @@
     </distributionManagement>
     <properties>
         <aas4j.version>1.0.1</aas4j.version>
-        <awaitility.version>4.2.0</awaitility.version>
+        <awaitility.version>4.2.1</awaitility.version>
         <bouncycastle.version>1.77</bouncycastle.version>
-        <checkstyle.version>10.14.1</checkstyle.version>
+        <checkstyle.version>10.14.2</checkstyle.version>
         <classgraph.version>4.8.168</classgraph.version>
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.compress.version>1.26.1</commons.compress.version>
@@ -111,7 +111,7 @@
         <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>8.0.1</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.2.0</maven.plugin.gpg.version>
+        <maven.plugin.gpg.version>3.2.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.11</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
