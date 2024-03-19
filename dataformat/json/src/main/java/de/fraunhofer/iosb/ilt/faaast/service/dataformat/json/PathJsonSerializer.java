@@ -14,13 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.path.IdShortPathElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -65,17 +66,26 @@ public class PathJsonSerializer {
      * @throws SerializationException if serialization fails
      */
     public String write(IdShortPath parent, Object obj, Level level) throws SerializationException {
+        if (Objects.nonNull(obj) && Page.class.isAssignableFrom(obj.getClass())) {
+            Page page = (Page) obj;
+            return new JsonApiSerializer().write(Page.of(
+                    page.getContent().stream()
+                            .map(x -> findIdShortPaths(parent, x, level))
+                            .toList(),
+                    page.getMetadata()));
+        }
+        else {
+            return new JsonApiSerializer().write(findIdShortPaths(parent, obj, level));
+        }
+    }
+
+
+    private List<String> findIdShortPaths(IdShortPath parent, Object obj, Level level) {
         IdShortPathElementWalker walker = new IdShortPathElementWalker(level);
         walker.walk(obj);
-        try {
-            List<String> result = walker.getIdShortPaths().stream()
-                    .map(x -> IdShortPath.combine(parent, x).toString())
-                    .collect(Collectors.toList());
-            return wrapper.getMapper().writeValueAsString(result);
-        }
-        catch (JsonProcessingException e) {
-            throw new SerializationException("serialization failed", e);
-        }
+        return walker.getIdShortPaths().stream()
+                .map(x -> IdShortPath.combine(parent, x).toString())
+                .collect(Collectors.toList());
     }
 
 

@@ -174,6 +174,17 @@ public class IdShortPathElementWalker extends AssetAdministrationShellElementWal
     }
 
 
+    /**
+     * Visits a list by visiting all children.
+     *
+     * @param <T> content-type of the list
+     * @param list the list
+     */
+    public <T> void visit(List<T> list) {
+        list.forEach(this::visit);
+    }
+
+
     @Override
     public void walk(Object obj) {
         init();

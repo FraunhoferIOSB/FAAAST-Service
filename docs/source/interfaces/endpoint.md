@@ -13,7 +13,7 @@ The following is an example of the relevant part of the configuration part compr
 	"endpoints": [
 		{
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-			"port": 8080,
+			"port": 443,
 			"corsEnabled": true
 		},
 		{
@@ -39,7 +39,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | --------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
 | certificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate |
 | corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                   |
-| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 8080                    |
+| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 443                     |
 | sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                    |
 :::
 
@@ -49,7 +49,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 {
 	"endpoints": [ {
 		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-		"port": 8080,
+		"port": 443,
 		"corsEnabled": true,
 		"sniEnabled": true,
 		"certificate": {

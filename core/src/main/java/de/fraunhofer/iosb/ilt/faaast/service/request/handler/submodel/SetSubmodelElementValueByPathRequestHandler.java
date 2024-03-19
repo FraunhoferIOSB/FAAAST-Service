@@ -71,7 +71,7 @@ public class SetSubmodelElementValueByPathRequestHandler
         catch (IllegalArgumentException e) {
             // empty on purpose
         }
-        response.setStatusCode(StatusCode.SUCCESS);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ValueChangeEventMessage.builder()
                     .element(reference)

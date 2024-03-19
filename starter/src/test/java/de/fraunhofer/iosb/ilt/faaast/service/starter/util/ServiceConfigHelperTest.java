@@ -36,7 +36,7 @@ public class ServiceConfigHelperTest {
         return new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
                 .endpoints(List.of(new HttpEndpointConfig.Builder()
-                        .port(8080)
+                        .port(443)
                         .build()))
                 .persistence(new PersistenceInMemoryConfig())
                 .fileStorage(new FileStorageInMemoryConfig())
@@ -75,7 +75,7 @@ public class ServiceConfigHelperTest {
                                 .build(),
                         ConfigOverride.builder()
                                 .originalKey(ParameterConstants.ENDPOINT_0_PORT)
-                                .value("8080")
+                                .value("443")
                                 .source(ConfigOverrideSource.ENV)
                                 .build()));
         Assert.assertEquals(expected, actual);

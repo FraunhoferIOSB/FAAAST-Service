@@ -607,9 +607,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 AssetAdministrationShell.class)));
     }
 
@@ -695,7 +695,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> response = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.aasSerialization().serialization(List.of(aas), defaultEnvironment.getSubmodels(), true)))
                 .header(HttpConstants.HEADER_ACCEPT, DataFormat.AASX.getContentType().toString())
@@ -785,18 +785,18 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceCreateSubmodel()
+    public void testAssetAdministrationShellInterfaceCreateSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        List<Reference> expected = aas.getSubmodels();
         String name = "test";
         Reference newReference = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
                         .value(name)
                         .build())
                 .build();
-        expected.add(newReference);
+        AssetAdministrationShell aas = DeepCopyHelper.deepCopy(environment.getAssetAdministrationShells().get(1));
+        aas.getSubmodels().add(newReference);
+        List<Reference> expected = aas.getSubmodels();
         assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
@@ -814,7 +814,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             Assert.assertTrue(location.isPresent());
                             Assert.assertEquals(String.format("/%s", EncodingHelper.base64UrlEncode(name)), location.get());
                         }));
-        assertExecuteMultiple(
+        assertExecutePage(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
@@ -825,17 +825,16 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceDeleteSubmodel()
+    public void testAssetAdministrationShellInterfaceDeleteSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
             KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Reference submodelToDelete = aas.getSubmodels().get(0);
         aas.getSubmodels().remove(submodelToDelete);
-        List<Reference> before = HttpHelper.getWithMultipleResult(
-                httpClient,
-                apiPaths.aasInterface(aas).submodels(),
+        Page<Reference> before = HttpHelper.readResponsePage(
+                HttpHelper.execute(httpClient, HttpMethod.GET, apiPaths.aasInterface(aas).submodels()),
                 Reference.class);
-        Assert.assertTrue(before.contains(submodelToDelete));
+        Assert.assertTrue(before.getContent().contains(submodelToDelete));
         assertEvent(
                 messageBus,
                 EventMessage.class,
@@ -845,11 +844,10 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                                 HttpMethod.DELETE,
                                 apiPaths.aasInterface(aas).submodelRefs(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
-        List<Reference> actual = HttpHelper.getWithMultipleResult(
-                httpClient,
-                apiPaths.aasInterface(aas).submodels(),
+        Page<Reference> actual = HttpHelper.readResponsePage(
+                HttpHelper.execute(httpClient, HttpMethod.GET, apiPaths.aasInterface(aas).submodels()),
                 Reference.class);
-        Assert.assertFalse(actual.contains(submodelToDelete));
+        Assert.assertFalse(actual.getContent().contains(submodelToDelete));
     }
 
 
@@ -920,11 +918,11 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceGetSubmodels()
+    public void testAssetAdministrationShellInterfaceGetSubmodelRefs()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Object expected = aas.getSubmodels();
-        assertExecuteMultiple(
+        List<Reference> expected = aas.getSubmodels();
+        assertExecutePage(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
@@ -947,9 +945,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 AssetAdministrationShell.class)));
     }
 
@@ -1106,9 +1104,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.conceptDescriptionRepository().conceptDescription(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 ConceptDescription.class)));
         Assert.assertTrue(HttpHelper.getPage(
                 httpClient,
@@ -1442,7 +1440,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putThumbnailResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putThumbnailResponse.statusCode());
         assertExecuteSingle(
                 HttpMethod.GET,
                 apiPaths.aasInterface(aas).assetInformation(),
@@ -2064,9 +2062,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 
@@ -2089,9 +2087,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
@@ -2439,9 +2437,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasInterface(aas).submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 
@@ -2465,9 +2463,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 SubmodelElement.class)));
         Page<SubmodelElement> actual = HttpHelper.getPage(
                 httpClient,
@@ -2687,9 +2685,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 apiPaths.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS,
+                                StatusCode.SUCCESS_NO_CONTENT,
                                 expected,
-                                expected,
+                                null,
                                 Submodel.class)));
     }
 
@@ -2782,7 +2780,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .PUT(BodyPublishers.ofInputStream(LambdaExceptionHelper.wrap(httpEntity::getContent)))
                 .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), putFileResponse.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), putFileResponse.statusCode());
         HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.submodelRepository()
                         .submodelInterface(defaultEnvironment.getSubmodels().get(0)).submodelElement("ExampleSubmodelElementCollection.ExampleFile")

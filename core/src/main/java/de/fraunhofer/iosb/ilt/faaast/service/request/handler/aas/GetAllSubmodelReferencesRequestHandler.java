@@ -15,13 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -41,16 +42,16 @@ public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandl
 
     @Override
     public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
-        List<Reference> submodelReferences = shell.getSubmodels();
+        Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo());
         if (!request.isInternal()) {
+            AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL);
             context.getMessageBus().publish(ElementReadEventMessage.builder()
-                    .element(shell)
-                    .value(shell)
+                    .element(aas)
+                    .value(aas)
                     .build());
         }
         return GetAllSubmodelReferencesResponse.builder()
-                .payload(submodelReferences)
+                .payload(page)
                 .success()
                 .build();
     }

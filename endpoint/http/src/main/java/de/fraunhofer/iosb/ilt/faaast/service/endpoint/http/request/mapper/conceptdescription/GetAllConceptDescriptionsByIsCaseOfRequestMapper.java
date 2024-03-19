@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
@@ -23,9 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -48,9 +50,16 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
 
 
     @Override
-    public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
-        return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
-                .isCaseOf(ReferenceHelper.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
-                .build();
+    public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo)
+            throws InvalidRequestException {
+        try {
+            return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
+                    .isCaseOf(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF)), Reference.class))
+                    .build();
+        }
+        catch (DeserializationException e) {
+            throw new InvalidRequestException(
+                    String.format("error deserializing %s (value: %s)", QueryParameters.IS_CASE_OF, httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF)), e);
+        }
     }
 }

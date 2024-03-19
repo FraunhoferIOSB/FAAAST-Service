@@ -368,7 +368,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByDataSpecificationReference() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetAllConceptDescriptionsByDataSpecificationReference() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
         Reference dataSpecificationRef = AasUtils.toReference(CONCEPT_DESCRIPTION);
         Request expected = GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
                 .dataSpecification(dataSpecificationRef)
@@ -376,7 +376,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(dataSpecificationRef)))
+                .query("dataSpecificationRef=" + EncodingHelper.base64UrlEncode(serializer.write(dataSpecificationRef)))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -397,7 +397,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByIsCaseOf() throws InvalidRequestException, MethodNotAllowedException {
+    public void testGetAllConceptDescriptionsByIsCaseOf() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
         Reference isCaseOf = CONCEPT_DESCRIPTION.getIsCaseOf().get(0);
         Request expected = GetAllConceptDescriptionsByIsCaseOfRequest.builder()
                 .isCaseOf(isCaseOf)
@@ -405,7 +405,7 @@ public class RequestMappingManagerTest {
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("concept-descriptions")
-                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(ReferenceHelper.toString(isCaseOf)))
+                .query("isCaseOf=" + EncodingHelper.base64UrlEncode(serializer.write(isCaseOf)))
                 .build());
         Assert.assertEquals(expected, actual);
     }

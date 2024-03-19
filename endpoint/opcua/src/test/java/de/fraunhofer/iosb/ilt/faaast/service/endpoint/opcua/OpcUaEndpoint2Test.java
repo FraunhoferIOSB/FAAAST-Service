@@ -375,7 +375,7 @@ public class OpcUaEndpoint2Test {
                 .build();
         PutSubmodelElementByPathResponse response = (PutSubmodelElementByPathResponse) service.execute(request);
         LOGGER.debug("testUpdateSubmodelElement: Response Result {}, StatusCode {}", response.getResult(), response.getStatusCode());
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS, response.getStatusCode());
+        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
 
         // check MessageBus
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);

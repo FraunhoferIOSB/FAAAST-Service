@@ -12,22 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
+import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Response class for GetAllSubmodelReferences requests.
+ * Response class for GetAllSubmodelElements requests with content modifier Path.
  */
-public class GetAllSubmodelReferencesResponse extends AbstractPagedResponse<Reference> {
+public class GetAllSubmodelElementsPathResponse extends AbstractResponseWithPayload<List<SubmodelElement>> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractPagedResponse.AbstractBuilder<Reference, GetAllSubmodelReferencesResponse, Builder> {
+    public static class Builder extends AbstractBuilder<List<SubmodelElement>, GetAllSubmodelElementsPathResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -36,8 +37,8 @@ public class GetAllSubmodelReferencesResponse extends AbstractPagedResponse<Refe
 
 
         @Override
-        protected GetAllSubmodelReferencesResponse newBuildingInstance() {
-            return new GetAllSubmodelReferencesResponse();
+        protected GetAllSubmodelElementsPathResponse newBuildingInstance() {
+            return new GetAllSubmodelElementsPathResponse();
         }
     }
 }

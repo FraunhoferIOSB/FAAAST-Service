@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Value
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -52,6 +53,9 @@ public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceReques
             context.getMessageBus().publish(ValueReadEventMessage.builder()
                     .element(reference)
                     .build());
+        }
+        if (Objects.isNull(file.getValue())) {
+            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", request.getPath()));
         }
         return GetFileByPathResponse.builder()
                 .payload(new TypedInMemoryFile.Builder()
