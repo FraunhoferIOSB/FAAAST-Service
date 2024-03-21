@@ -97,7 +97,7 @@
         <jena.version>4.10.0</jena.version>
         <jetty.version>11.0.20</jetty.version>
         <json-patch.version>1.13</json-patch.version>
-        <json-smart.version>2.5.0</json-smart.version>
+        <json-smart.version>2.5.1</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
