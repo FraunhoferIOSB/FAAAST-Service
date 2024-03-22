@@ -4,7 +4,9 @@
 ## 1.0.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 :::{important}
-Version 1.0.0 is a major update and has breaking changes to all previous versions.
+Version 1.0 is a major update and has breaking changes to all previous versions.
+When upgrading to v1.0 please make sure the AAS models and payload you use are compliant to AAS spec v3.0.
+Additionally, existing asset connection configurations must be updated in the config file as the serialization format for references has changed in the specificition, e.g., `(Submodel)[IRI]http://example.org/foo,(Property)[ID_SHORT]bar` in older configurations new becomes `(Submodel)http://example.org/foo, (Property)bar`, i.e. the id type has been removed and segments are not separated only by `,` but by `, ` (comma followed by additional space).
 :::
 
 
