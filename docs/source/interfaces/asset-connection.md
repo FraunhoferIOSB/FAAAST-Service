@@ -57,6 +57,11 @@ Therefore, the configuration section for all implementations of the AssetConnect
 
 The value of `{serialized Reference of AAS element}` is the Reference to the AAS element serialized using the rules described in [Section 7.2.3 of AAS Specification - Part 1](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf).
 An example value could look like this `[ModelRef](Submodel)urn:aas:id:example:submodel:1, (Property)Property1`.
+
+:::{important}
+The format for serializing references has changed with AAS v3.0 resp. FA³ST Service v1.0. For example, the id type is now no longer part of the serialization and path elements are now separated by `, ` (comma followed by space) instead of `,` (comma).
+:::
+
 The available configuration properties for connection-level and the providers are implementation-specific.
 This is necessary because different protocols require different types of information, e.g. for OPC UA an AAS element could be mapped to an OPC UA node which means the configuration must contain the node ID, while for MQTT we need a topic on which to listen and maybe even information about the payload format.
 
