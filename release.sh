@@ -86,6 +86,8 @@ removeTag "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER"
 
 mvn -B spotless:apply
 
+echo "Updating thrid party license report"
+mvn clean install license:aggregate-third-party-report -P build-ci -B
 
 echo "Updating thrid party license report"
 mvn license:aggregate-third-party-report
