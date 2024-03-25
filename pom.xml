@@ -308,14 +308,14 @@
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
-                            <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
+                            <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0|The Apache Software License, version 2.0|Apache License version 2.0|Apache Software License, version 2.0|Apache-2.0|Apache 2</licenseMerge>
                             <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>
                             <licenseMerge>The MIT License (MIT)|The MIT License|MIT License|MIT license|MIT</licenseMerge>
                             <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
                             <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
                             <licenseMerge>GPL2 w/ CPE|GNU General Public License, version 2 (GPL2), with the classpath exception</licenseMerge>
                             <licenseMerge>BSD License 2.0|New BSD License</licenseMerge>
-                            <licenseMerge>BSD 3-Clause|BSD License 3.0</licenseMerge>
+                            <licenseMerge>BSD 3-Clause|BSD License 3.0|The BSD 3-Clause License|BSD-3-Clause</licenseMerge>
                         </licenseMerges>
                     </configuration>
                     <executions>
