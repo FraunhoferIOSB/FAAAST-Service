@@ -40,7 +40,7 @@ public class DefaultProtocolInformation implements ProtocolInformation {
         endpointProtocol = null;
         endpointProtocolVersion = null;
         href = null;
-        securityAttributes = new ArrayList();
+        securityAttributes = new ArrayList<>();
         subprotocol = null;
         subprotocolBody = null;
         subprotocolBodyEncoding = null;
