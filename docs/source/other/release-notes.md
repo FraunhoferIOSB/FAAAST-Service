@@ -1,7 +1,6 @@
 # Release Notes
 
-<!--start:changelog-header-->
-## 1.0.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.0.0
 
 :::{important}
 Version 1.0 is a major update and has breaking changes to all previous versions.

@@ -18,14 +18,14 @@
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
 	<artifactId>starter</artifactId>
-	<version>0.5.0</version>
+	<version>1.0.0</version>
 </dependency>
 ```
 
 ## Gradle Dependency
 
 ```groovy
-implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.5.0'
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.0.0'
 ```
 
 ## Build from Source

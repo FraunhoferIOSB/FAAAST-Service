@@ -4,13 +4,13 @@
     <servers>
         <server>
             <id>ossrh</id>
-            <username>${env.SONATYPE_USERNAME}</username>
-            <password>${env.SONATYPE_PASSWORD}</password>
+            <username>michael.jacoby</username>
+            <password>GXdSmAibo5$$$8vlyxGsdWp</password>
         </server>
         <server>
             <id>faaast-libs-prosys</id>
-            <username>${env.ARTIFACTORY_USERNAME}</username>
-            <password>${env.ARTIFACTORY_PASSWORD}</password>
+            <username>GithubCI</username>
+            <password>5cC4VMm3GC4DMWtznJgu%$$</password>
         </server>
         <server>
             <id>OWASP_OSS_INDEX</id>
@@ -19,7 +19,7 @@
         </server>
         <server>
             <id>NIST_NVD_API</id>
-            <password>${env.NIST_NVD_API_KEY}</password>
+            <password>4a02e3d8-03e8-4c10-8759-ba43d3ce6e6a</password>
         </server>
     </servers>
     <profiles>
@@ -29,8 +29,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>
-                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+                <gpg.executable>gpg</gpg.executable>
+                <gpg.passphrase>xHFo$lmv3$ti2gl1$82qROI</gpg.passphrase>
             </properties>
         </profile>
     </profiles>
