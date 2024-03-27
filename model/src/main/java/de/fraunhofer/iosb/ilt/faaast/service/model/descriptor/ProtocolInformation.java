@@ -14,16 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
+import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
+
+
 /**
  * Registry Descriptor for ProtocolInformation.
  */
 public interface ProtocolInformation {
-
-    public String getEndpointAddress();
-
-
-    public void setEndpointAddress(String endpointAddress);
-
 
     public String getEndpointProtocol();
 
@@ -35,6 +33,18 @@ public interface ProtocolInformation {
 
 
     public void setEndpointProtocolVersion(String endpointProtocolVersion);
+
+
+    public String getHref();
+
+
+    public void setHref(String href);
+
+
+    public List<SecurityAttributeObject> getSecurityAttributes();
+
+
+    public void setSecurityAttributes(List<SecurityAttributeObject> securityAttributes);
 
 
     public String getSubprotocol();
@@ -53,5 +63,4 @@ public interface ProtocolInformation {
 
 
     public void setSubprotocolBodyEncoding(String subprotocolBodyEncoding);
-
 }
