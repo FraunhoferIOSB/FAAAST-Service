@@ -45,10 +45,11 @@ public class CallOperation implements Action {
             String inputArguments = "{}";
             LOGGER.debug("Event listener will execute action: call operation");
             String submodelId = ReferenceHelper.getParent(reference).getKeys().get(0).getValue();
+            //@TODO do no hard-code port
             HttpResponse response = HttpHelper.execute(
                     httpProvider.getHttpClient(),
                     URI.create("https://" + httpProvider.getBaseUrl()
-                            + ":8080/api/v3.0/submodels/"
+                            + ":8191/api/v3.0/submodels/"
                             + Base64.getEncoder().encodeToString(submodelId.getBytes())
                             + "/submodel/submodel-elements/").toURL(),
                     ReferenceHelper.toPath(reference)
