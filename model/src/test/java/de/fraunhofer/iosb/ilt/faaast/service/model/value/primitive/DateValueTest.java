@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +40,8 @@ public class DateValueTest {
     @Test
     public void testSimple() throws ValueFormatException {
         String value = "2000-01-01";
-        OffsetDateTime expected = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
+        LocalDateTime localDateTime = LocalDateTime.of(2000, 1, 1, 0, 0);
+        OffsetDateTime expected = OffsetDateTime.of(localDateTime, ZoneId.systemDefault().getRules().getOffset(localDateTime));
         TypedValue actual = TypedValueFactory.create(Datatype.DATE, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
