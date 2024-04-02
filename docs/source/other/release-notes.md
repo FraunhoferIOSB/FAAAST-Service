@@ -1,6 +1,5 @@
 # Release Notes
-<!--start:changelog-header-->
-## 1.1.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.0.1
 
 - General
 	- fixed some date-related unit tests that failed during daylight saving time at thereby prevented compilation of project
