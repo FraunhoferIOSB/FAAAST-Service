@@ -40,8 +40,7 @@ public class CoreConfig {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
         this.requestHandlerThreadPoolSize = DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE;
         this.validationOnLoad = ModelValidatorConfig.builder()
-                // TODO currently deactived because not present in AAS4j
-                .validateConstraints(false)
+                .validateConstraints(true)
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
                 .build();
