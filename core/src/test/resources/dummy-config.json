@@ -6,7 +6,7 @@
                 "assetConnectionRetryInterval": 1000,
                 "validationOnLoad":
                         {
-                            "validateConstraints": false,
+                            "validateConstraints": true,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
                         },
