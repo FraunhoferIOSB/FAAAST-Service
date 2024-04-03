@@ -1,6 +1,15 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.1.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**New Features & Major Changes**
+- General
+	- Loading AAS modles from JSON now fails on unknown JSON properties
+
+**Internal changes & bugfixes**
+- General
+	- Added log message when starting to indicate that constraint validation is currently not supported
+
 ## 1.0.1
 
 - General

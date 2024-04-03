@@ -14,14 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
@@ -31,10 +37,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    private final JsonDeserializer deserializer;
+    protected ObjectMapper mapper;
+    protected SimpleAbstractTypeResolver typeResolver;
 
     public JsonEnvironmentDeserializer() {
-        this.deserializer = new JsonDeserializer();
+        typeResolver = new SimpleAbstractTypeResolverFactory().create();
+        mapper = new JsonMapperFactory().create(typeResolver).enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
 
@@ -42,10 +50,10 @@ public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
         try {
             return EnvironmentContext.builder()
-                    .environment(deserializer.read(in, charset, Environment.class))
+                    .environment(mapper.readValue(new InputStreamReader(in, charset), Environment.class))
                     .build();
         }
-        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException e) {
+        catch (IOException e) {
             throw new DeserializationException("JSON deserialization failed", e);
         }
     }
