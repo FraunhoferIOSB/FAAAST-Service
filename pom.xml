@@ -74,7 +74,7 @@
     <properties>
         <aas4j.version>1.0.1</aas4j.version>
         <awaitility.version>4.2.1</awaitility.version>
-        <bouncycastle.version>1.77</bouncycastle.version>
+        <bouncycastle.version>1.78</bouncycastle.version>
         <checkstyle.version>10.15.0</checkstyle.version>
         <classgraph.version>4.8.170</classgraph.version>
         <commons.codec.version>1.16.1</commons.codec.version>
