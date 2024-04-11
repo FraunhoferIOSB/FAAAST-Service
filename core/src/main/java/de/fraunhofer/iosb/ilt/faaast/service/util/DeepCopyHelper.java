@@ -23,7 +23,9 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
 /**
@@ -120,5 +122,22 @@ public class DeepCopyHelper {
             throw new IllegalArgumentException("referables must be non-null");
         }
         return referables.stream().map(x -> deepCopy(x, outputClass)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Create a deep copy of a list of {@link org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable} objects.
+     *
+     * @param original the original list
+     * @return a deep copy of the list or null if input is null
+     */
+    public static List<OperationVariable> deepCopy(Collection<OperationVariable> original) {
+        if (Objects.isNull(original)) {
+            return null;
+        }
+        return original.stream().map(x -> new DefaultOperationVariable.Builder()
+                .value(deepCopy(x.getValue()))
+                .build())
+                .collect(Collectors.toList());
     }
 }

@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import java.util.Objects;
 
 
-public class DummyNodeBasedProviderConfig implements AssetValueProviderConfig, AssetOperationProviderConfig {
+public class DummyNodeBasedProviderConfig extends AbstractAssetOperationProviderConfig implements AssetValueProviderConfig {
 
     private String nodeId;
 

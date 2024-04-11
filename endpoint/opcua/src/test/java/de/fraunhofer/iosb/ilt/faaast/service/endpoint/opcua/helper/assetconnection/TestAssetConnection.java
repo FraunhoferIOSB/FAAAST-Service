@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -29,7 +30,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class TestAssetConnection implements
         AssetConnection<TestAssetConnectionConfig, TestValueProviderConfig, AssetValueProvider, TestOperationProviderConfig, AssetOperationProvider, TestSubscriptionProviderConfig, AssetSubscriptionProvider> {
@@ -46,29 +46,25 @@ public class TestAssetConnection implements
         subscriptionProviders = new HashMap<>();
     }
 
-
     @Override
     public void connect() throws AssetConnectionException {
         // nothing to do here
     }
-
 
     @Override
     public String getEndpointInformation() {
         return TestAssetConnection.class.getName();
     }
 
-
     @Override
     public void registerValueProvider(Reference reference, TestValueProviderConfig valueProvider) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
     @Override
     public void registerOperationProvider(Reference reference, TestOperationProviderConfig operationProvider) {
         try {
-            operationProviders.put(reference, new AssetOperationProvider() {
+            operationProviders.put(reference, new AssetOperationProvider<AssetOperationProviderConfig>() {
                 @Override
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
                     LOGGER.trace("method invoked!");
@@ -76,102 +72,91 @@ public class TestAssetConnection implements
                     //return new OperationVariable[0];
                 }
 
-
                 @Override
                 public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
-                                        Consumer<Throwable> callbackFailure)
+                        Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
                     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
+
+                public AssetOperationProviderConfig getConfig() {
+                    return null;
+                }
             });
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("registerOperationProvider error", e);
         }
     }
-
 
     @Override
     public void registerSubscriptionProvider(Reference reference, TestSubscriptionProviderConfig subscriptionProvider) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
     @Override
     public Map<Reference, AssetValueProvider> getValueProviders() {
         return this.valueProviders;
     }
-
 
     @Override
     public void disconnect() throws AssetConnectionException {
         // nothing to do here
     }
 
-
     @Override
     public boolean isConnected() {
         return true;
     }
-
 
     @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
 
-
     @Override
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
         return this.subscriptionProviders;
     }
-
 
     @Override
     public boolean sameAs(AssetConnection other) {
         return false;
     }
 
-
     @Override
     public TestAssetConnectionConfig asConfig() {
         return null;
     }
 
-
     public void close() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 
     @Override
     public void unregisterOperationProvider(Reference reference) throws AssetConnectionException {
         this.subscriptionProviders.remove(reference);
     }
 
-
     @Override
     public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException {
         this.subscriptionProviders.remove(reference);
     }
-
 
     @Override
     public void unregisterValueProvider(Reference reference) throws AssetConnectionException {
         this.subscriptionProviders.remove(reference);
     }
 
-
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
         LOGGER.trace("init called");
-        for (var provider: config.getValueProviders().entrySet()) {
+        for (var provider : config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }
-        for (var provider: config.getOperationProviders().entrySet()) {
+        for (var provider : config.getOperationProviders().entrySet()) {
             registerOperationProvider(provider.getKey(), provider.getValue());
         }
-        for (var provider: config.getSubscriptionProviders().entrySet()) {
+        for (var provider : config.getSubscriptionProviders().entrySet()) {
             registerSubscriptionProvider(provider.getKey(), provider.getValue());
         }
     }

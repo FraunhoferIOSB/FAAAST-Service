@@ -32,7 +32,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
-public class CustomOperationProvider implements AssetOperationProvider {
+public class CustomOperationProvider implements AssetOperationProvider<CustomOperationProviderConfig> {
 
     private static final String BASE_ERROR_MSG = "error creating custom operation provider";
     private final CustomOperationProviderConfig config;
@@ -64,6 +64,12 @@ public class CustomOperationProvider implements AssetOperationProvider {
                         ReflectionHelper.getAasInterface(outputVariable.getClass())));
             }
         }
+    }
+
+
+    @Override
+    public CustomOperationProviderConfig getConfig() {
+        return config;
     }
 
 

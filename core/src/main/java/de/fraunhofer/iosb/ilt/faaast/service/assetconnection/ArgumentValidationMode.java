@@ -15,26 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 /**
- * Default config for AssetOperationProvider implementations. Implement this interface to create specialized
- * configuration class for concrete AssetOperationProvider implementations, e.g. containing connection-specific
- * properties.
+ * Enum listing different types of argument validations. {@code NONE} indicates no validation is performed,
+ * {@code REQUIRE_PRESENT} indicates that all arguments are required to be explicitely passed/present, and
+ * {@code REQUIRE_PRESENT_OR_DEFAULT} that all arguments must either be present or have a default value set on the
+ * argument definition.
  */
-public interface AssetOperationProviderConfig extends AssetProviderConfig {
+public enum ArgumentValidationMode {
+    NONE,
+    REQUIRE_PRESENT,
+    REQUIRE_PRESENT_OR_DEFAULT;
 
-    public ArgumentValidationMode getInputValidationMode();
-
-
-    public void setInputValidationMode(ArgumentValidationMode mode);
-
-
-    public ArgumentValidationMode getInoutputValidationMode();
-
-
-    public void setInoutputValidationMode(ArgumentValidationMode mode);
-
-
-    public ArgumentValidationMode getOutputValidationMode();
-
-
-    public void setOutputValidationMode(ArgumentValidationMode mode);
+    public static final ArgumentValidationMode DEFAULT = REQUIRE_PRESENT_OR_DEFAULT;
 }

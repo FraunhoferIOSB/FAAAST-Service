@@ -52,6 +52,12 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
 
     @Override
+    public T getConfig() {
+        return config;
+    }
+
+
+    @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
         final Map<String, DataElementValue> inputParameter = parseParameters(input);
         final Map<String, DataElementValue> inoutputParameter = parseParameters(inoutput);

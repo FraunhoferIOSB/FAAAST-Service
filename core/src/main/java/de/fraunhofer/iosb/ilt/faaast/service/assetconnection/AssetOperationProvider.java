@@ -27,8 +27,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 /**
  * An AssetOperationProvider provides methods to invoke AAS operations on an asset; either synchronous or asynchronous.
+ *
+ * @param <T> the type of the corresponding config
  */
-public interface AssetOperationProvider extends AssetProvider {
+public interface AssetOperationProvider<T extends AssetOperationProviderConfig> extends AssetProvider {
+
+    /**
+     * Gets the underlying configuration of the operation provider.
+     *
+     * @return the underlying configuration of the operation provider
+     */
+    public T getConfig();
+
 
     /**
      * Invokes as operation synchronously.
@@ -97,8 +107,7 @@ public interface AssetOperationProvider extends AssetProvider {
      * @param inoutput inoutput parameters, i.e. parameters that are passed as input to the operation but can be
      *            modified while execution
      * @param callbackSuccess callback handler that is called when the operation is finished successfully providing the
-     *            result and
-     *            inoutput variables
+     *            result and inoutput variables
      * @param callbackFailure callback handler that is called when execution the operation fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when invoking operation on
      *             asset connection fails

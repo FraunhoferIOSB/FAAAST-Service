@@ -30,6 +30,9 @@
                     {
                         "[ModelRef](Property)Temperature":
                                 {
+                                    "inputValidationMode": "REQUIRE_PRESENT_OR_DEFAULT",
+                                    "inoutputValidationMode": "REQUIRE_PRESENT_OR_DEFAULT",
+                                    "outputValidationMode": "REQUIRE_PRESENT_OR_DEFAULT",
                                     "nodeId": "some.opc.ua.node.id"
                                 }
                     },
