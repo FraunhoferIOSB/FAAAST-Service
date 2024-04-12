@@ -73,9 +73,23 @@ An implementation does not have to implement all three provider types. In fact, 
 You can define both a ValueProvider and a SubscriptionProvider for the same element. This allows you to reflect in the asset changes in near real-time in your AAS and at the same time to update the value on the asset via the AAS API. This is especially useful when starting FA³ST with an OPC UA endpoint as it allows users to subscribe to changes or AAS properties via OPC UA.
 :::
 
-## Payload
 
-Mapping, Querying templating, etc
+## Common OperationProvider Configuration
+All OperationProvider share the following common set of configuration properties.
+
+:::{table} Common configuration properties of OperationProviders.
+| Name                                   | Allowed Value                                               | Description                             | Default Value             |
+| -------------------------------------- | ----------------------------------------------------------- |---------------------------------------- | ------------------------- |
+| inputValidationMode<br>*(optional)*    | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT       | Validation mode for input arguments     | REQUIRE_PRESENT_OR_DEFAULT|
+| inoutputValidationMode<br>*(optional)* | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT       | Validation mode for inoutput arguments  | REQUIRE_PRESENT_OR_DEFAULT|
+| outputValidationMode<br>*(optional)*   | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT       | Validation mode for ouput arguments     | REQUIRE_PRESENT_OR_DEFAULT|
+:::
+
+### Validation of operation arguments
+Validation of operation argument can be configured independently for in-, out-, and inoutput arguments to be one of the following values
+- NONE: no validation at all is performed
+- REQUIRE_PRESENT: requires all arguments defined for the operation to be provided in the call and all arguments provided to be defined for the operation. This check works only on argument name (idShort) and not argument datatype.
+- REQUIRE_PRESENT_OR_DEFAULT: sets all arguments defined for the operation but not provided in the call to the default value, i.e. the value given in the definition of the argument. Similar to REQUIRE_PRESENT, this requires the call to only contain arguments that are defined for the operation and works only on argument name ignoring the argument datatype.
 
 ## HTTP
 
@@ -132,15 +146,20 @@ Mapping, Querying templating, etc
 #### Operation Provider
 
 :::{table} Configuration properties of HTTP AssetConnection Operation Provider.
-| Name                        | Allowed Value      | Description                                                                                                                                                                                 | Default Value |
-| --------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| format                      | JSON<br>XML        | Content format of the payload.                                                                                                                                                              |               |
-| headers<br>*(optional)*     | Map<String,String> | Headers to send with each request.<br>Overrides connection-level headers.                                                                                                                   | *empty list*  |
-| method<br>*(optional)*      | PUT<br>POST        | HTTP method to use.                                                                                                                                                                         | POST          |
-| path                        | String             | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                                                                     |               |
-| queries<br>*(optional)*     | Map<String,String> | Map of result variable idShorts and corresponding query expressions to fetch them from returned value<br>Query expressions depend on `format`, e.g. for JSON this is a JSONPath expression. |               |
-| template<br>*(optional)*    | String             | Template used to format payload when sending via HTTP.                                                                                                                                      |               |
+| Name                                   | Allowed Value                                         | Description                                                                                                                                                                                 | Default Value             |
+| -------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| format                                 | JSON<br>XML                                           | Content format of the payload.                                                                                                                                                              |                           |
+| headers<br>*(optional)*                | Map<String,String>                                    | Headers to send with each request.<br>Overrides connection-level headers.                                                                                                                   | *empty list*              |
+| inputValidationMode<br>*(optional)*    | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for input arguments                                                                                                                                                         | REQUIRE_PRESENT_OR_DEFAULT|
+| inoutputValidationMode<br>*(optional)* | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for inoutput arguments                                                                                                                                                      | REQUIRE_PRESENT_OR_DEFAULT|
+| method<br>*(optional)*                 | PUT<br>POST                                           | HTTP method to use.                                                                                                                                                                         | POST                      |
+| outputValidationMode<br>*(optional)*   | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for ouput arguments                                                                                                                                                         | REQUIRE_PRESENT_OR_DEFAULT|
+| path                                   | String                                                | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                                                                     |                           |
+| queries<br>*(optional)*                | Map<String,String>                                    | Map of result variable idShorts and corresponding query expressions to fetch them from returned value<br>Query expressions depend on `format`, e.g. for JSON this is a JSONPath expression. |                           |
+| template<br>*(optional)*               | String                                                | Template used to format payload when sending via HTTP.                                                                                                                                      |                           |
 :::
+
+
 
 ```{code-block} json
 :caption: Example configuration section for HTTP OperationProvider for an Operation with input parameters `in1` and `in2` and output parameters `out1` and `out2`.
@@ -341,13 +360,19 @@ Which authentication certificate is used is determined by a similar logic as for
 #### Operation Provider
 
 :::{table} Configuration properties of OPC UA AssetConnection Operation Provider.
-| Name                                  | Allowed Value | Description                                                                                                                                                                                                                                | Default Value        |
-| ------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
-| inputArgumentMapping<br>*(optional)*  | List          | List of mappings for input arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                         | *empty list*         |
-| nodeId                                | String        | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/)                                                                                                    |                      |
-| outputArgumentMapping<br>*(optional)* | List          | List of mappings for output arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                        | *empty list*         |
-| parentNodeId<br>*(optional)*          | String        | NodeId of the OPC UA object in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), in which the method is contained.<br>When no parentNodeId is given here, the parent object of the method is used. |                      |
+| Name                                   | Allowed Value                                               | Description                                                                                                                                                                                                                          | Default Value        |
+| -------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- |
+| inputArgumentMapping<br>*(optional)*   | List                                                  | List of mappings for input arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                         | *empty list*              |
+| inputValidationMode<br>*(optional)*    | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for input arguments                                                                                                                                                                                                        | REQUIRE_PRESENT_OR_DEFAULT|
+| inoutputValidationMode<br>*(optional)* | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for inoutput arguments                                                                                                                                                                                                     | REQUIRE_PRESENT_OR_DEFAULT|
+| nodeId                                 | String                                                | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/)                                                                                                    |                           |
+| outputArgumentMapping<br>*(optional)*  | List                                                  | List of mappings for output arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                        | *empty list*              |
+| outputValidationMode<br>*(optional)*   | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for ouput arguments                                                                                                                                                                                                        | REQUIRE_PRESENT_OR_DEFAULT|
+| parentNodeId<br>*(optional)*           | String                                                | NodeId of the OPC UA object in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), in which the method is contained.<br>When no parentNodeId is given here, the parent object of the method is used. |                           |
 :::
+
+
+
 
 ```{code-block} json
 :caption: Example configuration section for OPC UA Operation Provider.
