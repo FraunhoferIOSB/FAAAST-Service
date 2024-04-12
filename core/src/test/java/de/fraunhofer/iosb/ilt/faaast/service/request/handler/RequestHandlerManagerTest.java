@@ -1247,7 +1247,7 @@ public class RequestHandlerManagerTest {
         FileStorage fileStorage = mock(FileStorage.class);
         RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        Mockito.when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
+        when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
                 CustomAssetOperationProviderConfig.builder()
                         .inputValidationMode(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)
                         .build()));
