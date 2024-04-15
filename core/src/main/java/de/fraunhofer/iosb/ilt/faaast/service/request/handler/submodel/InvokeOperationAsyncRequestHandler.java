@@ -14,23 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
@@ -51,26 +52,12 @@ import org.slf4j.LoggerFactory;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
+public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
     public InvokeOperationAsyncRequestHandler(RequestExecutionContext context) {
         super(context);
-    }
-
-
-    @Override
-    public InvokeOperationAsyncResponse doProcess(InvokeOperationAsyncRequest request) throws ResourceNotFoundException, ValueMappingException, MessageBusException, Exception {
-        Reference reference = new ReferenceBuilder()
-                .submodel(request.getSubmodelId())
-                .idShortPath(request.getPath())
-                .build();
-        OperationHandle operationHandle = executeOperationAsync(reference, request);
-        return InvokeOperationAsyncResponse.builder()
-                .payload(operationHandle)
-                .statusCode(StatusCode.SUCCESS_ACCEPTED)
-                .build();
     }
 
 
@@ -87,13 +74,13 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     }
 
 
-    private void handleOperationFailure(Reference reference, InvokeOperationAsyncRequest request, OperationHandle operationHandle, Throwable error) {
+    private void handleOperationFailure(Reference reference, List<OperationVariable> inoutput, OperationHandle operationHandle, Throwable error) {
         handleOperationResult(
                 reference,
                 operationHandle,
                 new OperationResult.Builder()
                         .executionState(ExecutionState.FAILED)
-                        .inoutputArguments(request.getInoutputArguments())
+                        .inoutputArguments(inoutput)
                         .outputArguments(List.of())
                         .message(MessageType.ERROR, String.format(
                                 "operation failed to execute (reason: %s)",
@@ -122,6 +109,22 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     private void handleOperationResult(Reference reference,
                                        OperationHandle operationHandle,
                                        OperationResult operationResult) {
+        try {
+            Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
+            AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
+            if (operationResult.getSuccess()) {
+                operationResult.setOutputArguments(
+                        validateAndPrepare(
+                                operation.getOutputVariables(),
+                                operationResult.getOutputArguments(),
+                                config.getOutputValidationMode(),
+                                ArgumentType.OUTPUT));
+            }
+        }
+        catch (ResourceNotFoundException | InvalidRequestException e) {
+            handleOperationFailure(reference, operationResult.getInoutputArguments(), operationHandle, e);
+        }
+
         context.getPersistence().save(operationHandle, operationResult);
         try {
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
@@ -158,21 +161,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     }
 
 
-    /**
-     * Executes and operation asynchroniously.
-     *
-     * @param reference the reference to the AAS operation element
-     * @param request the request
-     * @return an handle that can be used to query the current state of the operation
-     * @throws MessageBusException if publishing on the message bus failed
-     * @throws Exception if executing the operation itself failed
-     */
-    public OperationHandle executeOperationAsync(Reference reference, InvokeOperationAsyncRequest request) throws MessageBusException, Exception {
-        if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
-            throw new IllegalArgumentException(String.format(
-                    "error executing operation - no operation provider defined for reference '%s'",
-                    ReferenceHelper.toString(reference)));
-        }
+    @Override
+    protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request) {
         OperationHandle operationHandle = new OperationHandle();
         handleOperationInvoke(reference, operationHandle, request);
 
@@ -188,18 +178,21 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
                         }
                         handleOperationSuccess(reference, operationHandle, inoutput, output);
                     },
-                    error -> handleOperationFailure(reference, request, operationHandle, error));
+                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error));
             executor.schedule(() -> {
                 timeoutOccured.set(true);
                 handleOperationTimeout(reference, request, operationHandle);
             }, request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
-            handleOperationFailure(reference, request, operationHandle, e);
+            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e);
         }
         finally {
             executor.shutdown();
         }
-        return operationHandle;
+        return InvokeOperationAsyncResponse.builder()
+                .payload(operationHandle)
+                .statusCode(StatusCode.SUCCESS_ACCEPTED)
+                .build();
     }
 }

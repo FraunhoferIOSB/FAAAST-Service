@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 
 
-public class CustomOperationProviderConfig implements AssetOperationProviderConfig {
+public class CustomOperationProviderConfig extends AbstractAssetOperationProviderConfig {
 
 }

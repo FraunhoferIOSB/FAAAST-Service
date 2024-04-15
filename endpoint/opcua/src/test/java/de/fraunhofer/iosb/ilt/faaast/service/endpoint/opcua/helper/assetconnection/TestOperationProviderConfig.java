@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
-public class TestOperationProviderConfig implements AssetOperationProviderConfig {
+public class TestOperationProviderConfig extends AbstractAssetOperationProviderConfig {
 
     private final List<OperationVariable> outputArgs;
 
