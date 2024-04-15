@@ -18,8 +18,8 @@ In-Memory FileStorage does not support any configuration parameters.
 :caption: Example configuration for In-Memory FileStorage.
 :lineno-start: 1
 {
-	"filestorage" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageInMemory"
+	"fileStorage" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemory"
 	},
 	//...
 }
