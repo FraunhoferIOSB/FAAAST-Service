@@ -12,29 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Base class for AssetOperationProviderConfig supporting multiple data formats.
+ * Abstract base class for {@link AssetOperationProviderConfig}.
  */
-public abstract class AbstractMultiFormatOperationProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatOperationProviderConfig {
+public abstract class AbstractAssetOperationProviderConfig implements AssetOperationProviderConfig {
 
     protected ArgumentValidationMode inputValidationMode;
     protected ArgumentValidationMode inoutputValidationMode;
     protected ArgumentValidationMode outputValidationMode;
-    protected Map<String, String> queries;
 
-    protected AbstractMultiFormatOperationProviderConfig() {
+    protected AbstractAssetOperationProviderConfig() {
         this.inputValidationMode = ArgumentValidationMode.DEFAULT;
         this.inoutputValidationMode = ArgumentValidationMode.DEFAULT;
         this.outputValidationMode = ArgumentValidationMode.DEFAULT;
-        this.queries = new HashMap<>();
     }
 
 
@@ -75,18 +71,6 @@ public abstract class AbstractMultiFormatOperationProviderConfig extends Abstrac
 
 
     @Override
-    public Map<String, String> getQueries() {
-        return queries;
-    }
-
-
-    @Override
-    public void setQueries(Map<String, String> queries) {
-        this.queries = queries;
-    }
-
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -94,22 +78,19 @@ public abstract class AbstractMultiFormatOperationProviderConfig extends Abstrac
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractMultiFormatOperationProviderConfig that = (AbstractMultiFormatOperationProviderConfig) o;
-        return super.equals(that)
-                && Objects.equals(inputValidationMode, that.inputValidationMode)
+        AbstractAssetOperationProviderConfig that = (AbstractAssetOperationProviderConfig) o;
+        return Objects.equals(inputValidationMode, that.inputValidationMode)
                 && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
-                && Objects.equals(outputValidationMode, that.outputValidationMode)
-                && Objects.equals(queries, that.queries);
+                && Objects.equals(outputValidationMode, that.outputValidationMode);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), inputValidationMode, inoutputValidationMode, outputValidationMode, queries);
+        return Objects.hash(inputValidationMode, inoutputValidationMode, outputValidationMode);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatOperationProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractMultiFormatProviderConfig.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractAssetOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B inputValidationMode(ArgumentValidationMode value) {
             getBuildingInstance().setInputValidationMode(value);
@@ -125,18 +106,6 @@ public abstract class AbstractMultiFormatOperationProviderConfig extends Abstrac
 
         public B outputValidationMode(ArgumentValidationMode value) {
             getBuildingInstance().setOutputValidationMode(value);
-            return getSelf();
-        }
-
-
-        public B query(String name, String query) {
-            getBuildingInstance().getQueries().put(name, query);
-            return getSelf();
-        }
-
-
-        public B queries(Map<String, String> value) {
-            getBuildingInstance().setQueries(value);
             return getSelf();
         }
     }

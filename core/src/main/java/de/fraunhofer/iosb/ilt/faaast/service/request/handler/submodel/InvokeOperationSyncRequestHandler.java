@@ -15,20 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.concurrent.Callable;
@@ -38,8 +40,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,7 +53,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse}. Is responsible
  * for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
 
     public InvokeOperationSyncRequestHandler(RequestExecutionContext context) {
         super(context);
@@ -56,45 +63,45 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
 
 
     @Override
-    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
+    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ResourceNotFoundException, InvalidRequestException {
+        InvokeOperationSyncResponse result = super.doProcess(request);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
                 .build();
-        if (!request.isInternal()) {
-            context.getMessageBus().publish(OperationInvokeEventMessage.builder()
-                    .element(reference)
-                    .input(ElementValueHelper.toValueMap(request.getInputArguments()))
-                    .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
-                    .build());
+        Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
+        AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
+        if (result.getPayload().getSuccess()) {
+            result.getPayload().setOutputArguments(
+                    validateAndPrepare(
+                            operation.getOutputVariables(),
+                            result.getPayload().getOutputArguments(),
+                            config.getOutputValidationMode(),
+                            ArgumentType.OUTPUT));
         }
-        OperationResult operationResult = executeOperationSync(reference, request);
-        if (!request.isInternal()) {
-            context.getMessageBus().publish(OperationFinishEventMessage.builder()
-                    .element(reference)
-                    .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
-                    .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
-                    .build());
-        }
-        return InvokeOperationSyncResponse.builder()
-                .payload(operationResult)
-                .success()
-                .build();
+        return result;
     }
 
 
-    /**
-     * Executes and operation synchroniously.
-     *
-     * @param reference the reference to the AAS operation element
-     * @param request the request
-     * @return the operation result
-     */
-    public OperationResult executeOperationSync(Reference reference, InvokeOperationSyncRequest request) {
-        if (!context.getAssetConnectionManager().hasOperationProvider(reference)) {
-            throw new IllegalArgumentException(String.format(
-                    "error executing operation - no operation provider defined for reference '%s'",
-                    ReferenceHelper.toString(reference)));
+    @Override
+    protected InvokeOperationSyncResponse executeOperation(Reference reference, InvokeOperationSyncRequest request) {
+        if (!request.isInternal()) {
+            try {
+                publishSafe(OperationInvokeEventMessage.builder()
+                        .element(reference)
+                        .input(ElementValueHelper.toValueMap(request.getInputArguments()))
+                        .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                        .build());
+            }
+            catch (ValueMappingException e) {
+                String message = String.format("Publishing OperationInvokeEvent on message bus failed (reason: %s)", e.getMessage());
+                LOGGER.warn(message, e);
+                publishSafe(ErrorEventMessage.builder()
+                        .element(reference)
+                        .level(ErrorLevel.WARN)
+                        .message(message)
+                        .build());
+            }
         }
         AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -136,6 +143,27 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
         finally {
             executor.shutdown();
         }
-        return result;
+        if (!request.isInternal()) {
+            try {
+                publishSafe(OperationFinishEventMessage.builder()
+                        .element(reference)
+                        .inoutput(ElementValueHelper.toValueMap(result.getInoutputArguments()))
+                        .output(ElementValueHelper.toValueMap(result.getOutputArguments()))
+                        .build());
+            }
+            catch (ValueMappingException e) {
+                String message = String.format("Publishing OperationFinishEvent on message bus failed (reason: %s)", e.getMessage());
+                LOGGER.warn(message, e);
+                publishSafe(ErrorEventMessage.builder()
+                        .element(reference)
+                        .level(ErrorLevel.WARN)
+                        .message(message)
+                        .build());
+            }
+        }
+        return InvokeOperationSyncResponse.builder()
+                .payload(result)
+                .success()
+                .build();
     }
 }

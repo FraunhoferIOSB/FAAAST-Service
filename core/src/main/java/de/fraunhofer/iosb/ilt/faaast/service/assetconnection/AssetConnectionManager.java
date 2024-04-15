@@ -240,7 +240,7 @@ public class AssetConnectionManager {
      * @param reference AAS element
      * @return operation provider for the AAS element defined by reference or null if there is none defined
      */
-    public AssetOperationProvider getOperationProvider(Reference reference) {
+    public AssetOperationProvider<? extends AssetOperationProviderConfig> getOperationProvider(Reference reference) {
         return connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
                 .filter(x -> ReferenceHelper.equals(reference, x.getKey()))

@@ -121,8 +121,9 @@ public class OpcUaEndpointFullTest {
                 .keys(keys)
                 .build();
         List<OperationVariable> outputArgs = new ArrayList<>();
-        outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType(DataTypeDefXsd.STRING).value("XYZ1").build())
-                .build());
+        outputArgs
+                .add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("ExampleProperty2").valueType(DataTypeDefXsd.STRING).value("XYZ1").build())
+                        .build());
 
         // register another Operation 
         keys = new ArrayList<>();
