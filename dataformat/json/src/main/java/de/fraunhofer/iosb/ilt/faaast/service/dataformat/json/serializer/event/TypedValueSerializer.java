@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import java.io.IOException;
 
 

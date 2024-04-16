@@ -14,38 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
 /**
- * The result of invoking an {@link io.adminshell.aas.v3.model.Operation}.
+ * The result of invoking an {@link org.eclipse.digitaltwin.aas4j.v3.model.Operation}.
  */
-public class OperationResult {
+public class OperationResult extends BaseOperationResult {
 
-    private String requestId;
     private List<OperationVariable> outputArguments;
     private List<OperationVariable> inoutputArguments;
-    private Result executionResult;
-    private ExecutionState executionState;
 
     public OperationResult() {
         this.outputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
-    }
-
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
     }
 
 
@@ -69,26 +54,6 @@ public class OperationResult {
     }
 
 
-    public Result getExecutionResult() {
-        return executionResult;
-    }
-
-
-    public void setExecutionResult(Result executionResult) {
-        this.executionResult = executionResult;
-    }
-
-
-    public ExecutionState getExecutionState() {
-        return executionState;
-    }
-
-
-    public void setExecutionState(ExecutionState executionState) {
-        this.executionState = executionState;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -98,31 +63,27 @@ public class OperationResult {
             return false;
         }
         OperationResult that = (OperationResult) o;
-        return Objects.equals(requestId, that.requestId) && Objects.equals(outputArguments, that.outputArguments) && Objects.equals(inoutputArguments, that.inoutputArguments)
-                && Objects.equals(executionResult, that.executionResult) && executionState == that.executionState;
+        return super.equals(that)
+                && Objects.equals(outputArguments, that.outputArguments)
+                && Objects.equals(inoutputArguments, that.inoutputArguments);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(requestId, outputArguments, inoutputArguments, executionResult, executionState);
+        return Objects.hash(super.hashCode(), outputArguments, inoutputArguments);
     }
 
+    protected abstract static class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends BaseOperationResult.AbstractBuilder<T, B> {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    private abstract static class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B requestId(String value) {
-            getBuildingInstance().setRequestId(value);
+        public B outputArguments(List<OperationVariable> value) {
+            getBuildingInstance().setOutputArguments(value);
             return getSelf();
         }
 
 
-        public B outputArguments(List<OperationVariable> value) {
-            getBuildingInstance().setOutputArguments(value);
+        public B outputArgument(OperationVariable value) {
+            getBuildingInstance().getOutputArguments().add(value);
             return getSelf();
         }
 
@@ -133,14 +94,8 @@ public class OperationResult {
         }
 
 
-        public B executionResult(Result value) {
-            getBuildingInstance().setExecutionResult(value);
-            return getSelf();
-        }
-
-
-        public B executionState(ExecutionState value) {
-            getBuildingInstance().setExecutionState(value);
+        public B inoutputArgument(OperationVariable value) {
+            getBuildingInstance().getInoutputArguments().add(value);
             return getSelf();
         }
     }

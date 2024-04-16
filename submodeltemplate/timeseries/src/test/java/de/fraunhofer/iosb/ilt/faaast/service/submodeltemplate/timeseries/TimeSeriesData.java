@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 
 
 public class TimeSeriesData {
@@ -32,16 +32,16 @@ public class TimeSeriesData {
     public static final Metadata METADATA = Metadata.builder()
             .recordMetadataTimeOrVariable(FIELD_1, new DefaultProperty.Builder()
                     .idShort(FIELD_1)
-                    .valueType(Datatype.INT.getName())
+                    .valueType(Datatype.INT.getAas4jDatatype())
                     .build())
             .recordMetadataTimeOrVariable(FIELD_2, new DefaultProperty.Builder()
                     .idShort(FIELD_2)
-                    .valueType(Datatype.DOUBLE.getName())
+                    .valueType(Datatype.DOUBLE.getAas4jDatatype())
                     .build())
             .recordMetadataTimeOrVariable("Time00", new DefaultProperty.Builder()
                     .idShort("Time00")
-                    .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                    .valueType(Datatype.DATE_TIME.getName())
+                    .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                    .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                     .build())
             .build();
 
@@ -110,8 +110,8 @@ public class TimeSeriesData {
             .timeOrVariable("Time01", new DefaultProperty.Builder()
                     .idShort("Time01")
                     .value("1641045600")
-                    .semanticId(ReferenceHelper.globalReference(Constants.TIME_UNIX))
-                    .valueType(Datatype.LONG.getName())
+                    .semanticId(ReferenceBuilder.global(Constants.TIME_UNIX))
+                    .valueType(Datatype.LONG.getAas4jDatatype())
                     .build()) // UnixTime("1641045600"))
             .timeOrVariable(FIELD_1, field01Builder(0))
             .timeOrVariable(FIELD_2, field02Builder(0.0))
@@ -121,8 +121,8 @@ public class TimeSeriesData {
             .timeOrVariable("Time01", new DefaultProperty.Builder()
                     .idShort("Time01")
                     .value("2022-01-03T09:00:37Z")
-                    .semanticId(ReferenceHelper.globalReference(Constants.TIME_TAI))
-                    .valueType(Datatype.DATE_TIME.getName())
+                    .semanticId(ReferenceBuilder.global(Constants.TIME_TAI))
+                    .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                     .build()) // TaiTime("2022-01-03T09:00:37Z"))
             .timeOrVariable("Time00", timeBuilder("2022-01-03T09:00:00Z"))
             .timeOrVariable(FIELD_1, field01Builder(1))
@@ -147,7 +147,7 @@ public class TimeSeriesData {
         return new DefaultProperty.Builder()
                 .idShort(FIELD_1)
                 .value(Integer.toString(value))
-                .valueType(Datatype.INT.getName())
+                .valueType(Datatype.INT.getAas4jDatatype())
                 .build();
     }
 
@@ -156,7 +156,7 @@ public class TimeSeriesData {
         return new DefaultProperty.Builder()
                 .idShort(FIELD_2)
                 .value(Double.toString(value))
-                .valueType(Datatype.DOUBLE.getName())
+                .valueType(Datatype.DOUBLE.getAas4jDatatype())
                 .build();
     }
 
@@ -165,8 +165,8 @@ public class TimeSeriesData {
         return new DefaultProperty.Builder()
                 .idShort("Time00")
                 .value(value)
-                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                .valueType(Datatype.DATE_TIME.getName())
+                .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                 .build();
     }
 

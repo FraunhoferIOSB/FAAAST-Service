@@ -14,6 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -21,30 +29,32 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,14 +66,36 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>AASX packages
  * <li>Package Descriptors
- * <li>SubmodelElementStructs
  * </ul>
  */
 public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
+    private static final String OPERATION_STATES_FILENAME = "operation-states.json";
+    private final ObjectMapper mapper;
     private PersistenceFileConfig config;
     private PersistenceInMemory persistence;
+    private File operationStatesFile;
+
+    public PersistenceFile() {
+        mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addKeySerializer(OperationHandle.class, new JsonSerializer<OperationHandle>() {
+            @Override
+            public void serialize(OperationHandle value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                gen.writeFieldName(value.getHandleId());
+            }
+        });
+        module.addKeyDeserializer(OperationHandle.class, new KeyDeserializer() {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+                return OperationHandle.builder()
+                        .handleId(key)
+                        .build();
+            }
+        });
+    }
+
 
     @Override
     public PersistenceFileConfig asConfig() {
@@ -72,88 +104,18 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
-        return persistence.get(id, modifier, type);
-    }
-
-
-    @Override
-    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.get(reference, modifier);
-    }
-
-
-    @Override
-    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
-        return persistence.get(idShort, assetIds, modifier);
-    }
-
-
-    @Override
-    public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier) {
-        return persistence.get(idShort, semanticId, modifier);
-    }
-
-
-    @Override
-    public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier) {
-        return persistence.get(idShort, isCaseOf, dataSpecification, modifier);
-    }
-
-
-    @Override
-    public AASXPackage get(String packageId) {
-        return persistence.get(packageId);
-    }
-
-
-    @Override
-    public List<PackageDescription> get(Identifier aasId) {
-        return persistence.get(aasId);
-    }
-
-
-    @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
-        return persistence.getEnvironment();
-    }
-
-
-    @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) {
-        return persistence.getOperationOutputVariables(reference);
-    }
-
-
-    @Override
-    public OperationResult getOperationResult(String handleId) {
-        return persistence.getOperationResult(handleId);
-    }
-
-
-    @Override
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
-        return persistence.getSubmodelElements(reference, semanticId, modifier);
-    }
-
-
-    @Override
-    public TypeInfo<?> getTypeInfo(Reference reference) {
-        return persistence.getTypeInfo(reference);
-    }
-
-
-    @Override
     public void init(CoreConfig coreConfig, PersistenceFileConfig config, ServiceContext context) throws ConfigurationInitializationException {
         this.config = config;
         try {
             config.init();
-            AssetAdministrationShellEnvironment aasEnvironment = config.loadInitialModel();
+            Environment aasEnvironment = config.loadInitialModel();
             persistence = PersistenceInMemoryConfig.builder()
                     .initialModel(aasEnvironment)
                     .build()
                     .newInstance(coreConfig, context);
-            save();
+            saveEnvironment();
+            operationStatesFile = Path.of(config.getDataDir(), OPERATION_STATES_FILENAME).toFile();
+            loadOperationStates();
         }
         catch (ConfigurationException | DeserializationException e) {
             throw new ConfigurationInitializationException("initializing file persistence failed", e);
@@ -162,30 +124,136 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
 
     @Override
-    public AASXPackage put(String packageId, Set<Identifier> aasIds, AASXPackage file, String fileName) {
-        AASXPackage result = persistence.put(packageId, aasIds, file, fileName);
-        save();
-        return result;
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getAssetAdministrationShell(id, modifier);
     }
 
 
     @Override
-    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
-        String result = persistence.put(aasIds, file, fileName);
-        save();
-        return result;
+    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getSubmodel(id, modifier);
     }
 
 
     @Override
-    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
-        OperationHandle result = persistence.putOperationContext(handleId, requestId, operationResult);
-        save();
-        return result;
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getConceptDescription(id, modifier);
     }
 
 
-    private void save() {
+    @Override
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getSubmodelElement(identifier, modifier);
+    }
+
+
+    @Override
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+        return persistence.getSubmodelRefs(aasId, paging);
+    }
+
+
+    @Override
+    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
+        return persistence.getOperationResult(handle);
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+        return persistence.findAssetAdministrationShells(criteria, modifier, paging);
+    }
+
+
+    @Override
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+        return persistence.findSubmodels(criteria, modifier, paging);
+    }
+
+
+    @Override
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+        return persistence.findSubmodelElements(criteria, modifier, paging);
+    }
+
+
+    @Override
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+        return persistence.findConceptDescriptions(criteria, modifier, paging);
+    }
+
+
+    @Override
+    public void save(AssetAdministrationShell assetAdministrationShell) {
+        persistence.save(assetAdministrationShell);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void save(ConceptDescription conceptDescription) {
+        persistence.save(conceptDescription);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void save(Submodel submodel) {
+        persistence.save(submodel);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+        persistence.insert(parentIdentifier, submodelElement);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        persistence.update(identifier, submodelElement);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void save(OperationHandle handle, OperationResult result) {
+        persistence.save(handle, result);
+        saveOperationStates();
+    }
+
+
+    @Override
+    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException {
+        persistence.deleteAssetAdministrationShell(id);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void deleteSubmodel(String id) throws ResourceNotFoundException {
+        persistence.deleteSubmodel(id);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void deleteConceptDescription(String id) throws ResourceNotFoundException {
+        persistence.deleteConceptDescription(id);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
+        persistence.deleteSubmodelElement(identifier);
+        saveEnvironment();
+    }
+
+
+    private void saveEnvironment() {
         try {
             EnvironmentSerializationManager
                     .serializerFor(config.getDataformat())
@@ -197,39 +265,28 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     }
 
 
-    @Override
-    public Identifiable put(Identifiable identifiable) {
-        Identifiable element = persistence.put(identifiable);
-        save();
-        return element;
+    private void saveOperationStates() {
+        try {
+            mapper.writeValue(operationStatesFile, persistence.getOperationStates());
+        }
+        catch (IOException e) {
+            LOGGER.error(String.format("Error persisting operation states to file %s", operationStatesFile.getAbsolutePath()), e);
+        }
     }
 
 
-    @Override
-    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        SubmodelElement element = persistence.put(parent, referenceToSubmodelElement, submodelElement);
-        save();
-        return element;
+    private void loadOperationStates() {
+        try {
+            if (Objects.nonNull(operationStatesFile) && operationStatesFile.exists()) {
+                persistence.setOperationStates(
+                        mapper.readValue(
+                                operationStatesFile,
+                                new TypeReference<HashMap<OperationHandle, OperationResult>>() {}));
+            }
+        }
+        catch (IOException e) {
+            LOGGER.error(String.format("Error loading operation states from file %s", operationStatesFile.getAbsolutePath()), e);
+        }
     }
 
-
-    @Override
-    public void remove(Identifier id) throws ResourceNotFoundException {
-        persistence.remove(id);
-        save();
-    }
-
-
-    @Override
-    public void remove(Reference reference) throws ResourceNotFoundException {
-        persistence.remove(reference);
-        save();
-    }
-
-
-    @Override
-    public void remove(String packageId) {
-        persistence.remove(packageId);
-        save();
-    }
 }

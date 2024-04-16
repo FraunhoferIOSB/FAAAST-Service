@@ -24,12 +24,12 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.Submodel;
-import opc.i4aas.AASReferenceElementType;
+import opc.i4aas.objecttypes.AASReferenceElementType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,48 +37,69 @@ import opc.i4aas.AASReferenceElementType;
  * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
      * Adds an AAS reference element to the given node.
      *
      * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
+     * @param refElemRef The reference to the AAS reference element
      * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the reference element should be added
      *            ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
+    public static void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Reference refElemRef, Submodel submodel, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        if ((node != null) && (aasRefElem != null)) {
-            String name = aasRefElem.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
-            addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
+        try {
+            if ((node != null) && (aasRefElem != null)) {
+                String name = aasRefElem.getIdShort();
+                if ((name == null) || name.isEmpty()) {
+                    name = getNameFromReference(refElemRef);
+                }
+                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name)
+                        .toQualifiedName(nodeManager.getNamespaceTable());
+                NodeId nid = nodeManager.getDefaultNodeId();
+                AASReferenceElementType refElemNode = nodeManager.createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
+                addSubmodelElementBaseData(refElemNode, aasRefElem, nodeManager);
 
-            if (aasRefElem.getValue() != null) {
-                AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                setValue(aasRefElem, refElemNode, nodeManager);
+
+                if (refElemNode.getValueNode() != null) {
+                    nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
+                }
+
+                nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
+
+                if (ordered) {
+                    node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
+                }
+                else {
+                    node.addComponent(refElemNode);
+                }
+
+                nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
             }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addAasReferenceElement Exception", ex);
+        }
+    }
 
-            Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
 
-            nodeManager.addSubmodelElementAasMap(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                    new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-
-            nodeManager.addSubmodelElementOpcUA(refElemRef, refElemNode);
-
-            if (ordered) {
-                node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
+    private static void setValue(ReferenceElement aasRefElem, AASReferenceElementType refElemNode, AasServiceNodeManager nodeManager) throws StatusException {
+        if (aasRefElem.getValue() != null) {
+            if (refElemNode.getValueNode() == null) {
+                AasReferenceCreator.addAasReference(refElemNode, aasRefElem.getValue(), AASReferenceElementType.VALUE,
+                        opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), false,
+                        nodeManager);
             }
             else {
-                node.addComponent(refElemNode);
+                AasReferenceCreator.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
             }
-
-            nodeManager.addReferable(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
         }
     }
 

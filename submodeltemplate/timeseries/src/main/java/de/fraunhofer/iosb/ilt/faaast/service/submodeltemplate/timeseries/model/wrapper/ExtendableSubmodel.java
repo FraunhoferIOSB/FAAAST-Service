@@ -16,15 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.builder.SubmodelBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 
 
 /**

@@ -15,23 +15,26 @@
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.EntityType;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.impl.DefaultAnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.impl.DefaultEntity;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultRange;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,25 +78,25 @@ public class TypeExtractorTest {
                         .build())
                 .build();
         Object data = new DefaultSubmodel.Builder()
-                .submodelElement(new DefaultProperty.Builder()
+                .submodelElements(new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType("string")
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
-                .submodelElement(new DefaultProperty.Builder()
+                .submodelElements(new DefaultProperty.Builder()
                         .idShort("intProp1")
-                        .valueType("int")
+                        .valueType(DataTypeDefXsd.INT)
                         .build())
-                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .idShort("collection1")
                         .value(new DefaultRange.Builder()
                                 .idShort("doubleRange1")
-                                .valueType("double")
+                                .valueType(DataTypeDefXsd.DOUBLE)
                                 .min("17.00")
                                 .max("42")
                                 .build())
                         .value(new DefaultProperty.Builder()
                                 .idShort("intProp2")
-                                .valueType("int")
+                                .valueType(DataTypeDefXsd.INT)
                                 .build())
                         .build())
                 .build();
@@ -116,13 +119,13 @@ public class TypeExtractorTest {
                         .build())
                 .build();
         Object data = new DefaultAnnotatedRelationshipElement.Builder()
-                .annotation(new DefaultProperty.Builder()
+                .annotations(new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType("string")
+                        .valueType(DataTypeDefXsd.STRING)
                         .build())
-                .annotation(new DefaultProperty.Builder()
+                .annotations(new DefaultProperty.Builder()
                         .idShort("intProp1")
-                        .valueType("int")
+                        .valueType(DataTypeDefXsd.INT)
                         .build())
                 .idShort("annotatedRelationship1")
                 .build();
@@ -139,7 +142,7 @@ public class TypeExtractorTest {
                 .build();
         Object data = new DefaultProperty.Builder()
                 .idShort("stringProp1")
-                .valueType("string")
+                .valueType(DataTypeDefXsd.STRING)
                 .build();
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -163,11 +166,11 @@ public class TypeExtractorTest {
         Object data = List.of(
                 new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType("string")
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultProperty.Builder()
                         .idShort("stringProp2")
-                        .valueType("integer")
+                        .valueType(DataTypeDefXsd.INTEGER)
                         .build());
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -191,11 +194,11 @@ public class TypeExtractorTest {
         Object data = List.of(
                 new DefaultProperty.Builder()
                         .idShort("stringProp1")
-                        .valueType("string")
+                        .valueType(DataTypeDefXsd.STRING)
                         .build(),
                 new DefaultProperty.Builder()
                         .idShort("stringProp2")
-                        .valueType("integer")
+                        .valueType(DataTypeDefXsd.INTEGER)
                         .build());
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
@@ -224,30 +227,123 @@ public class TypeExtractorTest {
                 .build();
         Object data = new DefaultSubmodelElementCollection.Builder()
                 .idShort("collection1")
-                .kind(ModelingKind.INSTANCE)
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultRange.Builder()
                         .idShort("doubleRange1")
-                        .kind(ModelingKind.INSTANCE)
-                        .valueType(Datatype.DOUBLE.getName())
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .min("3.0")
                         .max("5.0")
                         .build())
                 .value(new DefaultEntity.Builder()
                         .idShort("entity1")
-                        .kind(ModelingKind.INSTANCE)
                         .entityType(EntityType.SELF_MANAGED_ENTITY)
-                        .statement(new DefaultProperty.Builder()
+                        .statements(new DefaultProperty.Builder()
                                 .idShort("MaxRotationSpeed")
-                                .valueType(Datatype.INT.getName())
+                                .valueType(DataTypeDefXsd.INT)
                                 .value("5000")
                                 .build())
-                        .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
+                        .globalAssetId("http://customer.com/demo/asset/1/1/MySubAsset")
+                        .build())
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementList() {
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.STRING)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .valueTypeListElement(DataTypeDefXsd.STRING)
+                .typeValueListElement(AasSubmodelElements.PROPERTY)
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("bar")
+                        .build())
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementListWithComplexElementType() {
+        SubmodelElement complexType = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .valueTypeListElement(DataTypeDefXsd.STRING)
+                .typeValueListElement(AasSubmodelElements.PROPERTY)
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("bar")
+                        .build())
+                .build();
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(null)
+                        .type(SubmodelElementCollectionValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
+                .value(complexType)
+                .value(complexType)
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementListWithoutElementType() {
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(SubmodelElementListValue.class)
+                .element(null, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.STRING)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementList.Builder()
+                .idShort("collection1")
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("foo")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp2")
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value("bar")
                         .build())
                 .build();
         TypeInfo actual = TypeExtractor.extractTypeInfo(data);
@@ -284,38 +380,34 @@ public class TypeExtractorTest {
                 .build();
         Object data = new DefaultSubmodelElementCollection.Builder()
                 .idShort("collection1")
-                .kind(ModelingKind.INSTANCE)
                 .value(new DefaultProperty.Builder()
                         .category("category")
                         .idShort("stringProp1")
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXsd.STRING)
                         .value("foo")
                         .build())
                 .value(new DefaultRange.Builder()
                         .idShort("doubleRange1")
-                        .kind(ModelingKind.INSTANCE)
-                        .valueType(Datatype.DOUBLE.getName())
+                        .valueType(DataTypeDefXsd.DOUBLE)
                         .min("3.0")
                         .max("5.0")
                         .build())
                 .value(new DefaultEntity.Builder()
                         .idShort("entity1")
-                        .kind(ModelingKind.INSTANCE)
                         .entityType(EntityType.SELF_MANAGED_ENTITY)
-                        .statement(new DefaultProperty.Builder()
+                        .statements(new DefaultProperty.Builder()
                                 .idShort("MaxRotationSpeed")
-                                .valueType(Datatype.INT.getName())
+                                .valueType(DataTypeDefXsd.INT)
                                 .value("5000")
                                 .build())
-                        .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
+                        .globalAssetId("http://customer.com/demo/asset/1/1/MySubAsset")
                         .build())
                 .value(new DefaultSubmodelElementCollection.Builder()
                         .idShort("collection2")
-                        .kind(ModelingKind.INSTANCE)
                         .value(new DefaultProperty.Builder()
                                 .category("category")
                                 .idShort("stringProp2")
-                                .valueType(Datatype.STRING.getName())
+                                .valueType(DataTypeDefXsd.STRING)
                                 .value("bar")
                                 .build())
                         .build())

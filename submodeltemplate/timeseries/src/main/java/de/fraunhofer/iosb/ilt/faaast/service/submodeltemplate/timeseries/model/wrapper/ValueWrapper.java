@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper;
 
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**

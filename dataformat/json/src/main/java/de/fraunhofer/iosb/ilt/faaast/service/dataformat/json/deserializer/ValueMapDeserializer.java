@@ -71,8 +71,13 @@ public class ValueMapDeserializer extends MapDeserializer {
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> element = iterator.next();
+            if (!typeInfo.getElements().containsKey(element.getKey())) {
+                throw new JsonMappingException(parser, String.format(
+                        "found element '%s' during valueOnly deserialization that is not defined by type information",
+                        element.getKey()));
+            }
             context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(element.getKey()));
-            Class type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
+            Class<?> type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
             result.put(element.getKey(), context.readTreeAsValue(element.getValue(), type));
         }
         return result;

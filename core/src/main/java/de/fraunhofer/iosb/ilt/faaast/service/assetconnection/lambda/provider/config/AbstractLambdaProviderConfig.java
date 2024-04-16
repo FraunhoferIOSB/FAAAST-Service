@@ -14,9 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaAssetProvider;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -24,7 +25,7 @@ import java.util.Objects;
  *
  * @param <T> type of the provider
  */
-public abstract class AbstractLambdaProviderConfig<T extends LambdaAssetProvider> {
+public abstract class AbstractLambdaProviderConfig<T extends LambdaAssetProvider> extends AbstractAssetOperationProviderConfig {
 
     private T implementation;
 

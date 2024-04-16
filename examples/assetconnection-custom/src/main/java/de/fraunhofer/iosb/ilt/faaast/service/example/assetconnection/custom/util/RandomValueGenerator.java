@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -51,7 +51,7 @@ public class RandomValueGenerator {
             case FLOAT:
                 return ThreadLocalRandom.current().nextFloat();
             case DATE_TIME:
-                return ZonedDateTime.ofInstant(
+                return OffsetDateTime.ofInstant(
                         Instant.ofEpochMilli(ThreadLocalRandom.current().nextLong()),
                         ZoneId.of(ZoneId.getAvailableZoneIds().stream().skip(ThreadLocalRandom.current().nextLong(ZoneId.getAvailableZoneIds().size())).findFirst().get()));
             default:

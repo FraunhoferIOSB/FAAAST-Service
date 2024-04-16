@@ -14,11 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -44,26 +45,38 @@ public interface SubmodelDescriptor {
     public void setAdministration(AdministrativeInformation administration);
 
 
-    public List<LangString> getDescriptions();
+    public List<LangStringTextType> getDescriptions();
 
 
-    public void setDescriptions(List<LangString> descriptions);
+    public void setDescriptions(List<LangStringTextType> descriptions);
 
 
-    public List<LangString> getDisplayNames();
+    public List<LangStringNameType> getDisplayNames();
 
 
-    public void setDisplayNames(List<LangString> displayNames);
+    public void setDisplayNames(List<LangStringNameType> displayNames);
 
 
-    public Identifier getIdentification();
+    public String getId();
 
 
-    public void setIdentification(Identifier identification);
+    public void setId(String id);
 
 
     public Reference getSemanticId();
 
 
     public void setSemanticId(Reference semanticId);
+
+
+    public List<Reference> getSupplementalSemanticIds();
+
+
+    public void setSupplementalSemanticIds(List<Reference> suplementalSemanticIds);
+
+
+    public List<Extension> getExtensions();
+
+
+    public void setExtensions(List<Extension> extensions);
 }

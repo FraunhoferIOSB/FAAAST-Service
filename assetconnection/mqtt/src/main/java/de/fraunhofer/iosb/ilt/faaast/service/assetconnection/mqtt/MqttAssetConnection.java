@@ -23,8 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Reference;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -52,7 +52,8 @@ import org.slf4j.LoggerFactory;
  * <li>executing operations
  * </ul>
  *
- * <p>This implementation currently only supports submodel elements of type {@link io.adminshell.aas.v3.model.Property}
+ * <p>This implementation currently only supports submodel elements of type
+ * {@link org.eclipse.digitaltwin.aas4j.v3.model.Property}
  * resp. {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  *
  * <p>This class uses a single underlying MQTT connection.

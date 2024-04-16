@@ -23,8 +23,8 @@ import com.influxdb.query.InfluxQLQueryResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
@@ -34,7 +34,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Property;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -45,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,12 +127,12 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         }
                         else if (metadata.getMetadataRecordVariables().containsKey(fieldName)) {
                             Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
-                            if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                            if (Datatype.fromAas4jDatatype(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
                                 newProperty.setValue(fieldValue.toString());
                             }
                             else {
                                 try {
-                                    newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                                    newProperty.setValue(parseValue(fieldValue, Datatype.fromAas4jDatatype(newProperty.getValueType())).asString());
                                 }
                                 catch (ValueFormatException e) {
                                     newProperty.setValue(fieldValue.toString());
@@ -184,14 +184,14 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         Record newRecord = result[j] == null ? new Record() : result[j];
                         Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
                         System.out.println(fieldName);
-                        if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                        if (Datatype.fromAas4jDatatype(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
                             newProperty.setValue(fieldValue.toString());
                             newRecord.getTimesAndVariables().put(fieldName, newProperty);
                             System.out.println(fieldName + ": " + newProperty.getValue());
                         }
                         else {
                             try {
-                                newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                                newProperty.setValue(parseValue(fieldValue, Datatype.fromAas4jDatatype(newProperty.getValueType())).asString());
                                 newRecord.getTimesAndVariables().put(fieldName, newProperty);
                                 System.out.println(fieldName + ": " + newRecord.getTimesAndVariables().get(fieldName));
                             }

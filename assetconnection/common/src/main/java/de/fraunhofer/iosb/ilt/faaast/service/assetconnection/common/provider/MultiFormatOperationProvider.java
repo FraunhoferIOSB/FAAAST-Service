@@ -27,9 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +34,9 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
 /**
@@ -48,6 +48,12 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
     protected MultiFormatOperationProvider(T config) {
         super(config);
+    }
+
+
+    @Override
+    public T getConfig() {
+        return config;
     }
 
 
@@ -81,17 +87,27 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         Map<String, DataElementValue> output = format.read(response, mapping);
         for (int i = 0; i < inoutput.length; i++) {
             if (output.containsKey(inoutput[i].getValue().getIdShort())) {
-                ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
+                try {
+                    ElementValueMapper.setValue(inoutput[i].getValue(), output.get(inoutput[i].getValue().getIdShort()));
+                }
+                catch (ValueMappingException e) {
+                    throw new AssetConnectionException("error reading inoutput parameters", e);
+                }
             }
         }
         return Stream.of(getOutputParameters())
-                .map(x -> {
+                .map(LambdaExceptionHelper.rethrowFunction(x -> {
                     SubmodelElement newValue = DeepCopyHelper.deepCopy(x.getValue(), SubmodelElement.class);
-                    ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
+                    try {
+                        ElementValueMapper.setValue(newValue, output.get(newValue.getIdShort()));
+                    }
+                    catch (ValueMappingException e) {
+                        throw new AssetConnectionException("error reading output parameters", e);
+                    }
                     return new DefaultOperationVariable.Builder()
                             .value(newValue)
                             .build();
-                })
+                }))
                 .toArray(OperationVariable[]::new);
     }
 
@@ -110,7 +126,7 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         try {
             return Stream.of(parameters).collect(Collectors.toMap(
                     x -> x.getValue().getIdShort(),
-                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
+                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue(), DataElementValue.class))));
         }
         catch (ValueMappingException e) {
             throw new AssetConnectionException("Could not extract value of parameters", e);

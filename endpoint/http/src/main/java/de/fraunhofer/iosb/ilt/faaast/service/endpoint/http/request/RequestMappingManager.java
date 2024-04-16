@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +61,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      * @throws MethodNotAllowedException if the method was not valid for the request
      * @throws IllegalStateException if there were multiple matching mappers
      */
-    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
+    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Set<AbstractRequestMapper> mappersByUrl = mappers.stream()
                 .filter(request -> request.matchesUrl(httpRequest))
@@ -77,7 +77,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
         }
         if (mappersByUrlAndMethod.size() > 1) {
             throw new IllegalStateException(String.format(
-                    "found multiple request mapper matching HTTP method and URL (HTTP method: %s, url: %s",
+                    "found multiple request mapper matching HTTP method and URL (HTTP method: %s, url: %s)",
                     httpRequest.getMethod(),
                     httpRequest.getPath()));
         }
@@ -93,7 +93,7 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      * @throws InvalidRequestException if no mapper is found for request or mapping fails
      * @throws MethodNotAllowedException if HTTP method is not allowed on URL
      */
-    public Request map(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
+    public Request map(HttpRequest httpRequest) throws InvalidRequestException {
         return findRequestMapper(httpRequest).parse(httpRequest);
     }
 

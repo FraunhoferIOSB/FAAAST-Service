@@ -20,14 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.w
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelElementCollectionBuilder;
 
 
 /**
@@ -37,7 +37,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<Record, SubmodelElementCollection> recordMetadata = new ValueWrapper<>(
-            values,
+            value,
             new Record(),
             true,
             SubmodelElementCollection.class,
@@ -47,13 +47,13 @@ public class Metadata extends ExtendableSubmodelElementCollection {
                 }
                 return x;
             },
-            x -> ((x == null) || Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))),
+            x -> ((x == null) || Objects.equals(x.getSemanticId(), ReferenceBuilder.global(Constants.RECORD_SEMANTIC_ID))),
             x -> ExtendableSubmodelElementCollection.genericOf(new Record(), x));
 
     public Metadata() {
         withAdditionalValues(recordMetadata);
         this.idShort = Constants.TIMESERIES_METADATA_ID_SHORT;
-        this.semanticId = ReferenceHelper.globalReference(Constants.METADATA_SEMANTIC_ID);
+        this.semanticId = ReferenceBuilder.global(Constants.METADATA_SEMANTIC_ID);
     }
 
 
@@ -88,9 +88,9 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      */
     public static Metadata of(SubmodelElementCollection smc) {
         Metadata target = new Metadata();
-        Optional<SubmodelElementCollection> smcMetaRecord = smc.getValues().stream().filter(Objects::nonNull)
+        Optional<SubmodelElementCollection> smcMetaRecord = smc.getValue().stream().filter(Objects::nonNull)
                 .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
-                .filter(x -> Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID)))
+                .filter(x -> Objects.equals(x.getSemanticId(), ReferenceBuilder.global(Constants.RECORD_SEMANTIC_ID)))
                 .filter(x -> Objects.equals(x.getIdShort(), Constants.METADATA_RECORD_METADATA_ID_SHORT))
                 .map(SubmodelElementCollection.class::cast)
                 .findFirst();
@@ -98,7 +98,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         if (smcMetaRecord.isPresent()) {
             target.setRecordMetadata(Record.of(smcMetaRecord.get()));
             toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
-            toParse.setValues(smc.getValues().stream()
+            toParse.setValue(smc.getValue().stream()
                     .filter(x -> !Objects.equals(smcMetaRecord.get(), x))
                     .collect(Collectors.toList()));
         }

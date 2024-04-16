@@ -16,15 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelElementCollectionBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 
 
 /**
@@ -76,11 +76,11 @@ public class ExtendableSubmodelElementCollection extends DefaultSubmodelElementC
      * @return the modified {@code result} with parsed values from {@code smc}
      */
     public static <T extends ExtendableSubmodelElementCollection> T genericOf(T result, SubmodelElementCollection smc) {
-        if (Objects.isNull(smc) || Objects.isNull(smc.getValues())) {
+        if (Objects.isNull(smc) || Objects.isNull(smc.getValue())) {
             return result;
         }
         AasHelper.applyBasicProperties(smc, result);
-        for (var sme: smc.getValues()) {
+        for (var sme: smc.getValue()) {
             List<Wrapper> matchingAdditionalValues = result.additionalValues.stream()
                     .filter(x -> x.getAASType().isAssignableFrom(sme.getClass()))
                     .filter(x -> x.canParse(sme))
@@ -92,7 +92,7 @@ public class ExtendableSubmodelElementCollection extends DefaultSubmodelElementC
                 matchingAdditionalValues.get(0).parse(sme);
             }
             else {
-                result.values.add(sme);
+                result.value.add(sme);
             }
         }
         return result;

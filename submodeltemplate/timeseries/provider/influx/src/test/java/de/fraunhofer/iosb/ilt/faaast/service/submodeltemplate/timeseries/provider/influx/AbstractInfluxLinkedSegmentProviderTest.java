@@ -25,10 +25,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.R
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public abstract class AbstractInfluxLinkedSegmentProviderTest {
         String endpoint = "http://localhost:" + server.getMappedPort(8086);
         initializer.initialize(serverConfig, endpoint, measurement, TimeSeriesData.RECORDS);
         LinkedSegment linkedSegment = LinkedSegment.builder()
-                .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
+                .semanticId(ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID))
                 .endpoint(endpoint)
                 .query(query)
                 .build();

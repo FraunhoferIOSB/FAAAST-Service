@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
+
+
 /**
  * Response class representing internal error.
  */
@@ -21,7 +24,9 @@ public class InternalErrorResponse extends AbstractResponse {
 
     public InternalErrorResponse(String message) {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        this.result = Result.exception(message);
+        this.result = Result.builder()
+                .message(MessageType.EXCEPTION, message)
+                .build();
     }
 
 

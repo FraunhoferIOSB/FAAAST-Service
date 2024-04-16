@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,32 +29,16 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
     protected String parentNodeId;
     protected List<ArgumentMapping> inputArgumentMapping;
     protected List<ArgumentMapping> outputArgumentMapping;
+    protected ArgumentValidationMode inputValidationMode;
+    protected ArgumentValidationMode inoutputValidationMode;
+    protected ArgumentValidationMode outputValidationMode;
 
     public OpcUaOperationProviderConfig() {
         this.inputArgumentMapping = new ArrayList<>();
         this.outputArgumentMapping = new ArrayList<>();
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
-        return super.equals(o)
-                && Objects.equals(parentNodeId, that.parentNodeId)
-                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
-                && Objects.equals(outputArgumentMapping, that.outputArgumentMapping);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), parentNodeId, inputArgumentMapping, outputArgumentMapping);
+        this.inputValidationMode = ArgumentValidationMode.DEFAULT;
+        this.inoutputValidationMode = ArgumentValidationMode.DEFAULT;
+        this.outputValidationMode = ArgumentValidationMode.DEFAULT;
     }
 
 
@@ -84,6 +69,67 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
     public void setOutputArgumentMapping(List<ArgumentMapping> value) {
         this.outputArgumentMapping = value;
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInputValidationMode() {
+        return inputValidationMode;
+    }
+
+
+    @Override
+    public void setInputValidationMode(ArgumentValidationMode mode) {
+        this.inputValidationMode = mode;
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInoutputValidationMode() {
+        return inoutputValidationMode;
+    }
+
+
+    @Override
+    public void setInoutputValidationMode(ArgumentValidationMode mode) {
+        this.inoutputValidationMode = mode;
+    }
+
+
+    @Override
+    public ArgumentValidationMode getOutputValidationMode() {
+        return outputValidationMode;
+    }
+
+
+    @Override
+    public void setOutputValidationMode(ArgumentValidationMode mode) {
+        this.outputValidationMode = mode;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(parentNodeId, that.parentNodeId)
+                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
+                && Objects.equals(outputArgumentMapping, that.outputArgumentMapping)
+                && Objects.equals(inputValidationMode, that.inputValidationMode)
+                && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
+                && Objects.equals(outputValidationMode, that.outputValidationMode);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), parentNodeId, inputArgumentMapping, outputArgumentMapping, inputValidationMode, inoutputValidationMode, outputValidationMode);
     }
 
 
@@ -134,6 +180,24 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
         public B outputArgumentMappings(List<ArgumentMapping> value) {
             getBuildingInstance().setOutputArgumentMapping(value);
+            return getSelf();
+        }
+
+
+        public B inputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B inoutputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInoutputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B outputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setOutputValidationMode(value);
             return getSelf();
         }
     }

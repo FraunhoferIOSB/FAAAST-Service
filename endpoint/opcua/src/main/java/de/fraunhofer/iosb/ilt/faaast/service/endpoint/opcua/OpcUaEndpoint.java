@@ -24,23 +24,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import java.util.ArrayList;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +55,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
     private ServiceContext service;
-    private AssetAdministrationShellEnvironment aasEnvironment;
+    private Environment aasEnvironment;
     private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
-    private int requestCounter;
 
     /**
      * Creates a new instance of OpcUaEndpoint
@@ -149,19 +149,20 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         Ensure.requireNonNull(submodel, "submodel must not be null");
 
         try {
+            String path = ReferenceHelper.toPath(refElement);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
+            }
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
-            List<Key> path = new ArrayList<>();
-            path.addAll(refElement.getKeys());
-
-            request.setSubmodelId(submodel.getIdentification());
+            request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
-                if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
-                    for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
+                if ((mlp.getValue() != null) && (mlp.getValue().size() > 1)) {
+                    for (int i = 0; i < mlp.getValue().size(); i++) {
+                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
                     }
                 }
             }
@@ -178,7 +179,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
 
             Response response = service.execute(request);
-            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
+                        response.getStatusCode());
+            }
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
@@ -188,6 +192,39 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Reads the value of the desired SubmodelElement from the service.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @param refElement The reference to the element.
+     * @return The value of the desired SubmodelElement, null if the read failed.
+     */
+    public SubmodelElement readValue(String submodelId, Reference refElement) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("readValue: Submodel: {}; Ref: {}", submodelId, ReferenceHelper.toString(refElement));
+        }
+        SubmodelElement retval = null;
+        GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
+        Response response = service.execute(request);
+        if ((response.getStatusCode() == StatusCode.SUCCESS) && (GetSubmodelElementByPathResponse.class.isAssignableFrom(response.getClass()))) {
+            retval = ((GetSubmodelElementByPathResponse) response).getPayload();
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Checks if the referenced element has a Value Provider.
+     *
+     * @param refElement The reference to the element.
+     * @return True if it has a Value Provider, false otherwise.
+     */
+    public boolean hasValueProvider(Reference refElement) {
+        return service.hasValueProvider(refElement);
     }
 
 
@@ -205,15 +242,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         List<OperationVariable> outputArguments;
         InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
-        List<Key> path = new ArrayList<>();
-        path.addAll(refElement.getKeys());
-
-        request.setSubmodelId(submodel.getIdentification());
-        request.setPath(path);
+        request.setSubmodelId(submodel.getId());
+        request.setPath(ReferenceHelper.toPath(refElement));
         request.setInputArguments(inputVariables);
-
-        requestCounter++;
-        request.setRequestId(Integer.toString(requestCounter));
 
         // execute method
         InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);

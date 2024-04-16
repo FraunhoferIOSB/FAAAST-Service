@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.builder.AbstractBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 
 
 /**
@@ -27,30 +27,25 @@ public class ModelValidatorConfig {
     public static final ModelValidatorConfig DEFAULT = ModelValidatorConfig.builder().build();
     public static final ModelValidatorConfig ALL = ModelValidatorConfig.builder()
             .validateConstraints(true)
-            .validateValueTypes(true)
             .validateIdShortUniqueness(true)
             .validateIdentifierUniqueness(true)
             .build();
     public static final ModelValidatorConfig NONE = ModelValidatorConfig.builder()
             .validateConstraints(false)
-            .validateValueTypes(false)
             .validateIdShortUniqueness(false)
             .validateIdentifierUniqueness(false)
             .build();
 
     private static final boolean DEFAULT_VALIDATE_CONSTRAINTS = true;
-    private static final boolean DEFAULT_VALIDATE_VALUE_TYPES = true;
     private static final boolean DEFAULT_VALIDATE_ID_SHORT_UNIQUENESS = true;
     private static final boolean DEFAULT_VALIDATE_IDENTIFIER_UNIQUENESS = true;
 
     private boolean validateConstraints;
-    private boolean validateValueTypes;
     private boolean validateIdShortUniqueness;
     private boolean validateIdentifierUniqueness;
 
     public ModelValidatorConfig() {
         validateConstraints = DEFAULT_VALIDATE_CONSTRAINTS;
-        validateValueTypes = DEFAULT_VALIDATE_VALUE_TYPES;
         validateIdShortUniqueness = DEFAULT_VALIDATE_ID_SHORT_UNIQUENESS;
         validateIdentifierUniqueness = DEFAULT_VALIDATE_IDENTIFIER_UNIQUENESS;
     }
@@ -63,22 +58,12 @@ public class ModelValidatorConfig {
 
     @JsonIgnore
     public boolean isEnabled() {
-        return validateConstraints || validateValueTypes || validateIdShortUniqueness || validateIdentifierUniqueness;
+        return validateConstraints || validateIdShortUniqueness || validateIdentifierUniqueness;
     }
 
 
     public void setValidateConstraints(boolean validateConstraints) {
         this.validateConstraints = validateConstraints;
-    }
-
-
-    public boolean getValueTypeValidation() {
-        return validateValueTypes;
-    }
-
-
-    public void setValidateValueTypes(boolean validateValueTypes) {
-        this.validateValueTypes = validateValueTypes;
     }
 
 
@@ -105,7 +90,6 @@ public class ModelValidatorConfig {
     @Override
     public int hashCode() {
         return Objects.hash(validateConstraints,
-                validateValueTypes,
                 validateIdShortUniqueness,
                 validateIdentifierUniqueness);
     }
@@ -124,7 +108,6 @@ public class ModelValidatorConfig {
         }
         final ModelValidatorConfig other = (ModelValidatorConfig) obj;
         return Objects.equals(this.validateConstraints, other.validateConstraints)
-                && Objects.equals(this.validateValueTypes, other.validateValueTypes)
                 && Objects.equals(this.validateIdShortUniqueness, other.validateIdShortUniqueness)
                 && Objects.equals(this.validateIdentifierUniqueness, other.validateIdentifierUniqueness);
     }
@@ -138,12 +121,6 @@ public class ModelValidatorConfig {
 
         public Builder validateConstraints(boolean value) {
             getBuildingInstance().setValidateConstraints(value);
-            return this;
-        }
-
-
-        public Builder validateValueTypes(boolean value) {
-            getBuildingInstance().setValidateValueTypes(value);
             return this;
         }
 

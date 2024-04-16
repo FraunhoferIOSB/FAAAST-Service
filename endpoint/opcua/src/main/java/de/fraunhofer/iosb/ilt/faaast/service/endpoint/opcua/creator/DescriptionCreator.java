@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.core.Argument;
-import io.adminshell.aas.v3.model.LangString;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 
 
 /**
@@ -38,10 +38,10 @@ public class DescriptionCreator {
      * @param node The desired UA node in which the Descriptions should be created
      * @param descriptions The list of AAS descriptions
      */
-    public static void addDescriptions(UaNode node, List<LangString> descriptions) {
+    public static void addDescriptions(UaNode node, List<LangStringTextType> descriptions) {
         if ((node != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-            LangString desc = descriptions.get(0);
-            node.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
+            LangStringTextType desc = descriptions.get(0);
+            node.setDescription(new LocalizedText(desc.getText(), desc.getLanguage()));
         }
     }
 
@@ -52,10 +52,10 @@ public class DescriptionCreator {
      * @param arg The desired UA argument
      * @param descriptions The list of AAS descriptions
      */
-    public static void addDescriptions(Argument arg, List<LangString> descriptions) {
+    public static void addDescriptions(Argument arg, List<LangStringTextType> descriptions) {
         if ((arg != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-            LangString desc = descriptions.get(0);
-            arg.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
+            LangStringTextType desc = descriptions.get(0);
+            arg.setDescription(new LocalizedText(desc.getText(), desc.getLanguage()));
         }
     }
 

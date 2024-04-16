@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,10 +25,52 @@ import java.util.Objects;
  */
 public abstract class AbstractMultiFormatOperationProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatOperationProviderConfig {
 
+    protected ArgumentValidationMode inputValidationMode;
+    protected ArgumentValidationMode inoutputValidationMode;
+    protected ArgumentValidationMode outputValidationMode;
     protected Map<String, String> queries;
 
     protected AbstractMultiFormatOperationProviderConfig() {
+        this.inputValidationMode = ArgumentValidationMode.DEFAULT;
+        this.inoutputValidationMode = ArgumentValidationMode.DEFAULT;
+        this.outputValidationMode = ArgumentValidationMode.DEFAULT;
         this.queries = new HashMap<>();
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInputValidationMode() {
+        return inputValidationMode;
+    }
+
+
+    @Override
+    public void setInputValidationMode(ArgumentValidationMode mode) {
+        this.inputValidationMode = mode;
+    }
+
+
+    @Override
+    public ArgumentValidationMode getInoutputValidationMode() {
+        return inoutputValidationMode;
+    }
+
+
+    @Override
+    public void setInoutputValidationMode(ArgumentValidationMode mode) {
+        this.inoutputValidationMode = mode;
+    }
+
+
+    @Override
+    public ArgumentValidationMode getOutputValidationMode() {
+        return outputValidationMode;
+    }
+
+
+    @Override
+    public void setOutputValidationMode(ArgumentValidationMode mode) {
+        this.outputValidationMode = mode;
     }
 
 
@@ -53,17 +96,38 @@ public abstract class AbstractMultiFormatOperationProviderConfig extends Abstrac
         }
         AbstractMultiFormatOperationProviderConfig that = (AbstractMultiFormatOperationProviderConfig) o;
         return super.equals(that)
+                && Objects.equals(inputValidationMode, that.inputValidationMode)
+                && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
+                && Objects.equals(outputValidationMode, that.outputValidationMode)
                 && Objects.equals(queries, that.queries);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), queries);
+        return Objects.hash(super.hashCode(), inputValidationMode, inoutputValidationMode, outputValidationMode, queries);
     }
 
     protected abstract static class AbstractBuilder<T extends AbstractMultiFormatOperationProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractMultiFormatProviderConfig.AbstractBuilder<T, B> {
+
+        public B inputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B inoutputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInoutputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B outputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setOutputValidationMode(value);
+            return getSelf();
+        }
+
 
         public B query(String name, String query) {
             getBuildingInstance().getQueries().put(name, query);

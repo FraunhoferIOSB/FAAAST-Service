@@ -23,13 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EnumDe
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.MultiLanguagePropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.PropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RangeValueDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RelationshipElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.AnnotatedRelationshipElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.ElementValueDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.ReferenceElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.SubmodelElementCollectionValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event.TypedValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event.EventMessageMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -38,9 +37,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyVa
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 
 
@@ -67,15 +65,14 @@ public class JsonEventDeserializer {
         module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
         module.addDeserializer(PropertyValue.class, new PropertyValueDeserializer());
         module.addDeserializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueDeserializer());
-        module.addDeserializer(RelationshipElementValue.class, new RelationshipElementValueDeserializer());
         module.addDeserializer(SubmodelElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
         module.addDeserializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueDeserializer());
-        module.addDeserializer(ReferenceElementValue.class, new ReferenceElementValueDeserializer());
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
         mapper.registerModule(module);
         mapper.addMixIn(EventMessage.class, EventMessageMixin.class);
+        mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
     }
 
 

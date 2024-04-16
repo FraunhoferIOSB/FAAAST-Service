@@ -1,0 +1,19 @@
+{
+    "@type": "ErrorEvent",
+    "element":
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "http://example.org/submodel"
+                    },
+                    {
+                        "type": "Property",
+                        "value": "property"
+                    }
+                ]
+            },
+    "message": "This is a warning",
+    "level": "Warn"
+}

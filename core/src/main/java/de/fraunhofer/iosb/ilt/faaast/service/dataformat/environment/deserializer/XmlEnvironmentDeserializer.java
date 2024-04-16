@@ -15,17 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.dataformat.xml.XmlDeserializer;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer;
 
 
 /**
- * XML deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * XML deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentDeserializer implements EnvironmentDeserializer {
@@ -44,7 +44,7 @@ public class XmlEnvironmentDeserializer implements EnvironmentDeserializer {
                     .environment(deserializer.read(in, charset))
                     .build();
         }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException e) {
+        catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException e) {
             throw new DeserializationException("XML deserialization failed", e);
         }
     }

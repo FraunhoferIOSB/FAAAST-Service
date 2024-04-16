@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -28,9 +28,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimeUnitHelper {
     private static final Map<Reference, TimeUnit> timeUnitMapping = Map.of(
-            ReferenceHelper.globalReference(Constants.TIMEUNIT_MILLISECOND), TimeUnit.MILLISECONDS,
-            ReferenceHelper.globalReference(Constants.TIMEUNIT_SECOND), TimeUnit.SECONDS,
-            ReferenceHelper.globalReference(Constants.TIMEUNIT_MINUTE), TimeUnit.MINUTES);
+            ReferenceBuilder.global(Constants.TIMEUNIT_MILLISECOND), TimeUnit.MILLISECONDS,
+            ReferenceBuilder.global(Constants.TIMEUNIT_SECOND), TimeUnit.SECONDS,
+            ReferenceBuilder.global(Constants.TIMEUNIT_MINUTE), TimeUnit.MINUTES);
 
     /**
      * Returns {@link java.util.concurrent.TimeUnit} from a semanticId.

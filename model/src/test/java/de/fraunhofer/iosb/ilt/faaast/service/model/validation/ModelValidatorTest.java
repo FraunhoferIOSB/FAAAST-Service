@@ -15,47 +15,32 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class ModelValidatorTest {
 
     private static final Property PROPRERTY_1 = new DefaultProperty.Builder()
             .idShort("Property1")
-            .valueType("string")
+            .valueType(DataTypeDefXsd.STRING)
             .build();
     private static final Property PROPRERTY_2 = new DefaultProperty.Builder()
             .idShort("Property3")
-            .valueType("string")
+            .valueType(DataTypeDefXsd.STRING)
             .build();
-    private static final Identifier IDENTIFIER_1 = new DefaultIdentifier.Builder()
-            .idType(IdentifierType.IRI)
-            .identifier("Identifier1")
-            .build();
-    private static final Identifier IDENTIFIER_2 = new DefaultIdentifier.Builder()
-            .idType(IdentifierType.IRI)
-            .identifier("Identifier2")
-            .build();
+    private static final String ID_1 = "Identifier1";
+    private static final String ID_2 = "Identifier2";
 
     @Test(expected = ValidationException.class)
     public void testIdShortNotUniqueCollection() throws ValidationException {
@@ -76,8 +61,8 @@ public class ModelValidatorTest {
     @Test(expected = ValidationException.class)
     public void testIdShortNotUniqueSubmodel() throws ValidationException {
         Submodel input = new DefaultSubmodel.Builder()
-                .submodelElement(PROPRERTY_1)
-                .submodelElement(PROPRERTY_1)
+                .submodelElements(PROPRERTY_1)
+                .submodelElements(PROPRERTY_1)
                 .build();
         ModelValidator.validate(
                 input,
@@ -90,8 +75,8 @@ public class ModelValidatorTest {
     @Test
     public void testIdShortUniquenessDisable() throws ValidationException {
         Submodel input = new DefaultSubmodel.Builder()
-                .submodelElement(PROPRERTY_1)
-                .submodelElement(PROPRERTY_1)
+                .submodelElements(PROPRERTY_1)
+                .submodelElements(PROPRERTY_1)
                 .build();
         ModelValidator.validate(
                 input,
@@ -105,7 +90,7 @@ public class ModelValidatorTest {
     @Test(expected = ValidationException.class)
     public void testIdShortNotUniqueSubmodelNested() throws ValidationException {
         Submodel input = new DefaultSubmodel.Builder()
-                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .value(PROPRERTY_1)
                         .value(PROPRERTY_1)
                         .value(PROPRERTY_1)
@@ -157,12 +142,12 @@ public class ModelValidatorTest {
     @Test
     public void testIdentifierUnique() throws ValidationException {
         Submodel submodel = new DefaultSubmodel.Builder()
-                .identification(IDENTIFIER_1)
+                .id(ID_1)
                 .build();
-        AssetAdministrationShellEnvironment input = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment input = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .identification(IDENTIFIER_2)
-                        .submodel(AasUtils.toReference(submodel))
+                        .id(ID_2)
+                        .submodels(AasUtils.toReference(submodel))
                         .build())
                 .submodels(submodel)
                 .build();
@@ -177,12 +162,12 @@ public class ModelValidatorTest {
     @Test(expected = ValidationException.class)
     public void testIdentifierNotUnique() throws ValidationException {
         Submodel submodel = new DefaultSubmodel.Builder()
-                .identification(IDENTIFIER_1)
+                .id(ID_1)
                 .build();
-        AssetAdministrationShellEnvironment input = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment input = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .identification(IDENTIFIER_1)
-                        .submodel(AasUtils.toReference(submodel))
+                        .id(ID_1)
+                        .submodels(AasUtils.toReference(submodel))
                         .build())
                 .submodels(submodel)
                 .build();
@@ -197,12 +182,12 @@ public class ModelValidatorTest {
     @Test
     public void testIdentifierUniquenessDisabled() throws ValidationException {
         Submodel submodel = new DefaultSubmodel.Builder()
-                .identification(IDENTIFIER_1)
+                .id(ID_1)
                 .build();
-        AssetAdministrationShellEnvironment input = new DefaultAssetAdministrationShellEnvironment.Builder()
+        Environment input = new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
-                        .identification(IDENTIFIER_1)
-                        .submodel(AasUtils.toReference(submodel))
+                        .id(ID_1)
+                        .submodels(AasUtils.toReference(submodel))
                         .build())
                 .submodels(submodel)
                 .build();
@@ -211,40 +196,6 @@ public class ModelValidatorTest {
                 ModelValidatorConfig.builder()
                         .validateConstraints(false)
                         .validateIdentifierUniqueness(false)
-                        .build());
-    }
-
-
-    @Test
-    public void testValidDatatypes() throws ValidationException {
-        SubmodelElementCollection input = new DefaultSubmodelElementCollection.Builder()
-                .values(Stream.of(Datatype.values())
-                        .map(x -> new DefaultProperty.Builder()
-                                .valueType(x.getName())
-                                .build())
-                        .collect(Collectors.toList()))
-                .build();
-        ModelValidator.validate(
-                input,
-                ModelValidatorConfig.builder()
-                        .validateConstraints(false)
-                        .validateIdShortUniqueness(false)
-                        .build());
-    }
-
-
-    @Test(expected = ValidationException.class)
-    public void testInvalidDatatype() throws ValidationException {
-        SubmodelElementCollection input = new DefaultSubmodelElementCollection.Builder()
-                .value(new DefaultProperty.Builder()
-                        .valueType("foo")
-                        .build())
-                .build();
-        ModelValidator.validate(
-                input,
-                ModelValidatorConfig.builder()
-                        .validateConstraints(false)
-                        .validateIdShortUniqueness(false)
                         .build());
     }
 }

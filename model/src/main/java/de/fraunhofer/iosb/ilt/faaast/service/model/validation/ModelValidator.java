@@ -15,21 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.model.Extension;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.validator.ShaclValidator;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,13 +27,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.jena.shacl.ValidationReport;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Checks if a model or model element fulfills all constraints defined in the specification.
  */
 public class ModelValidator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelValidator.class);
 
     private ModelValidator() {}
 
@@ -77,7 +71,7 @@ public class ModelValidator {
                 .before(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(Identifiable identifiable) {
-                        path.addLast(identifiable.getIdentification().getIdentifier());
+                        path.addLast(identifiable.getId());
                     }
 
 
@@ -126,54 +120,9 @@ public class ModelValidator {
                     }
 
 
-                    private void validateDatatype(Object obj) {
-                        if (!config.getValueTypeValidation() || Objects.isNull(obj)) {
-                            return;
-                        }
-                        try {
-                            // aggressive approach: if property/getter is there this means there is a datatype that needs to be validated
-                            Object datatype = obj.getClass().getMethod("getValueType").invoke(obj, (Object[]) null);
-                            if (Objects.nonNull(datatype) && !Datatype.isValid(datatype.toString())) {
-                                errors.add(String.format(
-                                        "Unsupported datatype '%s' found for element of type '%s' with path '%s'",
-                                        datatype,
-                                        ReflectionHelper.getAasInterface(obj.getClass()).getSimpleName(),
-                                        String.join(".", path)));
-                            }
-                        }
-                        catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                            // do nothing
-                        }
-                    }
-
-
                     @Override
                     public void visit(Identifiable identifiable) {
-                        validateIdentifierUniqueness(identifiable.getIdentification().getIdentifier());
-                    }
-
-
-                    @Override
-                    public void visit(Extension extension) {
-                        validateDatatype(extension);
-                    }
-
-
-                    @Override
-                    public void visit(Property property) {
-                        validateDatatype(property);
-                    }
-
-
-                    @Override
-                    public void visit(Qualifier qualifier) {
-                        validateDatatype(qualifier);
-                    }
-
-
-                    @Override
-                    public void visit(Range range) {
-                        validateDatatype(range);
+                        validateIdentifierUniqueness(identifiable.getId());
                     }
 
 
@@ -185,19 +134,20 @@ public class ModelValidator {
 
                     @Override
                     public void visit(SubmodelElementCollection submodelElementCollection) {
-                        validateIdShortUniqueness(submodelElementCollection.getValues());
+                        validateIdShortUniqueness(submodelElementCollection.getValue());
                     }
                 }).build().walk(obj);
         if (config.getValidateConstraints()) {
-            try {
-                ValidationReport report = ShaclValidator.getInstance().validateGetReport(obj);
-                if (!report.conforms()) {
-                    report.getEntries().forEach(x -> errors.add(x.message()));
-                }
-            }
-            catch (IOException e) {
-                errors.add(String.format("error executing basic validation (reason: %s)", e.getMessage()));
-            }
+            LOGGER.info("Constraint validation currently not available - waiting for support in AAS4j library");
+            //try {
+            //    ValidationReport report = ShaclValidator.getInstance().validateGetReport(obj);
+            //    if (!report.conforms()) {
+            //        report.getEntries().forEach(x -> errors.add(x.message()));
+            //    }
+            //}
+            //catch (IOException e) {
+            //    errors.add(String.format("error executing basic validation (reason: %s)", e.getMessage()));
+            //}
         }
         if (!errors.isEmpty()) {
             throw new ValidationException(String.format(

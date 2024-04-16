@@ -26,10 +26,10 @@ jobs:
         echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
 
     - name: Checkout Source
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Cache maven repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-dpl-${{ hashFiles('**/pom.xml') }}
@@ -37,11 +37,11 @@ jobs:
           ${{ runner.os }}-maven-dpl
           ${{ runner.os }}-maven
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
-        java-version: 11
+        java-version: 17
 
     - name: Build with Maven
       env:
@@ -58,6 +58,28 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn install -P test --settings maven-ci-settings.xml -B
+
+    - name: Restore CVD Database from Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.m2/repository/org/owasp/dependency-check-data
+        key: ${{ runner.os }}-maven-owasp-cvedb
+
+    - name: Update CVD Database
+      env:
+        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
+        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
+        NIST_NVD_API_KEY: ${{ secrets.NIST_NVD_API_KEY }}
+      run: |
+        mvn -B -P owasp -DnvdApiDelay=6000 --settings maven-ci-settings.xml org.owasp:dependency-check-maven:update-only
+
+    - name: Save CVD Database to Cache
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.m2/repository/org/owasp/dependency-check-data
+        key: ${{ runner.os }}-maven-owasp-cvedb
 
     - name: Dependency Vulnerability Check with OWASP
       env:
@@ -86,17 +108,17 @@ jobs:
         echo "DOCKER_TAG_SHORT=${version%.*}"     >> $GITHUB_ENV
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
     - name: Login to DockerHub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push docker image - starter
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         platforms: linux/amd64,linux/arm64
         context: "./starter"

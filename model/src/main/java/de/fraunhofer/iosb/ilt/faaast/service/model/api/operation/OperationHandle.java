@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import java.util.UUID;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -23,16 +24,10 @@ import java.util.Objects;
  */
 public class OperationHandle {
 
-    private String requestId;
     private String handleId;
 
-    public String getRequestId() {
-        return requestId;
-    }
-
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+    public OperationHandle() {
+        this.handleId = UUID.randomUUID().toString();
     }
 
 
@@ -55,13 +50,13 @@ public class OperationHandle {
             return false;
         }
         OperationHandle that = (OperationHandle) o;
-        return Objects.equals(requestId, that.requestId) && Objects.equals(handleId, that.handleId);
+        return Objects.equals(handleId, that.handleId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(requestId, handleId);
+        return Objects.hash(handleId);
     }
 
 
@@ -70,12 +65,6 @@ public class OperationHandle {
     }
 
     private abstract static class AbstractBuilder<T extends OperationHandle, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B requestId(String value) {
-            getBuildingInstance().setRequestId(value);
-            return getSelf();
-        }
-
 
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);

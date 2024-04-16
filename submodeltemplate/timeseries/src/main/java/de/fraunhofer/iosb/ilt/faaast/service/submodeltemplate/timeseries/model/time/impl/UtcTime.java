@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
 import java.time.format.DateTimeFormatter;
@@ -50,7 +50,7 @@ public class UtcTime extends AbstractAbsoluteTime {
         }
         DateTimeValue dateTimeValue = (DateTimeValue) TypedValueFactory.createSafe(VALUE_TYPE, value);
         if (dateTimeValue != null) {
-            this.startTimestampInUtcTime = dateTimeValue.getValue();
+            this.startTimestampInUtcTime = dateTimeValue.getValue().toZonedDateTime();
             this.endTimestampInUtcTime = this.startTimestampInUtcTime;
             this.isInitialized = true;
         }

@@ -15,16 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 
 
 /**
@@ -34,13 +34,13 @@ public class LinkedSegment extends Segment {
 
     @JsonIgnore
     private final Wrapper<String, Property> endpoint = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
-                    .valueType(Datatype.STRING.getName())
+                    .valueType(Datatype.STRING.getAas4jDatatype())
                     .value(x)
                     .build(),
             x -> Objects.equals(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT, x.getIdShort()),
@@ -48,13 +48,13 @@ public class LinkedSegment extends Segment {
 
     @JsonIgnore
     private final Wrapper<String, Property> query = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-                    .valueType(Datatype.STRING.getName())
+                    .valueType(Datatype.STRING.getAas4jDatatype())
                     .value(x)
                     .build(),
             x -> Objects.equals(Constants.LINKED_SEGMENT_QUERY_ID_SHORT, x.getIdShort()),
@@ -73,8 +73,8 @@ public class LinkedSegment extends Segment {
 
 
     public LinkedSegment() {
-        this.idShort = IdentifierHelper.randomId("LinkedSegment");
-        this.semanticId = ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID);
+        this.idShort = IdHelper.randomId("LinkedSegment");
+        this.semanticId = ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID);
         withAdditionalValues(endpoint, query);
     }
 

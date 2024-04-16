@@ -21,4 +21,20 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
  */
 public interface AssetOperationProviderConfig extends AssetProviderConfig {
 
+    public ArgumentValidationMode getInputValidationMode();
+
+
+    public void setInputValidationMode(ArgumentValidationMode mode);
+
+
+    public ArgumentValidationMode getInoutputValidationMode();
+
+
+    public void setInoutputValidationMode(ArgumentValidationMode mode);
+
+
+    public ArgumentValidationMode getOutputValidationMode();
+
+
+    public void setOutputValidationMode(ArgumentValidationMode mode);
 }

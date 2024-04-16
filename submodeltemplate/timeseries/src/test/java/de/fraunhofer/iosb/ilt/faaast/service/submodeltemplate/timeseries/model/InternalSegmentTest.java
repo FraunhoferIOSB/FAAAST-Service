@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.MissingInitialisationException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,28 +36,24 @@ public class InternalSegmentTest extends BaseModelTest {
 
     private static final Property START_TIME = new DefaultProperty.Builder()
             .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
-            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-            .valueType(Datatype.DATE_TIME.getName())
+            .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+            .valueType(Datatype.DATE_TIME.getAas4jDatatype())
             .value(DateTimeFormatter.ISO_DATE_TIME.format(INTERNAL_SEGMENT_WITH_TIMES.getStart()))
             .build();
 
     private static final Property RECORD_COUNT = new DefaultProperty.Builder()
             .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
-            .valueType(Datatype.LONG.getName())
+            .valueType(Datatype.LONG.getAas4jDatatype())
             .value("1")
             .build();
 
     private static final SubmodelElementCollection EMPTY_RECORDS = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
-            .ordered(true)
-            .allowDuplicates(true)
             .build();
 
     private static final SubmodelElementCollection RECORDS = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
             .value(TimeSeriesData.RECORD_00)
-            .ordered(true)
-            .allowDuplicates(true)
             .build();
 
     @Test
@@ -99,9 +94,14 @@ public class InternalSegmentTest extends BaseModelTest {
         InternalSegment expected = InternalSegment.builder()
                 .idShort("idShort")
                 .category("category")
-                .description(new LangString("foo", "en"))
-                .description(new LangString("bar", "de"))
-                .kind(ModelingKind.INSTANCE)
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("en")
+                        .text("foo")
+                        .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de")
+                        .text("bar")
+                        .build())
                 .start(INTERNAL_SEGMENT_WITH_TIMES.getStart())
                 .end(INTERNAL_SEGMENT_WITH_TIMES.getEnd())
                 .record(TimeSeriesData.RECORD_00)
@@ -116,7 +116,7 @@ public class InternalSegmentTest extends BaseModelTest {
     @Test
     public void testParseWithAdditionalElement() throws ValueFormatException {
         SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
-                .semanticId(ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID))
+                .semanticId(ReferenceBuilder.global(Constants.INTERNAL_SEGMENT_SEMANTIC_ID))
                 .value(new DefaultSubmodelElementCollection.Builder()
                         .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
                         .value(TimeSeriesData.RECORD_00)

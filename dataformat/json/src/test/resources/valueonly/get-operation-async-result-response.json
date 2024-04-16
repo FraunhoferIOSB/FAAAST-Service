@@ -1,0 +1,24 @@
+{
+    "messages": [
+        {
+            "messageType": "Info",
+            "text": "some message text",
+            "code": "",
+            "timestamp": "2024-01-01T00:00:00.000+00:00"
+        }
+    ],
+    "executionState": "Completed",
+    "success": false,
+    "outputArguments":
+            {
+                "outString": "foo-bar",
+                "outInt": -24,
+                "outDouble": 24.24
+            },
+    "inoutputArguments":
+            {
+                "inoutString": "bar",
+                "inoutInt": -42,
+                "inoutDouble": 17.42
+            }
+}

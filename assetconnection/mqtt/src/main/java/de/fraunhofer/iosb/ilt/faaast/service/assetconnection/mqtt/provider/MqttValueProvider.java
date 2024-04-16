@@ -18,10 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -66,7 +68,15 @@ public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProvide
 
     @Override
     protected TypeInfo getTypeInfo() {
-        return serviceContext.getTypeInfo(reference);
+        try {
+            return serviceContext.getTypeInfo(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(String.format(
+                    "MQTT value provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 

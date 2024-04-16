@@ -19,15 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constan
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
 /**
@@ -37,32 +37,32 @@ public class ExternalSegment extends Segment {
 
     @JsonIgnore
     private Wrapper<File, File> file = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             File.class,
             x -> {
                 if (x != null) {
-                    x.setSemanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID));
+                    x.setSemanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID));
                 }
                 return x;
             },
-            x -> Objects.equals(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID), x.getSemanticId()),
+            x -> Objects.equals(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID), x.getSemanticId()),
             x -> x);
 
     @JsonIgnore
     private Wrapper<Blob, Blob> blob = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Blob.class,
             x -> {
                 if (x != null) {
-                    x.setSemanticId(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID));
+                    x.setSemanticId(ReferenceBuilder.global(Constants.BLOB_SEMANTIC_ID));
                 }
                 return x;
             },
-            x -> Objects.equals(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID), x.getSemanticId()),
+            x -> Objects.equals(ReferenceBuilder.global(Constants.BLOB_SEMANTIC_ID), x.getSemanticId()),
             x -> x);
 
     @JsonIgnore
@@ -82,13 +82,13 @@ public class ExternalSegment extends Segment {
         SubmodelElementCollection toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
         if (smcFile.isPresent()) {
             target.setData(smcFile.get());
-            toParse.setValues(smc.getValues().stream()
+            toParse.setValue(smc.getValue().stream()
                     .filter(x -> !Objects.equals(smcFile.get(), x))
                     .collect(Collectors.toList()));
         }
         else if (smcBlob.isPresent()) {
             target.setData(smcBlob.get());
-            toParse.setValues(smc.getValues().stream()
+            toParse.setValue(smc.getValue().stream()
                     .filter(x -> !Objects.equals(smcBlob.get(), x))
                     .collect(Collectors.toList()));
         }
@@ -99,18 +99,18 @@ public class ExternalSegment extends Segment {
 
     private static <T extends DataElement> Optional<T> createDataObject(SubmodelElementCollection smc, Class<T> type) {
         String semanticID = type.equals(File.class) ? Constants.FILE_SEMANTIC_ID : Constants.BLOB_SEMANTIC_ID;
-        return smc.getValues().stream()
+        return smc.getValue().stream()
                 .filter(Objects::nonNull)
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .map(type::cast)
-                .filter(x -> Objects.equals(x.getSemanticId(), ReferenceHelper.globalReference(semanticID)))
+                .filter(x -> Objects.equals(x.getSemanticId(), ReferenceBuilder.global(semanticID)))
                 .findFirst();
     }
 
 
     public ExternalSegment() {
-        this.idShort = IdentifierHelper.randomId("ExternalSegment");
-        this.semanticId = ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID);
+        this.idShort = IdHelper.randomId("ExternalSegment");
+        this.semanticId = ReferenceBuilder.global(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID);
         if (file != null) {
             data = file;
         }

@@ -19,10 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.aas.DefaultInternalSegmentProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**

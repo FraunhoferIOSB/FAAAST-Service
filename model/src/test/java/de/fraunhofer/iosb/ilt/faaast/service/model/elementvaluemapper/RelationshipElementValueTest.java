@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
-import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,17 +31,13 @@ import org.junit.Test;
 public class RelationshipElementValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultRelationshipElement.Builder()
                 .build();
         RelationshipElementValue value = createRelationshipElementValue();
         SubmodelElement expected = new DefaultRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(value.getFirst())
-                        .build())
-                .second(new DefaultReference.Builder()
-                        .keys(value.getSecond())
-                        .build())
+                .first(value.getFirst())
+                .second(value.getSecond())
                 .build();
         ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
@@ -50,7 +45,7 @@ public class RelationshipElementValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultRelationshipElement.Builder()
                 .build();
         RelationshipElementValue value = RelationshipElementValue.builder()
@@ -68,12 +63,8 @@ public class RelationshipElementValueTest {
     public void testToValueMapping() throws ValueMappingException {
         RelationshipElementValue expected = createRelationshipElementValue();
         SubmodelElement input = new DefaultRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(expected.getFirst())
-                        .build())
-                .second(new DefaultReference.Builder()
-                        .keys(expected.getSecond())
-                        .build())
+                .first(expected.getFirst())
+                .second(expected.getSecond())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);
@@ -97,28 +88,28 @@ public class RelationshipElementValueTest {
 
     private RelationshipElementValue createRelationshipElementValue() {
         return RelationshipElementValue.builder()
-                .first(List.of(
-                        new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                .first(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
-                                .build(),
-                        new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.PROPERTY)
                                 .value("property1")
-                                .build()))
-                .second(List.of(
-                        new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .build())
+                        .build())
+                .second(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/2")
-                                .build(),
-                        new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.PROPERTY)
                                 .value("property2")
-                                .build()))
+                                .build())
+                        .build())
                 .build();
     }
 

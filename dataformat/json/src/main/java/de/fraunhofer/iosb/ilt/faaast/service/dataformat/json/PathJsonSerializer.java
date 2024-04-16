@@ -14,11 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.path.IdShortPathElementWalker;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -41,12 +45,13 @@ public class PathJsonSerializer {
     /**
      * Serializes an object as string.
      *
+     * @param parent the path to the parent element
      * @param obj the object to serialize
      * @return the string serialization of the object
      * @throws SerializationException if serialization fails
      */
-    public String write(Object obj) throws SerializationException {
-        return write(obj, Level.DEFAULT);
+    public String write(IdShortPath parent, Object obj) throws SerializationException {
+        return write(parent, obj, Level.DEFAULT);
     }
 
 
@@ -54,20 +59,33 @@ public class PathJsonSerializer {
      * Serializes a given object with given level. If obj if not a AAS element subject to serialization, result will be
      * empty JSON array.
      *
+     * @param parent the path to the parent element
      * @param obj object to serialize
      * @param level level of serialization
      * @return JSON array of all idShort paths subject to serialization according to specification.
      * @throws SerializationException if serialization fails
      */
-    public String write(Object obj, Level level) throws SerializationException {
+    public String write(IdShortPath parent, Object obj, Level level) throws SerializationException {
+        if (Objects.nonNull(obj) && Page.class.isAssignableFrom(obj.getClass())) {
+            Page page = (Page) obj;
+            return new JsonApiSerializer().write(Page.of(
+                    page.getContent().stream()
+                            .map(x -> findIdShortPaths(parent, x, level))
+                            .toList(),
+                    page.getMetadata()));
+        }
+        else {
+            return new JsonApiSerializer().write(findIdShortPaths(parent, obj, level));
+        }
+    }
+
+
+    private List<String> findIdShortPaths(IdShortPath parent, Object obj, Level level) {
         IdShortPathElementWalker walker = new IdShortPathElementWalker(level);
         walker.walk(obj);
-        try {
-            return wrapper.getMapper().writeValueAsString(walker.getIdShortPaths());
-        }
-        catch (JsonProcessingException e) {
-            throw new SerializationException("serialization failed", e);
-        }
+        return walker.getIdShortPaths().stream()
+                .map(x -> IdShortPath.combine(parent, x).toString())
+                .collect(Collectors.toList());
     }
 
 

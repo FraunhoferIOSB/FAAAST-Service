@@ -17,16 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.Entity} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.Entity} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}.
  */
 public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
@@ -44,13 +42,14 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
                             x -> x != null ? x.getIdShort() : null,
                             LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
         }
-        value.setGlobalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of());
+        value.setGlobalAssetId(submodelElement.getGlobalAssetId());
+        value.setSpecificAssetIds(submodelElement.getSpecificAssetIds());
         return value;
     }
 
 
     @Override
-    public Entity setValue(Entity submodelElement, EntityValue value) {
+    public Entity setValue(Entity submodelElement, EntityValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
         if (value != null) {
             for (SubmodelElement statement: submodelElement.getStatements()) {
@@ -63,12 +62,8 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
             }
 
             submodelElement.setEntityType(value.getEntityType());
-            if (value.getGlobalAssetId() != null && value.getGlobalAssetId().stream().noneMatch(Objects::isNull)) {
-                submodelElement.setGlobalAssetId(new DefaultReference.Builder().keys(value.getGlobalAssetId()).build());
-            }
-            else {
-                submodelElement.setGlobalAssetId(null);
-            }
+            submodelElement.setGlobalAssetId(value.getGlobalAssetId());
+            submodelElement.setSpecificAssetIds(value.getSpecificAssetIds());
         }
         return submodelElement;
     }

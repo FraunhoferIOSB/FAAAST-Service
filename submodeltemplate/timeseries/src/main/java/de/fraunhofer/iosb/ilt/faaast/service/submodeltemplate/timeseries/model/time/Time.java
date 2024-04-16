@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-
-
 /**
  * Base interface for times of TimeSeries data. Only its subclasses should be implemented-
  */

@@ -14,23 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.SerializationException;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,15 +36,14 @@ public class TimeSeriesTest extends BaseModelTest {
 
     @Test
     public void testFromFile()
-            throws ValueFormatException, DeserializationException, io.adminshell.aas.v3.dataformat.DeserializationException, IOException, SerializationException {
+            throws ValueFormatException, IOException, SerializationException, DeserializationException {
         TimeSeries actual = TimeSeries.of(new JsonDeserializer()
-                .readReferable(
-                        new String(
-                                getClass().getClassLoader().getResourceAsStream("model-timeseries-internalsegment.json").readAllBytes(),
-                                StandardCharsets.UTF_8),
+                .read(new String(
+                        getClass().getClassLoader().getResourceAsStream("model-timeseries-internalsegment.json").readAllBytes(),
+                        StandardCharsets.UTF_8),
                         Submodel.class));
         TimeSeries expected = TimeSeries.builder()
-                .identification(actual.getIdentification())
+                .id(actual.getId())
                 .idShort(actual.getIdShort())
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
@@ -67,10 +63,7 @@ public class TimeSeriesTest extends BaseModelTest {
     @Test
     public void testConversionRoundTrip() throws ValueFormatException {
         TimeSeries expected = TimeSeries.builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
-                        .build())
+                .id(IdHelper.randomId("TimeSeries"))
                 .metadata(TimeSeriesData.METADATA)
                 .segment(INTERNAL_SEGMENT_WITH_TIMES)
                 .segment(INTERNAL_SEGMENT_WITHOUT_TIMES)
@@ -87,13 +80,15 @@ public class TimeSeriesTest extends BaseModelTest {
         TimeSeries expected = TimeSeries.builder()
                 .idShort("idShort")
                 .category("category")
-                .description(new LangString("foo", "en"))
-                .description(new LangString("bar", "de"))
-                .kind(ModelingKind.INSTANCE)
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("en")
+                        .text("foo")
                         .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de")
+                        .text("bar")
+                        .build())
+                .id(IdHelper.randomId("TimeSeries"))
                 .metadata(TimeSeriesData.METADATA)
                 .segment(INTERNAL_SEGMENT_WITH_TIMES)
                 .segment(INTERNAL_SEGMENT_WITH_TIMES)
@@ -107,7 +102,7 @@ public class TimeSeriesTest extends BaseModelTest {
     @Test
     public void testAddAdditionalElement() throws ValueFormatException {
         TimeSeries expected = TimeSeries.builder()
-                .submodelElement(ADDITIONAL_ELEMENT)
+                .submodelElements(ADDITIONAL_ELEMENT)
                 .build();
         TimeSeries actual = TimeSeries.of(expected);
         assertAASHasElements(actual.getSubmodelElements(), ADDITIONAL_ELEMENT);
@@ -119,13 +114,13 @@ public class TimeSeriesTest extends BaseModelTest {
     public void testParseWithAdditionalElement() throws ValueFormatException {
         Submodel expected = new DefaultSubmodel.Builder()
                 .idShort(Constants.TIMESERIES_SUBMODEL_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID))
-                .submodelElement(new Metadata())
-                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                .semanticId(ReferenceBuilder.global(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID))
+                .submodelElements(new Metadata())
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
                         .idShort(Constants.TIMESERIES_SEGMENTS_ID_SHORT)
-                        .semanticId(ReferenceHelper.globalReference(Constants.SEGMENTS_SEMANTIC_ID))
+                        .semanticId(ReferenceBuilder.global(Constants.SEGMENTS_SEMANTIC_ID))
                         .build())
-                .submodelElement(ADDITIONAL_ELEMENT)
+                .submodelElements(ADDITIONAL_ELEMENT)
                 .build();
         TimeSeries actual = TimeSeries.of(expected);
         assertAASEquals(expected, actual);

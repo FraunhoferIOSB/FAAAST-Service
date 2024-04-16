@@ -15,14 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Identifier;
 
 
 /**
- * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest}.
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest}.
  */
 public abstract class AbstractSubmodelInterfaceRequestMixin {
 
     @JsonIgnore
-    private Identifier submodelId;
+    private String submodelId;
 }

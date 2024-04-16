@@ -17,25 +17,21 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,6 +42,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.milo.opcua.sdk.client.AddressSpace;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
@@ -63,7 +64,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
 /**
  * Implementation of OperationProvider for OPC UA asset connections. Supports executing AAS operations via OPC UA.
  */
-public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider {
+public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider<OpcUaOperationProviderConfig> {
 
     private NodeId nodeId;
     private NodeId parentNodeId;
@@ -80,6 +81,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
             ValueConverter valueConverter) throws AssetConnectionException, InvalidConfigurationException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
+    }
+
+
+    @Override
+    public OpcUaOperationProviderConfig getConfig() {
+        return providerConfig;
     }
 
 
@@ -171,9 +178,16 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         outputArgumentMappingList = providerConfig.getOutputArgumentMapping() != null ? providerConfig.getOutputArgumentMapping() : new ArrayList<>();
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
-        outputVariables = serviceContext.getOperationOutputVariables(reference) != null
-                ? serviceContext.getOperationOutputVariables(reference)
-                : new OperationVariable[0];
+        try {
+            outputVariables = serviceContext.getOperationOutputVariables(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new AssetConnectionException(
+                    String.format(
+                            "Operation could not be found in AAS model (reference: %s)",
+                            ReferenceHelper.toString(reference)),
+                    e);
+        }
         for (var outputVariable: outputVariables) {
             if (outputVariable == null) {
                 throw new AssetConnectionException(String.format("Output variable must be non-null (nodeId: %s)",
@@ -255,10 +269,15 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         }
         TypedValue<?> newValue = valueConverter.convert(value, targetType);
         Property newProperty = DeepCopyHelper.deepCopy(element, Property.class);
-        ElementValueMapper.setValue(newProperty,
-                PropertyValue.builder()
-                        .value(newValue)
-                        .build());
+        try {
+            ElementValueMapper.setValue(newProperty,
+                    PropertyValue.builder()
+                            .value(newValue)
+                            .build());
+        }
+        catch (ValueMappingException ex) {
+            throw new AssetConnectionException(String.format("Error updating value from asset connection (idShort: %s)", element.getIdShort()));
+        }
         return new DefaultOperationVariable.Builder()
                 .value(newProperty)
                 .build();
@@ -294,15 +313,20 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     }
 
 
-    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws ValueConversionException {
+    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws AssetConnectionException {
         for (var param: inoutputParameters.entrySet()) {
             String idShortMapped = mapOutputIdShortToArgumentName(param.getKey());
             if (hasOutputArgument(idShortMapped)) {
                 Optional<OperationVariable> ov = Stream.of(inoutputs).filter(y -> Objects.equals(param.getKey(), y.getValue().getIdShort())).findAny();
                 if (ov.isPresent()) {
-                    ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
-                            getOutputArgument(methodResult, idShortMapped),
-                            ((PropertyValue) param.getValue()).getValue().getDataType())));
+                    try {
+                        ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
+                                getOutputArgument(methodResult, idShortMapped),
+                                ((PropertyValue) param.getValue()).getValue().getDataType())));
+                    }
+                    catch (ValueMappingException ex) {
+                        throw new AssetConnectionException(String.format("Error parsing operation inoutput parameter (idShort: %s)", idShortMapped));
+                    }
                 }
             }
         }

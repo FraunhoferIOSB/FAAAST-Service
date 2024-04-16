@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
@@ -30,13 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +38,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 
 
 /**
@@ -105,8 +105,8 @@ public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationPr
                     new DefaultOperationVariable.Builder()
                             .value(new DefaultSubmodelElementCollection.Builder()
                                     .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
-                                    .semanticId(ReferenceHelper.globalReference(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
-                                    .values(result.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
+                                    .semanticId(ReferenceBuilder.global(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
+                                    .value(result.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
                                     .build())
                             .build()
             };

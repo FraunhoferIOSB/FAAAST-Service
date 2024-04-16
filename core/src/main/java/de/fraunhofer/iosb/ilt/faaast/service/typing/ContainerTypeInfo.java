@@ -47,7 +47,7 @@ public class ContainerTypeInfo<T> extends TypeInfo<T> {
 
 
     public static <T> Builder<T> builder() {
-        return new Builder();
+        return new Builder<>();
     }
 
     public abstract static class AbstractBuilder<P, T extends ContainerTypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends TypeInfo.AbstractBuilder<P, T, B> {
@@ -69,7 +69,7 @@ public class ContainerTypeInfo<T> extends TypeInfo<T> {
 
         @Override
         protected ContainerTypeInfo<T> newBuildingInstance() {
-            return new ContainerTypeInfo();
+            return new ContainerTypeInfo<>();
         }
     }
 

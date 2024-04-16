@@ -23,11 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorE
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +30,10 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,9 +47,8 @@ public class MessageBusInternalTest {
     private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final Reference property1Reference = new DefaultReference.Builder()
-            .key(new DefaultKey.Builder()
-                    .type(KeyElements.PROPERTY)
-                    .idType(KeyType.ID_SHORT)
+            .keys(new DefaultKey.Builder()
+                    .type(KeyTypes.PROPERTY)
                     .value("property1")
                     .build())
             .build();

@@ -14,8 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import io.adminshell.aas.v3.dataformat.aasx.InMemoryFile;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,17 +23,19 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
 /**
- * Serializer that writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+ * Serializer that writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
  */
 public interface EnvironmentSerializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -42,11 +43,11 @@ public interface EnvironmentSerializer {
      * @return serialized versin of input
      * @throws SerializationException if serialization fails
      */
-    public byte[] write(Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException;
+    public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException;
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files.
      *
      * @param context the context to serialize
      * @return serialized versin of input
@@ -58,7 +59,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -72,7 +73,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
@@ -86,44 +87,44 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files as byte[].
      *
      * @param environment the environment to serialize
      * @param files related files to serialize
      * @return input serialized as byte[]
      * @throws SerializationException if serialization fails
      */
-    public default byte[] write(AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException {
+    public default byte[] write(Environment environment, Collection<InMemoryFile> files) throws SerializationException {
         return write(DEFAULT_CHARSET, environment, files);
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(OutputStream out, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
+    public default void write(OutputStream out, Environment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
         out.write(write(environment, files));
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to a
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to a
      * {@link File}.
      *
      * @param file the {@link File} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(File file, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
+    public default void write(File file, Environment environment, Collection<InMemoryFile> files) throws SerializationException, IOException {
         try (OutputStream out = new FileOutputStream(file)) {
             write(out, environment, files);
         }
@@ -131,45 +132,45 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} as byte[].
      *
      * @param environment the environment to serialize
      * @return input serialized as byte[]
      * @throws SerializationException if serialization fails
      */
-    public default byte[] write(AssetAdministrationShellEnvironment environment) throws SerializationException {
+    public default byte[] write(Environment environment) throws SerializationException {
         return write(environment, List.of());
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}.
      *
      * @param out the {@link OutputStream} to write to
-     * @param environment {@link AssetAdministrationShellEnvironment} to write to
+     * @param environment {@link Environment} to write to
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(OutputStream out, AssetAdministrationShellEnvironment environment) throws SerializationException, IOException {
+    public default void write(OutputStream out, Environment environment) throws SerializationException, IOException {
         write(out, environment, List.of());
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to a {@link File}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} to a {@link File}.
      *
      * @param file the {@link File} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(File file, AssetAdministrationShellEnvironment environment) throws SerializationException, IOException {
+    public default void write(File file, Environment environment) throws SerializationException, IOException {
         write(file, environment, List.of());
     }
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files as byte[].
      *
      * @param context the context to serialize
      * @param charset the charset to use
@@ -182,7 +183,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
@@ -197,7 +198,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
@@ -212,34 +213,34 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to an
      * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(OutputStream out, Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files)
+    public default void write(OutputStream out, Charset charset, Environment environment, Collection<InMemoryFile> files)
             throws SerializationException, IOException {
         out.write(write(charset, environment, files));
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to a
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} and related files to a
      * {@link File}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(File file, Charset charset, AssetAdministrationShellEnvironment environment, Collection<InMemoryFile> files)
+    public default void write(File file, Charset charset, Environment environment, Collection<InMemoryFile> files)
             throws SerializationException, IOException {
         try (OutputStream out = new FileOutputStream(file)) {
             write(out, charset, environment, files);
@@ -248,42 +249,42 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as byte[].
+     * Serializes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
      * @return input serialized as byte[]
      * @throws SerializationException if serialization fails
      */
-    public default byte[] write(Charset charset, AssetAdministrationShellEnvironment environment) throws SerializationException {
+    public default byte[] write(Charset charset, Environment environment) throws SerializationException {
         return write(charset, environment, List.of());
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
-     * @param environment {@link AssetAdministrationShellEnvironment} to write to
+     * @param environment {@link Environment} to write to
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(OutputStream out, Charset charset, AssetAdministrationShellEnvironment environment) throws SerializationException, IOException {
+    public default void write(OutputStream out, Charset charset, Environment environment) throws SerializationException, IOException {
         write(out, charset, environment, List.of());
     }
 
 
     /**
-     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to a {@link File}.
+     * Writes a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} to a {@link File}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
+     * @param environment the {@link Environment} to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
-    public default void write(File file, Charset charset, AssetAdministrationShellEnvironment environment) throws SerializationException, IOException {
+    public default void write(File file, Charset charset, Environment environment) throws SerializationException, IOException {
         write(file, charset, environment, List.of());
     }
 

@@ -21,17 +21,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +95,8 @@ public class AssetConnectionManager {
                 LOGGER.info(
                         "Establishing asset connection failed on initial attempt (endpoint: {}). Connecting will be retried every {}ms but no more messages about failures will be shown.",
                         connection.getEndpointInformation(),
-                        coreConfig.getAssetConnectionRetryInterval());
+                        coreConfig.getAssetConnectionRetryInterval(),
+                        e);
                 setupConnectionAsync(connection);
             }
         }
@@ -143,26 +140,23 @@ public class AssetConnectionManager {
             try {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
                     Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
-                            .submodelId(new DefaultIdentifier.Builder()
-                                    .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
-                                    .idType(IdentifierType.IRI)
-                                    .build())
-                            .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
-                            .internal()
+                            .submodelId(subscriptionInfo.getKey().getKeys().get(0).getValue())
+                            .path(ReferenceHelper.toPath(subscriptionInfo.getKey()))
+                            .disableSyncWithAsset()
                             .value(data)
                             .build());
                     if (!response.getStatusCode().isSuccess()) {
                         LOGGER.atInfo().log("Error updating value from asset connection subscription (reference: {})",
-                                AasUtils.asString(subscriptionInfo.getKey()));
+                                ReferenceHelper.toString(subscriptionInfo.getKey()));
                         LOGGER.debug("Error updating value from asset connection subscription (reference: {}, reason: {})",
-                                AasUtils.asString(subscriptionInfo.getKey()),
+                                ReferenceHelper.toString(subscriptionInfo.getKey()),
                                 response.getResult().getMessages());
                     }
                 });
             }
             catch (AssetConnectionException e) {
                 LOGGER.warn("Subscribing to asset connection failed (reference: {})",
-                        AasUtils.asString(subscriptionInfo.getKey()),
+                        ReferenceHelper.toString(subscriptionInfo.getKey()),
                         e);
             }
         }
@@ -258,9 +252,13 @@ public class AssetConnectionManager {
      * @param reference AAS element
      * @return operation provider for the AAS element defined by reference or null if there is none defined
      */
-    public AssetOperationProvider getOperationProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getOperationProviders().containsKey(reference)).map(x -> (AssetOperationProvider) x.getOperationProviders().get(reference))
-                .findFirst().orElse(null);
+    public AssetOperationProvider<? extends AssetOperationProviderConfig> getOperationProvider(Reference reference) {
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 
@@ -271,8 +269,12 @@ public class AssetConnectionManager {
      * @return subscription provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getSubscriptionProviders().containsKey(reference))
-                .map(x -> (AssetSubscriptionProvider) x.getSubscriptionProviders().get(reference)).findFirst().orElse(null);
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 
@@ -283,7 +285,11 @@ public class AssetConnectionManager {
      * @return value provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetValueProvider getValueProvider(Reference reference) {
-        return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
                 .orElse(null);
     }
 
@@ -335,14 +341,7 @@ public class AssetConnectionManager {
      * @return true if there is a operation provider defined for the provided AAS element, otherwise false
      */
     public boolean hasOperationProvider(Reference reference) {
-        Reference temp = reference;
-        try {
-            ReferenceHelper.completeReferenceWithProperKeyElements(temp, this.serviceContext.getAASEnvironment());
-        }
-        catch (ResourceNotFoundException ex) {
-            // ignore
-        }
-        return connections.stream().anyMatch(x -> x.getOperationProviders().containsKey(temp));
+        return Objects.nonNull(getOperationProvider(reference));
     }
 
 
@@ -353,7 +352,7 @@ public class AssetConnectionManager {
      * @return true if there is a subscription provider defined for the provided AAS element, otherwise false
      */
     public boolean hasSubscriptionProvider(Reference reference) {
-        return connections.stream().anyMatch(x -> x.getSubscriptionProviders().containsKey(reference));
+        return Objects.nonNull(getSubscriptionProvider(reference));
     }
 
 
@@ -364,7 +363,7 @@ public class AssetConnectionManager {
      * @return true if there is a value provider defined for the provided AAS element, otherwise false
      */
     public boolean hasValueProvider(Reference reference) {
-        return connections.stream().anyMatch(x -> x.getValueProviders().containsKey(reference));
+        return Objects.nonNull(getValueProvider(reference));
     }
 
 
@@ -377,7 +376,7 @@ public class AssetConnectionManager {
         if (valueProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d value providers for reference %s but maximum 1 allowed",
                     valueProviders.get().getValue().size(),
-                    AasUtils.asString(valueProviders.get().getKey())));
+                    ReferenceHelper.toString(valueProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetOperationProvider>>> operationProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
@@ -387,7 +386,7 @@ public class AssetConnectionManager {
         if (operationProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d operation providers for reference %s but maximum 1 allowed",
                     operationProviders.get().getValue().size(),
-                    AasUtils.asString(operationProviders.get().getKey())));
+                    ReferenceHelper.toString(operationProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetSubscriptionProvider>>> subscriptionProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
@@ -397,7 +396,7 @@ public class AssetConnectionManager {
         if (subscriptionProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d subscription providers for reference %s but maximum 1 allowed",
                     subscriptionProviders.get().getValue().size(),
-                    AasUtils.asString(subscriptionProviders.get().getKey())));
+                    ReferenceHelper.toString(subscriptionProviders.get().getKey())));
         }
     }
 }

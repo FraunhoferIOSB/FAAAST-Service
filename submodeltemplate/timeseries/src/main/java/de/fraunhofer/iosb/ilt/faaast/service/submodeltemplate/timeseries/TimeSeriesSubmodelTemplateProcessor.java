@@ -21,27 +21,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.impl.DefaultOperation;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultRange;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     @Override
     public boolean accept(Submodel submodel) {
         return submodel != null
-                && Objects.equals(ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId());
+                && Objects.equals(ReferenceBuilder.global(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId());
     }
 
 
@@ -95,24 +96,48 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     private Operation newReadSegmentsOperation() {
         return new DefaultOperation.Builder()
                 .idShort(Constants.READ_SEGMENTS_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.READ_SEGMENTS_SEMANTIC_ID))
-                .inputVariable(new DefaultOperationVariable.Builder()
+                .semanticId(ReferenceBuilder.global(Constants.READ_SEGMENTS_SEMANTIC_ID))
+                .inputVariables(new DefaultOperationVariable.Builder()
                         .value(new DefaultRange.Builder()
                                 .idShort(Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT)
-                                .displayName(new LangString("Zeitspanne@de"))
-                                .displayName(new LangString("Timespan@en"))
-                                .description(new LangString("Der valueType der übergebenen Zeitspanne muss mit dem valueType der Time Properties der Segemente übereinstimmen@de"))
-                                .description(new LangString("The valueType of the given timespan must match the valueType of the time properties of the Segments@en"))
-                                .valueType(Datatype.STRING.getName())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("de")
+                                        .text("Zeitspanne")
+                                        .build())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("en")
+                                        .text("Timespan")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("de")
+                                        .text("Der valueType der übergebenen Zeitspanne muss mit dem valueType der Time Properties der Segemente übereinstimmen")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("en")
+                                        .text("The valueType of the given timespan must match the valueType of the time properties of the Segments")
+                                        .build())
+                                .valueType(Datatype.STRING.getAas4jDatatype())
                                 .build())
                         .build())
-                .outputVariable(new DefaultOperationVariable.Builder()
+                .outputVariables(new DefaultOperationVariable.Builder()
                         .value(new DefaultSubmodelElementCollection.Builder()
                                 .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
-                                .displayName(new LangString("Segments@de"))
-                                .displayName(new LangString("Segments@en"))
-                                .description(new LangString("Segmente, die sich zumindest teilweise mit der übergebenen Periode überschneiden@de"))
-                                .description(new LangString("Segments that at least partially overlap with the@en"))
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("de")
+                                        .text("Segments")
+                                        .build())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("en")
+                                        .text("Segments")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("de")
+                                        .text("Segmente, die sich zumindest teilweise mit der übergebenen Periode überschneiden")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("en")
+                                        .text("Segments that at least partially overlap with the provided period")
+                                        .build())
                                 .build())
                         .build())
                 .build();
@@ -122,24 +147,48 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     private Operation newReadRecordsOperation() {
         return new DefaultOperation.Builder()
                 .idShort(Constants.READ_RECORDS_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.READ_RECORDS_SEMANTIC_ID))
-                .inputVariable(new DefaultOperationVariable.Builder()
+                .semanticId(ReferenceBuilder.global(Constants.READ_RECORDS_SEMANTIC_ID))
+                .inputVariables(new DefaultOperationVariable.Builder()
                         .value(new DefaultRange.Builder()
                                 .idShort(Constants.READ_RECORDS_INPUT_TIMESPAN_ID_SHORT)
-                                .displayName(new LangString("Zeitspanne@de"))
-                                .displayName(new LangString("Timespan@en"))
-                                .description(new LangString("Der valueType der übergebenen Zeitspanne muss mit dem valueType der Time Properties der Records übereinstimmen@de"))
-                                .description(new LangString("The valueType of the given timespan must match the valueType of the time properties of the Records@en"))
-                                .valueType(Datatype.STRING.getName())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("de")
+                                        .text("Zeitspanne")
+                                        .build())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("en")
+                                        .text("Timespan")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("de")
+                                        .text("Der valueType der übergebenen Zeitspanne muss mit dem valueType der Time Properties der Records übereinstimmen")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("en")
+                                        .text("The valueType of the given timespan must match the valueType of the time properties of the Records")
+                                        .build())
+                                .valueType(Datatype.STRING.getAas4jDatatype())
                                 .build())
                         .build())
-                .outputVariable(new DefaultOperationVariable.Builder()
+                .outputVariables(new DefaultOperationVariable.Builder()
                         .value(new DefaultSubmodelElementCollection.Builder()
                                 .idShort(Constants.READ_RECORDS_OUTPUT_RECORDS_ID_SHORT)
-                                .displayName(new LangString("Records@de"))
-                                .displayName(new LangString("Records@en"))
-                                .description(new LangString("Records, die innerhalb der übergebenen Zeitspanne liegen@de"))
-                                .description(new LangString("Segments that at least partially overlap with the passed period@en"))
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("de")
+                                        .text("Records")
+                                        .build())
+                                .displayName(new DefaultLangStringNameType.Builder()
+                                        .language("en")
+                                        .text("Records")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("de")
+                                        .text("Records, die innerhalb der übergebenen Zeitspanne liegen")
+                                        .build())
+                                .description(new DefaultLangStringTextType.Builder()
+                                        .language("en")
+                                        .text("Records that at are within the provided period")
+                                        .build())
                                 .build())
                         .build())
                 .build();
@@ -205,9 +254,6 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
             return true;
         }
         catch (AssetConnectionException e) {
-            LOGGER.trace("error processing SMT TimeSeries (submodel: {})",
-                    AasUtils.asString(AasUtils.toReference(submodel)),
-                    e);
             LOGGER.error("error processing SMT TimeSeries (submodel: {}, reason: {})",
                     AasUtils.asString(AasUtils.toReference(submodel)),
                     e.getMessage());

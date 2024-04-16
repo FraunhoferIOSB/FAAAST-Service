@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import io.adminshell.aas.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**

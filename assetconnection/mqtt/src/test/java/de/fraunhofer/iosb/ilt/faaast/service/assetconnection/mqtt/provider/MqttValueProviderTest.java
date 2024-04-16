@@ -26,8 +26,8 @@ public class MqttValueProviderTest {
 
     @Test
     public void testEquals() throws MqttException {
-        MqttClient client1 = new MqttClient("tcp://foo.org:8080", UUID.randomUUID().toString(), new MemoryPersistence());//new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
-        MqttClient client2 = new MqttClient("tcp://bar.org:8080", UUID.randomUUID().toString(), new MemoryPersistence());
+        MqttClient client1 = new MqttClient("tcp://foo.org", UUID.randomUUID().toString(), new MemoryPersistence());//new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
+        MqttClient client2 = new MqttClient("tcp://bar.org", UUID.randomUUID().toString(), new MemoryPersistence());
         EqualsVerifier.simple().forClass(MqttValueProvider.class)
                 .withPrefabValues(MqttClient.class, client1, client2)
                 .verify();

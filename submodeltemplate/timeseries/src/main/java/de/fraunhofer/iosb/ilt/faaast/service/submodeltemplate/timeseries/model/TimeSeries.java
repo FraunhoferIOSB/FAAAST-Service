@@ -22,16 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.w
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.builder.SubmodelBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelBuilder;
 
 
 /**
@@ -108,7 +108,7 @@ public class TimeSeries extends ExtendableSubmodel {
                 .idShort(Constants.TIMESERIES_SEGMENTS_ID_SHORT)
                 .build();
         segments = new ListWrapper<>(
-                segmentsList.getValues(),
+                segmentsList.getValue(),
                 new ArrayList<>(),
                 SubmodelElementCollection.class,
                 x -> x,
@@ -117,8 +117,8 @@ public class TimeSeries extends ExtendableSubmodel {
         segmentsList.withAdditionalValues(segments);
         submodelElements.add(segmentsList);
         this.idShort = Constants.TIMESERIES_SUBMODEL_ID_SHORT;
-        this.kind = ModelingKind.INSTANCE;
-        this.semanticId = ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID);
+        this.kind = ModellingKind.INSTANCE;
+        this.semanticId = ReferenceBuilder.global(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID);
     }
 
 

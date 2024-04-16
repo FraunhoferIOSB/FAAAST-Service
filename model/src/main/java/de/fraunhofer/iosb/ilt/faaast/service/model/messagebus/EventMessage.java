@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**

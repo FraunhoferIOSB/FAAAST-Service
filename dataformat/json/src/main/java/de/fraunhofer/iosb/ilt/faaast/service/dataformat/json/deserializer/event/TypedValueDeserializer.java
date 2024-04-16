@@ -20,16 +20,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import java.io.IOException;
 import java.util.Objects;
 
 
 /**
- * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}.
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue}.
  */
 public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 

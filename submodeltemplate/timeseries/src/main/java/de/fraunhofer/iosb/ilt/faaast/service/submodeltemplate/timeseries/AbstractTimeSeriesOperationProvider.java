@@ -14,28 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
 /**
@@ -51,6 +53,12 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
         Ensure.requireNonNull(submodelRef, "submodelRef must be non-null");
         this.submodelRef = submodelRef;
         this.validationBaseErrorMessage = String.format("error validating input parameter(s) for operation '%s'", name);
+    }
+
+
+    @Override
+    public AssetOperationProviderConfig getConfig() {
+        return new AbstractAssetOperationProviderConfig() {};
     }
 
 
@@ -102,8 +110,8 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
         SubmodelElementCollection metadata = AasHelper.getElementByIdShort(loadTimeSeries().getSubmodelElements(), Constants.TIMESERIES_METADATA_ID_SHORT,
                 SubmodelElementCollection.class);
         return Metadata.builder()
-                .recordMetadataVariables(AasHelper.getElementByIdShort(metadata.getValues(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
-                        .getValues().stream()
+                .recordMetadataVariables(AasHelper.getElementByIdShort(metadata.getValue(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
+                        .getValue().stream()
                         .collect(Collectors.toMap(
                                 Referable::getIdShort,
                                 x -> (Property) x))) //Datatype.fromName(((Property) x).getValueType()))))
@@ -131,10 +139,10 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
     protected List<SubmodelElementCollection> getRecords(SubmodelElementCollection internalSegment) {
         return AasHelper.getElementsBySemanticId(
                 AasHelper.getElementByIdShort(
-                        internalSegment.getValues(),
+                        internalSegment.getValue(),
                         Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT,
                         SubmodelElementCollection.class)
-                        .getValues(),
+                        .getValue(),
                 Constants.RECORD_SEMANTIC_ID,
                 SubmodelElementCollection.class);
     }
@@ -152,7 +160,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
     protected <T extends SubmodelElement> T findRecursive(Collection<SubmodelElement> collection, String idShort, Class<T> clazz) {
         for (SubmodelElement submodelElement: collection) {
             if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
-                T result = findRecursive(((SubmodelElementCollection) submodelElement).getValues(), idShort, clazz);
+                T result = findRecursive(((SubmodelElementCollection) submodelElement).getValue(), idShort, clazz);
                 if (result != null) {
                     return result;
                 }
@@ -175,7 +183,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      */
     protected Timespan getTimespanFromInput(OperationVariable[] input, String idShort) {
         Range timespan = getParameter(input, idShort, Range.class);
-        if (Datatype.DATE_TIME.getName().equals(timespan.getValueType())) {
+        if (Datatype.DATE_TIME.getAas4jDatatype().equals(timespan.getValueType())) {
             return Timespan.fromString(timespan.getMin(), timespan.getMax());
         }
         else {

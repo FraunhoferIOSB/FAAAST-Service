@@ -14,12 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -31,7 +28,7 @@ public class PropertyValue extends DataElementValue {
 
     /**
      * Creates a new instance given datatype and string-representation of value. If datatype cannot be parsed it
-     * defaults to {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype#DEFAULT}
+     * defaults to {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype#DEFAULT}
      *
      * @param datatype string-representation of datatype
      * @param value string-representation of value

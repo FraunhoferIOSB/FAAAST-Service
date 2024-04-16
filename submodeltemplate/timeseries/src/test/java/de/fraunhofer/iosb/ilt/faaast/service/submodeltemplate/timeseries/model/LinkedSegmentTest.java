@@ -14,16 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,10 +43,15 @@ public class LinkedSegmentTest extends BaseModelTest {
         LinkedSegment expected = LinkedSegment.builder()
                 .idShort("idShort")
                 .category("category")
-                .description(new LangString("foo", "en"))
-                .description(new LangString("bar", "de"))
-                .kind(ModelingKind.INSTANCE)
-                .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("en")
+                        .text("foo")
+                        .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de")
+                        .text("bar")
+                        .build())
+                .semanticId(ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID))
                 .endpoint("host")
                 .query("query")
                 .build();
@@ -59,10 +63,10 @@ public class LinkedSegmentTest extends BaseModelTest {
     @Test
     public void testParseWithAdditionalElement() throws ValueFormatException {
         SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
-                .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
+                .semanticId(ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID))
                 .value(new DefaultProperty.Builder()
                         .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(Datatype.STRING.getAas4jDatatype())
                         .value(LINKED_SEGMENT.getQuery())
                         .build())
                 .value(ADDITIONAL_ELEMENT)
@@ -89,28 +93,27 @@ public class LinkedSegmentTest extends BaseModelTest {
         //        SubmodelElementCollection emptyRecords = new DefaultSubmodelElementCollection.Builder()
         //                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
         //                .build();
-
         Property emptyEndpoint = new DefaultProperty.Builder()
                 .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
+                .valueType(Datatype.STRING.getAas4jDatatype())
                 .value(null)
                 .build();
 
         Property endpoint = new DefaultProperty.Builder()
                 .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
+                .valueType(Datatype.STRING.getAas4jDatatype())
                 .value(LINKED_SEGMENT.getEndpoint())
                 .build();
 
         Property emptyQuery = new DefaultProperty.Builder()
                 .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
+                .valueType(Datatype.STRING.getAas4jDatatype())
                 .value(null)
                 .build();
 
         Property query = new DefaultProperty.Builder()
                 .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
+                .valueType(Datatype.STRING.getAas4jDatatype())
                 .value(LINKED_SEGMENT.getQuery())
                 .build();
 

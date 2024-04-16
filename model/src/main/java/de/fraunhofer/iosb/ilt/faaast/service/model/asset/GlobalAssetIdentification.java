@@ -14,27 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.Objects;
-
-
 /**
  * Represents a global asset identification.
  */
-public class GlobalAssetIdentification implements AssetIdentification {
-
-    private Reference reference;
-
-    public Reference getReference() {
-        return reference;
-    }
-
-
-    public void setReference(Reference reference) {
-        this.reference = reference;
-    }
-
+public class GlobalAssetIdentification extends AssetIdentification {
 
     @Override
     public boolean equals(Object o) {
@@ -45,13 +28,13 @@ public class GlobalAssetIdentification implements AssetIdentification {
             return false;
         }
         GlobalAssetIdentification that = (GlobalAssetIdentification) o;
-        return Objects.equals(reference, that.reference);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(reference);
+        return super.hashCode();
     }
 
 
@@ -59,12 +42,8 @@ public class GlobalAssetIdentification implements AssetIdentification {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends AssetIdentification.AbstractBuilder<T, B> {
 
-        public B reference(Reference value) {
-            getBuildingInstance().setReference(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<GlobalAssetIdentification, Builder> {

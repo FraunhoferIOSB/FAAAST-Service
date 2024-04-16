@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.LongValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
 import java.time.Instant;

@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.AbstractAbsoluteTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.SupportedSemanticID;
 import java.time.ZonedDateTime;
@@ -67,7 +67,7 @@ public class TaiTime extends AbstractAbsoluteTime {
 
 
     private ZonedDateTime convertToUtc(DateTimeValue value) {
-        ZonedDateTime time = value.getValue();
+        ZonedDateTime time = value.getValue().toZonedDateTime();
         this.taiOffset = UtcRules.system().getTaiOffset(time.getLong(JulianFields.MODIFIED_JULIAN_DAY));
         time = time.minusSeconds(this.taiOffset);
         return time;

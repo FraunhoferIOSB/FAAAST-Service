@@ -18,22 +18,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.SerializationException;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultBlob;
-import io.adminshell.aas.v3.model.impl.DefaultFile;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,21 +45,20 @@ public class ExternalSegmentTest extends BaseModelTest {
 
     @Test
     public void testFromFile()
-            throws ValueFormatException, DeserializationException, io.adminshell.aas.v3.dataformat.DeserializationException, IOException, SerializationException {
+            throws ValueFormatException, DeserializationException, IOException, SerializationException, org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException {
 
         TimeSeries actualTS = TimeSeries.of(new JsonDeserializer()
-                .readReferable(
-                        new String(
-                                getClass().getClassLoader().getResourceAsStream("model-timeseries-externalsegment.json").readAllBytes(),
-                                StandardCharsets.UTF_8),
+                .read(new String(
+                        getClass().getClassLoader().getResourceAsStream("model-timeseries-externalsegment.json").readAllBytes(),
+                        StandardCharsets.UTF_8),
                         Submodel.class));
 
         ExternalSegment actual = ExternalSegment.of(actualTS.getSegments().get(0));
 
         File testFile = new DefaultFile.Builder()
                 .value("./testCSVFile.csv")
-                .mimeType("text/csv")
-                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .contentType("text/csv")
+                .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
                 .idShort("Data")
                 .build();
 
@@ -78,17 +76,17 @@ public class ExternalSegmentTest extends BaseModelTest {
     public void setupTestObjects() {
         this.testFile = new DefaultFile.Builder()
                 .value("./testFile.csv")
-                .mimeType("text/csv")
-                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .contentType("text/csv")
+                .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
                 .build();;
         this.testBlob = new DefaultBlob.Builder()
                 .value("thisIsATest".getBytes(StandardCharsets.UTF_8))
-                .mimeType("text")
-                .semanticId(ReferenceHelper.globalReference(Constants.BLOB_SEMANTIC_ID))
+                .contentType("text")
+                .semanticId(ReferenceBuilder.global(Constants.BLOB_SEMANTIC_ID))
                 .build();
 
         this.testSegment = new ExternalSegment();
-        this.testSegment.setSemanticId(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID));
+        this.testSegment.setSemanticId(ReferenceBuilder.global(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID));
     }
 
 
@@ -108,10 +106,15 @@ public class ExternalSegmentTest extends BaseModelTest {
         ExternalSegment expected = ExternalSegment.builder()
                 .idShort("idShort")
                 .category("category")
-                .description(new LangString("foo", "en"))
-                .description(new LangString("bar", "de"))
-                .kind(ModelingKind.INSTANCE)
-                .semanticId(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID))
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("en")
+                        .text("foo")
+                        .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de")
+                        .text("bar")
+                        .build())
+                .semanticId(ReferenceBuilder.global(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID))
                 .data(testFile)
                 .build();
         ExternalSegment actual = ExternalSegment.of(expected);
@@ -122,7 +125,7 @@ public class ExternalSegmentTest extends BaseModelTest {
     @Test
     public void testParseWithAdditionalElement() throws ValueFormatException {
         SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
-                .semanticId(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID))
+                .semanticId(ReferenceBuilder.global(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID))
                 .value(testFile)
                 .value(ADDITIONAL_ELEMENT)
                 .build();

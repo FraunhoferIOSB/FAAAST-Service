@@ -19,15 +19,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constan
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelElementCollectionBuilder;
 
 
 /**
@@ -37,7 +37,7 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<Map<String, Property>, Property> timesAndVariables = new MapWrapper<>(
-            values,
+            value,
             new HashMap<>(),
             Property.class,
             x -> x.getValue(),
@@ -46,7 +46,7 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<Map<String, Property>, Property> propertyVariables = new MapWrapper<>(
-            values,
+            value,
             new HashMap<>(),
             Property.class,
             x -> x.getValue(),
@@ -55,8 +55,8 @@ public class Record extends ExtendableSubmodelElementCollection {
 
     public Record() {
         withAdditionalValues(timesAndVariables);
-        this.idShort = IdentifierHelper.randomId("Record");
-        this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
+        this.idShort = IdHelper.randomId("Record");
+        this.semanticId = ReferenceBuilder.global(Constants.RECORD_SEMANTIC_ID);
     }
 
 

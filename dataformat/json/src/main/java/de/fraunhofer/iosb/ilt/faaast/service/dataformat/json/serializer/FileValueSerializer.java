@@ -42,7 +42,7 @@ public class FileValueSerializer extends StdSerializer<FileValue> {
     public void serialize(FileValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField(JsonFieldNames.FILE_VALUE_MIME_TYPE, value.getMimeType());
+            generator.writeStringField(JsonFieldNames.FILE_VALUE_CONTENT_TYPE, value.getContentType());
             generator.writeStringField(JsonFieldNames.FILE_VALUE_VALUE, value.getValue());
             generator.writeEndObject();
         }

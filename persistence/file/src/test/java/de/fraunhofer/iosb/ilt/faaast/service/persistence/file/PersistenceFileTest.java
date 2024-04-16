@@ -25,9 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Identifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +32,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
+import org.bouncycastle.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,15 +49,25 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
 
     private File modelFileJson;
     private File modelFileXml;
-    private AssetAdministrationShellEnvironment model;
+    private Environment model;
     private static Path tempDir;
 
+    static {
+        try {
+            tempDir = Files.createTempDirectory("faaast-temp");
+        }
+        catch (IOException ex) {
+            Assert.fail();
+        }
+    }
+
     @Override
-    public PersistenceFileConfig getPersistenceConfig(File initialModelFile, AssetAdministrationShellEnvironment initialModel) throws ConfigurationInitializationException {
+    public PersistenceFileConfig getPersistenceConfig(File initialModelFile, Environment initialModel) throws ConfigurationInitializationException {
         PersistenceFileConfig result = PersistenceFileConfig
                 .builder()
                 .initialModel(initialModel)
                 .initialModelFile(initialModelFile)
+                .dataDir(tempDir.toString())
                 .build();
         result.init();
         return result;
@@ -68,7 +77,6 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
     @Before
     public void initialize() throws Exception {
         model = AASFull.createEnvironment();
-        tempDir = Files.createTempDirectory("faaast-temp");
         modelFileJson = copyToTempDir(RESOURCE_MODEL_FILE_JSON);
         modelFileXml = copyToTempDir(RESOURCE_MODEL_FILE_XML);
     }
@@ -137,17 +145,17 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .keepInitial(false)
                 .build();
         PersistenceFile persistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-        Identifier identifier = model.getAssetAdministrationShells().get(0).getIdentification();
-        persistence.remove(identifier);
+        String identifier = model.getAssetAdministrationShells().get(0).getId();
+        persistence.deleteAssetAdministrationShell(identifier);
         PersistenceFile newPersistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-        Assert.assertEquals(1,
+        Assert.assertEquals(2,
                 Files.list(modelFileJson.getParentFile().toPath())
                         .filter(file -> !Files.isDirectory(file))
                         .map(Path::getFileName)
                         .map(Path::toString)
                         .filter(x -> x.endsWith(".json"))
                         .count());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.get(identifier, QueryModifier.DEFAULT, AssetAdministrationShell.class));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.getAssetAdministrationShell(identifier, QueryModifier.DEFAULT));
     }
 
 
@@ -172,11 +180,11 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                 .initialModelFile(modelFileXml)
                 .dataDir(tempDir.toString())
                 .keepInitial(true)
-                .dataformat(DataFormat.JSONLD)
+                .dataformat(DataFormat.JSON)
                 .build()
                 .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         File persistenceModelFile = Paths
-                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".jsonld")
+                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".json")
                 .toFile();
         Assert.assertTrue(persistenceModelFile.exists());
     }
@@ -186,7 +194,9 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
     public void deleteTempFiles() throws IOException {
         Files.walk(tempDir)
                 .sorted(Comparator.reverseOrder())
+                .filter(x -> !Objects.areEqual(x, tempDir))
                 .map(Path::toFile)
                 .forEach(File::delete);
     }
+
 }

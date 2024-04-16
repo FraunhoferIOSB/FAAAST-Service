@@ -16,15 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyNodeBasedProviderConfig;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -46,18 +46,15 @@ public class ConfigTest {
         assetConnection.setPort(1234);
         DummyNodeBasedProviderConfig valueProvider = new DummyNodeBasedProviderConfig();
         valueProvider.setNodeId("some.opc.ua.node.id");
-        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
-        assetConnection.getValueProviders().put(AasUtils.parseReference("(Property)[ID_SHORT]Temperature"), valueProvider);
+        assetConnection.getValueProviders().put(ReferenceHelper.parse("(Property)Temperature"), valueProvider);
         config = ServiceConfig.builder()
                 .core(CoreConfig.builder()
                         .requestHandlerThreadPoolSize(2)
                         .build())
                 .assetConnection(assetConnection)
                 .build();
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);;
     }
 
 

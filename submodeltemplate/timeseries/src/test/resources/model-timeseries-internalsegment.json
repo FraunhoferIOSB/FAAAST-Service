@@ -1,93 +1,71 @@
 
 {
 	"idShort": "Submodel1",
-	"identification":
-	{
-		"idType": "Iri",
-		"id": "urn:faaast:test:submodel:1"
-	},
+	"id": "urn:faaast:test:submodel:1",
 	"semanticId":
 	{
+		"type": "ExternalReference",
 		"keys": [
 			{
 				"type": "GlobalReference",
-				"value": "https://admin-shell.io/idta/TimeSeries/1/1",
-				"idType": "Iri"
+				"value": "https://admin-shell.io/idta/TimeSeries/1/1"
 			}
 		]
 	},
 	"kind": "Instance",
-	"modelType":
-	{
-		"name": "Submodel"
-	},
+	"modelType": "Submodel",
 	"submodelElements": [
 		{
 			"idShort": "Metadata",
 			"semanticId":
 			{
+				"type": "ExternalReference",
 				"keys": [
 					{
 						"type": "GlobalReference",
-						"value": "https://admin-shell.io/idta/TimeSeries/Metadata/1/1",
-						"idType": "Iri"
+						"value": "https://admin-shell.io/idta/TimeSeries/Metadata/1/1"
 					}
 				]
 			},
-			"modelType":
-			{
-				"name": "SubmodelElementCollection"
-			},
+			"modelType": "SubmodelElementCollection",
 			"value": [
 
 				{
 					"idShort": "RecordMetadata",
 					"semanticId":
 					{
+						"type": "ExternalReference",
 						"keys": [
 							{
 								"type": "GlobalReference",
-								"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1",
-								"idType": "Iri"
+								"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
 							}
 						]
 					},
-					"modelType":
-					{
-						"name": "SubmodelElementCollection"
-					},
+					"modelType": "SubmodelElementCollection",
 					"value": [
 
 						{
 							"idShort": "foo",
-							"valueType": "int",
-							"modelType":
-							{
-								"name": "Property"
-							}
+							"valueType": "xs:int",
+							"modelType": "Property"
 						},
 						{
 							"idShort": "bar",
-							"valueType": "double",
-							"modelType":
-							{
-								"name": "Property"
-							}
+							"valueType": "xs:double",
+							"modelType": "Property"
 						},
 						{
 							"idShort": "Time00",
-							"valueType": "datetime",
-							"modelType":
-							{
-								"name": "Property"
-							},
+							"valueType": "xs:dateTime",
+							"modelType": "Property",
 							"semanticId":
 							{
+								"type": "ExternalReference",
 								"keys": [
 									{
 										"type": "GlobalReference",
-										"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1",
-										"idType": "Iri"
+										"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1"
 									}
 								]
 							}
@@ -100,90 +78,67 @@
 		},
 		{
 			"idShort": "Segments",
-			"modelType":
-			{
-				"name": "SubmodelElementCollection"
-			},
+			"modelType": "SubmodelElementCollection",
 			"value": [
 				{
 					"idShort": "InternalSegment01",
 					"semanticId":
 					{
+						"type": "ExternalReference",
 						"keys": [
 							{
 								"type": "GlobalReference",
-								"value": "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1",
-								"idType": "Iri"
+								"value": "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1"
 							}
 						]
 					},
-					"modelType":
-					{
-						"name": "SubmodelElementCollection"
-					},
+					"modelType": "SubmodelElementCollection",
 					"value": [
 						{
 							"idShort": "Records",
-							"ordered": true,
-							"allowDuplicates": true,
-							"modelType":
-							{
-								"name": "SubmodelElementCollection"
-							},
+							"modelType": "SubmodelElementCollection",
 							"value": [
 								{
 									"idShort": "Record01",
 									"semanticId":
 									{
+										"type": "ExternalReference",
 										"keys": [
 											{
 												"type": "GlobalReference",
-												"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1",
-												"idType": "Iri"
+												"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
 											}
 										]
 									},
-									"modelType":
-									{
-										"name": "SubmodelElementCollection"
-									},
+									"modelType": "SubmodelElementCollection",
 									"value": [
 										{
 											"idShort": "Time00",
-											"valueType": "datetime",
+											"valueType": "xs:dateTime",
 											"value": "2022-01-01T00:00:00Z",
-											"modelType":
-											{
-												"name": "Property"
-											},
+											"modelType": "Property",
 											"semanticId":
 											{
+												"type": "ExternalReference",
 												"keys": [
 													{
 														"type": "GlobalReference",
-														"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1",
-														"idType": "Iri"
+														"value": "https://admin-shell.io/idta/TimeSeries/UtcTime/1/1"
 													}
 												]
 											}
 										},
 										{
 											"idShort": "foo",
-											"valueType": "int",
+											"valueType": "xs:int",
 											"value": "0",
-											"modelType":
-											{
-												"name": "Property"
-											}
+											"modelType": "Property"
 										},
 										{
 											"idShort": "bar",
-											"valueType": "double",
+											"valueType": "xs:double",
 											"value": "0.0",
-											"modelType":
-											{
-												"name": "Property"
-											}
+											"modelType": "Property"
 										}
 									]
 								}

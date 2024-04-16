@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.v1;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest;
@@ -57,7 +57,7 @@ public class InfluxV1LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                                 .filter(x -> !x.getKey().equals("time"))
                                 .collect(Collectors.toMap(
                                         x -> x.getKey(),
-                                        x -> TypedValueFactory.createSafe(Datatype.fromName(x.getValue().getValueType()), x.getValue().getValue()).getValue())))
+                                        x -> TypedValueFactory.createSafe(Datatype.fromAas4jDatatype(x.getValue().getValueType()), x.getValue().getValue()).getValue())))
                         .build())
                         .collect(Collectors.toList()))
                 .build());

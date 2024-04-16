@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -28,7 +28,7 @@ import java.util.Objects;
 public abstract class TypeInfo<T> {
 
     protected Class<?> type;
-    private Map<T, TypeInfo> elements;
+    private Map<T, TypeInfo<?>> elements;
 
     protected TypeInfo() {
         this.elements = new HashMap<>();
@@ -43,7 +43,7 @@ public abstract class TypeInfo<T> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        TypeInfo that = (TypeInfo) o;
+        TypeInfo<T> that = (TypeInfo<T>) o;
         return Objects.equals(elements, that.elements)
                 && Objects.equals(type, that.type);
     }
@@ -72,24 +72,24 @@ public abstract class TypeInfo<T> {
         }
 
 
-        public B element(P key, TypeInfo value) {
+        public B element(P key, TypeInfo<?> value) {
             getBuildingInstance().getElements().put(key, value);
             return getSelf();
         }
 
 
-        public B elements(Map<P, TypeInfo> value) {
+        public B elements(Map<P, TypeInfo<?>> value) {
             getBuildingInstance().setElements(value);
             return getSelf();
         }
     }
 
-    public Map<T, TypeInfo> getElements() {
+    public Map<T, TypeInfo<?>> getElements() {
         return elements;
     }
 
 
-    public void setElements(Map<T, TypeInfo> elements) {
+    public void setElements(Map<T, TypeInfo<?>> elements) {
         this.elements = elements;
     }
 

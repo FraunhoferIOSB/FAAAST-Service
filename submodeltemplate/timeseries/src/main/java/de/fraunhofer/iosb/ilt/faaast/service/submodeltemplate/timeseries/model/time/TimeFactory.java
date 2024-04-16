@@ -22,9 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.RelativeTimeDuration;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.TaiTime;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.impl.UtcTime;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Reference;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
@@ -35,6 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

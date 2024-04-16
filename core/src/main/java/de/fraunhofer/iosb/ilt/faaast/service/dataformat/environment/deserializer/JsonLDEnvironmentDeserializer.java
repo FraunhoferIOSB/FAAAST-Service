@@ -15,41 +15,38 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.environment.deserializer;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.dataformat.rdf.Serializer;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import org.apache.commons.io.IOUtils;
-import org.apache.jena.riot.Lang;
 
 
 /**
- * JSON-LD deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
+ * JSON-LD deserializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    private final Serializer deserializer;
+    //private final Serializer deserializer;
 
     public JsonLDEnvironmentDeserializer() {
-        this.deserializer = new Serializer();
+        //this.deserializer = new Serializer();        
     }
 
 
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        try {
-            return EnvironmentContext.builder()
-                    .environment(deserializer.read(IOUtils.toString(in, charset), Lang.JSONLD))
-                    .build();
-        }
-        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("JSON deserialization failed", e);
-        }
+        throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF/JSON-LD de-/serialization");
+        // try {
+        //     return EnvironmentContext.builder()
+        //             .environment(deserializer.read(IOUtils.toString(in, charset), Lang.JSONLD))
+        //             .build();
+        // }
+        // catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.DeserializationException | IOException e) {
+        //     throw new DeserializationException("JSON deserialization failed", e);
+        // }
     }
 
 }

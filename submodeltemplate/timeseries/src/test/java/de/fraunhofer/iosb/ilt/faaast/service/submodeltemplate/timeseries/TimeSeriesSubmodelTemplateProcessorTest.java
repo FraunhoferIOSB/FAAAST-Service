@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -21,9 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,15 +34,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
@@ -55,27 +61,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.impl.DefaultFile;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultRange;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +89,7 @@ import org.junit.Test;
 
 public class TimeSeriesSubmodelTemplateProcessorTest {
 
-    private static final long OPERATION_TIMEOUT = 500000;
+    private static final Duration OPERATION_TIMEOUT = DatatypeFactory.newDefaultInstance().newDuration(500000);
 
     public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
             .dontCalculateProperties()
@@ -120,17 +126,14 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             .build();
 
     public static final TimeSeries TIME_SERIES = TimeSeries.builder()
-            .identification(new DefaultIdentifier.Builder()
-                    .idType(IdentifierType.IRI)
-                    .identifier(IdentifierHelper.randomId("TimeSeries"))
-                    .build())
+            .id(IdHelper.randomId("TimeSeries"))
             .metadata(TimeSeriesData.METADATA)
             .segment(INTERNAL_SEGMENT)
             .segment(INTERNAL_SEGMENT_WITHOUT_TIMES)
             .segment(INTERNAL_SEGMENT_WITH_WRONG_TIMES)
             .segment(INTERNAL_SEGMENT_WITH_OTHER_TIMESTAMPS)
             .build();
-    public static final AssetAdministrationShellEnvironment ENVIRONMENT = new DefaultAssetAdministrationShellEnvironment.Builder()
+    public static final Environment ENVIRONMENT = new DefaultEnvironment.Builder()
             .submodels(TIME_SERIES)
             .build();
 
@@ -139,19 +142,15 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static InvokeOperationSyncRequest getReadRecordsOperationRequest(TimeSeries timeSeries, ZonedDateTime start, ZonedDateTime end) {
         return InvokeOperationSyncRequest.builder()
-                .submodelId(timeSeries.getIdentification())
-                .path(List.of(new DefaultKey.Builder()
-                        .idType(KeyType.ID_SHORT)
-                        .type(KeyElements.OPERATION)
-                        .value(Constants.READ_RECORDS_ID_SHORT)
-                        .build()))
+                .submodelId(timeSeries.getId())
+                .path(Constants.READ_RECORDS_ID_SHORT)
                 .timeout(OPERATION_TIMEOUT)
                 .inputArgument(new DefaultOperationVariable.Builder()
                         .value(new DefaultRange.Builder()
                                 .min(start != null ? start.toString() : null)
                                 .max(end != null ? end.toString() : null)
                                 .idShort(Constants.READ_RECORDS_INPUT_TIMESPAN_ID_SHORT)
-                                .valueType(Datatype.DATE_TIME.getName())
+                                .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                                 .build())
                         .build())
                 .build();
@@ -160,19 +159,15 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static InvokeOperationSyncRequest getReadSegmentsOperationRequest(TimeSeries timeSeries, ZonedDateTime start, ZonedDateTime end) {
         return InvokeOperationSyncRequest.builder()
-                .submodelId(timeSeries.getIdentification())
-                .path(List.of(new DefaultKey.Builder()
-                        .idType(KeyType.ID_SHORT)
-                        .type(KeyElements.OPERATION)
-                        .value(Constants.READ_SEGMENTS_ID_SHORT)
-                        .build()))
+                .submodelId(timeSeries.getId())
+                .path(Constants.READ_SEGMENTS_ID_SHORT)
                 .timeout(OPERATION_TIMEOUT)
                 .inputArgument(new DefaultOperationVariable.Builder()
                         .value(new DefaultRange.Builder()
                                 .min(start != null ? start.toString() : null)
                                 .max(end != null ? end.toString() : null)
                                 .idShort(Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT)
-                                .valueType(Datatype.DATE_TIME.getName())
+                                .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                                 .build())
                         .build())
                 .build();
@@ -187,7 +182,9 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
 
     @Before
-    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public void init()
+            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException,
+            Exception {
         serviceUsingSegmentTimestamps = startNewService(
                 ENVIRONMENT,
                 TimeSeriesSubmodelTemplateProcessorConfig.builder()
@@ -203,19 +200,17 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     @Test
     public void testDummyInternalSegmentProvider()
-            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException {
+            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException, ResourceNotFoundException,
+            Exception {
         TimeSeries timeSeries = TimeSeries.builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
-                        .build())
+                .id(IdHelper.randomId("TimeSeries"))
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
                         .dontCalculateProperties()
                         .build())
                 .build();
         Service service = startNewService(
-                new DefaultAssetAdministrationShellEnvironment.Builder()
+                new DefaultEnvironment.Builder()
                         .submodels(timeSeries)
                         .build(),
                 TimeSeriesSubmodelTemplateProcessorConfig.builder()
@@ -232,20 +227,18 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     @Test
     public void testDummyLinkedSegmentProvider()
-            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException {
+            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException, ResourceNotFoundException,
+            Exception {
         String endpoint = "http://example.org";
         TimeSeries timeSeries = TimeSeries.builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
-                        .build())
+                .id(IdHelper.randomId("TimeSeries"))
                 .metadata(TimeSeriesData.METADATA)
                 .segment(LinkedSegment.builder()
                         .endpoint(endpoint)
                         .build())
                 .build();
         Service service = startNewService(
-                new DefaultAssetAdministrationShellEnvironment.Builder()
+                new DefaultEnvironment.Builder()
                         .submodels(timeSeries)
                         .build(),
                 TimeSeriesSubmodelTemplateProcessorConfig.builder()
@@ -264,14 +257,12 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     @Test
     public void testDummyExternalSegmentProvider()
-            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException {
+            throws ConfigurationException, ConfigurationInitializationException, AssetConnectionException, EndpointException, MessageBusException, ResourceNotFoundException,
+            Exception {
         File defaultFile = new DefaultFile();
-        String segmentShortID = IdentifierHelper.randomId("ExternalSegment");
+        String segmentShortID = IdHelper.randomId("ExternalSegment");
         TimeSeries timeSeries = TimeSeries.builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
-                        .build())
+                .id(IdHelper.randomId("TimeSeries"))
                 .metadata(TimeSeriesData.METADATA)
                 .segment(ExternalSegment.builder()
                         .data(defaultFile)
@@ -279,7 +270,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .build())
                 .build();
         Service service = startNewService(
-                new DefaultAssetAdministrationShellEnvironment.Builder()
+                new DefaultEnvironment.Builder()
                         .submodels(timeSeries)
                         .build(),
                 TimeSeriesSubmodelTemplateProcessorConfig.builder()
@@ -396,10 +387,9 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         Response response = service.execute(getReadRecordsOperationRequest(timeSeries, start, end));
         SubmodelElement expected = new DefaultSubmodelElementCollection.Builder()
                 .idShort(Constants.READ_RECORDS_OUTPUT_RECORDS_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID))
-                .values(records.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
+                .semanticId(ReferenceBuilder.global(Constants.READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID))
+                .value(records.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
                 .build();
-        assertTrue(response.getResult().getSuccess());
         assertEquals(StatusCode.SUCCESS, response.getStatusCode());
         assertThat(response, instanceOf(InvokeOperationSyncResponse.class));
         OperationResult operationResult = ((InvokeOperationSyncResponse) response).getPayload();
@@ -407,7 +397,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         assertThat(operationResult.getInoutputArguments(), anyOf(nullValue(), empty()));
         assertThat(operationResult.getOutputArguments(), hasSize(1));
         assertThat(operationResult.getOutputArguments().get(0).getValue(), instanceOf(SubmodelElementCollection.class));
-        assertThat(((SubmodelElementCollection) operationResult.getOutputArguments().get(0).getValue()).getValues(), hasSize(records.size()));
+        assertThat(((SubmodelElementCollection) operationResult.getOutputArguments().get(0).getValue()).getValue(), hasSize(records.size()));
         assertEquals(expected, operationResult.getOutputArguments().get(0).getValue());
     }
 
@@ -416,10 +406,9 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         Response response = service.execute(getReadSegmentsOperationRequest(timeSeries, start, end));
         SubmodelElement expected = new DefaultSubmodelElementCollection.Builder()
                 .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
-                .values(Arrays.asList(segments))
+                .semanticId(ReferenceBuilder.global(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
+                .value(Arrays.asList(segments))
                 .build();
-        assertTrue(response.getResult().getSuccess());
         assertEquals(StatusCode.SUCCESS, response.getStatusCode());
         assertThat(response, instanceOf(InvokeOperationSyncResponse.class));
         OperationResult operationResult = ((InvokeOperationSyncResponse) response).getPayload();
@@ -427,22 +416,64 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         assertThat(operationResult.getInoutputArguments(), anyOf(nullValue(), empty()));
         assertThat(operationResult.getOutputArguments(), hasSize(1));
         assertThat(operationResult.getOutputArguments().get(0).getValue(), instanceOf(SubmodelElementCollection.class));
-        assertThat(((SubmodelElementCollection) operationResult.getOutputArguments().get(0).getValue()).getValues(), hasSize(segments.length));
+        assertThat(((SubmodelElementCollection) operationResult.getOutputArguments().get(0).getValue()).getValue(), hasSize(segments.length));
         assertEquals(expected, operationResult.getOutputArguments().get(0).getValue());
     }
 
 
-    private Service startNewService(AssetAdministrationShellEnvironment environment, TimeSeriesSubmodelTemplateProcessorConfig config)
-            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    private Service startNewService(Environment environment, TimeSeriesSubmodelTemplateProcessorConfig config)
+            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException,
+            Exception {
         Persistence persistence = mock(Persistence.class);
-        when(persistence.get(isNull(), (Reference) isNull(), any()))
-                .thenReturn(environment.getSubmodels());
-        when(persistence.getEnvironment()).thenReturn(environment);
+        FileStorage fileStorage = mock(FileStorage.class);
+        when(persistence.getAllSubmodels(any(), any()))
+                .thenReturn(Page.of(environment.getSubmodels()));
         MessageBus messageBus = mock(MessageBus.class);
         TimeSeriesSubmodelTemplateProcessor timeSeriesSubmodelTemplateProcessor = new TimeSeriesSubmodelTemplateProcessor();
         timeSeriesSubmodelTemplateProcessor.init(CoreConfig.DEFAULT, config, null);
-        Service result = new Service(CoreConfig.DEFAULT, persistence, messageBus, null, null, List.of(timeSeriesSubmodelTemplateProcessor));
+        Service result = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, null, null, List.of(timeSeriesSubmodelTemplateProcessor));
         result.start();
+        mockEnvironment(persistence, environment);
+        mockOperation(persistence, environment, Constants.READ_RECORDS_ID_SHORT);
+        mockOperation(persistence, environment, Constants.READ_SEGMENTS_ID_SHORT);
         return result;
+    }
+
+
+    private static void mockEnvironment(Persistence persistence, Environment environment) {
+        when(persistence.findAssetAdministrationShells(
+                eq(AssetAdministrationShellSearchCriteria.NONE),
+                any(),
+                any()))
+                        .thenReturn(Page.of(environment.getAssetAdministrationShells()));
+        when(persistence.findSubmodels(
+                eq(SubmodelSearchCriteria.NONE),
+                any(),
+                any()))
+                        .thenReturn(Page.of(environment.getSubmodels()));
+        when(persistence.findConceptDescriptions(
+                eq(ConceptDescriptionSearchCriteria.NONE),
+                any(),
+                any()))
+                        .thenReturn(Page.of(environment.getConceptDescriptions()));
+    }
+
+
+    private static void mockOperation(Persistence persistence, Environment environment, String idShort) throws ResourceNotFoundException, Exception {
+        Supplier<Optional<SubmodelElement>> getOperation = () -> environment.getSubmodels().get(0).getSubmodelElements().stream()
+                .filter(x -> Objects.equals(idShort, x.getIdShort()))
+                .findFirst();
+        //required because Operation is created by SubmodelTemplateProcessor running in different thread
+        await().atMost(30, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> getOperation.get().isPresent());
+
+        when(persistence.getSubmodelElement(
+                eq(new ReferenceBuilder()
+                        .submodel(environment.getSubmodels().get(0).getId())
+                        .element(idShort)
+                        .build()),
+                any(),
+                any())).thenReturn(getOperation.get().get());
     }
 }

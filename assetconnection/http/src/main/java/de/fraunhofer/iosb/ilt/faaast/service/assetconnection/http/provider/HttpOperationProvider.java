@@ -20,10 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.Mul
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -31,6 +30,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -63,7 +64,16 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
     @Override
     protected OperationVariable[] getOutputParameters() {
-        return serviceContext.getOperationOutputVariables(reference);
+        try {
+            return serviceContext.getOperationOutputVariables(reference);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new IllegalStateException(
+                    String.format(
+                            "operation not defined in AAS model (reference: %s)",
+                            ReferenceHelper.toString(reference)),
+                    e);
+        }
     }
 
 
@@ -82,13 +92,13 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     HttpResponse.BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)), e);
+            throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
 }

@@ -21,8 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.time.TimeFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderTest;
@@ -55,7 +55,7 @@ public class InfluxV2LinkedSegmentProviderTest extends AbstractInfluxLinkedSegme
                             .filter(x -> !x.getKey().equals("time"))
                             .collect(Collectors.toMap(
                                     x -> x.getKey(),
-                                    x -> TypedValueFactory.createSafe(Datatype.fromName(x.getValue().getValueType()), x.getValue().getValue()).getValue()))))
+                                    x -> TypedValueFactory.createSafe(Datatype.fromAas4jDatatype(x.getValue().getValueType()), x.getValue().getValue()).getValue()))))
                     .collect(Collectors.toList()));
         }
     }

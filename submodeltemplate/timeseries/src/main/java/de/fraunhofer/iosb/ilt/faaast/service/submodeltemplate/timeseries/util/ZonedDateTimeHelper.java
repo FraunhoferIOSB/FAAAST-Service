@@ -14,12 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -36,7 +38,11 @@ public class ZonedDateTimeHelper {
      */
     public static Optional<ZonedDateTime> tryParse(String value) {
         try {
-            return Optional.ofNullable((ZonedDateTime) TypedValueFactory.create(Datatype.DATE_TIME, value).getValue());
+            Object typedValue = TypedValueFactory.create(Datatype.DATE_TIME, value).getValue();
+            if (Objects.isNull(typedValue) || !OffsetDateTime.class.isAssignableFrom(typedValue.getClass())) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(((OffsetDateTime) typedValue).toZonedDateTime());
         }
         catch (ValueFormatException ex) {
             return Optional.empty();

@@ -18,8 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultFile;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import org.junit.Test;
 public class FileValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         SubmodelElement actual = new DefaultFile.Builder()
                 .build();
         FileValue value = FileValue.builder()
@@ -35,7 +35,7 @@ public class FileValueTest {
                 .value("{}")
                 .build();
         SubmodelElement expected = new DefaultFile.Builder()
-                .mimeType(value.getMimeType())
+                .contentType(value.getContentType())
                 .value(value.getValue())
                 .build();
         ElementValueMapper.setValue(actual, value);
@@ -44,7 +44,7 @@ public class FileValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         SubmodelElement actual = new DefaultFile.Builder()
                 .build();
         FileValue value = FileValue.builder()
@@ -52,7 +52,7 @@ public class FileValueTest {
                 .value(null)
                 .build();
         SubmodelElement expected = new DefaultFile.Builder()
-                .mimeType(null)
+                .contentType(null)
                 .value(null)
                 .build();
         ElementValueMapper.setValue(actual, value);
@@ -67,7 +67,7 @@ public class FileValueTest {
                 .value("{}")
                 .build();
         SubmodelElement input = new DefaultFile.Builder()
-                .mimeType(expected.getMimeType())
+                .contentType(expected.getContentType())
                 .value(expected.getValue())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);

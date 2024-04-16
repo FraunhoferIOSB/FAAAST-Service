@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -90,9 +90,9 @@ public class Constants {
     public static final String TIMEUNIT_HERTZ = "hertz";
 
     public static final List<Reference> SEGMENTS_SEMANTIC_IDS = List.of(
-            ReferenceHelper.globalReference(INTERNAL_SEGMENT_SEMANTIC_ID),
-            ReferenceHelper.globalReference(LINKED_SEGMENT_SEMANTIC_ID),
-            ReferenceHelper.globalReference(EXTERNAL_SEGMENT_SEMANTIC_ID));
+            ReferenceBuilder.global(INTERNAL_SEGMENT_SEMANTIC_ID),
+            ReferenceBuilder.global(LINKED_SEGMENT_SEMANTIC_ID),
+            ReferenceBuilder.global(EXTERNAL_SEGMENT_SEMANTIC_ID));
 
     private Constants() {}
 }

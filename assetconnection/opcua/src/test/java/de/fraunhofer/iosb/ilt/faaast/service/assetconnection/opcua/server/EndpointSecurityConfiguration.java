@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;

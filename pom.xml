@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
@@ -41,16 +41,18 @@
         <module>messagebus/internal</module>
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
-        <module>assetconnection/common</module>
         <module>persistence/file</module>
+        <module>filestorage/memory</module>
+        <module>filestorage/filesystem</module>
+        <module>assetconnection/common</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
-        <module>submodeltemplate/timeseries</module>
-        <module>submodeltemplate/timeseries/provider/influx</module>
-        <module>submodeltemplate/timeseries/provider/csv</module>
         <module>starter</module>
+        <module>submodeltemplate/timeseries</module>
+        <module>submodeltemplate/timeseries/provider/csv</module>
+        <module>submodeltemplate/timeseries/provider/influx</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
@@ -73,86 +75,95 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas.dataformat.version>1.2.0</aas.dataformat.version>
-        <aas.model.version>1.2.0</aas.model.version>
-        <awaitility.version>4.2.0</awaitility.version>
-        <bouncycastle.version>1.70</bouncycastle.version>
-        <checkstyle.version>10.12.3</checkstyle.version>
-        <classgraph.version>4.8.162</classgraph.version>
-        <commons.codec.version>1.16.0</commons.codec.version>
-        <commons.io.version>2.13.0</commons.io.version>
-        <commons.lang3.version>3.13.0</commons.lang3.version>
+        <aas4j.version>1.0.2</aas4j.version>
+        <awaitility.version>4.2.1</awaitility.version>
+        <bouncycastle.version>1.78</bouncycastle.version>
+        <checkstyle.version>10.15.0</checkstyle.version>
+        <classgraph.version>4.8.170</classgraph.version>
+        <commons.codec.version>1.16.1</commons.codec.version>
+        <commons.compress.version>1.26.1</commons.compress.version>
+        <commons.fileupload.version>1.5</commons.fileupload.version>
+        <commons.io.version>2.16.1</commons.io.version>
+        <commons.lang3.version>3.14.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.15.1</equalsverifier.version>
-        <guava.version>32.1.2-jre</guava.version>
+        <equalsverifier.version>3.16.1</equalsverifier.version>
+        <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
+        <guava.version>33.1.0-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <influxdb.client.java.version>6.10.0</influxdb.client.java.version>
-        <influxdb.java.version>2.23</influxdb.java.version>
-        <influxdb.version>6.7.0</influxdb.version>
-        <jackson.databind.version>2.15.2</jackson.databind.version>
-        <jackson.version>2.15.2</jackson.version>
+        <influxdb.client.java.version>7.0.0</influxdb.client.java.version>
+        <influxdb.java.version>2.24</influxdb.java.version>
+        <influxdb.version>7.0.0</influxdb.version>
+        <jackson.databind.version>2.17.0</jackson.databind.version>
+        <jackson.version>2.17.0</jackson.version>
+        <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
-        <janino.version>3.1.10</janino.version>
-        <jena.version>4.9.0</jena.version>
-        <jetty.version>11.0.15</jetty.version>
-        <json-smart.version>2.5.0</json-smart.version>
+        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <janino.version>3.1.11</janino.version>
+        <jaxb.api.version>2.3.1</jaxb.api.version>
+        <jena.version>5.0.0</jena.version>
+        <jetty.version>11.0.20</jetty.version>
+        <json-patch.version>1.13</json-patch.version>
+        <json-smart.version>2.5.1</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
-        <jsonpath.version>2.8.0</jsonpath.version>
+        <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <kotlin.version>1.6.20</kotlin.version>
-        <logback.version>1.4.11</logback.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
-        <maven.plugin.buildhelper.version>3.4.0</maven.plugin.buildhelper.version>
-        <maven.plugin.checkstyle.version>3.3.0</maven.plugin.checkstyle.version>
-        <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.6.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.1.2</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>6.0.0</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.10</maven.plugin.jacoco.version>
+        <kotlin.version>1.9.23</kotlin.version>
+        <logback.version>1.5.4</logback.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
+        <maven.plugin.buildhelper.version>3.5.0</maven.plugin.buildhelper.version>
+        <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
+        <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
+        <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
+        <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
+        <maven.plugin.git.commit.id.version>8.0.2</maven.plugin.git.commit.id.version>
+        <maven.plugin.gpg.version>3.2.3</maven.plugin.gpg.version>
+        <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
-        <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
+        <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.4.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>9.1.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
-        <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>4.11.0-6</maven.plugin.prosys.codegen.version>
+        <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
+        <maven.plugin.prosys.codegen.version>5.1.0-110</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
-        <maven.plugin.shade.version>3.5.0</maven.plugin.shade.version>
-        <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.39.0</maven.plugin.spotless.version>
-        <milo.version>0.6.10</milo.version>
-        <mockito.version>5.5.0</mockito.version>
+        <maven.plugin.shade.version>3.5.2</maven.plugin.shade.version>
+        <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
+        <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
+        <milo.version>0.6.12</milo.version>
+        <mockito.version>5.11.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.97.Final</netty.version>
+        <netty.version>4.1.108.Final</netty.version>
         <opencsv.version>5.8</opencsv.version>
+        <org.apache.httpcomponents.client5.version>5.3.1</org.apache.httpcomponents.client5.version>
         <paho.version>1.2.5</paho.version>
+        <parsson.version>1.1.6</parsson.version>
         <picocli.version>4.7.5</picocli.version>
-        <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.1.0</proguard.core.version>
-        <proguard.version>7.3.2</proguard.version>
+        <poi.ooxml.version>5.2.5</poi.ooxml.version>
+        <proguard.core.version>9.1.2</proguard.core.version>
+        <proguard.version>7.4.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>4.11.0-41</prosys.sdk.version>
-        <protobuf.version>3.24.2</protobuf.version>
+        <prosys.sdk.version>5.1.0-116</prosys.sdk.version>
+        <protobuf.version>4.26.1</protobuf.version>
+        <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>
-        <slf4j.version>2.0.7</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <systemstubs.version>2.0.2</systemstubs.version>
+        <systemstubs.version>2.1.6</systemstubs.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <threeten-extra.version>1.7.2</threeten-extra.version>
-        <wiremock.version>2.35.0</wiremock.version>
-        <woodstox.version>6.5.1</woodstox.version>
+        <wiremock.version>2.35.2</wiremock.version>
+        <woodstox.version>6.6.2</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -221,6 +232,7 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${maven.plugin.owasp.version}</version>
                     <configuration>
+                        <nvdApiServerId>NIST_NVD_API</nvdApiServerId>
                         <failBuildOnCVSS>6</failBuildOnCVSS>
                         <suppressionFiles>
                             <suppressionFile>owaspSuppressions.xml</suppressionFile>
@@ -303,18 +315,18 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.2.0</version>
+                    <version>2.4.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
-                            <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
+                            <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0|The Apache Software License, version 2.0|Apache License version 2.0|Apache Software License, version 2.0|Apache-2.0|Apache 2</licenseMerge>
                             <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>
                             <licenseMerge>The MIT License (MIT)|The MIT License|MIT License|MIT license|MIT</licenseMerge>
                             <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
                             <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
                             <licenseMerge>GPL2 w/ CPE|GNU General Public License, version 2 (GPL2), with the classpath exception</licenseMerge>
                             <licenseMerge>BSD License 2.0|New BSD License</licenseMerge>
-                            <licenseMerge>BSD 3-Clause|BSD License 3.0</licenseMerge>
+                            <licenseMerge>BSD 3-Clause|BSD License 3.0|The BSD 3-Clause License|BSD-3-Clause</licenseMerge>
                         </licenseMerges>
                     </configuration>
                     <executions>
@@ -349,6 +361,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.plugin.javadoc.version}</version>
                     <configuration>
+                        <doclint>all,-missing</doclint>
                         <quiet>true</quiet>
                     </configuration>
                     <executions>

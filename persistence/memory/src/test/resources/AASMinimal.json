@@ -1,0 +1,136 @@
+{
+    "assetAdministrationShells": [
+        {
+            "modelType":
+                    {
+                        "name": "AssetAdministrationShell"
+                    },
+            "assetInformation":
+                    {
+                        "assetKind": "Instance",
+                        "globalAssetId":
+                                {
+                                    "keys": [
+                                        {
+                                            "idType": "Iri",
+                                            "type": "Asset",
+                                            "value": "https://example.org/asset"
+                                        }
+                                    ]
+                                }
+                    },          
+            "submodels": [
+                {
+                    "keys": [
+                        {
+                            "idType": "Iri",
+                            "type": "Submodel",
+                            "value": "https://example.org/submodel"
+                        }
+                    ]
+                }
+            ],
+            "administration":
+                    {
+                        "revision": "0",
+                        "version": "0.9"
+                    },
+            "identification":
+                    {
+                        "idType": "Iri",
+                        "id": "https://example.org/aas"
+                    },
+            "idShort": "AssetAdministrationShell",
+            "description": [
+                {
+                    "language": "en-us",
+                    "text": "An Example Asset Administration Shell"
+                },
+                {
+                    "language": "de",
+                    "text": "Ein Beispiel-Verwaltungsschale"
+                }
+            ]
+        }        
+    ],
+    "conceptDescriptions": [ 
+        {
+            "modelType":
+                    {
+                        "name": "ConceptDescription"
+                    },
+            "administration":
+                    {
+                        "revision": "0",
+                        "version": "0.9"
+                    },
+            "identification":
+                    {
+                        "idType": "Iri",
+                        "id": "https://example.org/ConceptDescription"
+                    },
+            "idShort": "ConceptDescription",         
+            "description": [
+                {
+                    "language": "en-us",
+                    "text": "Example concept description"
+                },
+                {
+                    "language": "de",
+                    "text": "Beispiel-ConceptDescription"
+                }
+            ]
+        }
+    ],
+    "submodels": [
+        {
+            "modelType":
+                    {
+                        "name": "Submodel"
+                    },
+            "kind": "Instance",
+            "administration":
+                    {
+                        "revision": "0",
+                        "version": "0.9"
+                    },
+            "identification":
+                    {
+                        "idType": "Iri",
+                        "id": "https://example.org/submodel"
+                    },
+            "idShort": "Submodel",
+            "submodelElements": [
+                {
+                    "modelType":
+                            {
+                                "name": "Property"
+                            },            
+                    "value": "foo",            
+                    "valueType": "string",                  
+                    "idShort": "Property",
+                    "description": [
+                        {
+                            "language": "en-us",
+                            "text": "Example property."
+                        },
+                        {
+                            "language": "de",
+                            "text": "Beispiel Property."
+                        }
+                    ]
+                }                
+            ],
+            "description": [
+                {
+                    "language": "en-us",
+                    "text": "Example submodel"
+                },
+                {
+                    "language": "de",
+                    "text": "Beispiel-Submodel"
+                }
+            ]
+        }        
+    ]
+}

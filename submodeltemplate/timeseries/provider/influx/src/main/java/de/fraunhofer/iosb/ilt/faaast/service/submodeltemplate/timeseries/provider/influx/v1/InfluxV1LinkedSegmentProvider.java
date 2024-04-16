@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provid
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
@@ -27,10 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Property;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Query;
@@ -105,11 +105,11 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
             if (metadata.getMetadataRecordVariables().containsKey(fieldName)) {
                 Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
                 try {
-                    if (Datatype.fromName(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
+                    if (Datatype.fromAas4jDatatype(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
                         newProperty.setValue(fieldValue.toString());
                     }
                     else {
-                        newProperty.setValue(parseValue(fieldValue, Datatype.fromName(newProperty.getValueType())).asString());
+                        newProperty.setValue(parseValue(fieldValue, Datatype.fromAas4jDatatype(newProperty.getValueType())).asString());
                     }
                     result.getTimesAndVariables().put(fieldName, newProperty);
                 }

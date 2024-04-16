@@ -24,17 +24,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
 /**
@@ -54,21 +53,19 @@ public class InternalSegment extends Segment {
     public InternalSegment() {
         recordsList = new ExtendableSubmodelElementCollection.Builder()
                 .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
-                .ordered(true)
-                .allowDuplicates(true)
                 .build();
         records = new ListWrapper<>(
-                recordsList.getValues(),
+                recordsList.getValue(),
                 new ArrayList<>(),
                 SubmodelElementCollection.class,
                 x -> x,
-                x -> Objects.equals(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID), x.getSemanticId()),
+                x -> Objects.equals(ReferenceBuilder.global(Constants.RECORD_SEMANTIC_ID), x.getSemanticId()),
                 Record::of);
         recordsList.withAdditionalValues(records);
-        values.add(recordsList);
+        value.add(recordsList);
 
-        this.idShort = IdentifierHelper.randomId("InternalSegment");
-        this.semanticId = ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID);
+        this.idShort = IdHelper.randomId("InternalSegment");
+        this.semanticId = ReferenceBuilder.global(Constants.INTERNAL_SEGMENT_SEMANTIC_ID);
 
         if (getCalculateProperties() && !records.isEmpty()) {
             setDerivedProperties();
@@ -85,7 +82,7 @@ public class InternalSegment extends Segment {
      */
     public static InternalSegment of(SubmodelElementCollection smc) {
         InternalSegment target = new InternalSegment();
-        Optional<SubmodelElementCollection> smcRecords = smc.getValues().stream()
+        Optional<SubmodelElementCollection> smcRecords = smc.getValue().stream()
                 .filter(Objects::nonNull)
                 .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .map(SubmodelElementCollection.class::cast)
@@ -95,7 +92,7 @@ public class InternalSegment extends Segment {
         if (smcRecords.isPresent()) {
             target.recordsList = ExtendableSubmodelElementCollection.genericOf(target.recordsList, smcRecords.get());
             toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
-            toParse.setValues(smc.getValues().stream()
+            toParse.setValue(smc.getValue().stream()
                     .filter(x -> !Objects.equals(smcRecords.get(), x))
                     .collect(Collectors.toList()));
         }
@@ -157,11 +154,11 @@ public class InternalSegment extends Segment {
 
 
     @Override
-    public Collection<SubmodelElement> getValues() {
+    public List<SubmodelElement> getValue() {
         if (this.getCalculateProperties()) {
             this.setDerivedProperties();
         }
-        return super.getValues();
+        return super.getValue();
     }
 
 

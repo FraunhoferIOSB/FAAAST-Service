@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -24,6 +24,10 @@ import java.util.Objects;
 public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
+    public static final QueryModifier MINIMAL = new Builder()
+            .level(Level.CORE)
+            .extend(Extent.WITHOUT_BLOB_VALUE)
+            .build();
     protected Level level;
     protected Extent extent;
 
@@ -62,7 +66,7 @@ public class QueryModifier {
         return Objects.hash(level, extent);
     }
 
-    public static abstract class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B level(Level value) {
             getBuildingInstance().level = value;

@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 
 
 public class TimeSeriesTestData {
@@ -122,7 +122,7 @@ public class TimeSeriesTestData {
         return new DefaultProperty.Builder()
                 .idShort(FIELD_1)
                 .value(Integer.toString(value))
-                .valueType(Datatype.INT.getName())
+                .valueType(Datatype.INT.getAas4jDatatype())
                 .build();
     }
 
@@ -131,7 +131,7 @@ public class TimeSeriesTestData {
         return new DefaultProperty.Builder()
                 .idShort(FIELD_2)
                 .value(Double.toString(value))
-                .valueType(Datatype.DOUBLE.getName())
+                .valueType(Datatype.DOUBLE.getAas4jDatatype())
                 .build();
     }
 
@@ -140,8 +140,8 @@ public class TimeSeriesTestData {
         return new DefaultProperty.Builder()
                 .idShort("Time00")
                 .value(value)
-                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                .valueType(Datatype.DATE_TIME.getName())
+                .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                 .build();
     }
 
@@ -150,8 +150,8 @@ public class TimeSeriesTestData {
         return new DefaultProperty.Builder()
                 .idShort("Time00")
                 .value(value)
-                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                .valueType(Datatype.DATE_TIME.getName())
+                .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                 .build();
     }
 }

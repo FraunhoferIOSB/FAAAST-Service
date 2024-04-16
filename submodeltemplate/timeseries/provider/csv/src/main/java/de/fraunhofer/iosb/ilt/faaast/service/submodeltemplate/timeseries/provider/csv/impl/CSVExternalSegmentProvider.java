@@ -31,9 +31,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Property;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,11 +108,11 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
 
     private List<Record> getRecordFromFile(Metadata metadata, File data, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
-        if (!data.getMimeType().equals(ACCEPTED_MIMETYPE)) {
+        if (!data.getContentType().equals(ACCEPTED_MIMETYPE)) {
             String message = String.format("Error reading from File (file: %s, expected type: %s, actual type: %s)",
                     data.getValue(),
                     ACCEPTED_MIMETYPE,
-                    data.getMimeType());
+                    data.getContentType());
             LOGGER.debug(message);
             throw new SegmentProviderException(message);
         }
@@ -150,11 +150,11 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
 
     private List<Record> getRecordFromBlob(Metadata metadata, Blob data, Timespan timespan, ZonedDateTime startTime) throws SegmentProviderException {
-        if (!data.getMimeType().equals(ACCEPTED_MIMETYPE)) {
+        if (!data.getContentType().equals(ACCEPTED_MIMETYPE)) {
             String message = String.format("Error reading from Blob (Blob ShortID: %s, expected type: %s, actual type: %s)",
                     data.getIdShort(),
                     ACCEPTED_MIMETYPE,
-                    data.getMimeType());
+                    data.getContentType());
             LOGGER.debug(message);
             throw new SegmentProviderException(message);
         }

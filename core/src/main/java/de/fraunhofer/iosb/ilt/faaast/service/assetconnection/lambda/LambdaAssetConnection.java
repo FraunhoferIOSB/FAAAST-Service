@@ -25,11 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**

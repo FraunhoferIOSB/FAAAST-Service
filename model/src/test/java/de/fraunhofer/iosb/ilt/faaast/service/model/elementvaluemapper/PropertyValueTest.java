@@ -14,15 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.elementvaluemapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,10 +30,10 @@ import org.junit.Test;
 public class PropertyValueTest {
 
     @Test
-    public void testSetValueMapping() {
+    public void testSetValueMapping() throws ValueMappingException {
         PropertyValue value = new PropertyValue(new StringValue("foo"));
         SubmodelElement expected = new DefaultProperty.Builder()
-                .valueType(value.getValue().getDataType().getName())
+                .valueType(value.getValue().getDataType().getAas4jDatatype())
                 .value(value.getValue().asString())
                 .build();
         SubmodelElement actual = new DefaultProperty.Builder()
@@ -44,7 +44,7 @@ public class PropertyValueTest {
 
 
     @Test
-    public void testSetValueMappingWithNull() {
+    public void testSetValueMappingWithNull() throws ValueMappingException {
         PropertyValue value = new PropertyValue();
         SubmodelElement expected = new DefaultProperty.Builder()
                 .valueType(null)
@@ -63,7 +63,7 @@ public class PropertyValueTest {
         SubmodelElement input = new DefaultProperty.Builder()
                 .category("Test")
                 .idShort("TestProperty")
-                .valueType(expected.getValue().getDataType().getName())
+                .valueType(expected.getValue().getDataType().getAas4jDatatype())
                 .value(expected.getValue().asString())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);

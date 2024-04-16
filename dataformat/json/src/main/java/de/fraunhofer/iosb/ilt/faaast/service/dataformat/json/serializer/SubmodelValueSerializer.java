@@ -20,16 +20,17 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Serializer for {@link io.adminshell.aas.v3.model.Submodel}. Serializes a submodel as map of idShort and value of all
+ * Serializer for {@link org.eclipse.digitaltwin.aas4j.v3.model.Submodel}. Serializes a submodel as map of idShort and
+ * value of all
  * its elements.
  */
 public class SubmodelValueSerializer extends StdSerializer<Submodel> {

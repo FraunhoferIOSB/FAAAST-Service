@@ -20,12 +20,16 @@ import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASReferenceType;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.objecttypes.AASReferenceList;
+import opc.i4aas.objecttypes.AASReferenceType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +56,7 @@ public class AasReferenceCreator {
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
-    public static void addAasReferenceList(UaNode node, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
+    public static void addAasReferenceListNode(UaNode node, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
@@ -65,12 +69,26 @@ public class AasReferenceCreator {
         NodeId nid = nodeManager.getDefaultNodeId();
         AASReferenceList referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
 
+        addAasReferencesToList(referenceListNode, list, name, nodeManager);
+
+        node.addComponent(referenceListNode);
+    }
+
+
+    /**
+     * Adds a given list of references to the desired node.
+     * 
+     * @param referenceListNode The node where the references are added
+     * @param list The list of references
+     * @param name The desired name
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     */
+    public static void addAasReferencesToList(AASReferenceList referenceListNode, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
         int counter = 1;
         for (Reference ref: list) {
             addAasReferenceAasNS(referenceListNode, ref, name + counter++, nodeManager);
         }
-
-        node.addComponent(referenceListNode);
     }
 
 
@@ -131,7 +149,7 @@ public class AasReferenceCreator {
 
             LOGGER.debug("addAasReference: add Node {} to Node {}", nid, node.getNodeId());
 
-            AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef, readOnly);
+            setAasReferenceData(ref, nodeRef, readOnly);
 
             node.addComponent(nodeRef);
 
@@ -139,6 +157,47 @@ public class AasReferenceCreator {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Sets the data in the given Reference node.
+     *
+     * @param ref The desired UA reference object
+     * @param refNode The AAS Reference object with the source data
+     * @throws StatusException If the operation fails
+     */
+    public static void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
+        setAasReferenceData(ref, refNode, AasServiceNodeManager.VALUES_READ_ONLY);
+    }
+
+
+    /**
+     * Sets the data in the given Reference node.
+     *
+     * @param ref The desired UA reference object
+     * @param refNode The AAS Reference object with the source data
+     * @param readOnly True if the value should be read-only
+     * @throws StatusException If the operation fails
+     */
+    public static void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
+        Ensure.requireNonNull(refNode, "refNode must be non-null");
+        Ensure.requireNonNull(ref, "ref must be non-null");
+
+        AASKeyDataType[] keys = ref.getKeys().stream().map(k -> {
+            AASKeyDataType keyValue = new AASKeyDataType();
+            keyValue.setType(ValueConverter.getAasKeyTypesDataType(k.getType()));
+            keyValue.setValue(k.getValue());
+            return keyValue;
+        }).toArray(AASKeyDataType[]::new);
+
+        refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(keys.length)
+        });
+        if (readOnly) {
+            refNode.getKeysNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        }
+        refNode.setKeys(keys);
     }
 
 }

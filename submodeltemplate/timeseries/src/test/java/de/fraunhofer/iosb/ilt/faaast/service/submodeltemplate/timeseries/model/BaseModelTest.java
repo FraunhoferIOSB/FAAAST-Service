@@ -18,21 +18,21 @@ import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.
 import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_2;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 
@@ -43,19 +43,19 @@ public abstract class BaseModelTest {
 
     protected static final Property PROPERTY_FIELD1 = new DefaultProperty.Builder()
             .idShort(FIELD_1)
-            .valueType(Datatype.INT.getName())
+            .valueType(Datatype.INT.getAas4jDatatype())
             .value("0")
             .build();
 
     protected static final Property PROPERTY_FIELD2 = new DefaultProperty.Builder()
             .idShort(FIELD_2)
-            .valueType(Datatype.DOUBLE.getName())
+            .valueType(Datatype.DOUBLE.getAas4jDatatype())
             .value("0.1")
             .build();
 
     protected static final Property PROPERTY_TIME = new DefaultProperty.Builder()
-            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-            .valueType(Datatype.DATE_TIME.getName())
+            .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+            .valueType(Datatype.DATE_TIME.getAas4jDatatype())
             .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(TIME))
             .idShort(Constants.RECORD_TIME_ID_SHORT)
             .build();
@@ -75,7 +75,7 @@ public abstract class BaseModelTest {
             .build();
 
     protected static final LinkedSegment LINKED_SEGMENT = LinkedSegment.builder()
-            .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
+            .semanticId(ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID))
             .endpoint("host")
             .query("query")
             .build();
@@ -102,7 +102,7 @@ public abstract class BaseModelTest {
 
 
     protected void assertAASElements(SubmodelElementCollection actual, SubmodelElement... elements) {
-        assertAASElements(actual.getValues(), elements);
+        assertAASElements(actual.getValue(), elements);
     }
 
 
@@ -114,6 +114,6 @@ public abstract class BaseModelTest {
 
 
     protected void assertAASHasElements(SubmodelElementCollection actual, SubmodelElement... elements) {
-        assertAASHasElements(actual.getValues(), elements);
+        assertAASHasElements(actual.getValue(), elements);
     }
 }

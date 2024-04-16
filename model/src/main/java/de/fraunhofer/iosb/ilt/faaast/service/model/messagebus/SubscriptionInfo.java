@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +23,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -62,7 +62,7 @@ public class SubscriptionInfo {
      * @param <T> concrete type of the EventMessage
      * @return a Subscriptio nInfo
      */
-    public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler, KeyElements keyElements) {
+    public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler, KeyTypes keyElements) {
         SubscriptionInfo subscriptionInfo = create(eventMessageClass, handler);
         subscriptionInfo.setFilter(x -> x != null
                 && x.getKeys() != null
@@ -124,7 +124,7 @@ public class SubscriptionInfo {
     public void setSubscribedEvents(Set<Class<?>> subscribedEvents) {
         if (subscribedEvents != null) {
             this.subscribedEvents = subscribedEvents.stream()
-                    .filter(x -> EventMessage.class.isAssignableFrom(x))
+                    .filter(EventMessage.class::isAssignableFrom)
                     .collect(Collectors.toSet());
         }
         else {

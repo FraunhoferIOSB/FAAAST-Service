@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
 /**
@@ -38,15 +38,12 @@ public class AasHelper {
      * @param target the target to copy to
      */
     public static void applyBasicProperties(SubmodelElementCollection src, SubmodelElementCollection target) {
-        target.setAllowDuplicates(src.getAllowDuplicates());
         target.setCategory(src.getCategory());
-        target.setDescriptions(src.getDescriptions());
-        target.setDisplayNames(src.getDisplayNames());
+        target.setDescription(src.getDescription());
+        target.setDisplayName(src.getDisplayName());
         target.setEmbeddedDataSpecifications(src.getEmbeddedDataSpecifications());
         target.setExtensions(src.getExtensions());
         target.setIdShort(src.getIdShort());
-        target.setKind(src.getKind());
-        target.setOrdered(src.getOrdered());
         target.setQualifiers(src.getQualifiers());
         target.setSemanticId(src.getSemanticId());
     }
@@ -61,12 +58,12 @@ public class AasHelper {
     public static void applyBasicProperties(Submodel src, Submodel target) {
         target.setAdministration(src.getAdministration());
         target.setCategory(src.getCategory());
-        target.setDescriptions(src.getDescriptions());
-        target.setDisplayNames(src.getDisplayNames());
+        target.setDescription(src.getDescription());
+        target.setDisplayName(src.getDisplayName());
         target.setEmbeddedDataSpecifications(src.getEmbeddedDataSpecifications());
         target.setExtensions(src.getExtensions());
         target.setIdShort(src.getIdShort());
-        target.setIdentification(src.getIdentification());
+        target.setId(src.getId());
         target.setKind(src.getKind());
         target.setQualifiers(src.getQualifiers());
         target.setSemanticId(src.getSemanticId());
@@ -125,7 +122,7 @@ public class AasHelper {
             return List.of();
         }
         return collection.stream()
-                .filter(x -> Objects.equals(ReferenceHelper.globalReference(semanticId), x.getSemanticId()))
+                .filter(x -> Objects.equals(ReferenceBuilder.global(semanticId), x.getSemanticId()))
                 .filter(Objects::nonNull)
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)

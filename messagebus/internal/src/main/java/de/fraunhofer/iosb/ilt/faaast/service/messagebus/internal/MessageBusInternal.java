@@ -105,7 +105,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> 
 
     @Override
     public void start() {
-        executor.submit(() -> run());
+        executor.submit(this::run);
     }
 
 

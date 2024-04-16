@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
-import java.util.Objects;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -35,9 +37,7 @@ public class IntValue extends TypedValue<Integer> {
 
     @Override
     public String asString() {
-        return Objects.nonNull(value)
-                ? Integer.toString(value)
-                : null;
+        return Integer.toString(value);
     }
 
 

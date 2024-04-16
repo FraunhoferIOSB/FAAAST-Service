@@ -1,29 +1,17 @@
+
 {
     "assetAdministrationShells": [
         {
-            "modelType":
-                    {
-                        "name": "AssetAdministrationShell"
-                    },
+            "modelType": "AssetAdministrationShell",
             "assetInformation":
                     {
                         "assetKind": "Instance",
-                        "globalAssetId":
-                                {
-                                    "keys": [
-                                        {
-                                            "idType": "Iri",
-                                            "type": "Asset",
-                                            "value": "https://example.org/asset"
-                                        }
-                                    ]
-                                }
-                    },          
+                        "globalAssetId": "https://example.org/asset"
+                    },
             "submodels": [
                 {
                     "keys": [
                         {
-                            "idType": "Iri",
                             "type": "Submodel",
                             "value": "https://example.org/submodel"
                         }
@@ -35,11 +23,7 @@
                         "revision": "0",
                         "version": "0.9"
                     },
-            "identification":
-                    {
-                        "idType": "Iri",
-                        "id": "https://example.org/aas"
-                    },
+            "id": "https://example.org/aas",
             "idShort": "AssetAdministrationShell",
             "description": [
                 {
@@ -51,25 +35,18 @@
                     "text": "Ein Beispiel-Verwaltungsschale"
                 }
             ]
-        }        
+        }
     ],
-    "conceptDescriptions": [ 
+    "conceptDescriptions": [
         {
-            "modelType":
-                    {
-                        "name": "ConceptDescription"
-                    },
+            "modelType": "ConceptDescription",
             "administration":
                     {
                         "revision": "0",
                         "version": "0.9"
                     },
-            "identification":
-                    {
-                        "idType": "Iri",
-                        "id": "https://example.org/ConceptDescription"
-                    },
-            "idShort": "ConceptDescription",         
+            "id": "https://example.org/ConceptDescription",
+            "idShort": "ConceptDescription",
             "description": [
                 {
                     "language": "en-us",
@@ -84,30 +61,20 @@
     ],
     "submodels": [
         {
-            "modelType":
-                    {
-                        "name": "Submodel"
-                    },
+            "modelType": "Submodel",
             "kind": "Instance",
             "administration":
                     {
                         "revision": "0",
                         "version": "0.9"
                     },
-            "identification":
-                    {
-                        "idType": "Iri",
-                        "id": "https://example.org/submodel"
-                    },
+            "id": "https://example.org/submodel",
             "idShort": "Submodel",
             "submodelElements": [
                 {
-                    "modelType":
-                            {
-                                "name": "Property"
-                            },            
-                    "value": "foo",            
-                    "valueType": "string",                  
+                    "modelType": "Property",
+                    "value": "foo",
+                    "valueType": "xs:string",
                     "idShort": "Property",
                     "description": [
                         {
@@ -119,7 +86,7 @@
                             "text": "Beispiel Property."
                         }
                     ]
-                }                
+                }
             ],
             "description": [
                 {
@@ -131,6 +98,6 @@
                     "text": "Beispiel-Submodel"
                 }
             ]
-        }        
+        }
     ]
 }

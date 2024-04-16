@@ -15,22 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.TimeUnitHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelElementCollectionBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 
 
 /**
@@ -40,7 +40,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<String, Property> duration = new ValueWrapper<>( //TODO: depending on semantic id property in ISO 8601 (duration) format in string or as long
-            values,
+            value,
             null,
             false,
             Property.class,
@@ -55,8 +55,8 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
                 }
                 return new DefaultProperty.Builder()
                         .idShort(Constants.SEGMENT_DURATION_ID_SHORT)
-                        .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_DURATION_SEMANTIC_ID))
-                        .valueType(valueType)
+                        .semanticId(ReferenceBuilder.global(Constants.SEGMENT_DURATION_SEMANTIC_ID))
+                        .valueType(Datatype.valueOf(valueType).getAas4jDatatype())
                         .value(x)
                         .build();
             },
@@ -65,15 +65,15 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<ZonedDateTime, Property> lastUpdate = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_LAST_UPDATE_ID_SHORT)
-                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                            .valueType(Datatype.DATE_TIME.getName())
+                            .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                             .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x)) //TODO: get better default value or def calculation in subclass
                             .build()
                     : null,
@@ -82,7 +82,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<String, Property> state = new ValueWrapper<>(
-            values,
+            value,
             null,
             false,
             Property.class,
@@ -96,8 +96,8 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
                 }
                 return new DefaultProperty.Builder()
                         .idShort(Constants.SEGMENT_STATE_ID_SHORT)
-                        .semanticId(ReferenceHelper.globalReference(stateSemanticID))
-                        .valueType(Datatype.STRING.getName())
+                        .semanticId(ReferenceBuilder.global(stateSemanticID))
+                        .valueType(Datatype.STRING.getAas4jDatatype())
                         .value(x)
                         .build();
             },
@@ -106,14 +106,14 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private final Wrapper<Long, Property> recordCount = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
-                            .valueType(Datatype.LONG.getName())
+                            .valueType(Datatype.LONG.getAas4jDatatype())
                             .value(Long.toString(x)) //TODO: get better default value
                             .build()
                     : null,
@@ -122,15 +122,15 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<ZonedDateTime, Property> end = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
-                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                            .valueType(Datatype.DATE_TIME.getName())
+                            .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                             .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x))
                             .build()
                     : null,
@@ -139,14 +139,14 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private final Wrapper<IntervalWithUnit, Property> samplingInterval = new ValueWrapper<>(
-            values,
+            value,
             null,
             false,
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT)
                     .semanticId(Objects.nonNull(x.getUnit()) ? TimeUnitHelper.toSemanticId(x.getUnit()) : null)
-                    .valueType(Datatype.LONG.getName())
+                    .valueType(Datatype.LONG.getAas4jDatatype())
                     .value(Long.toString(x.getInterval()))
                     .build(),
             x -> Objects.equals(Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT, x.getIdShort()),
@@ -154,14 +154,14 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private final Wrapper<IntervalWithUnit, Property> samplingRate = new ValueWrapper<>(
-            values,
+            value,
             null,
             false,
             Property.class,
             x -> new DefaultProperty.Builder()
                     .idShort(Constants.SEGMENT_SAMPLING_RATE_ID_SHORT)
                     .semanticId(Objects.nonNull(x.getUnit()) ? TimeUnitHelper.toSemanticId(x.getUnit()) : null)
-                    .valueType(Datatype.LONG.getName())
+                    .valueType(Datatype.LONG.getAas4jDatatype())
                     .value(Long.toString(x.getInterval()))
                     .build(),
             x -> Objects.equals(Constants.SEGMENT_SAMPLING_RATE_ID_SHORT, x.getIdShort()),
@@ -169,15 +169,15 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
     private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>(
-            values,
+            value,
             null,
             true,
             Property.class,
             x -> Objects.nonNull(x) // TODO: calculatePropertiesIfNotPresent
                     ? new DefaultProperty.Builder()
                             .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
-                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                            .valueType(Datatype.DATE_TIME.getName())
+                            .semanticId(ReferenceBuilder.global(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getAas4jDatatype())
                             .value(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(x))
                             .build()
                     : null,
@@ -186,7 +186,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     protected Segment() {
         withAdditionalValues(recordCount, start, end, duration, samplingInterval, samplingRate, state, lastUpdate);
-        this.idShort = IdentifierHelper.randomId("Segment");
+        this.idShort = IdHelper.randomId("Segment");
     }
 
 
@@ -355,13 +355,13 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
         if (smc == null) {
             return null;
         }
-        if (Objects.equals(ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
+        if (Objects.equals(ReferenceBuilder.global(Constants.INTERNAL_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
             return InternalSegment.of(smc);
         }
-        if (Objects.equals(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
+        if (Objects.equals(ReferenceBuilder.global(Constants.LINKED_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
             return LinkedSegment.of(smc);
         }
-        if (Objects.equals(ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
+        if (Objects.equals(ReferenceBuilder.global(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID), smc.getSemanticId())) {
             return ExternalSegment.of(smc);
         }
         throw new IllegalArgumentException(String.format("unsupported segment type (semanticId: %s)", AasUtils.asString(smc.getSemanticId())));

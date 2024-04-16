@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>starter</artifactId>
@@ -49,6 +49,16 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-opcua</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>filestorage-filesystem</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>filestorage-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -134,17 +144,12 @@
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
         </dependency>
-        <dependency>
+        <!-- currently not present in aas4j, TODO: reintegrate once available -->
+        <!--<dependency>
             <groupId>io.admin-shell.aas</groupId>
-            <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+            <artifactId>validator</artifactId>
+            <version>${aas.dataformat.version}</version>
+        </dependency>-->
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
@@ -154,6 +159,17 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>${janino.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
+            <artifactId>aas4j-model</artifactId>
+            <version>${aas4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.org.webcompere</groupId>

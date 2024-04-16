@@ -14,57 +14,43 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
-import io.adminshell.aas.v3.dataformat.SerializationException;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.dataformat.json.JsonSerializer;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Referable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 
 
 /**
  * Helper class with methods to create deep copies. Following types are supported:
  * <ul>
- * <li>{@link io.adminshell.aas.v3.model.Identifiable}
- * <li>{@link io.adminshell.aas.v3.model.Referable}
- * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Identifiable}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Referable}
+ * <li>{@link org.eclipse.digitaltwin.aas4j.v3.model.Environment}
  * </ul>
  */
 public class DeepCopyHelper {
 
     private DeepCopyHelper() {}
 
-    private static final JsonDeserializer DESERIALIZER = new JsonDeserializer() {
-        @Override
-        protected void buildMapper() {
-            super.buildMapper();
-            mapper.registerModule(new JavaTimeModule());
-        }
-    };
-
-    private static final JsonSerializer SERIALIZER = new JsonSerializer() {
-        @Override
-        protected void buildMapper() {
-            super.buildMapper();
-            mapper.registerModule(new JavaTimeModule());
-        }
-    };
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} object.
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Environment} object.
      *
      * @param env the asset administration shell environment which should be deep copied
      * @return a deep copied instance of the asset administration shell environment
      * @throws RuntimeException when operation fails
      */
-    public static AssetAdministrationShellEnvironment deepCopy(AssetAdministrationShellEnvironment env) {
-
+    public static Environment deepCopy(Environment env) {
         try {
-            return DESERIALIZER.read(SERIALIZER.write(env));
+            return new JsonDeserializer().read(new JsonSerializer().write(env), Environment.class);
         }
         catch (SerializationException | DeserializationException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
@@ -73,7 +59,23 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable} object.
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} object.
+     *
+     * @param referable which should be deep copied
+     * @param <T> type of the referable
+     * @return the deep copied referable
+     * @throws RuntimeException when operation fails
+     */
+    public static <T extends Referable> T deepCopy(T referable) {
+        if (Objects.isNull(referable)) {
+            return null;
+        }
+        return (T) deepCopy(referable, referable.getClass());
+    }
+
+
+    /**
+     * Create a deep copy of a {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} object.
      *
      * @param referable which should be deep copied
      * @param outputClass of the referable
@@ -92,7 +94,7 @@ public class DeepCopyHelper {
                     String.format("type mismatch - can not create deep copy of instance of type %s with target type %s", referable.getClass(), outputClass));
         }
         try {
-            return DESERIALIZER.readReferable(SERIALIZER.write(referable), outputClass);
+            return (T) new JsonDeserializer().read(new JsonSerializer().write(referable), outputClass);
         }
         catch (SerializationException | DeserializationException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);
@@ -101,7 +103,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a list of {@link io.adminshell.aas.v3.model.Referable} objects.
+     * Create a deep copy of a list of {@link org.eclipse.digitaltwin.aas4j.v3.model.Referable} objects.
      *
      * @param referables list with referables which should be deep copied
      * @param outputClass of the referables
@@ -120,5 +122,22 @@ public class DeepCopyHelper {
             throw new IllegalArgumentException("referables must be non-null");
         }
         return referables.stream().map(x -> deepCopy(x, outputClass)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Create a deep copy of a list of {@link org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable} objects.
+     *
+     * @param original the original list
+     * @return a deep copy of the list or null if input is null
+     */
+    public static List<OperationVariable> deepCopy(Collection<OperationVariable> original) {
+        if (Objects.isNull(original)) {
+            return null;
+        }
+        return original.stream().map(x -> new DefaultOperationVariable.Builder()
+                .value(deepCopy(x.getValue()))
+                .build())
+                .collect(Collectors.toList());
     }
 }

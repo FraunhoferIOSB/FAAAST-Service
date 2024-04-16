@@ -29,15 +29,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.TimeSeriesTestData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultBlob;
-import io.adminshell.aas.v3.model.impl.DefaultFile;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,22 +51,22 @@ public class CSVExternalSegmentProviderTest {
 
     private final File dataFile = new DefaultFile.Builder()
             .value("src/test/resources/testCSV.csv")
-            .mimeType("text/csv")
-            .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+            .contentType("text/csv")
+            .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
     private final File dataFile_mapped = new DefaultFile.Builder()
             .value("src/test/resources/testCSV_mapped.csv")
-            .mimeType("text/csv")
-            .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+            .contentType("text/csv")
+            .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
     private final File dataFile_mapped_variable = new DefaultFile.Builder()
             .value("src/test/resources/testCSV_mapped_variable.csv")
-            .mimeType("text/csv")
-            .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+            .contentType("text/csv")
+            .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
@@ -74,8 +74,8 @@ public class CSVExternalSegmentProviderTest {
             .getBytes();
     private final Blob dataBlob = new DefaultBlob.Builder()
             .value(base64Blob)
-            .mimeType("text/csv")
-            .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+            .contentType("text/csv")
+            .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("BlobData")
             .build();
 
@@ -227,8 +227,8 @@ public class CSVExternalSegmentProviderTest {
         this.config.setBaseDir("src/test/resources");
         File dataFileShort = new DefaultFile.Builder()
                 .value("testCSV.csv")
-                .mimeType("text/csv")
-                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .contentType("text/csv")
+                .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
                 .idShort("Data")
                 .build();
 
@@ -246,8 +246,8 @@ public class CSVExternalSegmentProviderTest {
     public void testWithWrongMIMEType() throws ConfigurationException, SegmentProviderException {
         File dataFileShort = new DefaultFile.Builder()
                 .value("src/test/resources/testCSV.csv")
-                .mimeType("application/json")
-                .semanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID))
+                .contentType("application/json")
+                .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
                 .idShort("Data")
                 .build();
 

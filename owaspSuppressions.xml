@@ -5,46 +5,6 @@
 		<packageUrl regex="true">^pkg:maven/io\.admin\-shell\.aas/dataformat\-uanodeset@.*$</packageUrl>
 		<cpe>cpe:/a:opcfoundation:ua-nodeset</cpe>
 	</suppress>
-	<!-- end: false positive -->
-	<!-- begin: CVE-2022-45688 false positive, affected libraries not in dependency tree -->
-	<suppress>
-		<notes><![CDATA[file name: dataformat-json-1.2.0.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/io\.admin\-shell\.aas/dataformat\-json@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<suppress>
-		<notes><![CDATA[file name: jackson-core-2.14.2.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<suppress>
-		<notes><![CDATA[file name: jakarta.json-2.0.1.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<suppress>
-		<notes><![CDATA[file name: json-path-2.7.0.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<suppress>
-		<notes><![CDATA[file name: json-smart-2.4.7.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<suppress>
-		<notes><![CDATA[file name: jsonld-java-0.13.4.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/com\.github\.jsonld\-java/jsonld\-java@.*$</packageUrl>
-		<cve>CVE-2022-45688</cve>
-	</suppress>
-	<!-- end: CVE-2022-45688 false positive, affected libraries not in dependency tree -->
-	<!-- begin: CVE-2020-8908 affected method com.google.common.io.Files#createTempDir not called in productive code including dependencies -->
-	<suppress>
-		<notes><![CDATA[file name: guava-31.1-jre.jar]]></notes>
-		<packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-		<vulnerabilityName>CVE-2020-8908</vulnerabilityName>
-	</suppress>
-	<!-- end: CVE-2020-8908 affected method com.google.common.io.Files#createTempDir not called in productive code including dependencies -->
 	<suppress base="true">
 		<notes><![CDATA[False positive, see https://github.com/FasterXML/woodstox/issues/173]]></notes>
 		<packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
@@ -59,8 +19,22 @@
 		<cve>CVE-2023-33201</cve>
 	</suppress>
 	<suppress>
-		<notes><![CDATA[This CVE is a false positive according to the maintainers. See https://github.com/netty/netty/issues/8537]]></notes>
-		<packageUrl regex="true">^pkg:maven/io\.netty/netty\-handler@.*$</packageUrl>
-		<vulnerabilityName>CVE-2023-4586</vulnerabilityName>
+		<notes><![CDATA[Does not apply because vulnerable functionality is not used]]></notes>
+		<packageUrl regex="true">^pkg:maven/io\.admin\-shell\.aas/dataformat\-xml@.*$</packageUrl>
+		<cve>CVE-2016-4570</cve>
+		<cve>CVE-2016-4571</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[Is not relevant in FA³ST Service is JSON path expressions are only provided by the administrator of the system and not at run-time from user input]]></notes>
+		<packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+		<vulnerabilityName>CVE-2023-51074</vulnerabilityName>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4570</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4571</cve>
 	</suppress>
 </suppressions>

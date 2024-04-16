@@ -17,10 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -35,26 +36,27 @@ public interface ServiceContext {
      * @return type information of the referenced element, empty
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
      *         reference is null
-     * @throws IllegalArgumentException if reference can not be resolved on AAS environment of the service
+     * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
      */
-    public TypeInfo getTypeInfo(Reference reference);
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException;
 
 
     /**
      * Executes a request.
      *
+     * @param <T> type of expected response
      * @param request request to execute
      * @return result of executing the request
      */
-    public Response execute(Request request);
+    public <T extends Response> T execute(Request<T> request);
 
 
     /**
-     * Get a copied version of the AssetAdministrationShellEnvironment instance of the service.
+     * Get a copied version of the Environment instance of the service.
      *
-     * @return a deep copied AssetAdministrationShellEnvironment instance of the service
+     * @return a deep copied Environment instance of the service
      */
-    public AssetAdministrationShellEnvironment getAASEnvironment();
+    public Environment getAASEnvironment();
 
 
     /**
@@ -70,9 +72,20 @@ public interface ServiceContext {
      *
      * @param reference the reference identifying the operation
      * @return output variables of the operation identified by the reference
+     * @throws ResourceNotFoundException if reference cannot be resolved or does not point to an operation
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if reference cannot be resolved
      * @throws IllegalArgumentException if reference does not point to an operation
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference);
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException;
+
+
+    /**
+     * Checks if an element is backed by a {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+     *
+     * @param reference the reference to the element
+     * @return true if element is backed by a
+     *         {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}, otherwise false
+     */
+    public boolean hasValueProvider(Reference reference);
 }

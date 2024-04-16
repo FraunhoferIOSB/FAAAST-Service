@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 
 
 /**
- * Converts between {@link io.adminshell.aas.v3.model.RelationshipElement} and
+ * Converts between {@link org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement} and
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}.
  */
 public class RelationshipElementValueMapper implements DataValueMapper<RelationshipElement, RelationshipElementValue> {
@@ -31,17 +31,17 @@ public class RelationshipElementValueMapper implements DataValueMapper<Relations
             return null;
         }
         RelationshipElementValue relationshipElementValue = new RelationshipElementValue();
-        relationshipElementValue.setFirst(submodelElement.getFirst() != null ? submodelElement.getFirst().getKeys() : null);
-        relationshipElementValue.setSecond(submodelElement.getSecond() != null ? submodelElement.getSecond().getKeys() : null);
+        relationshipElementValue.setFirst(submodelElement.getFirst());
+        relationshipElementValue.setSecond(submodelElement.getSecond());
         return relationshipElementValue;
     }
 
 
     @Override
-    public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) {
+    public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) throws ValueMappingException {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setFirst(value.getFirst() != null ? new DefaultReference.Builder().keys(value.getFirst()).build() : null);
-        submodelElement.setSecond(value.getSecond() != null ? new DefaultReference.Builder().keys(value.getSecond()).build() : null);
+        submodelElement.setFirst(value.getFirst());
+        submodelElement.setSecond(value.getSecond());
         return submodelElement;
     }
 }

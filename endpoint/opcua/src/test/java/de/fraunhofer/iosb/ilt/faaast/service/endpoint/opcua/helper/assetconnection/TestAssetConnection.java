@@ -18,14 +18,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,7 @@ public class TestAssetConnection implements
     @Override
     public void registerOperationProvider(Reference reference, TestOperationProviderConfig operationProvider) {
         try {
-            operationProviders.put(reference, new AssetOperationProvider() {
+            operationProviders.put(reference, new AssetOperationProvider<AssetOperationProviderConfig>() {
                 @Override
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
                     LOGGER.trace("method invoked!");
@@ -77,9 +79,15 @@ public class TestAssetConnection implements
 
 
                 @Override
-                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
+                public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                                        Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
                     throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+
+                public AssetOperationProviderConfig getConfig() {
+                    return operationProvider;
                 }
             });
         }

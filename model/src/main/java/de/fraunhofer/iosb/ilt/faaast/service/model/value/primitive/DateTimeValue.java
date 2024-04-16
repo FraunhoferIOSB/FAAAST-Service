@@ -14,61 +14,51 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * A datetime value.
  */
-public class DateTimeValue extends TypedValue<ZonedDateTime> {
-
-    public static final ZoneId DEFAULT_TIMEZONE = ZoneOffset.UTC;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeValue.class);
+public class DateTimeValue extends AbstractDateTimeValue<OffsetDateTime> {
 
     public DateTimeValue() {
         super();
     }
 
 
-    public DateTimeValue(ZonedDateTime value) {
+    public DateTimeValue(OffsetDateTime value) {
         super(value);
-    }
-
-
-    @Override
-    public void fromString(String value) throws ValueFormatException {
-        if (StringUtils.isAllBlank(value)) {
-            this.value = null;
-            return;
-        }
-        try {
-            this.value = ZonedDateTime.parse(value);
-        }
-        catch (DateTimeParseException e) {
-            // If the string can't be parsed, we try to interpret it as UTC (if the time zone is missing)
-            LOGGER.trace("fromString: parse with time zone failed, try to parse with the default time zone");
-            try {
-                this.value = LocalDateTime.parse(value).atZone(DEFAULT_TIMEZONE);
-            }
-            catch (DateTimeParseException e2) {
-                LOGGER.warn("fromString: no valid DateTime: {}", value);
-                throw new ValueFormatException("no valid DateTime", e2);
-            }
-        }
     }
 
 
     @Override
     public Datatype getDataType() {
         return Datatype.DATE_TIME;
+    }
+
+
+    @Override
+    protected DateTimeFormatter getFormatBase() {
+        return DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    }
+
+
+    @Override
+    protected OffsetDateTime parseLocal(String value) throws DateTimeParseException {
+        LocalDateTime local = LocalDateTime.parse(value);
+        return OffsetDateTime.of(local, ZoneId.systemDefault().getRules().getOffset(local));
+    }
+
+
+    @Override
+    protected OffsetDateTime parseOffset(String value) throws DateTimeParseException {
+        return OffsetDateTime.parse(value);
     }
 
 }

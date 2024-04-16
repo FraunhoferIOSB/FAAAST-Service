@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>0.6.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>messagebus-internal</artifactId>
@@ -25,9 +25,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
+            <artifactId>aas4j-model</artifactId>
+            <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mycila</groupId>

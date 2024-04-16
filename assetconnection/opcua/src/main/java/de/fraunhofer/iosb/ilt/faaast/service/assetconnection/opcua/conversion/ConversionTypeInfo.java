@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 

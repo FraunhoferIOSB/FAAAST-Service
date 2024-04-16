@@ -15,14 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 public class AasHelper {
@@ -30,7 +32,7 @@ public class AasHelper {
     private AasHelper() {}
 
 
-    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException {
+    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException, ResourceNotFoundException {
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new IllegalArgumentException(String.format("type info does not provide datatype (type info: %s)", typeInfo.getClass()));
@@ -39,10 +41,10 @@ public class AasHelper {
     }
 
 
-    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) {
-        Referable element = AasUtils.resolve(reference, serviceContext.getAASEnvironment());
+    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) throws ResourceNotFoundException {
+        Referable element = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
         if (element == null) {
-            throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", AasUtils.asString(reference)));
+            throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));
         }
         if (!type.isAssignableFrom(element.getClass())) {
             throw new IllegalArgumentException(String.format("unsupported element type (expected: %s, found: %s)",

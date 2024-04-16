@@ -42,7 +42,6 @@ import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import io.adminshell.aas.v3.model.Qualifier;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -50,14 +49,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import opc.i4aas.AASAssetKindDataType;
-import opc.i4aas.AASIdentifierTypeDataType;
-import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
-import opc.i4aas.AASModelingKindDataType;
-import opc.i4aas.AASQualifierType;
-import opc.i4aas.AASValueTypeDataType;
+import opc.i4aas.datatypes.AASAssetKindDataType;
+import opc.i4aas.datatypes.AASDataTypeDefXsd;
+import opc.i4aas.datatypes.AASKeyDataType;
+import opc.i4aas.datatypes.AASKeyTypesDataType;
+import opc.i4aas.datatypes.AASModellingKindDataType;
+import opc.i4aas.objecttypes.AASQualifierType;
+import opc.i4aas.objecttypes.AASSpecificAssetIdType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
 
 
@@ -103,30 +102,11 @@ public class TestUtils {
     }
 
 
-    public static void checkIdentificationNode(UaClient client, NodeId baseNode, int aasns, AASIdentifierTypeDataType idType, String id)
-            throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentificationNode Browse Result: size doesn't match", 1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentificationNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkIdentificationNode Browse targets empty", targets.length > 0);
-
-        checkIdentification(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), aasns, idType, id);
-    }
-
-
-    public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModelingKindDataType modelingKind)
+    public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModellingKindDataType modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.MODELING_KIND_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KIND_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -134,10 +114,15 @@ public class TestUtils {
         Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
+        if (modelingKind == null) {
+            Assert.assertNull("checkModelingKindNode Browse Target Node not Null", targets);
+        }
+        else {
+            Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
+            Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
 
-        checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
+            checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
+        }
     }
 
 
@@ -192,25 +177,25 @@ public class TestUtils {
     }
 
 
-    public static void checkBillOfMaterialNode(UaClient client, NodeId node, int aasns) throws ServiceException, AddressSpaceException, ServiceResultException {
+    public static void checkEmbeddedDataSpecificationNode(UaClient client, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.BILL_OF_MATERIAL_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.EMBEDDED_DATA_SPECIFICATION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkBillOfMaterialNode Browse Result Null", bpres);
-        Assert.assertEquals("checkBillOfMaterialNode Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Browse Result Null", bpres);
+        Assert.assertEquals("checkEmbeddedDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkBillOfMaterialNode Node Targets Null", targets);
-        Assert.assertTrue("checkBillOfMaterialNode Node targets empty", targets.length > 0);
+        Assert.assertNotNull("checkEmbeddedDataSpecificationNode Node Targets Null", targets);
+        Assert.assertTrue("checkEmbeddedDataSpecificationNode Node targets empty", targets.length > 0);
 
         // Currently we only check that the NodeId is not null and we have the correct type
-        NodeId billNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertFalse("checkBillOfMaterialNode Node not found", NodeId.isNull(billNode));
+        NodeId dataSpecNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertFalse("checkEmbeddedDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
 
-        checkType(client, billNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
+        checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_EMBEDDED_DATA_SPECIFICATION_LIST));
     }
 
 
@@ -296,7 +281,7 @@ public class TestUtils {
             int index = 0;
             if (version != null) {
                 targets = bpres[index].getTargets();
-                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null", targets);
+                Assert.assertNotNull("checkAdministrationNode Browse Version Node Null, index " + index, targets);
                 Assert.assertTrue("checkAdministrationNode Browse Version targets empty", targets.length > 0);
 
                 DataValue value = client.readValue(targets[0].getTargetId());
@@ -340,18 +325,16 @@ public class TestUtils {
 
         checkType(client, assetInfoNode, new NodeId(aasns, TestConstants.AAS_ASSET_INFO_TYPE_ID));
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKindDataType.Instance);
-        checkBillOfMaterialNode(client, assetInfoNode, aasns);
-        checkAasPropertyFile(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, AASModelingKindDataType.Instance, "", "image/png",
-                "https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png", 0);
+        checkAasPropertyThumbnail(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, AASModellingKindDataType.Instance, "", "image/png",
+                "file:///master/verwaltungsschale-detail-part1.png", 0);
 
-        List<AASKeyDataType> keyList = new ArrayList<>();
-        keyList.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "http://customer.com/assets/KHBVZJSQKIY", AASKeyTypeDataType.IRI));
-        checkAasReferenceNode(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME, keyList);
+        checkVariableString(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME,
+                "http://customer.com/assets/KHBVZJSQKIY");
 
         Map<String, String> map = new HashMap<>();
         map.put("DeviceID", "QjYgPggjwkiHk4RrQiYSLg==");
         map.put("EquipmentID", "538fd1b3-f99f-4a52-9c75-72e9fa921270");
-        checkIdentifierKeyValuePairListNode(client, assetInfoNode, aasns, TestConstants.SPECIFIC_ASSET_ID_NAME, map);
+        checkSpecificAssetIdListNode(client, assetInfoNode, aasns, TestConstants.SPECIFIC_ASSET_ID_NAME, map);
     }
 
 
@@ -375,7 +358,7 @@ public class TestUtils {
     }
 
 
-    public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
+    public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, String category, AASDataTypeDefXsd valueType,
                                               String propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -394,8 +377,7 @@ public class TestUtils {
 
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
-        checkModelingKindNode(client, propertyNode, aasns, kind);
-        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
         checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         relPath.clear();
@@ -422,20 +404,13 @@ public class TestUtils {
         Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //        Variant var;
-        //        if (valueType == AASValueTypeDataType.LocalizedText) {
-        //            var = new Variant(LocalizedText.english(propValue));
-        //        }
-        //        else {
-        //            var = new Variant(propValue);
-        //        }
 
         Variant var = new Variant(propValue);
         Assert.assertEquals(var, value.getValue());
     }
 
 
-    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
+    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, String category, AASDataTypeDefXsd valueType,
                                               Object propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -455,8 +430,7 @@ public class TestUtils {
         checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
-        checkModelingKindNode(client, propertyNode, aasns, kind);
-        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkEmbeddedDataSpecificationNode(client, propertyNode, aasns);
         checkQualifierNode(client, propertyNode, aasns, qualifierList);
 
         relPath.clear();
@@ -489,7 +463,7 @@ public class TestUtils {
     }
 
 
-    public static void checkAasPropertyFile(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, String mimeType, String propValue,
+    public static void checkAasPropertyFile(UaClient client, NodeId node, int aasns, String name, AASModellingKindDataType kind, String category, String mimeType, String propPath,
                                             int fileSize)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -508,53 +482,34 @@ public class TestUtils {
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkDisplayName(client, propertyNode, name);
-        checkCategoryNode(client, propertyNode, aasns, category);
-        checkModelingKindNode(client, propertyNode, aasns, kind);
-        checkDataSpecificationNode(client, propertyNode, aasns);
-        checkQualifierNode(client, propertyNode, aasns, new ArrayList<>());
 
         relPath.clear();
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_MIME_TYPE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_CONTENT_TYPE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasAddIn, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_FILE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(0, TestConstants.PROPERTY_SIZE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Value & Type Result Null", bpres);
-        Assert.assertEquals("checkAasPropertyFile Browse Value & Type Result: size doesn't match", 3, bpres.length);
+        Assert.assertEquals("checkAasPropertyFile Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
-        // MimeType
+        // ContentType
         targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyFile MimeType Null", targets);
-        Assert.assertTrue("checkAasPropertyFile MimeType empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyFile ContentType Null", targets);
+        Assert.assertTrue("checkAasPropertyFile ContentType empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(mimeType, value.getValue().toString());
 
         // Value
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyFile Value Null", targets);
-        Assert.assertTrue("checkAasPropertyFile value empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyFile Path Null", targets);
+        Assert.assertTrue("checkAasPropertyFile Path empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(propValue, value.getValue().toString());
-
-        if (fileSize > 0) {
-            // File Size
-            if (bpres[2].getStatusCode().isBad()) {
-                System.out.println("checkAasPropertyFile File Status " + bpres[2].getStatusCode());
-            }
-            targets = bpres[2].getTargets();
-            Assert.assertNotNull("checkAasPropertyFile File Null", targets);
-            Assert.assertTrue("checkAasPropertyFile File empty", targets.length > 0);
-            value = client.readValue(targets[0].getTargetId());
-            Assert.assertEquals(fileSize, value.getValue().intValue());
-        }
+        Assert.assertEquals(propPath, value.getValue().toString());
     }
 
 
@@ -593,9 +548,11 @@ public class TestUtils {
         Assert.assertNotNull("checkSubmodelRef RefNode Null", refNode);
         checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
 
+        System.out.format("checkSubmodelRef: refNode %s", refNode.toString());
+
         // check AAS Reference
         List<AASKeyDataType> refKeys = new ArrayList<>();
-        refKeys.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, name, AASKeyTypeDataType.IRI));
+        refKeys.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, name));
         checkAasReference(client, refNode, aasns, refKeys);
 
         // check Reference to Submodel
@@ -655,41 +612,106 @@ public class TestUtils {
     }
 
 
-    private static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, AASIdentifierTypeDataType idType, String id)
+    public static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, String id)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
-        checkType(client, identificationNode, new NodeId(aasns, TestConstants.AAS_IDENTIFIER_TYPE_ID));
-
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "IdType")));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 2, bpres.length);
+        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentification IdType Null", targets);
-        Assert.assertTrue("checkIdentification IdType empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals(idType.ordinal(), value.getValue().intValue());
-
-        targets = bpres[1].getTargets();
         Assert.assertNotNull("checkIdentification Id Null", targets);
         Assert.assertTrue("checkIdentification Id empty", targets.length > 0);
-        value = client.readValue(targets[0].getTargetId());
+        DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(id, value.getValue().toString());
     }
 
 
-    private static void checkModelingKind(UaClient client, NodeId kindNode, AASModelingKindDataType modelingKind)
+    public static void checkAasPropertyThumbnail(UaClient client, NodeId node, int aasns, String name, AASModellingKindDataType kind, String category, String mimeType,
+                                                 String propPath,
+                                                 int fileSize)
+            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyThumbnail Browse Property Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyThumbnail Browse Property Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("checkAasPropertyThumbnail Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyThumbnail Property Null", targets);
+        Assert.assertTrue("checkAasPropertyThumbnail Property empty", targets.length > 0);
+        NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        checkDisplayName(client, propertyNode, name);
+
+        relPath.clear();
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_CONTENT_TYPE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_PATH_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyThumbnail Browse Path & Type Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyThumbnail Browse Path & Type Result: size doesn't match", 2, bpres.length);
+
+        // ContentType
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyThumbnail ContentType Null", targets);
+        Assert.assertTrue("checkAasPropertyThumbnail ContentType empty", targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals(mimeType, value.getValue().toString());
+
+        // Path
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("checkAasPropertyThumbnail Path Null", targets);
+        Assert.assertTrue("checkAasPropertyThumbnail Path empty", targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(propPath, value.getValue().toString());
+    }
+
+
+    public static void checkVariableString(UaClient client, NodeId node, int aasns, String name, String propValue)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        checkDisplayName(client, kindNode, TestConstants.MODELING_KIND_NAME);
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkVariableString Browse Property Result Null", bpres);
+        Assert.assertEquals("checkVariableString Browse Property Result: size doesn't match", 1, bpres.length);
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
+        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        checkDisplayName(client, propertyNode, name);
+
+        DataValue value = client.readValue(propertyNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+
+        Variant var = new Variant(propValue);
+        Assert.assertEquals(var, value.getValue());
+    }
+
+
+    private static void checkModelingKind(UaClient client, NodeId kindNode, AASModellingKindDataType modelingKind)
+            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+        checkDisplayName(client, kindNode, TestConstants.KIND_NAME);
         checkType(client, kindNode, Identifiers.PropertyType);
 
         DataValue value = client.readValue(kindNode);
@@ -726,27 +748,6 @@ public class TestUtils {
     }
 
 
-    private static void checkAasReferenceNode(UaClient client, NodeId baseNode, int aasns, String name, List<AASKeyDataType> refKeys)
-            throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasReferenceNode Browse Result Null", bpres);
-        Assert.assertEquals("checkAasReferenceNode Browse Result: size doesn't match", 1, bpres.length);
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasReferenceNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkAasReferenceNode Browse targets empty", targets.length > 0);
-        NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("checkAasReferenceNode Ref Node Null", refNode);
-        Assert.assertNotEquals("checkAasReferenceNode Ref Node Null", NodeId.NULL, refNode);
-        checkAasReference(client, refNode, aasns, refKeys);
-    }
-
-
     private static void checkAasReference(UaClient client, NodeId node, int aasns, List<AASKeyDataType> refKeys)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         checkType(client, node, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
@@ -776,7 +777,21 @@ public class TestUtils {
     }
 
 
-    private static void checkIdentifierKeyValuePairListNode(UaClient client, NodeId baseNode, int aasns, String name, Map<String, String> map)
+    private static void checkQualifierList(List<Qualifier> listExpected, List<AASQualifierType> listCurrent) {
+        Assert.assertEquals(listExpected.size(), listCurrent.size());
+
+        for (int i = 0; i < listExpected.size(); i++) {
+            Qualifier exp = listExpected.get(i);
+            AASQualifierType curr = listCurrent.get(i);
+            Assert.assertEquals("Qualifier Kind not equal", ValueConverter.convertQualifierKind(exp.getKind()), curr.getKind());
+            Assert.assertEquals("Qualifier Type not equal", exp.getType(), curr.getType());
+            Assert.assertEquals("Qualifier ValueType not equal", ValueConverter.convertDataTypeDefXsd(exp.getValueType()), curr.getValueType());
+            Assert.assertEquals("Qualifier Value not equal", exp.getValue(), curr.getValue());
+        }
+    }
+
+
+    private static void checkSpecificAssetIdListNode(UaClient client, NodeId baseNode, int aasns, String name, Map<String, String> map)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -784,17 +799,17 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Result Null", bpres);
-        Assert.assertEquals("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull("checkSpecificAssetIdListNode Browse Result Null", bpres);
+        Assert.assertEquals("checkSpecificAssetIdListNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Target Node Null", targets);
-        Assert.assertTrue("checkIdentifierKeyValuePairListNode Browse targets empty", targets.length > 0);
+        Assert.assertNotNull("checkSpecificAssetIdListNode Browse Target Node Null", targets);
+        Assert.assertTrue("checkSpecificAssetIdListNode Browse targets empty", targets.length > 0);
         NodeId listNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-        Assert.assertNotNull("checkIdentifierKeyValuePairListNode Ref Node Null", listNode);
-        Assert.assertNotEquals("checkIdentifierKeyValuePairListNode Ref Node Null", NodeId.NULL, listNode);
+        Assert.assertNotNull("checkSpecificAssetIdListNode Ref Node Null", listNode);
+        Assert.assertNotEquals("checkSpecificAssetIdListNode Ref Node Null", NodeId.NULL, listNode);
 
-        checkType(client, listNode, new NodeId(aasns, TestConstants.AAS_ID_KEY_VALUE_PAIR_LIST_ID));
+        checkType(client, listNode, new NodeId(aasns, TestConstants.AAS_SPECIFIC_ASSET_ID_LIST_TYPE_ID));
 
         List<NodeId> nodeList = new ArrayList<>();
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode);
@@ -804,31 +819,31 @@ public class TestUtils {
         }
 
         for (NodeId node: nodeList) {
-            checkIdentifierKeyValuePairNode(client, node, aasns, map);
+            checkSpecificAssetIdNode(client, node, aasns, map);
         }
     }
 
 
-    private static void checkIdentifierKeyValuePairNode(UaClient client, NodeId node, int aasns, Map<String, String> map)
+    private static void checkSpecificAssetIdNode(UaClient client, NodeId node, int aasns, Map<String, String> map)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
-        checkType(client, node, new NodeId(aasns, TestConstants.AAS_ID_KEY_VALUE_PAIR_ID));
+        checkType(client, node, new NodeId(aasns, TestConstants.AAS_SPECIFIC_ASSET_ID_TYPE_ID));
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ID_KEY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIdType.NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ID_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASSpecificAssetIdType.VALUE)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Result Null", bpres);
         Assert.assertEquals("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", 2, bpres.length);
 
-        // Key
+        // Name
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Key Null", targets);
-        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Key empty", targets.length > 0);
+        Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Name Null", targets);
+        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Name empty", targets.length > 0);
         DataValue dataValue = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, dataValue.getStatusCode());
         String key = dataValue.getValue().toString();
@@ -843,18 +858,5 @@ public class TestUtils {
 
         Assert.assertTrue("Key not found in Map", map.containsKey(key));
         Assert.assertEquals("Value not equal", map.get(key), value);
-    }
-
-
-    private static void checkQualifierList(List<Qualifier> listExpected, List<AASQualifierType> listCurrent) {
-        Assert.assertEquals(listExpected.size(), listCurrent.size());
-
-        for (int i = 0; i < listExpected.size(); i++) {
-            Qualifier exp = listExpected.get(i);
-            AASQualifierType curr = listCurrent.get(i);
-            Assert.assertEquals("Qualifier Type not equal", exp.getType(), curr.getType());
-            Assert.assertEquals("Qualifier ValueType not equal", ValueConverter.stringToValueType(exp.getValueType()), curr.getValueType());
-            Assert.assertEquals("Qualifier Value not equal", exp.getValue(), curr.getValue());
-        }
     }
 }
