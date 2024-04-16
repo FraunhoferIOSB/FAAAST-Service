@@ -108,8 +108,8 @@
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
+        <logback.version>1.5.5</logback.version>
         <kotlin.version>1.9.23</kotlin.version>
-        <logback.version>1.5.4</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -121,7 +121,7 @@
         <maven.plugin.git.commit.id.version>8.0.2</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.3</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.4.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
@@ -136,8 +136,8 @@
         <milo.version>0.6.12</milo.version>
         <mockito.version>5.11.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.108.Final</netty.version>
-        <opencsv.version>5.8</opencsv.version>
+        <netty.version>4.1.109.Final</netty.version>
+        <opencsv.version>5.9</opencsv.version>
         <org.apache.httpcomponents.client5.version>5.3.1</org.apache.httpcomponents.client5.version>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.6</parsson.version>
@@ -152,7 +152,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -160,7 +160,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.6</systemstubs.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
         <threeten-extra.version>1.7.2</threeten-extra.version>
         <wiremock.version>2.35.2</wiremock.version>
         <woodstox.version>6.6.2</woodstox.version>

@@ -188,7 +188,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
         }
 
 
-        public B assetkind(AssetKind value) {
+        public B assetKind(AssetKind value) {
             getBuildingInstance().setAssetKind(value);
             return getSelf();
         }
@@ -218,7 +218,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
                 specificAssetIds(other.getSpecificAssetIds());
                 submodels(other.getSubmodels());
                 assetType(other.getAssetType());
-                assetkind(other.getAssetKind());
+                assetKind(other.getAssetKind());
                 extensions(other.getExtensions());
             }
             return getSelf();
