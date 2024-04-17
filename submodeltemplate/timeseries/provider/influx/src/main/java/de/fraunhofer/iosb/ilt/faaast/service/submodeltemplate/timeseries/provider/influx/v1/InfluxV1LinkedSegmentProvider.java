@@ -83,7 +83,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
     }
 
 
-    private List<Record> toRecords(Metadata metadata, QueryResult.Result result) throws SegmentProviderException {
+    private List<Record> toRecords(Metadata metadata, QueryResult.Result result) {
         if (result == null || result.getSeries() == null) {
             return new ArrayList<>();
         }
@@ -97,7 +97,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
     }
 
 
-    private Record toRecord(Metadata metadata, List<String> fields, List<Object> values) throws SegmentProviderException {
+    private Record toRecord(Metadata metadata, List<String> fields, List<Object> values) {
         Record result = new Record();
         for (int i = 0; i < values.size(); i++) {
             String fieldName = getPropertyName(fields.get(i));

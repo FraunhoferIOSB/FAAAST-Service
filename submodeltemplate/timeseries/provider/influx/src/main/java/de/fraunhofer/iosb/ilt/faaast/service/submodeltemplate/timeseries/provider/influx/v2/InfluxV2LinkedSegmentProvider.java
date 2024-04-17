@@ -107,7 +107,7 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
     }
 
 
-    private Record toRecord(Metadata metadata, Map<String, Integer> fields, Object[] values) throws SegmentProviderException {
+    private Record toRecord(Metadata metadata, Map<String, Integer> fields, Object[] values) {
         Record result = new Record();
         fields.forEach(LambdaExceptionHelper.rethrowBiConsumer(
                 (fieldName, index) -> {
@@ -183,17 +183,17 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                         Object fieldValue = record.getValue();
                         Record newRecord = result[j] == null ? new Record() : result[j];
                         Property newProperty = DeepCopyHelper.deepCopy(metadata.getMetadataRecordVariables().get(fieldName), Property.class);
-                        System.out.println(fieldName);
+                        LOGGER.debug(fieldName);
                         if (Datatype.fromAas4jDatatype(newProperty.getValueType()).equals(Datatype.DATE_TIME)) {
                             newProperty.setValue(fieldValue.toString());
                             newRecord.getTimesAndVariables().put(fieldName, newProperty);
-                            System.out.println(fieldName + ": " + newProperty.getValue());
+                            LOGGER.debug(fieldName + ": " + newProperty.getValue());
                         }
                         else {
                             try {
                                 newProperty.setValue(parseValue(fieldValue, Datatype.fromAas4jDatatype(newProperty.getValueType())).asString());
                                 newRecord.getTimesAndVariables().put(fieldName, newProperty);
-                                System.out.println(fieldName + ": " + newRecord.getTimesAndVariables().get(fieldName));
+                                LOGGER.debug(fieldName + ": " + newRecord.getTimesAndVariables().get(fieldName));
                             }
                             catch (ValueFormatException e) {
                                 LOGGER.warn("InfluxDB reader: Failed to add variable {} - could not parse value", fieldName);

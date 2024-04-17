@@ -30,7 +30,7 @@ public abstract class AbstractRelativeTime extends AbstractTime implements Relat
     protected long startOffsetInNanoseconds;
     protected long endOffsetInNanoseconds;
 
-    public AbstractRelativeTime(String datatype) {
+    protected AbstractRelativeTime(String datatype) {
         super(datatype);
     }
 

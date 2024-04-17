@@ -27,7 +27,7 @@ public abstract class AbstractTime implements Time {
 
     protected final String datatype;
 
-    public AbstractTime(String datatype) {
+    protected AbstractTime(String datatype) {
         this.datatype = datatype;
     }
 

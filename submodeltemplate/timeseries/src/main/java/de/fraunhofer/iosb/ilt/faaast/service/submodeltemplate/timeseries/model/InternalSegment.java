@@ -174,9 +174,9 @@ public class InternalSegment extends Segment {
 
     private ZonedDateTime getStartTime(Record rec) {
         Time time = TimeFactory.getTimeFrom(rec);
-        if (time instanceof AbsoluteTime) {
+        if (time instanceof AbsoluteTime absoluteTime) {
             try {
-                return ((AbsoluteTime) time).getStartAsUtcTime();
+                return absoluteTime.getStartAsUtcTime();
             }
             catch (MissingInitialisationException e) {
                 return null;
@@ -190,9 +190,9 @@ public class InternalSegment extends Segment {
 
     private ZonedDateTime getEndTime(Record rec) {
         Time time = TimeFactory.getTimeFrom(rec);
-        if (time instanceof AbsoluteTime) {
+        if (time instanceof AbsoluteTime absoluteTime) {
             try {
-                return ((AbsoluteTime) time).getEndAsUtcTime();
+                return absoluteTime.getEndAsUtcTime();
             }
             catch (MissingInitialisationException e) {
                 return null;

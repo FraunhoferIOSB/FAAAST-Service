@@ -30,7 +30,7 @@ public abstract class AbstractAbsoluteTime extends AbstractTime implements Absol
     protected ZonedDateTime startTimestampInUtcTime;
     protected ZonedDateTime endTimestampInUtcTime;
 
-    public AbstractAbsoluteTime(String datatype) {
+    protected AbstractAbsoluteTime(String datatype) {
         super(datatype);
     }
 

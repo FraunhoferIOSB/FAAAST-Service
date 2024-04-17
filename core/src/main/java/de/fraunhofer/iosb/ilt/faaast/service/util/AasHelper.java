@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -82,7 +81,7 @@ public class AasHelper {
             return List.of();
         }
         return collection.stream()
-                .filter(x -> Objects.equals(idShort, x.getIdShort())).collect(Collectors.toList());
+                .filter(x -> Objects.equals(idShort, x.getIdShort())).toList();
     }
 
 
@@ -103,8 +102,8 @@ public class AasHelper {
                 .filter(Objects::nonNull)
                 .filter(x -> Objects.equals(idShort, x.getIdShort()))
                 .filter(x -> type.isAssignableFrom(x.getClass()))
-                .map(x -> (T) x)
-                .collect(Collectors.toList());
+                .map(type::cast)
+                .toList();
     }
 
 
@@ -125,8 +124,8 @@ public class AasHelper {
                 .filter(x -> Objects.equals(ReferenceBuilder.global(semanticId), x.getSemanticId()))
                 .filter(Objects::nonNull)
                 .filter(x -> type.isAssignableFrom(x.getClass()))
-                .map(x -> (T) x)
-                .collect(Collectors.toList());
+                .map(type::cast)
+                .toList();
     }
 
 

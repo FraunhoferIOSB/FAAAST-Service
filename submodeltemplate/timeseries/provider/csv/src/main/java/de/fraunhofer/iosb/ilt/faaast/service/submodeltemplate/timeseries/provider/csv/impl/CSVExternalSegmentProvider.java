@@ -63,11 +63,10 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     @Override
     public List<Record> getRecords(Metadata metadata, ExternalSegment segment) throws SegmentProviderException {
         List<Record> resultRecords = new ArrayList<>();
-        if (segment.getData() instanceof File) {
-            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), null, segment.getStart());
-        }
-        else if (segment.getData() instanceof Blob) {
-            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), null, segment.getStart());
+        if (segment.getData() instanceof File file) {
+            resultRecords = getRecordFromFile(metadata, file, null, segment.getStart());
+        } else if (segment.getData() instanceof Blob blob) {
+            resultRecords = getRecordFromBlob(metadata, blob, null, segment.getStart());
         }
         return resultRecords;
     }
@@ -80,11 +79,10 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
         }
 
         List<Record> resultRecords = new ArrayList<>();
-        if (segment.getData() instanceof File) {
-            resultRecords = getRecordFromFile(metadata, (File) segment.getData(), timespan, segment.getStart());
-        }
-        else if (segment.getData() instanceof Blob) {
-            resultRecords = getRecordFromBlob(metadata, (Blob) segment.getData(), timespan, segment.getStart());
+        if (segment.getData() instanceof File file) {
+            resultRecords = getRecordFromFile(metadata, file, timespan, segment.getStart());
+        } else if (segment.getData() instanceof Blob blob) {
+            resultRecords = getRecordFromBlob(metadata, blob, timespan, segment.getStart());
         }
         return resultRecords;
     }
@@ -200,9 +198,8 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             recordRows = readAndExtractRecords(reader, metadata, timeColumnsTimeObject, timeColumnForFilter, startTime, timespan);
         }
         catch (IOException e) {
-            String message = String.format("Error reading from CSV File: Header not parsable: %s",
-                    e.getMessage());
-            LOGGER.error(message);
+            String message = String.format("Error reading from CSV File: Header not parsable: %s", e.getMessage());
+            LOGGER.error(message, e);
             throw new SegmentProviderException(message);
         }
         return recordRows;
@@ -214,7 +211,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
         ArrayList<Record> recordRows = new ArrayList<>();
         Map<String, String> values;
 
-        boolean absoluteType = timetype instanceof AbsoluteTime;
+        boolean absoluteType = AbsoluteTime.class.isAssignableFrom(timetype.getClass());
 
         try {
             ZonedDateTime currentStartTime = startTime;
@@ -271,7 +268,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     }
 
 
-    private Record toRecord(Metadata metadata, Map<String, String> row) throws SegmentProviderException {
+    private Record toRecord(Metadata metadata, Map<String, String> row) {
         Record newRecord = new Record();
         for (Entry<String, String> columnEntry: row.entrySet()) {
             String columnName = columnEntry.getKey().trim();

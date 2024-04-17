@@ -182,12 +182,9 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
     protected static TypedValue parseValue(Object value, Datatype datatype) throws ValueFormatException {
         Object valuePreprocessed = value;
         switch (datatype) {
-            case BYTE:
-            case INT:
-            case INTEGER:
-            case SHORT: {
-                if (value instanceof Number) {
-                    valuePreprocessed = ((Number) value).intValue();
+            case BYTE, INT, INTEGER, SHORT: {
+                if (value instanceof Number number) {
+                    valuePreprocessed = number.intValue();
                 }
                 break;
             }

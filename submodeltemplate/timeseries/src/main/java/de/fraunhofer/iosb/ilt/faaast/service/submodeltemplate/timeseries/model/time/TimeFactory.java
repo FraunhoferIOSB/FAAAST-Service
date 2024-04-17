@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -68,12 +69,12 @@ public class TimeFactory {
         Optional<Property> timeProperty = record.getTimesAndVariables().entrySet().stream()
                 .filter(entr -> entr.getKey().toLowerCase().startsWith("time"))
                 .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
-                .map(entr -> entr.getValue())
+                .map(Entry::getValue)
                 .findFirst();
         if (timeProperty.isEmpty()) {
             timeProperty = record.getTimesAndVariables().entrySet().stream()
                     .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
-                    .map(entr -> entr.getValue())
+                    .map(Entry::getValue)
                     .findFirst();
         }
         if (timeProperty.isPresent()) {
@@ -103,12 +104,12 @@ public class TimeFactory {
         Optional<Property> timeProperty = record.getTimesAndVariables().entrySet().stream()
                 .filter(entr -> entr.getKey().toLowerCase().startsWith("time"))
                 .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
-                .map(entr -> entr.getValue())
+                .map(Entry::getValue)
                 .findFirst();
         if (timeProperty.isEmpty()) {
             timeProperty = record.getTimesAndVariables().entrySet().stream()
                     .filter(entr -> supportedSemanticIDs.containsKey(entr.getValue().getSemanticId().getKeys().get(0).getValue()))
-                    .map(entr -> entr.getValue())
+                    .map(Entry::getValue)
                     .findFirst();
         }
         if (timeProperty.isPresent()) {
@@ -121,18 +122,15 @@ public class TimeFactory {
 
     private static Timespan extractTimespan(Time time, String propertyShortID, ZonedDateTime absoluteStarttime, ZonedDateTime previousEndtime, Metadata metadata) {
         try {
-            if (time instanceof AbsoluteTime) {
-                AbsoluteTime absolute = (AbsoluteTime) time;
+            if (time instanceof AbsoluteTime absolute) {
                 return new Timespan(absolute.getStartAsUtcTime(), absolute.getEndAsUtcTime());
 
             }
-            else if (time instanceof RelativeTime) {
-                RelativeTime relative = (RelativeTime) time;
-
+            else if (time instanceof RelativeTime relative) {
                 Optional<Qualifier> qualifier = metadata.getMetadataRecordVariables().get(propertyShortID).getQualifiers().stream()
-                        .filter(constr -> constr instanceof Qualifier
-                                && ((Qualifier) constr).getSemanticId().getKeys().get(0).getValue().startsWith(Constants.MEASUREMENT_MODEL_QUALIFIER_SEMANTIC_ID))
-                        .map(constr -> (Qualifier) constr)
+                        .filter(Qualifier.class::isInstance)
+                        .filter(x -> x.getSemanticId().getKeys().get(0).getValue().startsWith(Constants.MEASUREMENT_MODEL_QUALIFIER_SEMANTIC_ID))
+                        .map(Qualifier.class::cast)
                         .findFirst();
 
                 boolean isIncremental = qualifier.isPresent() ? qualifier.get().getValue().equals("incremental") : relative.isIncrementalToPrevious();
@@ -299,8 +297,7 @@ public class TimeFactory {
         try {
             for (Constructor<?> constr: timeClass.getConstructors()) {
                 if (constr.getParameterCount() == 0) {
-                    Time timeType = (Time) constr.newInstance();
-                    return timeType;
+                    return (Time) constr.newInstance();
                 }
             }
             LOGGER.error("TimeFactory: No fitting constructor found in class [{}]. Should have a constructor without arguments.",
