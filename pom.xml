@@ -113,7 +113,7 @@
         <maven.plugin.git.commit.id.version>8.0.2</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.4</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.4.0</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.4.1</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
