@@ -191,19 +191,19 @@ public class Service implements ServiceContext {
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(
                                 AssetAdministrationShellSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .submodels(
                         persistence.findSubmodels(
                                 SubmodelSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .conceptDescriptions(
                         persistence.findConceptDescriptions(
                                 ConceptDescriptionSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .build();
@@ -283,7 +283,7 @@ public class Service implements ServiceContext {
         if (submodelTemplateProcessors.isEmpty()) {
             return;
         }
-        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.DEFAULT, PagingInfo.ALL).getContent();
+        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
         for (var submodel: submodels) {
             for (var submodelTemplateProcessor: submodelTemplateProcessors) {
                 if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
