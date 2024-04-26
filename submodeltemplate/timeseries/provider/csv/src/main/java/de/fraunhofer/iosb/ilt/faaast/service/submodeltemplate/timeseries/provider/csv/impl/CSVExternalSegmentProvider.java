@@ -19,6 +19,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
@@ -31,14 +32,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.ExternalSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,6 +59,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     private static final String ACCEPTED_MIMETYPE = "text/csv";
 
     private CSVExternalSegmentProviderConfig config;
+    private ServiceContext serviceContext;
 
     @Override
     public List<Record> getRecords(Metadata metadata, ExternalSegment segment) throws SegmentProviderException {
@@ -91,6 +92,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
     @Override
     public void init(CoreConfig coreConfig, CSVExternalSegmentProviderConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
+        this.serviceContext = serviceContext;
     }
 
 
@@ -114,35 +116,17 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
             LOGGER.debug(message);
             throw new SegmentProviderException(message);
         }
-
         List<Record> recordRows = new ArrayList<>();
-        java.io.File csvFile;
-        if (config.getBaseDir() != null) {
-            csvFile = new java.io.File(config.getBaseDir(), data.getValue());
-        }
-        else {
-            csvFile = new java.io.File(data.getValue());
-        }
-        try (FileReader reader = new FileReader(csvFile)) {
+        try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(serviceContext.getFileContent(data.getValue())))) {
             recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
         }
-        catch (FileNotFoundException e) {
-            String message = String.format("Error reading from File (file: %s, full path: %s): FileNotFoundException: %s",
+        catch (IOException | ResourceNotFoundException e) {
+            String message = String.format("CSV file not available (file: %s, reason: %s)",
                     data.getValue(),
-                    csvFile.getAbsolutePath(),
                     e.getMessage());
             LOGGER.debug(message);
             throw new SegmentProviderException(message);
         }
-        catch (IOException e1) {
-            String message = String.format("Error reading from File (file: %s, full path: %s): Error closing reader: %s",
-                    data.getValue(),
-                    csvFile.getAbsolutePath(),
-                    e1.getMessage());
-            LOGGER.debug(message);
-            throw new SegmentProviderException(message);
-        }
-
         return recordRows;
     }
 
@@ -159,7 +143,7 @@ public class CSVExternalSegmentProvider implements ExternalSegmentProvider<CSVEx
 
         List<Record> recordRows = new ArrayList<>();
         try {
-            String blobData = new String(Base64.getDecoder().decode(data.getValue())); //TODO check correctness
+            String blobData = new String(data.getValue());
             StringReader reader = new StringReader(blobData);
             recordRows = readCsvToRecords(metadata, reader, timespan, startTime);
         }

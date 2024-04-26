@@ -16,11 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provid
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.ExternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
@@ -29,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.t
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.csv.TimeSeriesTestData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -40,38 +44,43 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 
 public class CSVExternalSegmentProviderTest {
 
+    private ServiceContext serviceContext;
     private CSVExternalSegmentProviderConfig config;
     private CSVExternalSegmentProvider provider;
     private ExternalSegment fileSegment;
     private ExternalSegment blobSegment;
 
     private final File dataFile = new DefaultFile.Builder()
-            .value("src/test/resources/testCSV.csv")
+            .value("testCSV.csv")
             .contentType("text/csv")
             .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
     private final File dataFile_mapped = new DefaultFile.Builder()
-            .value("src/test/resources/testCSV_mapped.csv")
+            .value("testCSV_mapped.csv")
             .contentType("text/csv")
             .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
     private final File dataFile_mapped_variable = new DefaultFile.Builder()
-            .value("src/test/resources/testCSV_mapped_variable.csv")
+            .value("testCSV_mapped_variable.csv")
             .contentType("text/csv")
             .semanticId(ReferenceBuilder.global(Constants.FILE_SEMANTIC_ID))
             .idShort("Data")
             .build();
 
-    byte[] base64Blob = "VGltZTAwLFRpbWUwMSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDIwMjItMDItMDFUMDE6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMjAyMi0wMi0wMVQwMjowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyMDIyLTAyLTAxVDAzOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMjAyMi0wMi0wMVQwNDowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosMjAyMi0wMi0wMVQwNTowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosMjAyMi0wMi0wMlQwMjowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDIwMjItMDItMDJUMDM6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDIwMjItMDItMDJUMDQ6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDIwMjItMDItMDNUMDI6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiwyMDIyLTAyLTAzVDAzOjAwOjAwWiw5LDAuOSxpdA=="
+    byte[] base64Blob = EncodingHelper.base64Decode(
+            "VGltZTAwLFRpbWUwMSxmb28sYmFyLGV4dHJhCjIwMjItMDItMDFUMDA6MDA6MDBaLDIwMjItMDItMDFUMDE6MDA6MDBaLDAsMC4xLHRoaXMKMjAyMi0wMi0wMVQwMTowMDowMFosMjAyMi0wMi0wMVQwMjowMDowMFosMSwwLjIsZG9lcwoyMDIyLTAyLTAxVDAyOjAwOjAwWiwyMDIyLTAyLTAxVDAzOjAwOjAwWiwyLDAuMSxub3QKMjAyMi0wMi0wMVQwMzowMDowMFosMjAyMi0wMi0wMVQwNDowMDowMFosMywwLjMsZXhpc3QKMjAyMi0wMi0wMVQwNDowMDowMFosMjAyMi0wMi0wMVQwNTowMDowMFosNCwwLjEsaW4KMjAyMi0wMi0wMlQwMTowMDowMFosMjAyMi0wMi0wMlQwMjowMDowMFosNSwwLjQsdGhlCjIwMjItMDItMDJUMDI6MDA6MDBaLDIwMjItMDItMDJUMDM6MDA6MDBaLDYsMC4xLHNlZ21lbnRzCjIwMjItMDItMDJUMDM6MDA6MDBaLDIwMjItMDItMDJUMDQ6MDA6MDBaLDcsMC41LG1ldGFkYXRhCjIwMjItMDItMDNUMDE6MDA6MDBaLDIwMjItMDItMDNUMDI6MDA6MDBaLDgsMC44LGlnbm9yZQoyMDIyLTAyLTAzVDAyOjAwOjAwWiwyMDIyLTAyLTAzVDAzOjAwOjAwWiw5LDAuOSxpdA==")
             .getBytes();
+
     private final Blob dataBlob = new DefaultBlob.Builder()
             .value(base64Blob)
             .contentType("text/csv")
@@ -80,14 +89,22 @@ public class CSVExternalSegmentProviderTest {
             .build();
 
     @Before
-    public void setUp() throws ConfigurationException {
+    public void setUp() throws ConfigurationException, ResourceNotFoundException {
         fileSegment = ExternalSegment.builder().data(dataFile).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
         blobSegment = ExternalSegment.builder().data(dataBlob).start(ZonedDateTime.parse("2022-02-01T00:00:00Z"))
                 .end(ZonedDateTime.parse("2022-02-03T02:00:00Z")).build();
 
         config = CSVExternalSegmentProviderConfig.builder().timeColumns(List.of("Time00", "Time01")).build();
-        provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
+        serviceContext = mock(ServiceContext.class);
+        when(serviceContext.getFileContent(any())).thenAnswer(new Answer<>() {
+            @Override
+            public Object answer(InvocationOnMock iom) throws Throwable {
+                String filename = (String) iom.getArgument(0);
+                return getClass().getResourceAsStream("/" + filename).readAllBytes();
+            }
+        });
+        provider = (CSVExternalSegmentProvider) config.newInstance(CoreConfig.DEFAULT, serviceContext);
     }
 
 
@@ -99,7 +116,7 @@ public class CSVExternalSegmentProviderTest {
                 .columnToVariableNames(Map.of("Time", "Time00")).build();
         CSVExternalSegmentProvider provider_mapped;
         try {
-            provider_mapped = (CSVExternalSegmentProvider) config_mapped.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
+            provider_mapped = (CSVExternalSegmentProvider) config_mapped.newInstance(CoreConfig.DEFAULT, serviceContext);
             assertEqualsIgnoringIdShort(
                     TimeSeriesTestData.RECORDS,
                     provider_mapped.getRecords(TimeSeriesTestData.METADATA, fileSegment,
@@ -119,7 +136,7 @@ public class CSVExternalSegmentProviderTest {
                 .columnToVariableNames(Map.of("FOO", "foo")).build();
         CSVExternalSegmentProvider provider_mapped;
         try {
-            provider_mapped = (CSVExternalSegmentProvider) config_mapped.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
+            provider_mapped = (CSVExternalSegmentProvider) config_mapped.newInstance(CoreConfig.DEFAULT, serviceContext);
             assertEqualsIgnoringIdShort(
                     TimeSeriesTestData.RECORDS,
                     provider_mapped.getRecords(TimeSeriesTestData.METADATA, fileSegment,
@@ -224,7 +241,6 @@ public class CSVExternalSegmentProviderTest {
 
     @Test
     public void testWithBaseDirInConfig() throws ConfigurationException, SegmentProviderException {
-        this.config.setBaseDir("src/test/resources");
         File dataFileShort = new DefaultFile.Builder()
                 .value("testCSV.csv")
                 .contentType("text/csv")

@@ -180,6 +180,12 @@ public class Service implements ServiceContext {
 
 
     @Override
+    public byte[] getFileContent(String path) throws ResourceNotFoundException {
+        return fileStorage.get(path);
+    }
+
+
+    @Override
     public boolean hasValueProvider(Reference reference) {
         return Objects.nonNull(assetConnectionManager.getValueProvider(reference));
     }

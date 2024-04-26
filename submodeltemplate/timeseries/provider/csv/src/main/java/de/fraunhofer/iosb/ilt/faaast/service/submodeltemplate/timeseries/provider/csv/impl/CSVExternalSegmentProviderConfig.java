@@ -26,20 +26,9 @@ import java.util.Map;
  */
 public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderConfig<CSVExternalSegmentProvider> {
 
-    private String baseDir;
     private List<String> timeColumns;
 
     private Map<String, String> columnToVariableNames = new HashMap<>();
-
-    public String getBaseDir() {
-        return baseDir;
-    }
-
-
-    public void setBaseDir(String baseDir) {
-        this.baseDir = baseDir;
-    }
-
 
     public List<String> getTimeColumns() {
         return timeColumns;
@@ -62,12 +51,6 @@ public class CSVExternalSegmentProviderConfig extends ExternalSegmentProviderCon
 
     public abstract static class AbstractBuilder<T extends CSVExternalSegmentProviderConfig, B extends AbstractBuilder<T, B>>
             extends ExternalSegmentProviderConfig.AbstractBuilder<T, B> {
-
-        public B baseDir(String value) {
-            getBuildingInstance().setBaseDir(value);
-            return getSelf();
-        }
-
 
         public B timeColumns(List<String> value) {
             getBuildingInstance().setTimeColumns(value);
