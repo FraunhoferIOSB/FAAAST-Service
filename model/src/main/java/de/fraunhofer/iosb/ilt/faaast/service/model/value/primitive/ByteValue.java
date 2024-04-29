@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -37,7 +38,9 @@ public class ByteValue extends TypedValue<Byte> {
 
     @Override
     public String asString() {
-        return Byte.toString(value);
+        return Objects.nonNull(value)
+                ? Byte.toString(value)
+                : null;
     }
 
 

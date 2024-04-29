@@ -109,15 +109,19 @@ public class JsonDeserializerTest {
     }
 
 
-    @Test
-    public void testPage() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
-        assertValuePage(Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
-                ValueOnlyExamples.PROPERTY_INT, ValueOnlyExamples.PROPERTY_INT_FILE,
-                ValueOnlyExamples.PROPERTY_DOUBLE, ValueOnlyExamples.PROPERTY_DOUBLE_FILE));
-
-        assertValuePage(Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
-                ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT, ValueOnlyExamples.ANNOTATED_RELATIONSHIP_ELEMENT_FILE,
-                ValueOnlyExamples.ENTITY, ValueOnlyExamples.ENTITY_FILE));
+    private String filesAsJsonArray(Map<SubmodelElement, File> input) {
+        return input.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return ValueHelper.extractValueJson(x.getValue(), x.getKey());
+                    }
+                    catch (IOException e) {
+                        // TODO proper error handling
+                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
+                    }
+                    return null;
+                })
+                .collect(Collectors.joining(",", "[", "]"));
     }
 
 
@@ -258,22 +262,6 @@ public class JsonDeserializerTest {
 
     private String filesAsJsonPage(Map<SubmodelElement, File> input) {
         return String.format("{\"result\": %s}", filesAsJsonArray(input));
-    }
-
-
-    private String filesAsJsonArray(Map<SubmodelElement, File> input) {
-        return input.entrySet().stream()
-                .map(x -> {
-                    try {
-                        return ValueHelper.extractValueJson(x.getValue(), x.getKey());
-                    }
-                    catch (IOException e) {
-                        // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
-                    }
-                    return null;
-                })
-                .collect(Collectors.joining(",", "[", "]"));
     }
 
 

@@ -50,6 +50,9 @@
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
+        <module>submodeltemplate/timeseries</module>
+        <module>submodeltemplate/timeseries/provider/csv</module>
+        <module>submodeltemplate/timeseries/provider/influx</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
@@ -87,6 +90,10 @@
         <equalsverifier.version>3.16.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.1.0-jre</guava.version>
+        <hamcrest.version>2.2</hamcrest.version>
+        <influxdb.client.java.version>7.0.0</influxdb.client.java.version>
+        <influxdb.java.version>2.24</influxdb.java.version>
+        <influxdb.version>7.0.0</influxdb.version>
         <jackson.databind.version>2.17.0</jackson.databind.version>
         <jackson.version>2.17.0</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
@@ -101,6 +108,7 @@
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
+        <kotlin.version>1.9.23</kotlin.version>
         <logback.version>1.5.6</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -129,6 +137,7 @@
         <mockito.version>5.11.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.109.Final</netty.version>
+        <opencsv.version>5.9</opencsv.version>
         <org.apache.httpcomponents.client5.version>5.3.1</org.apache.httpcomponents.client5.version>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.6</parsson.version>
@@ -151,6 +160,8 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.6</systemstubs.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
+        <threeten-extra.version>1.7.2</threeten-extra.version>
         <wiremock.version>2.35.2</wiremock.version>
         <woodstox.version>6.6.2</woodstox.version>
     </properties>

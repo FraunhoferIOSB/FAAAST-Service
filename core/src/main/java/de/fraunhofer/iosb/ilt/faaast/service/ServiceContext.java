@@ -88,4 +88,14 @@ public interface ServiceContext {
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}, otherwise false
      */
     public boolean hasValueProvider(Reference reference);
+
+
+    /**
+     * Reads file content from storage.
+     *
+     * @param path the path to the file
+     * @return file content of the desired file.
+     * @throws ResourceNotFoundException if file content is not available
+     */
+    public byte[] getFileContent(String path) throws ResourceNotFoundException;
 }

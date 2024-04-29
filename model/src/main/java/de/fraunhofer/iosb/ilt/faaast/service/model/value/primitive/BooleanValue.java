@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import java.util.Objects;
 
 
 /**
@@ -35,7 +36,9 @@ public class BooleanValue extends TypedValue<Boolean> {
 
     @Override
     public String asString() {
-        return Boolean.toString(value);
+        return Objects.nonNull(value)
+                ? Boolean.toString(value)
+                : null;
     }
 
 

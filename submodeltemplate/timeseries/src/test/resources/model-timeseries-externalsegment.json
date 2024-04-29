@@ -1,0 +1,102 @@
+
+{
+	"idShort": "Submodel1",
+	"id": "urn:faaast:test:submodel:1",
+	"semanticId":
+	{
+		"type": "ExternalReference",
+		"keys": [
+			{
+				"type": "GlobalReference",
+				"value": "https://admin-shell.io/idta/TimeSeries/1/1"
+			}
+		]
+	},
+	"kind": "Instance",
+	"modelType": "Submodel",
+	"submodelElements": [
+		{
+			"idShort": "Metadata",
+			"semanticId":
+			{
+				"type": "ExternalReference",
+				"keys": [
+					{
+						"type": "GlobalReference",
+						"value": "https://admin-shell.io/idta/TimeSeries/Metadata/1/1"
+					}
+				]
+			},
+			"modelType": "SubmodelElementCollection",
+			"value": [
+
+				{
+					"idShort": "RecordMetadata",
+					"semanticId":
+					{
+						"type": "ExternalReference",
+						"keys": [
+							{
+								"type": "GlobalReference",
+								"value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
+							}
+						]
+					},
+					"modelType": "SubmodelElementCollection",
+					"value": [
+
+						{
+							"idShort": "foo",
+							"valueType": "xs:int",
+							"modelType": "Property"
+						},
+						{
+							"idShort": "bar",
+							"valueType": "xs:double",
+							"modelType": "Property"
+						}
+					]
+				}
+
+			]
+		},
+		{
+			"idShort": "Segments",
+			"modelType": "SubmodelElementCollection",
+			"value": [
+				{
+					"idShort": "ExternalSegment01",
+					"semanticId":
+					{
+						"type": "ExternalReference",
+						"keys": [
+							{
+								"type": "GlobalReference",
+								"value": "https://admin-shell.io/idta/TimeSeries/Segments/ExternalSegment/1/1"
+							}
+						]
+					},
+					"modelType": "SubmodelElementCollection",
+					"value": [
+						{
+							"idShort": "Data",
+							"semanticId":
+							{
+								"type": "ExternalReference",
+								"keys": [
+									{
+										"type": "GlobalReference",
+										"value": "https://admin-shell.io/idta/TimeSeries/File/1/1"
+									}
+								]
+							},
+							"modelType": "File",
+							"value": "./testCSVFile.csv",
+							"contentType": "text/csv"
+						}
+					]
+				}
+			]
+		}
+	]
+}

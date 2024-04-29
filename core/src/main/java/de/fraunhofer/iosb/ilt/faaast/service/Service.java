@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -52,6 +53,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
@@ -70,6 +72,7 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private FileStorage fileStorage;
+    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -81,6 +84,7 @@ public class Service implements ServiceContext {
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
+     * @param submodelTemplateProcessors SMT processors
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
@@ -93,7 +97,8 @@ public class Service implements ServiceContext {
             FileStorage fileStorage,
             MessageBus messageBus,
             List<Endpoint> endpoints,
-            List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
+            List<AssetConnection> assetConnections,
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
@@ -104,6 +109,7 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -111,6 +117,13 @@ public class Service implements ServiceContext {
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
+        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
+                this.config.getCore(),
+                this.persistence,
+                this.fileStorage,
+                this.messageBus,
+                this.assetConnectionManager));
+        initSubmodelTemplateProcessors();
     }
 
 
@@ -167,6 +180,12 @@ public class Service implements ServiceContext {
 
 
     @Override
+    public byte[] getFileContent(String path) throws ResourceNotFoundException {
+        return fileStorage.get(path);
+    }
+
+
+    @Override
     public boolean hasValueProvider(Reference reference) {
         return Objects.nonNull(assetConnectionManager.getValueProvider(reference));
     }
@@ -178,19 +197,19 @@ public class Service implements ServiceContext {
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(
                                 AssetAdministrationShellSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .submodels(
                         persistence.findSubmodels(
                                 SubmodelSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .conceptDescriptions(
                         persistence.findConceptDescriptions(
                                 ConceptDescriptionSearchCriteria.NONE,
-                                QueryModifier.DEFAULT,
+                                QueryModifier.MAXIMAL,
                                 PagingInfo.ALL)
                                 .getContent())
                 .build();
@@ -256,6 +275,31 @@ public class Service implements ServiceContext {
     }
 
 
+    private void initSubmodelTemplateProcessors() throws ConfigurationException {
+        if (submodelTemplateProcessors == null) {
+            submodelTemplateProcessors = new ArrayList<>();
+        }
+        if (config.getSubmodelTemplateProcessors() != null) {
+            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
+                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this);
+                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, this);
+                submodelTemplateProcessors.add(submodelTemplateProcessor);
+            }
+        }
+        if (submodelTemplateProcessors.isEmpty()) {
+            return;
+        }
+        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        for (var submodel: submodels) {
+            for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+                if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
+                    persistence.save(submodel);
+                }
+            }
+        }
+    }
+
+
     private void init() throws ConfigurationException {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
@@ -270,6 +314,7 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
