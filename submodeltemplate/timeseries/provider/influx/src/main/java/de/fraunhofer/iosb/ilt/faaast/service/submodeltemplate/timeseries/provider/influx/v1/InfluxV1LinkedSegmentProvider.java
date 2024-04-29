@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -136,7 +137,9 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
     private QueryResult executeQuery(String query) throws SegmentProviderException {
         try {
-            InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
+            InfluxDB influxDB = StringHelper.isBlank(config.getUsername())
+                    ? InfluxDBFactory.connect(config.getEndpoint())
+                    : InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
             influxDB.setDatabase(config.getDatabase());
             return influxDB.query(new Query(query));
         }
