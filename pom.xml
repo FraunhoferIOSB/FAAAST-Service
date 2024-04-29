@@ -77,9 +77,9 @@
     <properties>
         <aas4j.version>1.0.2</aas4j.version>
         <awaitility.version>4.2.1</awaitility.version>
-        <bouncycastle.version>1.78</bouncycastle.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
         <checkstyle.version>10.15.0</checkstyle.version>
-        <classgraph.version>4.8.170</classgraph.version>
+        <classgraph.version>4.8.172</classgraph.version>
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.compress.version>1.26.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
@@ -109,7 +109,7 @@
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <kotlin.version>1.9.23</kotlin.version>
-        <logback.version>1.5.5</logback.version>
+        <logback.version>1.5.6</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -119,9 +119,9 @@
         <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>8.0.2</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.2.3</maven.plugin.gpg.version>
+        <maven.plugin.gpg.version>3.2.4</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.4.0</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.4.1</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
@@ -130,7 +130,7 @@
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.1.0-110</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
-        <maven.plugin.shade.version>3.5.2</maven.plugin.shade.version>
+        <maven.plugin.shade.version>3.5.3</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
         <milo.version>0.6.12</milo.version>

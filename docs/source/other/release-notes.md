@@ -4,7 +4,7 @@
 
 **New Features & Major Changes**
 - General
-	- Loading AAS modles from JSON now fails on unknown JSON properties
+	- Loading AAS models from JSON now fails on unknown JSON properties
 
 **Internal changes & bugfixes**
 - General

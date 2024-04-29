@@ -74,7 +74,7 @@ You can define both a ValueProvider and a SubscriptionProvider for the same elem
 :::
 
 
-## Common OperationProvider Configuration
+## OperationProvider Configuration
 All OperationProvider share the following common set of configuration properties.
 
 :::{table} Common configuration properties of OperationProviders.
@@ -226,19 +226,19 @@ Validation of operation argument can be configured independently for in-, out-, 
 | Name                     | Allowed Value | Description                                         | Default Value        |
 | ------------------------ | ------------- | --------------------------------------------------- | -------------------- |
 | clientId<br>*(optional)* | String        | Id of the MQTT client used to connect to the server | *randomly generated* |
-| password*(optional)*     | String        | Password for connecting to the MQTT server          |                      |
+| password<br>*(optional)* | String        | Password for connecting to the MQTT server          |                      |
 | serverUri                | String        | URL of the MQTT server, e.g. *tcp://localhost:1883* |                      |
-| username*(optional)*     | String        | Username for connecting to the MQTT server          |                      |
+| username<br>*(optional)* | String        | Username for connecting to the MQTT server          |                      |
 :::
 
 #### Value Provider
 
 :::{table} Configuration properties of MQTT AssetConnection Value Provider.
-| Name                 | Allowed Value | Description                      | Default Value        |
-| -------------------- | ------------- | -------------------------------- | -------------------- |
-| format               | JSON<br>XML   | Content format of the payload.   |                      |
-| topic                | String        | MQTT topic to use.               |                      |
-| template*(optional)* | String        | Template used to format payload. |                      |
+| Name                     | Allowed Value | Description                      | Default Value        |
+| ------------------------ | ------------- | -------------------------------- | -------------------- |
+| format                   | JSON<br>XML   | Content format of the payload.   |                      |
+| topic                    | String        | MQTT topic to use.               |                      |
+| template<br>*(optional)* | String        | Template used to format payload. |                      |
 :::
 
 ```{code-block} json
@@ -254,11 +254,11 @@ Validation of operation argument can be configured independently for in-, out-, 
 #### Subscription Provider
 
 :::{table} Configuration properties of MQTT AssetConnection Subscription Provider.
-| Name                 | Allowed Value | Description                                                                                                                                     | Default Value        |
-| -------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| format               | JSON<br>XML   | Content format of the payload.                                                                                                                  |                      |
-| topic                | String        | MQTT topic to use.                                                                                                                              |                      |
-| query*(optional)*    | String        | Additional information how to extract actual value from received messages.<br>Depends on `format`, e.g. for JSON this is a JSONPath expression. |                      |
+| Name                  | Allowed Value | Description                                                                                                                                     | Default Value        |
+| --------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| format                | JSON<br>XML   | Content format of the payload.                                                                                                                  |                      |
+| topic                 | String        | MQTT topic to use.                                                                                                                              |                      |
+| query<br>*(optional)* | String        | Additional information how to extract actual value from received messages.<br>Depends on `format`, e.g. for JSON this is a JSONPath expression. |                      |
 :::
 
 ```{code-block} json
