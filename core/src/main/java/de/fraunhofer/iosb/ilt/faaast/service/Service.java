@@ -59,7 +59,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class of the FA³ST Service accumulating and connecting all different components.
+ * Central class of the FA³ST Service accumulating and connecting all different
+ * components.
  */
 public class Service implements ServiceContext {
 
@@ -85,8 +86,10 @@ public class Service implements ServiceContext {
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
      * @throws RuntimeException if creating a deep copy of aasEnvironment fails
-     * @throws ConfigurationException the configuration the {@link AssetConnectionManager} fails
-     * @throws AssetConnectionException when initializing asset connections fails
+     * @throws ConfigurationException the configuration the
+     *             {@link AssetConnectionManager} fails
+     * @throws AssetConnectionException when initializing asset connections
+     *             fails
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
@@ -111,6 +114,12 @@ public class Service implements ServiceContext {
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
+        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
+                coreConfig,
+                persistence,
+                fileStorage,
+                messageBus,
+                assetConnectionManager));
     }
 
 
@@ -120,7 +129,8 @@ public class Service implements ServiceContext {
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
-     * @throws AssetConnectionException when initializing asset connections fails
+     * @throws AssetConnectionException when initializing asset connections
+     *             fails
      */
     public Service(ServiceConfig config)
             throws ConfigurationException, AssetConnectionException {
@@ -201,7 +211,8 @@ public class Service implements ServiceContext {
      * Executes a request asynchroniously.
      *
      * @param request request to execute
-     * @param callback callback handler that is called when execution if finished
+     * @param callback callback handler that is called when execution if
+     *            finished
      * @throws IllegalArgumentException if request is null
      * @throws IllegalArgumentException if callback is null
      */
@@ -246,7 +257,8 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Stop the service. This includes stopping the message bus and all endpoints.
+     * Stop the service. This includes stopping the message bus and all
+     * endpoints.
      */
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");

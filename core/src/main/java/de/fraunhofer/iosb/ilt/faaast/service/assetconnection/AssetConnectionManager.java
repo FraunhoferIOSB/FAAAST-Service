@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -38,6 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -46,18 +49,22 @@ import org.slf4j.LoggerFactory;
  */
 public class AssetConnectionManager {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext serviceContext;
     private final ScheduledExecutorService scheduledExecutorService;
     private volatile boolean active;
+    private final LambdaAssetConnection lambdaAssetConnection;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
         this.active = true;
         this.coreConfig = coreConfig;
-        this.connections = connections != null ? connections : new ArrayList<>();
+        this.connections = connections != null ? new ArrayList<>(connections) : new ArrayList<>();
         this.serviceContext = context;
+        this.lambdaAssetConnection = new LambdaAssetConnection();
+        this.lambdaAssetConnection.init(coreConfig, LambdaAssetConnectionConfig.builder().build(), serviceContext);
+        this.connections.add(lambdaAssetConnection);
         validateConnections();
         ThreadFactory threadFactory = new ThreadFactory() {
             AtomicLong count = new AtomicLong(0);
@@ -68,6 +75,11 @@ public class AssetConnectionManager {
             }
         };
         scheduledExecutorService = Executors.newScheduledThreadPool(this.connections.size(), threadFactory);
+    }
+
+
+    public LambdaAssetConnection getLambdaAssetConnection() {
+        return lambdaAssetConnection;
     }
 
 
