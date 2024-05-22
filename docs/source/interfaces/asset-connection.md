@@ -457,3 +457,83 @@ Which authentication certificate is used is determined by a similar logic as for
 }
 ```
 
+## Lambda
+
+The Lambda asset connection provides an easy way to create providers from code using lambda expressions.
+It therefore can be used only from code and not via configuration file.
+
+### Supported Providers
+
+- ValueProvider
+	- read ✔️
+	- write ✔️
+- OperationProvider ✔️
+- SubscriptionProvider ✔️
+
+### Usage
+
+Use the `AssetConnectionManager` to un-/register lambda providers with FA³ST Service during creation of the `Service` instance.
+
+#### Value Provider
+
+The Lambda ValueProvider can be used to read, write, or both as shown in the following code example.
+
+```{code-block} java
+:caption: Using a Lambda ValueProvider from code.
+:lineno-start: 1
+Service service = new Service(...);
+Reference referenceToAASElement = ...;
+
+service.getAssetConnectionManager().registerLambdaValueProvider(
+		referenceToAASElement,
+		LambdaValueProvider.builder()
+				.read(() -> new PropertyValue(new StringValue("example value")))
+				.write(x -> System.out.println("new value: " + x))
+				.build());
+service.start();
+```
+
+#### Subscription Provider
+
+The Lambda SubscriptionProvider is a bit more complex because it requires asynchronicity, i.e. running a separate thread parallel to FA³ST Service and every now and then notify FA³ST Service about new values by calling `NewDataListener.newDataReceived`.
+In the example we use a `ScheduledExecutorService` to periodically call the listener but this is not required and can be done any other way.
+
+```{code-block} java
+:caption: Using a Lambda SubscriptionProvider from code.
+:lineno-start: 1
+Service service = new Service(...);
+Reference referenceToAASElement = ...;
+ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+service.getAssetConnectionManager().registerLambdaSubscriptionProvider(
+		referenceToAASElement,
+		LambdaSubscriptionProvider.builder()
+				.generate(listener -> scheduler.scheduleAtFixedRate(
+						() -> listener.newDataReceived( // periodically call listener.newDataReceived to notify FA³ST about new data
+								new PropertyValue(
+										new StringValue(ZonedDateTime.now().toString()))),
+						0, 10, TimeUnit.SECONDS))
+				.build());
+service.start();
+```
+
+#### Operation Provider
+
+The Lambda OperationProvider takes a lambda expression with two arguments, the input arguments and the inoutput arguments of the operation, and returns the result.
+
+```{code-block} java
+:caption: Using a Lambda OperationProvider from code.
+:lineno-start: 1
+Service service = new Service(...);
+Reference referenceToAASElement = ...;
+
+service.getAssetConnectionManager().registerLambdaOperationProvider(
+		referenceToAASElement,
+		LambdaOperationProvider.builder()
+				.handle((input, inoutput) -> {
+					// add operation logic here
+					return new OperationVariable[]{};
+				})
+				.build());
+service.start();
+```
