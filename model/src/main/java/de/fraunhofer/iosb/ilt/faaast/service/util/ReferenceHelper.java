@@ -18,8 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -539,6 +541,93 @@ public class ReferenceHelper {
             return null;
         }
         return determineReferenceType(reference.getKeys().get(0));
+    }
+
+
+    /**
+     * Checks if a map with key type
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} contains a entry with a semantically equivalent reference.
+     *
+     * @param map the map to check
+     * @param reference the reference to check for
+     * @return true if the map contains a semantically equivalent reference, otherwise false
+     */
+    public static boolean containsSameReference(Map<Reference, ?> map, Reference reference) {
+        return Objects.nonNull(getValueBySameReference(map, reference));
+    }
+
+
+    /**
+     * Gets the value of a map with key type
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} with a
+     * semantically equivalent reference.
+     *
+     * @param <T> type of the value
+     * @param map the map to check
+     * @param reference the reference to check for
+     * @return the value if the map contains a semantically equivalent reference, otherwise null
+     */
+    public static <T> T getValueBySameReference(Map<Reference, T> map, Reference reference) {
+        Entry<Reference, T> entry = getEntryBySameReference(map, reference);
+        if (Objects.nonNull(entry)) {
+            return entry.getValue();
+        }
+        return null;
+    }
+
+
+    /**
+     * Gets an entry of a map with key type
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} with a semantically equivalent reference.
+     *
+     * @param <T> type of the value
+     * @param map the map to check
+     * @param reference the reference to check for
+     * @return the entry if the map contains a semantically equivalent reference, otherwise null
+     */
+    public static <T> Entry<Reference, T> getEntryBySameReference(Map<Reference, T> map, Reference reference) {
+        return map.entrySet().stream()
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    /**
+     * Gets all references of the provided lists that are semantically
+     * equivalent to {@code reference}.
+     *
+     * @param collection the collection to check
+     * @param reference the reference to check for
+     * @return all elements that are a semantically equivalent or empty list if none matches
+     */
+    public static List<Reference> findSameReferences(Collection<Reference> collection, Reference reference) {
+        return collection.stream()
+                .filter(x -> ReferenceHelper.equals(reference, x))
+                .toList();
+    }
+
+
+    /**
+     * Finds the reference that is semantically equivalent to {@code reference}.
+     *
+     * @param collection the collection of references to check
+     * @param reference the reference to check for
+     * @return the reference that is semantically equivalent to {@code reference} or null if there is no such reference
+     * @throws IllegalArgumentException if there is more than semantically equivalent reference in {@code collection}.
+     */
+    public static Reference findSameReference(Collection<Reference> collection, Reference reference) {
+        if (Objects.isNull(collection) || Objects.isNull(reference)) {
+            return null;
+        }
+        List<Reference> result = findSameReferences(collection, reference);
+        if (result.size() > 1) {
+            throw new IllegalArgumentException(String.format("collection contains more than one references that is the same as '%s'", asString(reference)));
+        }
+        if (result.isEmpty()) {
+            return null;
+        }
+        return result.get(0);
     }
 
 

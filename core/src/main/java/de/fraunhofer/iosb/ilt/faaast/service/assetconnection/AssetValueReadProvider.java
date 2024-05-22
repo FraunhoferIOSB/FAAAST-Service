@@ -14,10 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-/**
- * An AssetValueProvider provides methods to reade/write data values from/to an
- * asset.
- */
-public interface AssetValueProvider extends AssetProvider, AssetValueReadProvider, AssetValueWriteProvider {
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
+
+/**
+ * An AssetValueReadProvider provides methods to reade data values from an asset.
+ */
+public interface AssetValueReadProvider extends AssetProvider {
+
+    /**
+     * Read a data value from the asset.
+     *
+     * @return the data value
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when fetching the value
+     *             from the asset connection fails
+     */
+    public DataElementValue getValue() throws AssetConnectionException;
 }
