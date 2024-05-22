@@ -95,7 +95,7 @@
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.0.0</jena.version>
-        <jetty.version>11.0.20</jetty.version>
+        <jetty.version>11.0.21</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.1</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
@@ -105,7 +105,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
-        <maven.plugin.buildhelper.version>3.5.0</maven.plugin.buildhelper.version>
+        <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
@@ -125,7 +125,7 @@
         <maven.plugin.shade.version>3.5.3</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
-        <milo.version>0.6.12</milo.version>
+        <milo.version>0.6.13</milo.version>
         <mockito.version>5.12.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.109.Final</netty.version>
