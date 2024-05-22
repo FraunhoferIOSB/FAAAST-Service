@@ -229,8 +229,8 @@ public class AssetConnectionManager {
 
 
     private void setupSubscriptions(AssetConnection connection) {
-        ((Map<Reference, AssetSubscriptionProvider>) connection.<Reference, AssetSubscriptionProvider> getSubscriptionProviders().entrySet())
-                .forEach((k, v) -> setupSubscription(k, v));
+        ((Map<Reference, AssetSubscriptionProvider>) connection.<Reference, AssetSubscriptionProvider> getSubscriptionProviders()).entrySet()
+                .forEach(x -> setupSubscription(x.getKey(), x.getValue()));
     }
 
 

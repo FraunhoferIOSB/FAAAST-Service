@@ -210,7 +210,7 @@ public class LambdaAssetConnection {
      * Stops the asset connection.
      */
     public void stop() {
-
+        // intentionally empty
     }
 
 }
