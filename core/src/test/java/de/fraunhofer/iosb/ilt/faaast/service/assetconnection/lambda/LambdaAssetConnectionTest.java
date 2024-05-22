@@ -23,14 +23,9 @@ import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -47,7 +42,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubm
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -71,7 +65,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class LambdaOperationProviderTest {
+public class LambdaAssetConnectionTest {
 
     private Service service;
     private Persistence persistence;
@@ -107,31 +101,25 @@ public class LambdaOperationProviderTest {
         when(persistence.getSubmodelElement(eq(propertyRef), any())).thenReturn(property);
 
         AtomicInteger value = new AtomicInteger(initialValueAsset);
-        service.getAssetConnectionManager().getLambdaAssetConnection().registerValueProvider(
+        service.getAssetConnectionManager().registerLambdaValueProvider(
                 propertyRef,
-                LambdaValueProviderConfig.builder()
-                        .implementation(new AbstractLambdaValueProvider() {
-                            @Override
-                            public DataElementValue getValue() throws AssetConnectionException {
-                                try {
-                                    return PropertyValue.of(Datatype.INT, Integer.toString(value.get()));
-                                } catch (ValueFormatException e) {
-                                    Assert.fail();
-                                    throw new RuntimeException();
-                                }
+                LambdaValueProvider.builder()
+                        .read(() -> {
+                            try {
+                                return PropertyValue.of(Datatype.INT, Integer.toString(value.get()));
+                            } catch (ValueFormatException e) {
+                                Assert.fail();
+                                throw new RuntimeException();
                             }
-
-                            @Override
-                            public void setValue(DataElementValue newValue) throws AssetConnectionException {
-                                if (newValue instanceof PropertyValue propertyValue) {
-                                    value.set(Integer.parseInt(propertyValue.getValue().asString()));
-                                } else {
-                                    Assert.fail();
-                                }
+                        })
+                        .write(x -> {
+                            if (x instanceof PropertyValue propertyValue) {
+                                value.set(Integer.parseInt(propertyValue.getValue().asString()));
+                            } else {
+                                Assert.fail();
                             }
                         })
                         .build());
-
         service.start();
 
         // read
@@ -181,11 +169,10 @@ public class LambdaOperationProviderTest {
         Semaphore updated = new Semaphore(1);
         canUpdate.acquire();
         updated.acquire();
-        service.getAssetConnectionManager().getLambdaAssetConnection().registerSubscriptionProvider(
+        service.getAssetConnectionManager().registerLambdaSubscriptionProvider(
                 propertyRef,
-                LambdaSubscriptionProviderConfig.builder()
-                        .implementation(new AbstractLambdaSubscriptionProvider() {
-                            NewDataListener listener;
+                LambdaSubscriptionProvider.builder()
+                        .generate(x -> {
                             Thread thread = new Thread() {
                                 public void run() {
                                     int i = 0;
@@ -193,8 +180,8 @@ public class LambdaOperationProviderTest {
                                         int value = values.get(i);
                                         try {
                                             canUpdate.acquire();
-                                            if (Objects.nonNull(listener)) {
-                                                listener.newDataReceived(PropertyValue.of(Datatype.INT, Integer.toString(value)));
+                                            if (Objects.nonNull(x)) {
+                                                x.newDataReceived(PropertyValue.of(Datatype.INT, Integer.toString(value)));
                                             }
                                         }
                                         catch (InterruptedException | ValueFormatException e) {
@@ -211,21 +198,8 @@ public class LambdaOperationProviderTest {
                             {
                                 thread.start();
                             }
-
-                            @Override
-                            public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                                this.listener = listener;
-                            }
-
-
-                            @Override
-                            public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                                this.listener = null;
-                            }
-
                         })
                         .build());
-
         service.start();
 
         assertEquals(initialValueAAS, Integer.parseInt(readProperty(propertyRef).getValue()));
@@ -275,35 +249,23 @@ public class LambdaOperationProviderTest {
                 .build();
 
         when(persistence.getSubmodelElement(eq(reference), any(), eq(Operation.class))).thenReturn(operation);
-
-        service.getAssetConnectionManager().getLambdaAssetConnection().registerOperationProvider(
+        service.getAssetConnectionManager().registerLambdaOperationProvider(
                 reference,
-                LambdaOperationProviderConfig.builder()
-                        .implementation(new AbstractLambdaOperationProvider() {
-                            @Override
-                            public AssetOperationProviderConfig getConfig() {
-                                return LambdaOperationProviderConfig.builder().build();
-                            }
-
-
-                            @Override
-                            public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                                int in1 = Integer.parseInt(((Property) input[0].getValue()).getValue());
-                                int in2 = Integer.parseInt(((Property) input[1].getValue()).getValue());
-                                return new OperationVariable[] {
-                                        new DefaultOperationVariable.Builder()
-                                                .value(new DefaultProperty.Builder()
-                                                        .idShort(outputId)
-                                                        .value(Integer.toString(in1 + in2))
-                                                        .valueType(DataTypeDefXsd.INT)
-                                                        .build())
-                                                .build()
-                                };
-                            }
-
+                LambdaOperationProvider.builder()
+                        .handle((input, inoutput) -> {
+                            int in1 = Integer.parseInt(((Property) input[0].getValue()).getValue());
+                            int in2 = Integer.parseInt(((Property) input[1].getValue()).getValue());
+                            return new OperationVariable[] {
+                                    new DefaultOperationVariable.Builder()
+                                            .value(new DefaultProperty.Builder()
+                                                    .idShort(outputId)
+                                                    .value(Integer.toString(in1 + in2))
+                                                    .valueType(DataTypeDefXsd.INT)
+                                                    .build())
+                                            .build()
+                            };
                         })
                         .build());
-
         service.start();
 
         Response response = service.execute(InvokeOperationSyncRequest.builder()

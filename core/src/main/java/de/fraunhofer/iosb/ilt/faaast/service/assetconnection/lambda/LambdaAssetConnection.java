@@ -14,110 +14,203 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
  * Asset connection implementation that executes Java code.
  */
-public class LambdaAssetConnection extends
-        AbstractAssetConnection<LambdaAssetConnection, LambdaAssetConnectionConfig, LambdaValueProviderConfig, LambdaValueProvider, LambdaOperationProviderConfig, LambdaOperationProvider, LambdaSubscriptionProviderConfig, LambdaSubscriptionProvider> {
+public class LambdaAssetConnection {
+
+    private final Map<Reference, LambdaValueProvider> valueProviders;
+    private final Map<Reference, LambdaSubscriptionProvider> subscriptionProviders;
+    private final Map<Reference, LambdaOperationProvider> operationProviders;
 
     public LambdaAssetConnection() {
-        super();
+        this.valueProviders = new HashMap<>();
+        this.subscriptionProviders = new HashMap<>();
+        this.operationProviders = new HashMap<>();
     }
 
 
-    public LambdaAssetConnection(
-            CoreConfig coreConfig,
-            ServiceContext serviceContext,
-            Map<Reference, LambdaValueProvider> valueProviders,
-            Map<Reference, LambdaOperationProvider> operationProviders,
-            Map<Reference, LambdaSubscriptionProvider> subscriptionProviders) throws ConfigurationInitializationException {
-        super();
-        LambdaAssetConnectionConfig config = new LambdaAssetConnectionConfig();
-        if (valueProviders != null) {
-            config.setValueProviders(valueProviders.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Entry::getKey,
-                            x -> LambdaValueProviderConfig.builder().implementation(x.getValue()).build())));
+    /**
+     * Register a {@link LambdaValueProvider}.
+     *
+     * @param reference the reference
+     * @param provider the provider
+     */
+    public void registerValueProvider(Reference reference, LambdaValueProvider provider) {
+        if (!ReferenceHelper.containsSameReference(valueProviders, reference)) {
+            valueProviders.put(reference, provider);
+            return;
         }
-        if (operationProviders != null) {
-            config.setOperationProviders(operationProviders.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Entry::getKey,
-                            x -> LambdaOperationProviderConfig.builder().implementation(x.getValue()).build())));
-        }
-        if (subscriptionProviders != null) {
-            config.setSubscriptionProviders(subscriptionProviders.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Entry::getKey,
-                            x -> LambdaSubscriptionProviderConfig.builder().implementation(x.getValue()).build())));
-        }
-        init(coreConfig, config, serviceContext);
-        if (Objects.nonNull(valueProviders)) {
-            valueProviders.values().forEach(x -> x.init(serviceContext));
-        }
-        if (Objects.nonNull(operationProviders)) {
-            operationProviders.values().forEach(x -> x.init(serviceContext));
-        }
-        if (Objects.nonNull(subscriptionProviders)) {
-            subscriptionProviders.values().forEach(x -> x.init(serviceContext));
+        Entry<Reference, LambdaValueProvider> existing = ReferenceHelper.getEntryBySameReference(valueProviders, reference);
+        valueProviders.put(
+                existing.getKey(),
+                LambdaValueProvider.builder()
+                        .from(existing.getValue())
+                        .merge(provider)
+                        .build());
+    }
+
+
+    /**
+     * Unregister a {@link LambdaValueProvider}.
+     *
+     * @param reference the reference
+     */
+    public void unregisterValueProvider(Reference reference) {
+        Reference actualReference = ReferenceHelper.findSameReference(valueProviders.keySet(), reference);
+        if (Objects.nonNull(actualReference)) {
+            valueProviders.remove(actualReference);
         }
     }
 
 
-    @Override
-    public String getEndpointInformation() {
-        return "lambda";
+    /**
+     * Register a {@link LambdaSubscriptionProvider}.
+     *
+     * @param reference the reference
+     * @param provider the provider
+     */
+    public void registerSubscriptionProvider(Reference reference, LambdaSubscriptionProvider provider) {
+        subscriptionProviders.put(reference, provider);
     }
 
 
-    @Override
-    protected LambdaOperationProvider createOperationProvider(Reference reference, LambdaOperationProviderConfig providerConfig) throws AssetConnectionException {
-        providerConfig.getImplementation().init(serviceContext);
-        return providerConfig.getImplementation();
+    /**
+     * Unregister a {@link LambdaSubscriptionProvider}.
+     *
+     * @param reference the reference
+     */
+    public void unregisterSubscriptionProvider(Reference reference) {
+        Reference actualReference = ReferenceHelper.findSameReference(subscriptionProviders.keySet(), reference);
+        if (Objects.nonNull(actualReference)) {
+            subscriptionProviders.remove(actualReference);
+        }
     }
 
 
-    @Override
-    protected LambdaSubscriptionProvider createSubscriptionProvider(Reference reference, LambdaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        providerConfig.getImplementation().init(serviceContext);
-        return providerConfig.getImplementation();
+    /**
+     * Register a {@link LambdaOperationProvider}.
+     *
+     * @param reference the reference
+     * @param provider the provider
+     */
+    public void registerOperationProvider(Reference reference, LambdaOperationProvider provider) {
+        operationProviders.put(reference, provider);
     }
 
 
-    @Override
-    protected LambdaValueProvider createValueProvider(Reference reference, LambdaValueProviderConfig providerConfig) throws AssetConnectionException {
-        providerConfig.getImplementation().init(serviceContext);
-        return providerConfig.getImplementation();
+    /**
+     * Unregister a {@link LambdaOperationProvider}.
+     *
+     * @param reference the reference
+     */
+    public void unregisterOperationProvider(Reference reference) {
+        Reference actualReference = ReferenceHelper.findSameReference(operationProviders.keySet(), reference);
+        if (Objects.nonNull(actualReference)) {
+            operationProviders.remove(actualReference);
+        }
     }
 
 
-    @Override
-    protected void doConnect() throws AssetConnectionException {
-        // intentionally left empty
+    /**
+     * Returns whether there is a operation provider defined for the provided
+     * AAS element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a operation provider defined for the provided
+     *         AAS element, otherwise false
+     */
+    public boolean hasOperationProvider(Reference reference) {
+        return Objects.nonNull(getOperationProvider(reference));
     }
 
 
-    @Override
-    protected void doDisconnect() throws AssetConnectionException {
-        // intentionally left empty
+    /**
+     * Returns whether there is a subscription provider defined for the provided
+     * AAS element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a subscription provider defined for the provided
+     *         AAS element, otherwise false
+     */
+    public boolean hasSubscriptionProvider(Reference reference) {
+        return Objects.nonNull(getSubscriptionProvider(reference));
+    }
+
+
+    /**
+     * Returns whether there is a value provider defined for the provided AAS
+     * element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a value provider defined for the provided AAS
+     *         element, otherwise false
+     */
+    public boolean hasValueProvider(Reference reference) {
+        return Objects.nonNull(getValueProvider(reference));
+    }
+
+
+    /**
+     * Gets the operation provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return operation provider for the AAS element defined by reference or
+     *         null if there is none defined
+     */
+    public LambdaOperationProvider getOperationProvider(Reference reference) {
+        return ReferenceHelper.getValueBySameReference(operationProviders, reference);
+    }
+
+
+    /**
+     * Gets the subscription provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return subscription provider for the AAS element defined by reference or
+     *         null if there is none defined
+     */
+    public LambdaSubscriptionProvider getSubscriptionProvider(Reference reference) {
+        return ReferenceHelper.getValueBySameReference(subscriptionProviders, reference);
+    }
+
+
+    /**
+     * Gets the value provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return value provider for the AAS element defined by reference or null
+     *         if there is none defined
+     */
+    public LambdaValueProvider getValueProvider(Reference reference) {
+        return ReferenceHelper.getValueBySameReference(valueProviders, reference);
+    }
+
+
+    /**
+     * Starts the asset connection.
+     */
+    public void start() {
+        subscriptionProviders.values().forEach(LambdaSubscriptionProvider::start);
+    }
+
+
+    /**
+     * Stops the asset connection.
+     */
+    public void stop() {
+
     }
 
 }
