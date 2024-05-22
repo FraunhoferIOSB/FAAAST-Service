@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorageConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import java.io.File;
 import java.io.IOException;
@@ -42,12 +43,14 @@ public class ServiceConfig {
     private List<EndpointConfig> endpoints;
     private FileStorageConfig fileStorage;
     private MessageBusConfig messageBus;
+    private List<SubmodelTemplateProcessorConfig> submodelTemplateProcessors;
 
     private PersistenceConfig persistence;
 
     public ServiceConfig() {
         this.assetConnections = new ArrayList<>();
         this.endpoints = new ArrayList<>();
+        this.submodelTemplateProcessors = new ArrayList<>();
     }
 
 
@@ -101,6 +104,16 @@ public class ServiceConfig {
     }
 
 
+    public List<SubmodelTemplateProcessorConfig> getSubmodelTemplateProcessors() {
+        return submodelTemplateProcessors;
+    }
+
+
+    public void setSubmodelTemplateProcessors(List<SubmodelTemplateProcessorConfig> submodelTemplateProcessors) {
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
+    }
+
+
     public PersistenceConfig getPersistence() {
         return persistence;
     }
@@ -127,13 +140,14 @@ public class ServiceConfig {
                 && Objects.equals(this.assetConnections, other.assetConnections)
                 && Objects.equals(this.endpoints, other.endpoints)
                 && Objects.equals(this.persistence, other.persistence)
-                && Objects.equals(this.fileStorage, other.fileStorage);
+                && Objects.equals(this.fileStorage, other.fileStorage)
+                && Objects.equals(this.submodelTemplateProcessors, other.submodelTemplateProcessors);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage);
+        return Objects.hash(core, assetConnections, endpoints, persistence, fileStorage, submodelTemplateProcessors);
     }
 
 

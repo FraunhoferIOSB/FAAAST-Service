@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -52,6 +53,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
@@ -59,8 +61,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class of the FA³ST Service accumulating and connecting all different
- * components.
+ * Central class of the FA³ST Service accumulating and connecting all different components.
  */
 public class Service implements ServiceContext {
 
@@ -72,6 +73,7 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private FileStorage fileStorage;
     private RequestHandlerManager requestHandler;
+    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -82,21 +84,21 @@ public class Service implements ServiceContext {
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
+     * @param submodelTemplateProcessors submodel template processor to use
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
      * @throws RuntimeException if creating a deep copy of aasEnvironment fails
-     * @throws ConfigurationException the configuration the
-     *             {@link AssetConnectionManager} fails
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws ConfigurationException the configuration the {@link AssetConnectionManager} fails
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
             FileStorage fileStorage,
             MessageBus messageBus,
             List<Endpoint> endpoints,
-            List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
+            List<AssetConnection> assetConnections,
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
@@ -107,12 +109,14 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
         this.persistence = persistence;
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
+        initSubmodelTemplateProcessors();
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
                 coreConfig,
@@ -129,8 +133,7 @@ public class Service implements ServiceContext {
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(ServiceConfig config)
             throws ConfigurationException, AssetConnectionException {
@@ -211,8 +214,7 @@ public class Service implements ServiceContext {
      * Executes a request asynchroniously.
      *
      * @param request request to execute
-     * @param callback callback handler that is called when execution if
-     *            finished
+     * @param callback callback handler that is called when execution if finished
      * @throws IllegalArgumentException if request is null
      * @throws IllegalArgumentException if callback is null
      */
@@ -257,8 +259,7 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Stop the service. This includes stopping the message bus and all
-     * endpoints.
+     * Stop the service. This includes stopping the message bus and all endpoints.
      */
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");
@@ -275,6 +276,7 @@ public class Service implements ServiceContext {
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
+        initSubmodelTemplateProcessors();
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
@@ -298,5 +300,30 @@ public class Service implements ServiceContext {
                 this.fileStorage,
                 this.messageBus,
                 this.assetConnectionManager));
+    }
+
+
+    private void initSubmodelTemplateProcessors() throws ConfigurationException {
+        if (submodelTemplateProcessors == null) {
+            submodelTemplateProcessors = new ArrayList<>();
+        }
+        if (config.getSubmodelTemplateProcessors() != null) {
+            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
+                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this);
+                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, this);
+                submodelTemplateProcessors.add(submodelTemplateProcessor);
+            }
+        }
+        if (submodelTemplateProcessors.isEmpty()) {
+            return;
+        }
+        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        for (var submodel: submodels) {
+            for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+                if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
+                    persistence.save(submodel);
+                }
+            }
+        }
     }
 }
