@@ -5,6 +5,7 @@
 **New Features & Major Changes**
 - General
 	- Loading AAS models from JSON now fails on unknown JSON properties
+	- Added lambda operation provider
 
 **Internal changes & bugfixes**
 - General

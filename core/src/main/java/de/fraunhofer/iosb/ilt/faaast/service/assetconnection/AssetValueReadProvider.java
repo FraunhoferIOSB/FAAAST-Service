@@ -12,12 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+
 
 /**
- * Utility class for creating custom lambda subscription providers providing access to the
- * {@link de.fraunhofer.iosb.ilt.faaast.service.ServiceContext}.
+ * An AssetValueReadProvider provides methods to reade data values from an asset.
  */
-public abstract class AbstractLambdaSubscriptionProvider extends AbstractLambdaAssetProvider implements LambdaSubscriptionProvider {
+public interface AssetValueReadProvider extends AssetProvider {
 
+    /**
+     * Read a data value from the asset.
+     *
+     * @return the data value
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when fetching the value
+     *             from the asset connection fails
+     */
+    public DataElementValue getValue() throws AssetConnectionException;
 }

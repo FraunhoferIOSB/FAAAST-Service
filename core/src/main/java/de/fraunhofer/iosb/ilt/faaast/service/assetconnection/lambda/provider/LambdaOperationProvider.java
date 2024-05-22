@@ -14,12 +14,69 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Base type for all lambda operation providers.
+ * Operation provider that can be used from code with lambda expression.
  */
-public interface LambdaOperationProvider extends AssetOperationProvider, LambdaAssetProvider {
+public class LambdaOperationProvider implements AssetOperationProvider {
+
+    private BiFunction<OperationVariable[], OperationVariable[], OperationVariable[]> handler;
+
+    private LambdaOperationProvider() {}
+
+
+    @Override
+    public AssetOperationProviderConfig getConfig() {
+        return new AbstractAssetOperationProviderConfig() {};
+    }
+
+
+    @Override
+    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        if (Objects.nonNull(handler)) {
+            try {
+                return handler.apply(input, inoutput);
+            }
+            catch (Exception e) {
+                throw new AssetConnectionException(e);
+            }
+        }
+        return null;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder extends ExtendableBuilder<LambdaOperationProvider, Builder> {
+
+        public Builder handle(BiFunction<OperationVariable[], OperationVariable[], OperationVariable[]> value) {
+            getBuildingInstance().handler = value;
+            return this;
+        }
+
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected LambdaOperationProvider newBuildingInstance() {
+            return new LambdaOperationProvider();
+        }
+
+    }
 
 }

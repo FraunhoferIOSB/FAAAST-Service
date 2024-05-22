@@ -12,21 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**
- * Utility class for creating custom implementations of {@link LambdaAssetProvider} providing access to the
- * {@link de.fraunhofer.iosb.ilt.faaast.service.ServiceContext}.
+ * An AssetValueWriteProvider provides methods to write data values to an asset.
  */
-public abstract class AbstractLambdaAssetProvider implements LambdaAssetProvider {
+public interface AssetValueWriteProvider extends AssetProvider {
 
-    protected ServiceContext serviceContext;
-
-    @Override
-    public void init(ServiceContext serviceContext) {
-        this.serviceContext = serviceContext;
-    }
+    /**
+     * Sets the data value on an asset.
+     *
+     * @param value the value to set
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when writing the value to the
+     *             asset connection fails
+     */
+    public void setValue(DataElementValue value) throws AssetConnectionException;
 }
