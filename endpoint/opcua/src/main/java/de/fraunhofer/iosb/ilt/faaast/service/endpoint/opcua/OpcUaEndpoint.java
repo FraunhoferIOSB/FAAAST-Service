@@ -158,8 +158,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
             request.setValueParser(ElementValueParser.DEFAULT);
-            if (element instanceof MultiLanguageProperty) {
-                MultiLanguageProperty mlp = (MultiLanguageProperty) element;
+            if (element instanceof MultiLanguageProperty mlp) {
                 if ((mlp.getValue() != null) && (mlp.getValue().size() > 1)) {
                     for (int i = 0; i < mlp.getValue().size(); i++) {
                         LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValue().get(i).getText());
@@ -169,8 +168,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
             request.setRawValue(ElementValueMapper.toValue(element));
 
-            if (request.getRawValue() instanceof MultiLanguagePropertyValue) {
-                MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
+            if (request.getRawValue() instanceof MultiLanguagePropertyValue mlpv) {
                 if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
                     for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
                         LOGGER.trace("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
@@ -269,5 +267,15 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         outputArguments = response.getPayload().getOutputArguments();
 
         return outputArguments;
+    }
+
+
+    /**
+     * Read the current environment from the service.
+     *
+     * @return The current environment.
+     */
+    public Environment getAASEnvironment() {
+        return service.getAASEnvironment();
     }
 }
