@@ -26,6 +26,7 @@ import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +104,8 @@ public class ConceptDescriptionCreator {
      * @param semanticId The reference of the desired SemanticId
      */
     public static void addSemanticId(UaNode node, Reference semanticId) {
-        if (dictionaryMap.containsKey(semanticId)) {
-            node.addReference(dictionaryMap.get(semanticId), Identifiers.HasDictionaryEntry, false);
+        if (ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
+            node.addReference(ReferenceHelper.getValueBySameReference(dictionaryMap, semanticId), Identifiers.HasDictionaryEntry, false);
         }
         // if entry not found: perhaps create a new one?
     }

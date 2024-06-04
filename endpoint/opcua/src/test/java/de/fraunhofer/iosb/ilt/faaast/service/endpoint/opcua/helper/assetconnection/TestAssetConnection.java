@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -62,7 +63,7 @@ public class TestAssetConnection implements
 
     @Override
     public void registerValueProvider(Reference reference, TestValueProviderConfig valueProvider) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 
@@ -74,7 +75,6 @@ public class TestAssetConnection implements
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
                     LOGGER.trace("method invoked!");
                     return operationProvider.getOutputArgs().toArray(OperationVariable[]::new);
-                    //return new OperationVariable[0];
                 }
 
 
@@ -82,10 +82,11 @@ public class TestAssetConnection implements
                 public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
                                         Consumer<Throwable> callbackFailure)
                         throws AssetConnectionException {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
 
 
+                @Override
                 public AssetOperationProviderConfig getConfig() {
                     return operationProvider;
                 }
@@ -99,13 +100,13 @@ public class TestAssetConnection implements
 
     @Override
     public void registerSubscriptionProvider(Reference reference, TestSubscriptionProviderConfig subscriptionProvider) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 
     @Override
     public Map<Reference, AssetValueProvider> getValueProviders() {
-        return this.valueProviders;
+        return valueProviders;
     }
 
 
@@ -123,7 +124,7 @@ public class TestAssetConnection implements
 
     @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
-        return this.operationProviders;
+        return operationProviders;
     }
 
 
@@ -146,25 +147,34 @@ public class TestAssetConnection implements
 
 
     public void close() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 
     @Override
     public void unregisterOperationProvider(Reference reference) throws AssetConnectionException {
-        this.subscriptionProviders.remove(reference);
+        if (ReferenceHelper.containsSameReference(operationProviders, reference)) {
+            var operation = ReferenceHelper.getEntryBySameReference(operationProviders, reference);
+            operationProviders.remove(operation.getKey());
+        }
     }
 
 
     @Override
     public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException {
-        this.subscriptionProviders.remove(reference);
+        if (ReferenceHelper.containsSameReference(subscriptionProviders, reference)) {
+            var subscription = ReferenceHelper.getEntryBySameReference(subscriptionProviders, reference);
+            subscriptionProviders.remove(subscription.getKey());
+        }
     }
 
 
     @Override
     public void unregisterValueProvider(Reference reference) throws AssetConnectionException {
-        this.subscriptionProviders.remove(reference);
+        if (ReferenceHelper.containsSameReference(valueProviders, reference)) {
+            var value = ReferenceHelper.getEntryBySameReference(valueProviders, reference);
+            valueProviders.remove(value.getKey());
+        }
     }
 
 
