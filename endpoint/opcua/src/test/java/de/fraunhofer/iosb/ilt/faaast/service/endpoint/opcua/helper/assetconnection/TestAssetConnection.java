@@ -130,7 +130,7 @@ public class TestAssetConnection implements
 
     @Override
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
-        return this.subscriptionProviders;
+        return subscriptionProviders;
     }
 
 
