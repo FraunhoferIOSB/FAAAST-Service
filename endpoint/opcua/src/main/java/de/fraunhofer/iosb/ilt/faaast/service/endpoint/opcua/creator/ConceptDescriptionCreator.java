@@ -73,8 +73,18 @@ public class ConceptDescriptionCreator {
 
         for (ConceptDescription c: descriptions) {
             String name = c.getIdShort();
-            NodeId nid = nodeManager.createNodeId(dictionariesFolder, name);
             DictionaryEntryType dictNode;
+            NodeId nid = null;
+            if ((name != null) && (!name.isEmpty())) {
+                nid = nodeManager.createNodeId(dictionariesFolder, name);
+                if (nodeManager.hasNode(nid)) {
+                    // The NodeId already exists
+                    nid = nodeManager.getDefaultNodeId();
+                }
+            }
+            else {
+                nid = nodeManager.getDefaultNodeId();
+            }
 
             AASConceptDescriptionType desriptionNode = nodeManager.createInstance(AASConceptDescriptionType.class, name, nid);
             AASReferenceList listNode = desriptionNode.getIsCaseOfNode();
