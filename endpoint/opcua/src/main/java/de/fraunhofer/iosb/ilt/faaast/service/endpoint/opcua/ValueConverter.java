@@ -30,7 +30,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -137,6 +136,9 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
         typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
+        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE, AASDataTypeDefXsd.Date));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
@@ -717,8 +719,8 @@ public class ValueConverter {
         String retval = "";
         if (variant.getValue() != null) {
             // special treatment for DateTime
-            if (variant.getValue() instanceof DateTime) {
-                retval = OffsetDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
+            if (variant.getValue() instanceof DateTime dt) {
+                retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();
@@ -735,13 +737,13 @@ public class ValueConverter {
         if (value == null) {
             retval = Variant.NULL;
         }
-        else if (value instanceof OffsetDateTime) {
+        else if (value instanceof OffsetDateTime odt) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((OffsetDateTime) value));
+            retval = new Variant(createDateTime(odt));
         }
-        else if (value instanceof LocalDateTime) {
+        else if (value instanceof LocalDateTime ldt) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((LocalDateTime) value));
+            retval = new Variant(createDateTime(ldt));
         }
         else {
             retval = new Variant(value);
@@ -759,8 +761,8 @@ public class ValueConverter {
         if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
             retval = Long.valueOf(retval.toString());
         }
-        else if (typedValue instanceof DateTimeValue) {
-            retval = ValueConverter.createDateTime((OffsetDateTime) retval);
+        else if (retval instanceof OffsetDateTime odt) {
+            retval = ValueConverter.createDateTime(odt);
         }
         return retval;
     }

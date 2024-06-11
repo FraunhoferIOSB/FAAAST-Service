@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
+import static opc.i4aas.datatypes.AASDataTypeDefXsd.Time;
+
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.ValueRanks;
@@ -47,8 +49,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValu
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -151,8 +153,8 @@ public class AasSubmodelElementHelper {
         else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
             setEntityPropertyValue((AASEntityType) subElem, (EntityValue) value, nodeManager);
         }
-        else if (value instanceof DataElementValue) {
-            setDataElementValue(subElem, (DataElementValue) value, nodeManager);
+        else if (value instanceof DataElementValue dev) {
+            setDataElementValue(subElem, dev, nodeManager);
         }
         else {
             LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
@@ -235,11 +237,13 @@ public class AasSubmodelElementHelper {
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
                 valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
+                //LOG.info("setPropertyValueAndType: Name: {}; TypedValue: {}", aasProperty.getIdShort(), typedValue.getValue().getDataType());
             }
             else {
                 valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             }
 
+            //LOG.info("setPropertyValueAndType: Name: {}; ValueType: {}; valueDataType: {}", aasProperty.getIdShort(), aasProperty.getValueType(), valueDataType);
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {
@@ -248,6 +252,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case DateTime:
+                case Date:
                     setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -278,6 +283,8 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case String:
+                case AnyUri:
+                case Time:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -420,13 +427,19 @@ public class AasSubmodelElementHelper {
         dateTimeProperty.setDataTypeId(Identifiers.DateTime);
         dateTimeProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            if (typedValue instanceof DateTimeValue) {
-                DateTimeValue dtval = (DateTimeValue) typedValue;
-                dateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
+            if (typedValue.getValue() instanceof OffsetDateTime odt) {
+                dateTimeProperty.setValue(ValueConverter.createDateTime(odt));
             }
             else {
                 dateTimeProperty.setValue(typedValue.getValue());
             }
+        //if (typedValue instanceof DateTimeValue) {
+        //    DateTimeValue dtval = (DateTimeValue) typedValue;
+        //    dateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
+        //}
+        //else {
+        //    dateTimeProperty.setValue(typedValue.getValue());
+        //}
         }
         return dateTimeProperty;
     }
@@ -454,6 +467,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case DateTime:
+                case Date:
                     setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -484,6 +498,8 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case String:
+                case AnyUri:
+                case Time:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
