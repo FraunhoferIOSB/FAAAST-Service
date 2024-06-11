@@ -90,7 +90,7 @@
         <jackson.databind.version>2.17.1</jackson.databind.version>
         <jackson.version>2.17.1</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
