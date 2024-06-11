@@ -285,6 +285,7 @@ public class AasSubmodelElementHelper {
                 case String:
                 case AnyUri:
                 case Time:
+                case Duration:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -500,6 +501,7 @@ public class AasSubmodelElementHelper {
                 case String:
                 case AnyUri:
                 case Time:
+                case Duration:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

@@ -139,6 +139,7 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE, AASDataTypeDefXsd.Date));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
