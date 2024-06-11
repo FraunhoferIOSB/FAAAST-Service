@@ -258,8 +258,8 @@ public class App implements Runnable {
     private void validate(ServiceConfig config) {
         boolean disableValidation;
         if (getEnvValue(ENV_PATH_NO_VALIDATION) != null
-                && !getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL).isBlank()) {
-            disableValidation = Boolean.parseBoolean(getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL));
+                && !getEnvValue(ENV_PATH_NO_VALIDATION).isBlank()) {
+            disableValidation = Boolean.parseBoolean(getEnvValue(ENV_PATH_NO_VALIDATION));
         }
         else {
             disableValidation = noValidation;
