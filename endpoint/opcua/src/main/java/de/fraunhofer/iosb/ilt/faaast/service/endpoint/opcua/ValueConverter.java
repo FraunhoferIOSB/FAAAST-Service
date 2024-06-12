@@ -31,10 +31,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -759,11 +761,21 @@ public class ValueConverter {
             return null;
         }
         Object retval = typedValue.getValue();
+        //LOGGER.atDebug().log("convertTypedValue: {} ({}); Value: {}", typedValue, typedValue.getClass(), retval);
         if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
             retval = Long.valueOf(retval.toString());
         }
-        else if (retval instanceof OffsetDateTime odt) {
-            retval = ValueConverter.createDateTime(odt);
+        else if (typedValue instanceof DurationValue dv) {
+            retval = dv.asString();
+        }
+        else if (retval != null)
+        {
+            if (retval instanceof OffsetDateTime odt) {
+                retval = ValueConverter.createDateTime(odt);
+            }
+            else if (retval instanceof OffsetTime ot) {
+                retval = ot.toString();
+            }
         }
         return retval;
     }
