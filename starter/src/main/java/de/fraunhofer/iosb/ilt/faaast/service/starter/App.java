@@ -494,7 +494,7 @@ public class App implements Runnable {
             return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(ENV_PATH_MODEL_FILE));
+            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(getEnvValue(ENV_PATH_MODEL_FILE)));
             return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
