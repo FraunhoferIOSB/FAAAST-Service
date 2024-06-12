@@ -39,7 +39,7 @@ public class TimeValue extends AbstractDateTimeValue<OffsetTime> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.DATE;
+        return Datatype.TIME;
     }
 
 
