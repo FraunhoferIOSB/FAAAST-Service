@@ -489,13 +489,12 @@ public class App implements Runnable {
 
 
     private ServiceConfig withModel(ServiceConfig config) {
-        String fileExtension = FileHelper.getFileExtensionWithoutSeparator(modelFile);
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            withModelFromCommandLine(config, fileExtension);
+            withModelFromCommandLine(config, FileHelper.getFileExtensionWithoutSeparator(modelFile));
             return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            withModelFromEnvironmentVariable(config, fileExtension);
+            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(ENV_PATH_MODEL_FILE));
             return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
@@ -507,7 +506,7 @@ public class App implements Runnable {
             if (defaultModel.isPresent()) {
                 LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
                 config.getPersistence().setInitialModelFile(defaultModel.get());
-                if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
+                if (DataFormat.AASX.getFileExtensions().contains(FileHelper.getFileExtensionWithoutSeparator(defaultModel.get()))) {
                     config.getFileStorage().setInitialModelFile(defaultModel.get());
                 }
                 modelFile = new File(defaultModel.get().getAbsolutePath());
