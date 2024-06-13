@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
-import static opc.i4aas.datatypes.AASDataTypeDefXsd.Time;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.ValueRanks;
@@ -263,6 +261,10 @@ public class AasSubmodelElementHelper {
                 case Long:
                 case Integer:
                 case Decimal:
+                case PositiveInteger:
+                case NonPositiveInteger:
+                case NegativeInteger:
+                case NonNegativeInteger:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -287,6 +289,11 @@ public class AasSubmodelElementHelper {
                 case Time:
                 case Duration:
                     setStringValue(valueData, typedValue, prop);
+                    break;
+
+                case Base64Binary:
+                case HexBinary:
+                    setByteStringPropertyValue(valueData, typedValue, prop);
                     break;
 
                 default:
@@ -446,6 +453,36 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setByteStringPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createByteStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setByteStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                                 TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            range.addProperty(createByteStringProperty(minData, minTypedValue));
+        }
+
+        if (maxValue != null) {
+            range.addProperty(createByteStringProperty(maxData, maxTypedValue));
+        }
+    }
+
+
+    private static PlainProperty<ByteString> createByteStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<ByteString> byteStringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(),
+                valueData.getDisplayName());
+        byteStringProperty.setDataTypeId(Identifiers.ByteString);
+        byteStringProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            byteStringProperty.setValue(typedValue.getValue());
+        }
+        return byteStringProperty;
+    }
+
+
     public static void setRangeValueAndType(DataTypeDefXsd valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
@@ -479,6 +516,10 @@ public class AasSubmodelElementHelper {
                 case Long:
                 case Integer:
                 case Decimal:
+                case PositiveInteger:
+                case NonPositiveInteger:
+                case NegativeInteger:
+                case NonNegativeInteger:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -503,6 +544,11 @@ public class AasSubmodelElementHelper {
                 case Time:
                 case Duration:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    break;
+
+                case Base64Binary:
+                case HexBinary:
+                    setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
                 default:

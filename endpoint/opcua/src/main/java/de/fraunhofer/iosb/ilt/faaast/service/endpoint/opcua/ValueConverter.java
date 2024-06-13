@@ -34,11 +34,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -122,19 +124,24 @@ public class ValueConverter {
 
     static {
         typeList = new ArrayList<>();
-        typeList.add(new DatatypeMapper(Identifiers.ByteString, null, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
         typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
         typeList.add(new DatatypeMapper(Identifiers.Decimal, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
         typeList.add(new DatatypeMapper(Identifiers.Integer, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
-        typeList.add(new DatatypeMapper(Identifiers.UInt32, null, AASDataTypeDefXsd.UnsignedInt));
+        typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT, AASDataTypeDefXsd.UnsignedInt));
         typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, null, AASDataTypeDefXsd.UnsignedLong));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG, AASDataTypeDefXsd.UnsignedLong));
         typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
-        typeList.add(new DatatypeMapper(Identifiers.UInt16, null, AASDataTypeDefXsd.UnsignedShort));
+        typeList.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT, AASDataTypeDefXsd.UnsignedShort));
         typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
-        typeList.add(new DatatypeMapper(Identifiers.Byte, null, AASDataTypeDefXsd.UnsignedByte));
+        typeList.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE, AASDataTypeDefXsd.UnsignedByte));
         typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
         typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
@@ -525,19 +532,19 @@ public class ValueConverter {
         switch (type) {
             case PROPERTY_VALUE: {
                 Property aasProp = (Property) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasProp.getValueType());
                 aasProp.setValue(newValue);
                 break;
             }
             case RANGE_MIN: {
                 Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
                 aasRange.setMin(newValue);
                 break;
             }
             case RANGE_MAX: {
                 Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
                 aasRange.setMax(newValue);
                 break;
             }
@@ -592,7 +599,7 @@ public class ValueConverter {
             }
             case ENTITY_GLOBAL_ASSET_ID: {
                 Entity aasEntity = (Entity) submodelElement;
-                aasEntity.setGlobalAssetId(convertVariantValueToString(variant));
+                aasEntity.setGlobalAssetId(convertVariantValueToString(variant, DataTypeDefXsd.STRING));
                 break;
             }
             case ENTITY_TYPE: {
@@ -718,12 +725,24 @@ public class ValueConverter {
     }
 
 
-    private static String convertVariantValueToString(Variant variant) {
+    private static String convertVariantValueToString(Variant variant, DataTypeDefXsd type) {
         String retval = "";
         if (variant.getValue() != null) {
-            // special treatment for DateTime
+            // special treatment for DateTime and ByteString
             if (variant.getValue() instanceof DateTime dt) {
                 retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
+            }
+            else if ((variant.getValue() instanceof ByteString bt) && (bt != null)) {
+                if (type == DataTypeDefXsd.HEX_BINARY) {
+                    retval = bt.toHex();
+                    // we must remove the '0x' at the beginning
+                    if ((retval != null) && (retval.startsWith("0x"))) {
+                        retval = retval.substring(2);
+                    }
+                }
+                else {
+                    retval = Base64.getEncoder().encodeToString(bt.getValue());
+                }
             }
             else {
                 retval = variant.getValue().toString();
@@ -775,6 +794,9 @@ public class ValueConverter {
             }
             else if (retval instanceof OffsetTime ot) {
                 retval = ot.toString();
+            }
+            else if (retval instanceof BigInteger bi) {
+                retval = bi.longValue();
             }
         }
         return retval;
