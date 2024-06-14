@@ -76,7 +76,7 @@
         <awaitility.version>4.2.1</awaitility.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <checkstyle.version>10.17.0</checkstyle.version>
-        <classgraph.version>4.8.172</classgraph.version>
+        <classgraph.version>4.8.173</classgraph.version>
         <commons.codec.version>1.17.0</commons.codec.version>
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
@@ -86,11 +86,11 @@
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.16.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.2.0-jre</guava.version>
+        <guava.version>33.2.1-jre</guava.version>
         <jackson.databind.version>2.17.1</jackson.databind.version>
         <jackson.version>2.17.1</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
@@ -106,15 +106,15 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
-        <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.4.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
+        <maven.plugin.dependency.version>3.7.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>8.0.2</maven.plugin.git.commit.id.version>
+        <maven.plugin.git.commit.id.version>9.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.4</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.1</maven.plugin.jar.version>
-        <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
+        <maven.plugin.javadoc.version>3.7.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>9.2.0</maven.plugin.owasp.version>
@@ -122,13 +122,13 @@
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.0-118</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
-        <maven.plugin.shade.version>3.5.3</maven.plugin.shade.version>
+        <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
         <milo.version>0.6.13</milo.version>
         <mockito.version>5.12.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.110.Final</netty.version>
+        <netty.version>4.1.111.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.3.1</org.apache.httpcomponents.client5.version>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.6</parsson.version>
