@@ -11,7 +11,10 @@
 - General
 	- Added log message when starting to indicate that constraint validation is currently not supported
 	- Fixed error where complementary files within AASX model files where not correctly loaded when specifying the model file via environment variables
-
+	- Fixed error that prevented loading models in XML format
+- Endpoint
+	- OPC UA
+		- Fixed error when loading models with non-unique idShorts
 ## 1.0.1
 
 - General

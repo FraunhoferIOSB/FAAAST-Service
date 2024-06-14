@@ -151,7 +151,8 @@ public class EnvironmentSerializationManager {
             try {
                 return deserializerFor(dataFormat).read(file);
             }
-            catch (DeserializationException e) {
+            catch (DeserializationException | UnsupportedOperationException e) {
+                LOGGER.debug("failed deserializing model as %s, reason: %s", dataFormat, e.getMessage(), e);
                 // intentionally suppress exception as this probably indicates that we have an ambiguous file extension and this was not the correct deserializer
             }
         }
