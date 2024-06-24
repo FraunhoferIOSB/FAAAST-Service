@@ -98,7 +98,7 @@
         <jetty.version>11.0.21</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.1</json-smart.version>
-        <jsonassert.version>1.5.1</jsonassert.version>
+        <jsonassert.version>1.5.2</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.6</logback.version>
