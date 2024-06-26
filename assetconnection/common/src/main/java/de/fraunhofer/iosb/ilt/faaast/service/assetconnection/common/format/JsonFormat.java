@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
@@ -100,13 +101,13 @@ public class JsonFormat implements Format {
                     }
                     try {
                         TypeInfo<?> typeInfo = x.getValue().getTypeInfo();
-                        // if datatype is string, we need to wrap it with additional quotes
+                        // if datatype is string, we need to escape and wrap it with additional quotes
                         if (typeInfo != null
                                 && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
                                 && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.STRING
                                 && !actualValue.startsWith("\"")
                                 && !actualValue.endsWith("\"")) {
-                            actualValue = String.format("\"%s\"", actualValue);
+                            actualValue = String.format("\"%s\"", escapeJson(actualValue));
                         }
                         return deserializer.readValue(actualValue, x.getValue().getTypeInfo());
                     }
@@ -125,5 +126,10 @@ public class JsonFormat implements Format {
         catch (SerializationException e) {
             throw new AssetConnectionException("serializing value to JSON failed", e);
         }
+    }
+
+
+    private static String escapeJson(String json) {
+        return new String(JsonStringEncoder.getInstance().quoteAsString(json));
     }
 }
