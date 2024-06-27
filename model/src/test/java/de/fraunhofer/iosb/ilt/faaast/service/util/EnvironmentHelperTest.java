@@ -15,13 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,6 +52,90 @@ public class EnvironmentHelperTest {
                 })
                 .build()
                 .walk(environment);
+    }
+
+
+    @Test
+    public void resolveIdShortPathInSubmodel() throws ResourceNotFoundException {
+        Property expected = new DefaultProperty.Builder()
+                .idShort("property1")
+                .build();
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .idShort("foo")
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .idShort("collection")
+                        .value(expected)
+                        .build())
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .idShort("collection")
+                        .value(new DefaultProperty.Builder()
+                                .idShort("property2")
+                                .build())
+                        .build())
+                .build();
+        Property actual = EnvironmentHelper.resolveUniquePath(
+                IdShortPath.parse("collection.property1"),
+                submodel,
+                Property.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void resolveSematicIdPathInSubmodel() throws ResourceNotFoundException {
+        Reference semanticIdCollection = ReferenceBuilder.global("collection");
+        Reference semanticIdProperty1 = ReferenceBuilder.global("property1");
+        Property expected = new DefaultProperty.Builder()
+                .semanticId(semanticIdProperty1)
+                .build();
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .semanticId(ReferenceBuilder.global("foo"))
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .semanticId(semanticIdCollection)
+                        .value(expected)
+                        .build())
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .semanticId(semanticIdCollection)
+                        .value(new DefaultProperty.Builder()
+                                .semanticId(ReferenceBuilder.global("property"))
+                                .build())
+                        .build())
+                .build();
+        Property actual = EnvironmentHelper.resolveUniquePath(
+                List.of(semanticIdCollection, semanticIdProperty1),
+                submodel,
+                Property.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void resolveSematicIdPathInSubmodel_NonUnique() throws ResourceNotFoundException {
+        Reference semanticIdCollection = ReferenceBuilder.global("collection");
+        Reference semanticIdProperty = ReferenceBuilder.global("property");
+        Property property1 = new DefaultProperty.Builder()
+                .semanticId(semanticIdProperty)
+                .build();
+        Property property2 = new DefaultProperty.Builder()
+                .semanticId(semanticIdProperty)
+                .build();
+        List<Property> expected = List.of(property1, property2);
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .semanticId(ReferenceBuilder.global("foo"))
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .semanticId(semanticIdCollection)
+                        .value(property1)
+                        .build())
+                .submodelElements(new DefaultSubmodelElementCollection.Builder()
+                        .semanticId(semanticIdCollection)
+                        .value(property2)
+                        .build())
+                .build();
+        List<Property> actual = EnvironmentHelper.resolvePath(
+                List.of(semanticIdCollection, semanticIdProperty),
+                submodel,
+                Property.class);
+        Assert.assertEquals(expected, actual);
     }
 
 
