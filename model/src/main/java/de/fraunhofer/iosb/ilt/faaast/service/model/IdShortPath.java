@@ -187,6 +187,20 @@ public class IdShortPath {
 
 
     /**
+     * Creates a new idShortPath without the first/parent segment.
+     *
+     * @return idShortPath without the first/parent segment
+     */
+    public IdShortPath withoutParent() {
+        IdShortPath result = new IdShortPath();
+        result.elements = Objects.isNull(elements) || elements.size() <= 1
+                ? List.of()
+                : elements.subList(1, elements.size());
+        return result;
+    }
+
+
+    /**
      * Checks if this idShortPath is empty, i.e. does not contain any elements.
      *
      * @return true if empty, otherwise false

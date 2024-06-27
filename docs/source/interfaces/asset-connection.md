@@ -345,7 +345,7 @@ Which authentication certificate is used is determined by a similar logic as for
 | Name                       | Allowed Value | Description                                                                                                                             | Default Value        |
 | -------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
 | arrayIndex<br>*(optional)* | String        | Index of the desired array element if the node is an array.<br>Can be multi-dimensional.                                                |                      |
-| nodeId                     | String        | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/) |                      |
+| nodeId                     | String        | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1.11/) |                      |
 :::
 
 ```{code-block} json
@@ -365,10 +365,10 @@ Which authentication certificate is used is determined by a similar logic as for
 | inputArgumentMapping<br>*(optional)*   | List                                                  | List of mappings for input arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                         | *empty list*              |
 | inputValidationMode<br>*(optional)*    | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for input arguments                                                                                                                                                                                                        | REQUIRE_PRESENT_OR_DEFAULT|
 | inoutputValidationMode<br>*(optional)* | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for inoutput arguments                                                                                                                                                                                                     | REQUIRE_PRESENT_OR_DEFAULT|
-| nodeId                                 | String                                                | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/)                                                                                                    |                           |
+| nodeId                                 | String                                                | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1.11/)                                                                                                    |                           |
 | outputArgumentMapping<br>*(optional)*  | List                                                  | List of mappings for output arguments between the idShort of a SubmodelElement and an argument name                                                                                                                                        | *empty list*              |
 | outputValidationMode<br>*(optional)*   | NONE<br>REQUIRE_PRESENT<br>REQUIRE_PRESENT_OR_DEFAULT | Validation mode for ouput arguments                                                                                                                                                                                                        | REQUIRE_PRESENT_OR_DEFAULT|
-| parentNodeId<br>*(optional)*           | String                                                | NodeId of the OPC UA object in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), in which the method is contained.<br>When no parentNodeId is given here, the parent object of the method is used. |                           |
+| parentNodeId<br>*(optional)*           | String                                                | NodeId of the OPC UA object in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1.11/), in which the method is contained.<br>When no parentNodeId is given here, the parent object of the method is used. |                           |
 :::
 
 
@@ -398,7 +398,7 @@ Which authentication certificate is used is determined by a similar logic as for
 | -------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
 | arrayIndex<br>*(optional)* | String        | Index of the desired array element if the node is an array.<br>Can be multi-dimensional.                                                |                      |
 | interval                   | long          | Interval to poll the server for changes (in ms)<br>**Currently not used**                                                               | 1000                 |
-| nodeId                     | String        | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/) |                      |
+| nodeId                     | String        | NodeId of the the OPC UA node to read/write in [ExpandedNodeId format](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1.11/) |                      |
 :::
 
 ```{code-block} json

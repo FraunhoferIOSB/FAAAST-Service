@@ -71,56 +71,54 @@ public class SubmodelCreator {
         }
 
         String shortId = submodel.getIdShort();
-        if (!shortId.isEmpty()) {
-            String displayName = "Submodel:" + shortId;
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            if (nodeManager.findNode(nid) != null) {
-                // The NodeId already exists
-                nid = nodeManager.getDefaultNodeId();
-            }
-
-            LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
-            AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
-
-            IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
-
-            setKind(submodel.getKind(), smNode, nodeManager);
-
-            // DataSpecifications
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
-
-            // Qualifiers
-            List<Qualifier> qualifiers = submodel.getQualifiers();
-            setQualifierData(qualifiers, smNode, nodeManager);
-
-            // SemanticId
-            if (submodel.getSemanticId() != null) {
-                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
-            }
-
-            // Description
-            DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
-
-            Reference refSubmodel = AasUtils.toReference(submodel);
-
-            // SubmodelElements
-            SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
-
-            if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
-                smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
-            }
-
-            nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
-
-            node.addComponent(smNode);
-
-            nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
+        if ((shortId == null) || shortId.isEmpty()) {
+            shortId = "Submodel";
         }
-        else {
-            LOGGER.warn("addSubmodel: IdShort is empty!");
+        String displayName = "Submodel:" + shortId;
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
+                .toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.createNodeId(node, browseName);
+        if (nodeManager.hasNode(nid)) {
+            // The NodeId already exists
+            nid = nodeManager.getDefaultNodeId();
         }
+
+        LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}; Kind {}", submodel.getIdShort(), nid, submodel.getKind());
+        AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
+
+        IdentifiableCreator.addIdentifiable(smNode, submodel.getId(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+
+        setKind(submodel.getKind(), smNode, nodeManager);
+
+        // DataSpecifications
+        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
+
+        // Qualifiers
+        List<Qualifier> qualifiers = submodel.getQualifiers();
+        setQualifierData(qualifiers, smNode, nodeManager);
+
+        // SemanticId
+        if (submodel.getSemanticId() != null) {
+            ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
+        }
+
+        // Description
+        DescriptionCreator.addDescriptions(smNode, submodel.getDescription());
+
+        Reference refSubmodel = AasUtils.toReference(submodel);
+
+        // SubmodelElements
+        SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
+
+        if ((AasServiceNodeManager.VALUES_READ_ONLY) && (smNode.getKindNode() != null)) {
+            smNode.getKindNode().setAccessLevel(AccessLevelType.of(AccessLevelType.Options.CurrentRead));
+        }
+
+        nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
+
+        node.addComponent(smNode);
+
+        nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
     }
 
 

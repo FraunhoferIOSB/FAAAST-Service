@@ -82,10 +82,14 @@ public class AssetAdministrationShellCreator {
 
         nodeManager.setNodeBuilderConfiguration(conf.build());
 
-        QualifiedName browseName = UaQualifiedName.from(AasServiceNodeManager.NAMESPACE_URI, aas.getIdShort()).toQualifiedName(nodeManager.getNamespaceTable());
-        String displayName = "AAS:" + aas.getIdShort();
-        NodeId nid = new NodeId(nodeManager.getNamespaceIndex(), aas.getIdShort());
-        if (nodeManager.findNode(nid) != null) {
+        String shortId = aas.getIdShort();
+        if ((shortId == null) || shortId.isEmpty()) {
+            shortId = "AAS";
+        }
+        QualifiedName browseName = UaQualifiedName.from(AasServiceNodeManager.NAMESPACE_URI, shortId).toQualifiedName(nodeManager.getNamespaceTable());
+        String displayName = "AAS:" + shortId;
+        NodeId nid = new NodeId(nodeManager.getNamespaceIndex(), shortId);
+        if (nodeManager.hasNode(nid)) {
             // The NodeId already exists
             nid = nodeManager.getDefaultNodeId();
         }

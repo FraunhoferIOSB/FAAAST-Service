@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,8 +36,7 @@ public class LambdaExceptionHelper {
     public interface ConsumerWithExceptions<T, E extends Exception> {
 
         /**
-         * Wrapper for {@link java.util.function.Consumer#accept(java.lang.Object)
-         * }.
+         * Wrapper for {@link java.util.function.Consumer#accept(java.lang.Object)}.
          *
          * @param t the input argument
          * @throws E if operation fails
@@ -55,8 +55,7 @@ public class LambdaExceptionHelper {
     public interface BiConsumerWithExceptions<T, U, E extends Exception> {
 
         /**
-         * Wrapper for {@link java.util.function.BiConsumer#accept(java.lang.Object, java.lang.Object)
-         * }.
+         * Wrapper for {@link java.util.function.BiConsumer#accept(java.lang.Object, java.lang.Object)}.
          *
          * @param t the first input argument
          * @param u the second input argument
@@ -76,14 +75,34 @@ public class LambdaExceptionHelper {
     public interface FunctionWithExceptions<T, R, E extends Exception> {
 
         /**
-         * Wrapper for {@link java.util.function.Function#apply(java.lang.Object)
-         * }.
+         * Wrapper for {@link java.util.function.Function#apply(java.lang.Object)}.
          *
          * @param t the function argument
          * @return the function result
          * @throws E if operation fails
          */
         public R apply(T t) throws E;
+    }
+
+    /**
+     * Wrapper for {@link java.util.function.Function} with expected exception.
+     *
+     * @param <T1> the type of the first input to the function
+     * @param <T2> the type of the second input to the function
+     * @param <R> the type of the result of the function
+     * @param <E> the type of expected exception
+     */
+    @FunctionalInterface
+    public interface BiFunctionWithExceptions<T1, T2, R, E extends Exception> {
+        /**
+         * Wrapper for {@link java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)}.
+         *
+         * @param t1 the first function argument
+         * @param t2 the second function argument
+         * @return the function result
+         * @throws E if operation fails
+         */
+        public R apply(T1 t1, T2 t2) throws E;
     }
 
     /**
@@ -96,8 +115,7 @@ public class LambdaExceptionHelper {
     public interface SupplierWithExceptions<T, E extends Exception> {
 
         /**
-         * Wrapper for {@link java.util.function.Supplier#get()
-         * }.
+         * Wrapper for {@link java.util.function.Supplier#get()}.
          *
          * @return the result
          * @throws E if operation fails
@@ -114,8 +132,7 @@ public class LambdaExceptionHelper {
     public interface RunnableWithExceptions<E extends Exception> {
 
         /**
-         * Wrapper for {@link java.lang.Runnable#run()
-         * }.
+         * Wrapper for {@link java.lang.Runnable#run()}.
          *
          * @throws E if operation fails
          */
@@ -179,6 +196,30 @@ public class LambdaExceptionHelper {
         return t -> {
             try {
                 return function.apply(t);
+            }
+            catch (Exception e) {
+                throwAsUnchecked(e);
+                return null;
+            }
+        };
+    }
+
+
+    /**
+     * Wraps a {@link BiFunction} throwing an Exception to be conveniently used in functional expressions.
+     *
+     * @param <T1> input type of the first argument of the function
+     * @param <T2> input type of the second argument of the function
+     * @param <R> result type of the function
+     * @param <E> type of the potentially thrown exception
+     * @param function the actual function
+     * @return a wrapping function
+     * @throws E if execution of underlying function throws given exception
+     */
+    public static <T1, T2, R, E extends Exception> BiFunction<T1, T2, R> rethrowBiFunction(BiFunctionWithExceptions<T1, T2, R, E> function) throws E {
+        return (t1, t2) -> {
+            try {
+                return function.apply(t1, t2);
             }
             catch (Exception e) {
                 throwAsUnchecked(e);
