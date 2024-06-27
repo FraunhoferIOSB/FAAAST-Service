@@ -116,8 +116,8 @@ public class Service implements ServiceContext {
         this.persistence = persistence;
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
-        initSubmodelTemplateProcessors();
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
+        initSubmodelTemplateProcessors();
         this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
                 coreConfig,
                 persistence,
@@ -276,7 +276,6 @@ public class Service implements ServiceContext {
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
-        initSubmodelTemplateProcessors();
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
@@ -284,6 +283,7 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
