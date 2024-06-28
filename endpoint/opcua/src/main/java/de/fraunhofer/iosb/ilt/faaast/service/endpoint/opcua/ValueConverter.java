@@ -717,8 +717,8 @@ public class ValueConverter {
         String retval = "";
         if (variant.getValue() != null) {
             // special treatment for DateTime
-            if (variant.getValue() instanceof DateTime) {
-                retval = OffsetDateTime.ofInstant(((DateTime) variant.getValue()).toInstant(), ZoneId.systemDefault()).toString();
+            if (variant.getValue() instanceof DateTime dateTime) {
+                retval = OffsetDateTime.ofInstant(dateTime.toInstant(), ZoneId.systemDefault()).toString();
             }
             else {
                 retval = variant.getValue().toString();
@@ -735,13 +735,13 @@ public class ValueConverter {
         if (value == null) {
             retval = Variant.NULL;
         }
-        else if (value instanceof OffsetDateTime) {
+        else if (value instanceof OffsetDateTime offsetDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((OffsetDateTime) value));
+            retval = new Variant(createDateTime(offsetDateTime));
         }
-        else if (value instanceof LocalDateTime) {
+        else if (value instanceof LocalDateTime localDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime((LocalDateTime) value));
+            retval = new Variant(createDateTime(localDateTime));
         }
         else {
             retval = new Variant(value);
