@@ -117,13 +117,13 @@ public class Service implements ServiceContext {
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
-        initSubmodelTemplateProcessors();
         this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
                 coreConfig,
                 persistence,
                 fileStorage,
                 messageBus,
                 assetConnectionManager));
+        initSubmodelTemplateProcessors();
     }
 
 
@@ -283,6 +283,12 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
+                this.config.getCore(),
+                this.persistence,
+                this.fileStorage,
+                this.messageBus,
+                this.assetConnectionManager));
         initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
@@ -294,12 +300,7 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                this.config.getCore(),
-                this.persistence,
-                this.fileStorage,
-                this.messageBus,
-                this.assetConnectionManager));
+
     }
 
 

@@ -674,7 +674,7 @@ public class ReferenceHelper {
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
-            LOGGER.warn(String.format(
+            LOGGER.debug(String.format(
                     "encountered reference keys with same value but incompatible types (key value: %s, key type 1: %s, key type 2: %s)",
                     key1.getValue(),
                     type1,
