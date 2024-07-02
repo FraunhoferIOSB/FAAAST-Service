@@ -594,6 +594,20 @@ public class ReferenceHelper {
 
 
     /**
+     * Gets the effective key type of a reference, i.e. the type of the final key.
+     *
+     * @param reference the reference
+     * @return the effective key type of the reference
+     * @throws IllegalArgumentException is reference is null or does not contain any key
+     */
+    public static KeyTypes getEffectiveKeyType(Reference reference) {
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.require(!reference.getKeys().isEmpty(), "reference must contain at least one key");
+        return reference.getKeys().get(reference.getKeys().size() - 1).getType();
+    }
+
+
+    /**
      * Gets all references of the provided lists that are semantically
      * equivalent to {@code reference}.
      *
@@ -660,7 +674,7 @@ public class ReferenceHelper {
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
-            LOGGER.warn(String.format(
+            LOGGER.debug(String.format(
                     "encountered reference keys with same value but incompatible types (key value: %s, key type 1: %s, key type 2: %s)",
                     key1.getValue(),
                     type1,

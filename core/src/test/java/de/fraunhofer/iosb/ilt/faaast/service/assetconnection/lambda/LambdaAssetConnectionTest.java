@@ -75,7 +75,7 @@ public class LambdaAssetConnectionTest {
         persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
         MessageBus messageBus = mock(MessageBus.class);
-        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of());
+        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of(), List.of());
     }
 
 
