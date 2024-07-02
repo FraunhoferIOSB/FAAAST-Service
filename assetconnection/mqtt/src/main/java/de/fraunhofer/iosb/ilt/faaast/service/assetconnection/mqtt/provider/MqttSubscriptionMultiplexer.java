@@ -39,8 +39,7 @@ public class MqttSubscriptionMultiplexer {
     private final ConcurrentHashMap<String, List<Consumer<byte[]>>> listenersByTopic;
     private MqttClient client;
 
-    public MqttSubscriptionMultiplexer(ServiceContext serviceContext,
-            MqttClient client) throws AssetConnectionException {
+    public MqttSubscriptionMultiplexer(ServiceContext serviceContext, MqttClient client) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
         this.serviceContext = serviceContext;
@@ -110,7 +109,7 @@ public class MqttSubscriptionMultiplexer {
      */
     public void reconnect(MqttClient client) throws AssetConnectionException {
         this.client = client;
-        listenersByTopic.keySet().forEach(LambdaExceptionHelper.rethrowConsumer(topic -> this.subscribeTopic(topic)));
+        listenersByTopic.keySet().forEach(LambdaExceptionHelper.rethrowConsumer(this::subscribeTopic));
     }
 
 

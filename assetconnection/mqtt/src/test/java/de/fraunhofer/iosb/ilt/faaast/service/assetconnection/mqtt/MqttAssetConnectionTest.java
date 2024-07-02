@@ -244,8 +244,7 @@ public class MqttAssetConnectionTest {
 
 
     private static boolean isDebugging() {
-        return false;
-        //return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+        return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
 
 
