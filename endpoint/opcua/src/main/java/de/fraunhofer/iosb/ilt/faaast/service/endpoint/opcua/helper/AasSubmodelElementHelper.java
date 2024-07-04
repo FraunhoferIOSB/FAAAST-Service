@@ -151,8 +151,8 @@ public class AasSubmodelElementHelper {
         else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
             setEntityPropertyValue((AASEntityType) subElem, (EntityValue) value, nodeManager);
         }
-        else if (value instanceof DataElementValue) {
-            setDataElementValue(subElem, (DataElementValue) value, nodeManager);
+        else if (value instanceof DataElementValue dataElementValue) {
+            setDataElementValue(subElem, dataElementValue, nodeManager);
         }
         else {
             LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
@@ -420,8 +420,7 @@ public class AasSubmodelElementHelper {
         dateTimeProperty.setDataTypeId(Identifiers.DateTime);
         dateTimeProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            if (typedValue instanceof DateTimeValue) {
-                DateTimeValue dtval = (DateTimeValue) typedValue;
+            if (typedValue instanceof DateTimeValue dtval) {
                 dateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
             }
             else {
