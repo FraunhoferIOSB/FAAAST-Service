@@ -65,6 +65,8 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
+    //private static final long DEFAULT_TIMEOUT = 500;
+
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
         ApplicationDescription appDescription = new ApplicationDescription();
         appDescription.setApplicationName(new LocalizedText("AAS UnitTest Client", Locale.ENGLISH));
@@ -590,6 +592,9 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
+        // wait for the MessageBus event
+        //Thread.sleep(DEFAULT_TIMEOUT);
+
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -604,6 +609,9 @@ public class TestUtils {
         Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());
 
         client.writeValue(writeNode, newValue);
+
+        // wait for the MessageBus event
+        //Thread.sleep(DEFAULT_TIMEOUT);
 
         // read new value
         value = client.readValue(writeNode);
