@@ -19,10 +19,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
  */
 public interface Endpoint {
 
-    public String getInterfaceInformation();
+    public String getInterface();
 
 
-    public void setInterfaceInformation(String interfaceInformation);
+    public void setInterface(String _interface);
 
 
     public ProtocolInformation getProtocolInformation();
