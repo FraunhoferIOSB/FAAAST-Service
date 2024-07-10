@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractHttpEndpointTest.port;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
