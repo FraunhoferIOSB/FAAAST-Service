@@ -33,11 +33,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.registration.RegistryHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
@@ -71,6 +73,8 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private FileStorage fileStorage;
+
+    private RegistryHandler registryHandler;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -244,6 +248,7 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
+        this.registryHandler = new RegistryHandler(messageBus, persistence, config);
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -265,6 +270,14 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
+        try {
+            LOGGER.info("Deleting FA³ST Service from Registry");
+            registryHandler.deleteAllAasInRegistry();
+        }
+        catch (InterruptedException | RegistryException e) {
+            LOGGER.error(String.format("Deregistration in Registry failed: %s", e.getMessage()), e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 

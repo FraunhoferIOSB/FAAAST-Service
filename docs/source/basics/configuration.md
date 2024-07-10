@@ -67,7 +67,12 @@ The `core` configuration block contains properties not related to the implementa
 			"validateConstraints": false,        // currently ignored because AAS4J does not yet implement validation for AAS v3.0
 			"idShortUniqueness": true,
 			"identifierUniqueness": true
-		}
+		},
+		"registryHost": "localhost",
+        "registryPort": 8090,
+        "aasRegistryBasePath": "/api/v3.0/shell-descriptors",
+        "submodelRegistryBasePath": "/api/v3.0/submodel-descriptors",
+        "registryProtocol": "HTTPS"
 	},
 	// ...
 }
