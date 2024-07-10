@@ -41,6 +41,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                   |
 | port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 443                     |
 | sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                    |
+| sslEnabled<br>*(optional)*  | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                    |
 :::
 
 ```{code-block} json
@@ -52,6 +53,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"port": 443,
 		"corsEnabled": true,
 		"sniEnabled": true,
+		"sslEnabled": true,
 		"certificate": {
 			"keyStoreType": "PKCS12",
 			"keyStorePath": "C:\faaast\MyKeyStore.p12",

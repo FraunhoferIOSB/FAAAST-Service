@@ -19,66 +19,35 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.BeforeClass;
 
 
-public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
-
-    private static final String DEFAULT_KEY_STORE_TYPE = "PKCS12";
-    private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
-            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http:test")
-            .commonName("FA³ST Service HTTP Endpoint - Unit Test")
-            .countryCode("DE")
-            .localityName("Karlsruhe")
-            .organization("Fraunhofer IOSB")
-            .organizationUnit("ILT")
-            .build();
-    private static final String KEYSTORE_PASSWORD = "password";
-    private static File keyStoreTempFile;
+public class HttpEndpointWithSslDisabledTest extends AbstractHttpEndpointTest {
 
     @BeforeClass
     public static void init() throws Exception {
         port = PortHelper.findFreePort();
         persistence = mock(Persistence.class);
         fileStorage = mock(FileStorage.class);
-        generateCertificate();
+
         startServer();
         startClient();
     }
 
 
-    private static void generateCertificate() throws Exception {
-        keyStoreTempFile = Files.createTempFile("http-endpoint", "https-cert").toFile();
-        keyStoreTempFile.deleteOnExit();
-        KeyStoreHelper.save(
-                KeyStoreHelper.generateSelfSigned(SELFSIGNED_CERTIFICATE_INFORMATION),
-                keyStoreTempFile,
-                DEFAULT_KEY_STORE_TYPE,
-                null,
-                KEYSTORE_PASSWORD,
-                KEYSTORE_PASSWORD);
-    }
-
-
     private static void startServer() throws Exception {
-        scheme = HttpScheme.HTTPS.toString();
+        scheme = HttpScheme.HTTP.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
         service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of()));
@@ -87,10 +56,7 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
                 HttpEndpointConfig.builder()
                         .port(port)
                         .cors(true)
-                        .certificate(CertificateConfig.builder()
-                                .keyStorePath(keyStoreTempFile)
-                                .keyStorePassword(KEYSTORE_PASSWORD)
-                                .build())
+                        .ssl(false)
                         .build(),
                 service);
         server.start();
@@ -99,12 +65,7 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
 
 
     private static void startClient() throws Exception {
-        SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
-        sslContextFactory.setKeyStorePath(keyStoreTempFile.getAbsolutePath());
-        sslContextFactory.setKeyStorePassword(KEYSTORE_PASSWORD);
-        ClientConnector clientConnector = new ClientConnector();
-        clientConnector.setSslContextFactory(sslContextFactory);
-        client = new HttpClient(new HttpClientTransportDynamic(clientConnector));
+        client = new HttpClient(new HttpClientTransportDynamic(new ClientConnector()));
         client.start();
     }
 }
