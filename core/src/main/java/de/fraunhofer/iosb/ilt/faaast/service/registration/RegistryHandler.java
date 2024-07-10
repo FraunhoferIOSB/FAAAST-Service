@@ -82,8 +82,6 @@ public class RegistryHandler {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private final String aasInterface = "AAS-3.0";
-    private List<AssetAdministrationShell> aasList;
-    private List<Submodel> submodelList;
     private String protocol;
 
     public RegistryHandler(MessageBus messageBus, Persistence persistence, ServiceConfig serviceConfig) throws MessageBusException {
@@ -91,7 +89,6 @@ public class RegistryHandler {
         this.coreConfig = serviceConfig.getCore();
         this.endpointConfigs = serviceConfig.getEndpoints();
         this.protocol = serviceConfig.getCore().getRegistryProtocol();
-        initializeAasAndSubmodelLists();
         try {
             httpClient = newClientAcceptingAllCertificates();
         }
@@ -105,9 +102,9 @@ public class RegistryHandler {
 
         LOGGER.info("Registering FA³ST Service in Registry");
         try {
-            if (aasList.isEmpty())
+            if (getAasList().isEmpty())
                 return;
-            for (AssetAdministrationShell a: aasList) {
+            for (AssetAdministrationShell a: getAasList()) {
                 createIdentifiableInRegistry(getAasDescriptor(a, endpointConfigs), coreConfig.getAasRegistryBasePath());
             }
         }
@@ -117,15 +114,16 @@ public class RegistryHandler {
         }
     }
 
-
-    private void initializeAasAndSubmodelLists() {
+    private List<AssetAdministrationShell> getAasList() {
         List<?> rawAasList = persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
-        aasList = rawAasList.stream()
+        return rawAasList.stream()
                 .filter(a -> a instanceof AssetAdministrationShell)
                 .map(a -> (AssetAdministrationShell) a)
                 .collect(Collectors.toList());
+    }
+    private List<Submodel> getSubmodelList() {
         List<?> rawSubmodelList = persistence.getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
-        submodelList = rawSubmodelList.stream()
+        return rawSubmodelList.stream()
                 .filter(s -> s instanceof Submodel)
                 .map(s -> (Submodel) s)
                 .collect(Collectors.toList());
@@ -343,13 +341,10 @@ public class RegistryHandler {
     }
 
 
-    //@TODO: determine protocol from config class type
+    //@TODO: determine protocol from config class type but not imported through MVN
     private String determineProtocol(EndpointConfig config) {
         if (config.getClass().toString().contains("http")) {
             return "HTTP";
-        }
-        else if (config.getClass().toString().contains("mqtt")) {
-            return "MQTT";
         }
         else if (config.getClass().toString().contains("opc")) {
             return "OPC UA";
@@ -361,7 +356,7 @@ public class RegistryHandler {
 
 
     private AssetAdministrationShell getAasFromIdentifier(String identifier) throws IllegalArgumentException {
-        return aasList.stream()
+        return getAasList().stream()
                 .filter(a -> a.getId().equals(identifier))
                 .findFirst()
                 .get();
@@ -385,7 +380,7 @@ public class RegistryHandler {
 
 
     private Submodel getSubmodelFromIdentifier(String identifier) {
-        return submodelList.stream()
+        return getSubmodelList() .stream()
                 .filter(s -> s.getId().equals(identifier))
                 .findFirst()
                 .get();
