@@ -114,6 +114,7 @@ public class RegistryHandler {
         }
     }
 
+
     private List<AssetAdministrationShell> getAasList() {
         List<?> rawAasList = persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
         return rawAasList.stream()
@@ -121,6 +122,8 @@ public class RegistryHandler {
                 .map(a -> (AssetAdministrationShell) a)
                 .collect(Collectors.toList());
     }
+
+
     private List<Submodel> getSubmodelList() {
         List<?> rawSubmodelList = persistence.getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
         return rawSubmodelList.stream()
@@ -139,8 +142,8 @@ public class RegistryHandler {
         if (persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent().isEmpty())
             return;
 
-        for (Object aas: persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent()) {
-            AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from((AssetAdministrationShellDescriptor) aas).build();
+        for (AssetAdministrationShell aas: getAasList()) {
+            AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
             deleteIdentifiableInRegistry(descriptor.getId(), coreConfig.getAasRegistryBasePath());
         }
     }
@@ -380,7 +383,7 @@ public class RegistryHandler {
 
 
     private Submodel getSubmodelFromIdentifier(String identifier) {
-        return getSubmodelList() .stream()
+        return getSubmodelList().stream()
                 .filter(s -> s.getId().equals(identifier))
                 .findFirst()
                 .get();

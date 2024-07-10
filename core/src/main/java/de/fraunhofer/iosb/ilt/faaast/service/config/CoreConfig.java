@@ -244,6 +244,12 @@ public class CoreConfig {
         }
 
 
+        public Builder registryProtocol(String value) {
+            getBuildingInstance().setRegistryProtocol(value);
+            return getSelf();
+        }
+
+
         public Builder aasRegistryBasePath(String value) {
             getBuildingInstance().setAasRegistryBasePath(value);
             return getSelf();

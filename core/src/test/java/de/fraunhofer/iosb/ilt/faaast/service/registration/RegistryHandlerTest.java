@@ -42,8 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
@@ -100,6 +99,7 @@ public class RegistryHandlerTest {
                 .core(CoreConfig.builder()
                         .registryPort(wireMockRule.port())
                         .registryHost("localhost")
+                        .registryProtocol("HTTP")
                         .build())
                 .build());
 
@@ -153,7 +153,7 @@ public class RegistryHandlerTest {
 
     private static void setupMockedPersistence() {
         environment = AASFull.createEnvironment();
-        when(PERSISTENCE.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent()).thenReturn(environment.getAssetAdministrationShells());
+        when(PERSISTENCE.getAllAssetAdministrationShells(any(), any())).thenReturn(Page.builder().result(environment.getAssetAdministrationShells()).build());
     }
 
 
