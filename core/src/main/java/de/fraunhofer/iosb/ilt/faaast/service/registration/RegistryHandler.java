@@ -143,15 +143,13 @@ public class RegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, ResourceNotFoundException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
-            createDescriptorInRegistries(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
+            createDescriptorInRegistries(identifier, coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
-            createDescriptorInRegistries(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
+            createDescriptorInRegistries(identifier, coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -161,15 +159,13 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the update of an element.
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws ResourceNotFoundException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
-            updateDescriptorInRegistry(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
+            updateDescriptorInRegistry(identifier, coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
-            updateDescriptorInRegistry(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
+            updateDescriptorInRegistry(identifier, coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -179,15 +175,13 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the deletion of an element.
      */
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws ResourceNotFoundException {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
-            deleteDescriptorInRegistry(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
+            deleteDescriptorInRegistry(identifier, coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
-            deleteDescriptorInRegistry(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
+            deleteDescriptorInRegistry(identifier, coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -233,13 +227,18 @@ public class RegistryHandler {
 
     private String getDescriptorFromIdentifier(String identifier, String path) throws ResourceNotFoundException, JsonProcessingException {
         if (path.equals(AAS_URL_PATH)) {
-            return getAasDescriptor(
-                    persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL),
-                    endpointConfigs);
+            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
+            return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
+                    .from(aas)
+                    .submodels(getSubmodelDescriptorsFromAas(aas))
+                    .endpoints(createEndpoints(endpointConfigs))
+                    .build());
         }
         else {
-            return getSubmodelDescriptor(persistence.getSubmodel(identifier, QueryModifier.MINIMAL),
-                    endpointConfigs);
+            return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
+                    .from(persistence.getSubmodel(identifier, QueryModifier.MINIMAL))
+                    .endpoints(createEndpoints(endpointConfigs))
+                    .build());
         }
     }
 
@@ -316,23 +315,6 @@ public class RegistryHandler {
             Thread.currentThread().interrupt();
         }
         return null;
-    }
-
-
-    private String getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) throws JsonProcessingException, ResourceNotFoundException {
-        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
-                .from(aas)
-                .submodels(getSubmodelDescriptorsFromAas(aas))
-                .endpoints(createEndpoints(endpointConfigs))
-                .build());
-    }
-
-
-    private String getSubmodelDescriptor(Submodel submodel, List<EndpointConfig> endpointConfigs) throws JsonProcessingException {
-        return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
-                .from(submodel)
-                .endpoints(createEndpoints(endpointConfigs))
-                .build());
     }
 
 
