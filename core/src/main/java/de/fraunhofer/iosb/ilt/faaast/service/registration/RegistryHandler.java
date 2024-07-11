@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.registration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -26,10 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
@@ -46,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -54,6 +54,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,28 +90,32 @@ public class RegistryHandler {
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private final String aasInterface = "AAS-3.0";
 
-    public RegistryHandler(MessageBus messageBus, Persistence persistence, ServiceConfig serviceConfig) throws MessageBusException {
+    public RegistryHandler(MessageBus messageBus, Persistence<?> persistence, ServiceConfig serviceConfig) throws MessageBusException {
         this.persistence = persistence;
         this.coreConfig = serviceConfig.getCore();
         this.endpointConfigs = serviceConfig.getEndpoints();
+
         try {
             httpClient = SslHelper.newClientAcceptingAllCertificates();
         }
         catch (KeyManagementException | NoSuchAlgorithmException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
         }
-
         messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, LambdaExceptionHelper.wrap(this::handleCreateEvent)));
         messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, LambdaExceptionHelper.wrap(this::handleChangeEvent)));
         messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(this::handleDeleteEvent)));
-
-        LOGGER.info("Registering FA³ST Service in Registry");
+        LOGGER.info("Registering AAS & Submodels in Registries");
         try {
-            persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL)
-                    .getContent()
-                    .forEach(x -> createIdentifiableInRegistries(getAasDescriptor(x, endpointConfigs), coreConfig.getAasRegistryBasePath()));
+            for (AssetAdministrationShell a: persistence.getAllAssetAdministrationShells(OutputModifier.MINIMAL, PagingInfo.ALL)
+                    .getContent()) {
+                createDescriptorInRegistries(a.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
+            }
+            for (Submodel s: persistence.getAllSubmodels(OutputModifier.MINIMAL, PagingInfo.ALL)
+                    .getContent()) {
+                createDescriptorInRegistries(s.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
+            }
         }
-        catch (RegistryException | InterruptedException e) {
+        catch (RegistryException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             Thread.currentThread().interrupt();
         }
@@ -117,17 +123,17 @@ public class RegistryHandler {
 
 
     /**
-     * Used to delete all shells when service is shut down.
+     * Used to delete all shells and submodels when service is shut down.
      *
      * @throws RegistryException
-     * @throws java.lang.InterruptedException
      */
-    public void deleteAllAasInRegistry() throws RegistryException, InterruptedException {
-        persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL)
+    public void deleteAllInRegistry() throws RegistryException {
+        persistence.getAllAssetAdministrationShells(OutputModifier.MINIMAL, PagingInfo.ALL)
                 .getContent()
-                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> deleteIdentifiableInRegistry(x.getId(), coreConfig.getAasRegistryBasePath())));
-        if (persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent().isEmpty())
-            return;
+                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> deleteDescriptorInRegistry(x.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH)));
+        persistence.getAllSubmodels(OutputModifier.MINIMAL, PagingInfo.ALL)
+                .getContent()
+                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> deleteDescriptorInRegistry(x.getId(), coreConfig.getSubmodelRegistries(), AAS_URL_PATH)));
     }
 
 
@@ -137,17 +143,15 @@ public class RegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, ResourceNotFoundException, JsonProcessingException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            // TODO use persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL) instead of fetching all AASs
-            createIdentifiableInRegistries(getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
+            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
+            createDescriptorInRegistries(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
-                    .from(getSubmodelFromIdentifier(identifier))
-                    .build();
-            createIdentifiableInRegistries(descriptor, coreConfig.getSubmodelRegistryBasePath());
+            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
+            createDescriptorInRegistries(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -157,16 +161,15 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the update of an element.
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException, ResourceNotFoundException, JsonProcessingException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            updateIdentifiableInRegistry(identifier, getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
+            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
+            updateDescriptorInRegistry(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
-                    .from(getSubmodelFromIdentifier(identifier))
-                    .build();
-            updateIdentifiableInRegistry(identifier, descriptor, coreConfig.getSubmodelRegistryBasePath());
+            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
+            updateDescriptorInRegistry(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -176,13 +179,15 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the deletion of an element.
      */
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws InterruptedException {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws InterruptedException, ResourceNotFoundException, JsonProcessingException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            deleteIdentifiableInRegistry(identifier, coreConfig.getAasRegistryBasePath());
+            AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
+            deleteDescriptorInRegistry(aas.getId(), coreConfig.getAasRegistries(), AAS_URL_PATH);
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
-            deleteIdentifiableInRegistry(identifier, coreConfig.getSubmodelRegistryBasePath());
+            Submodel submodel = persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
+            deleteDescriptorInRegistry(submodel.getId(), coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH);
         }
     }
 
@@ -202,73 +207,81 @@ public class RegistryHandler {
     }
 
 
-    private void createAasInRegistries(AssetAdministrationShellDescriptor descriptor) throws RegistryException, InterruptedException {
-        createIdentifiableInRegistries(descriptor, coreConfig.getAasRegistries());
-    }
-
-
-    private void createIdentifiableInRegistries(AbstractIdentifiableDescriptor descriptor, List<String> registries) throws RegistryException {
+    private void createDescriptorInRegistries(String identifier, List<String> registries, String path) throws RegistryException {
         for (String registry: registries) {
             try {
-
                 HttpResponse<String> response = execute(
-                        new URL(registry),
-                        AAS_URL_PATH,
+                        URI.create(registry).toURL(),
+                        path,
                         "POST",
-                        HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
+                        HttpRequest.BodyPublishers.ofString(getDescriptorFromIdentifier(identifier, path)),
                         HttpResponse.BodyHandlers.ofString(),
                         null);
                 if (response.statusCode() == 409) {
-                    LOGGER.warn(String.format(CONFLICT_ERROR, descriptor.getId()));
+                    LOGGER.warn(String.format(CONFLICT_ERROR, response.headers()));
                 }
-                if (!is2xxSuccessful(response.statusCode())) {
+                else if (!is2xxSuccessful(response.statusCode())) {
+                    LOGGER.warn(String.format(SYNC_EVENT_ERROR));
+                }
+            }
+            catch (URISyntaxException | IOException | ResourceNotFoundException e) {
+                LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
+            }
+        }
+    }
+
+
+    private String getDescriptorFromIdentifier(String identifier, String path) throws ResourceNotFoundException, JsonProcessingException {
+        if (path.equals(AAS_URL_PATH)) {
+            return getAasDescriptor(
+                    persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL),
+                    endpointConfigs);
+        }
+        else {
+            return getSubmodelDescriptor(persistence.getSubmodel(identifier, QueryModifier.MINIMAL),
+                    endpointConfigs);
+        }
+    }
+
+
+    private void updateDescriptorInRegistry(String identifier, List<String> registries, String path) {
+        for (String registry: registries) {
+            try {
+                HttpResponse<String> response = execute(
+                        URI.create(registry).toURL(),
+                        path + "/" + Base64.getEncoder().encodeToString(identifier.getBytes()),
+                        "PUT",
+                        HttpRequest.BodyPublishers.ofString(getDescriptorFromIdentifier(identifier, path)),
+                        HttpResponse.BodyHandlers.ofString(),
+                        null);
+                if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
+                    LOGGER.warn(String.format(SYNC_EVENT_ERROR));
+                }
+            }
+            catch (URISyntaxException | IOException | ResourceNotFoundException e) {
+                LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
+            }
+        }
+    }
+
+
+    private void deleteDescriptorInRegistry(String identifier, List<String> registries, String path) {
+        for (String registry: registries) {
+            try {
+                HttpResponse<String> response = execute(
+                        URI.create(registry).toURL(),
+                        path + "/" + Base64.getEncoder().encodeToString(identifier.getBytes()),
+                        "DELETE",
+                        HttpRequest.BodyPublishers.noBody(),
+                        HttpResponse.BodyHandlers.ofString(),
+                        null);
+                if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
                     LOGGER.warn(String.format(SYNC_EVENT_ERROR));
                 }
             }
             catch (URISyntaxException | IOException e) {
                 LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             }
-        }
-
-    }
-
-
-    private void updateIdentifiableInRegistry(String identifier, AbstractIdentifiableDescriptor descriptor, String basePath) throws InterruptedException {
-        try {
-            HttpResponse<String> response = execute(
-                    new URL(this.protocol, coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                            basePath + "/" + Base64.getEncoder().encodeToString(identifier.getBytes())),
-                    "",
-                    "PUT",
-                    HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
-                    HttpResponse.BodyHandlers.ofString(),
-                    null);
-            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
-                LOGGER.warn(String.format(SYNC_EVENT_ERROR));
-            }
-        }
-        catch (URISyntaxException | IOException e) {
-            LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
-        }
-    }
-
-
-    private void deleteIdentifiableInRegistry(String identifier, String basePath) throws InterruptedException {
-        try {
-            HttpResponse<String> response = execute(
-                    new URL(this.protocol, coreConfig.getRegistryHost(), coreConfig.getRegistryPort(),
-                            basePath + "/" + Base64.getEncoder().encodeToString(identifier.getBytes())),
-                    "",
-                    "DELETE",
-                    HttpRequest.BodyPublishers.noBody(),
-                    HttpResponse.BodyHandlers.ofString(),
-                    null);
-            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
-                LOGGER.warn(String.format(SYNC_EVENT_ERROR));
-            }
-        }
-        catch (URISyntaxException | IOException e) {
-            LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
         }
     }
 
@@ -306,12 +319,20 @@ public class RegistryHandler {
     }
 
 
-    private AbstractIdentifiableDescriptor getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) {
-        return DefaultAssetAdministrationShellDescriptor.builder()
+    private String getAasDescriptor(AssetAdministrationShell aas, List<EndpointConfig> endpointConfigs) throws JsonProcessingException, ResourceNotFoundException {
+        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
                 .from(aas)
                 .submodels(getSubmodelDescriptorsFromAas(aas))
                 .endpoints(createEndpoints(endpointConfigs))
-                .build();
+                .build());
+    }
+
+
+    private String getSubmodelDescriptor(Submodel submodel, List<EndpointConfig> endpointConfigs) throws JsonProcessingException {
+        return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
+                .from(submodel)
+                .endpoints(createEndpoints(endpointConfigs))
+                .build());
     }
 
 
@@ -340,23 +361,12 @@ public class RegistryHandler {
 
     //@TODO: determine protocol from config class type but not imported through MVN
     private String determineProtocol(EndpointConfig config) {
-        if (config.getClass().toString().contains("http")) {
-            return "HTTP";
-        }
-        else if (config.getClass().toString().contains("opc")) {
+        if (config.getClass().toString().contains("opc")) {
             return "OPC UA";
         }
         else {
-            return "";
+            return "HTTP";
         }
-    }
-
-
-    private AssetAdministrationShell getAasFromIdentifier(String identifier) throws IllegalArgumentException {
-        return getAasList().stream()
-                .filter(a -> a.getId().equals(identifier))
-                .findFirst()
-                .get();
     }
 
 
@@ -365,18 +375,13 @@ public class RegistryHandler {
         for (Reference submodelReference: aas.getSubmodels())
             try {
                 submodelDescriptors.add(DefaultSubmodelDescriptor.builder()
-                        .from(getSubmodelFromIdentifier(submodelReference.getKeys().get(0).getValue()))
+                        .from(persistence.getSubmodel(submodelReference.getKeys().get(0).getValue(), QueryModifier.MINIMAL))
                         .endpoints(createEndpoints(endpointConfigs))
                         .build());
             }
-            catch (Exception e) {
+            catch (ResourceNotFoundException e) {
                 LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             }
         return submodelDescriptors;
-    }
-
-
-    private Submodel getSubmodelFromIdentifier(String identifier) throws ResourceNotFoundException {
-        return persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
     }
 }

@@ -271,10 +271,10 @@ public class Service implements ServiceContext {
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
         try {
-            LOGGER.info("Deleting FA³ST Service from Registry");
-            registryHandler.deleteAllAasInRegistry();
+            LOGGER.info("Deleting AAS & Submodel descriptors from Registry");
+            registryHandler.deleteAllInRegistry();
         }
-        catch (InterruptedException | RegistryException e) {
+        catch (RegistryException e) {
             LOGGER.error(String.format("Deregistration in Registry failed: %s", e.getMessage()), e);
             Thread.currentThread().interrupt();
         }

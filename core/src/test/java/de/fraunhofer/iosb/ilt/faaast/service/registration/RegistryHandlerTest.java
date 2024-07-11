@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -82,12 +83,14 @@ public class RegistryHandlerTest {
     private static RegistryHandler registryHandler;
     private static Environment environment;
     private static CoreConfig coreConfig;
+    private static final String AAS_URL_PATH = "/api/v3.0/shell-descriptors";
+    private static final String SUBMODEL_URL_PATH = "/api/v3.0/submodel-descriptors";
 
     @BeforeClass
     public static void init() throws Exception {
         coreConfig = CoreConfig.builder()
-                .registryPort(wireMockRule.port())
-                .registryHost("localhost")
+                .aasRegistry("http://localhost:" + wireMockRule.port())
+                .submodelRegistry("http://localhost:" + wireMockRule.port())
                 .build();
         MESSAGE_BUS = Mockito.mock(MessageBus.class);
         FILESTORAGE = Mockito.mock(FileStorage.class);
@@ -97,9 +100,8 @@ public class RegistryHandlerTest {
         // Throws registry exception because http request for creation is not mocked
         registryHandler = new RegistryHandler(MESSAGE_BUS, PERSISTENCE, ServiceConfig.builder()
                 .core(CoreConfig.builder()
-                        .registryPort(wireMockRule.port())
-                        .registryHost("localhost")
-                        .registryProtocol("HTTP")
+                        .aasRegistry("http://localhost:" + wireMockRule.port())
+                        .submodelRegistry("http://localhost:" + wireMockRule.port())
                         .build())
                 .build());
 
@@ -151,12 +153,26 @@ public class RegistryHandlerTest {
     }
 
 
-    private static void setupMockedPersistence() {
+    private static void setupMockedPersistence() throws ResourceNotFoundException {
         environment = AASFull.createEnvironment();
         when(PERSISTENCE.getAllAssetAdministrationShells(any(), any()))
                 .thenReturn(Page.<AssetAdministrationShell> builder().result(environment.getAssetAdministrationShells()).build());
-        List<Submodel> foo = List.of();
+
         when(PERSISTENCE.getAllSubmodels(any(), any())).thenReturn(Page.<Submodel> builder().result(environment.getSubmodels()).build());
+        when(PERSISTENCE.getSubmodel(any(String.class), any())).thenAnswer((Answer<Submodel>) invocation -> {
+            String id = invocation.getArgument(0);
+            return environment.getSubmodels().stream()
+                    .filter(s -> s.getId().equals(id))
+                    .findFirst()
+                    .orElse(null);
+        });
+        when(PERSISTENCE.getAssetAdministrationShell(any(String.class), any())).thenAnswer((Answer<AssetAdministrationShell>) invocation -> {
+            String id = invocation.getArgument(0);
+            return environment.getAssetAdministrationShells().stream()
+                    .filter(a -> a.getId().equals(id))
+                    .findFirst()
+                    .orElse(null);
+        });
     }
 
 
@@ -165,7 +181,7 @@ public class RegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, FILESTORAGE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(coreConfig.getAasRegistryBasePath())
+            stubFor(post(AAS_URL_PATH)
                     .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                     .willReturn(ok()));
         }
@@ -173,7 +189,7 @@ public class RegistryHandlerTest {
         service.start();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
+            verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
                     .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
         }
     }
@@ -184,13 +200,13 @@ public class RegistryHandlerTest {
         Service service = new Service(coreConfig, PERSISTENCE, FILESTORAGE, MESSAGE_BUS, new ArrayList<>(), new ArrayList<>());
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(coreConfig.getAasRegistryBasePath())
+            stubFor(post(AAS_URL_PATH)
                     .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                     .willReturn(ok()));
         }
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
+            stubFor(delete(AAS_URL_PATH + "/" + getEncodedIdentifier(aas))
                     .willReturn(ok()));
         }
 
@@ -198,7 +214,7 @@ public class RegistryHandlerTest {
         service.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))));
+            verify(deleteRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + getEncodedIdentifier(aas))));
         }
     }
 
@@ -207,14 +223,14 @@ public class RegistryHandlerTest {
     public void testAasCreation() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(post(coreConfig.getAasRegistryBasePath())
+        stubFor(post(AAS_URL_PATH)
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
 
-        verify(postRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath()))
+        verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
     }
 
@@ -225,13 +241,13 @@ public class RegistryHandlerTest {
         String oldIdShort = aas.getIdShort();
         aas.setIdShort("Changed Id Short");
 
-        stubFor(put(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
+        stubFor(put(AAS_URL_PATH + "/" + getEncodedIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(aas).build());
 
-        verify(putRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas)))
+        verify(putRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + getEncodedIdentifier(aas)))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
 
         aas.setIdShort(oldIdShort);
@@ -242,13 +258,13 @@ public class RegistryHandlerTest {
     public void testAasDeletion() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
 
-        stubFor(delete(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))
+        stubFor(delete(AAS_URL_PATH + "/" + getEncodedIdentifier(aas))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
 
-        verify(deleteRequestedFor(urlEqualTo(coreConfig.getAasRegistryBasePath() + "/" + getEncodedIdentifier(aas))));
+        verify(deleteRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + getEncodedIdentifier(aas))));
     }
 
 
@@ -256,14 +272,14 @@ public class RegistryHandlerTest {
     public void testSubmodelCreation() throws Exception {
         Submodel submodel = environment.getSubmodels().get(0);
 
-        stubFor(post(coreConfig.getSubmodelRegistryBasePath())
+        stubFor(post(SUBMODEL_URL_PATH)
                 .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel)))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementCreateEventMessage.builder()
                 .element(submodel).build());
 
-        verify(postRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath()))
+        verify(postRequestedFor(urlEqualTo(SUBMODEL_URL_PATH))
                 .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
     }
 
@@ -274,13 +290,13 @@ public class RegistryHandlerTest {
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
 
-        stubFor(put(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))
+        stubFor(put(SUBMODEL_URL_PATH + "/" + getEncodedIdentifier(submodel))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementUpdateEventMessage.builder()
                 .element(submodel).build());
 
-        verify(putRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel)))
+        verify(putRequestedFor(urlEqualTo(SUBMODEL_URL_PATH + "/" + getEncodedIdentifier(submodel)))
                 .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
 
         submodel.setIdShort(oldIdShort);
@@ -291,13 +307,13 @@ public class RegistryHandlerTest {
     public void testSubmodelDeletion() throws Exception {
         Submodel submodel = environment.getSubmodels().get(0);
 
-        stubFor(delete(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))
+        stubFor(delete(SUBMODEL_URL_PATH + "/" + getEncodedIdentifier(submodel))
                 .willReturn(ok()));
 
         MESSAGE_BUS.publish(ElementDeleteEventMessage.builder()
                 .element(submodel).build());
 
-        verify(deleteRequestedFor(urlEqualTo(coreConfig.getSubmodelRegistryBasePath() + "/" + getEncodedIdentifier(submodel))));
+        verify(deleteRequestedFor(urlEqualTo(SUBMODEL_URL_PATH + "/" + getEncodedIdentifier(submodel))));
     }
 
 
@@ -340,7 +356,7 @@ public class RegistryHandlerTest {
             if (submodel.getId().equals(identifier))
                 return submodel;
         }
-        throw new IllegalArgumentException("Identifier not found!");
+        return null;
     }
 
 }
