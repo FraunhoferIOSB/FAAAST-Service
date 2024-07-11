@@ -143,7 +143,7 @@ public class RegistryHandler {
      * @param eventMessage Event that signals the creation of an element.
      * @throws RegistryException
      */
-    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, ResourceNotFoundException, JsonProcessingException {
+    protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, ResourceNotFoundException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
             AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
@@ -161,7 +161,7 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the update of an element.
      */
-    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws InterruptedException, ResourceNotFoundException, JsonProcessingException {
+    protected void handleChangeEvent(ElementUpdateEventMessage eventMessage) throws ResourceNotFoundException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
             AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
@@ -179,7 +179,7 @@ public class RegistryHandler {
      *
      * @param eventMessage Event that signals the deletion of an element.
      */
-    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws InterruptedException, ResourceNotFoundException, JsonProcessingException {
+    protected void handleDeleteEvent(ElementDeleteEventMessage eventMessage) throws ResourceNotFoundException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
             AssetAdministrationShell aas = persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL);
