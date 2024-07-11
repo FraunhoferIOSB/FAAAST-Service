@@ -10,6 +10,9 @@
 - Asset Connection
 	- MQTT
 		- Now supports multiple subscription providers to the same topic
+- Endpoint
+	- HTTP
+		- Added new config property `sslEnabled` that allows to disable SSL/HTTPS and use HTTP instead. This is intended for development/testing purposes and some scenarios where FA³ST Service is running behind a proxy server that handles SSL/HTTPS.
 
 **Internal changes & bugfixes**
 - General
