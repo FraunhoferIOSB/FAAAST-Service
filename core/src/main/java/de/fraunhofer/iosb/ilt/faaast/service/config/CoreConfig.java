@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -29,32 +31,14 @@ public class CoreConfig {
 
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
-    private static final String DEFAULT_REGISTRY_HOST = "localhost";
-    private static final int DEFAULT_REGISTRY_PORT = 8090;
-    private static final String DEFAULT_AAS_REGISTRY_BASE_PATH = "/api/v3.0/shell-descriptors";
-    private static final String DEFAULT_SUBMODEL_REGISTRY_BASE_PATH = "/api/v3.0/submodel-descriptors";
-    private static final String DEFAULT_AAS_REGISTRY_PROTOCOL = "HTTPS";
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
     private ModelValidatorConfig validationOnLoad;
     private ModelValidatorConfig validationOnCreate;
     private ModelValidatorConfig validationOnUpdate;
-    private String registryHost;
-    private int registryPort;
-    private String aasRegistryBasePath;
-    private String submodelRegistryBasePath;
-
-    public String getRegistryProtocol() {
-        return registryProtocol;
-    }
-
-
-    public void setRegistryProtocol(String registryProtocol) {
-        this.registryProtocol = registryProtocol;
-    }
-
-    private String registryProtocol;
+    private List<String> aasRegistries;
+    private List<String> submodelRegistries;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -74,11 +58,8 @@ public class CoreConfig {
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
                 .build();
-        this.registryHost = DEFAULT_REGISTRY_HOST;
-        this.registryPort = DEFAULT_REGISTRY_PORT;
-        this.aasRegistryBasePath = DEFAULT_AAS_REGISTRY_BASE_PATH;
-        this.submodelRegistryBasePath = DEFAULT_SUBMODEL_REGISTRY_BASE_PATH;
-        this.registryProtocol = DEFAULT_AAS_REGISTRY_PROTOCOL;
+        this.aasRegistries = new ArrayList<>();
+        this.submodelRegistries = new ArrayList<>();
     }
 
 
@@ -94,46 +75,6 @@ public class CoreConfig {
 
     public void setAssetConnectionRetryInterval(long assetConnectionRetryInterval) {
         this.assetConnectionRetryInterval = assetConnectionRetryInterval;
-    }
-
-
-    public String getRegistryHost() {
-        return registryHost;
-    }
-
-
-    public void setRegistryHost(String registryHost) {
-        this.registryHost = registryHost;
-    }
-
-
-    public int getRegistryPort() {
-        return registryPort;
-    }
-
-
-    public void setRegistryPort(int registryPort) {
-        this.registryPort = registryPort;
-    }
-
-
-    public String getAasRegistryBasePath() {
-        return aasRegistryBasePath;
-    }
-
-
-    public void setAasRegistryBasePath(String aasRegistryBasePath) {
-        this.aasRegistryBasePath = aasRegistryBasePath;
-    }
-
-
-    public String getSubmodelRegistryBasePath() {
-        return submodelRegistryBasePath;
-    }
-
-
-    public void setSubmodelRegistryBasePath(String submodelRegistryBasePath) {
-        this.submodelRegistryBasePath = submodelRegistryBasePath;
     }
 
 
@@ -177,13 +118,35 @@ public class CoreConfig {
     }
 
 
+    public List<String> getAasRegistries() {
+        return aasRegistries;
+    }
+
+
+    public void setAasRegistries(List<String> aasRegistries) {
+        this.aasRegistries = aasRegistries;
+    }
+
+
+    public List<String> getSubmodelRegistries() {
+        return submodelRegistries;
+    }
+
+
+    public void setSubmodelRegistries(List<String> submodelRegistries) {
+        this.submodelRegistries = submodelRegistries;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
                 requestHandlerThreadPoolSize,
                 validationOnLoad,
                 validationOnCreate,
-                validationOnUpdate);
+                validationOnUpdate,
+                aasRegistries,
+                submodelRegistries);
     }
 
 
@@ -203,7 +166,9 @@ public class CoreConfig {
                 && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize)
                 && Objects.equals(this.validationOnLoad, other.validationOnLoad)
                 && Objects.equals(this.validationOnCreate, other.validationOnCreate)
-                && Objects.equals(this.validationOnUpdate, other.validationOnUpdate);
+                && Objects.equals(this.validationOnUpdate, other.validationOnUpdate)
+                && Objects.equals(this.aasRegistries, other.aasRegistries)
+                && Objects.equals(this.submodelRegistries, other.submodelRegistries);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
@@ -232,32 +197,26 @@ public class CoreConfig {
         }
 
 
-        public Builder registryHost(String value) {
-            getBuildingInstance().setRegistryHost(value);
+        public Builder aasRegistries(List<String> value) {
+            getBuildingInstance().setAasRegistries(value);
             return getSelf();
         }
 
 
-        public Builder registryPort(int value) {
-            getBuildingInstance().setRegistryPort(value);
+        public Builder aasRegistry(String value) {
+            getBuildingInstance().getAasRegistries().add(value);
             return getSelf();
         }
 
 
-        public Builder registryProtocol(String value) {
-            getBuildingInstance().setRegistryProtocol(value);
+        public Builder submodelRegistries(List<String> value) {
+            getBuildingInstance().setSubmodelRegistries(value);
             return getSelf();
         }
 
 
-        public Builder aasRegistryBasePath(String value) {
-            getBuildingInstance().setAasRegistryBasePath(value);
-            return getSelf();
-        }
-
-
-        public Builder submodelRegistryBasePath(String value) {
-            getBuildingInstance().setSubmodelRegistryBasePath(value);
+        public Builder submodelRegistry(String value) {
+            getBuildingInstance().getSubmodelRegistries().add(value);
             return getSelf();
         }
 

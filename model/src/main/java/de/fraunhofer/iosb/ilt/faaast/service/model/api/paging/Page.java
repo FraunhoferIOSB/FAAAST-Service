@@ -23,6 +23,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 /**
  * Holds a paged content set including information of further available results.
+ * @param <T> type of the page content
  */
 public class Page<T> {
 

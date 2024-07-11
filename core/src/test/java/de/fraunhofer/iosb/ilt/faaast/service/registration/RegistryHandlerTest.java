@@ -153,8 +153,10 @@ public class RegistryHandlerTest {
 
     private static void setupMockedPersistence() {
         environment = AASFull.createEnvironment();
-        when(PERSISTENCE.getAllAssetAdministrationShells(any(), any())).thenReturn(Page.builder().result(environment.getAssetAdministrationShells()).build());
-        when(PERSISTENCE.getAllSubmodels(any(), any())).thenReturn(Page.builder().result(environment.getSubmodels()).build());
+        when(PERSISTENCE.getAllAssetAdministrationShells(any(), any()))
+                .thenReturn(Page.<AssetAdministrationShell> builder().result(environment.getAssetAdministrationShells()).build());
+        List<Submodel> foo = List.of();
+        when(PERSISTENCE.getAllSubmodels(any(), any())).thenReturn(Page.<Submodel> builder().result(environment.getSubmodels()).build());
     }
 
 

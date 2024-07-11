@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registration;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper.newClientAcceptingAllCertificates;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
@@ -36,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoi
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -43,6 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
@@ -53,8 +54,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
@@ -69,11 +71,14 @@ import org.slf4j.LoggerFactory;
  * with the Registry.
  */
 public class RegistryHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryHandler.class);
     private static final String SYNC_EXCEPTION = "Synchronisation with Registry exception: %s";
     private static final String SYNC_EVENT_ERROR = "Synchronisation of changes with Registry failed.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryHandler.class);
+    private static final String CONFLICT_ERROR = "Synchronisation with registry failed - reason: conflict (id: %s)";
+    private static final String AAS_URL_PATH = "/api/v3.0/shell-descriptors";
+    private static final String SUBMODEL_URL_PATH = "/api/v3.0/submodel-descriptors";
 
-    private final Persistence persistence;
+    private final Persistence<?> persistence;
     private final CoreConfig coreConfig;
     private final List<EndpointConfig> endpointConfigs;
     private HttpClient httpClient;
@@ -82,15 +87,13 @@ public class RegistryHandler {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     private final String aasInterface = "AAS-3.0";
-    private String protocol;
 
     public RegistryHandler(MessageBus messageBus, Persistence persistence, ServiceConfig serviceConfig) throws MessageBusException {
         this.persistence = persistence;
         this.coreConfig = serviceConfig.getCore();
         this.endpointConfigs = serviceConfig.getEndpoints();
-        this.protocol = serviceConfig.getCore().getRegistryProtocol();
         try {
-            httpClient = newClientAcceptingAllCertificates();
+            httpClient = SslHelper.newClientAcceptingAllCertificates();
         }
         catch (KeyManagementException | NoSuchAlgorithmException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
@@ -102,11 +105,9 @@ public class RegistryHandler {
 
         LOGGER.info("Registering FA³ST Service in Registry");
         try {
-            if (getAasList().isEmpty())
-                return;
-            for (AssetAdministrationShell a: getAasList()) {
-                createIdentifiableInRegistry(getAasDescriptor(a, endpointConfigs), coreConfig.getAasRegistryBasePath());
-            }
+            persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL)
+                    .getContent()
+                    .forEach(x -> createIdentifiableInRegistries(getAasDescriptor(x, endpointConfigs), coreConfig.getAasRegistryBasePath()));
         }
         catch (RegistryException | InterruptedException e) {
             LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
@@ -115,37 +116,18 @@ public class RegistryHandler {
     }
 
 
-    private List<AssetAdministrationShell> getAasList() {
-        List<?> rawAasList = persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
-        return rawAasList.stream()
-                .filter(a -> a instanceof AssetAdministrationShell)
-                .map(a -> (AssetAdministrationShell) a)
-                .collect(Collectors.toList());
-    }
-
-
-    private List<Submodel> getSubmodelList() {
-        List<?> rawSubmodelList = persistence.getAllSubmodels(OutputModifier.DEFAULT, PagingInfo.ALL).getContent();
-        return rawSubmodelList.stream()
-                .filter(s -> s instanceof Submodel)
-                .map(s -> (Submodel) s)
-                .collect(Collectors.toList());
-    }
-
-
     /**
      * Used to delete all shells when service is shut down.
      *
      * @throws RegistryException
+     * @throws java.lang.InterruptedException
      */
     public void deleteAllAasInRegistry() throws RegistryException, InterruptedException {
+        persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL)
+                .getContent()
+                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> deleteIdentifiableInRegistry(x.getId(), coreConfig.getAasRegistryBasePath())));
         if (persistence.getAllAssetAdministrationShells(OutputModifier.DEFAULT, PagingInfo.ALL).getContent().isEmpty())
             return;
-
-        for (AssetAdministrationShell aas: getAasList()) {
-            AssetAdministrationShellDescriptor descriptor = DefaultAssetAdministrationShellDescriptor.builder().from(aas).build();
-            deleteIdentifiableInRegistry(descriptor.getId(), coreConfig.getAasRegistryBasePath());
-        }
     }
 
 
@@ -158,14 +140,14 @@ public class RegistryHandler {
     protected void handleCreateEvent(ElementCreateEventMessage eventMessage) throws RegistryException, InterruptedException {
         String identifier = eventMessage.getElement().getKeys().get(0).getValue();
         if (referenceIsAas(eventMessage.getElement())) {
-            // TODO Check for race condition because aas may not be in the environment yet
-            createIdentifiableInRegistry(getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
+            // TODO use persistence.getAssetAdministrationShell(identifier, QueryModifier.MINIMAL) instead of fetching all AASs
+            createIdentifiableInRegistries(getAasDescriptor(getAasFromIdentifier(identifier), endpointConfigs), coreConfig.getAasRegistryBasePath());
         }
         else if (referenceIsSubmodel(eventMessage.getElement())) {
             AbstractIdentifiableDescriptor descriptor = DefaultSubmodelDescriptor.builder()
                     .from(getSubmodelFromIdentifier(identifier))
                     .build();
-            createIdentifiableInRegistry(descriptor, coreConfig.getSubmodelRegistryBasePath());
+            createIdentifiableInRegistries(descriptor, coreConfig.getSubmodelRegistryBasePath());
         }
     }
 
@@ -220,22 +202,34 @@ public class RegistryHandler {
     }
 
 
-    private void createIdentifiableInRegistry(AbstractIdentifiableDescriptor descriptor, String basePath) throws RegistryException, InterruptedException {
-        try {
-            HttpResponse<String> response = execute(
-                    new URL(this.protocol, coreConfig.getRegistryHost(), coreConfig.getRegistryPort(), basePath),
-                    "",
-                    "POST",
-                    HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
-                    HttpResponse.BodyHandlers.ofString(),
-                    null);
-            if (Objects.isNull(response) || !is2xxSuccessful(response.statusCode())) {
-                LOGGER.warn(String.format(SYNC_EVENT_ERROR));
+    private void createAasInRegistries(AssetAdministrationShellDescriptor descriptor) throws RegistryException, InterruptedException {
+        createIdentifiableInRegistries(descriptor, coreConfig.getAasRegistries());
+    }
+
+
+    private void createIdentifiableInRegistries(AbstractIdentifiableDescriptor descriptor, List<String> registries) throws RegistryException {
+        for (String registry: registries) {
+            try {
+
+                HttpResponse<String> response = execute(
+                        new URL(registry),
+                        AAS_URL_PATH,
+                        "POST",
+                        HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(descriptor)),
+                        HttpResponse.BodyHandlers.ofString(),
+                        null);
+                if (response.statusCode() == 409) {
+                    LOGGER.warn(String.format(CONFLICT_ERROR, descriptor.getId()));
+                }
+                if (!is2xxSuccessful(response.statusCode())) {
+                    LOGGER.warn(String.format(SYNC_EVENT_ERROR));
+                }
+            }
+            catch (URISyntaxException | IOException e) {
+                LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
             }
         }
-        catch (URISyntaxException | IOException e) {
-            LOGGER.error(String.format(SYNC_EXCEPTION, e.getMessage()), e);
-        }
+
     }
 
 
@@ -286,7 +280,7 @@ public class RegistryHandler {
                                         HttpRequest.BodyPublisher bodyPublisher,
                                         HttpResponse.BodyHandler<T> bodyHandler,
                                         Map<String, String> headers)
-            throws URISyntaxException, IOException, InterruptedException {
+            throws URISyntaxException, IOException {
         Ensure.requireNonNull(httpClient, "client must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
@@ -382,10 +376,7 @@ public class RegistryHandler {
     }
 
 
-    private Submodel getSubmodelFromIdentifier(String identifier) {
-        return getSubmodelList().stream()
-                .filter(s -> s.getId().equals(identifier))
-                .findFirst()
-                .get();
+    private Submodel getSubmodelFromIdentifier(String identifier) throws ResourceNotFoundException {
+        return persistence.getSubmodel(identifier, QueryModifier.MINIMAL);
     }
 }

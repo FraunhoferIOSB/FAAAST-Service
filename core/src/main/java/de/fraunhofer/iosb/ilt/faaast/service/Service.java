@@ -248,7 +248,6 @@ public class Service implements ServiceContext {
     public void start() throws MessageBusException, EndpointException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
-        this.registryHandler = new RegistryHandler(messageBus, persistence, config);
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -256,6 +255,7 @@ public class Service implements ServiceContext {
             LOGGER.debug("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
+        registryHandler = new RegistryHandler(messageBus, persistence, config);
         assetConnectionManager.start();
         LOGGER.debug("FA³ST Service is running!");
     }
