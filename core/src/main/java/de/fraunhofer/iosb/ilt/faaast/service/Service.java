@@ -270,6 +270,7 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
+        endpoints.forEach(Endpoint::stop);
     }
 
 
