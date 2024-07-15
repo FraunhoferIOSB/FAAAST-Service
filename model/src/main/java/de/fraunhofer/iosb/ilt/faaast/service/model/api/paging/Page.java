@@ -23,7 +23,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 /**
  * Holds a paged content set including information of further available results.
- * 
+ *
  * @param <T> type of the page content
  */
 public class Page<T> {
@@ -73,6 +73,17 @@ public class Page<T> {
     @Override
     public int hashCode() {
         return Objects.hash(content, metadata);
+    }
+
+
+    /**
+     * Creates a new empty {@code Page}.
+     *
+     * @param <T> type of the data
+     * @return the new empty page
+     */
+    public static <T> Page<T> empty() {
+        return new Page<>();
     }
 
 

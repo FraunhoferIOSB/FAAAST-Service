@@ -7,6 +7,7 @@
 	- Loading AAS models from JSON now fails on unknown JSON properties
 	- Added lambda operation provider
 	- Added additional helper methods for resolving idShort and semanticId paths
+	- Added support for synchronization with multiple AAS and/or submodel registries
 - Asset Connection
 	- MQTT
 		- Now supports multiple subscription providers to the same topic

@@ -33,13 +33,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.RegistryException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
-import de.fraunhofer.iosb.ilt.faaast.service.registration.RegistryHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
@@ -74,7 +73,7 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private FileStorage fileStorage;
 
-    private RegistryHandler registryHandler;
+    private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -124,6 +123,7 @@ public class Service implements ServiceContext {
                 fileStorage,
                 messageBus,
                 assetConnectionManager));
+        this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 
 
@@ -255,7 +255,7 @@ public class Service implements ServiceContext {
             LOGGER.debug("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
-        registryHandler = new RegistryHandler(messageBus, persistence, config);
+        registrySynchronization.start();
         assetConnectionManager.start();
         LOGGER.debug("FA³ST Service is running!");
     }
@@ -269,15 +269,7 @@ public class Service implements ServiceContext {
         LOGGER.debug("Get command for stopping FA³ST Service");
         messageBus.stop();
         assetConnectionManager.stop();
-        endpoints.forEach(Endpoint::stop);
-        try {
-            LOGGER.info("Deleting AAS & Submodel descriptors from Registry");
-            registryHandler.deleteAllInRegistry();
-        }
-        catch (RegistryException e) {
-            LOGGER.error(String.format("Deregistration in Registry failed: %s", e.getMessage()), e);
-            Thread.currentThread().interrupt();
-        }
+        registrySynchronization.stop();
     }
 
 
@@ -311,5 +303,6 @@ public class Service implements ServiceContext {
                 this.fileStorage,
                 this.messageBus,
                 this.assetConnectionManager));
+        this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 }

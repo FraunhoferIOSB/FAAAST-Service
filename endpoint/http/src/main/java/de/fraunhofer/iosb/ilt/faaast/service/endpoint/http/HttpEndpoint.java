@@ -23,6 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,10 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -182,4 +187,60 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             Thread.currentThread().interrupt();
         }
     }
+
+
+    @Override
+    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+        return List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                        ._interface("AAS-REPOSITORY-3.0")
+                        .protocolInformation(DefaultProtocolInformation.builder()
+                                .href(server.getURI().toASCIIString())
+                                .endpointProtocol(server.getURI().getScheme())
+                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                        .type(SecurityTypeEnum.NONE)
+                                        .build())
+                                .build())
+                        .build(),
+                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                        ._interface("AAS-3.0")
+                        .protocolInformation(DefaultProtocolInformation.builder()
+                                .href(server.getURI().toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
+                                .endpointProtocol(server.getURI().getScheme())
+                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                        .type(SecurityTypeEnum.NONE)
+                                        .build())
+                                .build())
+                        .build());
+    }
+
+
+    @Override
+    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getSubmodelEndpointInformation(String submodelId) {
+        if (Objects.isNull(server)) {
+            return List.of();
+        }
+        return List.of(
+                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                        ._interface("SUBMODEL-REPOSITORY-3.0")
+                        .protocolInformation(DefaultProtocolInformation.builder()
+                                .href(server.getURI().toASCIIString())
+                                .endpointProtocol("HTTP")
+                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                        .type(SecurityTypeEnum.NONE)
+                                        .build())
+                                .build())
+                        .build(),
+                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                        ._interface("SUBMODEL-3.0")
+                        .protocolInformation(DefaultProtocolInformation.builder()
+                                .href(server.getURI().toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
+                                .endpointProtocol("HTTP")
+                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                        .type(SecurityTypeEnum.NONE)
+                                        .build())
+                                .build())
+                        .build());
+    }
+
 }
