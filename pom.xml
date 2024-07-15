@@ -76,7 +76,7 @@
         <awaitility.version>4.2.1</awaitility.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <checkstyle.version>10.17.0</checkstyle.version>
-        <classgraph.version>4.8.173</classgraph.version>
+        <classgraph.version>4.8.174</classgraph.version>
         <commons.codec.version>1.17.0</commons.codec.version>
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
@@ -87,18 +87,18 @@
         <equalsverifier.version>3.16.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.2.1-jre</guava.version>
-        <jackson.databind.version>2.17.1</jackson.databind.version>
-        <jackson.version>2.17.1</jackson.version>
+        <jackson.databind.version>2.17.2</jackson.databind.version>
+        <jackson.version>2.17.2</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.0.0</jena.version>
-        <jetty.version>11.0.21</jetty.version>
+        <jetty.version>11.0.22</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.1</json-smart.version>
-        <jsonassert.version>1.5.1</jsonassert.version>
+        <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.6</logback.version>
@@ -108,16 +108,16 @@
         <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.4.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>9.0.0</maven.plugin.git.commit.id.version>
+        <maven.plugin.dependency.version>3.7.1</maven.plugin.dependency.version>
+        <maven.plugin.failsafe.version>3.3.1</maven.plugin.failsafe.version>
+        <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.4</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.4.1</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.7.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>9.2.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>10.0.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.0-118</maven.plugin.prosys.codegen.version>
@@ -133,12 +133,12 @@
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.6</parsson.version>
         <picocli.version>4.7.6</picocli.version>
-        <poi.ooxml.version>5.2.5</poi.ooxml.version>
+        <poi.ooxml.version>5.3.0</poi.ooxml.version>
         <proguard.core.version>9.1.4</proguard.core.version>
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.2-139</prosys.sdk.version>
-        <protobuf.version>4.27.1</protobuf.version>
+        <protobuf.version>4.27.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
@@ -152,7 +152,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.6</systemstubs.version>
         <wiremock.version>2.35.2</wiremock.version>
-        <woodstox.version>6.6.2</woodstox.version>
+        <woodstox.version>7.0.0</woodstox.version>
     </properties>
     <dependencies>
         <dependency>

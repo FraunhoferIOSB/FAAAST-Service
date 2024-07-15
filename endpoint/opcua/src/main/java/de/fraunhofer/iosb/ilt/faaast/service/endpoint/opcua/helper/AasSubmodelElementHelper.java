@@ -151,8 +151,8 @@ public class AasSubmodelElementHelper {
         else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
             setEntityPropertyValue((AASEntityType) subElem, (EntityValue) value, nodeManager);
         }
-        else if (value instanceof DataElementValue dev) {
-            setDataElementValue(subElem, dev, nodeManager);
+        else if (value instanceof DataElementValue dataElementValue) {
+            setDataElementValue(subElem, dataElementValue, nodeManager);
         }
         else {
             LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());

@@ -139,14 +139,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private static final Logger LOG = LoggerFactory.getLogger(AasServiceNodeManager.class);
 
     /**
-     * The AAS environment associated with this Node Manager
-     */
-    private final Environment aasEnvironment;
-
-    /**
      * The associated Endpoint
      */
     private final OpcUaEndpoint endpoint;
+
+    /**
+     * The AAS environment associated with this Node Manager
+     */
+    private Environment aasEnvironment;
 
     /**
      * The OPC UA Node for the AAS Environment
@@ -403,18 +403,20 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         // The element is the reference to the object which is added itself
         // formerly it was the parent
         ObjectData parent = null;
-        if ((parentRef != null) && referableMap.containsKey(parentRef)) {
-            parent = referableMap.get(parentRef);
+        if ((parentRef != null) && ReferenceHelper.containsSameReference(referableMap, parentRef)) {
+            parent = ReferenceHelper.getValueBySameReference(referableMap, parentRef);
         }
 
-        if (value instanceof ConceptDescription) {
-            ConceptDescriptionCreator.addConceptDescriptions(List.of((ConceptDescription) value), this);
+        if (value instanceof ConceptDescription conceptDescription) {
+            ConceptDescriptionCreator.addConceptDescriptions(List.of(conceptDescription), this);
         }
-        else if (value instanceof Submodel) {
-            SubmodelCreator.addSubmodel(aasEnvironmentNode, (Submodel) value, this);
+        else if (value instanceof Submodel submodel) {
+            SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
         }
-        else if (value instanceof AssetAdministrationShell) {
-            AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, (AssetAdministrationShell) value, this);
+        else if (value instanceof AssetAdministrationShell assetAdministrationShell) {
+            // read new Environment
+            aasEnvironment = endpoint.getAASEnvironment();
+            AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, assetAdministrationShell, this);
         }
         else if (parent != null) {
             if (value instanceof EmbeddedDataSpecification) {
@@ -446,10 +448,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.debug("elementDeleted called. Reference {}", ReferenceHelper.toString(element));
         }
         // The element is the object that should be deleted
-        ObjectData data = referableMap.get(element);
-        if (data != null) {
+        var entry = ReferenceHelper.getEntryBySameReference(referableMap, element);
+        if (entry != null) {
+            ObjectData data = entry.getValue();
             // remove element from the map
-            referableMap.remove(element);
+            referableMap.remove(entry.getKey());
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
         }
@@ -616,11 +619,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         Ensure.requireNonNull(node, "node must not be null");
 
         try {
-            if (node instanceof AASSubmodelElementType) {
-                doRemoveFromMaps((AASSubmodelElementType) node, reference, referable);
+            if (node instanceof AASSubmodelElementType aASSubmodelElementType) {
+                doRemoveFromMaps(aASSubmodelElementType, reference, referable);
             }
-            else if (referable instanceof Submodel) {
-                doRemoveFromMaps(reference, (Submodel) referable);
+            else if (referable instanceof Submodel submodel) {
+                doRemoveFromMaps(reference, submodel);
             }
 
             // no special treatment necessary for other types like AssetAdministrationShell, Asset or others
@@ -649,15 +652,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", ReferenceHelper.toString(reference));
         }
 
-        if (element instanceof AASPropertyType) {
-            AASPropertyType prop = (AASPropertyType) element;
+        if (element instanceof AASPropertyType prop) {
             if (submodelElementAasMap.containsKey(prop.getValueNode().getNodeId())) {
                 submodelElementAasMap.remove(prop.getValueNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove Property NodeId {}", prop.getValueNode().getNodeId());
             }
         }
-        else if (element instanceof AASRangeType) {
-            AASRangeType range = (AASRangeType) element;
+        else if (element instanceof AASRangeType range) {
             if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
                 submodelElementAasMap.remove(range.getMinNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove Range Min NodeId {}", range.getMinNode().getNodeId());
@@ -668,37 +669,32 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOG.debug("doRemoveFromMaps: remove Range Max NodeId {}", range.getMaxNode().getNodeId());
             }
         }
-        else if (element instanceof AASOperationType) {
-            AASOperationType oper = (AASOperationType) element;
+        else if (element instanceof AASOperationType oper) {
             if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
                 submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove Operation NodeId {}", oper.getOperationNode().getNodeId());
             }
         }
-        else if (element instanceof AASBlobType) {
-            AASBlobType blob = (AASBlobType) element;
+        else if (element instanceof AASBlobType blob) {
             if ((blob.getValueNode() != null) && (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId()))) {
                 submodelElementAasMap.remove(blob.getValueNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove Blob NodeId {}", blob.getValueNode().getNodeId());
             }
         }
-        else if (element instanceof AASMultiLanguagePropertyType) {
-            AASMultiLanguagePropertyType mlp = (AASMultiLanguagePropertyType) element;
+        else if (element instanceof AASMultiLanguagePropertyType mlp) {
             if (submodelElementAasMap.containsKey(mlp.getValueNode().getNodeId())) {
                 submodelElementAasMap.remove(mlp.getValueNode().getNodeId());
                 LOG.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId {}", mlp.getValueNode().getNodeId());
             }
         }
-        else if (element instanceof AASReferenceElementType) {
-            AASReferenceElementType refElem = (AASReferenceElementType) element;
+        else if (element instanceof AASReferenceElementType refElem) {
             NodeId nid = refElem.getValueNode().getKeysNode().getNodeId();
             if (submodelElementAasMap.containsKey(nid)) {
                 submodelElementAasMap.remove(nid);
                 LOG.debug("doRemoveFromMaps: remove AASReferenceElement NodeId {}", nid);
             }
         }
-        else if (element instanceof AASRelationshipElementType) {
-            AASRelationshipElementType relElem = (AASRelationshipElementType) element;
+        else if (element instanceof AASRelationshipElementType relElem) {
             NodeId nid = relElem.getFirstNode().getKeysNode().getNodeId();
             if (submodelElementAasMap.containsKey(nid)) {
                 submodelElementAasMap.remove(nid);
@@ -718,8 +714,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
         }
-        else if (element instanceof AASEntityType) {
-            AASEntityType ent = (AASEntityType) element;
+        else if (element instanceof AASEntityType ent) {
             if ((ent.getGlobalAssetIdNode() != null)) {
                 NodeId nid = ent.getGlobalAssetIdNode().getNodeId();
                 if (submodelElementAasMap.containsKey(nid)) {
@@ -733,8 +728,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 LOG.debug("doRemoveFromMaps: remove Entity EntityType NodeId {}", ent.getEntityTypeNode().getNodeId());
             }
         }
-        else if (referable instanceof SubmodelElementCollection) {
-            SubmodelElementCollection sec = (SubmodelElementCollection) referable;
+        else if (referable instanceof SubmodelElementCollection sec) {
             for (SubmodelElement se: sec.getValue()) {
                 doRemoveFromMaps(reference, se);
             }
@@ -752,10 +746,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
         Reference ref = AasUtils.toReference(parent, de);
-        ObjectData element = referableMap.remove(ref);
-        if (element != null) {
-            if (element.getNode() instanceof AASSubmodelElementType) {
-                doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
+        var entry = ReferenceHelper.getEntryBySameReference(referableMap, ref);
+        if (entry != null) {
+            ObjectData element = referableMap.remove(entry.getKey());
+            if (element.getNode() instanceof AASSubmodelElementType aASSubmodelElementType) {
+                doRemoveFromMaps(aASSubmodelElementType, ref, de);
             }
         }
         else if (LOG.isDebugEnabled()) {
@@ -788,11 +783,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addQualifier(ObjectData parent, Referable value) throws StatusException {
-        if (parent.getNode() instanceof AASSubmodelType) {
-            QualifierCreator.addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
+        if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
+            QualifierCreator.addQualifiers(aASSubmodelType.getQualifierNode(), List.of((Qualifier) value), this);
         }
-        else if (parent.getNode() instanceof AASSubmodelElementType) {
-            QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Qualifier) value), this);
+        else if (parent.getNode() instanceof AASSubmodelElementType aASSubmodelElementType) {
+            QualifierCreator.addQualifiers(aASSubmodelElementType.getQualifierNode(), List.of((Qualifier) value), this);
         }
         else {
             LOG.debug("elementCreated: Constraint parent class not found");
@@ -817,15 +812,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     private void addEmbeddedDataSpecification(ObjectData parent, Referable value) throws StatusException {
-        if (parent.getNode() instanceof AASAssetAdministrationShellType) {
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(),
+        if (parent.getNode() instanceof AASAssetAdministrationShellType aASAssetAdministrationShellType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASAssetAdministrationShellType,
                     List.of((EmbeddedDataSpecification) value), this);
         }
-        else if (parent.getNode() instanceof AASSubmodelType) {
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
+        else if (parent.getNode() instanceof AASSubmodelType aASSubmodelType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelType, List.of((EmbeddedDataSpecification) value), this);
         }
-        else if (parent.getNode() instanceof AASSubmodelElementType) {
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
+        else if (parent.getNode() instanceof AASSubmodelElementType aASSubmodelElementType) {
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aASSubmodelElementType, List.of((EmbeddedDataSpecification) value), this);
         }
         else {
             LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");

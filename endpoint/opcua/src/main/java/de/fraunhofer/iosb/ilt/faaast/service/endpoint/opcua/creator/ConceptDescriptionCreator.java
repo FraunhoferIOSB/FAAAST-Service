@@ -26,6 +26,7 @@ import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +74,18 @@ public class ConceptDescriptionCreator {
 
         for (ConceptDescription c: descriptions) {
             String name = c.getIdShort();
-            NodeId nid = nodeManager.createNodeId(dictionariesFolder, name);
             DictionaryEntryType dictNode;
+            NodeId nid = null;
+            if ((name != null) && (!name.isEmpty())) {
+                nid = nodeManager.createNodeId(dictionariesFolder, name);
+                if (nodeManager.hasNode(nid)) {
+                    // The NodeId already exists
+                    nid = nodeManager.getDefaultNodeId();
+                }
+            }
+            else {
+                nid = nodeManager.getDefaultNodeId();
+            }
 
             AASConceptDescriptionType desriptionNode = nodeManager.createInstance(AASConceptDescriptionType.class, name, nid);
             AASReferenceList listNode = desriptionNode.getIsCaseOfNode();
@@ -103,8 +114,8 @@ public class ConceptDescriptionCreator {
      * @param semanticId The reference of the desired SemanticId
      */
     public static void addSemanticId(UaNode node, Reference semanticId) {
-        if (dictionaryMap.containsKey(semanticId)) {
-            node.addReference(dictionaryMap.get(semanticId), Identifiers.HasDictionaryEntry, false);
+        if (ReferenceHelper.containsSameReference(dictionaryMap, semanticId)) {
+            node.addReference(ReferenceHelper.getValueBySameReference(dictionaryMap, semanticId), Identifiers.HasDictionaryEntry, false);
         }
         // if entry not found: perhaps create a new one?
     }
