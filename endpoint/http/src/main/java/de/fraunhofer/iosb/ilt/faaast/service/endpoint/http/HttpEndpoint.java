@@ -191,6 +191,9 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     @Override
     public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+        if (Objects.isNull(server)) {
+            return List.of();
+        }
         return List.of(
                 de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
                         ._interface("AAS-REPOSITORY-3.0")
