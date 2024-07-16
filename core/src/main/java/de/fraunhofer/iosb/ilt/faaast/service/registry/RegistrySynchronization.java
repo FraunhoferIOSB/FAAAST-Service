@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.ASSET_ADMINISTRATION_SHELL;
-import static org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes.SUBMODEL;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,13 +74,16 @@ public class RegistrySynchronization {
     private static final String MSG_UPDATE_SUBMODEL_FAILED = "Updating submodel descriptor in registry failed (id: %s, registry: %s, reason: %s)";
     private static final String MSG_UNREGISTER_AAS_FAILED = "Removing AAS descriptor from registry failed (id: %s, registry: %s, reason: %s)";
     private static final String MSG_UNREGISTER_SUBMODEL_FAILED = "Removing submodel descriptor from registry failed (id: %s, registry: %s, reason: %s)";
+    private static final String MSG_AAS_NOT_FOUND = "AAS could not be found in persistence";
+    private static final String MSG_SUBMODEL_NOT_FOUND = "submodel could not be found in persistence";
+    private static final String MSG_BAD_RETURN_CODE = "bad return code %s";
 
     private static final String AAS_URL_PATH = "/api/v3.0/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/api/v3.0/submodel-descriptors";
 
     private final CoreConfig coreConfig;
     private final Persistence<?> persistence;
-    private final MessageBus messageBus;
+    private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
     private HttpClient httpClient;
     private final ObjectMapper mapper = new ObjectMapper()
@@ -94,7 +94,7 @@ public class RegistrySynchronization {
     public RegistrySynchronization(
             CoreConfig coreConfig,
             Persistence<?> persistence,
-            MessageBus messageBus,
+            MessageBus<?> messageBus,
             List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints) {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
@@ -189,8 +189,10 @@ public class RegistrySynchronization {
         switch (key.getType()) {
             case ASSET_ADMINISTRATION_SHELL:
                 aasHandler.accept(key.getValue());
+                break;
             case SUBMODEL:
                 submodelHandler.accept(key.getValue());
+                break;
         }
     }
 
@@ -216,7 +218,7 @@ public class RegistrySynchronization {
                     MSG_REGISTER_AAS_FAILED,
                     id,
                     "-",
-                    "AAS could not be found in persistence"),
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -243,7 +245,7 @@ public class RegistrySynchronization {
                     MSG_UNREGISTER_AAS_FAILED,
                     id,
                     "-",
-                    "AAS could not be found in persistence"),
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -263,7 +265,7 @@ public class RegistrySynchronization {
                     MSG_UPDATE_AAS_FAILED,
                     id,
                     "-",
-                    "AAS could not be found in persistence"),
+                    MSG_AAS_NOT_FOUND),
                     e);
         }
     }
@@ -290,7 +292,7 @@ public class RegistrySynchronization {
                     MSG_REGISTER_SUBMODEL_FAILED,
                     id,
                     "-",
-                    "submodel could not be found in persistence"),
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -317,7 +319,7 @@ public class RegistrySynchronization {
                     MSG_UNREGISTER_SUBMODEL_FAILED,
                     id,
                     "-",
-                    "submodel could not be found in persistence"),
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -337,7 +339,7 @@ public class RegistrySynchronization {
                     MSG_UPDATE_SUBMODEL_FAILED,
                     id,
                     "-",
-                    "submodel could not be found in persistence"),
+                    MSG_SUBMODEL_NOT_FOUND),
                     e);
         }
     }
@@ -359,7 +361,7 @@ public class RegistrySynchronization {
                             errorMsg,
                             id,
                             registry,
-                            String.format("bad return code %s", response.statusCode())));
+                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
                 }
 
             }
@@ -370,6 +372,9 @@ public class RegistrySynchronization {
                         registry,
                         e.getMessage()),
                         e);
+                if (InterruptedException.class.isInstance(e)) {
+                    Thread.currentThread().interrupt();;
+                }
             }
         }
     }
@@ -388,7 +393,7 @@ public class RegistrySynchronization {
                             errorMsg,
                             id,
                             registry,
-                            String.format("bad return code %s", response.statusCode())));
+                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
                 }
 
             }
@@ -399,6 +404,9 @@ public class RegistrySynchronization {
                         registry,
                         e.getMessage()),
                         e);
+                if (InterruptedException.class.isInstance(e)) {
+                    Thread.currentThread().interrupt();;
+                }
             }
         }
     }
@@ -417,7 +425,7 @@ public class RegistrySynchronization {
                             errorMsg,
                             id,
                             registry,
-                            String.format("bad return code %s", response.statusCode())));
+                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
                 }
 
             }
@@ -428,6 +436,9 @@ public class RegistrySynchronization {
                         registry,
                         e.getMessage()),
                         e);
+                if (InterruptedException.class.isInstance(e)) {
+                    Thread.currentThread().interrupt();;
+                }
             }
         }
     }

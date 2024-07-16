@@ -111,7 +111,7 @@ public class RegistrySynchronizationTest {
 
     @After
     public void cleanup() throws Exception {
-        //service.stop();
+        registrySynchronization.stop();
     }
 
 
