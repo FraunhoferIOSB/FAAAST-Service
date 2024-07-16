@@ -130,11 +130,17 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         httpConfig.setSendDateHeader(false);
         httpConfig.setSendXPoweredBy(false);
         HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
-        ServerConnector serverConnector;
         SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
         secureRequestCustomizer.setSniHostCheck(config.isSniEnabled());
         httpConfig.addCustomizer(secureRequestCustomizer);
-        serverConnector = buildSSLServerConnector(httpConnectionFactory);
+        ServerConnector serverConnector;
+        if (config.isSslEnabled()) {
+            serverConnector = buildSSLServerConnector(httpConnectionFactory);
+        }
+        else {
+            serverConnector = new ServerConnector(server, httpConnectionFactory);
+            LOGGER.warn("Using HTTP endpoint with disabled SSL. Not safe for production - use for development only");
+        }
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
     }

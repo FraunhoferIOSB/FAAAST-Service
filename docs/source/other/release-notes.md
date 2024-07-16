@@ -13,7 +13,8 @@
 		- Now supports multiple subscription providers to the same topic
 - Endpoint
 	- HTTP
-		- New config property `hostname` to provide hostname of endpoint for automatic registration with registries
+		- Added new config property `sslEnabled` that allows to disable SSL/HTTPS and use HTTP instead. This is intended for development/testing purposes and some scenarios where FA³ST Service is running behind a proxy server that handles SSL/HTTPS.
+		- Added new config property `hostname` to provide hostname of endpoint for automatic registration with registries
 
 **Internal changes & bugfixes**
 - General
