@@ -53,7 +53,7 @@ The `core` configuration block contains properties not related to the implementa
 :lineno-start: 1
 {
 	"core" : {
-	    "aasRegistries": [
+		"aasRegistries": [
 			"http://example.com/MyAASRegistry"
 		],
 		"assetConnectionRetryInterval": 1000,
