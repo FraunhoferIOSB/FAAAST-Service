@@ -57,7 +57,6 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
-    private static final String API_PREFIX = "/api/v3.0";
     private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
@@ -78,7 +77,7 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        if (!request.getRequestURI().startsWith(API_PREFIX)) {
+        if (!request.getRequestURI().startsWith(HttpEndpoint.getVersionPrefix())) {
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
@@ -88,7 +87,7 @@ public class RequestHandler extends AbstractHandler {
             baseRequest.setHandled(true);
             return;
         }
-        String url = request.getRequestURI().replaceFirst(API_PREFIX, "");
+        String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
         if (config.isCorsEnabled()) {
             setCORSHeader(response);
             if (isPreflightedCORSRequest(request)) {

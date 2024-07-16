@@ -23,11 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -55,6 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
+    public static final Version API_VERSION = Version.V3_0;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http")
@@ -64,6 +68,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             .organization("Fraunhofer IOSB")
             .organizationUnit("ILT")
             .build();
+    private static final String ENDPOINT_PROTOCOL = "HTTP";
+    private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;
@@ -72,6 +78,16 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     @Override
     public HttpEndpointConfig asConfig() {
         return config;
+    }
+
+
+    /**
+     * Gets the API version prefix.
+     *
+     * @return the API version prefix
+     */
+    protected static String getVersionPrefix() {
+        return String.format("/api/%s", API_VERSION);
     }
 
 
@@ -195,26 +211,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             return List.of();
         }
         return List.of(
-                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
-                        ._interface("AAS-REPOSITORY-3.0")
-                        .protocolInformation(DefaultProtocolInformation.builder()
-                                .href(server.getURI().toASCIIString())
-                                .endpointProtocol(server.getURI().getScheme())
-                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
-                                        .type(SecurityTypeEnum.NONE)
-                                        .build())
-                                .build())
-                        .build(),
-                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
-                        ._interface("AAS-3.0")
-                        .protocolInformation(DefaultProtocolInformation.builder()
-                                .href(server.getURI().toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
-                                .endpointProtocol(server.getURI().getScheme())
-                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
-                                        .type(SecurityTypeEnum.NONE)
-                                        .build())
-                                .build())
-                        .build());
+                endpointFor("AAS-REPOSITORY-3.0", "/shells"),
+                endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
     }
 
 
@@ -224,26 +222,41 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             return List.of();
         }
         return List.of(
-                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
-                        ._interface("SUBMODEL-REPOSITORY-3.0")
-                        .protocolInformation(DefaultProtocolInformation.builder()
-                                .href(server.getURI().toASCIIString())
-                                .endpointProtocol("HTTP")
-                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
-                                        .type(SecurityTypeEnum.NONE)
-                                        .build())
+                endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"),
+                endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+    }
+
+
+    private de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint endpointFor(String interfaceName, String path) {
+        return de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                ._interface(interfaceName)
+                .protocolInformation(DefaultProtocolInformation.builder()
+                        .href(getEndpointUri().resolve(getVersionPrefix() + path).toASCIIString())
+                        .endpointProtocol(ENDPOINT_PROTOCOL)
+                        .endpointProtocolVersion(ENDPOINT_PROTOCOL_VERSION)
+                        .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                .type(SecurityTypeEnum.NONE)
+                                .key("")
+                                .value("")
                                 .build())
-                        .build(),
-                de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
-                        ._interface("SUBMODEL-3.0")
-                        .protocolInformation(DefaultProtocolInformation.builder()
-                                .href(server.getURI().toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
-                                .endpointProtocol("HTTP")
-                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
-                                        .type(SecurityTypeEnum.NONE)
-                                        .build())
-                                .build())
-                        .build());
+                        .build())
+                .build();
+    }
+
+
+    private URI getEndpointUri() {
+        if (Objects.nonNull(config.getHostname())) {
+            try {
+                return new URI(String.format("https://%s:%d", config.getHostname(), config.getPort()));
+            }
+            catch (URISyntaxException e) {
+                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuratoin (hostname: {}, port: {})",
+                        config.getHostname(),
+                        config.getPort(),
+                        e);
+            }
+        }
+        return server.getURI();
     }
 
 }

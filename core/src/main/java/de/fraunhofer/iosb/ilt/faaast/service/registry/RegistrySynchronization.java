@@ -43,7 +43,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -52,11 +51,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,11 +89,12 @@ public class RegistrySynchronization {
     private final Persistence<?> persistence;
     private final MessageBus<?> messageBus;
     private final List<de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint> endpoints;
-    private HttpClient httpClient;
     private final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
+    private ExecutorService executor;
 
     public RegistrySynchronization(
             CoreConfig coreConfig,
@@ -113,6 +118,7 @@ public class RegistrySynchronization {
         if (!synchronizationActive()) {
             return;
         }
+        executor = Executors.newCachedThreadPool();
         if (!coreConfig.getAasRegistries().isEmpty()) {
             LOGGER.info("Registering all AssetAdministrationShells to the following registries: ");
             printRegistries(coreConfig.getAasRegistries());
@@ -122,15 +128,11 @@ public class RegistrySynchronization {
             printRegistries(coreConfig.getSubmodelRegistries());
         }
         try {
-            httpClient = SslHelper.newClientAcceptingAllCertificates();
             messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, LambdaExceptionHelper.wrap(this::handleCreateEvent)));
             messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, LambdaExceptionHelper.wrap(this::handleChangeEvent)));
             messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(this::handleDeleteEvent)));
             registerAllAass();
             registerAllSubmodels();
-        }
-        catch (KeyManagementException | NoSuchAlgorithmException e) {
-            LOGGER.warn("Error creating HTTP client for synchronization with registry", e);
         }
         catch (MessageBusException e) {
             LOGGER.warn("Error creating messageBus subscriptions for synchronization with registry", e);
@@ -145,6 +147,12 @@ public class RegistrySynchronization {
     public void stop() {
         unregisterAllAass();
         unregisterAllSubmodels();
+        try {
+            executor.awaitTermination(3, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e) {
+            LOGGER.debug("error terminating registry synchronization executor thread pool", e);
+        }
     }
 
 
@@ -205,7 +213,7 @@ public class RegistrySynchronization {
 
 
     private void registerAas(AssetAdministrationShell aas) {
-        register(AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_REGISTER_AAS_FAILED);
+        register("AAS", coreConfig.getAasRegistries(), AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_REGISTER_AAS_FAILED);
     }
 
 
@@ -232,7 +240,7 @@ public class RegistrySynchronization {
 
 
     private void unregisterAas(AssetAdministrationShell aas) {
-        unregister(AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_UNREGISTER_AAS_FAILED);
+        unregister(coreConfig.getAasRegistries(), AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_UNREGISTER_AAS_FAILED);
     }
 
 
@@ -252,7 +260,7 @@ public class RegistrySynchronization {
 
 
     private void updateAas(AssetAdministrationShell aas) {
-        update(AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_UPDATE_AAS_FAILED);
+        update(coreConfig.getAasRegistries(), AAS_URL_PATH, asDescriptor(aas), aas.getId(), MSG_UPDATE_AAS_FAILED);
     }
 
 
@@ -279,7 +287,7 @@ public class RegistrySynchronization {
 
 
     private void registerSubmodel(Submodel submodel) {
-        register(SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_REGISTER_SUBMODEL_FAILED);
+        register("submodel", coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_REGISTER_SUBMODEL_FAILED);
     }
 
 
@@ -306,7 +314,7 @@ public class RegistrySynchronization {
 
 
     private void unregisterSubmodel(Submodel submodel) {
-        unregister(SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_UNREGISTER_SUBMODEL_FAILED);
+        unregister(coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_UNREGISTER_SUBMODEL_FAILED);
     }
 
 
@@ -326,7 +334,7 @@ public class RegistrySynchronization {
 
 
     private void updateSubmodel(Submodel submodel) {
-        update(SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_UPDATE_SUBMODEL_FAILED);
+        update(coreConfig.getSubmodelRegistries(), SUBMODEL_URL_PATH, asDescriptor(submodel), submodel.getId(), MSG_UPDATE_SUBMODEL_FAILED);
     }
 
 
@@ -345,102 +353,42 @@ public class RegistrySynchronization {
     }
 
 
-    private void register(String path, Object payload, String id, String errorMsg) {
-        for (String registry: coreConfig.getAasRegistries()) {
-            try {
-                HttpResponse<String> response = execute("POST", registry, path, payload);
-                if (response.statusCode() == 409) {
-                    LOGGER.warn(String.format(
-                            errorMsg,
-                            id,
-                            registry,
-                            "submodel descriptor already exists"));
-                }
-                else if (!is2xxSuccessful(response.statusCode())) {
-                    LOGGER.warn(String.format(
-                            errorMsg,
-                            id,
-                            registry,
-                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
-                }
-
-            }
-            catch (URISyntaxException | IOException | InterruptedException e) {
+    private void register(String type, List<String> registries, String path, Object payload, String id, String errorMsg) {
+        executeForAll(registries, path, "POST", payload, id, errorMsg, (registry, response) -> {
+            if (response.statusCode() == 409) {
                 LOGGER.warn(String.format(
                         errorMsg,
                         id,
                         registry,
-                        e.getMessage()),
-                        e);
-                if (InterruptedException.class.isInstance(e)) {
-                    Thread.currentThread().interrupt();;
-                }
+                        String.format("%s descriptor already exists", type)));
+                return true;
             }
-        }
+            return false;
+        });
     }
 
 
-    private void update(String path, Object payload, String id, String errorMsg) {
-        for (String registry: coreConfig.getAasRegistries()) {
-            try {
-                HttpResponse<String> response = execute(
-                        "PUT",
-                        registry,
-                        String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                        payload);
-                if (!is2xxSuccessful(response.statusCode())) {
-                    LOGGER.warn(String.format(
-                            errorMsg,
-                            id,
-                            registry,
-                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
-                }
-
-            }
-            catch (URISyntaxException | IOException | InterruptedException e) {
-                LOGGER.warn(String.format(
-                        errorMsg,
-                        id,
-                        registry,
-                        e.getMessage()),
-                        e);
-                if (InterruptedException.class.isInstance(e)) {
-                    Thread.currentThread().interrupt();;
-                }
-            }
-        }
+    private void update(List<String> registries, String path, Object payload, String id, String errorMsg) {
+        executeForAll(
+                registries,
+                String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
+                "PUT",
+                payload,
+                id,
+                errorMsg,
+                null);
     }
 
 
-    private void unregister(String path, Object payload, String id, String errorMsg) {
-        for (String registry: coreConfig.getAasRegistries()) {
-            try {
-                HttpResponse<String> response = execute(
-                        "DELETE",
-                        registry,
-                        String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                        payload);
-                if (!is2xxSuccessful(response.statusCode())) {
-                    LOGGER.warn(String.format(
-                            errorMsg,
-                            id,
-                            registry,
-                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
-                }
-
-            }
-            catch (URISyntaxException | IOException | InterruptedException e) {
-                LOGGER.warn(String.format(
-                        errorMsg,
-                        id,
-                        registry,
-                        e.getMessage()),
-                        e);
-                if (InterruptedException.class.isInstance(e)) {
-                    Thread.currentThread().interrupt();;
-                }
-            }
-        }
+    private void unregister(List<String> registries, String path, Object payload, String id, String errorMsg) {
+        executeForAll(
+                registries,
+                String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
+                "DELETE",
+                payload,
+                id,
+                errorMsg,
+                null);
     }
 
 
@@ -470,8 +418,51 @@ public class RegistrySynchronization {
     }
 
 
+    private void executeForAll(List<String> registries,
+                               String path,
+                               String method,
+                               Object payload,
+                               String id,
+                               String errorMsg,
+                               BiFunction<String, HttpResponse<String>, Boolean> handler) {
+        for (String registry: registries) {
+            executor.submit(() -> {
+                try {
+                    HttpResponse<String> response = execute(
+                            method,
+                            registry,
+                            String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
+                            payload);
+                    if (Objects.nonNull(handler) && handler.apply(registry, response)) {
+                        return;
+                    }
+                    if (!is2xxSuccessful(response.statusCode())) {
+                        LOGGER.warn(String.format(
+                                errorMsg,
+                                id,
+                                registry,
+                                String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
+                    }
+
+                }
+                catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                    LOGGER.warn(String.format(
+                            errorMsg,
+                            id,
+                            registry,
+                            e.getMessage()),
+                            e);
+                    if (InterruptedException.class.isInstance(e)) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            });
+        }
+    }
+
+
     private HttpResponse<String> execute(String method, String baseUrl, String path, Object payload)
-            throws URISyntaxException, IOException, InterruptedException {
+            throws URISyntaxException, IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
@@ -480,7 +471,7 @@ public class RegistrySynchronization {
                 .uri(new URL(new URL(baseUrl), path).toURI())
                 .header("Content-Type", "application/json");
         HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
-        return httpClient.send(request, BodyHandlers.ofString());
+        return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
     }
 
 

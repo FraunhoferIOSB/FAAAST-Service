@@ -11,6 +11,9 @@
 - Asset Connection
 	- MQTT
 		- Now supports multiple subscription providers to the same topic
+- Endpoint
+	- HTTP
+		- New config property `hostname` to provide hostname of endpoint for automatic registration with registries
 
 **Internal changes & bugfixes**
 - General

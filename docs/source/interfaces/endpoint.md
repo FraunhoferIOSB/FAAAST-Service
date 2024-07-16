@@ -35,12 +35,13 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 ### Configuration
 
 :::{table} Configuration properties of HTTP Endpoint.
-| Name                        | Allowed Value                                               | Description                                                                                                                                                                              | Default Value           |
-| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| certificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate |
-| corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                   |
-| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 443                     |
-| sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                    |
+| Name                        | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                      |
+| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| certificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate            |
+| corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                              |
+| hostname<br>*(optional)*    | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address) |
+| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                |
+| sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                               |
 :::
 
 ```{code-block} json
@@ -50,15 +51,16 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 	"endpoints": [ {
 		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
 		"port": 443,
-		"corsEnabled": true,
-		"sniEnabled": true,
 		"certificate": {
 			"keyStoreType": "PKCS12",
 			"keyStorePath": "C:\faaast\MyKeyStore.p12",
 			"keyStorePassword": "changeit",
 			"keyAlias": "server-key",
 			"keyPassword": "changeit"
-		}
+		},
+		"corsEnabled": true,
+		"hostname": "localhost,
+		"sniEnabled": true
 	} ],
 	// ...
 }

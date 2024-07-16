@@ -59,6 +59,7 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
@@ -94,7 +95,8 @@ public class RegistrySynchronizationTest {
         mapper = new ObjectMapper()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
         mockEndpoint();
         mockMessageBus();
         mockPersistence();
@@ -262,8 +264,11 @@ public class RegistrySynchronizationTest {
                             .protocolInformation(DefaultProtocolInformation.builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
+                                    .endpointProtocolVersion("1.1")
                                     .securityAttribute(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
+                                            .key("")
+                                            .value("")
                                             .build())
                                     .build())
                             .build(),
@@ -272,8 +277,11 @@ public class RegistrySynchronizationTest {
                             .protocolInformation(DefaultProtocolInformation.builder()
                                     .href(serviceUri.toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
                                     .endpointProtocol("HTTP")
+                                    .endpointProtocolVersion("1.1")
                                     .securityAttribute(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
+                                            .key("")
+                                            .value("")
                                             .build())
                                     .build())
                             .build());
@@ -286,9 +294,12 @@ public class RegistrySynchronizationTest {
                             ._interface("SUBMODEL-REPOSITORY-3.0")
                             .protocolInformation(DefaultProtocolInformation.builder()
                                     .href(serviceUri.toASCIIString())
-                                    .endpointProtocol(serviceUri.getScheme())
+                                    .endpointProtocol("HTTP")
+                                    .endpointProtocolVersion("1.1")
                                     .securityAttribute(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
+                                            .key("")
+                                            .value("")
                                             .build())
                                     .build())
                             .build(),
@@ -296,9 +307,12 @@ public class RegistrySynchronizationTest {
                             ._interface("SUBMODEL-3.0")
                             .protocolInformation(DefaultProtocolInformation.builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
-                                    .endpointProtocol(serviceUri.getScheme())
+                                    .endpointProtocol("HTTP")
+                                    .endpointProtocolVersion("1.1")
                                     .securityAttribute(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
+                                            .key("")
+                                            .value("")
                                             .build())
                                     .build())
                             .build());
