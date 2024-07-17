@@ -143,7 +143,6 @@ public class RegistrySynchronizationTest {
     @Test
     public void testAasUpdate() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        String oldIdShort = aas.getIdShort();
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
         messageBus.publish(ElementUpdateEventMessage.builder()
