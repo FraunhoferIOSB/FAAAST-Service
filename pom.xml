@@ -77,7 +77,7 @@
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <checkstyle.version>10.17.0</checkstyle.version>
         <classgraph.version>4.8.174</classgraph.version>
-        <commons.codec.version>1.17.0</commons.codec.version>
+        <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.16.1</commons.io.version>
@@ -117,7 +117,7 @@
         <maven.plugin.javadoc.version>3.7.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>10.0.2</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>10.0.3</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.0-118</maven.plugin.prosys.codegen.version>
