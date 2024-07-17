@@ -54,7 +54,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -437,7 +437,7 @@ public class RegistrySynchronization {
                                Object payload,
                                String id,
                                String errorMsg,
-                               BiFunction<String, HttpResponse<String>, Boolean> handler) {
+                               BiPredicate<String, HttpResponse<String>> handler) {
         for (String registry: registries) {
             executor.submit(() -> {
                 try {
@@ -446,7 +446,7 @@ public class RegistrySynchronization {
                             registry,
                             path,
                             payload);
-                    if (Objects.nonNull(handler) && handler.apply(registry, response)) {
+                    if (Objects.nonNull(handler) && handler.test(registry, response)) {
                         return;
                     }
                     if (!is2xxSuccessful(response.statusCode())) {
@@ -465,7 +465,7 @@ public class RegistrySynchronization {
                             registry,
                             e.getMessage()),
                             e);
-                    if (InterruptedException.class.isInstance(e)) {
+                    if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
                     }
                 }

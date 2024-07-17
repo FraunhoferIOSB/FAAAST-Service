@@ -27,12 +27,14 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -118,7 +120,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testUnregistrationOnExit() throws Exception {
+    public void testUnregistrationOnExit() {
         registrySynchronization.start();
         registrySynchronization.stop();
 
@@ -129,7 +131,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasCreation() throws Exception {
+    public void testAasCreation() throws MessageBusException, JsonProcessingException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -141,7 +143,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasUpdate() throws Exception {
+    public void testAasUpdate() throws MessageBusException, JsonProcessingException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.setIdShort("Changed Id Short");
         registrySynchronization.start();
@@ -154,7 +156,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testAasDeletion() throws Exception {
+    public void testAasDeletion() throws MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
@@ -165,7 +167,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelCreation() throws Exception {
+    public void testSubmodelCreation() throws MessageBusException, JsonProcessingException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
@@ -177,7 +179,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelUpdate() throws Exception {
+    public void testSubmodelUpdate() throws MessageBusException, JsonProcessingException {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
@@ -193,7 +195,7 @@ public class RegistrySynchronizationTest {
 
 
     @Test
-    public void testSubmodelDeletion() throws Exception {
+    public void testSubmodelDeletion() throws MessageBusException {
         Submodel submodel = environment.getSubmodels().get(0);
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
@@ -203,7 +205,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private void mockEndpoint() throws Exception {
+    private void mockEndpoint() {
         endpoint = Mockito.mock(Endpoint.class);
         doAnswer((InvocationOnMock invocation) -> {
             String aasId = invocation.getArgument(0);
@@ -270,7 +272,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private void mockMessageBus() throws Exception {
+    private void mockMessageBus() throws MessageBusException {
         messageBus = Mockito.mock(MessageBus.class);
         doAnswer((InvocationOnMock invocation) -> {
             ElementCreateEventMessage eventMessage = invocation.getArgument(0);
@@ -342,7 +344,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getAasDescriptorBody(AssetAdministrationShell aas) throws Exception {
+    private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException {
         return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
                 .from(aas)
                 .endpoints(endpoint.getAasEndpointInformation(aas.getId()))
@@ -351,7 +353,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private String getSubmodelDescriptorBody(Submodel submodel) throws Exception {
+    private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException {
         return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
                 .from(submodel)
                 .endpoints(endpoint.getSubmodelEndpointInformation(submodel.getId()))

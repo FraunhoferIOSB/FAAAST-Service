@@ -23,12 +23,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class Version {
 
-    public static Version V3_0 = builder()
+    public static final Version V3_0 = builder()
             .major(3)
             .minor(0)
             .build();
 
-    public static Version V3_1 = builder()
+    public static final Version V3_1 = builder()
             .major(3)
             .minor(1)
             .build();
