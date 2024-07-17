@@ -95,6 +95,7 @@ public class RegistrySynchronization {
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
     private ExecutorService executor;
+    private boolean running = false;
 
     public RegistrySynchronization(
             CoreConfig coreConfig,
@@ -115,7 +116,11 @@ public class RegistrySynchronization {
      * Starts the synchronization with the registry.
      */
     public void start() {
-        if (!synchronizationActive()) {
+        if (running) {
+            return;
+        }
+        if (coreConfig.getAasRegistries().isEmpty() && coreConfig.getSubmodelRegistries().isEmpty()) {
+            running = true;
             return;
         }
         executor = Executors.newCachedThreadPool();
@@ -133,6 +138,7 @@ public class RegistrySynchronization {
             messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, LambdaExceptionHelper.wrap(this::handleDeleteEvent)));
             registerAllAass();
             registerAllSubmodels();
+            running = true;
         }
         catch (MessageBusException e) {
             LOGGER.warn("Error creating messageBus subscriptions for synchronization with registry", e);
@@ -145,14 +151,21 @@ public class RegistrySynchronization {
      * Stops the synchronization with the registry and unregisters all AASs and submodels.
      */
     public void stop() {
+        if (!running) {
+            return;
+        }
         unregisterAllAass();
         unregisterAllSubmodels();
-        try {
-            executor.awaitTermination(3, TimeUnit.SECONDS);
+        if (Objects.nonNull(executor)) {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(3, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException e) {
+                LOGGER.debug("error terminating registry synchronization executor thread pool", e);
+            }
         }
-        catch (InterruptedException e) {
-            LOGGER.debug("error terminating registry synchronization executor thread pool", e);
-        }
+        running = false;
     }
 
 
@@ -426,37 +439,37 @@ public class RegistrySynchronization {
                                String errorMsg,
                                BiFunction<String, HttpResponse<String>, Boolean> handler) {
         for (String registry: registries) {
-            //executor.submit(() -> {
-            try {
-                HttpResponse<String> response = execute(
-                        method,
-                        registry,
-                        path,
-                        payload);
-                if (Objects.nonNull(handler) && handler.apply(registry, response)) {
-                    return;
+            executor.submit(() -> {
+                try {
+                    HttpResponse<String> response = execute(
+                            method,
+                            registry,
+                            path,
+                            payload);
+                    if (Objects.nonNull(handler) && handler.apply(registry, response)) {
+                        return;
+                    }
+                    if (!is2xxSuccessful(response.statusCode())) {
+                        LOGGER.warn(String.format(
+                                errorMsg,
+                                id,
+                                registry,
+                                String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
+                    }
+
                 }
-                if (!is2xxSuccessful(response.statusCode())) {
+                catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
                             registry,
-                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
+                            e.getMessage()),
+                            e);
+                    if (InterruptedException.class.isInstance(e)) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-
-            }
-            catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
-                LOGGER.warn(String.format(
-                        errorMsg,
-                        id,
-                        registry,
-                        e.getMessage()),
-                        e);
-                if (InterruptedException.class.isInstance(e)) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            //});
+            });
         }
     }
 
@@ -472,11 +485,6 @@ public class RegistrySynchronization {
                 .header("Content-Type", "application/json");
         HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
-    }
-
-
-    private boolean synchronizationActive() {
-        return !coreConfig.getAasRegistries().isEmpty() || !coreConfig.getSubmodelRegistries().isEmpty();
     }
 
 

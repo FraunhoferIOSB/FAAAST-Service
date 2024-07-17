@@ -58,7 +58,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -106,16 +105,9 @@ public class RegistrySynchronizationTest {
     }
 
 
-    @After
-    public void cleanup() throws Exception {
-        registrySynchronization.stop();
-    }
-
-
     @Test
     public void testInitialRegistration() throws Exception {
         registrySynchronization.start();
-        // required to wait for async synchroniztation to finish
         registrySynchronization.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
@@ -142,7 +134,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
-
+        registrySynchronization.stop();
         verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
     }
@@ -156,11 +148,9 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(aas).build());
-
+        registrySynchronization.stop();
         verify(putRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId())))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
-
-        aas.setIdShort(oldIdShort);
     }
 
 
@@ -170,7 +160,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
-
+        registrySynchronization.stop();
         verify(deleteRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))));
     }
 
@@ -181,7 +171,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(submodel).build());
-
+        registrySynchronization.stop();
         verify(postRequestedFor(urlEqualTo(SUBMODEL_URL_PATH))
                 .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel), true, false)));
     }
@@ -195,7 +185,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(submodel).build());
-
+        registrySynchronization.stop();
         verify(putRequestedFor(urlEqualTo(SUBMODEL_URL_PATH + "/" + EncodingHelper.base64UrlEncode(submodel.getId())))
                 .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel), true, false)));
 
@@ -209,7 +199,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(submodel).build());
-
+        registrySynchronization.stop();
         verify(deleteRequestedFor(urlEqualTo(SUBMODEL_URL_PATH + "/" + EncodingHelper.base64UrlEncode(submodel.getId()))));
     }
 
