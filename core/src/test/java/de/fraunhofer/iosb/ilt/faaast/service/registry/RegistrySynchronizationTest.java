@@ -14,15 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -119,34 +114,19 @@ public class RegistrySynchronizationTest {
 
     @Test
     public void testInitialRegistration() throws Exception {
-        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(AAS_URL_PATH)
-                    .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
-                    .willReturn(ok()));
-        }
-
         registrySynchronization.start();
+        // required to wait for async synchroniztation to finish
+        registrySynchronization.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
             verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
-                    .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
+                    .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
         }
     }
 
 
     @Test
     public void testUnregistrationOnExit() throws Exception {
-        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(post(AAS_URL_PATH)
-                    .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
-                    .willReturn(ok()));
-        }
-
-        for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            stubFor(delete(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))
-                    .willReturn(ok()));
-        }
-
         registrySynchronization.start();
         registrySynchronization.stop();
 
@@ -160,15 +140,11 @@ public class RegistrySynchronizationTest {
     public void testAasCreation() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         registrySynchronization.start();
-        stubFor(post(AAS_URL_PATH)
-                .withRequestBody(equalToJson(getAasDescriptorBody(aas)))
-                .willReturn(ok()));
-
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
 
         verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
-                .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
+                .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
     }
 
 
@@ -177,15 +153,12 @@ public class RegistrySynchronizationTest {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         String oldIdShort = aas.getIdShort();
         aas.setIdShort("Changed Id Short");
-
-        stubFor(put(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))
-                .willReturn(ok()));
         registrySynchronization.start();
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(aas).build());
 
         verify(putRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId())))
-                .withRequestBody(equalToJson(getAasDescriptorBody(aas))));
+                .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
 
         aas.setIdShort(oldIdShort);
     }
@@ -194,9 +167,6 @@ public class RegistrySynchronizationTest {
     @Test
     public void testAasDeletion() throws Exception {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-
-        stubFor(delete(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))
-                .willReturn(ok()));
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
@@ -208,16 +178,12 @@ public class RegistrySynchronizationTest {
     @Test
     public void testSubmodelCreation() throws Exception {
         Submodel submodel = environment.getSubmodels().get(0);
-
-        stubFor(post(SUBMODEL_URL_PATH)
-                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel)))
-                .willReturn(ok()));
         registrySynchronization.start();
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(submodel).build());
 
         verify(postRequestedFor(urlEqualTo(SUBMODEL_URL_PATH))
-                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
+                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel), true, false)));
     }
 
 
@@ -226,15 +192,12 @@ public class RegistrySynchronizationTest {
         Submodel submodel = environment.getSubmodels().get(0);
         String oldIdShort = submodel.getIdShort();
         submodel.setIdShort("Changed Id Short");
-
-        stubFor(put(SUBMODEL_URL_PATH + "/" + EncodingHelper.base64UrlEncode(submodel.getId()))
-                .willReturn(ok()));
         registrySynchronization.start();
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(submodel).build());
 
         verify(putRequestedFor(urlEqualTo(SUBMODEL_URL_PATH + "/" + EncodingHelper.base64UrlEncode(submodel.getId())))
-                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel))));
+                .withRequestBody(equalToJson(getSubmodelDescriptorBody(submodel), true, false)));
 
         submodel.setIdShort(oldIdShort);
     }
@@ -243,9 +206,6 @@ public class RegistrySynchronizationTest {
     @Test
     public void testSubmodelDeletion() throws Exception {
         Submodel submodel = environment.getSubmodels().get(0);
-
-        stubFor(delete(SUBMODEL_URL_PATH + "/" + EncodingHelper.base64UrlEncode(submodel.getId()))
-                .willReturn(ok()));
         registrySynchronization.start();
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(submodel).build());

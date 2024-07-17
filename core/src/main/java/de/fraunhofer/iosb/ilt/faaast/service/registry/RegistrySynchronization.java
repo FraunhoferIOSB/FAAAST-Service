@@ -426,37 +426,37 @@ public class RegistrySynchronization {
                                String errorMsg,
                                BiFunction<String, HttpResponse<String>, Boolean> handler) {
         for (String registry: registries) {
-            executor.submit(() -> {
-                try {
-                    HttpResponse<String> response = execute(
-                            method,
-                            registry,
-                            String.format("%s/%s", path, EncodingHelper.base64UrlEncode(id)),
-                            payload);
-                    if (Objects.nonNull(handler) && handler.apply(registry, response)) {
-                        return;
-                    }
-                    if (!is2xxSuccessful(response.statusCode())) {
-                        LOGGER.warn(String.format(
-                                errorMsg,
-                                id,
-                                registry,
-                                String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
-                    }
-
+            //executor.submit(() -> {
+            try {
+                HttpResponse<String> response = execute(
+                        method,
+                        registry,
+                        path,
+                        payload);
+                if (Objects.nonNull(handler) && handler.apply(registry, response)) {
+                    return;
                 }
-                catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                if (!is2xxSuccessful(response.statusCode())) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
                             registry,
-                            e.getMessage()),
-                            e);
-                    if (InterruptedException.class.isInstance(e)) {
-                        Thread.currentThread().interrupt();
-                    }
+                            String.format(MSG_BAD_RETURN_CODE, response.statusCode())));
                 }
-            });
+
+            }
+            catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                LOGGER.warn(String.format(
+                        errorMsg,
+                        id,
+                        registry,
+                        e.getMessage()),
+                        e);
+                if (InterruptedException.class.isInstance(e)) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            //});
         }
     }
 
