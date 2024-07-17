@@ -29,10 +29,10 @@ public interface ProtocolInformation {
     public void setEndpointProtocol(String endpointProtocol);
 
 
-    public String getEndpointProtocolVersion();
+    public List<String> getEndpointProtocolVersion();
 
 
-    public void setEndpointProtocolVersion(String endpointProtocolVersion);
+    public void setEndpointProtocolVersion(List<String> endpointProtocolVersion);
 
 
     public String getHref();

@@ -38,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShel
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
@@ -71,6 +72,8 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private FileStorage fileStorage;
+
+    private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -120,6 +123,7 @@ public class Service implements ServiceContext {
                 fileStorage,
                 messageBus,
                 assetConnectionManager));
+        this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 
 
@@ -251,6 +255,7 @@ public class Service implements ServiceContext {
             LOGGER.debug("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
+        registrySynchronization.start();
         assetConnectionManager.start();
         LOGGER.debug("FA³ST Service is running!");
     }
@@ -264,6 +269,7 @@ public class Service implements ServiceContext {
         LOGGER.debug("Get command for stopping FA³ST Service");
         messageBus.stop();
         assetConnectionManager.stop();
+        registrySynchronization.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
@@ -298,5 +304,6 @@ public class Service implements ServiceContext {
                 this.fileStorage,
                 this.messageBus,
                 this.assetConnectionManager));
+        this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 }

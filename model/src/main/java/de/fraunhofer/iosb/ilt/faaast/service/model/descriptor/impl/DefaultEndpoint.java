@@ -25,24 +25,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class DefaultEndpoint implements Endpoint {
 
-    private String interfaceInformation;
+    private String _interface;
     private ProtocolInformation protocolInformation;
 
     public DefaultEndpoint() {
-        interfaceInformation = null;
+        _interface = null;
         protocolInformation = null;
     }
 
 
     @Override
-    public String getInterfaceInformation() {
-        return interfaceInformation;
+    public String getInterface() {
+        return _interface;
     }
 
 
     @Override
-    public void setInterfaceInformation(String interfaceInformation) {
-        this.interfaceInformation = interfaceInformation;
+    public void setInterface(String _interface) {
+        this._interface = _interface;
     }
 
 
@@ -67,14 +67,14 @@ public class DefaultEndpoint implements Endpoint {
             return false;
         }
         DefaultEndpoint that = (DefaultEndpoint) o;
-        return Objects.equals(interfaceInformation, that.interfaceInformation)
+        return Objects.equals(_interface, that._interface)
                 && Objects.equals(protocolInformation, that.protocolInformation);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(interfaceInformation, protocolInformation);
+        return Objects.hash(_interface, protocolInformation);
     }
 
 
@@ -86,15 +86,15 @@ public class DefaultEndpoint implements Endpoint {
 
         public B from(Endpoint other) {
             if (Objects.nonNull(other)) {
-                interfaceInformation(other.getInterfaceInformation());
+                _interface(other.getInterface());
                 protocolInformation(other.getProtocolInformation());
             }
             return getSelf();
         }
 
 
-        public B interfaceInformation(String value) {
-            getBuildingInstance().setInterfaceInformation(value);
+        public B _interface(String value) {
+            getBuildingInstance().setInterface(value);
             return getSelf();
         }
 

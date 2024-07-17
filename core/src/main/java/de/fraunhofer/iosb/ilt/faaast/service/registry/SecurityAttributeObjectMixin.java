@@ -12,22 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
+package de.fraunhofer.iosb.ilt.faaast.service.registry;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+
 
 /**
- * Registry Descriptor for Endpoint.
+ * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject}.
  */
-public interface Endpoint {
-
-    public String getInterface();
-
-
-    public void setInterface(String _interface);
+public interface SecurityAttributeObjectMixin {
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public SecurityTypeEnum getType();
 
 
-    public ProtocolInformation getProtocolInformation();
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public String getKey();
 
 
-    public void setProtocolInformation(ProtocolInformation protocolInformation);
-
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public String getValue();
 }

@@ -292,6 +292,28 @@ public class LambdaExceptionHelper {
 
 
     /**
+     * Wraps a Function interface and rethrows all exceptions as RuntimeException.
+     *
+     * @param <T> input type of the function
+     * @param <R> result type of the function
+     * @param function the actual function
+     * @return wrapped function
+     * @throws RuntimeException if calling the consumer fails
+     */
+    public static <T, R> Function<T, R> wrapFunction(FunctionWithExceptions<T, R, Exception> function) {
+        return t -> {
+            try {
+                return function.apply(t);
+            }
+            catch (Exception e) {
+                throwAsUnchecked(e);
+                return null;
+            }
+        };
+    }
+
+
+    /**
      * Wraps a Runnable interface and rethrows all exceptions as RuntimeException.
      *
      * @param runnable the runnable to wrap
