@@ -8,137 +8,84 @@
 				"version": "1",
 				"revision": "0"
 			},
-			"identification":
-			{
-				"idType": "Iri",
-				"id": "urn:aas:id:cognitwin:demo:aas:1"
-			},
+			"id": "urn:aas:id:cognitwin:demo:aas:1",
 			"assetInformation":
 			{
 				"assetKind": "Instance",
-				"globalAssetId":
-				{
-					"keys": [
-						{
-							"idType": "Iri",
-							"type": "Asset",
-							"value": "urn:aas:id:cognitwin:demo:asset:1"
-						}
-					]
-				}
+				"globalAssetId": "urn:aas:id:cognitwin:demo:asset:1"
 			},
 			"submodels": [
 				{
 					"keys": [
 						{
 							"type": "Submodel",
-							"local": true,
-							"value": "urn:aas:id:cognitwin:demo:submodel:1",
-							"idType": "Iri"
+							"value": "urn:aas:id:cognitwin:demo:submodel:1"
 						}
 					]
 				}
 			],
-			"modelType":
-			{
-				"name": "AssetAdministrationShell"
-			}
+			"modelType": "AssetAdministrationShell"
 		}
 	],
 	"submodels": [
 		{
 			"idShort": "Status",
-			"identification":
-			{
-				"idType": "Iri",
-				"id": "urn:aas:id:cognitwin:demo:submodel:1"
-			},
+			"id": "urn:aas:id:cognitwin:demo:submodel:1",
 			"submodelElements": [
 				{
 					"idShort": "PropertyStringRead",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "string",
+					"valueType": "xs:string",
 					"value": "",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "PropertyDoubleRead",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "double",
+					"valueType": "xs:double",
 					"value": "0",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "PropertyIntRead",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "int",
+					"valueType": "xs:int",
 					"value": "0",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "PropertyStringSubscribe",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "string",
+					"valueType": "xs:string",
 					"value": "",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "PropertyDoubleSubscribe",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "double",
+					"valueType": "xs:double",
 					"value": "0",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "PropertyIntSubscribe",
 					"category": "Parameter",
-					"kind": "Instance",
-					"valueType": "int",
+					"valueType": "xs:int",
 					"value": "0",
-					"modelType":
-					{
-						"name": "Property"
-					}
+					"modelType": "Property"
 				},
 				{
 					"idShort": "randomValues",
 					"category": "Parameter",
-					"kind": "Template",
-					"modelType":
-					{
-						"name": "Operation"
-					},
-					"inoutputVariable": [],
-					"inputVariable": [],
-					"outputVariable": [
+					"modelType": "Operation",
+					"inoutputVariables": [],
+					"inputVariables": [],
+					"outputVariables": [
 						{
 							"value":
 							{
-								"modelType":
-								{
-									"name": "Property"
-								},
-								"valueType": "string",
+								"modelType": "Property",
+								"valueType": "xs:string",
 								"category": "Variable",
 								"idShort": "randomString"
 							}
@@ -146,11 +93,8 @@
 						{
 							"value":
 							{
-								"modelType":
-								{
-									"name": "Property"
-								},
-								"valueType": "int",
+								"modelType": "Property",
+								"valueType": "xs:int",
 								"category": "Variable",
 								"idShort": "randomInt"
 							}
@@ -159,10 +103,7 @@
 				}
 			],
 			"kind": "Instance",
-			"modelType":
-			{
-				"name": "Submodel"
-			}
+			"modelType": "Submodel"
 		}
 	],
 	"conceptDescriptions": []
