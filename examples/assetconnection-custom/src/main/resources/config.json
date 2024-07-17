@@ -28,25 +28,25 @@
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.CustomAssetConnection",
 			"valueProviders":
 			{
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyStringRead":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyStringRead":
 				{},
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyDoubleRead":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyDoubleRead":
 				{},
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyIntRead":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyIntRead":
 				{}
 			},
 			"operationProviders":
 			{
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Operation)[ID_SHORT]randomValues":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Operation)[ID_SHORT]randomValues":
 				{}
 			},
 			"subscriptionProviders":
 			{
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyStringSubscribe":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyStringSubscribe":
 				{},
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyDoubleSubscribe":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyDoubleSubscribe":
 				{},
-				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyIntSubscribe":
+				"(Submodel)urn:aas:id:cognitwin:demo:submodel:1, (Property)PropertyIntSubscribe":
 				{}
 			}
 		}
