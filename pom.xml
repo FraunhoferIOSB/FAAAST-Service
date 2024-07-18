@@ -81,7 +81,7 @@
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.16.1</commons.io.version>
-        <commons.lang3.version>3.14.0</commons.lang3.version>
+        <commons.lang3.version>3.15.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.16.1</equalsverifier.version>
