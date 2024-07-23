@@ -1,4 +1,4 @@
-From eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre
 
 ARG ARTIFACT_FILE
 COPY ./target/${ARTIFACT_FILE} /app/starter.jar
