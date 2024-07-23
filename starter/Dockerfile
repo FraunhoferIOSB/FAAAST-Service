@@ -3,8 +3,8 @@ FROM eclipse-temurin:17-jre
 ARG ARTIFACT_FILE
 COPY ./target/${ARTIFACT_FILE} /app/starter.jar
 
-RUN addgroup --system --gid 1000 faaast \
-    && adduser --system --uid 1000 --gid 1000 --no-create-home faaast \
+RUN groupadd --system --gid 1001 faaast \
+    && useradd --system --uid 1001 --gid 1001 --no-create-home faaast \
     # restrict permissions on working directory /app
     && chgrp -R 0 /app \
     && chmod -R g=u /app \
