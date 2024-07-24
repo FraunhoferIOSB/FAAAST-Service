@@ -103,10 +103,6 @@
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.junit.platform</groupId>
-                    <artifactId>junit-platform-suite-engine</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
