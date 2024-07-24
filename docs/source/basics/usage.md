@@ -15,6 +15,7 @@ To manually pass a model file `my-model.aasx` and a configuration file `my-confi
 ```sh
 > java -jar starter-{version}.jar --model my-model.aasx --config my-config.json
 ```
+Example model files can be found at [AAS-Suite](https://market.aas-suite.com/browse/detail/V3/78). The AAS specification is not backwards compatible. Therefore it is important to make sure that the model file conforms to the latest AAS specification (V3). Passing an outdated model file will lead to an error. If a model file conforms to V3 of the Asset Administration Shell specification but has duplicate identifiers, FA³ST will not load the file. Starting FA³ST with the `--no-validation` Flag resolves this issue. 
 
 :::{table} Supported CLI arguments and environment variables.
 | CLI (short) | CLI (long)          | Environment variable                                           | Allowed<br>Values                       | Description                                                                                                                                              | Default<br>Value |
