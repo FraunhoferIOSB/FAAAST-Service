@@ -1,18 +1,21 @@
 # Release Notes
 <!--start:changelog-header-->
-## 1.1.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.1.0
 
 **New Features & Major Changes**
 - General
 	- Loading AAS models from JSON now fails on unknown JSON properties
 	- Added lambda operation provider
 	- Added additional helper methods for resolving idShort and semanticId paths
+	- Added support for synchronization with multiple AAS and/or submodel registries
 - Asset Connection
 	- MQTT
 		- Now supports multiple subscription providers to the same topic
 - Endpoint
 	- HTTP
 		- Added new config property `sslEnabled` that allows to disable SSL/HTTPS and use HTTP instead. This is intended for development/testing purposes and some scenarios where FA³ST Service is running behind a proxy server that handles SSL/HTTPS.
+		- Added new config property `hostname` to provide hostname of endpoint for automatic registration with registries
 
 **Internal changes & bugfixes**
 - General

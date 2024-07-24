@@ -28,7 +28,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class DefaultProtocolInformation implements ProtocolInformation {
 
     private String endpointProtocol;
-    private String endpointProtocolVersion;
+    private List<String> endpointProtocolVersion;
     private String href;
     private List<SecurityAttributeObject> securityAttributes;
     private String subprotocol;
@@ -38,7 +38,7 @@ public class DefaultProtocolInformation implements ProtocolInformation {
     public DefaultProtocolInformation() {
 
         endpointProtocol = null;
-        endpointProtocolVersion = null;
+        endpointProtocolVersion = new ArrayList<>();
         href = null;
         securityAttributes = new ArrayList<>();
         subprotocol = null;
@@ -60,13 +60,13 @@ public class DefaultProtocolInformation implements ProtocolInformation {
 
 
     @Override
-    public String getEndpointProtocolVersion() {
+    public List<String> getEndpointProtocolVersion() {
         return endpointProtocolVersion;
     }
 
 
     @Override
-    public void setEndpointProtocolVersion(String endpointProtocolVersion) {
+    public void setEndpointProtocolVersion(List<String> endpointProtocolVersion) {
         this.endpointProtocolVersion = endpointProtocolVersion;
     }
 
@@ -182,8 +182,14 @@ public class DefaultProtocolInformation implements ProtocolInformation {
         }
 
 
-        public B endpointProtocolVersion(String value) {
+        public B endpointProtocolVersion(List<String> value) {
             getBuildingInstance().setEndpointProtocolVersion(value);
+            return getSelf();
+        }
+
+
+        public B endpointProtocolVersion(String value) {
+            getBuildingInstance().getEndpointProtocolVersion().add(value);
             return getSelf();
         }
 

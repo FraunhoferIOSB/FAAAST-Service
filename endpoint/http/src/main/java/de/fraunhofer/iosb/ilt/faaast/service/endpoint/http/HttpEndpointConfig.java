@@ -28,11 +28,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final boolean DEFAULT_CORS_ENABLED = false;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
+    public static final String DEFAULT_HOSTNAME = null;
     private int port;
     private boolean corsEnabled;
     private boolean sniEnabled;
     private boolean sslEnabled;
     private CertificateConfig certificate;
+    private String hostname;
 
     public HttpEndpointConfig() {
         port = DEFAULT_PORT;
@@ -94,6 +96,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getHostname() {
+        return hostname;
+    }
+
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -107,13 +119,14 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(sniEnabled, that.sniEnabled)
                 && Objects.equals(sslEnabled, that.sslEnabled)
-                && Objects.equals(certificate, that.certificate);
+                && Objects.equals(certificate, that.certificate)
+                && Objects.equals(hostname, that.hostname);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port, corsEnabled, sniEnabled, sslEnabled, certificate);
+        return Objects.hash(port, corsEnabled, sniEnabled, sslEnabled, certificate, hostname);
     }
 
 
@@ -149,6 +162,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);
+            return getSelf();
+        }
+
+
+        public B hostname(String value) {
+            getBuildingInstance().setHostname(value);
             return getSelf();
         }
     }

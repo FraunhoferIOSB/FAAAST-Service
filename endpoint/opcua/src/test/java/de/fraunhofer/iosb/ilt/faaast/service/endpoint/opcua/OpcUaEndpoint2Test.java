@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmo
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,18 +84,19 @@ public class OpcUaEndpoint2Test {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
-    private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 150;
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
-    private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
+    private static int OPC_TCP_PORT;
+    private static String ENDPOINT_URL;
 
     private static TestService service;
 
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
         LOGGER.trace("startTest");
-
+        OPC_TCP_PORT = PortHelper.findFreePort();
+        ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
         Map<String, String> users = new HashMap<>();
         users.put(USERNAME, PASSWORD);
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
