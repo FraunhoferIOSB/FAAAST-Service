@@ -297,7 +297,7 @@ public class App implements Runnable {
                             e.getMessage()));
         }
         catch (Exception e) {
-            throw new InitializationException("Error loading model file", e);
+            throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specficiation.", e);
         }
 
     }
