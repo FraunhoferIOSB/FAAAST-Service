@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -61,14 +62,29 @@ public class SubmodelElementListValueDeserializer extends ContextAwareElementVal
             return result;
         }
         Iterator<JsonNode> iterator = node.elements();
-        TypeInfo childTypeInfo = (TypeInfo) typeInfo.getElements().get(null);
-        if (childTypeInfo == null || childTypeInfo.getType() == null) {
-            throw new IllegalArgumentException("no type information found for SubmodelElementList");
+        TypeInfo genericChildTypeInfo = (TypeInfo) typeInfo.getElements().get(null);
+        if (Objects.isNull(genericChildTypeInfo)) {
+            if (typeInfo.getElements().size() < node.size()) {
+                throw new IllegalArgumentException(String.format(
+                        "trying to deserialize SubmodelElementList with %d elements but found only type information for %d elements",
+                        node.size(),
+                        typeInfo.getElements().size()));
+            }
+            int i = 0;
+            while (iterator.hasNext()) {
+                JsonNode child = iterator.next();
+                TypeInfo concreteChildTypeInfo = (TypeInfo) typeInfo.getElements().get(Integer.toString(i));
+                result.add((T) context.setAttribute(VALUE_TYPE_CONTEXT, concreteChildTypeInfo)
+                        .readTreeAsValue(child, concreteChildTypeInfo.getType()));
+                i++;
+            }
         }
-        while (iterator.hasNext()) {
-            JsonNode child = iterator.next();
-            result.add((T) context.setAttribute(VALUE_TYPE_CONTEXT, childTypeInfo)
-                    .readTreeAsValue(child, childTypeInfo.getType()));
+        else {
+            while (iterator.hasNext()) {
+                JsonNode child = iterator.next();
+                result.add((T) context.setAttribute(VALUE_TYPE_CONTEXT, genericChildTypeInfo)
+                        .readTreeAsValue(child, genericChildTypeInfo.getType()));
+            }
         }
         return result;
     }

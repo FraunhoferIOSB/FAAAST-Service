@@ -59,16 +59,18 @@ public class ValueOnlyJsonSerializerTest {
 
 
     @Test
-    public void testElementCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(ValueOnlyExamples.ELEMENT_COLLECTION_FILE, ValueOnlyExamples.ELEMENT_COLLECTION);
-        assertValue(ValueOnlyExamples.ELEMENT_COLLECTION_FILE, ValueOnlyExamples.ELEMENT_COLLECTION);
+    public void testSubmodelElementCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION);
     }
 
 
     @Test
-    public void testElementList() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(ValueOnlyExamples.ELEMENT_LIST_FILE, ValueOnlyExamples.ELEMENT_LIST);
-        assertValue(ValueOnlyExamples.ELEMENT_LIST_FILE, ValueOnlyExamples.ELEMENT_LIST);
+    public void testSubmodelElementList() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE);
+        assertEquals(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_FILE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST);
     }
 
 
