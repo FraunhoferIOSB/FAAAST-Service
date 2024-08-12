@@ -164,13 +164,14 @@ public class JsonDeserializerTest {
 
     @Test
     public void testSubmodelElementCollection() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
-        assertValue(ValueOnlyExamples.ELEMENT_COLLECTION, ValueOnlyExamples.ELEMENT_COLLECTION_FILE);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION, ValueOnlyExamples.SUBMODEL_ELEMENT_COLLECTION_FILE);
     }
 
 
     @Test
     public void testSubmodelElementList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
-        assertValue(ValueOnlyExamples.ELEMENT_LIST, ValueOnlyExamples.ELEMENT_LIST_FILE);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE_FILE);
+        assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_FILE);
     }
 
 

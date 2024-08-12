@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidatorConfig;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -35,6 +37,8 @@ public class CoreConfig {
     private ModelValidatorConfig validationOnLoad;
     private ModelValidatorConfig validationOnCreate;
     private ModelValidatorConfig validationOnUpdate;
+    private List<String> aasRegistries;
+    private List<String> submodelRegistries;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -54,6 +58,8 @@ public class CoreConfig {
                 .validateIdShortUniqueness(true)
                 .validateIdentifierUniqueness(true)
                 .build();
+        this.aasRegistries = new ArrayList<>();
+        this.submodelRegistries = new ArrayList<>();
     }
 
 
@@ -112,13 +118,35 @@ public class CoreConfig {
     }
 
 
+    public List<String> getAasRegistries() {
+        return aasRegistries;
+    }
+
+
+    public void setAasRegistries(List<String> aasRegistries) {
+        this.aasRegistries = aasRegistries;
+    }
+
+
+    public List<String> getSubmodelRegistries() {
+        return submodelRegistries;
+    }
+
+
+    public void setSubmodelRegistries(List<String> submodelRegistries) {
+        this.submodelRegistries = submodelRegistries;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
                 requestHandlerThreadPoolSize,
                 validationOnLoad,
                 validationOnCreate,
-                validationOnUpdate);
+                validationOnUpdate,
+                aasRegistries,
+                submodelRegistries);
     }
 
 
@@ -138,7 +166,9 @@ public class CoreConfig {
                 && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize)
                 && Objects.equals(this.validationOnLoad, other.validationOnLoad)
                 && Objects.equals(this.validationOnCreate, other.validationOnCreate)
-                && Objects.equals(this.validationOnUpdate, other.validationOnUpdate);
+                && Objects.equals(this.validationOnUpdate, other.validationOnUpdate)
+                && Objects.equals(this.aasRegistries, other.aasRegistries)
+                && Objects.equals(this.submodelRegistries, other.submodelRegistries);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
@@ -163,6 +193,30 @@ public class CoreConfig {
 
         public Builder validationOnCreate(ModelValidatorConfig value) {
             getBuildingInstance().setValidationOnCreate(value);
+            return getSelf();
+        }
+
+
+        public Builder aasRegistries(List<String> value) {
+            getBuildingInstance().setAasRegistries(value);
+            return getSelf();
+        }
+
+
+        public Builder aasRegistry(String value) {
+            getBuildingInstance().getAasRegistries().add(value);
+            return getSelf();
+        }
+
+
+        public Builder submodelRegistries(List<String> value) {
+            getBuildingInstance().setSubmodelRegistries(value);
+            return getSelf();
+        }
+
+
+        public Builder submodelRegistry(String value) {
+            getBuildingInstance().getSubmodelRegistries().add(value);
             return getSelf();
         }
 

@@ -17,12 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionMultiplexer;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -63,6 +63,7 @@ public class MqttAssetConnection extends
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttAssetConnection.class);
     private MqttClient client;
+    private MqttSubscriptionMultiplexer multiplexer;
 
     @Override
     public String getEndpointInformation() {
@@ -78,7 +79,7 @@ public class MqttAssetConnection extends
 
     @Override
     protected MqttSubscriptionProvider createSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) {
-        return new MqttSubscriptionProvider(serviceContext, reference, client, providerConfig);
+        return new MqttSubscriptionProvider(serviceContext, reference, providerConfig, multiplexer);
     }
 
 
@@ -121,7 +122,7 @@ public class MqttAssetConnection extends
                         connected = true;
                         try {
                             // restore lost subscriptions
-                            subscriptionProviders.values().forEach(LambdaExceptionHelper.rethrowConsumer(MqttSubscriptionProvider::subscribe));
+                            multiplexer.reconnect(client);
                             LOGGER.info("MQTT asset connection reconnected (endpoint: {})", getEndpointInformation());
                         }
                         catch (AssetConnectionException e) {
@@ -141,7 +142,7 @@ public class MqttAssetConnection extends
             options.setCleanSession(true);
             options.setAutomaticReconnect(true);
             client.connect(options);
-
+            multiplexer = new MqttSubscriptionMultiplexer(serviceContext, client);
         }
         catch (MqttException e) {
             throw new AssetConnectionException("initializaing MQTT asset connection failed", e);

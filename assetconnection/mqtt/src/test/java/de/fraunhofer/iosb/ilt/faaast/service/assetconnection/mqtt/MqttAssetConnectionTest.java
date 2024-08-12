@@ -104,6 +104,145 @@ public class MqttAssetConnectionTest {
     }
 
 
+    @Test
+    public void testSubscriptionProviderConnectionLost()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
+        int port = PortHelper.findFreePort();
+        Server localServer = startMqttServer(port);
+
+        MqttAssetConnection connection = MqttAssetConnectionConfig.builder()
+                .serverUri("tcp://" + LOCALHOST + ":" + port)
+                .build()
+                .newInstance(
+                        CoreConfig.DEFAULT,
+                        mock(ServiceContext.class));
+        awaitConnection(connection);
+        localServer.stopServer();
+        await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                .until(() -> !connection.isConnected());
+    }
+
+
+    @Test
+    public void testSubscriptionProviderJsonProperty()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+        assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
+        assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
+    }
+
+
+    @Test
+    public void testReconnect()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+        int assetMqttPort = PortHelper.findFreePort();
+        Server localMqttServer = startMqttServer(assetMqttPort);
+        String localMqttServerUri = "tcp://" + LOCALHOST + ":" + assetMqttPort;
+        String message = "7";
+        PropertyValue expected = PropertyValue.of(Datatype.INT, message);
+        MqttAssetConnection connection = newConnection(localMqttServerUri, DEFAULT_REFERENCE, ElementValueTypeInfo.builder()
+                .datatype(expected.getValue().getDataType())
+                .type(expected.getClass())
+                .build(), null, null,
+                MqttSubscriptionProviderConfig.builder()
+                        .format(FORMAT_JSON)
+                        .build());
+        NewDataListener listener = null;
+        try {
+            CountDownLatch received = new CountDownLatch(1);
+            final AtomicReference<DataElementValue> response = new AtomicReference<>();
+            listener = (DataElementValue data) -> {
+                response.set(data);
+                received.countDown();
+            };
+            connection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
+            localMqttServer.stopServer();
+            await().atMost(30, TimeUnit.SECONDS)
+                    .until(() -> !connection.isConnected());
+            localMqttServer.startServer(getMqttServerConfig(assetMqttPort));
+            await().atMost(30, TimeUnit.SECONDS)
+                    .until(() -> connection.isConnected());
+            localMqttServer.internalPublish(MqttMessageBuilders.publish()
+                    .topicName(DEFAULT_TOPIC)
+                    .retained(false)
+                    .qos(MqttQoS.EXACTLY_ONCE)
+                    .payload(Unpooled.copiedBuffer(message.getBytes(UTF_8))).build(),
+                    "unit test " + UUID.randomUUID().toString().replace("-", ""));
+            received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
+            Assert.assertEquals(expected, response.get());
+        }
+        finally {
+            connection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
+            connection.disconnect();
+            localMqttServer.stopServer();
+        }
+    }
+
+
+    @Test
+    public void testSubscriptionProviderJsonPropertyInvalidMessage()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
+        String message = "7";
+        PropertyValue expected = PropertyValue.of(Datatype.INT, message);
+        assertSubscriptionProvider(MqttSubscriptionProviderConfig.builder()
+                .format(FORMAT_JSON)
+                .build(),
+                () -> {
+                    publishMqtt(DEFAULT_TOPIC, message);
+                    publishMqtt(DEFAULT_TOPIC, "foo");
+                    publishMqtt(DEFAULT_TOPIC, message);
+                },
+                null,
+                expected, expected);
+        await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                .until(() -> logger.getAllLoggingEvents().stream()
+                        .anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
+    }
+
+
+    @Test
+    public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
+        assertSubscriptionProvider(
+                MqttSubscriptionProviderConfig.builder()
+                        .format(FORMAT_JSON)
+                        .query("~some#invalid#query~")
+                        .build(),
+                () -> publishMqtt(DEFAULT_TOPIC, "7"),
+                () -> logger.getAllLoggingEvents().stream().anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
+    }
+
+
+    @Test
+    public void testSubscriptionProviderJsonPropertyWithQuery()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+        assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
+        assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
+    }
+
+
+    @Test
+    public void testValueProviderProperty()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
+            ResourceNotFoundException {
+        String expected = "\"hello world\"";
+        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
+    public void testValueProviderPropertyWithTemplate()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
+            ResourceNotFoundException {
+        String expected = "{\"foo\": \"hello world\"}";
+        String template = "{\"foo\": ${value}}";
+        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), template);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
     private static boolean isDebugging() {
         return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
@@ -245,145 +384,6 @@ public class MqttAssetConnectionTest {
                     }
                     return connection.isConnected();
                 });
-    }
-
-
-    @Test
-    public void testSubscriptionProviderConnectionLost()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
-        int port = PortHelper.findFreePort();
-        Server localServer = startMqttServer(port);
-
-        MqttAssetConnection connection = MqttAssetConnectionConfig.builder()
-                .serverUri("tcp://" + LOCALHOST + ":" + port)
-                .build()
-                .newInstance(
-                        CoreConfig.DEFAULT,
-                        mock(ServiceContext.class));
-        awaitConnection(connection);
-        localServer.stopServer();
-        await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
-                .until(() -> !connection.isConnected());
-    }
-
-
-    @Test
-    public void testSubscriptionProviderJsonProperty()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
-        assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
-        assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
-    }
-
-
-    @Test
-    public void testReconnect()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
-        int assetMqttPort = PortHelper.findFreePort();
-        Server localMqttServer = startMqttServer(assetMqttPort);
-        String localMqttServerUri = "tcp://" + LOCALHOST + ":" + assetMqttPort;
-        String message = "7";
-        PropertyValue expected = PropertyValue.of(Datatype.INT, message);
-        MqttAssetConnection connection = newConnection(localMqttServerUri, DEFAULT_REFERENCE, ElementValueTypeInfo.builder()
-                .datatype(expected.getValue().getDataType())
-                .type(expected.getClass())
-                .build(), null, null,
-                MqttSubscriptionProviderConfig.builder()
-                        .format(FORMAT_JSON)
-                        .build());
-        NewDataListener listener = null;
-        try {
-            CountDownLatch received = new CountDownLatch(1);
-            final AtomicReference<DataElementValue> response = new AtomicReference<>();
-            listener = (DataElementValue data) -> {
-                response.set(data);
-                received.countDown();
-            };
-            connection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
-            localMqttServer.stopServer();
-            await().atMost(30, TimeUnit.SECONDS)
-                    .until(() -> !connection.isConnected());
-            localMqttServer.startServer(getMqttServerConfig(assetMqttPort));
-            await().atMost(30, TimeUnit.SECONDS)
-                    .until(() -> connection.isConnected());
-            localMqttServer.internalPublish(MqttMessageBuilders.publish()
-                    .topicName(DEFAULT_TOPIC)
-                    .retained(false)
-                    .qos(MqttQoS.EXACTLY_ONCE)
-                    .payload(Unpooled.copiedBuffer(message.getBytes(UTF_8))).build(),
-                    "unit test " + UUID.randomUUID().toString().replace("-", ""));
-            received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
-            Assert.assertEquals(expected, response.get());
-        }
-        finally {
-            connection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
-            connection.disconnect();
-            localMqttServer.stopServer();
-        }
-    }
-
-
-    @Test
-    public void testSubscriptionProviderJsonPropertyInvalidMessage()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
-        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
-        String message = "7";
-        PropertyValue expected = PropertyValue.of(Datatype.INT, message);
-        assertSubscriptionProvider(MqttSubscriptionProviderConfig.builder()
-                .format(FORMAT_JSON)
-                .build(),
-                () -> {
-                    publishMqtt(DEFAULT_TOPIC, message);
-                    publishMqtt(DEFAULT_TOPIC, "foo");
-                    publishMqtt(DEFAULT_TOPIC, message);
-                },
-                null,
-                expected, expected);
-        await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
-                .until(() -> logger.getAllLoggingEvents().stream()
-                        .anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
-    }
-
-
-    @Test
-    public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
-        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
-        assertSubscriptionProvider(
-                MqttSubscriptionProviderConfig.builder()
-                        .format(FORMAT_JSON)
-                        .query("~some#invalid#query~")
-                        .build(),
-                () -> publishMqtt(DEFAULT_TOPIC, "7"),
-                () -> logger.getAllLoggingEvents().stream().anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
-    }
-
-
-    @Test
-    public void testSubscriptionProviderJsonPropertyWithQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
-        assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
-        assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
-    }
-
-
-    @Test
-    public void testValueProviderProperty()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
-            ResourceNotFoundException {
-        String expected = "\"hello world\"";
-        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
-    }
-
-
-    @Test
-    public void testValueProviderPropertyWithTemplate()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
-            ResourceNotFoundException {
-        String expected = "{\"foo\": \"hello world\"}";
-        String template = "{\"foo\": ${value}}";
-        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), template);
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 

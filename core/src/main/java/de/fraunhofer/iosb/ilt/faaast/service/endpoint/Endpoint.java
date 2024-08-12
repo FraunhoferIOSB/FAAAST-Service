@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import java.util.List;
 
 
 /**
@@ -39,4 +40,27 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
      */
     public void stop();
 
+
+    /**
+     * Gets endpoint information for an AAS. This is used for automatic registration with a registry. The returned result
+     * may include multiple endpoints, e.g. with different interfaces like AAS-REPOSITORY and AAS.
+     *
+     * @param aasId the id of the AAS
+     * @return a list of endpoint information where this AAS can be accessed
+     */
+    public default List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+        return List.of();
+    }
+
+
+    /**
+     * Gets endpoint information for a submodel. This is used for automatic registration with a registry. The returned
+     * result may include multiple endpoints, e.g. with different interfaces like SUBMODEL-REPOSITORY and SUBMODEL.
+     *
+     * @param submodelId the id of the submodel
+     * @return a list of endpoint information where this submodel can be accessed
+     */
+    public default List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getSubmodelEndpointInformation(String submodelId) {
+        return List.of();
+    }
 }

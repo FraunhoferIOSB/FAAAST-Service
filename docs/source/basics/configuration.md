@@ -37,13 +37,15 @@ This is a common scenario if you want to quickly setup FA³ST Service for your f
 The `core` configuration block contains properties not related to the implementation of any interface.
 
 :::{table} Configuration properties of `core` configuration section.
-| Name                                         | Allowed Values | Description                                                     | Default Value                   |
-| -------------------------------------------- | -------------- | --------------------------------------------------------------- | ------------------------------- |
-| requestHandlerThreadPoolSize<br>*(optional)* | Integer        | Number of concurrent thread that can execute API requests       | 2                               |
-| assetConnectionRetryInterval<br>*(optional)* | Long           | Interval in ms in which to retry establishing asset connections | 1000                            |
-| validationOnLoad<br>*(optional)*             | Object         | Validation rules to use when loading the AAS model at startup   | all enabled                     |
-| validationOnCreate<br>*(optional)*           | Object         | Validation rules to use when creating new elements via API      | constraints validation disabled |
-| validationOnUpdate<br>*(optional)*           | Object         | Validation rules to use when updating elements via API          | constraints validation disabled |
+| Name                                         | Allowed Values | Description                                                                                                                                     | Default Value                   |
+| -------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| aasRegistries<br>*(optional)*                | List<String>   | URLs of AAS registries to use (base URL, i.e. without /api/{version}). If not set, no synchronization of AASs with registry happens.            | *empty*                         |
+| assetConnectionRetryInterval<br>*(optional)* | Long           | Interval in ms in which to retry establishing asset connections                                                                                 | 1000                            |
+| requestHandlerThreadPoolSize<br>*(optional)* | Integer        | Number of concurrent thread that can execute API requests                                                                                       | 2                               |
+| submodelRegistries<br>*(optional)*           | List<String>   | URLs of submodels registries to use (base URL, i.e. without /api/{version}). If not set, no synchronization of submodels with registry happens. | *empty*                         |
+| validationOnLoad<br>*(optional)*             | Object         | Validation rules to use when loading the AAS model at startup                                                                                   | all enabled                     |
+| validationOnCreate<br>*(optional)*           | Object         | Validation rules to use when creating new elements via API                                                                                      | constraints validation disabled |
+| validationOnUpdate<br>*(optional)*           | Object         | Validation rules to use when updating elements via API                                                                                          | constraints validation disabled |
 :::
 
 ```{code-block} json
@@ -51,8 +53,14 @@ The `core` configuration block contains properties not related to the implementa
 :lineno-start: 1
 {
 	"core" : {
+		"aasRegistries": [
+			"http://example.com/MyAASRegistry"
+		],
+		"assetConnectionRetryInterval": 1000,
 		"requestHandlerThreadPoolSize": 2,      
-		"assetConnectionRetryInterval": 1000,   
+		"submodelRegistries": [
+			"http://example.com/MySubmodelRegistry"
+		],
 		"validationOnLoad": {					
 			"validateConstraints": true,        // currently ignored because AAS4J does not yet implement validation for AAS v3.0
 			"idShortUniqueness": true,
@@ -67,7 +75,7 @@ The `core` configuration block contains properties not related to the implementa
 			"validateConstraints": false,        // currently ignored because AAS4J does not yet implement validation for AAS v3.0
 			"idShortUniqueness": true,
 			"identifierUniqueness": true
-		}
+		}		
 	},
 	// ...
 }

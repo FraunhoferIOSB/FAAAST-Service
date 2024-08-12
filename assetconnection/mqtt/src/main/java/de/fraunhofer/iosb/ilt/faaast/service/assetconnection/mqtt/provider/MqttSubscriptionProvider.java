@@ -24,8 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
 
 
 /**
@@ -35,16 +33,16 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
     private final ServiceContext serviceContext;
     private final Reference reference;
-    private final MqttClient client;
+    private final MqttSubscriptionMultiplexer multiplexer;
 
-    public MqttSubscriptionProvider(ServiceContext serviceContext, Reference reference, MqttClient client, MqttSubscriptionProviderConfig config) {
+    public MqttSubscriptionProvider(ServiceContext serviceContext, Reference reference, MqttSubscriptionProviderConfig config, MqttSubscriptionMultiplexer multiplexer) {
         super(config);
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(client, "client must be non-null");
+        Ensure.requireNonNull(multiplexer, "multiplexer must be non-null");
         this.serviceContext = serviceContext;
         this.reference = reference;
-        this.client = client;
+        this.multiplexer = multiplexer;
     }
 
 
@@ -64,39 +62,19 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
     @Override
     public void subscribe() throws AssetConnectionException {
-        try {
-            client.subscribe(config.getTopic(), (topic, message) -> fireNewDataReceived(message.getPayload()));
-        }
-        catch (MqttException e) {
-            throw new AssetConnectionException(
-                    String.format("error subscribing to MQTT asset connection (reference: %s, topic: %s)",
-                            ReferenceHelper.toString(reference),
-                            config.getTopic()),
-                    e);
-        }
+        multiplexer.addListener(config.getTopic(), this::fireNewDataReceived);
     }
 
 
     @Override
     protected void unsubscribe() throws AssetConnectionException {
-        if (client != null && client.isConnected()) {
-            try {
-                client.unsubscribe(config.getTopic());
-            }
-            catch (MqttException e) {
-                throw new AssetConnectionException(
-                        String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
-                                ReferenceHelper.toString(reference),
-                                config.getTopic()),
-                        e);
-            }
-        }
+        multiplexer.removeListener(config.getTopic(), this::fireNewDataReceived);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), serviceContext, client, reference);
+        return Objects.hash(super.hashCode(), serviceContext, reference, multiplexer);
     }
 
 
@@ -114,7 +92,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         final MqttSubscriptionProvider that = (MqttSubscriptionProvider) obj;
         return super.equals(obj)
                 && Objects.equals(serviceContext, that.serviceContext)
-                && Objects.equals(client, that.client)
-                && Objects.equals(reference, that.reference);
+                && Objects.equals(reference, that.reference)
+                && Objects.equals(multiplexer, that.multiplexer);
     }
 }

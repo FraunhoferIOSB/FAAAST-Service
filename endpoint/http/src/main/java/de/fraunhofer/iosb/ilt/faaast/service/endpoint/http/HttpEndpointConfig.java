@@ -27,15 +27,20 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_CORS_ENABLED = false;
     public static final boolean DEFAULT_SNI_ENABLED = true;
+    public static final boolean DEFAULT_SSL_ENABLED = true;
+    public static final String DEFAULT_HOSTNAME = null;
     private int port;
     private boolean corsEnabled;
     private boolean sniEnabled;
+    private boolean sslEnabled;
     private CertificateConfig certificate;
+    private String hostname;
 
     public HttpEndpointConfig() {
         port = DEFAULT_PORT;
         corsEnabled = DEFAULT_CORS_ENABLED;
         sniEnabled = DEFAULT_SNI_ENABLED;
+        sslEnabled = DEFAULT_SSL_ENABLED;
         certificate = CertificateConfig.builder()
                 .build();
     }
@@ -71,6 +76,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+
+
+    public void setSslEnabled(boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
+    }
+
+
     public CertificateConfig getCertificate() {
         return certificate;
     }
@@ -78,6 +93,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public void setCertificate(CertificateConfig certificate) {
         this.certificate = certificate;
+    }
+
+
+    public String getHostname() {
+        return hostname;
+    }
+
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
 
@@ -93,13 +118,15 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         return Objects.equals(port, that.port)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(sniEnabled, that.sniEnabled)
-                && Objects.equals(certificate, that.certificate);
+                && Objects.equals(sslEnabled, that.sslEnabled)
+                && Objects.equals(certificate, that.certificate)
+                && Objects.equals(hostname, that.hostname);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port, corsEnabled, sniEnabled, certificate);
+        return Objects.hash(port, corsEnabled, sniEnabled, sslEnabled, certificate, hostname);
     }
 
 
@@ -127,8 +154,20 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
 
 
+        public B ssl(boolean value) {
+            getBuildingInstance().setSslEnabled(value);
+            return getSelf();
+        }
+
+
         public B certificate(CertificateConfig value) {
             getBuildingInstance().setCertificate(value);
+            return getSelf();
+        }
+
+
+        public B hostname(String value) {
+            getBuildingInstance().setHostname(value);
             return getSelf();
         }
     }

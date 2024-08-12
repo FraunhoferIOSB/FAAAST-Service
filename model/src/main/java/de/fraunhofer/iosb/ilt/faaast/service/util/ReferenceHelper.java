@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -189,6 +190,35 @@ public class ReferenceHelper {
                 .map(Key::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+
+    /**
+     * Return the effective key type, i.e. the key type of the last key.
+     *
+     * @param reference the reference
+     * @return the key type if the last key or null of reference is null or does not contain any keys
+     */
+    public static KeyTypes getEffectiveKeyType(Reference reference) {
+        return Optional.ofNullable(getEffectiveKey(reference))
+                .map(Key::getType)
+                .orElse(null);
+    }
+
+
+    /**
+     * Return the effective key, i.e. the last key.
+     *
+     * @param reference the reference
+     * @return the last key or null if reference is null or does not contain any keys
+     */
+    public static Key getEffectiveKey(Reference reference) {
+        if (Objects.isNull(reference)
+                || Objects.isNull(reference.getKeys())
+                || reference.getKeys().isEmpty()) {
+            return null;
+        }
+        return reference.getKeys().get(reference.getKeys().size() - 1);
     }
 
 
@@ -590,20 +620,6 @@ public class ReferenceHelper {
                 .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
                 .findFirst()
                 .orElse(null);
-    }
-
-
-    /**
-     * Gets the effective key type of a reference, i.e. the type of the final key.
-     *
-     * @param reference the reference
-     * @return the effective key type of the reference
-     * @throws IllegalArgumentException is reference is null or does not contain any key
-     */
-    public static KeyTypes getEffectiveKeyType(Reference reference) {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.require(!reference.getKeys().isEmpty(), "reference must contain at least one key");
-        return reference.getKeys().get(reference.getKeys().size() - 1).getType();
     }
 
 
