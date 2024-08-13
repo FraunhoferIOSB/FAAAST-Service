@@ -288,6 +288,11 @@ public class AasSubmodelElementHelper {
                 case AnyUri:
                 case Time:
                 case Duration:
+                case GDay:
+                case GMonth:
+                case GMonthDay:
+                case GYear:
+                case GYearMonth:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -543,6 +548,11 @@ public class AasSubmodelElementHelper {
                 case AnyUri:
                 case Time:
                 case Duration:
+                case GDay:
+                case GMonth:
+                case GMonthDay:
+                case GYear:
+                case GYearMonth:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

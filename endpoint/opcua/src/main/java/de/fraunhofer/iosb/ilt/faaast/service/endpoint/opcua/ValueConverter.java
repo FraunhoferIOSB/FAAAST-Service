@@ -149,6 +149,11 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE, AASDataTypeDefXsd.Date));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY, AASDataTypeDefXsd.GDay));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH, AASDataTypeDefXsd.GMonth));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY, AASDataTypeDefXsd.GMonthDay));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
@@ -790,7 +795,12 @@ public class ValueConverter {
         else if (retval != null)
         {
             if (retval instanceof OffsetDateTime odt) {
-                retval = ValueConverter.createDateTime(odt);
+                if ((typedValue.getDataType() == Datatype.DATE) || (typedValue.getDataType() == Datatype.DATE_TIME)) {
+                    retval = ValueConverter.createDateTime(odt);
+                }
+                else {
+                    retval = typedValue.asString();
+                }
             }
             else if (retval instanceof OffsetTime ot) {
                 retval = ot.toString();
