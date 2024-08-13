@@ -99,6 +99,7 @@ public class App implements Runnable {
     // commands
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
+    protected static final String COMMAND_NO_VALIDATION = "--no-validation";
     // config
     protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
     // environment
@@ -146,7 +147,7 @@ public class App implements Runnable {
     }, negatable = false, description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyModel = false;
 
-    @Option(names = "--no-validation", negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
+    @Option(names = COMMAND_NO_VALIDATION, negatable = false, description = "Disables validation, overrides validation configuration in core configuration.")
     public boolean noValidation = false;
 
     @Option(names = "--loglevel-faaast", description = "Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as -q or -v.")
@@ -292,9 +293,12 @@ public class App implements Runnable {
         }
         catch (ValidationException e) {
             throw new InitializationException(
-                    String.format("Model validation failed with the following error(s):%s%s",
+                    String.format(
+                            "Model validation failed with the following error(s):%s%s%sUse '%s' to disable all validation. This might enables FA³ST Service to start even with an invalid model, but be aware that this might cause unexpected or even erroneous behavior (e.g. when IDs are not unique).",
                             System.lineSeparator(),
-                            e.getMessage()));
+                            e.getMessage(),
+                            System.lineSeparator(),
+                            COMMAND_NO_VALIDATION));
         }
         catch (Exception e) {
             throw new InitializationException("Error loading model file. Ensure that the model is valid and conformant to v3 of the AAS specficiation.", e);

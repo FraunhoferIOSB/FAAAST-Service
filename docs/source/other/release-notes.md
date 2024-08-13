@@ -1,6 +1,13 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**New Features & Major Changes**
+
+**Internal changes & bugfixes**
+- General
+	- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
+
 ## 1.1.0
 
 **New Features & Major Changes**

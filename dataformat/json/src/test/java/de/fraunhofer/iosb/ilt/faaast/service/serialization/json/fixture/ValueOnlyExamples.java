@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import javax.xml.datatype.DatatypeFactory;
+import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
@@ -67,8 +68,9 @@ public class ValueOnlyExamples {
     private static final String RESOURCE_PATH = "src/test/resources/valueonly";
 
     public static final File SUBMODEL_FILE = new File(RESOURCE_PATH + "/submodel.json");
-    public static final File ELEMENT_COLLECTION_FILE = new File(RESOURCE_PATH + "/element-collection.json");
-    public static final File ELEMENT_LIST_FILE = new File(RESOURCE_PATH + "/element-list.json");
+    public static final File SUBMODEL_ELEMENT_COLLECTION_FILE = new File(RESOURCE_PATH + "/submodel-element-collection.json");
+    public static final File SUBMODEL_ELEMENT_LIST_FILE = new File(RESOURCE_PATH + "/submodel-element-list.json");
+    public static final File SUBMODEL_ELEMENT_LIST_SIMPLE_FILE = new File(RESOURCE_PATH + "/submodel-element-list-simple.json");
     public static final File ENTITY_FILE = new File(RESOURCE_PATH + "/entity.json");
 
     public static final File ANNOTATED_RELATIONSHIP_ELEMENT_FILE = new File(RESOURCE_PATH + "/annotated-relationship-element.json");
@@ -157,26 +159,101 @@ public class ValueOnlyExamples {
             .max("5.0")
             .build();
 
-    public static final SubmodelElementCollection ELEMENT_COLLECTION = new DefaultSubmodelElementCollection.Builder()
+    public static final SubmodelElementCollection SUBMODEL_ELEMENT_COLLECTION = new DefaultSubmodelElementCollection.Builder()
             .idShort("collection1")
             .value(PROPERTY_STRING)
             .value(RANGE_DOUBLE)
             .value(ENTITY)
             .build();
 
-    public static final SubmodelElementList ELEMENT_LIST = new DefaultSubmodelElementList.Builder()
-            .idShort("list1")
+    public static final SubmodelElementList SUBMODEL_ELEMENT_LIST = new DefaultSubmodelElementList.Builder()
+            .idShort("listOfLists")
+            .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT_LIST)
+            .value(new DefaultSubmodelElementList.Builder()
+                    .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
+                    .value(new DefaultSubmodelElementCollection.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("foo")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("foo")
+                                    .build())
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("bar")
+                                    .valueType(DataTypeDefXsd.INTEGER)
+                                    .value("42")
+                                    .build())
+                            .build())
+                    .value(new DefaultSubmodelElementCollection.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("foo")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("3.14")
+                                    .build())
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("bar")
+                                    .valueType(DataTypeDefXsd.BOOLEAN)
+                                    .value("true")
+                                    .build())
+                            .build())
+                    .build())
+            .value(new DefaultSubmodelElementList.Builder()
+                    .typeValueListElement(AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION)
+                    .value(new DefaultSubmodelElementCollection.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("foo")
+                                    .valueType(DataTypeDefXsd.STRING)
+                                    .value("bar")
+                                    .build())
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("bar")
+                                    .valueType(DataTypeDefXsd.INTEGER)
+                                    .value("17")
+                                    .build())
+                            .build())
+                    .value(new DefaultSubmodelElementCollection.Builder()
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("foo")
+                                    .valueType(DataTypeDefXsd.DOUBLE)
+                                    .value("0.01")
+                                    .build())
+                            .value(new DefaultProperty.Builder()
+                                    .idShort("bar")
+                                    .valueType(DataTypeDefXsd.BOOLEAN)
+                                    .value("false")
+                                    .build())
+                            .build())
+                    .build())
+            .value(new DefaultSubmodelElementList.Builder()
+                    .typeValueListElement(AasSubmodelElements.PROPERTY)
+                    .valueTypeListElement(DataTypeDefXsd.INTEGER)
+                    .value(new DefaultProperty.Builder()
+                            .idShort("integer1")
+                            .valueType(DataTypeDefXsd.INTEGER)
+                            .value("1")
+                            .build())
+                    .value(new DefaultProperty.Builder()
+                            .idShort("integer2")
+                            .valueType(DataTypeDefXsd.INTEGER)
+                            .value("2")
+                            .build())
+                    .build())
+            .build();
+
+    public static final SubmodelElementList SUBMODEL_ELEMENT_LIST_SIMPLE = new DefaultSubmodelElementList.Builder()
+            .idShort("list")
+            .typeValueListElement(AasSubmodelElements.PROPERTY)
+            .valueTypeListElement(DataTypeDefXsd.INTEGER)
             .value(new DefaultProperty.Builder()
-                    .category("category")
-                    .value("foo")
+                    .valueType(DataTypeDefXsd.INTEGER)
+                    .value("1")
                     .build())
             .value(new DefaultProperty.Builder()
-                    .category("category")
-                    .value("bar")
+                    .valueType(DataTypeDefXsd.INTEGER)
+                    .value("2")
                     .build())
             .value(new DefaultProperty.Builder()
-                    .category("category")
-                    .value("foobar")
+                    .valueType(DataTypeDefXsd.INTEGER)
+                    .value("3")
                     .build())
             .build();
 
@@ -235,7 +312,7 @@ public class ValueOnlyExamples {
             .id("http://example.org/test")
             .submodelElements(PROPERTY_STRING)
             .submodelElements(RANGE_DOUBLE)
-            .submodelElements(ELEMENT_COLLECTION)
+            .submodelElements(SUBMODEL_ELEMENT_COLLECTION)
             .submodelElements(new DefaultOperation.Builder()
                     .idShort("operation1")
                     .build())

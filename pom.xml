@@ -111,7 +111,7 @@
         <maven.plugin.dependency.version>3.7.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.3.1</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.2.4</maven.plugin.gpg.version>
+        <maven.plugin.gpg.version>3.2.5</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.8.0</maven.plugin.javadoc.version>
@@ -144,7 +144,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>
-        <slf4j.version>2.0.15</slf4j.version>
+        <slf4j.version>2.0.16</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>

@@ -1,0 +1,25 @@
+{
+    "listOfLists": [
+        [
+            {
+                "foo": "foo",
+                "bar": 42
+            },
+            {
+                "foo": 3.14,
+                "bar": true
+            }
+        ],
+        [
+            {
+                "foo": "bar",
+                "bar": 17
+            },
+            {
+                "foo": 0.01,
+                "bar": false
+            }
+        ],
+        [1, 2]
+    ]
+}
