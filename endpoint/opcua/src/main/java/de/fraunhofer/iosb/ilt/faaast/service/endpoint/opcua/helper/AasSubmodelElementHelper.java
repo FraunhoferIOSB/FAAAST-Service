@@ -24,7 +24,10 @@ import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.UnsignedByte;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
+import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
@@ -258,22 +261,38 @@ public class AasSubmodelElementHelper {
                     setInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
+                case UnsignedInt:
+                    setUInt32PropertyValue(valueData, typedValue, prop);
+                    break;
+
                 case Long:
                 case Integer:
                 case Decimal:
-                case PositiveInteger:
                 case NonPositiveInteger:
                 case NegativeInteger:
-                case NonNegativeInteger:
                     setInt64PropertyValue(valueData, typedValue, prop);
+                    break;
+
+                case PositiveInteger:
+                case NonNegativeInteger:
+                case UnsignedLong:
+                    setUInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Short:
                     setInt16PropertyValue(valueData, typedValue, prop);
                     break;
 
+                case UnsignedShort:
+                    setUInt16PropertyValue(valueData, typedValue, prop);
+                    break;
+
                 case Byte:
                     setSBytePropertyValue(valueData, typedValue, prop);
+                    break;
+
+                case UnsignedByte:
+                    setBytePropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Double:
@@ -335,8 +354,18 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setUInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createUInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
     private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
         prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setUInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createUInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
 
@@ -345,8 +374,18 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setUInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createUInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
     private static void setSBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
         prop.addProperty(createSByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
     }
 
 
@@ -398,6 +437,17 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static PlainProperty<UnsignedByte> createByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<UnsignedByte> usbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        usbyteProperty.setDataTypeId(Identifiers.Byte);
+        usbyteProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            usbyteProperty.setValue(typedValue.getValue());
+        }
+        return usbyteProperty;
+    }
+
+
     private static PlainProperty<Short> createInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Short> int16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         int16Property.setDataTypeId(Identifiers.Int16);
@@ -406,6 +456,17 @@ public class AasSubmodelElementHelper {
             int16Property.setValue(typedValue.getValue());
         }
         return int16Property;
+    }
+
+
+    private static PlainProperty<UnsignedShort> createUInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<UnsignedShort> uint16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        uint16Property.setDataTypeId(Identifiers.UInt16);
+        uint16Property.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            uint16Property.setValue(typedValue.getValue());
+        }
+        return uint16Property;
     }
 
 
@@ -424,6 +485,21 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static PlainProperty<UnsignedLong> createUInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
+        PlainProperty<UnsignedLong> ulongProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        ulongProperty.setDataTypeId(Identifiers.UInt64);
+        ulongProperty.setDescription(new LocalizedText("", ""));
+        if (typedValue != null) {
+            Object obj = typedValue.getValue();
+            if ((obj != null) && (!(obj instanceof UnsignedLong))) {
+                obj = UnsignedLong.valueOf(obj.toString());
+            }
+            ulongProperty.setValue(obj);
+        }
+        return ulongProperty;
+    }
+
+
     private static PlainProperty<Integer> createInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Integer> intProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         intProperty.setDataTypeId(Identifiers.Int32);
@@ -432,6 +508,17 @@ public class AasSubmodelElementHelper {
             intProperty.setValue(typedValue.getValue());
         }
         return intProperty;
+    }
+
+
+    private static PlainProperty<UnsignedInteger> createUInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<UnsignedInteger> uintProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        uintProperty.setDataTypeId(Identifiers.UInt32);
+        uintProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            uintProperty.setValue(typedValue.getValue());
+        }
+        return uintProperty;
     }
 
 
@@ -518,22 +605,38 @@ public class AasSubmodelElementHelper {
                     setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
+                case UnsignedInt:
+                    setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    break;
+
                 case Long:
                 case Integer:
                 case Decimal:
-                case PositiveInteger:
                 case NonPositiveInteger:
                 case NegativeInteger:
-                case NonNegativeInteger:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
+                    break;
+
+                case PositiveInteger:
+                case NonNegativeInteger:
+                case UnsignedLong:
+                    setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
                 case Short:
                     setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
+                case UnsignedShort:
+                    setUInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    break;
+
                 case Byte:
                     setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    break;
+
+                case UnsignedByte:
+                    setByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
                 case Double:
@@ -631,6 +734,19 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                           TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            range.addProperty(createByteProperty(minData, minTypedValue));
+        }
+
+        if (maxValue != null) {
+            range.addProperty(createByteProperty(maxData, maxTypedValue));
+        }
+    }
+
+
     private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
@@ -640,6 +756,19 @@ public class AasSubmodelElementHelper {
 
         if (maxValue != null) {
             range.addProperty(createInt16Property(maxData, maxTypedValue));
+        }
+    }
+
+
+    private static void setUInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                             TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            range.addProperty(createUInt16Property(minData, minTypedValue));
+        }
+
+        if (maxValue != null) {
+            range.addProperty(createUInt16Property(maxData, maxTypedValue));
         }
     }
 
@@ -656,6 +785,18 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setUInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+                                             AASRangeType range)
+            throws NumberFormatException, StatusException {
+        if (minValue != null) {
+            range.addProperty(createUInt64Property(minData, minTypedValue));
+        }
+        if (maxValue != null) {
+            range.addProperty(createUInt64Property(maxData, maxTypedValue));
+        }
+    }
+
+
     private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
@@ -665,6 +806,19 @@ public class AasSubmodelElementHelper {
 
         if (maxValue != null) {
             range.addProperty(createInt32Property(maxData, maxTypedValue));
+        }
+    }
+
+
+    private static void setUInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                             TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            range.addProperty(createUInt32Property(minData, minTypedValue));
+        }
+
+        if (maxValue != null) {
+            range.addProperty(createUInt32Property(maxData, maxTypedValue));
         }
     }
 

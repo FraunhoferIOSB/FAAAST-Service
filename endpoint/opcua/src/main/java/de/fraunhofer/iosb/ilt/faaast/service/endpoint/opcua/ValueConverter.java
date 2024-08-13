@@ -130,8 +130,8 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
         typeList.add(new DatatypeMapper(Identifiers.Decimal, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
         typeList.add(new DatatypeMapper(Identifiers.Integer, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
