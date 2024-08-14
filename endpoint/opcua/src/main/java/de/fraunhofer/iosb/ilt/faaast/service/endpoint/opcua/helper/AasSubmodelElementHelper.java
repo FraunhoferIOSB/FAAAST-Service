@@ -556,14 +556,7 @@ public class AasSubmodelElementHelper {
         try {
             TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
             TypedValue<?> maxTypedValue = TypedValueFactory.create(valueType, maxValue);
-            AASDataTypeDefXsd valueDataType;
-            if (minTypedValue != null) {
-                valueDataType = ValueConverter.datatypeToOpcDataType(minTypedValue.getDataType());
-            }
-            else {
-                valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
-            }
-
+            AASDataTypeDefXsd valueDataType = getValueType(minTypedValue, valueType);
             range.setValueType(valueDataType);
 
             switch (valueDataType) {
@@ -638,6 +631,18 @@ public class AasSubmodelElementHelper {
         catch (Exception ex) {
             LOG.error("setPropertyValueAndType Exception", ex);
         }
+    }
+
+
+    private static AASDataTypeDefXsd getValueType(TypedValue<?> typedValue, DataTypeDefXsd valueType) {
+        AASDataTypeDefXsd valueDataType;
+        if (typedValue != null) {
+            valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getDataType());
+        }
+        else {
+            valueDataType = ValueConverter.convertDataTypeDefXsd(valueType);
+        }
+        return valueDataType;
     }
 
 
