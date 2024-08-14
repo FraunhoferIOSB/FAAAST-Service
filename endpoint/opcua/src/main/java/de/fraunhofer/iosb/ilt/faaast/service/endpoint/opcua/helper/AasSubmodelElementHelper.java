@@ -515,13 +515,6 @@ public class AasSubmodelElementHelper {
             else {
                 dateTimeProperty.setValue(typedValue.getValue());
             }
-        //if (typedValue instanceof DateTimeValue) {
-        //    DateTimeValue dtval = (DateTimeValue) typedValue;
-        //    dateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
-        //}
-        //else {
-        //    dateTimeProperty.setValue(typedValue.getValue());
-        //}
         }
         return dateTimeProperty;
     }
