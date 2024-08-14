@@ -737,7 +737,7 @@ public class ValueConverter {
             if (variant.getValue() instanceof DateTime dt) {
                 retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
             }
-            else if ((variant.getValue() instanceof ByteString bt) && (bt != null)) {
+            else if (variant.getValue() instanceof ByteString bt) {
                 if (type == DataTypeDefXsd.HEX_BINARY) {
                     retval = bt.toHex();
                     // we must remove the '0x' at the beginning
@@ -785,7 +785,6 @@ public class ValueConverter {
             return null;
         }
         Object retval = typedValue.getValue();
-        //LOGGER.atDebug().log("convertTypedValue: {} ({}); Value: {}", typedValue, typedValue.getClass(), retval);
         if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
             retval = Long.valueOf(retval.toString());
         }

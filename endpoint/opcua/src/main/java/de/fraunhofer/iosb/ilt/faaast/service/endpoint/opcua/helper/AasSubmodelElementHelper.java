@@ -238,13 +238,11 @@ public class AasSubmodelElementHelper {
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
                 valueDataType = ValueConverter.datatypeToOpcDataType(typedValue.getValue().getDataType());
-                //LOG.info("setPropertyValueAndType: Name: {}; TypedValue: {}", aasProperty.getIdShort(), typedValue.getValue().getDataType());
             }
             else {
                 valueDataType = ValueConverter.convertDataTypeDefXsd(aasProperty.getValueType());
             }
 
-            //LOG.info("setPropertyValueAndType: Name: {}; ValueType: {}; valueDataType: {}", aasProperty.getIdShort(), aasProperty.getValueType(), valueDataType);
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {
@@ -252,8 +250,7 @@ public class AasSubmodelElementHelper {
                     setBooleanPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case DateTime:
-                case Date:
+                case DateTime, Date:
                     setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -265,17 +262,11 @@ public class AasSubmodelElementHelper {
                     setUInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Long:
-                case Integer:
-                case Decimal:
-                case NonPositiveInteger:
-                case NegativeInteger:
+                case Long, Integer, Decimal, NonPositiveInteger, NegativeInteger:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case PositiveInteger:
-                case NonNegativeInteger:
-                case UnsignedLong:
+                case PositiveInteger, NonNegativeInteger, UnsignedLong:
                     setUInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -303,20 +294,11 @@ public class AasSubmodelElementHelper {
                     setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case String:
-                case AnyUri:
-                case Time:
-                case Duration:
-                case GDay:
-                case GMonth:
-                case GMonthDay:
-                case GYear:
-                case GYearMonth:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
-                case Base64Binary:
-                case HexBinary:
+                case Base64Binary, HexBinary:
                     setByteStringPropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -596,8 +578,7 @@ public class AasSubmodelElementHelper {
                     setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case DateTime:
-                case Date:
+                case DateTime, Date:
                     setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -609,17 +590,11 @@ public class AasSubmodelElementHelper {
                     setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Long:
-                case Integer:
-                case Decimal:
-                case NonPositiveInteger:
-                case NegativeInteger:
+                case Long, Integer, Decimal, NonPositiveInteger, NegativeInteger:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case PositiveInteger:
-                case NonNegativeInteger:
-                case UnsignedLong:
+                case PositiveInteger, NonNegativeInteger, UnsignedLong:
                     setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -647,20 +622,11 @@ public class AasSubmodelElementHelper {
                     setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case String:
-                case AnyUri:
-                case Time:
-                case Duration:
-                case GDay:
-                case GMonth:
-                case GMonthDay:
-                case GYear:
-                case GYearMonth:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Base64Binary:
-                case HexBinary:
+                case Base64Binary, HexBinary:
                     setByteStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

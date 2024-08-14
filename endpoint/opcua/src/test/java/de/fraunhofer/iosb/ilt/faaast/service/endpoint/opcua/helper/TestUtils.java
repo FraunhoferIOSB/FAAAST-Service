@@ -45,10 +45,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.datatypes.AASAssetKindDataType;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -586,17 +589,15 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        try {
-            Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
-        }
-        catch (AssertionError ae) {
-            // if the read fails, we try again after a short waiting time
+        if (oldValue == value.getValue().getValue()) {
+            // if we read the old value again, we try again after a short waiting time
             LOGGER.atTrace().log("writeNewValueIntern: read failed, try again after a short waiting time");
-            Thread.sleep(DEFAULT_TIMEOUT);
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
             value = client.readValue(writeNode);
             Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-            Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
         }
+        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
     }
 
 
@@ -611,17 +612,16 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        try {
-            Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
-        }
-        catch (AssertionError ae) {
-            // if the read fails, we try again after a short waiting time
+        if (Arrays.equals(oldValue, (LocalizedText[]) value.getValue().getValue())) {
+            // if we read the old value again, we try again after a short waiting time
             LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
-            Thread.sleep(DEFAULT_TIMEOUT);
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
             value = client.readValue(writeNode);
             Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-            Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
         }
+
+        Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
     }
 
 
@@ -636,17 +636,15 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        try {
-            Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
-        }
-        catch (AssertionError ae) {
-            // if the read fails, we try again after a short waiting time
+        if (Arrays.equals(oldValue, (AASKeyDataType[]) value.getValue().getValue())) {
+            // if we read the old value again, we try again after a short waiting time
             LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
-            Thread.sleep(DEFAULT_TIMEOUT);
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
             value = client.readValue(writeNode);
             Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-            Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
         }
+        Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
     }
 
 
