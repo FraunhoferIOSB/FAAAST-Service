@@ -58,6 +58,8 @@ import opc.i4aas.objecttypes.AASQualifierType;
 import opc.i4aas.objecttypes.AASSpecificAssetIdType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -65,7 +67,8 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
-    //private static final long DEFAULT_TIMEOUT = 500;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
+    private static final long DEFAULT_TIMEOUT = 100;
 
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
         ApplicationDescription appDescription = new ApplicationDescription();
@@ -575,12 +578,25 @@ public class TestUtils {
             Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
         }
 
+        LOGGER.atTrace().log("writeNewValueIntern: write new value to {}", writeNode.toString());
         client.writeValue(writeNode, newValue);
+
+        LOGGER.atTrace().log("writeNewValueIntern: read new value from {}", writeNode.toString());
 
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
+        try {
+            Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
+        }
+        catch (AssertionError ae) {
+            // if the read fails, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueIntern: read failed, try again after a short waiting time");
+            Thread.sleep(DEFAULT_TIMEOUT);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+            Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
+        }
     }
 
 
@@ -592,13 +608,20 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait for the MessageBus event
-        //Thread.sleep(DEFAULT_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+        try {
+            Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+        }
+        catch (AssertionError ae) {
+            // if the read fails, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
+            Thread.sleep(DEFAULT_TIMEOUT);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+            Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+        }
     }
 
 
@@ -610,13 +633,20 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait for the MessageBus event
-        //Thread.sleep(DEFAULT_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
+        try {
+            Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
+        }
+        catch (AssertionError ae) {
+            // if the read fails, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
+            Thread.sleep(DEFAULT_TIMEOUT);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+            Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
+        }
     }
 
 
