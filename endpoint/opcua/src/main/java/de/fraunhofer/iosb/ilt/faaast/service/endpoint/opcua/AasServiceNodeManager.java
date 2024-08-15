@@ -337,10 +337,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         LOG.debug("subscribeMessageBus: subscribe ValueChangeEvents");
         SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, x -> {
             try {
-                LOG.atDebug().log("valueChanged received: {}", x.getNewValue());
                 updateSubmodelElementValue(x.getElement(), x.getNewValue(), x.getOldValue());
             }
-            catch (Exception e) {
+            catch (StatusException | ValueFormatException e) {
                 LOG.error("valueChanged Exception", e);
             }
         });

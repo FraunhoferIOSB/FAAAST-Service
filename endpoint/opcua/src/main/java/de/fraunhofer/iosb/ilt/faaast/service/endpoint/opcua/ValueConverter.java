@@ -764,13 +764,13 @@ public class ValueConverter {
         if (value == null) {
             retval = Variant.NULL;
         }
-        else if (value instanceof OffsetDateTime odt) {
+        else if (value instanceof OffsetDateTime offsetDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime(odt));
+            retval = new Variant(createDateTime(offsetDateTime));
         }
-        else if (value instanceof LocalDateTime ldt) {
+        else if (value instanceof LocalDateTime localDateTime) {
             // special treatment for DateTime
-            retval = new Variant(createDateTime(ldt));
+            retval = new Variant(createDateTime(localDateTime));
         }
         else {
             retval = new Variant(value);
@@ -801,11 +801,11 @@ public class ValueConverter {
                     retval = typedValue.asString();
                 }
             }
-            else if (retval instanceof OffsetTime ot) {
-                retval = ot.toString();
+            else if (retval instanceof OffsetTime offsetTime) {
+                retval = offsetTime.toString();
             }
-            else if (retval instanceof BigInteger bi) {
-                retval = bi.longValue();
+            else if (retval instanceof BigInteger bigInteger) {
+                retval = bigInteger.longValue();
             }
         }
         return retval;

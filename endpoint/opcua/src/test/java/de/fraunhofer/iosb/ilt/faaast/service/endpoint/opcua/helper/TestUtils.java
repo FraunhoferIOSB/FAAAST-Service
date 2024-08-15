@@ -581,10 +581,7 @@ public class TestUtils {
             Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
         }
 
-        LOGGER.atTrace().log("writeNewValueIntern: write new value to {}", writeNode.toString());
         client.writeValue(writeNode, newValue);
-
-        LOGGER.atTrace().log("writeNewValueIntern: read new value from {}", writeNode.toString());
 
         // read new value
         value = client.readValue(writeNode);
