@@ -20,6 +20,7 @@ If the error is not specified, you are probably trying to load an older V2 model
 [ERROR] Error loading model file
 ```
 In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model here: https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose
+For testing purposes, we provide an example model here: https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples
 ### Resource not found '/shells'
 ```
 {"messages": [{
@@ -34,6 +35,42 @@ In many cases, providing the proper API prefix, for example <mark>/api/v3.0</mar
 https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells
 Keep in mind that the right HTTP method must be selected for specific calls.
 
-### Another issue
+### Configuration could not be loaded
 
-TBD
+The most frequent issue with configuration files are inproper AAS references in the Asset Connection.
+
+Example: 
+```
+"assetConnections": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection",
+			"baseUrl": "http://localhost:5001",
+			"operationProviders":
+			{
+				"(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate":
+				{
+					"path": "/add",
+					"format": "JSON",
+					"template": "{\"data\":{\"input1\": ${input1}, \"input2\": ${input2}}}",
+					"queries":
+					{
+						"result": "$.result"
+					}
+				}
+			}
+		}
+	]
+```
+
+Additionally, it should be checked if JSON syntax errors are present, for example with https://jsonchecker.com/
+
+
+### Certificate & SSL errors
+By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
+To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the endpoint configuration: https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http
+
+```
+java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
+```
+
+This flag should only be used for testing purposes on local machines.
