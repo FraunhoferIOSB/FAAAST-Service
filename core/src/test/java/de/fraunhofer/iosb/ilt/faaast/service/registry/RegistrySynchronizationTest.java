@@ -39,10 +39,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -59,7 +55,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -210,26 +210,26 @@ public class RegistrySynchronizationTest {
         doAnswer((InvocationOnMock invocation) -> {
             String aasId = invocation.getArgument(0);
             return List.of(
-                    de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
                             ._interface("AAS-REPOSITORY-3.0")
-                            .protocolInformation(DefaultProtocolInformation.builder()
+                            .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
                                     .endpointProtocolVersion("1.1")
-                                    .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                    .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
                                             .key("")
                                             .value("")
                                             .build())
                                     .build())
                             .build(),
-                    de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
                             ._interface("AAS-3.0")
-                            .protocolInformation(DefaultProtocolInformation.builder()
+                            .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/shells/" + EncodingHelper.base64UrlEncode(aasId))
                                     .endpointProtocol("HTTP")
                                     .endpointProtocolVersion("1.1")
-                                    .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                    .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
                                             .key("")
                                             .value("")
@@ -241,26 +241,26 @@ public class RegistrySynchronizationTest {
         doAnswer((InvocationOnMock invocation) -> {
             String submodelId = invocation.getArgument(0);
             return List.of(
-                    de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-REPOSITORY-3.0")
-                            .protocolInformation(DefaultProtocolInformation.builder()
+                            .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString())
                                     .endpointProtocol("HTTP")
                                     .endpointProtocolVersion("1.1")
-                                    .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                    .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
                                             .key("")
                                             .value("")
                                             .build())
                                     .build())
                             .build(),
-                    de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+                    new org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint.Builder()
                             ._interface("SUBMODEL-3.0")
-                            .protocolInformation(DefaultProtocolInformation.builder()
+                            .protocolInformation(new DefaultProtocolInformation.Builder()
                                     .href(serviceUri.toASCIIString() + "/submodels/" + EncodingHelper.base64UrlEncode(submodelId))
                                     .endpointProtocol("HTTP")
                                     .endpointProtocolVersion("1.1")
-                                    .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                    .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                             .type(SecurityTypeEnum.NONE)
                                             .key("")
                                             .value("")
@@ -345,17 +345,32 @@ public class RegistrySynchronizationTest {
 
 
     private String getAasDescriptorBody(AssetAdministrationShell aas) throws JsonProcessingException {
-        return mapper.writeValueAsString(DefaultAssetAdministrationShellDescriptor.builder()
-                .from(aas)
+        return mapper.writeValueAsString(new DefaultAssetAdministrationShellDescriptor.Builder()
+                .administration(aas.getAdministration())
+                .id(aas.getId())
+                .idShort(aas.getIdShort())
+                .description(aas.getDescription())
+                .globalAssetId(aas.getAssetInformation().getGlobalAssetId())
+                .assetType(aas.getAssetInformation().getAssetType())
+                .assetKind(aas.getAssetInformation().getAssetKind())
+                .displayName(aas.getDisplayName())
+                .extensions(aas.getExtensions())
                 .endpoints(endpoint.getAasEndpointInformation(aas.getId()))
-                .submodels(getSubmodelDescriptorsFromAas(aas))
+                .submodelDescriptors(getSubmodelDescriptorsFromAas(aas))
                 .build());
     }
 
 
     private String getSubmodelDescriptorBody(Submodel submodel) throws JsonProcessingException {
-        return mapper.writeValueAsString(DefaultSubmodelDescriptor.builder()
-                .from(submodel)
+        return mapper.writeValueAsString(new DefaultSubmodelDescriptor.Builder()
+                .administration(submodel.getAdministration())
+                .id(submodel.getId())
+                .idShort(submodel.getIdShort())
+                .description(submodel.getDescription())
+                .semanticId(submodel.getSemanticId())
+                .supplementalSemanticId(submodel.getSupplementalSemanticIds())
+                .displayName(submodel.getDisplayName())
+                .extensions(submodel.getExtensions())
                 .endpoints(endpoint.getSubmodelEndpointInformation(submodel.getId()))
                 .build());
     }
@@ -366,8 +381,15 @@ public class RegistrySynchronizationTest {
                 .map(x -> ReferenceHelper.findFirstKeyType(x, KeyTypes.SUBMODEL))
                 .filter(persistence::submodelExists)
                 .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL)))
-                .map(x -> DefaultSubmodelDescriptor.builder()
-                        .from(x)
+                .map(x -> new DefaultSubmodelDescriptor.Builder()
+                        .administration(x.getAdministration())
+                        .id(x.getId())
+                        .idShort(x.getIdShort())
+                        .description(x.getDescription())
+                        .semanticId(x.getSemanticId())
+                        .supplementalSemanticId(x.getSupplementalSemanticIds())
+                        .displayName(x.getDisplayName())
+                        .extensions(x.getExtensions())
                         .endpoints(endpoint.getSubmodelEndpointInformation(x.getId()))
                         .build())
                 .map(SubmodelDescriptor.class::cast)
