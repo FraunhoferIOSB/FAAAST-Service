@@ -20,6 +20,7 @@ If the error is not specified, you are probably trying to load an older V2 model
 [ERROR] Error loading model file
 ```
 In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model here: https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose
+
 For testing purposes, we provide an example model here: https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples
 ### Resource not found '/shells'
 ```
@@ -38,7 +39,8 @@ Keep in mind that the right HTTP method must be selected for specific calls.
 ### Configuration could not be loaded
 
 The most frequent issue with configuration files are inproper AAS references in the Asset Connection.
-
+For example, to connect the operation "calculate" to the asset where the calculation is done, the reference "(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate" is used.
+It is important to have the whitespace between element and submodel and follow the exact AAS elements like "Property" or "File"
 Example: 
 ```
 "assetConnections": [
