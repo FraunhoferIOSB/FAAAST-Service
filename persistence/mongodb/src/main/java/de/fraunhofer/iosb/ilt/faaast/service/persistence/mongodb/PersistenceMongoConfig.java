@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import java.util.Objects;
 
 
 /**
@@ -24,6 +26,17 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
     private String connectionString;
     private String databaseName;
     private boolean override;
+
+    public boolean getEmbedded() {
+        return embedded;
+    }
+
+
+    public void setEmbedded(boolean embedded) {
+        this.embedded = embedded;
+    }
+
+    private boolean embedded;
 
     public String getConnectionString() {
         return connectionString;
@@ -55,6 +68,19 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
     }
 
 
+    public void init() throws ConfigurationInitializationException {
+        if (Objects.isNull(databaseName)) {
+            this.databaseName = "MongoTest";
+        }
+        if (Objects.isNull(override)) {
+            this.override = false;
+        }
+        if (Objects.isNull(embedded)) {
+            this.embedded = false;
+        }
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -75,6 +101,12 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
 
         public B override(boolean value) {
             getBuildingInstance().setOverride(value);
+            return getSelf();
+        }
+
+
+        public B embedded(boolean value) {
+            getBuildingInstance().setEmbedded(value);
             return getSelf();
         }
     }

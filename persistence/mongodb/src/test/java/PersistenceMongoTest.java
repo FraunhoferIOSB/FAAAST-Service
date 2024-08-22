@@ -46,7 +46,6 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Ignore;

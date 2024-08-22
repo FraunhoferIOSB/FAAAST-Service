@@ -50,8 +50,7 @@
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>4.9.2</version>
-            <scope>test</scope>
+            <version>${de.flapdoodle.embed.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

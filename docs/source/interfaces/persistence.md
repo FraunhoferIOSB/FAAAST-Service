@@ -71,3 +71,40 @@ Each modification of the model results in writing the whole model to the file wh
 	//...
 }
 ```
+
+
+## MongoDB
+
+The MongoDB Persistence stores the AAS model in a MongoDB according to the AAS specification.
+Therefore, changes are stored permanently even when FA³ST Service is stopped or crashes.
+
+:::{important}
+Each modification of the model results in only writing the specific part to the MongoDB document which should improve performance
+:::
+
+### Configuration
+
+:::{table} Configuration properties of MongoDB-based Persistence.
+| Name                        | Allowed Value       | Description                                                                                                                                                                                                     | Default Value              |
+| ----------------------------| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| connectionString<br>*(mandatory)*     | String              | The connection string where the MongoDB is located.                                                                                                                                           | .                          |
+| databaseName<br>*(optional)*  | String | The name of the database to be used inside the MongoDB.                                                                                                                                |  `MongoTest` |
+| override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false                       |
+| embedded<br>*(optional)* | Boolean             | If true, FA³ST persistence will start an embedded MongoDB on a free port. This option will also ignore the provided connectionString. | false                       |
+
+:::
+
+```{code-block} json
+:caption: Example configuration for MongoDB-based Persistence.
+:lineno-start: 1
+{
+	"persistence" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceMongo",
+		"connectionString" : "mongodb://mongoURL:12345",
+		"databaseName": "MongoAAS",
+		"override": true,
+		"embedded": false
+	},
+	//...
+}
+```

@@ -22,6 +22,12 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.internal.client.model.FindOptions;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.StateID;
+import de.flapdoodle.reverse.TransitionWalker;
+import de.flapdoodle.reverse.Transitions;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -96,6 +102,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
+        config.init();
+
+        if (config.getEmbedded()) {
+            Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
+            TransitionWalker.ReachedState<RunningMongodProcess> runningProcess = transitions.walker()
+                    .initState(StateID.of(RunningMongodProcess.class));
+            config.setConnectionString(runningProcess.current().getServerAddress().toString());
+        }
 
         MongoClient mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
@@ -212,11 +226,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return prepareResult(loadElementById(aasCollection, id, AssetAdministrationShell.class), modifier);
     }
 
+
     @Override
     public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
         return preparePagedResult(
                 getAssetAdministrationShell(aasId, QueryModifier.MINIMAL).getSubmodels().stream(), paging);
     }
+
 
     private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
         Stream<T> result = input;
