@@ -63,7 +63,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.PersistenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -103,7 +102,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String OPERATION_COLLECTION_NAME = "operationResults";
 
     private PersistenceMongoConfig config;
-    private MongoCollection<Document> aasCollection, cdCollection, submodelCollection, operationCollection;
+    private MongoCollection<Document> aasCollection;
+    private MongoCollection<Document> cdCollection;
+    private MongoCollection<Document> submodelCollection;
+    private MongoCollection<Document> operationCollection;
     private final JsonApiSerializer jsonApiSerializer = new JsonApiSerializer();
     private final JsonApiDeserializer jsonApiDeserializer = new JsonApiDeserializer();
 
@@ -500,8 +502,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     @Override
     public void deleteSubmodel(String id) throws ResourceNotFoundException {
         deleteElementById(submodelCollection, id);
-        Reference submodelRef = ReferenceBuilder.forSubmodel(id);
-        Document referenceDocument = getReferenceAsDocument(submodelRef);
         Bson filter = Filters.eq("submodels.id", id);
         Bson update = Updates.pull("submodels", filter);
         aasCollection.updateMany(filter, update);
@@ -632,7 +632,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private <T extends Identifiable> Stream<T> getResultStream(MongoIterable<Document> documents, Class<T> type) {
         List<T> result = new ArrayList<>();
-        Document doc = documents.first();
         for (Document document: documents) {
             try {
                 result.add(jsonApiDeserializer.read(document.toJson(), type));

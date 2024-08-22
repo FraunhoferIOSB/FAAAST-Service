@@ -166,7 +166,6 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
 
     private List<String> getSpecificAssetIdValues(AssetAdministrationShell aas) {
-        AssetInformation i = aas.getAssetInformation();
         return aas.getAssetInformation().getSpecificAssetIds().stream()
                 .map(y -> y.getValue()).collect(Collectors.toList());
     }
