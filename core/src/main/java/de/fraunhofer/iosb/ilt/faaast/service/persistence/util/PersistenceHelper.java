@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
+
+
+public class PersistenceHelper {
+    private PersistenceHelper() {}
+
+
+    public static <T extends HasSemantics> Stream<T> filterBySemanticId(Stream<T> stream, Reference semanticId) {
+        if (Objects.isNull(semanticId)) {
+            return stream;
+        }
+        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId));
+    }
+
+
+    public static void addSubmodelElementsFromParentToCollection(Referable parent, Collection<SubmodelElement> submodelElementCollection) {
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((Submodel) parent).getSubmodelElements());
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((SubmodelElementCollection) parent).getValue());
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            submodelElementCollection.addAll(((SubmodelElementList) parent).getValue());
+        }
+    }
+
+
+    public static void splitAssetIdsIntoGlobalAndSpecificIds(List<AssetIdentification> assetIds,
+                                                             List<String> globalIds,
+                                                             List<SpecificAssetId> specificIds) {
+        Ensure.requireNonNull(assetIds);
+        Ensure.requireNonNull(globalIds);
+        Ensure.requireNonNull(specificIds);
+
+        globalIds.addAll(assetIds.stream()
+                .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
+                .map(GlobalAssetIdentification.class::cast)
+                .map(x -> x.getValue())
+                .collect(Collectors.toList()));
+        specificIds.addAll(assetIds.stream()
+                .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
+                .map(x -> new DefaultSpecificAssetId.Builder()
+                        .name(((SpecificAssetIdentification) x).getKey())
+                        .value(((SpecificAssetIdentification) x).getValue())
+                        .build())
+                .collect(Collectors.toList()));
+    }
+}
