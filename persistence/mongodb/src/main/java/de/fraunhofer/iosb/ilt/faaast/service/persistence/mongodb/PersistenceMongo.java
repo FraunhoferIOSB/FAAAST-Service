@@ -120,13 +120,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             config.setConnectionString("mongodb://" + runningProcess.current().getServerAddress().toString());
         }
 
-        MongoDatabase database;
-        try (MongoClient mongoClient = MongoClients.create(
+        MongoClient mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
-                        .build())) {
-            database = mongoClient.getDatabase(config.getDatabaseName());
-        }
+                        .build());
+        MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
 
         aasCollection = database.getCollection(AAS_COLLECTION_NAME);
         cdCollection = database.getCollection(CD_COLLECTION_NAME);
