@@ -120,11 +120,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             config.setConnectionString("mongodb://" + runningProcess.current().getServerAddress().toString());
         }
 
-        MongoClient mongoClient = MongoClients.create(
+        MongoDatabase database;
+        try (MongoClient mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
-                        .build());
-        MongoDatabase database = mongoClient.getDatabase(config.getDatabaseName());
+                        .build())) {
+            database = mongoClient.getDatabase(config.getDatabaseName());
+        }
 
         aasCollection = database.getCollection(AAS_COLLECTION_NAME);
         cdCollection = database.getCollection(CD_COLLECTION_NAME);
@@ -645,6 +647,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     private static <T extends Referable> T prepareResult(T result, QueryModifier modifier) {
+        if (result == null || modifier == null) {
+            throw new IllegalArgumentException("Result or modifier cannot be null.");
+        }
         return QueryModifierHelper.applyQueryModifier(
                 DeepCopyHelper.deepCopy(result),
                 modifier);
