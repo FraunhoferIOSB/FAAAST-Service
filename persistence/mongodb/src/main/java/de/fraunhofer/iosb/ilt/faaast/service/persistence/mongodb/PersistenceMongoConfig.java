@@ -14,9 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb;
 
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
-import java.util.Objects;
 
 
 /**
@@ -24,8 +22,9 @@ import java.util.Objects;
  */
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
-    private String databaseName;
-    private boolean override;
+    private String databaseName = "MongoTest";
+    private boolean override = false;
+    private boolean embedded = false;
 
     public boolean getEmbedded() {
         return embedded;
@@ -36,7 +35,6 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         this.embedded = embedded;
     }
 
-    private boolean embedded;
 
     public String getConnectionString() {
         return connectionString;
@@ -65,19 +63,6 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
 
     public void setOverride(boolean override) {
         this.override = override;
-    }
-
-
-    public void init() throws ConfigurationInitializationException {
-        if (Objects.isNull(databaseName)) {
-            this.databaseName = "MongoTest";
-        }
-        if (Objects.isNull(override)) {
-            this.override = false;
-        }
-        if (Objects.isNull(embedded)) {
-            this.embedded = false;
-        }
     }
 
 

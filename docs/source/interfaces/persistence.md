@@ -99,7 +99,7 @@ Each modification of the model results in only writing the specific part to the 
 :lineno-start: 1
 {
 	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceMongo",
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb.PersistenceMongo",
 		"connectionString" : "mongodb://mongoURL:12345",
 		"databaseName": "MongoAAS",
 		"override": true,

@@ -16,8 +16,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.*;
-import com.mongodb.client.model.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
@@ -102,13 +110,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
-        config.init();
 
         if (config.getEmbedded()) {
             Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
             TransitionWalker.ReachedState<RunningMongodProcess> runningProcess = transitions.walker()
                     .initState(StateID.of(RunningMongodProcess.class));
-            config.setConnectionString(runningProcess.current().getServerAddress().toString());
+            config.setConnectionString("mongodb://" + runningProcess.current().getServerAddress().toString());
         }
 
         MongoClient mongoClient = MongoClients.create(
@@ -154,7 +161,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    public void saveEnvironment(Environment environment) {
+    private void saveEnvironment(Environment environment) {
         if (!saveListInCollection(environment.getAssetAdministrationShells(), aasCollection)) {
             throw new IllegalStateException("Failed to save AAS");
         }
@@ -767,7 +774,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    public static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
         List<T> temp = input.collect(Collectors.toList());
         return Page.<T> builder()
                 .result(QueryModifierHelper.applyQueryModifier(

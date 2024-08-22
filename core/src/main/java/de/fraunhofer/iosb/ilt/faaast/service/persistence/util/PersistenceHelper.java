@@ -26,10 +26,21 @@ import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
+/**
+ * Helper class for complex persistence implementations.
+ */
 public class PersistenceHelper {
     private PersistenceHelper() {}
 
 
+    /**
+     * Filters the stream for a specific semanticId.
+     *
+     * @param stream
+     * @param semanticId
+     * @return result with matched semantic id
+     * @param <T>
+     */
     public static <T extends HasSemantics> Stream<T> filterBySemanticId(Stream<T> stream, Reference semanticId) {
         if (Objects.isNull(semanticId)) {
             return stream;
@@ -38,6 +49,12 @@ public class PersistenceHelper {
     }
 
 
+    /**
+     * Adds a submodel element from the parent to the collection.
+     *
+     * @param parent
+     * @param submodelElementCollection
+     */
     public static void addSubmodelElementsFromParentToCollection(Referable parent, Collection<SubmodelElement> submodelElementCollection) {
         if (Submodel.class.isAssignableFrom(parent.getClass())) {
             submodelElementCollection.addAll(((Submodel) parent).getSubmodelElements());
@@ -51,6 +68,13 @@ public class PersistenceHelper {
     }
 
 
+    /**
+     * Splits the provided asset ids into groups global and specific ids.
+     *
+     * @param assetIds
+     * @param globalIds
+     * @param specificIds
+     */
     public static void splitAssetIdsIntoGlobalAndSpecificIds(List<AssetIdentification> assetIds,
                                                              List<String> globalIds,
                                                              List<SpecificAssetId> specificIds) {
