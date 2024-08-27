@@ -75,7 +75,7 @@
         <aas4j.version>1.0.2</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
-        <checkstyle.version>10.17.0</checkstyle.version>
+        <checkstyle.version>10.18.0</checkstyle.version>
         <classgraph.version>4.8.175</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -84,7 +84,7 @@
         <commons.lang3.version>3.16.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.16.1</equalsverifier.version>
+        <equalsverifier.version>3.16.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.0-jre</guava.version>
         <jackson.databind.version>2.17.2</jackson.databind.version>
@@ -106,7 +106,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
-        <maven.plugin.checkstyle.version>3.4.0</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.5.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.4.0</maven.plugin.failsafe.version>
@@ -135,7 +135,7 @@
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.6</picocli.version>
         <poi.ooxml.version>5.3.0</poi.ooxml.version>
-        <proguard.core.version>9.1.5</proguard.core.version>
+        <proguard.core.version>9.1.6</proguard.core.version>
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.2-139</prosys.sdk.version>
