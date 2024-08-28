@@ -127,7 +127,7 @@
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.0</maven.plugin.surefire.version>
         <milo.version>0.6.14</milo.version>
-        <mockito.version>5.12.0</mockito.version>
+        <mockito.version>5.13.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.112.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.3.1</org.apache.httpcomponents.client5.version>
