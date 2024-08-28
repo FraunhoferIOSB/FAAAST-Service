@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
@@ -121,19 +122,19 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                 ArgumentType.OUTPUT));
             }
         }
-        catch (ResourceNotFoundException | InvalidRequestException e) {
+        catch (ResourceNotFoundException | InvalidRequestException | StorageException e) {
             handleOperationFailure(reference, operationResult.getInoutputArguments(), operationHandle, e);
         }
 
-        context.getPersistence().save(operationHandle, operationResult);
         try {
+            context.getPersistence().save(operationHandle, operationResult);
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
                     .element(reference)
                     .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
                     .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
                     .build());
         }
-        catch (ValueMappingException | MessageBusException e) {
+        catch (ValueMappingException | MessageBusException | StorageException e) {
             LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
         }
     }
@@ -142,20 +143,21 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     private void handleOperationInvoke(Reference reference,
                                        OperationHandle operationHandle,
                                        InvokeOperationAsyncRequest request) {
-        context.getPersistence().save(
-                operationHandle,
-                new OperationResult.Builder()
-                        .inoutputArguments(request.getInoutputArguments())
-                        .executionState(ExecutionState.RUNNING)
-                        .build());
+
         try {
+            context.getPersistence().save(
+                    operationHandle,
+                    new OperationResult.Builder()
+                            .inoutputArguments(request.getInoutputArguments())
+                            .executionState(ExecutionState.RUNNING)
+                            .build());
             context.getMessageBus().publish(OperationInvokeEventMessage.builder()
                     .element(reference)
                     .input(ElementValueHelper.toValueMap(request.getInputArguments()))
                     .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                     .build());
         }
-        catch (ValueMappingException | MessageBusException e) {
+        catch (ValueMappingException | MessageBusException | StorageException e) {
             LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
         }
     }

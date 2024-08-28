@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public abstract class AbstractFileStorageTest<T extends FileStorage<C>, C extend
 
 
     @Test
-    public void saveAndDelete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException, IOException {
+    public void saveAndDelete() throws ConfigurationInitializationException, ResourceNotFoundException, ConfigurationException, IOException, StorageException {
         FileStorageConfig<T> config = getFileStorageConfig();
         fileStorage = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         InMemoryFile expected = InMemoryFile.builder()

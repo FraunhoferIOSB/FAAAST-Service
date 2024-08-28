@@ -24,17 +24,6 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
     private String connectionString;
     private String databaseName = "MongoTest";
     private boolean override = false;
-    private boolean embedded = false;
-
-    public boolean getEmbedded() {
-        return embedded;
-    }
-
-
-    public void setEmbedded(boolean embedded) {
-        this.embedded = embedded;
-    }
-
 
     public String getConnectionString() {
         return connectionString;
@@ -89,11 +78,6 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
             return getSelf();
         }
 
-
-        public B embedded(boolean value) {
-            getBuildingInstance().setEmbedded(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<PersistenceMongoConfig, Builder> {

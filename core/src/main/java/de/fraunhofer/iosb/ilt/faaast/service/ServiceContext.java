@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -38,7 +39,7 @@ public interface ServiceContext {
      *         reference is null
      * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
      */
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException;
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, StorageException;
 
 
     /**
@@ -56,7 +57,7 @@ public interface ServiceContext {
      *
      * @return a deep copied Environment instance of the service
      */
-    public Environment getAASEnvironment();
+    public Environment getAASEnvironment() throws StorageException;
 
 
     /**
@@ -77,7 +78,7 @@ public interface ServiceContext {
      * @throws IllegalArgumentException if reference cannot be resolved
      * @throws IllegalArgumentException if reference does not point to an operation
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException;
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, StorageException;
 
 
     /**

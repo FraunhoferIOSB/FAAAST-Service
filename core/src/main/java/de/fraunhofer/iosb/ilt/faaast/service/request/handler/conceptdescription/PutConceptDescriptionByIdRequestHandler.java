@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
@@ -42,7 +43,8 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
 
 
     @Override
-    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, ValidationException {
+    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request)
+            throws ResourceNotFoundException, MessageBusException, ValidationException, StorageException {
         ModelValidator.validate(request.getConceptDescription(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getConceptDescription(request.getConceptDescription().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getConceptDescription());

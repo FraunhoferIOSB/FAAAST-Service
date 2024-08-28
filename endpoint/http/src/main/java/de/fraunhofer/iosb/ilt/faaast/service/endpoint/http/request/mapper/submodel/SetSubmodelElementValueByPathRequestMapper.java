@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElemen
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
@@ -77,8 +78,8 @@ public class SetSubmodelElementValueByPathRequestMapper
                                                         .idShortPath(path)
                                                         .build()));
                             }
-                            catch (ResourceNotFoundException e) {
-                                throw new DeserializationException("unable to obtain type information as resource does not exist", e);
+                            catch (ResourceNotFoundException | StorageException e) {
+                                throw new DeserializationException("unable to obtain type information as resource does not exist or storage failed", e);
                             }
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {

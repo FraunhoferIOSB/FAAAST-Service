@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelreposito
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -49,7 +50,7 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException,
-            ResourceAlreadyExistsException {
+            ResourceAlreadyExistsException, StorageException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
         if (context.getPersistence().submodelExists(request.getSubmodel().getId())) {
             throw new ResourceAlreadyExistsException(request.getSubmodel().getId(), Submodel.class);

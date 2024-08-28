@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -140,7 +141,7 @@ public class RegistrySynchronization {
             registerAllSubmodels();
             running = true;
         }
-        catch (MessageBusException e) {
+        catch (MessageBusException | StorageException e) {
             LOGGER.warn("Error creating messageBus subscriptions for synchronization with registry", e);
         }
 
@@ -154,8 +155,13 @@ public class RegistrySynchronization {
         if (!running) {
             return;
         }
-        unregisterAllAass();
-        unregisterAllSubmodels();
+        try {
+            unregisterAllAass();
+            unregisterAllSubmodels();
+        }
+        catch (StorageException e) {
+            LOGGER.error(String.format("unregistration could not be completed."));
+        }
         if (Objects.nonNull(executor)) {
             executor.shutdown();
             try {
@@ -218,7 +224,7 @@ public class RegistrySynchronization {
     }
 
 
-    private void registerAllAass() {
+    private void registerAllAass() throws StorageException {
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerAas);
@@ -234,7 +240,7 @@ public class RegistrySynchronization {
         try {
             registerAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_REGISTER_AAS_FAILED,
                     id,
@@ -245,7 +251,7 @@ public class RegistrySynchronization {
     }
 
 
-    private void unregisterAllAass() {
+    private void unregisterAllAass() throws StorageException {
         getPageSafe(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterAas);
@@ -261,7 +267,7 @@ public class RegistrySynchronization {
         try {
             unregisterAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_UNREGISTER_AAS_FAILED,
                     id,
@@ -281,7 +287,7 @@ public class RegistrySynchronization {
         try {
             updateAas(persistence.getAssetAdministrationShell(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_UPDATE_AAS_FAILED,
                     id,
@@ -292,7 +298,7 @@ public class RegistrySynchronization {
     }
 
 
-    private void registerAllSubmodels() {
+    private void registerAllSubmodels() throws StorageException {
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::registerSubmodel);
@@ -308,7 +314,7 @@ public class RegistrySynchronization {
         try {
             registerSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_REGISTER_SUBMODEL_FAILED,
                     id,
@@ -319,7 +325,7 @@ public class RegistrySynchronization {
     }
 
 
-    private void unregisterAllSubmodels() {
+    private void unregisterAllSubmodels() throws StorageException {
         getPageSafe(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL))
                 .getContent()
                 .forEach(this::unregisterSubmodel);
@@ -335,7 +341,7 @@ public class RegistrySynchronization {
         try {
             unregisterSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_UNREGISTER_SUBMODEL_FAILED,
                     id,
@@ -355,7 +361,7 @@ public class RegistrySynchronization {
         try {
             updateSubmodel(persistence.getSubmodel(id, QueryModifier.MINIMAL));
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             LOGGER.warn(String.format(
                     MSG_UPDATE_SUBMODEL_FAILED,
                     id,

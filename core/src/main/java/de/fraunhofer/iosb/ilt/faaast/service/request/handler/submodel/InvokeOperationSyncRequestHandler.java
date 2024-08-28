@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
@@ -63,7 +64,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
 
 
     @Override
-    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ResourceNotFoundException, InvalidRequestException {
+    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ResourceNotFoundException, InvalidRequestException, StorageException {
         InvokeOperationSyncResponse result = super.doProcess(request);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())

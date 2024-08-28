@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -45,7 +46,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -102,25 +107,28 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
 
     @Test
-    public void testEnvironmentOverride() throws ConfigurationException, ResourceNotFoundException {
+    public void testEnvironmentOverride() throws ConfigurationException, ResourceNotFoundException, StorageException {
         Environment environment = AASSimple.createEnvironment();
         Persistence noOverridePersistence = getPersistenceConfig(null, environment, false).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        noOverridePersistence.start();
         assertThrows(ResourceNotFoundException.class, () -> {
             noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
         });
-
+        noOverridePersistence.stop();
         Persistence overridePersistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        overridePersistence.start();
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(0);
         AssetAdministrationShell actual = overridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
+        overridePersistence.stop();
     }
 
 
     @Test
-    public void putSubmodelElementNewInDeepSubmodelElementList() throws ResourceNotFoundException, ResourceNotAContainerElementException, ConfigurationException {
+    public void putSubmodelElementNewInDeepSubmodelElementList() throws ResourceNotFoundException, ResourceNotAContainerElementException, ConfigurationException, StorageException {
         Environment environment = AASFull.createEnvironment();
         Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-
+        persistence.start();
         Reference reference = new ReferenceBuilder()
                 .submodel("https://acplt.org/Test_Submodel_Mandatory")
                 .element("ExampleSubmodelElementListUnordered")
@@ -137,16 +145,17 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                         .extend(Extent.WITH_BLOB_VALUE)
                         .build());
         Assert.assertEquals(expected, actual);
+        persistence.stop();
     }
 
 
     @Test
     @Ignore
     //currently no specificAssetIds in environment available
-    public void getShellsWithSpecialAssetIdentification() throws ConfigurationException, SerializationException {
+    public void getShellsWithSpecialAssetIdentification() throws ConfigurationException, SerializationException, StorageException {
         Environment environment = AASFull.createEnvironment();
         Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-
+        persistence.start();
         SpecificAssetIdentification specialAssetIdentification = new SpecificAssetIdentification();
         specialAssetIdentification.setKey("Test Asset");
         specialAssetIdentification.setValue("https://acplt.org/Test_Asset");
@@ -162,6 +171,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                 PagingInfo.ALL)
                 .getContent();
         Assert.assertEquals(expected, actual);
+        persistence.stop();
     }
 
 

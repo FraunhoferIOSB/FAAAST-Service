@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -71,9 +72,9 @@ public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProvide
         try {
             return serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             throw new IllegalStateException(String.format(
-                    "MQTT value provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    "MQTT value provider could not get type info as resource does not exist or storage failed - this should not be able to occur (reference: %s)",
                     ReferenceHelper.toString(reference)),
                     e);
         }

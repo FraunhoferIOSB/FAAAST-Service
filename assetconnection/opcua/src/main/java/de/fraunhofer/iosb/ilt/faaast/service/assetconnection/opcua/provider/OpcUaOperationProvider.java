@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -181,7 +182,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         try {
             outputVariables = serviceContext.getOperationOutputVariables(reference);
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             throw new AssetConnectionException(
                     String.format(
                             "Operation could not be found in AAS model (reference: %s)",

@@ -27,15 +27,8 @@ import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.internal.client.model.FindOptions;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.mongo.transitions.Mongod;
-import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
-import de.flapdoodle.reverse.StateID;
-import de.flapdoodle.reverse.TransitionWalker;
-import de.flapdoodle.reverse.Transitions;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -54,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -72,7 +66,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.slf4j.LoggerFactory;
@@ -108,19 +114,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private MongoCollection<Document> operationCollection;
     private final JsonApiSerializer jsonApiSerializer = new JsonApiSerializer();
     private final JsonApiDeserializer jsonApiDeserializer = new JsonApiDeserializer();
+    private MongoClient mongoClient;
 
     @Override
     public void init(CoreConfig coreConfig, PersistenceMongoConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
+    }
 
-        if (config.getEmbedded()) {
-            Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
-            TransitionWalker.ReachedState<RunningMongodProcess> runningProcess = transitions.walker()
-                    .initState(StateID.of(RunningMongodProcess.class));
-            config.setConnectionString("mongodb://" + runningProcess.current().getServerAddress().toString());
-        }
 
-        MongoClient mongoClient = MongoClients.create(
+    @Override
+    public void start() throws StorageException {
+        mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
                         .build());
@@ -136,14 +140,19 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             cdCollection.drop();
             submodelCollection.drop();
             operationCollection.drop();
-
             try {
                 saveEnvironment(config.loadInitialModel());
             }
-            catch (DeserializationException | InvalidConfigurationException e) {
-                throw new ConfigurationInitializationException(e);
+            catch (DeserializationException | InvalidConfigurationException | IllegalStateException e) {
+                throw new StorageException(e);
             }
         }
+    }
+
+
+    @Override
+    public void stop() {
+        mongoClient.close();
     }
 
 
@@ -163,16 +172,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private void saveEnvironment(Environment environment) {
-        if (!saveListInCollection(environment.getAssetAdministrationShells(), aasCollection)) {
-            throw new IllegalStateException("Failed to save AAS");
-        }
-        if (!saveListInCollection(environment.getSubmodels(), submodelCollection)) {
-            throw new IllegalStateException("Failed to save Submodels");
-        }
-
-        if (!saveListInCollection(environment.getConceptDescriptions(), cdCollection)) {
-            throw new IllegalStateException("Failed to save CD");
+    private void saveEnvironment(Environment environment) throws StorageException {
+        if (!saveListInCollection(environment.getAssetAdministrationShells(), aasCollection)
+                || !saveListInCollection(environment.getSubmodels(), submodelCollection)
+                || !saveListInCollection(environment.getConceptDescriptions(), cdCollection)) {
+            throw new StorageException("Failed to save environment.");
         }
     }
 
@@ -180,30 +184,28 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private boolean saveListInCollection(List<? extends Identifiable> list, MongoCollection<Document> collection) {
         if (list.isEmpty())
             return true;
-        List<Document> documentList = list.stream()
+        return collection.insertMany(list.stream()
                 .map(this::getDocument)
-                .collect(Collectors.toList());
-        InsertManyResult result = collection.insertMany(documentList);
-        return result.wasAcknowledged();
+                .toList())
+                .wasAcknowledged();
     }
 
 
-    private <T extends Identifiable> T loadElementById(MongoCollection<Document> collection, String id, Class<T> type) throws ResourceNotFoundException {
+    private <T extends Identifiable> T loadElementById(MongoCollection<Document> collection, String id, Class<T> type) throws ResourceNotFoundException, StorageException {
         Bson filter = Filters.eq(ID_KEY, id);
         Document resultDocument = collection.find(filter).first();
         if (resultDocument == null)
             throw new ResourceNotFoundException(String.format(MSG_RESOURCE_NOT_FOUND_BY_ID, id));
-
         try {
             return jsonApiDeserializer.read(resultDocument.toJson(), type);
         }
         catch (DeserializationException e) {
-            throw new IllegalStateException(e);
+            throw new StorageException(e);
         }
     }
 
 
-    private void deleteElementById(MongoCollection<Document> collection, String id) throws ResourceNotFoundException {
+    private void deleteElementById(MongoCollection<Document> collection, String id) throws ResourceNotFoundException, StorageException {
         Bson filter = Filters.eq(ID_KEY, id);
         DeleteResult result = collection.deleteOne(filter);
         if (result.getDeletedCount() == 0) {
@@ -218,12 +220,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return Document.parse(json);
         }
         catch (SerializationException e) {
-            throw new RuntimeException("Error serializing identifiable to JSON", e);
+            LOGGER.error("Error serializing identifiable to JSON", e);
+            return null;
         }
     }
 
 
-    private void saveOrUpdateById(MongoCollection<Document> collection, Identifiable element) {
+    private void saveOrUpdateById(MongoCollection<Document> collection, Identifiable element) throws StorageException {
         collection.replaceOne(Filters.eq(ID_KEY, element.getId()),
                 getDocument(element),
                 new ReplaceOptions().upsert(true));
@@ -231,19 +234,19 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public AssetAdministrationShell getAssetAdministrationShell(String id, QueryModifier modifier) throws ResourceNotFoundException, StorageException {
         return prepareResult(loadElementById(aasCollection, id, AssetAdministrationShell.class), modifier);
     }
 
 
     @Override
-    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<Reference> getSubmodelRefs(String aasId, PagingInfo paging) throws ResourceNotFoundException, StorageException {
         return preparePagedResult(
                 getAssetAdministrationShell(aasId, QueryModifier.MINIMAL).getSubmodels().stream(), paging);
     }
 
 
-    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
+    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) throws StorageException {
         Stream<T> result = input;
         if (Objects.nonNull(paging.getCursor())) {
             result = result.skip(readCursor(paging.getCursor()));
@@ -264,19 +267,19 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, StorageException {
         return prepareResult(loadElementById(submodelCollection, id, Submodel.class), modifier);
     }
 
 
     @Override
-    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException {
+    public ConceptDescription getConceptDescription(String id, QueryModifier modifier) throws ResourceNotFoundException, StorageException {
         return prepareResult(loadElementById(cdCollection, id, ConceptDescription.class), modifier);
     }
 
 
     @Override
-    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException {
+    public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, StorageException {
         return prepareResult(
                 resolveReference(identifier.toReference(), SubmodelElement.class),
                 modifier);
@@ -284,7 +287,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException {
+    public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException, StorageException {
         try {
             Document handleDocument = Document.parse(jsonApiSerializer.write(handle));
             Bson filter = Filters.eq("handle", handleDocument);
@@ -294,13 +297,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return jsonApiDeserializer.read(((Document) operationDocument.get("result")).toJson(), OperationResult.class);
         }
         catch (SerializationException | DeserializationException e) {
-            throw new IllegalStateException(e);
+            throw new StorageException(e);
         }
     }
 
 
     @Override
-    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+            throws StorageException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -319,7 +323,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws StorageException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -337,7 +341,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+            throws ResourceNotFoundException, StorageException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -360,7 +365,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
+    public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws StorageException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -380,25 +385,26 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void save(AssetAdministrationShell assetAdministrationShell) {
+    public void save(AssetAdministrationShell assetAdministrationShell) throws StorageException {
         saveOrUpdateById(aasCollection, assetAdministrationShell);
     }
 
 
     @Override
-    public void save(ConceptDescription conceptDescription) {
+    public void save(ConceptDescription conceptDescription) throws StorageException {
         saveOrUpdateById(cdCollection, conceptDescription);
     }
 
 
     @Override
-    public void save(Submodel submodel) {
+    public void save(Submodel submodel) throws StorageException {
         saveOrUpdateById(submodelCollection, submodel);
     }
 
 
     @Override
-    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceNotFoundException, ResourceNotAContainerElementException {
+    public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)
+            throws ResourceNotFoundException, StorageException, ResourceNotAContainerElementException {
         Reference parentRef = parentIdentifier.toReference();
         Reference submodelElementRef = addSubmodelElementToReference(parentRef, submodelElement);
 
@@ -443,12 +449,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException {
+    public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, StorageException {
         updateViaReference(identifier.toReference(), submodelElement);
     }
 
 
-    private void updateViaReference(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
+    private void updateViaReference(Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException, StorageException {
         UpdateResult result = null;
         List<String> keys = getKeyValuesFromReference(reference);
         Bson filter = getFilterForSubmodelOfReferenceKeys(keys);
@@ -494,13 +500,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException {
+    public void deleteAssetAdministrationShell(String id) throws ResourceNotFoundException, StorageException {
         deleteElementById(aasCollection, id);
     }
 
 
     @Override
-    public void deleteSubmodel(String id) throws ResourceNotFoundException {
+    public void deleteSubmodel(String id) throws ResourceNotFoundException, StorageException {
         deleteElementById(submodelCollection, id);
         Bson filter = Filters.eq("submodels.id", id);
         Bson update = Updates.pull("submodels", filter);
@@ -509,13 +515,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
-    public void deleteConceptDescription(String id) throws ResourceNotFoundException {
+    public void deleteConceptDescription(String id) throws ResourceNotFoundException, StorageException {
         deleteElementById(cdCollection, id);
     }
 
 
     @Override
-    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
+    public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, StorageException {
         Reference reference = identifier.toReference();
         UpdateResult result = null;
         List<String> keys = getKeyValuesFromReference(reference);
@@ -569,21 +575,21 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Bson getSemanticIdFilter(Reference semanticId) {
+    private Bson getSemanticIdFilter(Reference semanticId) throws StorageException {
         if (Objects.isNull(semanticId))
             return NO_FILTER;
         return Filters.eq("semanticId", getReferenceAsDocument(semanticId));
     }
 
 
-    private Bson getIsCaseOfFilter(Reference isCaseOf) {
+    private Bson getIsCaseOfFilter(Reference isCaseOf) throws StorageException {
         if (Objects.isNull(isCaseOf))
             return NO_FILTER;
         return Filters.eq("isCaseOf", getReferenceAsDocument(isCaseOf)); // TODO better equals implementation
     }
 
 
-    private Bson getDataSpecificationFilter(Reference dataSpecification) {
+    private Bson getDataSpecificationFilter(Reference dataSpecification) throws StorageException {
         if (Objects.isNull(dataSpecification))
             return NO_FILTER;
         return Filters.eq("embeddedDataSpecifications", getReferenceAsDocument(dataSpecification));
@@ -617,7 +623,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Document getReferenceAsDocument(Reference reference) {
+    private Document getReferenceAsDocument(Reference reference) throws StorageException {
         try {
             //Reference type has to match the one in the database exactly, ReferenceBuilder sets the wrong one
             reference.setType(ReferenceTypes.EXTERNAL_REFERENCE);
@@ -625,7 +631,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             return Document.parse(refJson);
         }
         catch (SerializationException e) {
-            throw new IllegalStateException(e);
+            throw new StorageException(e);
         }
     }
 
@@ -654,7 +660,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private <T extends Referable> T resolveReference(Reference reference, Class<T> returnType) throws ResourceNotFoundException {
+    private <T extends Referable> T resolveReference(Reference reference, Class<T> returnType) throws ResourceNotFoundException, StorageException {
         Document result = loadDocumentFromReference(reference);
 
         if (Objects.isNull(result))
@@ -662,8 +668,8 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         try {
             return jsonApiDeserializer.read(result.toJson(), returnType);
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        catch (DeserializationException e) {
+            throw new StorageException(e);
         }
     }
 
@@ -678,8 +684,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
      * @param reference to be resolved.
      * @return the document that is the right submodelelement.
      * @throws ResourceNotFoundException if the referenced submodel does not exist in the database.
+     * @throws StorageException if an error with the storage occurs.
      */
-    private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException {
+    private Document loadDocumentFromReference(Reference reference) throws ResourceNotFoundException, StorageException {
         List<Bson> pipelineStages = new ArrayList<>();
         List<String> keys = getKeyValuesFromReference(reference);
 
@@ -740,7 +747,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private List<String> getKeyValuesFromReference(Reference reference) throws ResourceNotFoundException {
+    private List<String> getKeyValuesFromReference(Reference reference) throws ResourceNotFoundException, StorageException {
         return reference.getKeys().stream()
                 .map(key -> key.getValue())
                 .collect(Collectors.toList());
@@ -776,7 +783,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) {
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) throws StorageException {
         List<T> temp = input.collect(Collectors.toList());
         return Page.<T> builder()
                 .result(QueryModifierHelper.applyQueryModifier(
@@ -792,17 +799,17 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static String nextCursor(PagingInfo paging, int resultCount) {
+    private static String nextCursor(PagingInfo paging, int resultCount) throws StorageException {
         return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
     }
 
 
-    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) throws StorageException {
         if (!hasMoreData) {
             return null;
         }
         if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+            throw new StorageException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
         }
         if (Objects.isNull(paging.getCursor())) {
             return writeCursor((int) paging.getLimit());

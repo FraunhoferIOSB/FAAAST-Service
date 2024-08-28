@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAssetAdministrationShellByIdReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -43,7 +44,8 @@ public class GetAssetAdministrationShellByIdReferenceRequestHandler
 
 
     @Override
-    public GetAssetAdministrationShellByIdReferenceResponse process(GetAssetAdministrationShellByIdReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetAssetAdministrationShellByIdReferenceResponse process(GetAssetAdministrationShellByIdReferenceRequest request)
+            throws ResourceNotFoundException, MessageBusException, StorageException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         Reference reference = ReferenceBuilder.forAas(shell);
         if (!request.isInternal()) {

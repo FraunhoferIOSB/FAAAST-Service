@@ -90,7 +90,6 @@ Each modification of the model results in only writing the specific part to the 
 | connectionString<br>*(mandatory)*     | String              | The connection string where the MongoDB is located.                                                                                                                                           | .                          |
 | databaseName<br>*(optional)*  | String | The name of the database to be used inside the MongoDB.                                                                                                                                |  `MongoTest` |
 | override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false                       |
-| embedded<br>*(optional)* | Boolean             | If true, FA³ST persistence will start an embedded MongoDB on a free port. This option will also ignore the provided connectionString. | false                       |
 
 :::
 
@@ -102,8 +101,7 @@ Each modification of the model results in only writing the specific part to the 
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb.PersistenceMongo",
 		"connectionString" : "mongodb://mongoURL:12345",
 		"databaseName": "MongoAAS",
-		"override": true,
-		"embedded": false
+		"override": true
 	},
 	//...
 }

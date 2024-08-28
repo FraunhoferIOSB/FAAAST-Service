@@ -145,6 +145,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentifica
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -1593,7 +1594,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
+    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException, StorageException {
         when(persistence.findAssetAdministrationShells(eq(AssetAdministrationShellSearchCriteria.NONE), any(), any()))
                 .thenReturn(Page.of(environment.getAssetAdministrationShells()));
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
@@ -1607,7 +1608,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence()
-            throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
+            throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, StorageException {
         AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(
                 new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager));
         Reference parentRef = ReferenceBuilder.forSubmodel("sub");

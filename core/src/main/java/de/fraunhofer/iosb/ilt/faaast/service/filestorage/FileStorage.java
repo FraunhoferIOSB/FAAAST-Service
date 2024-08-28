@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import java.io.IOException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 
 
 /**
@@ -34,7 +34,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @return the file content
      * @throws ResourceNotFoundException if the path does not exist
      */
-    public byte[] get(String path) throws ResourceNotFoundException;
+    public byte[] get(String path) throws ResourceNotFoundException, StorageException;
 
 
     /**
@@ -43,7 +43,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param path the path to the file
      * @return true if file is in storage
      */
-    public boolean contains(String path);
+    public boolean contains(String path) throws StorageException;
 
 
     /**
@@ -53,7 +53,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param content the file content to save
      * @throws java.io.IOException if saving fails
      */
-    public void save(String path, byte[] content) throws IOException;
+    public void save(String path, byte[] content) throws StorageException;
 
 
     /**
@@ -63,7 +63,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @throws ResourceNotFoundException if path does not exist
      * @throws java.io.IOException if deleting fails
      */
-    public void delete(String path) throws ResourceNotFoundException, IOException;
+    public void delete(String path) throws ResourceNotFoundException, StorageException;
 
 
     /**
@@ -72,7 +72,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param file the file to save
      * @throws java.io.IOException if saving fails
      */
-    public default void save(InMemoryFile file) throws IOException {
+    public default void save(InMemoryFile file) throws StorageException {
         save(file.getPath(), file.getContent());
     }
 }

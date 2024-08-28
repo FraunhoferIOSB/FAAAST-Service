@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -157,7 +158,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, StorageException {
         if (reference == null) {
             throw new IllegalArgumentException("reference must be non-null");
         }
@@ -175,7 +176,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, StorageException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
@@ -187,7 +188,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Environment getAASEnvironment() {
+    public Environment getAASEnvironment() throws StorageException {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(

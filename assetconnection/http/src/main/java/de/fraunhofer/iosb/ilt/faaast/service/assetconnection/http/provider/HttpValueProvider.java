@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConne
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -148,9 +149,9 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
         try {
             return serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | StorageException e) {
             throw new IllegalStateException(String.format(
-                    "HTTP value provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    "HTTP value provider could not get type info as resource does not exist or storage failed - this should not be able to occur (reference: %s)",
                     ReferenceHelper.toString(reference)),
                     e);
         }

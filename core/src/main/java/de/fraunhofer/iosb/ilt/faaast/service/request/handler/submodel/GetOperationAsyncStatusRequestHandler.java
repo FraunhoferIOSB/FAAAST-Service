@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 
@@ -33,7 +34,7 @@ public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandle
 
 
     @Override
-    public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request) throws ResourceNotFoundException {
+    public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request) throws ResourceNotFoundException, StorageException {
         return GetOperationAsyncStatusResponse.builder()
                 .payload(context.getPersistence().getOperationResult(request.getHandle()))
                 .success()
