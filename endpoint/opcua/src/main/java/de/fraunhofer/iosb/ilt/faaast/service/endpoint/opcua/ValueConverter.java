@@ -38,7 +38,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIn
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
@@ -812,19 +811,11 @@ public class ValueConverter {
         }
         else if (retval != null)
         {
-            if (retval instanceof OffsetDateTime odt) {
-                if ((typedValue.getDataType() == Datatype.DATE) || (typedValue.getDataType() == Datatype.DATE_TIME)) {
-                    retval = ValueConverter.createDateTime(odt);
-                }
-                else {
-                    retval = typedValue.asString();
-                }
+            if (retval instanceof OffsetDateTime) {
+                retval = convertDateTime(typedValue);
             }
             else if (retval instanceof OffsetTime offsetTime) {
                 retval = offsetTime.toString();
-            }
-            else if (retval instanceof BigInteger bigInteger) {
-                retval = bigInteger.longValue();
             }
         }
         return retval;
@@ -893,4 +884,15 @@ public class ValueConverter {
         return retval;
     }
 
+
+    private static Object convertDateTime(TypedValue<?> typedValue) {
+        Object retval;
+        if ((typedValue.getDataType() == Datatype.DATE) || (typedValue.getDataType() == Datatype.DATE_TIME)) {
+            retval = ValueConverter.createDateTime((OffsetDateTime) typedValue.getValue());
+        }
+        else {
+            retval = typedValue.asString();
+        }
+        return retval;
+    }
 }
