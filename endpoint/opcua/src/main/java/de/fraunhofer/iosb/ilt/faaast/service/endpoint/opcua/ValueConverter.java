@@ -564,52 +564,23 @@ public class ValueConverter {
                 break;
             }
             case BLOB_VALUE: {
-                Blob aasBlob = (Blob) submodelElement;
-                ByteString bs = null;
-                if (variant.getValue() != null) {
-                    bs = (ByteString) variant.getValue();
-                }
-                aasBlob.setValue(ByteString.asByteArray(bs));
+                setBlobValue(submodelElement, variant);
                 break;
             }
             case MULTI_LANGUAGE_VALUE: {
-                MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                    aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasMultiProp.setValue(new ArrayList<>());
-                }
+                setMultiLanguageValue(submodelElement, variant);
                 break;
             }
             case REFERENCE_ELEMENT_VALUE: {
-                ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRefElem.setValue(null);
-                }
+                setReferenceElementValue(submodelElement, variant);
                 break;
             }
             case RELATIONSHIP_ELEMENT_FIRST: {
-                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRelElem.setFirst(null);
-                }
+                setRelationshipElementFirstValue(submodelElement, variant);
                 break;
             }
             case RELATIONSHIP_ELEMENT_SECOND: {
-                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRelElem.setSecond(null);
-                }
+                setRelationshipElementSecondValue(submodelElement, variant);
                 break;
             }
             case ENTITY_GLOBAL_ASSET_ID: {
@@ -618,13 +589,7 @@ public class ValueConverter {
                 break;
             }
             case ENTITY_TYPE: {
-                Entity aasEntity = (Entity) submodelElement;
-                if (variant.isEmpty()) {
-                    aasEntity.setEntityType(null);
-                }
-                else {
-                    aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
-                }
+                setEntityValue(submodelElement, variant);
                 break;
             }
             default:
@@ -919,4 +884,70 @@ public class ValueConverter {
 
         return retval;
     }
+
+
+    private static void setEntityValue(SubmodelElement submodelElement, Variant variant) {
+        Entity aasEntity = (Entity) submodelElement;
+        if (variant.isEmpty()) {
+            aasEntity.setEntityType(null);
+        }
+        else {
+            aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+        }
+    }
+
+
+    private static void setRelationshipElementSecondValue(SubmodelElement submodelElement, Variant variant) {
+        RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRelElem.setSecond(null);
+        }
+    }
+
+
+    private static void setRelationshipElementFirstValue(SubmodelElement submodelElement, Variant variant) {
+        RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRelElem.setFirst(null);
+        }
+    }
+
+
+    private static void setReferenceElementValue(SubmodelElement submodelElement, Variant variant) {
+        ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRefElem.setValue(null);
+        }
+    }
+
+
+    private static void setMultiLanguageValue(SubmodelElement submodelElement, Variant variant) {
+        MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
+            aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasMultiProp.setValue(new ArrayList<>());
+        }
+    }
+
+
+    private static void setBlobValue(SubmodelElement submodelElement, Variant variant) {
+        Blob aasBlob = (Blob) submodelElement;
+        ByteString bs = null;
+        if (variant.getValue() != null) {
+            bs = (ByteString) variant.getValue();
+        }
+        aasBlob.setValue(ByteString.asByteArray(bs));
+    }
+
 }
