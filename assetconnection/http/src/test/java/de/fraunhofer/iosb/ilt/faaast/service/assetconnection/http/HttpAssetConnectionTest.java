@@ -685,16 +685,23 @@ public class HttpAssetConnectionTest {
                                                      Map<String, TypedValue> expectedOutput,
                                                      Map<String, TypedValue> expectedInoutput,
                                                      boolean useHttps)
-            throws AssetConnectionException, ResourceNotFoundException, StorageException, ConfigurationInitializationException {
+            throws AssetConnectionException, ResourceNotFoundException, ConfigurationInitializationException, StorageException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         OperationVariable[] output = toOperationVariables(expectedOutput);
         doReturn(output)
                 .when(serviceContext)
                 .getOperationOutputVariables(REFERENCE);
         if (output != null) {
-            Stream.of(output).forEach(LambdaExceptionHelper.rethrowConsumer(x -> doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
-                    .when(serviceContext)
-                    .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()))));
+            Stream.of(output).forEach(x -> {
+                try {
+                    doReturn(TypeExtractor.extractTypeInfo(x.getValue()))
+                            .when(serviceContext)
+                            .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
+                }
+                catch (ResourceNotFoundException | StorageException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
 
         String path = String.format("/test/random/%s", "foo");
