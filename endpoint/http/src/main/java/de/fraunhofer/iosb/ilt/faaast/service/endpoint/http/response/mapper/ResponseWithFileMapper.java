@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithFile;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
