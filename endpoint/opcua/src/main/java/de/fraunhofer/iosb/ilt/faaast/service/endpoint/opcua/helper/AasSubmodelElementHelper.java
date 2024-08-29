@@ -234,6 +234,7 @@ public class AasSubmodelElementHelper {
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
+            LOG.atTrace().log("setPropertyValueAndType: {}", aasProperty.getIdShort());
             AASDataTypeDefXsd valueDataType;
             PropertyValue typedValue = ElementValueMapper.toValue(aasProperty, PropertyValue.class);
             if ((typedValue != null) && (typedValue.getValue() != null)) {
@@ -262,7 +263,7 @@ public class AasSubmodelElementHelper {
                     setUInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Long, Integer, Decimal, NonPositiveInteger, NegativeInteger:
+                case Long, Integer, NonPositiveInteger, NegativeInteger:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -294,7 +295,7 @@ public class AasSubmodelElementHelper {
                     setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -576,7 +577,7 @@ public class AasSubmodelElementHelper {
                     setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Long, Integer, Decimal, NonPositiveInteger, NegativeInteger:
+                case Long, Integer, NonPositiveInteger, NegativeInteger:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -608,7 +609,7 @@ public class AasSubmodelElementHelper {
                     setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
@@ -629,7 +630,7 @@ public class AasSubmodelElementHelper {
             }
         }
         catch (Exception ex) {
-            LOG.error("setPropertyValueAndType Exception", ex);
+            LOG.error("setRangeValueAndType Exception", ex);
         }
     }
 

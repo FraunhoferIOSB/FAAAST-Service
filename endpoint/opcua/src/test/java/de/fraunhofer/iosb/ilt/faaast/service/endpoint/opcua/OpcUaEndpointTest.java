@@ -860,7 +860,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
                 AASDataTypeDefXsd.Integer, Long.valueOf(5000), new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
-                AASDataTypeDefXsd.Decimal, Long.valueOf(123456), new ArrayList<>());
+                AASDataTypeDefXsd.Decimal, "123456", new ArrayList<>());
     }
 
 

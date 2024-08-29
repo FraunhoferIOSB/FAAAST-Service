@@ -128,7 +128,7 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
         typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
-        typeList.add(new DatatypeMapper(Identifiers.Decimal, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
         typeList.add(new DatatypeMapper(Identifiers.Integer, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
         typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
         typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
@@ -785,11 +785,14 @@ public class ValueConverter {
             return null;
         }
         Object retval = typedValue.getValue();
-        if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
+        if (typedValue instanceof IntegerValue) {
             retval = Long.valueOf(retval.toString());
         }
         else if (typedValue instanceof DurationValue dv) {
             retval = dv.asString();
+        }
+        else if (typedValue instanceof DecimalValue decimalValue) {
+            retval = decimalValue.asString();
         }
         else if (retval != null)
         {
