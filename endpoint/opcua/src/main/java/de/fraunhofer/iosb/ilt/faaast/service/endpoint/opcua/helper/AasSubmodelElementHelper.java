@@ -263,11 +263,11 @@ public class AasSubmodelElementHelper {
                     setUInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Long, NonPositiveInteger, NegativeInteger:
+                case Long:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case PositiveInteger, NonNegativeInteger, UnsignedLong:
+                case UnsignedLong:
                     setUInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -295,7 +295,7 @@ public class AasSubmodelElementHelper {
                     setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger, NonNegativeInteger:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -577,11 +577,11 @@ public class AasSubmodelElementHelper {
                     setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Long, NonPositiveInteger, NegativeInteger:
+                case Long:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
-                case PositiveInteger, NonNegativeInteger, UnsignedLong:
+                case UnsignedLong:
                     setUInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -609,7 +609,7 @@ public class AasSubmodelElementHelper {
                     setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger, NonNegativeInteger:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

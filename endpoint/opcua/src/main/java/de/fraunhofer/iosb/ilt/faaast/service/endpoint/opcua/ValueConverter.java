@@ -33,6 +33,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -130,10 +134,10 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
-        typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
         typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT, AASDataTypeDefXsd.UnsignedInt));
         typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
@@ -793,6 +797,18 @@ public class ValueConverter {
         }
         else if (typedValue instanceof DecimalValue decimalValue) {
             retval = decimalValue.asString();
+        }
+        else if (typedValue instanceof PositiveIntegerValue positiveIntegerValue) {
+            retval = positiveIntegerValue.asString();
+        }
+        else if (typedValue instanceof NonPositiveIntegerValue nonPositiveIntegerValue) {
+            retval = nonPositiveIntegerValue.asString();
+        }
+        else if (typedValue instanceof NegativeIntegerValue negativeIntegerValue) {
+            retval = negativeIntegerValue.asString();
+        }
+        else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
+            retval = nonNegativeIntegerValue.asString();
         }
         else if (retval != null)
         {

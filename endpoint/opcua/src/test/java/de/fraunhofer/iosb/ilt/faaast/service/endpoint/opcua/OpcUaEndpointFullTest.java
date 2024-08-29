@@ -45,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnecti
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -892,7 +893,7 @@ public class OpcUaEndpointFullTest {
 
 
     @Test
-    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, Exception {
+    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -911,7 +912,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteProperty Browse Result Null", bpres);
-        Assert.assertTrue("testWriteProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteProperty Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteProperty Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
