@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
@@ -523,9 +524,10 @@ public class ValueConverter {
      *
      * @param data The desired SubmodelElementData.
      * @param dv The desired Value.
+     * @return Shows whether the value is valid (true) or not (false).
      */
-    public static void setSubmodelElementValue(SubmodelElementData data, DataValue dv) {
-        setSubmodelElementValue(data.getSubmodelElement(), data.getType(), dv.getValue());
+    public static boolean setSubmodelElementValue(SubmodelElementData data, DataValue dv) {
+        return setSubmodelElementValue(data.getSubmodelElement(), data.getType(), dv.getValue());
     }
 
 
@@ -535,24 +537,29 @@ public class ValueConverter {
      * @param submodelElement The desired SubmodelElement.
      * @param type The desired type.
      * @param variant The desired Value.
+     * @return Shows whether the value is valid (true) or not (false).
      */
-    public static void setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
+    public static boolean setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
+        boolean retval = true;
         switch (type) {
             case PROPERTY_VALUE: {
                 Property aasProp = (Property) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasProp.getValueType());
+                retval = checkValue(aasProp.getValueType(), newValue);
                 aasProp.setValue(newValue);
                 break;
             }
             case RANGE_MIN: {
                 Range aasRange = (Range) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+                retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMin(newValue);
                 break;
             }
             case RANGE_MAX: {
                 Range aasRange = (Range) submodelElement;
                 String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+                retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMax(newValue);
                 break;
             }
@@ -624,6 +631,8 @@ public class ValueConverter {
                 LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
                 throw new IllegalArgumentException("unkown type " + type);
         }
+
+        return retval;
     }
 
 
@@ -893,6 +902,21 @@ public class ValueConverter {
         else {
             retval = typedValue.asString();
         }
+        return retval;
+    }
+
+
+    private static boolean checkValue(DataTypeDefXsd datatype, String value) {
+        boolean retval;
+
+        try {
+            TypedValueFactory.create(datatype, value);
+            retval = true;
+        }
+        catch (Exception ex) {
+            retval = false;
+        }
+
         return retval;
     }
 }
