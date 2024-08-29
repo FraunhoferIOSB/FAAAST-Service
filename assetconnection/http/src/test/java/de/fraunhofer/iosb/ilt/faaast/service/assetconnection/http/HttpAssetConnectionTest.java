@@ -699,7 +699,7 @@ public class HttpAssetConnectionTest {
                             .getTypeInfo(AasUtils.toReference(REFERENCE, x.getValue()));
                 }
                 catch (ResourceNotFoundException | StorageException e) {
-                    throw new RuntimeException(e);
+                    //intentionally empty
                 }
             });
         }

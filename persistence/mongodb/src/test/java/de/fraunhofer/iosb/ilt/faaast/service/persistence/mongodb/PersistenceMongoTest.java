@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
  * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
@@ -13,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static org.junit.Assert.assertThrows;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb;
 
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
@@ -38,8 +37,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb.PersistenceMongo;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb.PersistenceMongoConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -111,7 +108,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
         Environment environment = AASSimple.createEnvironment();
         Persistence noOverridePersistence = getPersistenceConfig(null, environment, false).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         noOverridePersistence.start();
-        assertThrows(ResourceNotFoundException.class, () -> {
+        Assert.assertThrows(ResourceNotFoundException.class, () -> {
             noOverridePersistence.getAssetAdministrationShell(AASSimple.AAS_IDENTIFIER, QueryModifier.DEFAULT);
         });
         noOverridePersistence.stop();
