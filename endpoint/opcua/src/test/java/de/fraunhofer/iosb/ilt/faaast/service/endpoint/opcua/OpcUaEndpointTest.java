@@ -239,15 +239,15 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testWriteProperty ValueType empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Long oldValue = Long.valueOf(4370);
+        String oldValue = "4370";
         Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
 
-        Long newValue = Long.valueOf(9999);
+        String newValue = "9999";
 
         // set new value in service
         SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_OPER_DATA_NAME)
                 .path(TestConstants.ROTATION_SPEED_NAME)
-                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
+                .value(PropertyValue.of(Datatype.INTEGER, newValue))
                 .build();
         Response response = service.execute(request);
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
@@ -325,12 +325,12 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testPropertyChangeFromMessageBus ValueType Null", targets);
         Assert.assertTrue("testPropertyChangeFromMessageBus ValueType empty", targets.length > 0);
 
-        Long newValue = Long.valueOf(5005);
+        String newValue = "5005";
 
         // set new value in service
         SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_TECH_DATA_NAME)
                 .path(TestConstants.MAX_ROTATION_SPEED_NAME)
-                .value(PropertyValue.of(Datatype.INTEGER, newValue.toString()))
+                .value(PropertyValue.of(Datatype.INTEGER, newValue))
                 .build();
         Response response = service.execute(request);
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
@@ -842,7 +842,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, "VARIABLE", AASDataTypeDefXsd.Integer,
-                Long.valueOf(4370), new ArrayList<>());
+                "4370", new ArrayList<>());
     }
 
 
@@ -858,7 +858,7 @@ public class OpcUaEndpointTest {
         TestUtils.checkEmbeddedDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, "PARAMETER",
-                AASDataTypeDefXsd.Integer, Long.valueOf(5000), new ArrayList<>());
+                AASDataTypeDefXsd.Integer, "5000", new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, "PARAMETER",
                 AASDataTypeDefXsd.Decimal, "123456", new ArrayList<>());
     }

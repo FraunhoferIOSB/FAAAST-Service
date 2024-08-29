@@ -263,7 +263,7 @@ public class AasSubmodelElementHelper {
                     setUInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
-                case Long, Integer, NonPositiveInteger, NegativeInteger:
+                case Long, NonPositiveInteger, NegativeInteger:
                     setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -295,7 +295,7 @@ public class AasSubmodelElementHelper {
                     setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -577,7 +577,7 @@ public class AasSubmodelElementHelper {
                     setUInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case Long, Integer, NonPositiveInteger, NegativeInteger:
+                case Long, NonPositiveInteger, NegativeInteger:
                     setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -609,7 +609,7 @@ public class AasSubmodelElementHelper {
                     setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 

@@ -54,6 +54,7 @@ public class TestConstants {
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
+    public static final String FULL_SUBMODEL_6_ID = "https://acplt.org/Test_Submodel_Missing";
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodelTemplate";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
     public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelElementListUnordered";
@@ -65,6 +66,7 @@ public class TestConstants {
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
     public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
     public static final String FULL_DATETIME_PROP_NAME = "DateTimeProperty";
+    public static final String FULL_INT64_PROP_NAME = "Int64Property";
 
     public static final String KIND_NAME = "Kind";
     public static final String CATEGORY_NAME = "Category";
