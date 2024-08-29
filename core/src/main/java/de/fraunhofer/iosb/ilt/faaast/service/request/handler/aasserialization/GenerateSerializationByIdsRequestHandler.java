@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
@@ -61,7 +62,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
 
 
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException, IOException {
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException, IOException, StorageException {
         DefaultEnvironment environment;
         if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {
             environment = new DefaultEnvironment.Builder()
@@ -98,7 +99,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                 files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), file.getValue()));
                             }
                         }
-                        catch (ResourceNotFoundException e) {
+                        catch (ResourceNotFoundException | StorageException e) {
                             //intentionally empty
                         }
                     }

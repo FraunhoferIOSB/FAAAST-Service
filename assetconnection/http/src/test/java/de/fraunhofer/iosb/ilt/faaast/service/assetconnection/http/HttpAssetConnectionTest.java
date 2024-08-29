@@ -46,12 +46,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -166,7 +163,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderWithHeaders() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
+    public void testValueProviderWithHeaders()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
         assertValueProviderHeaders(Map.of(), Map.of(), Map.of(), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"), false);
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"), false);
@@ -221,7 +219,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
+    public void testValueProviderPropertySetValueJSON()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
         assertValueProviderPropertyWriteJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 null,
@@ -383,7 +382,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
+    public void testOperationProviderPropertyJsonPOST()
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, StorageException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
