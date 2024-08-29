@@ -33,6 +33,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param path the path to the file
      * @return the file content
      * @throws ResourceNotFoundException if the path does not exist
+     * @throws StorageException if storage error occurs
      */
     public byte[] get(String path) throws ResourceNotFoundException, StorageException;
 
@@ -42,6 +43,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to the file
      * @return true if file is in storage
+     * @throws StorageException if storage error occurs
      */
     public boolean contains(String path) throws StorageException;
 
@@ -51,7 +53,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to save the file under
      * @param content the file content to save
-     * @throws java.io.IOException if saving fails
+     * @throws StorageException if storage error occurs
      */
     public void save(String path, byte[] content) throws StorageException;
 
@@ -61,7 +63,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to the file to delete
      * @throws ResourceNotFoundException if path does not exist
-     * @throws java.io.IOException if deleting fails
+     * @throws StorageException if storage error occurs
      */
     public void delete(String path) throws ResourceNotFoundException, StorageException;
 
@@ -70,7 +72,7 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * Saves the file to given path.
      *
      * @param file the file to save
-     * @throws java.io.IOException if saving fails
+     * @throws StorageException if storage error occurs
      */
     public default void save(InMemoryFile file) throws StorageException {
         save(file.getPath(), file.getContent());

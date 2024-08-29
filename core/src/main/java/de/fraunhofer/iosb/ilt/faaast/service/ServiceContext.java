@@ -38,6 +38,7 @@ public interface ServiceContext {
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
      *         reference is null
      * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
+     * @throws StorageException if storage error occurs
      */
     public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, StorageException;
 
