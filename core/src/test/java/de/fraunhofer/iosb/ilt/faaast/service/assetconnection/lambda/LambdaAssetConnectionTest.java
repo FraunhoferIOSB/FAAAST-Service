@@ -80,7 +80,7 @@ public class LambdaAssetConnectionTest {
 
 
     @Test
-    public void testValueProvider() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException {
+    public void testValueProvider() throws MessageBusException, EndpointException, ResourceNotFoundException {
         final String submodelId = "submodel";
         final String propertyId = "property";
         final int initialValueAAS = 0;
