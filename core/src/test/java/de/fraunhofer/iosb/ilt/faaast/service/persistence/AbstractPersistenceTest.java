@@ -205,9 +205,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .getSubmodelElements().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementCollectionId))
                 .findFirst().get())
-                        .getValue().stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementId))
-                        .findFirst().get();
+                .getValue().stream()
+                .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementId))
+                .findFirst().get();
         IdShortPath path = IdShortPath.builder()
                 .idShort(submodelElementCollectionId)
                 .idShort(submodelElementId)
@@ -623,8 +623,8 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionId))
                 .findFirst().orElse(null)))
-                        .getValue().stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
+                .getValue().stream()
+                .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
         persistence.insert(parent, expected);
         SubmodelElement actual = persistence.getSubmodelElement(
                 ReferenceBuilder
@@ -666,9 +666,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionId))
                 .findFirst().orElse(null))
-                        .getValue().stream()
-                        .findFirst()
-                        .orElse(null);
+                .getValue().stream()
+                .findFirst()
+                .orElse(null);
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
@@ -823,9 +823,9 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionId))
                 .findFirst().get())
-                        .getValue().stream()
-                        .filter(z -> z.getIdShort().equalsIgnoreCase(submodelElementId))
-                        .findFirst().get();
+                .getValue().stream()
+                .filter(z -> z.getIdShort().equalsIgnoreCase(submodelElementId))
+                .findFirst().get();
         SubmodelElement actual = persistence.getSubmodelElement(reference, queryModifier);
         Assert.assertEquals(expected, actual);
 

@@ -107,7 +107,8 @@ public class LambdaAssetConnectionTest {
                         .read(() -> {
                             try {
                                 return PropertyValue.of(Datatype.INT, Integer.toString(value.get()));
-                            } catch (ValueFormatException e) {
+                            }
+                            catch (ValueFormatException e) {
                                 Assert.fail();
                                 throw new RuntimeException();
                             }
@@ -115,7 +116,8 @@ public class LambdaAssetConnectionTest {
                         .write(x -> {
                             if (x instanceof PropertyValue propertyValue) {
                                 value.set(Integer.parseInt(propertyValue.getValue().asString()));
-                            } else {
+                            }
+                            else {
                                 Assert.fail();
                             }
                         })

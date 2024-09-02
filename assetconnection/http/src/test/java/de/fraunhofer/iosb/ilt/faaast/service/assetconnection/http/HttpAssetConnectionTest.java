@@ -555,8 +555,8 @@ public class HttpAssetConnectionTest {
                 .type(PropertyValue.class)
                 .datatype(datatype)
                 .build())
-                        .when(serviceContext)
-                        .getTypeInfo(REFERENCE);
+                .when(serviceContext)
+                .getTypeInfo(REFERENCE);
         String path = String.format("/test/random/%s", UUID.randomUUID());
         stubFor(request(method.getName(), urlEqualTo(path))
                 .willReturn(aResponse()
@@ -604,8 +604,8 @@ public class HttpAssetConnectionTest {
                 .type(PropertyValue.class)
                 .datatype(datatype)
                 .build())
-                        .when(serviceContext)
-                        .getTypeInfo(REFERENCE);
+                .when(serviceContext)
+                .getTypeInfo(REFERENCE);
         String id = UUID.randomUUID().toString();
         String path = String.format("/test/random/%s", id);
         if (httpResponseBodies != null && !httpResponseBodies.isEmpty()) {

@@ -84,6 +84,7 @@
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
+        <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.16.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.0-jre</guava.version>
@@ -288,7 +289,7 @@
                                 <file>${root.basedir}/license-header</file>
                             </licenseHeader>
                             <eclipse>
-                                <version>4.13.0</version>
+                                <version>${eclipse.jdt.version}</version>
                                 <file>${root.basedir}/misc/codestyle/formatter.xml</file>
                             </eclipse>
                         </java>
