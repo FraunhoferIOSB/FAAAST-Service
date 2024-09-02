@@ -1,6 +1,9 @@
-## Common mistakes and frequently asked questions
+## Common Mistakes and Frequently Asked Questions (FAQ)
 
-### FA³ST Service does not load the AASX/JSON model
+<details>
+
+<summary>
+<b>FA³ST Service does not load the AASX/JSON model</b></summary>
 
 If you get a validation error like:
 ```
@@ -22,7 +25,12 @@ If the error is not specified, you are probably trying to load an older V2 model
 In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model here: https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose
 
 For testing purposes, we provide an example model here: https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples
-### Resource not found '/shells'
+</details>
+
+<details>
+
+<summary><b>Resource not found '/shells'</b></summary>
+
 ```
 {"messages": [{
 "messageType": "Error",
@@ -35,8 +43,11 @@ If you use the API and get a "Resource not found" message, FA³ST Service could 
 In many cases, providing the proper API prefix, for example <mark>/api/v3.0</mark> and following the up-to-date SwaggerHub API, should lead to a valid result:
 https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells
 Keep in mind that the right HTTP method must be selected for specific calls.
+</details>
 
-### Configuration could not be loaded
+<details>
+
+<summary><b>Configuration could not be loaded</b></summary>
 
 The most frequent issue with configuration files are inproper AAS references in the Asset Connection.
 For example, to connect the operation "calculate" to the asset where the calculation is done, the reference "(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate" is used.
@@ -65,9 +76,13 @@ Example:
 ```
 
 Additionally, it should be checked if JSON syntax errors are present, for example with https://jsonchecker.com/
+</details>
 
 
-### Certificate & SSL errors
+<details>
+
+<summary><b>Certificate & SSL errors</b></summary>
+
 By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
 To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the endpoint configuration: https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http
 
@@ -75,4 +90,25 @@ To turn off SSL, the environment variable sslEnabled can be used. It can also be
 java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
 ```
 
-This flag should only be used for testing purposes on local machines.
+This flag should only be used for testing purposes on local machines. For public services, provide valid certificates via the configuration file.
+</details>
+
+<details>
+
+<summary><b>Security with Reverse Proxy - basic authentication</b></summary>
+
+As AAS specification Part 4 Security is work-in-progress, to protect public services against unauthorized requests, basic authentication via reverse proxy can be configured.
+For NGINX, detailed information can be found here: https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
+
+An example configuration with secret <b>basic-auth-secret</b>:
+
+```
+metadata:
+name: ingress-with-auth
+annotations:
+nginx.ingress.kubernetes.io/auth-type: basic
+nginx.ingress.kubernetes.io/auth-secret: basic-auth-secret
+nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - FA³ST'
+```
+The authentication configuration will vary based on your deployment environment.
+</details>
