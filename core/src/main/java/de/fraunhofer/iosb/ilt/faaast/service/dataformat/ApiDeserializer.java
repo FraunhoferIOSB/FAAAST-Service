@@ -958,8 +958,8 @@ public interface ApiDeserializer {
     private static String readStream(InputStream src, Charset charset) {
         return new BufferedReader(
                 new InputStreamReader(src, charset))
-                        .lines()
-                        .collect(Collectors.joining(System.lineSeparator()));
+                .lines()
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
 
