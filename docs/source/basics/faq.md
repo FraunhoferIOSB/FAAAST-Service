@@ -1,6 +1,6 @@
 ## Frequently Asked Questions
-
-Overview: 
+:::{admonition} Table of Contents
+:class: hint
 
 [FA³ST Service does not load the AASX/JSON model](#loading)
 
@@ -11,6 +11,7 @@ Overview:
 [Certificate & SSL errors](#ssl)
 
 [Security with Reverse Proxy - basic authentication](#security)
+:::
 
 :::{admonition} FA³ST Service does not load the AASX/JSON model 
 :class: note
