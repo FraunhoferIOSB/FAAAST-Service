@@ -38,9 +38,10 @@ If you use the API and get a "Resource not found" message, FA³ST Service could 
 In many cases, providing the proper API prefix, for example <mark>/api/v3.0</mark> and following the up-to-date SwaggerHub API, should lead to a valid result:
 https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells
 Keep in mind that the right HTTP method must be selected for specific calls.
+:::
 
-
-Configuration could not be loaded
+:::{dropdown} Configuration could not be loaded 👈
+:open:
 
 The most frequent issue with configuration files are inproper AAS references in the Asset Connection.
 For example, to connect the operation "calculate" to the asset where the calculation is done, the reference "(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate" is used.
