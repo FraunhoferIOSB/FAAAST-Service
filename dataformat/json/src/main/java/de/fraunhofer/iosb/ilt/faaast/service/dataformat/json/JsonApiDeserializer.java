@@ -534,7 +534,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
         mapper.registerModule(module);
         mapper.registerModule(new JavaTimeModule());
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
     }
 
 }
