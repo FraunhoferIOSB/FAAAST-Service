@@ -1,17 +1,11 @@
 ## Frequently Asked Questions
-:::{admonition} Table of Contents
-:class: hint
 
-[FA³ST Service does not load the AASX/JSON model](#loading)
+1. [FA³ST Service does not load the AASX/JSON model](#loading)
+2. [Resource not found '/shells'](#resources)
+3. [Configuration could not be loaded](#configuration)
+4. [Certificate & SSL errors](#ssl)
+5. [Security with Reverse Proxy - basic authentication](#security)
 
-[Resource not found '/shells'](#resources)
-
-[Configuration could not be loaded](#configuration)
-
-[Certificate & SSL errors](#ssl)
-
-[Security with Reverse Proxy - basic authentication](#security)
-:::
 
 :::{admonition} FA³ST Service does not load the AASX/JSON model 
 :class: note
