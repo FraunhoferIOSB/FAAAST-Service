@@ -1,7 +1,20 @@
 ## Frequently Asked Questions
 
+Overview: 
+
+[FA³ST Service does not load the AASX/JSON model](#loading)
+
+[Resource not found '/shells'](#resources)
+
+[Configuration could not be loaded](#configuration)
+
+[Certificate & SSL errors](#ssl)
+
+[Security with Reverse Proxy - basic authentication](#security)
+
 :::{admonition} FA³ST Service does not load the AASX/JSON model 
 :class: note
+:name: loading
 If you get a validation error like:
 ```
 [ERROR] Model validation failed with the following error(s):
@@ -27,6 +40,7 @@ For testing purposes, we provide an example model here: https://github.com/Fraun
 
 :::{admonition} Resource not found '/shells' 
 :class: note
+:name: resources
 ```
 {"messages": [{
 "messageType": "Error",
@@ -44,7 +58,7 @@ Keep in mind that the right HTTP method must be selected for specific calls.
 
 :::{admonition} Configuration could not be loaded 
 :class: note
-
+:name: configuration
 The most frequent issue with configuration files are inproper AAS references in the Asset Connection.
 For example, to connect the operation "calculate" to the asset where the calculation is done, the reference "(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate" is used.
 It is important to have the whitespace between element and submodel and follow the exact AAS elements like "Property" or "File"
@@ -77,6 +91,7 @@ Additionally, it should be checked if JSON syntax errors are present, for exampl
 
 :::{admonition} Certificate & SSL errors 
 :class: note
+:name: ssl
 By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
 To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the endpoint configuration: https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http
 
@@ -90,6 +105,7 @@ This flag should only be used for testing purposes on local machines. For public
 
 :::{admonition} Security with Reverse Proxy - basic authentication 
 :class: hint
+:name: security
 As AAS specification Part 4 Security is work-in-progress, to protect public services against unauthorized requests, basic authentication via reverse proxy can be configured.
 For NGINX, detailed information can be found here: https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
 
