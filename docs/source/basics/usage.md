@@ -17,7 +17,7 @@ To manually pass a model file `my-model.aasx` and a configuration file `my-confi
 ```
 
 :::{table} Supported CLI arguments and environment variables.
-| CLI (short) | CLI (long)          | Environment variable                                           | Allowed<br>Values                       | Description                                                                                                                                              | Default<br>Value |
+| CLI (short) | CLI (long)            | Environment variable                                           | Allowed<br>Values                       | Description                                                                                                                                              | Default<br>Value |
 | ----------- | --------------------- | -------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | -c          | `--config`            | faaast_config                                                  | <file path>                             | The config file to use.                                                                                                                                  | config.json      |
 | -e          | `--empty-model`       |                                                                |                                         | Starts the FAST service with an empty Asset Administration Shell Environment.                                                                            |                  |

@@ -1,5 +1,10 @@
 ## Frequently Asked Questions (FAQ)
 
+:::{admonition} The Title
+:class: dropdown
+This is the body.
+:::
+
 :::{dropdown} FA³ST Service does not load the AASX/JSON model 👈
 :open:
 If you get a validation error like:
