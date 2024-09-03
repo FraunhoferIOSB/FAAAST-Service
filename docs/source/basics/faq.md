@@ -1,7 +1,7 @@
 ## Frequently Asked Questions (FAQ)
 
-:::{note} FA³ST Service does not load the AASX/JSON model 👈
-:class: dropdown
+:::{dropdown} FA³ST Service does not load the AASX/JSON model 👈
+:open:
 If you get a validation error like:
 ```
 [ERROR] Model validation failed with the following error(s):
@@ -24,8 +24,8 @@ In this case, the model has to be updated to V3 with the current version of AASX
 For testing purposes, we provide an example model here: https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples
 :::
 
-:::{note} Resource not found '/shells' 👈
-:class: dropdown
+:::{dropdown} Resource not found '/shells' 👈
+:open:
 ```
 {"messages": [{
 "messageType": "Error",
@@ -71,8 +71,8 @@ Example:
 Additionally, it should be checked if JSON syntax errors are present, for example with https://jsonchecker.com/
 :::
 
-:::{note} Certificate & SSL errors 👈
-:class: dropdown
+:::{dropdown} Certificate & SSL errors 👈
+:open:
 By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
 To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the endpoint configuration: https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http
 
@@ -83,8 +83,8 @@ java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
 This flag should only be used for testing purposes on local machines. For public services, provide valid certificates via the configuration file.
 :::
 
-:::{note} Security with Reverse Proxy - basic authentication 👈
-:class: dropdown
+:::{dropdown} Security with Reverse Proxy - basic authentication 👈
+:open:
 As AAS specification Part 4 Security is work-in-progress, to protect public services against unauthorized requests, basic authentication via reverse proxy can be configured.
 For NGINX, detailed information can be found here: https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
 
