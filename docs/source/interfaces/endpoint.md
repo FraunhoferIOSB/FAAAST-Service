@@ -261,8 +261,8 @@ The mapping is as follows
 | xs:integer                      | String               |                                           |
 | xs:double                       | Double               | No distinction between +0.0 and -0.0      |
 | xs:float                        | Float                | No distinction between +0.0 and -0.0      |
-| xs:date                         | DateTime             |                                           |
-| xs:dateTime                     | DateTime             |                                           |
+| xs:date                         | String               |                                           |
+| xs:dateTime                     | DateTime             | Converted to UTC, TZ offset is lost.      |
 | xs:time                         | String               |                                           |
 | xs:gYear                        | String               |                                           |
 | xs:gMonth                       | String               |                                           |
