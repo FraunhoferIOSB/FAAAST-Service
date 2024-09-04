@@ -18,16 +18,16 @@ Duplicate identifier 'https://admin-shell.io/zvei/nameplate/2/0/Nameplate/Markin
 Duplicate identifier 'https://admin-shell.io/zvei/nameplate/2/0/Nameplate/Markings/Marking/ExplosionSafeties/ExplosionSafety/IncompleteDevice' - identifiers must be globally unique (de.fraunhofer.iosb.ilt.faaast.service.starter.ExecutionExceptionHandler)
 ```
 Your model contains a modeling error which can lead to severe issues.
-If you wish to ignore this, you can start FA³ST Service with the –no-validation flag
+If you wish to ignore this, you can start FA³ST Service with the `--no-validation` flag.
 ```
-java -jar starter-{version}.jar -m example.aasx –-no-validation
+java -jar starter-{version}.jar -m example.aasx --no-validation
 ```
 
-If the error is not specified, you are probably trying to load an older V2 model, such as provided by [admin-shell-io](https://admin-shell-io.com/samples/)
+If the error is not specified, you are probably trying to load an older V2 model, such as provided by [admin-shell-io](https://admin-shell-io.com/samples/).
 ```
 [ERROR] Error loading model file
 ```
-In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model here: https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose
+In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model [here](https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose).
 
 For testing purposes, we provide an example model here: <!--start:download-model-->
 {download}`Model <https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples>`<!--end:download-model-->
