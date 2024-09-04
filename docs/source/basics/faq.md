@@ -4,7 +4,8 @@
 2. [Resource not found '/shells'](#resources)
 3. [Configuration could not be loaded](#configuration)
 4. [Certificate & SSL errors](#ssl)
-5. [Security with Reverse Proxy - basic authentication](#security)
+5. [CORS](#cors)
+6. [Security with Reverse Proxy - basic authentication](#security)
 
 
 :::{admonition} FA³ST Service does not load the AASX/JSON model 
@@ -97,6 +98,19 @@ java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
 ```
 
 This flag should only be used for testing purposes on local machines. For public services, provide valid certificates via the configuration file.
+:::
+
+
+:::{admonition} CORS
+:class: note
+:name: cors
+Another common issue when accessing FA³ST Service is a cross-origin resource sharing block.
+By default, the HTTP endpoint does not enable CORS, but it typically is required when you want to access the REST interface from any machine other than the one running FA³ST Service.
+The flag can be set with the [HTTP endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http) or via command-line:
+```
+java -jar starter-{version}.jar -m example.aasx endpoints[0]_corsEnabled=true
+```
+
 :::
 
 
