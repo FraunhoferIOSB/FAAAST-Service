@@ -23,13 +23,15 @@ If you wish to ignore this, you can start FA³ST Service with the –no-validati
 java -jar starter-{version}.jar -m example.aasx –-no-validation
 ```
 
-If the error is not specified, you are probably trying to load an older V2 model, such as provided by https://admin-shell-io.com/samples/
+If the error is not specified, you are probably trying to load an older V2 model, such as provided by [admin-shell-io](https://admin-shell-io.com/samples/)
 ```
 [ERROR] Error loading model file
 ```
 In this case, the model has to be updated to V3 with the current version of AASX Package Explorer. If the V3 model can be loaded by the AASX Package Explorer and fails to load, please submit an issue with the model here: https://github.com/FraunhoferIOSB/FAAAST-Service/issues/new/choose
 
-For testing purposes, we provide an example model here: https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples
+For testing purposes, we provide an example model here: <!--start:download-model-->
+{download}`Model <https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/misc/examples>`<!--end:download-model-->
+
 :::
 
 
@@ -46,7 +48,7 @@ For testing purposes, we provide an example model here: https://github.com/Fraun
 ```
 If you use the API and get a "Resource not found" message, FA³ST Service could not find an appropriate API call for your request.
 In many cases, providing the proper API prefix, for example <mark>/api/v3.0</mark> and following the up-to-date SwaggerHub API, should lead to a valid result:
-https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells
+`https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells`
 Keep in mind that the right HTTP method must be selected for specific calls.
 :::
 
@@ -80,7 +82,7 @@ Example:
 	]
 ```
 
-Additionally, it should be checked if JSON syntax errors are present, for example with https://jsonchecker.com/
+Additionally, it should be checked if JSON syntax errors are present, for example with [jsonchecker](https://jsonchecker.com/)
 :::
 
 
@@ -88,7 +90,7 @@ Additionally, it should be checked if JSON syntax errors are present, for exampl
 :class: note
 :name: ssl
 By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
-To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the endpoint configuration: https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http
+To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the [endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http).
 
 ```
 java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
@@ -102,7 +104,7 @@ This flag should only be used for testing purposes on local machines. For public
 :class: hint
 :name: security
 As AAS specification Part 4 Security is work-in-progress, to protect public services against unauthorized requests, basic authentication via reverse proxy can be configured.
-For NGINX, detailed information can be found here: https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
+For NGINX, detailed information can be found [here](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/).
 
 An example configuration with secret <b>basic-auth-secret</b>:
 
