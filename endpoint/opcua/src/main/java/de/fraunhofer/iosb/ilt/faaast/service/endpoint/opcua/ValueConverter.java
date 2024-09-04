@@ -31,6 +31,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
@@ -41,7 +43,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveInteg
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -150,7 +151,7 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
-        typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE, AASDataTypeDefXsd.Date));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DATE, AASDataTypeDefXsd.Date));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY, AASDataTypeDefXsd.GDay));
@@ -783,14 +784,11 @@ public class ValueConverter {
         else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
             retval = nonNegativeIntegerValue.asString();
         }
-        else if (retval != null)
-        {
-            if (retval instanceof OffsetDateTime) {
-                retval = convertDateTime(typedValue);
-            }
-            else if (retval instanceof OffsetTime offsetTime) {
-                retval = offsetTime.toString();
-            }
+        else if (typedValue instanceof DateTimeValue dateTimeValue) {
+            retval = convertDateTime(dateTimeValue);
+        }
+        else if (typedValue instanceof AbstractDateTimeValue sbstractDateTimeValue) {
+            retval = sbstractDateTimeValue.asString();
         }
         return retval;
     }

@@ -251,7 +251,7 @@ public class AasSubmodelElementHelper {
                     setBooleanPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case DateTime, Date:
+                case DateTime:
                     setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
@@ -295,7 +295,8 @@ public class AasSubmodelElementHelper {
                     setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger, NonNegativeInteger:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
+                        NonNegativeInteger, Date:
                     setStringValue(valueData, typedValue, prop);
                     break;
 
@@ -565,7 +566,7 @@ public class AasSubmodelElementHelper {
                     setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case DateTime, Date:
+                case DateTime:
                     setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
@@ -609,7 +610,8 @@ public class AasSubmodelElementHelper {
                     setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger, NonNegativeInteger:
+                case String, AnyUri, Time, Duration, GDay, GMonth, GMonthDay, GYear, GYearMonth, Decimal, Integer, PositiveInteger, NonPositiveInteger, NegativeInteger,
+                        NonNegativeInteger, Date:
                     setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
