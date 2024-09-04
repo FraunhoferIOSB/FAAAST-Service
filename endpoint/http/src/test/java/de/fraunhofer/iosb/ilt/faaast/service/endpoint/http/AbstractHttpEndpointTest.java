@@ -626,7 +626,7 @@ public abstract class AbstractHttpEndpointTest {
                 new OutputModifier.Builder()
                         .level(Level.CORE)
                         .build()))
-                                .thenReturn(aas);
+                .thenReturn(aas);
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
@@ -768,8 +768,8 @@ public abstract class AbstractHttpEndpointTest {
                         .id(aasId)
                         .build())
                 .build())
-                        .when(serviceContext)
-                        .getAASEnvironment();
+                .when(serviceContext)
+                .getAASEnvironment();
     }
 
 
