@@ -621,13 +621,7 @@ public class AasSubmodelElementHelper {
 
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
-                    if (minValue != null) {
-                        range.addProperty(UaHelper.createStringProperty(minData, minTypedValue));
-                    }
-
-                    if (maxValue != null) {
-                        range.addProperty(UaHelper.createStringProperty(maxData, maxTypedValue));
-                    }
+                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
             }
         }

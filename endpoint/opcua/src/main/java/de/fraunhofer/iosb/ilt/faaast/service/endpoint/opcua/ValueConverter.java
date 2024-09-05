@@ -787,7 +787,7 @@ public class ValueConverter {
         else if (typedValue instanceof DateTimeValue dateTimeValue) {
             retval = convertDateTime(dateTimeValue);
         }
-        else if (typedValue instanceof AbstractDateTimeValue sbstractDateTimeValue) {
+        else if (typedValue instanceof AbstractDateTimeValue<?> sbstractDateTimeValue) {
             retval = sbstractDateTimeValue.asString();
         }
         return retval;
