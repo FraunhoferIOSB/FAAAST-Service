@@ -121,7 +121,7 @@
         <maven.plugin.owasp.version>10.0.4</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>5.2.0-118</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>5.2.4-127</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
@@ -139,7 +139,7 @@
         <proguard.core.version>9.1.6</proguard.core.version>
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.2.2-139</prosys.sdk.version>
+        <prosys.sdk.version>5.2.4-147</prosys.sdk.version>
         <protobuf.version>4.28.0</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
