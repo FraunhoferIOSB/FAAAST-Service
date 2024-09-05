@@ -161,7 +161,6 @@ For evaluation purposes, you also have the possibility to request an [evaluation
 However, this is not necessary for using the OPC UA Endpoint we already provide a pre-compiled version that is used by default when building FA³ST Service from code.
 The developers of the Prosys OPC UA SDK have been so kind to allow us to publish that pre-compiled version as part of this open-source project under the condition that all classes related to their SDK are obfuscated.
 
-
 ### Configuration Parameters
 
 OPC UA Endpoint configuration supports the following configuration parameters
@@ -231,6 +230,7 @@ These directories contain the following subdirectories:
 	//...
 }
 ```
+
 ### OPC UA Client Libraries
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client. Here are some example libraries and tools you can use:
@@ -240,18 +240,55 @@ To connect to the OPC UA Endpoint, you need an OPC UA Client. Here are some exam
 - [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/): Free OPC UA test client (registration on website required for download).
 - [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples): C#-based sample code from the OPC Foundation.
 
-
-
 ```{figure} ../images/opc-ua-endpoint.png
 :width: 800px
 :align: center
 Screenshot showing UaExpert connected to a FA³ST Service via OPC UA Endpoint.
 ```
 
+### Datatype mapping
+
+It's necessary to map the AAS datatypes to OPC UA datatypes. In some cases, no corresponding datatype is available in OPC UA.
+These datatypes are mapped to String.
+
+The mapping is as follows
+
+| AAS datatype                    | OPC UA datatype      | Comment                                   |
+| ------------------------------- | -------------------- | ----------------------------------------- |
+| xs:string                       | String               |                                           |
+| xs:boolean                      | Boolean              |                                           |
+| xs:decimal                      | String               |                                           |
+| xs:integer                      | String               |                                           |
+| xs:double                       | Double               | No distinction between +0.0 and -0.0      |
+| xs:float                        | Float                | No distinction between +0.0 and -0.0      |
+| xs:date                         | String               |                                           |
+| xs:dateTime                     | DateTime             | Converted to UTC, TZ offset is lost.      |
+| xs:time                         | String               |                                           |
+| xs:gYear                        | String               |                                           |
+| xs:gMonth                       | String               |                                           |
+| xs:gDay                         | String               |                                           |
+| xs:gYearMonth                   | String               |                                           |
+| xs:gMonthDay                    | String               |                                           |
+| xs:duration                     | String               |                                           |
+| xs:byte                         | SByte                |                                           |
+| xs:short                        | Int16                |                                           |
+| xs:int                          | Int32                |                                           |
+| xs:long                         | Int64                |                                           |
+| xs:unsignedByte                 | Byte                 |                                           |
+| xs:unsignedShort                | UInt16               |                                           |
+| xs:unsignedInt                  | UInt32               |                                           |
+| xs:unsignedLong                 | UInt64               |                                           |
+| xs:positiveInteger              | String               |                                           |
+| xs:nonNegativeInteger           | String               |                                           |
+| xs:negativeInteger              | String               |                                           |
+| xs:nonPositiveInteger           | String               |                                           |
+| xs:hexBinary                    | ByteString           |                                           |
+| xs:base64Binary                 | ByteString           |                                           |
+| xs:anyURI                       | String               |                                           |
+
 ### API
 
 As stated, there is currently no official mapping of the AAS API to OPC UA for AAS v3.0 but FA³ST Service implements its proprietary adaption of the mapping for AAS v2.0.
-
 
 #### Supported Functionality
 
@@ -264,7 +301,6 @@ As stated, there is currently no official mapping of the AAS API to OPC UA for A
 	- RelationshipElement
 	- Entity
 - Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
-
 
 #### Not (yet) Supported Functionality
 

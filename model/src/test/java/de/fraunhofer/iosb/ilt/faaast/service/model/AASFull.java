@@ -1314,6 +1314,12 @@ public class AASFull {
                         .value("2022-07-08T10:22:04")
                         .valueType(DataTypeDefXsd.DATE_TIME)
                         .build())
+                .submodelElements(new DefaultProperty.Builder()
+                        .idShort("Int64Property")
+                        .category("Parameter")
+                        .value(Long.toString(Long.MAX_VALUE))
+                        .valueType(DataTypeDefXsd.LONG)
+                        .build())
                 .build();
     }
 
