@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
@@ -156,15 +157,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 boolean rv;
                 SubmodelElementData data = nodeManager.getAasData(nodeId);
                 if (data != null) {
-                    if (data.getType() == null) {
-                        LOGGER.warn("onWriteValue: Node {}: unkown type", nodeId);
-                        rv = false;
-                    }
-                    else {
-                        ValueConverter.setSubmodelElementValue(data, dv);
-
-                        rv = endpoint.writeValue(data.getSubmodelElement(), data.getSubmodel(), data.getReference());
-                    }
+                    rv = doWriteValue(data, nodeId, dv);
                 }
                 else {
                     LOGGER.warn("onWriteValue: Node {}: SubmodelElementData not found", nodeId);
@@ -180,6 +173,9 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 }
             }
         }
+        catch (StatusException se) {
+            throw se;
+        }
         catch (Exception ex) {
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
@@ -187,6 +183,27 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         // We return true here. So, the value is not written to the node here. 
         // The node is written in the callback from the MessageBus.
         return true;
+    }
+
+
+    private boolean doWriteValue(SubmodelElementData data, NodeId nodeId, DataValue dv) throws StatusException {
+        boolean rv;
+        if (data.getType() == null) {
+            LOGGER.warn("doWriteValue: Node {}: unkown type", nodeId);
+            rv = false;
+        }
+        else {
+            if (ValueConverter.setSubmodelElementValue(data, dv)) {
+                rv = endpoint.writeValue(data.getSubmodelElement(), data.getSubmodel(), data.getReference());
+            }
+            else {
+                LOGGER.atWarn().log("doWriteValue: SubmodelElement '{}': invalid Value {}", ReferenceHelper.toString(data.getReference()), dv.getValue());
+                // The value is not valid for the corresponding datatype
+                // possible error values are: BadOutOfRange or BadTypeMismatch
+                throw new StatusException(StatusCodes.Bad_OutOfRange);
+            }
+        }
+        return rv;
     }
 
 }

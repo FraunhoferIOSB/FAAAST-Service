@@ -45,10 +45,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.datatypes.AASAssetKindDataType;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -58,12 +61,17 @@ import opc.i4aas.objecttypes.AASQualifierType;
 import opc.i4aas.objecttypes.AASSpecificAssetIdType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Test utilities
  */
 public class TestUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
+    private static final long DEFAULT_TIMEOUT = 100;
 
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
         ApplicationDescription appDescription = new ApplicationDescription();
@@ -578,6 +586,14 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (oldValue == value.getValue().getValue()) {
+            // if we read the old value again, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueIntern: read failed, try again after a short waiting time");
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
         Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
     }
 
@@ -593,6 +609,15 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (Arrays.equals(oldValue, (LocalizedText[]) value.getValue().getValue())) {
+            // if we read the old value again, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
+
         Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
     }
 
@@ -608,6 +633,14 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (Arrays.equals(oldValue, (AASKeyDataType[]) value.getValue().getValue())) {
+            // if we read the old value again, we try again after a short waiting time
+            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(writeNode);
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
         Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
     }
 

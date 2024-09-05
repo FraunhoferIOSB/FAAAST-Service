@@ -3,6 +3,9 @@
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+- Endpoint
+	- OPC UA
+		- Added support for all datatypes of the AAS specification
 
 **Internal changes & bugfixes**
 - General
