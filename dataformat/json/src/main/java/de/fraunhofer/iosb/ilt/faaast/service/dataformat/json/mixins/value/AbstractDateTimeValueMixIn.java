@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * MixIn for AbstractDateTimeValue.
  */
-public abstract class AbstractDateTimeValueMixIn<T> {
+public abstract class AbstractDateTimeValueMixIn {
 
     @JsonValue
     abstract String asString();
