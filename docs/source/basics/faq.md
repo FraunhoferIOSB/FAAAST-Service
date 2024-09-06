@@ -44,16 +44,21 @@ For testing purposes, we provide an example model here: <!--start:download-model
 :name: resources
 
 ```{code-block} json
-{"messages": [{
-"messageType": "Error",
-"text": "Resource not found '/shells'",
-"code": "",
-"timestamp": "2024-08-09T10:43:16.913+00:00"
-}]}
+{
+	"messages": [
+		{
+			"messageType": "Error",
+			"text": "Resource not found '/shells'",
+			"code": "",
+			"timestamp": "2024-08-09T10:43:16.913+00:00"
+		}
+	]
+}
+
 ```
 
 If you use the API and get a "Resource not found" message, FA³ST Service could not find an appropriate API call for your request.
-In many cases, providing the proper API prefix, for example <mark>/api/v3.0</mark> and following the up-to-date SwaggerHub API, should lead to a valid result:
+In many cases, providing the proper API prefix, for example `/api/v3.0` and following the up-to-date SwaggerHub API, should lead to a valid result:
 `https://faaast-service-v1.k8s.ilt-dmz.iosb.fraunhofer.de/api/v3.0/shells`
 Keep in mind that the right HTTP method must be selected for specific calls.
 :::
@@ -67,20 +72,31 @@ It is important to have the whitespace between element and submodel and follow t
 Example:
 
 ```{code-block} json
-"assetConnections": [{
-	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection",
-	"baseUrl": "http://localhost:5001",
-	"operationProviders": {
-		"(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate": {
-			"path": "/add",
-			"format": "JSON",
-			"template": "{\"data\":{\"input1\": ${input1}, \"input2\": ${input2}}}",
-			"queries": {
-				"result": "$.result"
+
+{
+
+	"assetConnections": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection",
+			"baseUrl": "http://localhost:5001",
+			"operationProviders":
+			{
+				"(Submodel)https://example.com/ids/sm/7230_2111_9032_0866, (Operation)calculate":
+				{
+					"path": "/add",
+					"format": "JSON",
+					"template": "{\"data\":{\"input1\": ${input1}, \"input2\": ${input2}}}",
+					"queries":
+					{
+						"result": "$.result"
+					}
+				}
 			}
 		}
-	}
-}]
+	],
+	// other configurations
+}
+
 ```
 
 Additionally, it should be checked if JSON syntax errors are present, for example with [jsonchecker](https://jsonchecker.com/)
@@ -92,7 +108,7 @@ Additionally, it should be checked if JSON syntax errors are present, for exampl
 By default, FA³ST Service will generate a SSL certificate if none is provided. Those are self-generated certificates and can lead to security warnings in browsers and connection failures in AAS Clients.
 To turn off SSL, the environment variable sslEnabled can be used. It can also be supplied with the configuration JSON file in the [endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http).
 
-```
+```{code-block} console
 java -jar starter-{version}.jar -m example.aasx endpoints[0]_sslEnabled=false
 ```
 
@@ -106,7 +122,7 @@ Another common issue when accessing FA³ST Service is a cross-origin resource sh
 By default, the HTTP endpoint does not enable CORS, but it typically is required when you want to access the REST interface from any machine other than the one running FA³ST Service.
 The flag can be set with the [HTTP endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http) or via command-line:
 
-```
+```{code-block} console
 java -jar starter-{version}.jar -m example.aasx endpoints[0]_corsEnabled=true
 ```
 
@@ -120,7 +136,7 @@ For NGINX, detailed information can be found [here](https://kubernetes.github.io
 
 An example configuration with secret <b>basic-auth-secret</b>:
 
-```
+```{code-block} yaml
 metadata:
 name: ingress-with-auth
 annotations:
