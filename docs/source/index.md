@@ -43,6 +43,7 @@ basics/getting-started.md
 basics/installation.md
 basics/usage.md
 basics/configuration.md
+basics/faq.md
 ```
 
 ```{toctree} 

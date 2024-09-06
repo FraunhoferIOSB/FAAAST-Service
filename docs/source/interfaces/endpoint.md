@@ -59,7 +59,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 			"keyPassword": "changeit"
 		},
 		"corsEnabled": true,
-		"hostname": "localhost,
+		"hostname": "localhost",
 		"port": 443,
 		"sniEnabled": true,
 		"sslEnabled": true
