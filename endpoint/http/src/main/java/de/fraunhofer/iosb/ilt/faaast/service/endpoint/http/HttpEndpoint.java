@@ -24,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
@@ -39,6 +38,8 @@ import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -212,7 +213,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     @Override
-    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+    public List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getAasEndpointInformation(String aasId) {
         if (Objects.isNull(server)) {
             return List.of();
         }
@@ -223,7 +224,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     @Override
-    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getSubmodelEndpointInformation(String submodelId) {
+    public List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getSubmodelEndpointInformation(String submodelId) {
         if (Objects.isNull(server)) {
             return List.of();
         }
@@ -233,14 +234,14 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     }
 
 
-    private de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint endpointFor(String interfaceName, String path) {
-        return de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+    private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(String interfaceName, String path) {
+        return new DefaultEndpoint.Builder()
                 ._interface(interfaceName)
-                .protocolInformation(DefaultProtocolInformation.builder()
+                .protocolInformation(new DefaultProtocolInformation.Builder()
                         .href(getEndpointUri().resolve(getVersionPrefix() + path).toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
                         .endpointProtocolVersion(ENDPOINT_PROTOCOL_VERSION)
-                        .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                        .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                 .type(SecurityTypeEnum.NONE)
                                 .key("")
                                 .value("")
