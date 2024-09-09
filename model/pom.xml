@@ -113,6 +113,17 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.digitaltwin.aas4j</groupId>
+            <artifactId>aas4j-dataformat-json</artifactId>
+            <version>${aas4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>aas4j-model</artifactId>
             <version>${aas4j.version}</version>
             <exclusions>

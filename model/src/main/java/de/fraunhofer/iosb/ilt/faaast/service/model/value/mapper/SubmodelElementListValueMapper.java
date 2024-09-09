@@ -17,10 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.SubmodelTemplateHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,6 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}.
  */
 public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelElementList, SubmodelElementListValue> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementListValueMapper.class);
 
     @Override
     public SubmodelElementListValue toValue(SubmodelElementList submodelElement) throws ValueMappingException {
@@ -57,13 +64,21 @@ public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelE
         int valueSize = Objects.nonNull(value.getValues())
                 ? value.getValues().size()
                 : 0;
-        if (elementSize < valueSize) {
-            throw new ValueMappingException(String.format(
-                    "Loss of information - setting a value with size %d to a SubmodelElementList of size %d results in loss of information",
-                    valueSize,
-                    elementSize));
+        if (elementSize == 1
+                && valueSize > 1
+                && SubmodelTemplateHelper.getCardinality(submodelElement.getValue().get(0)).getAllowsMultipleValues()) {
+            // we have a template that supports multiple elements
+            submodelElement.setValue(Stream.generate(() -> DeepCopyHelper.deepCopy(submodelElement.getValue().get(0)))
+                    .limit(valueSize)
+                    .collect(Collectors.toList()));
+            elementSize = valueSize;
         }
-
+        else if (elementSize < valueSize) {
+            LOGGER.warn("Loss of information - setting a value with size {} to a SubmodelElementList of size {} results in loss of information (id: {})",
+                    valueSize,
+                    elementSize,
+                    submodelElement.getIdShort());
+        }
         for (int i = 0; i < Math.min(elementSize, valueSize); i++) {
             ElementValueMapper.setValue(submodelElement.getValue().get(i), value.getValues().get(i));
         }
