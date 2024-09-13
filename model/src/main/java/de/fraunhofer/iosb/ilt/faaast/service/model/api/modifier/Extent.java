@@ -25,13 +25,13 @@ public enum Extent {
     WITHOUT_BLOB_VALUE("WithoutBlobValue"),
     WITH_BLOB_VALUE("WithBlobValue");
 
+    private final String name;
     public static final Extent DEFAULT = Extent.WITHOUT_BLOB_VALUE;
 
     public String getName() {
         return name;
     }
 
-    private final String name;
 
     Extent(String name) {
         this.name = name;
