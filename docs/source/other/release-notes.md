@@ -10,7 +10,10 @@
 **Internal changes & bugfixes**
 - General
 	- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
-	- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
+- Endpoint
+	- HTTP
+		- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
+		- Fixed "serialization failed" bug when retrieving a property of type `GDay`
 
 ## 1.1.0
 
