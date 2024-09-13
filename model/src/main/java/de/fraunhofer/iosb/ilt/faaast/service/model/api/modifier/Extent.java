@@ -22,10 +22,21 @@ import java.util.stream.Stream;
  * Enum of different extent options.
  */
 public enum Extent {
-    WITHOUT_BLOB_VALUE,
-    WITH_BLOB_VALUE;
+    WITHOUT_BLOB_VALUE("WithoutBlobValue"),
+    WITH_BLOB_VALUE("WithBlobValue");
 
     public static final Extent DEFAULT = Extent.WITHOUT_BLOB_VALUE;
+
+    public String getName() {
+        return name;
+    }
+
+    private final String name;
+
+    Extent(String name) {
+        this.name = name;
+    }
+
 
     /**
      * Returns matching enum value from given string value.The names are matched case-insensitive, i.e. ignoring case.
@@ -37,7 +48,7 @@ public enum Extent {
      */
     public static Extent fromString(String value) throws UnsupportedExtentModifierException {
         return Stream.of(Extent.values())
-                .filter(x -> x.name().equalsIgnoreCase(value))
+                .filter(x -> x.getName().equalsIgnoreCase(value))
                 .findAny()
                 .orElseThrow(() -> new UnsupportedExtentModifierException(value));
     }
