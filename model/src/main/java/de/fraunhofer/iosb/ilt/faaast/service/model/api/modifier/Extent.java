@@ -63,7 +63,7 @@ public enum Extent {
      */
     public static Extent fromStringOrDefault(String value) {
         return Stream.of(Extent.values())
-                .filter(x -> x.name().equalsIgnoreCase(value))
+                .filter(x -> x.getName().equalsIgnoreCase(value))
                 .findAny()
                 .orElse(Extent.DEFAULT);
     }
