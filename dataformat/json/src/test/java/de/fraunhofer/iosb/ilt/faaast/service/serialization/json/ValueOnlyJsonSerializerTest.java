@@ -121,6 +121,13 @@ public class ValueOnlyJsonSerializerTest {
 
 
     @Test
+    public void testPropertyGDay() throws SerializationException, JSONException, IOException, ValueMappingException {
+        assertEquals(ValueOnlyExamples.PROPERTY_GDAY_FILE, ValueOnlyExamples.PROPERTY_GDAY);
+        assertValue(ValueOnlyExamples.PROPERTY_GDAY_FILE, ValueOnlyExamples.PROPERTY_GDAY);
+    }
+
+
+    @Test
     public void testList() throws SerializationException, JSONException, IOException, ValueMappingException {
         Map<SubmodelElement, File> data = Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
                 ValueOnlyExamples.RANGE_INT, ValueOnlyExamples.RANGE_INT_FILE);
