@@ -11,6 +11,8 @@
 - General
 	- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
 	- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
+- Model Validation
+  - Model Validation no longer throws an error if duplicate IDs belong to copies of the same object. Instead, debug information is being logged.
 
 ## 1.1.0
 
