@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubm
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResponseMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResultMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.AbstractDateTimeValueMixIn;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.GetOperationAsyncResultResponseValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.InvokeOperationRequestValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.OperationResultValueMixin;
@@ -71,6 +72,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.util.HashSet;
@@ -204,6 +206,7 @@ public class ValueOnlyJsonSerializer {
         mapper.addMixIn(SubmodelElementCollectionValue.class, SubmodelElementCollectionValueMixin.class);
         mapper.addMixIn(SubmodelElementListValue.class, SubmodelElementListValueMixin.class);
         mapper.addMixIn(TypedValue.class, TypedValueMixin.class);
+        mapper.addMixIn(AbstractDateTimeValue.class, AbstractDateTimeValueMixIn.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);

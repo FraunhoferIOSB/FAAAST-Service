@@ -86,6 +86,7 @@ public class ValueOnlyExamples {
     public static final File PROPERTY_INT_FILE = new File(RESOURCE_PATH + "/property-int.json");
     public static final File PROPERTY_DOUBLE_FILE = new File(RESOURCE_PATH + "/property-double.json");
     public static final File PROPERTY_STRING_FILE = new File(RESOURCE_PATH + "/property-string.json");
+    public static final File PROPERTY_GDAY_FILE = new File(RESOURCE_PATH + "/property-gday.json");
     public static final File PROPERTY_DATETIME_FILE = new File(RESOURCE_PATH + "/property-datetime.json");
     public static final File INVOKE_OPERATION_REQUEST_FILE = new File(RESOURCE_PATH + "/invoke-operation-request.json");
     public static final File GET_OPERATION_ASYNC_RESULT_RESPONSE_FILE = new File(RESOURCE_PATH + "/get-operation-async-result-response.json");
@@ -150,6 +151,13 @@ public class ValueOnlyExamples {
             .category("category")
             .idShort("propString")
             .value("foo")
+            .build();
+
+    public static final Property PROPERTY_GDAY = new DefaultProperty.Builder()
+            .category("category")
+            .idShort("propGDay")
+            .value("---15")
+            .valueType(DataTypeDefXsd.GDAY)
             .build();
 
     public static final Range RANGE_DOUBLE = new DefaultRange.Builder()

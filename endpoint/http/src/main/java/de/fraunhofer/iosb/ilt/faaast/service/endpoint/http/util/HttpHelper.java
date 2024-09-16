@@ -147,6 +147,7 @@ public class HttpHelper {
             sendJson(response, statusCode, new HttpJsonApiSerializer().write(result));
         }
         catch (SerializationException e) {
+            LOGGER.warn("error serializing response", e);
             sendContent(response, StatusCode.SERVER_INTERNAL_ERROR, null, null);
         }
     }

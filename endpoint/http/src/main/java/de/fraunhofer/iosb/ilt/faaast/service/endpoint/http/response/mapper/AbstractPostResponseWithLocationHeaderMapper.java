@@ -25,6 +25,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * @param <U> type of the request
  */
 public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends ResponseWithPayloadResponseMapper<T, U> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPostResponseWithLocationHeaderMapper.class);
 
     protected AbstractPostResponseWithLocationHeaderMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -64,6 +68,7 @@ public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends Abs
                                     : OutputModifier.DEFAULT));
         }
         catch (Exception e) {
+            LOGGER.warn("error handling request", e);
             HttpHelper.send(
                     httpResponse,
                     StatusCode.SERVER_INTERNAL_ERROR,
