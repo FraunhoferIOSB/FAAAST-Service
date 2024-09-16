@@ -10,6 +10,7 @@
 **Internal changes & bugfixes**
 - General
 	- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
+	- Model validation no longer throws an error if a model contains multiple instances of exactly the same Identifiable. This is not 100% correct behavior according to the specification as it validates the uniqueness criteria of their ID, however, it helps tremendously when working with existing SMTs as many of them are currently also not 100% standard-compliant and contain such duplicate elements.
 - Endpoint
 	- HTTP
 		- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
