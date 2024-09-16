@@ -98,15 +98,11 @@ public class ModelValidator {
                         if (config.getIdentifierUniqueness()) {
                             if (identifiers.containsKey(identifier)) {
                                 Identifiable existingIdentifiable = identifiers.get(identifier);
-                                if (existingIdentifiable.equals(identifiable)) {
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug(String.format(
-                                                "Duplicate identifier '%s' - the same object is present multiple times", identifier));
-                                    }
+                                if (Objects.equals(existingIdentifiable, identifiable)) {
+                                    LOGGER.debug(String.format("Duplicate identifier '%s' - the same object is present multiple times", identifier));
                                 }
                                 else {
-                                    errors.add(String.format(
-                                            "Duplicate identifier '%s' - identifiers must be globally unique.", identifier));
+                                    errors.add(String.format("Duplicate identifier '%s' - identifiers must be globally unique.", identifier));
                                 }
                             }
                             else {

@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -180,6 +180,7 @@ public class ModelValidatorTest {
                         .build());
     }
 
+
     @Test
     public void testIdentifierNotUniqueObjectCopy() throws ValidationException {
         ConceptDescription conceptDescription = new DefaultConceptDescription.Builder()
@@ -195,6 +196,7 @@ public class ModelValidatorTest {
                         .validateConstraints(false)
                         .build());
     }
+
 
     @Test
     public void testIdentifierUniquenessDisabled() throws ValidationException {

@@ -49,6 +49,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -57,6 +59,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
     private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
@@ -101,6 +104,7 @@ public class RequestHandler extends AbstractHandler {
             method = HttpMethod.valueOf(request.getMethod());
         }
         catch (IllegalArgumentException e) {
+            LOGGER.debug("invalid method", e);
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_METHOD_NOT_ALLOWED,
@@ -126,6 +130,7 @@ public class RequestHandler extends AbstractHandler {
             executeAndSend(response, requestMappingManager.map(httpRequest));
         }
         catch (MethodNotAllowedException e) {
+            LOGGER.debug("invalid method", e);
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_METHOD_NOT_ALLOWED,
@@ -134,6 +139,7 @@ public class RequestHandler extends AbstractHandler {
                             .build());
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
+            LOGGER.debug("bad request", e);
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_ERROR_BAD_REQUEST,
@@ -142,6 +148,7 @@ public class RequestHandler extends AbstractHandler {
                             .build());
         }
         catch (SerializationException | RuntimeException e) {
+            LOGGER.warn("error handling request", e);
             HttpHelper.send(
                     response,
                     StatusCode.SERVER_INTERNAL_ERROR,
@@ -191,6 +198,7 @@ public class RequestHandler extends AbstractHandler {
             }
         }
         catch (RuntimeException e) {
+            LOGGER.warn("error handling request", e);
             HttpHelper.send(
                     response,
                     StatusCode.CLIENT_ERROR_BAD_REQUEST,
