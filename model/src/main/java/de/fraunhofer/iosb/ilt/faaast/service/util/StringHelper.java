@@ -45,4 +45,18 @@ public class StringHelper {
     public static boolean isBlank(String value) {
         return Objects.isNull(value) || value.isBlank();
     }
+
+
+    /**
+     * Changes to first character of the string to lower case.
+     *
+     * @param value the string to change
+     * @return the decapitalized string, or null if input was null
+     */
+    public static String decapitalize(String value) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        return Character.toLowerCase(value.charAt(0)) + value.substring(1);
+    }
 }
