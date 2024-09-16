@@ -53,6 +53,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
@@ -124,6 +125,7 @@ import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -1318,6 +1320,60 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                         x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 apiPaths.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                SubmodelElement.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelElementExtentWithoutBlobValue()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+        SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
+                .submodelId("https://acplt.org/Test_Submodel_Missing")
+                .idShortPath(IdShortPath.builder()
+                        .pathSegment("ExampleSubmodelElementCollection")
+                        .pathSegment("ExampleBlob")
+                        .build())
+                .build();
+        Blob blob = EnvironmentHelper.resolve(identifier.toReference(), environment, Blob.class);
+        Blob expected = DeepCopyHelper.deepCopy(blob);
+        ExtendHelper.withoutBlobValue(expected);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                apiPaths.submodelRepository().submodelInterface(identifier.getSubmodelId()).submodelElement(identifier.getIdShortPath(), Extent.WITHOUT_BLOB_VALUE),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                SubmodelElement.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelElementExtentWithBlobValue()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+        SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
+                .submodelId("https://acplt.org/Test_Submodel_Missing")
+                .idShortPath(IdShortPath.builder()
+                        .pathSegment("ExampleSubmodelElementCollection")
+                        .pathSegment("ExampleBlob")
+                        .build())
+                .build();
+        Blob expected = EnvironmentHelper.resolve(identifier.toReference(), environment, Blob.class);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                apiPaths.submodelRepository().submodelInterface(identifier.getSubmodelId()).submodelElement(identifier.getIdShortPath(), Extent.WITH_BLOB_VALUE),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
