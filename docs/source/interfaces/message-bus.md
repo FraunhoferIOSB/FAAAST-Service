@@ -79,24 +79,22 @@ An example `ValueChangeEvent` might look like this:
     "element": {
         "keys": [
             {
-                "idType": "Iri",
                 "type": "Submodel",
                 "value": "http://example.org/submodel"
             },
             {
-                "idType": "IdShort",
                 "type": "Property",
                 "value": "property"
             }
     ] },
     "oldValue": {
         "modelType": "Property",
-        "dataType": "int",
+        "dataType": "xs:int",
         "value": 0
     },
     "newValue": {
         "modelType": "Property",
-        "dataType": "int",
+        "dataType": "xs:int",
         "value": 1
     }
 }
