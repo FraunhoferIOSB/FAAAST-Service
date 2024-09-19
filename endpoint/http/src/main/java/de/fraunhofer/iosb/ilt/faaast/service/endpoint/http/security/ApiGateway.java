@@ -19,6 +19,7 @@ import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.security.interfaces.RSAPublicKey;
@@ -49,16 +50,17 @@ public class ApiGateway {
         }
         token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
         DecodedJWT jwt = JWT.decode(token);
-        JwkProvider provider = new UrlJwkProvider("http://localhost:4444");
+        JwkProvider provider = new UrlJwkProvider(this.jwkProvider);
         try {
             Jwk jwk = provider.get(jwt.getKeyId());
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
             algorithm.verify(jwt);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    //.withIssuer("this.jwkProvider")
+                    .build();
+            verifier.verify(token);
         }
         catch (JwkException e) {
-            return false;
-        }
-        if (jwt.getExpiresAt().before(Calendar.getInstance().getTime())) {
             return false;
         }
         return true;
