@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -75,6 +76,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     private ServiceContext serviceContext;
     private Server server;
     private Handler handler;
+    private ApiGateway apiGateway;
 
     @Override
     public HttpEndpointConfig asConfig() {

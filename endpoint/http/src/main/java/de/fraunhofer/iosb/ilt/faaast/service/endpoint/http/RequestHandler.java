@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
@@ -66,6 +67,7 @@ public class RequestHandler extends AbstractHandler {
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
+    private ApiGateway apiGateway = null;
 
     public RequestHandler(ServiceContext serviceContext, HttpEndpointConfig config) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -75,11 +77,26 @@ public class RequestHandler extends AbstractHandler {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
+        if (Objects.nonNull(config.getJwkProvider())) {
+            this.apiGateway = new ApiGateway(config.getJwkProvider());
+        }
     }
 
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        if (Objects.nonNull(apiGateway)) {
+            if (!apiGateway.isAuthorized(baseRequest.getHeader("Authorization"))) {
+                HttpHelper.send(
+                        response,
+                        StatusCode.CLIENT_NOT_AUTHORIZED,
+                        Result.builder()
+                                .message(MessageType.ERROR, String.format("User not authorized '%s'", request.getRequestURI()))
+                                .build());
+                baseRequest.setHandled(true);
+                return;
+            }
+        }
         if (!request.getRequestURI().startsWith(HttpEndpoint.getVersionPrefix())) {
             HttpHelper.send(
                     response,

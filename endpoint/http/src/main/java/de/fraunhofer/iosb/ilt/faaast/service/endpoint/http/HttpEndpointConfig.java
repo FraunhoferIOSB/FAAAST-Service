@@ -35,6 +35,17 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private boolean sslEnabled;
     private CertificateConfig certificate;
     private String hostname;
+    private String jwkProvider;
+
+    public String getJwkProvider() {
+        return jwkProvider;
+    }
+
+
+    public void setJwkProvider(String jwkProvider) {
+        this.jwkProvider = jwkProvider;
+    }
+
 
     public HttpEndpointConfig() {
         port = DEFAULT_PORT;
@@ -120,7 +131,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(sniEnabled, that.sniEnabled)
                 && Objects.equals(sslEnabled, that.sslEnabled)
                 && Objects.equals(certificate, that.certificate)
-                && Objects.equals(hostname, that.hostname);
+                && Objects.equals(hostname, that.hostname)
+                && Objects.equals(jwkProvider, that.jwkProvider);
     }
 
 
@@ -168,6 +180,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B hostname(String value) {
             getBuildingInstance().setHostname(value);
+            return getSelf();
+        }
+
+
+        public B jwkProvider(String value) {
+            getBuildingInstance().setJwkProvider(value);
             return getSelf();
         }
     }
