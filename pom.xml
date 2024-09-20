@@ -80,7 +80,7 @@
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
-        <commons.io.version>2.16.1</commons.io.version>
+        <commons.io.version>2.17.0</commons.io.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
@@ -140,7 +140,7 @@
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.4-147</prosys.sdk.version>
-        <protobuf.version>4.28.1</protobuf.version>
+        <protobuf.version>4.28.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
