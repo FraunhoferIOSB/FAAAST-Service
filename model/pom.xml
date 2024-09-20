@@ -48,6 +48,12 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+        <!-- Fixes CVE-2024-7254 -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
@@ -73,11 +79,16 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-shacl</artifactId>
             <version>${jena.version}</version>
-            <!-- Fixes CVE-2023-42503 -->
             <exclusions>
+                <!-- Fixes CVE-2023-42503 -->
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-compress</artifactId>
+                </exclusion>
+                <!-- Fixes CVE-2024-7254 -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
