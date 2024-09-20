@@ -21,9 +21,10 @@ import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Calendar;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -44,7 +45,7 @@ public class ApiGateway {
      * @param token the JWT token
      * @return true if the token is valid
      */
-    public boolean isAuthorized(String token) {
+    public boolean isAuthorized(String token, String path) {
         if (Objects.isNull(token)) {
             return false;
         }
@@ -56,13 +57,22 @@ public class ApiGateway {
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
             algorithm.verify(jwt);
             JWTVerifier verifier = JWT.require(algorithm)
-                    //.withIssuer("this.jwkProvider")
+                    //.withIssuer(this.jwkProvider)
                     .build();
             verifier.verify(token);
         }
         catch (JwkException e) {
             return false;
         }
+        if (!verifiedClaims(jwt.getClaims(), path)) {
+            return false;
+        } ;
+        return true;
+    }
+
+
+    private boolean verifiedClaims(Map<String, Claim> claims, String path) {
+        //@TODO send to AuthServer to compare with SMT Security Processor
         return true;
     }
 }

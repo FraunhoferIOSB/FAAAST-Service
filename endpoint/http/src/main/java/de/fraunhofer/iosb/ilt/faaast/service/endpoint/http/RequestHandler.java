@@ -86,7 +86,7 @@ public class RequestHandler extends AbstractHandler {
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (Objects.nonNull(apiGateway)) {
-            if (!apiGateway.isAuthorized(baseRequest.getHeader("Authorization"))) {
+            if (!apiGateway.isAuthorized(baseRequest.getHeader("Authorization"), string)) {
                 HttpHelper.send(
                         response,
                         StatusCode.CLIENT_NOT_AUTHORIZED,
