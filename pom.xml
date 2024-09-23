@@ -139,7 +139,7 @@
         <proguard.core.version>9.1.6</proguard.core.version>
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.2.4-147</prosys.sdk.version>
+        <prosys.sdk.version>5.2.6-151</prosys.sdk.version>
         <protobuf.version>4.28.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
