@@ -10,6 +10,7 @@
 **Internal changes & bugfixes**
 - General
 	- Model validation no longer throws an error if a model contains multiple instances of exactly the same Identifiable. This is not 100% correct behavior according to the specification as it validates the uniqueness criteria of their ID, however, it helps tremendously when working with existing SMTs as many of them are currently also not 100% standard-compliant and contain such duplicate elements.
+	- Fix warning message about missing Log4j2 logging implementation.
 - Endpoint
 	- HTTP
 		- Fixed query modifier `extent` which has not been working as intended
