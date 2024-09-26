@@ -85,9 +85,9 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.16.2</equalsverifier.version>
+        <equalsverifier.version>3.17</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.3.0-jre</guava.version>
+        <guava.version>33.3.1-jre</guava.version>
         <jackson.databind.version>2.17.2</jackson.databind.version>
         <jackson.version>2.17.2</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
@@ -152,7 +152,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <systemstubs.version>2.1.6</systemstubs.version>
+        <systemstubs.version>2.1.7</systemstubs.version>
         <wiremock.version>2.35.2</wiremock.version>
         <woodstox.version>7.0.0</woodstox.version>
     </properties>
