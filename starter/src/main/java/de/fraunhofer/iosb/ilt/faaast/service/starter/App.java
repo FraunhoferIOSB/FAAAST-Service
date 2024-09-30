@@ -394,7 +394,8 @@ public class App implements Runnable {
                             .getName()
                             .matches(MODEL_FILENAME_PATTERN))
                     .map(Path::toFile)) {
-                modelFiles = stream.filter(f -> fileExtensions.stream().anyMatch(f.getName()::endsWith))
+                modelFiles = stream.filter(f -> fileExtensions.stream()
+                        .anyMatch(FileHelper.getFileExtensionWithoutSeparator(f.getName())::equalsIgnoreCase))
                         .collect(Collectors.toList());
             }
             if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
