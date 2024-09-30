@@ -24,7 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 public interface EndpointMixin {
     /**
      * Changes "_interface" to "interface".
-     * 
+     *
      * @return "interface"
      */
     @JsonProperty("interface")
