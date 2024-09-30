@@ -112,7 +112,7 @@
         <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.0</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.2.6</maven.plugin.gpg.version>
+        <maven.plugin.gpg.version>3.2.7</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.10.0</maven.plugin.javadoc.version>
