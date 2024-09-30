@@ -396,7 +396,7 @@ public class App implements Runnable {
                     .map(Path::toFile)) {
                 modelFiles = stream.filter(f -> fileExtensions.stream()
                         .anyMatch(FileHelper.getFileExtensionWithoutSeparator(f.getName())::equalsIgnoreCase))
-                        .collect(Collectors.toList());
+                        .toList();
             }
             if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
