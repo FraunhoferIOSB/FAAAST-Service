@@ -85,11 +85,11 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.16.2</equalsverifier.version>
+        <equalsverifier.version>3.17</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.3.0-jre</guava.version>
-        <jackson.databind.version>2.17.2</jackson.databind.version>
-        <jackson.version>2.17.2</jackson.version>
+        <guava.version>33.3.1-jre</guava.version>
+        <jackson.databind.version>2.18.0</jackson.databind.version>
+        <jackson.version>2.18.0</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
@@ -140,7 +140,7 @@
         <proguard.core.version>9.1.6</proguard.core.version>
         <proguard.version>7.5.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.2.4-147</prosys.sdk.version>
+        <prosys.sdk.version>5.2.6-151</prosys.sdk.version>
         <protobuf.version>4.28.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
@@ -153,7 +153,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <systemstubs.version>2.1.6</systemstubs.version>
+        <systemstubs.version>2.1.7</systemstubs.version>
         <wiremock.version>2.35.2</wiremock.version>
         <woodstox.version>7.0.0</woodstox.version>
     </properties>
