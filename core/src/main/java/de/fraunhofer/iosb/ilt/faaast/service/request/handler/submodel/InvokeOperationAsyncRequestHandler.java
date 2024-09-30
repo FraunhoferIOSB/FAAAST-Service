@@ -166,6 +166,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
         OperationHandle operationHandle = new OperationHandle();
         handleOperationInvoke(reference, operationHandle, request);
 
+        AtomicBoolean operationFinished = new AtomicBoolean(false);
         AtomicBoolean timeoutOccured = new AtomicBoolean(false);
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -174,17 +175,27 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
                     (output, inoutput) -> {
                         if (timeoutOccured.get()) {
+                            LOGGER.debug("executeOperation: timeout already occurred - ignore success");
                             return;
                         }
+                        operationFinished.set(true);
                         handleOperationSuccess(reference, operationHandle, inoutput, output);
                     },
-                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error));
+                    error -> {
+                        operationFinished.set(true);
+                        handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error);
+                    });
             executor.schedule(() -> {
+                if (operationFinished.get()) {
+                    LOGGER.debug("executeOperation: operation already finished - ignore timeout");
+                    return;
+                }
                 timeoutOccured.set(true);
                 handleOperationTimeout(reference, request, operationHandle);
             }, request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
+            operationFinished.set(true);
             handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e);
         }
         finally {

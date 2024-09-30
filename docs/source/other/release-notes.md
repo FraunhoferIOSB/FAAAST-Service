@@ -10,6 +10,7 @@
 **Internal changes & bugfixes**
 - General
 	- Model validation no longer throws an error if a model contains multiple instances of exactly the same Identifiable. This is not 100% correct behavior according to the specification as it validates the uniqueness criteria of their ID, however, it helps tremendously when working with existing SMTs as many of them are currently also not 100% standard-compliant and contain such duplicate elements.
+	- Fixed bug when executing an operation asynchronously. When the timeout has expired, the status of the operation was set to timeout, even if the operation  already finished successfully. This does no longer happen - the timeout no longer overwrites the result of the operation.
 - Endpoint
 	- HTTP
 		- Fixed query modifier `extent` which has not been working as intended
