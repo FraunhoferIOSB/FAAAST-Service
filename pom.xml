@@ -85,7 +85,7 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.17</equalsverifier.version>
+        <equalsverifier.version>3.17.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.1-jre</guava.version>
         <jackson.databind.version>2.18.0</jackson.databind.version>
