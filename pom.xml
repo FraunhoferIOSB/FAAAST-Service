@@ -126,7 +126,7 @@
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
-        <maven.plugin.surefire.version>3.5.0</maven.plugin.surefire.version>
+        <maven.plugin.surefire.version>3.5.1</maven.plugin.surefire.version>
         <milo.version>0.6.14</milo.version>
         <mockito.version>5.14.1</mockito.version>
         <moquette.version>0.15.2</moquette.version>
