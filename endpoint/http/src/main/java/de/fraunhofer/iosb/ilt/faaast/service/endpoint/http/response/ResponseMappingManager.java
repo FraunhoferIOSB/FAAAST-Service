@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper.AbstractResponseMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,10 +45,10 @@ public class ResponseMappingManager extends AbstractMappingManager<AbstractRespo
      * @param apiResponse the API response to process
      * @param httpResponse the HTTP response to write to
      * @throws IllegalArgumentException is apiRequest is null
-     *             * @throws IllegalArgumentException is apiResponse is null
-     *             * @throws IllegalArgumentException is httpResponse is null
+     * @throws IllegalArgumentException is apiResponse is null
+     * @throws IllegalArgumentException is httpResponse is null
      */
-    public void map(Request apiRequest, Response apiResponse, HttpServletResponse httpResponse) {
+    public void map(Request apiRequest, Response apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException {
         Ensure.requireNonNull(apiRequest, "apiRequest must be non-null");
         Ensure.requireNonNull(apiResponse, "apiResponse must be non-null");
         Ensure.requireNonNull(httpResponse, "httpResponse must be non-null");

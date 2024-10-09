@@ -24,6 +24,8 @@ public class JsonFieldNames {
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST = "first";
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND = "second";
 
+    public static final String BASIC_EVENT_ELEMENT_OBSERVED = "observed";
+
     public static final String BLOB_VALUE_CONTENT_TYPE = "contentType";
     public static final String BLOB_VALUE_VALUE = "value";
 

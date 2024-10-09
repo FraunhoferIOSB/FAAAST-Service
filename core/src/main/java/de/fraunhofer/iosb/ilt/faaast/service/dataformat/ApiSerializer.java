@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -43,8 +44,9 @@ public interface ApiSerializer {
      * @param modifier output modifier defining how to serialize
      * @return string serialization of obj
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public String write(Object obj, OutputModifier modifier) throws SerializationException;
+    public String write(Object obj, OutputModifier modifier) throws SerializationException, UnsupportedModifierException;
 
 
     /**
@@ -54,8 +56,9 @@ public interface ApiSerializer {
      * @param obj object to serialize
      * @return string serialization of obj
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default String write(Object obj) throws SerializationException {
+    public default String write(Object obj) throws SerializationException, UnsupportedModifierException {
         return write(obj, OutputModifier.DEFAULT);
     }
 
@@ -68,8 +71,9 @@ public interface ApiSerializer {
      * @param modifier output modifier defining how to serialize
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(OutputStream out, Object obj, OutputModifier modifier) throws IOException, SerializationException {
+    public default void write(OutputStream out, Object obj, OutputModifier modifier) throws IOException, SerializationException, UnsupportedModifierException {
         write(out, DEFAULT_CHARSET, obj, modifier);
     }
 
@@ -82,8 +86,9 @@ public interface ApiSerializer {
      * @param obj object to serialize
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(OutputStream out, Object obj) throws IOException, SerializationException {
+    public default void write(OutputStream out, Object obj) throws IOException, SerializationException, UnsupportedModifierException {
         write(out, obj, OutputModifier.DEFAULT);
     }
 
@@ -97,8 +102,9 @@ public interface ApiSerializer {
      * @param modifier output modifier defining how to serialize
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(OutputStream out, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException {
+    public default void write(OutputStream out, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException, UnsupportedModifierException {
         try (OutputStreamWriter writer = new OutputStreamWriter(out, charset)) {
             writer.write(write(obj, modifier));
         }
@@ -114,8 +120,9 @@ public interface ApiSerializer {
      * @param obj object to serialize
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(OutputStream out, Charset charset, Object obj) throws IOException, SerializationException {
+    public default void write(OutputStream out, Charset charset, Object obj) throws IOException, SerializationException, UnsupportedModifierException {
         write(out, charset, obj, OutputModifier.DEFAULT);
     }
 
@@ -130,8 +137,9 @@ public interface ApiSerializer {
      * @throws FileNotFoundException if file is not found
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException {
+    public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException, UnsupportedModifierException {
         try (OutputStream out = new FileOutputStream(file)) {
             write(out, charset, obj, modifier);
         }
@@ -148,8 +156,9 @@ public interface ApiSerializer {
      * @throws FileNotFoundException if file is not found
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(File file, Charset charset, Object obj) throws IOException, SerializationException {
+    public default void write(File file, Charset charset, Object obj) throws IOException, SerializationException, UnsupportedModifierException {
         write(file, charset, obj, OutputModifier.DEFAULT);
     }
 
@@ -163,8 +172,9 @@ public interface ApiSerializer {
      * @throws FileNotFoundException if file is not found
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(File file, Object obj, OutputModifier modifier) throws IOException, SerializationException {
+    public default void write(File file, Object obj, OutputModifier modifier) throws IOException, SerializationException, UnsupportedModifierException {
         write(file, DEFAULT_CHARSET, obj, modifier);
     }
 
@@ -178,8 +188,9 @@ public interface ApiSerializer {
      * @throws FileNotFoundException if file is not found
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public default void write(File file, Object obj) throws IOException, SerializationException {
+    public default void write(File file, Object obj) throws IOException, SerializationException, UnsupportedModifierException {
         write(file, obj, OutputModifier.DEFAULT);
     }
 

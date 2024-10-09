@@ -22,6 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +34,8 @@ import java.util.Map;
 public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractResponseWithFile, Request<AbstractResponseWithFile>> {
 
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+    private static final MediaType DEFAULT_CONTENT_TYPE = MediaType.OCTET_STREAM;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResponseWithFileMapper.class);
 
     public ResponseWithFileMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -39,11 +44,25 @@ public class ResponseWithFileMapper extends AbstractResponseMapper<AbstractRespo
 
     @Override
     public void map(Request<AbstractResponseWithFile> apiRequest, AbstractResponseWithFile apiResponse, HttpServletResponse httpResponse) {
+        MediaType contentType = DEFAULT_CONTENT_TYPE;
+        if (Objects.isNull(apiResponse.getPayload().getContentType())) {
+            LOGGER.debug("encountered missing content-type, using default content-type instead (default: {})", DEFAULT_CONTENT_TYPE.toString());
+        }
+        else {
+            try {
+                contentType = MediaType.parse(apiResponse.getPayload().getContentType());
+            }
+            catch (IllegalArgumentException e) {
+                LOGGER.warn("encountered unparseable content-type, using default content-type instead (found: {}, default: {})",
+                        apiResponse.getPayload().getContentType(),
+                        DEFAULT_CONTENT_TYPE.toString());
+            }
+        }
         HttpHelper.sendContent(
                 httpResponse,
                 apiResponse.getStatusCode(),
                 apiResponse.getPayload().getContent(),
-                MediaType.parse(apiResponse.getPayload().getContentType()),
+                contentType,
                 Map.of(HEADER_CONTENT_DISPOSITION, String.format(
                         "attachment; filename=\"%s\"",
                         FileHelper.getFilenameFromPath(apiResponse.getPayload().getPath()))));

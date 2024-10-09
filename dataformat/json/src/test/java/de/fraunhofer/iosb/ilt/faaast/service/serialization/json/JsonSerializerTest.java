@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.ValueOnlyExamples;
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +101,7 @@ public class JsonSerializerTest {
 
 
     @Test
-    public void testSubmodelElementListValueOnly() throws SerializationException, JSONException {
+    public void testSubmodelElementListValueOnly() throws SerializationException, JSONException, UnsupportedModifierException {
         Map<SubmodelElement, File> data = Map.of(ValueOnlyExamples.PROPERTY_STRING, ValueOnlyExamples.PROPERTY_STRING_FILE,
                 ValueOnlyExamples.RANGE_INT, ValueOnlyExamples.RANGE_INT_FILE);
         String expected = data.entrySet().stream()
@@ -122,13 +123,13 @@ public class JsonSerializerTest {
 
 
     @Test
-    public void testEnumsWithCustomNaming() throws SerializationException {
+    public void testEnumsWithCustomNaming() throws SerializationException, UnsupportedModifierException {
         Assert.assertEquals("\"SuccessCreated\"", serializer.write(StatusCode.SUCCESS_CREATED));
     }
 
 
     @Test
-    public void testEnumsWithoutCustomNaming() throws SerializationException {
+    public void testEnumsWithoutCustomNaming() throws SerializationException, UnsupportedModifierException {
         Assert.assertEquals("\"UTF-8\"", serializer.write(StandardCharsets.UTF_8));
     }
 
@@ -161,7 +162,7 @@ public class JsonSerializerTest {
 
 
     @Test
-    public void testPageWithoutCursor() throws SerializationException, JSONException {
+    public void testPageWithoutCursor() throws SerializationException, JSONException, UnsupportedModifierException {
         Page<SubmodelElement> page = Page.<SubmodelElement> builder()
                 .metadata(PagingMetadata.builder()
                         .build())
@@ -180,7 +181,6 @@ public class JsonSerializerTest {
                 + "    \"idShort\" : \"idShort\"\n"
                 + "  } ],\n"
                 + "  \"paging_metadata\" : {\n"
-                + "    \"cursor\" : null\n"
                 + "  }\n"
                 + "}";
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
@@ -188,7 +188,7 @@ public class JsonSerializerTest {
 
 
     @Test
-    public void testPageWithCursor() throws SerializationException, JSONException {
+    public void testPageWithCursor() throws SerializationException, JSONException, UnsupportedModifierException {
         Page<SubmodelElement> page = Page.<SubmodelElement> builder()
                 .metadata(PagingMetadata.builder()
                         .cursor("foo")

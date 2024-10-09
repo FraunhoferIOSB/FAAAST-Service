@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,13 +37,13 @@ public class SubmodelElementCollectionValueMapper implements DataValueMapper<Sub
             return null;
         }
         SubmodelElementCollectionValue value = SubmodelElementCollectionValue.builder().build();
-        if (submodelElement.getValue() != null && submodelElement.getValue().stream().noneMatch(Objects::isNull)) {
-            value.setValues(submodelElement.getValue().stream().collect(Collectors.toMap(
-                    Referable::getIdShort,
-                    LambdaExceptionHelper.rethrowFunction(ElementValueMapper::toValue))));
-        }
-        else {
-            value.setValues(null);
+        if (Objects.nonNull(submodelElement.getValue())) {
+            value.setValues(submodelElement.getValue().stream()
+                    .filter(Objects::nonNull)
+                    .filter(ElementValueHelper::isValueOnlySupported)
+                    .collect(Collectors.toMap(
+                            Referable::getIdShort,
+                            LambdaExceptionHelper.rethrowFunction(ElementValueMapper::toValue))));
         }
         return value;
     }

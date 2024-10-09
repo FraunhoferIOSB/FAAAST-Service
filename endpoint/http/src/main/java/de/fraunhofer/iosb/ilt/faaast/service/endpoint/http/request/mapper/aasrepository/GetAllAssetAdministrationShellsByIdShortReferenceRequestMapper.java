@@ -22,21 +22,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryP
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortReferenceResponse;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-Request path: shells.
+ * class to map HTTP-Request path: shells/$reference?idShort={}.
  */
-public class GetAllAssetAdministrationShellsByIdShortRequestMapper
-        extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
+public class GetAllAssetAdministrationShellsByIdShortReferenceRequestMapper
+        extends
+        AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsByIdShortReferenceRequest, GetAllAssetAdministrationShellsByIdShortReferenceResponse> {
 
-    private static final String PATTERN = "shells$";
+    private static final String PATTERN = "shells/\\$reference";
 
-    public GetAllAssetAdministrationShellsByIdShortRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
+    public GetAllAssetAdministrationShellsByIdShortReferenceRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.METADATA, Content.NORMAL, Content.PATH, Content.VALUE);
     }
 
 
@@ -47,9 +48,9 @@ public class GetAllAssetAdministrationShellsByIdShortRequestMapper
 
 
     @Override
-    public GetAllAssetAdministrationShellsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
-                                                                   PagingInfo pagingInfo) {
-        return GetAllAssetAdministrationShellsByIdShortRequest.builder()
+    public GetAllAssetAdministrationShellsByIdShortReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier,
+                                                                            PagingInfo pagingInfo) {
+        return GetAllAssetAdministrationShellsByIdShortReferenceRequest.builder()
                 .idShort(httpRequest.getQueryParameters().get(QueryParameters.ID_SHORT))
                 .build();
     }
