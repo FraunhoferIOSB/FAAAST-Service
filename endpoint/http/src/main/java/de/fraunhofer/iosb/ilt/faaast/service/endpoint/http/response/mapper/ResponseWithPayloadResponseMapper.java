@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPay
 
 
     @Override
-    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException {
         try {
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),

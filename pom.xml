@@ -76,7 +76,7 @@
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <checkstyle.version>10.18.2</checkstyle.version>
-        <classgraph.version>4.8.176</classgraph.version>
+        <classgraph.version>4.8.177</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
@@ -85,7 +85,7 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.17</equalsverifier.version>
+        <equalsverifier.version>3.17.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.1-jre</guava.version>
         <jackson.databind.version>2.18.0</jackson.databind.version>
@@ -110,7 +110,7 @@
         <maven.plugin.checkstyle.version>3.5.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.5.0</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.5.1</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.7</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
@@ -126,7 +126,7 @@
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
-        <maven.plugin.surefire.version>3.5.0</maven.plugin.surefire.version>
+        <maven.plugin.surefire.version>3.5.1</maven.plugin.surefire.version>
         <milo.version>0.6.14</milo.version>
         <mockito.version>5.14.1</mockito.version>
         <moquette.version>0.15.2</moquette.version>
@@ -138,7 +138,7 @@
         <picocli.version>4.7.6</picocli.version>
         <poi.ooxml.version>5.3.0</poi.ooxml.version>
         <proguard.core.version>9.1.6</proguard.core.version>
-        <proguard.version>7.5.0</proguard.version>
+        <proguard.version>7.6.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.6-151</prosys.sdk.version>
         <protobuf.version>4.28.2</protobuf.version>

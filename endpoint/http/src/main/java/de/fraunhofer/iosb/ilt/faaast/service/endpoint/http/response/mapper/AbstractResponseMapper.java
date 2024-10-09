@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Objects;
@@ -42,8 +43,9 @@ public abstract class AbstractResponseMapper<T extends Response, U extends Reque
      * @param apiRequest the API request received
      * @param apiResponse the API response that shall be sent as a response to the apiRequest
      * @param httpResponse the HTTP response object to write to
+     * @throws InvalidRequestException if the request is invalid
      */
-    public abstract void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse);
+    public abstract void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException;
 
 
     @Override

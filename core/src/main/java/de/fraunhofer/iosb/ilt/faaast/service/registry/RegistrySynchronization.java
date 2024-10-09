@@ -55,6 +55,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
@@ -93,7 +94,8 @@ public class RegistrySynchronization {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
+            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
+            .addMixIn(Endpoint.class, EndpointMixin.class);
     private ExecutorService executor;
     private boolean running = false;
 

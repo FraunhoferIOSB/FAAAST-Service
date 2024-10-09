@@ -12,17 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
+package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 
 
 /**
- * Mixing for {@link Result}.
+ * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.Endpoint}.
  */
-public interface ResultMixin {
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public String getCode();
+public interface EndpointMixin {
+    /**
+     * Changes "_interface" to "interface".
+     *
+     * @return "interface"
+     */
+    @JsonProperty("interface")
+    public Endpoint get_interface();
 }

@@ -92,7 +92,8 @@ public class RegistrySynchronizationTest {
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
+                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
+                .addMixIn(org.eclipse.digitaltwin.aas4j.v3.model.Endpoint.class, EndpointMixin.class);
         mockEndpoint();
         mockMessageBus();
         mockPersistence();

@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class GetOperationAsyncStatusResponseMapper extends AbstractResponseMappe
 
 
     @Override
-    public void map(GetOperationAsyncStatusRequest apiRequest, GetOperationAsyncStatusResponse apiResponse, HttpServletResponse httpResponse) {
+    public void map(GetOperationAsyncStatusRequest apiRequest, GetOperationAsyncStatusResponse apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException {
         try {
             switch (apiResponse.getPayload().getExecutionState()) {
                 case INITIATED:
