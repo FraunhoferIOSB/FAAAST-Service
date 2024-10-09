@@ -15,36 +15,39 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
 import java.io.IOException;
 import java.util.Objects;
 
 
 /**
- * Serializer for {@code PagingMetadata}.
+ * Serializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue}.
  */
-public class PagingMetadataSerializer extends StdSerializer<PagingMetadata> {
+public class BasicEventElementValueSerializer extends StdSerializer<BasicEventElementValue> {
 
-    public PagingMetadataSerializer() {
+    public BasicEventElementValueSerializer() {
         this(null);
     }
 
 
-    public PagingMetadataSerializer(Class<PagingMetadata> t) {
-        super(t);
+    public BasicEventElementValueSerializer(Class<BasicEventElementValue> type) {
+        super(type);
     }
 
 
     @Override
-    public void serialize(PagingMetadata value, JsonGenerator generator, SerializerProvider provider) throws IOException {
-        generator.writeStartObject();
-        if (Objects.nonNull(value.getCursor())) {
-            generator.writeStringField(FaaastConstants.CURSOR, EncodingHelper.base64UrlEncode(value.getCursor()));
+    public void serialize(BasicEventElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+        if (Objects.nonNull(value)) {
+            generator.writeStartObject();
+            if (Objects.nonNull(value.getObserved())) {
+                provider.defaultSerializeField(JsonFieldNames.BASIC_EVENT_ELEMENT_OBSERVED, value.getObserved(), generator);
+            }
+            generator.writeEndObject();
         }
-        generator.writeEndObject();
     }
+
 }

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -150,6 +151,9 @@ public class HttpHelper {
             LOGGER.warn("error serializing response", e);
             sendContent(response, StatusCode.SERVER_INTERNAL_ERROR, null, null);
         }
+        catch (UnsupportedModifierException e) {
+            sendException(response, e);
+        }
     }
 
 
@@ -222,13 +226,31 @@ public class HttpHelper {
                     response.setContentLengthLong(content.length);
                 }
                 catch (IOException e) {
-                    send(response,
-                            StatusCode.SERVER_INTERNAL_ERROR,
-                            Result.builder()
-                                    .message(MessageType.EXCEPTION, e.getMessage())
-                                    .build());
+                    sendException(response, e);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode, payload and contentType.
+     *
+     * @param response HTTP response object
+     * @param exception exception occured
+     * @throws IllegalArgumentException if response is null
+     * @throws IllegalArgumentException if statusCode is null
+     */
+    public static void sendException(HttpServletResponse response, Exception exception) {
+        try {
+            send(response,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    Result.builder()
+                            .message(MessageType.EXCEPTION, exception.getMessage())
+                            .build());
+        }
+        catch (Exception e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 

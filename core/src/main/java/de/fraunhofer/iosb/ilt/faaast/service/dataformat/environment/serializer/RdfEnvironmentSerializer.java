@@ -36,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentSerializer implements EnvironmentSerializer {
 
+    // private static final Logger LOGGER = LoggerFactory.getLogger(RdfEnvironmentSerializer.class);
     public static final Lang DEFAULT_RDF_LANGUAGE = Lang.TTL;
     // private final Serializer serializer;
 
@@ -56,8 +57,8 @@ public class RdfEnvironmentSerializer implements EnvironmentSerializer {
      */
     public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files, Lang rdfLanguage) throws SerializationException {
         throw new UnsupportedOperationException("Current version of AAS4j library does not support RDF/JSON-LD de-/serialization");
-        // if (files != null && !files.isEmpty()) {
-        //     throw new UnsupportedOperationException("serializing file content is not supported for data format RDF");
+        // if (Objects.nonNull(files) && !files.isEmpty()) {
+        //     LOGGER.debug("embedded files are ignored when serializing to RDF");
         // }
         // try {
         //     return serializer.write(environment, rdfLanguage).getBytes(charset);

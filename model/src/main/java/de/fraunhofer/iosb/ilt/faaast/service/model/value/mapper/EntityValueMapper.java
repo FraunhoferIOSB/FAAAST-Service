@@ -16,10 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
@@ -36,11 +38,14 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
         }
         EntityValue value = EntityValue.builder().build();
         value.setEntityType(submodelElement.getEntityType());
-        if (submodelElement.getStatements() != null && submodelElement.getStatements().stream().noneMatch(Objects::isNull)) {
+
+        if (Objects.nonNull(submodelElement.getStatements())) {
             value.setStatements(submodelElement.getStatements().stream()
+                    .filter(Objects::nonNull)
+                    .filter(ElementValueHelper::isValueOnlySupported)
                     .collect(Collectors.toMap(
-                            x -> x != null ? x.getIdShort() : null,
-                            LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
+                            Referable::getIdShort,
+                            LambdaExceptionHelper.rethrowFunction(ElementValueMapper::toValue))));
         }
         value.setGlobalAssetId(submodelElement.getGlobalAssetId());
         value.setSpecificAssetIds(submodelElement.getSpecificAssetIds());

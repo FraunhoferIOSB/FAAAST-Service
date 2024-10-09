@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.event.EventMessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.AnnotatedRelationshipElementValueSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BasicEventElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BlobValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.FileValueSerializer;
@@ -33,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event.El
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event.TypedValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
@@ -74,6 +76,7 @@ public class JsonEventSerializer {
         });
         module.addSerializer(BlobValue.class, new BlobValueSerializer());
         module.addSerializer(FileValue.class, new FileValueSerializer());
+        module.addSerializer(BasicEventElementValue.class, new BasicEventElementValueSerializer());
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
         module.addSerializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueSerializer());
         module.addSerializer(TypedValue.class, new TypedValueSerializer());

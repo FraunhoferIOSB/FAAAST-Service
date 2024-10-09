@@ -20,9 +20,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentSerializer implements EnvironmentSerializer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlEnvironmentSerializer.class);
     private final XmlSerializer serializer;
 
     public XmlEnvironmentSerializer() {
@@ -40,8 +44,8 @@ public class XmlEnvironmentSerializer implements EnvironmentSerializer {
 
     @Override
     public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
-        if (files != null && !files.isEmpty()) {
-            throw new UnsupportedOperationException("serializing file content is not supported for data format XML");
+        if (Objects.nonNull(files) && !files.isEmpty()) {
+            LOGGER.debug("embedded files are ignored when serializing to XML");
         }
         try {
             return serializer.write(environment).getBytes(charset);

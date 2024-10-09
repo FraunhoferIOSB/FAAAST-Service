@@ -15,14 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 
 
 /**
- * Mixing for {@link Result}.
+ * Mixing for {@link Message}.
  */
-public interface ResultMixin {
+public interface MessageMixin {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getCode();
 }

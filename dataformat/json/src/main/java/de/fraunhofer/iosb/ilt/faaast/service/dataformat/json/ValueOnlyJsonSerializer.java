@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResponseMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResultMixin;
@@ -41,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.Submod
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.SubmodelElementListValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.TypedValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.AnnotatedRelationshipElementValueSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BasicEventElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.BlobValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EntityValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
@@ -53,6 +55,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.Submodel
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -62,7 +65,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWi
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
@@ -119,8 +124,9 @@ public class ValueOnlyJsonSerializer {
      * @param obj the object to serialize
      * @return the serialized object
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
      */
-    public String write(Object obj) throws SerializationException {
+    public String write(Object obj) throws SerializationException, UnsupportedContentModifierException {
         return write(obj, Level.DEFAULT, Extent.DEFAULT);
     }
 
@@ -133,8 +139,9 @@ public class ValueOnlyJsonSerializer {
      * @param level the level to use for serialization
      * @return the serialized object
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
      */
-    public String write(Object obj, Level level) throws SerializationException {
+    public String write(Object obj, Level level) throws SerializationException, UnsupportedContentModifierException {
         return write(obj, level, Extent.DEFAULT);
     }
 
@@ -147,8 +154,9 @@ public class ValueOnlyJsonSerializer {
      * @param extent the extent to use for serialization
      * @return the serialized object
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
      */
-    public String write(Object obj, Extent extent) throws SerializationException {
+    public String write(Object obj, Extent extent) throws SerializationException, UnsupportedContentModifierException {
         return write(obj, Level.DEFAULT, extent);
     }
 
@@ -161,15 +169,13 @@ public class ValueOnlyJsonSerializer {
      * @param extend the extent to use for serialization
      * @return the serialized object
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedContentModifierException if obj does not support valueOnly serialization
      */
-    public String write(Object obj, Level level, Extent extend) throws SerializationException {
+    public String write(Object obj, Level level, Extent extend) throws SerializationException, UnsupportedContentModifierException {
         if (Objects.nonNull(obj) &&
                 !ElementValueHelper.isValueOnlySupported(obj) &&
                 !isExplicitelyAcceptedType(obj.getClass())) {
-            throw new SerializationException(
-                    String.format(
-                            "Provided element is not supported by value-only serialization (type: %s). Supported types are: all subtypes of DataElement, SubmodelElementCollection, ReferenceElement, RelationshipElement, AnnotatedRelationshipElement, and Entity as well as all subtypes of ElementValue",
-                            obj.getClass()));
+            throw new UnsupportedContentModifierException(Content.VALUE, obj.getClass());
         }
         try {
             return wrapper.getMapper().writer()
@@ -209,6 +215,7 @@ public class ValueOnlyJsonSerializer {
         mapper.addMixIn(AbstractDateTimeValue.class, AbstractDateTimeValueMixIn.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
+        mapper.addMixIn(Message.class, MessageMixin.class);
         mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestValueMixin.class);
@@ -221,6 +228,7 @@ public class ValueOnlyJsonSerializer {
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
         module.addSerializer(FileValue.class, new FileValueSerializer());
         module.addSerializer(BlobValue.class, new BlobValueSerializer());
+        module.addSerializer(BasicEventElementValue.class, new BasicEventElementValueSerializer());
         module.addSerializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueSerializer());
         module.addSerializer(EntityValue.class, new EntityValueSerializer());
         module.addSerializer(SubmodelElement.class, new SubmodelElementValueSerializer());
