@@ -19,7 +19,14 @@
 		- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
 		- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
 		- Fixed "serialization failed" bug when retrieving a property of type `GDay`
-
+		- Added support for query parameters `assetId` and `idShort` for `/shells/$reference`
+		- `/serialization` no longer fails when model contains 'embedded' files but target file format does not. Instead, files are ignored.
+		- Fixed bug where `/aas/asset-information/thumbnail` incorrectly returns `500 Internal Server Error` when property `content-type` is not set
+- Serialization
+	- JSON
+		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization
+		- Added support for valueOnly serialization of `BasicEventElement`
+		- Fixed serialization of `Message` object to only include `code` property if set
 ## 1.1.0
 
 **New Features & Major Changes**
