@@ -13,6 +13,7 @@
 	- Fixed bug when executing an operation asynchronously. When the timeout has expired, the status of the operation was set to timeout, even if the operation  already finished successfully. This does no longer happen - the timeout no longer overwrites the result of the operation.
 	- Fix warning message about missing Log4j2 logging implementation
 	- Fix registry synchronization because of invalid _interface serialization
+	- Invoke asynchronous operation now ignores the clientTimeout
 - Endpoint
 	- HTTP
 		- Fixed query modifier `extent` which has not been working as intended
