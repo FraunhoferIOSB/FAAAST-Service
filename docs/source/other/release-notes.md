@@ -22,6 +22,7 @@
 		- Added support for query parameters `assetId` and `idShort` for `/shells/$reference`
 		- `/serialization` no longer fails when model contains 'embedded' files but target file format does not. Instead, files are ignored.
 		- Fixed bug where `/aas/asset-information/thumbnail` incorrectly returns `500 Internal Server Error` when property `content-type` is not set
+		- Enable paging for `/submodel/submodel-elements/$path`
 - Serialization
 	- JSON
 		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization
