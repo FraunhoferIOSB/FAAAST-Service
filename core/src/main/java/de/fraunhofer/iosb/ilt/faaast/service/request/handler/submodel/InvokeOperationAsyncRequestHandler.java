@@ -150,12 +150,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    (output, inoutput) -> {
-                        handleOperationSuccess(reference, operationHandle, inoutput, output);
-                    },
-                    error -> {
-                        handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error);
-                    });
+                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output),
+                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error));
         }
         catch (Exception e) {
             handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e);
