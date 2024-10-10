@@ -81,7 +81,7 @@ public class IdShortPath {
         }
         IdShortPath.Builder builder = IdShortPath.builder();
         boolean inList = false;
-        for (int i = startIndex + 1; i < reference.getKeys().size(); i++) {
+        for (int i = startIndex; i < reference.getKeys().size(); i++) {
             ReferenceHelper.ensureKeyType(reference.getKeys().get(i), SubmodelElement.class);
             if (inList) {
                 builder.index(Long.parseUnsignedLong(reference.getKeys().get(i).getValue()));
