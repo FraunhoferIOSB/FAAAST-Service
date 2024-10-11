@@ -19,8 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
@@ -44,7 +44,7 @@ public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHa
 
     @Override
     public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request)
-            throws ResourceNotFoundException, MessageBusException, ValidationException, StorageException {
+            throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteAssetAdministrationShell(request.getId());

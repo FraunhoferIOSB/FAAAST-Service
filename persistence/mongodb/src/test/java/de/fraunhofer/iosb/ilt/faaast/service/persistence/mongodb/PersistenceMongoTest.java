@@ -31,9 +31,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -79,7 +80,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                     .initialModel(initialModel)
                     .initialModelFile(initialModelFile)
                     .connectionString("mongodb://" + serverAddress.getHost() + ":" + serverAddress.getPort())
-                    .databaseName("MongoTest")
+                    .database("faaast")
                     .override(override)
                     .build();
         }
@@ -104,7 +105,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
 
     @Test
-    public void testEnvironmentOverride() throws ConfigurationException, ResourceNotFoundException, StorageException {
+    public void testEnvironmentOverride() throws ConfigurationException, ResourceNotFoundException, PersistenceException {
         Environment environment = AASSimple.createEnvironment();
         Persistence noOverridePersistence = getPersistenceConfig(null, environment, false).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         noOverridePersistence.start();
@@ -122,7 +123,8 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
 
     @Test
-    public void putSubmodelElementNewInDeepSubmodelElementList() throws ResourceNotFoundException, ResourceNotAContainerElementException, ConfigurationException, StorageException {
+    public void putSubmodelElementNewInDeepSubmodelElementList()
+            throws ResourceNotFoundException, ResourceNotAContainerElementException, ConfigurationException, PersistenceException, ResourceAlreadyExistsException {
         Environment environment = AASFull.createEnvironment();
         Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         persistence.start();
@@ -149,7 +151,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
     @Test
     @Ignore
     //currently no specificAssetIds in environment available
-    public void getShellsWithSpecialAssetIdentification() throws ConfigurationException, SerializationException, StorageException {
+    public void getShellsWithSpecialAssetIdentification() throws ConfigurationException, SerializationException, PersistenceException {
         Environment environment = AASFull.createEnvironment();
         Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
         persistence.start();

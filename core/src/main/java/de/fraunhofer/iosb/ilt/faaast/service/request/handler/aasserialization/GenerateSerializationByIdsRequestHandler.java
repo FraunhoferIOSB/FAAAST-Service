@@ -23,13 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
 
     @Override
     public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request)
-            throws ResourceNotFoundException, SerializationException, IOException, StorageException {
+            throws ResourceNotFoundException, SerializationException, IOException, PersistenceException {
         DefaultEnvironment environment;
         if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {
             environment = new DefaultEnvironment.Builder()
@@ -73,26 +74,15 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
         }
         else {
             environment = new DefaultEnvironment.Builder()
-                    .assetAdministrationShells(
-                            request.getAasIds().stream()
-                                    .map(x -> {
-                                        try {
-                                            return context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER);
-                                        }
-                                        catch (ResourceNotFoundException | StorageException e) {
-                                            return null;
-                                        }
-                                    })
-                                    .collect(Collectors.toList()))
+                    .assetAdministrationShells(request.getAasIds().stream()
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER),
+                                    ResourceNotFoundException.class,
+                                    PersistenceException.class))
+                            .collect(Collectors.toList()))
                     .submodels(request.getSubmodelIds().stream()
-                            .map(x -> {
-                                try {
-                                    return context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER);
-                                }
-                                catch (ResourceNotFoundException | StorageException e) {
-                                    return null;
-                                }
-                            })
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER),
+                                    ResourceNotFoundException.class,
+                                    PersistenceException.class))
                             .collect(Collectors.toList()))
                     .conceptDescriptions(request.getIncludeConceptDescriptions()
                             ? context.getPersistence().findConceptDescriptions(
@@ -113,7 +103,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                 files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), file.getValue()));
                             }
                         }
-                        catch (ResourceNotFoundException | StorageException e) {
+                        catch (ResourceNotFoundException | PersistenceException e) {
                             //intentionally empty
                         }
                     }
@@ -127,14 +117,9 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .filter(x -> Objects.nonNull(x.getAssetInformation().getDefaultThumbnail().getPath()))
                 .distinct()
                 .map(x -> x.getAssetInformation().getDefaultThumbnail().getPath())
-                .map(x -> {
-                    try {
-                        return new InMemoryFile(context.getFileStorage().get(x), x);
-                    }
-                    catch (ResourceNotFoundException | StorageException e) {
-                        return null;
-                    }
-                })
+                .map(LambdaExceptionHelper.rethrowFunction(x -> new InMemoryFile(context.getFileStorage().get(x), x),
+                        ResourceNotFoundException.class,
+                        PersistenceException.class))
                 .collect(Collectors.toList()));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())

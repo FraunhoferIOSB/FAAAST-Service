@@ -18,8 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -52,7 +52,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         try {
             return serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException | StorageException e) {
+        catch (ResourceNotFoundException | PersistenceException e) {
             throw new IllegalStateException(String.format(
                     "MQTT subscription provider could not get type info as resource does not exist or storage failed - this should not be able to occur (reference: %s)",
                     ReferenceHelper.toString(reference)),

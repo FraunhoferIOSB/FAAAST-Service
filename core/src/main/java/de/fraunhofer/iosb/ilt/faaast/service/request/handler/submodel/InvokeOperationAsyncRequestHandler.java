@@ -25,8 +25,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
@@ -122,7 +122,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                 ArgumentType.OUTPUT));
             }
         }
-        catch (ResourceNotFoundException | InvalidRequestException | StorageException e) {
+        catch (ResourceNotFoundException | InvalidRequestException | PersistenceException e) {
             handleOperationFailure(reference, operationResult.getInoutputArguments(), operationHandle, e);
         }
 
@@ -134,7 +134,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                     .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
                     .build());
         }
-        catch (ValueMappingException | MessageBusException | StorageException e) {
+        catch (ValueMappingException | MessageBusException | PersistenceException e) {
             LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
         }
     }
@@ -157,7 +157,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                     .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
                     .build());
         }
-        catch (ValueMappingException | MessageBusException | StorageException e) {
+        catch (ValueMappingException | MessageBusException | PersistenceException e) {
             LOGGER.warn("could not publish OperationFinishedEventMessage on messagebus", e);
         }
     }

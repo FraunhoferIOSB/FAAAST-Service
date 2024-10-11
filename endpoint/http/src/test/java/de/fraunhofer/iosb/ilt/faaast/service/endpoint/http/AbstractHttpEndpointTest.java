@@ -58,7 +58,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeO
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -763,7 +763,7 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void mockAasContext(ServiceContext serviceContext, String aasId) throws StorageException {
+    private void mockAasContext(ServiceContext serviceContext, String aasId) throws PersistenceException {
         doReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
                         .id(aasId)

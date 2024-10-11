@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
  */
 public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> {
     private String connectionString;
-    private String databaseName = "MongoTest";
+    private String database = "faaast";
     private boolean override = false;
 
     public String getConnectionString() {
@@ -35,13 +35,13 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
     }
 
 
-    public String getDatabaseName() {
-        return databaseName;
+    public String getDatabase() {
+        return database;
     }
 
 
-    public void setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
+    public void setDatabase(String database) {
+        this.database = database;
     }
 
 
@@ -67,8 +67,8 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
         }
 
 
-        public B databaseName(String value) {
-            getBuildingInstance().setDatabaseName(value);
+        public B database(String value) {
+            getBuildingInstance().setDatabase(value);
             return getSelf();
         }
 

@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -38,9 +38,9 @@ public interface ServiceContext {
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
      *         reference is null
      * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
-     * @throws StorageException if storage error occurs
+     * @throws PersistenceException if storage error occurs
      */
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, StorageException;
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -58,7 +58,7 @@ public interface ServiceContext {
      *
      * @return a deep copied Environment instance of the service
      */
-    public Environment getAASEnvironment() throws StorageException;
+    public Environment getAASEnvironment() throws PersistenceException;
 
 
     /**
@@ -79,7 +79,7 @@ public interface ServiceContext {
      * @throws IllegalArgumentException if reference cannot be resolved
      * @throws IllegalArgumentException if reference does not point to an operation
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, StorageException;
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException;
 
 
     /**

@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
@@ -50,7 +50,7 @@ public class GetSubmodelElementByPathReferenceRequestHandler
 
     @Override
     public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, StorageException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath());
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
         if (!request.isInternal()) {
@@ -66,7 +66,7 @@ public class GetSubmodelElementByPathReferenceRequestHandler
     }
 
 
-    private Reference resolveReferenceWithTypes(String submodelId, String idShortPath) throws ResourceNotFoundException, StorageException {
+    private Reference resolveReferenceWithTypes(String submodelId, String idShortPath) throws ResourceNotFoundException, PersistenceException {
         ReferenceBuilder builder = new ReferenceBuilder();
         builder.submodel(submodelId);
         IdShortPath.Builder pathBuilder = IdShortPath.builder();

@@ -40,8 +40,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -510,7 +510,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private void assertConnect(EmbeddedOpcUaServer server, OpcUaAssetConnectionConfig config)
-            throws ValueFormatException, AssetConnectionException, ConfigurationException, ResourceNotFoundException, StorageException {
+            throws ValueFormatException, AssetConnectionException, ConfigurationException, ResourceNotFoundException, PersistenceException {
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expected = PropertyValue.of(Datatype.DOUBLE, "3.3");
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
@@ -543,7 +543,7 @@ public class OpcUaAssetConnectionTest {
                                      EndpointSecurityConfiguration securityConfiguration,
                                      OpcUaAssetConnectionConfig config,
                                      Consumer<OpcUaAssetConnectionConfig> beforeConnect)
-            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException, StorageException {
+            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException, PersistenceException {
 
         Path clientBaseSecurityDir = Paths.get(Files.createTempDirectory("client").toString(), "client");
         try {
@@ -593,7 +593,7 @@ public class OpcUaAssetConnectionTest {
                                                 EmbeddedOpcUaServer server,
                                                 EndpointSecurityConfiguration securityConfiguration)
             throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException,
-            ResourceNotFoundException, StorageException {
+            ResourceNotFoundException, PersistenceException {
         List<X509Certificate> clientCertificate = new ArrayList<>();
         try {
             assertConnectSecure(server,
@@ -633,7 +633,7 @@ public class OpcUaAssetConnectionTest {
                                                      EndpointSecurityConfiguration securityConfiguration,
                                                      String username,
                                                      String password)
-            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException, StorageException {
+            throws ValueFormatException, AssetConnectionException, IOException, GeneralSecurityException, ConfigurationException, ResourceNotFoundException, PersistenceException {
         assertConnectSecure(
                 server,
                 securityConfiguration,
@@ -655,7 +655,7 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> expectedInoutput,
                                        Map<String, PropertyValue> expectedOutput)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
-            StorageException {
+            PersistenceException {
         assertInvokeOperation(server, nodeId, sync, input, inoutput, expectedInoutput, expectedOutput, null, null);
     }
 
@@ -671,7 +671,7 @@ public class OpcUaAssetConnectionTest {
                                        List<ArgumentMapping> inputMapping,
                                        List<ArgumentMapping> outputMapping)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
-            StorageException {
+            PersistenceException {
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(server.getEndpoint(Protocol.TCP))
@@ -847,7 +847,7 @@ public class OpcUaAssetConnectionTest {
                                       PropertyValue expected,
                                       String arrayIndex)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
-            StorageException {
+            PersistenceException {
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()

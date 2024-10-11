@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.AbstractFileStorageTest
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystem;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.filesystem.FileStorageFilesystemConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +41,7 @@ public class FileStorageFilesystemTest extends AbstractFileStorageTest<FileStora
 
 
     @Test
-    public void testCustomPath() throws ConfigurationException, IOException, ResourceNotFoundException, StorageException {
+    public void testCustomPath() throws ConfigurationException, IOException, ResourceNotFoundException, PersistenceException {
         Path rootPath = Path.of("foo/bar");
         Path filePath = Path.of("my/path/file.txt");
         rootPath.toFile().deleteOnExit();

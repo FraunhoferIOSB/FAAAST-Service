@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
@@ -133,7 +133,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
                     .forEach(LambdaExceptionHelper.rethrowConsumer(
                             x -> save(x.getPath(), x.getFileContent())));
         }
-        catch (DeserializationException | InvalidConfigurationException | StorageException e) {
+        catch (DeserializationException | InvalidConfigurationException | PersistenceException e) {
             throw new ConfigurationInitializationException("error initializing file-system file storage", e);
         }
     }
@@ -171,20 +171,20 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
 
     @Override
-    public void save(String path, byte[] content) throws StorageException {
+    public void save(String path, byte[] content) throws PersistenceException {
         try {
             Files.write(
                     Path.of(config.getPath(), encodeFilePath(path)),
                     content);
         }
         catch (IOException e) {
-            throw new StorageException(e);
+            throw new PersistenceException(e);
         }
     }
 
 
     @Override
-    public void delete(String path) throws ResourceNotFoundException, StorageException {
+    public void delete(String path) throws ResourceNotFoundException, PersistenceException {
         String encodedFilePath = encodeFilePath(path);
         if (existingFiles.containsKey(encodedFilePath)) {
             existingFiles.remove(encodedFilePath);
@@ -196,7 +196,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
                 }
             }
             catch (IOException e) {
-                throw new StorageException(e);
+                throw new PersistenceException(e);
             }
         }
     }
