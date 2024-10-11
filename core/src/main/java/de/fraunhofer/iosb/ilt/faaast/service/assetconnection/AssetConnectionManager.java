@@ -89,19 +89,7 @@ public class AssetConnectionManager {
             LOGGER.info("Connecting to assets...");
         }
         for (var connection: connections) {
-            try {
-                // try to connect in synchronized way, if that fails keep trying to connect async
-                tryConnecting(connection);
-                setupSubscriptions(connection);
-            }
-            catch (AssetConnectionException e) {
-                LOGGER.info(
-                        "Establishing asset connection failed on initial attempt (endpoint: {}). Connecting will be retried every {}ms but no more messages about failures will be shown.",
-                        connection.getEndpointInformation(),
-                        coreConfig.getAssetConnectionRetryInterval(),
-                        e);
-                setupConnectionAsync(connection);
-            }
+            setupConnectionAsync(connection);
         }
         lambdaAssetConnection.start();
     }
@@ -184,14 +172,14 @@ public class AssetConnectionManager {
             }
             catch (AssetConnectionException e) {
                 try {
-                    LOGGER.trace("Establishing asset connection failed (endpoint: {})",
-                            connection.getEndpointInformation(),
+                    LOGGER.trace(String.format("Establishing asset connection failed (endpoint: %s)",
+                            connection.getEndpointInformation()),
                             e);
 
                     Thread.sleep(coreConfig.getAssetConnectionRetryInterval());
                 }
                 catch (InterruptedException e2) {
-                    LOGGER.error("Error while establishing asset connection (endpoint: {})", connection.getEndpointInformation(), e2);
+                    LOGGER.error(String.format("Error while establishing asset connection (endpoint: %s)", connection.getEndpointInformation()), e);
                     Thread.currentThread().interrupt();
                 }
             }
