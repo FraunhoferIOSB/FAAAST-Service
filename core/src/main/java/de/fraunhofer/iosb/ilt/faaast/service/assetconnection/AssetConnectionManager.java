@@ -172,14 +172,14 @@ public class AssetConnectionManager {
             }
             catch (AssetConnectionException e) {
                 try {
-                    LOGGER.trace(String.format("Establishing asset connection failed (endpoint: %s)",
-                            connection.getEndpointInformation()),
+                    LOGGER.trace("Establishing asset connection failed (endpoint: {})",
+                            connection.getEndpointInformation(),
                             e);
 
                     Thread.sleep(coreConfig.getAssetConnectionRetryInterval());
                 }
                 catch (InterruptedException e2) {
-                    LOGGER.error(String.format("Error while establishing asset connection (endpoint: %s)", connection.getEndpointInformation()), e);
+                    LOGGER.error("Error while establishing asset connection (endpoint: {})", connection.getEndpointInformation(), e2);
                     Thread.currentThread().interrupt();
                 }
             }
