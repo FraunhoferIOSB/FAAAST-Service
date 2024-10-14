@@ -30,7 +30,7 @@
 		- Fixed serialization of `Message` object to only include `code` property if set
 - Asset Connection
 	- General
-		- Fixed bug that caused Fa³st Service to crash when an Asset Connection threw an exception on startup
+		- Fixed bug that caused FA³ST Service to crash when an Asset Connection threw an exception on startup
 
 ## 1.1.0
 
