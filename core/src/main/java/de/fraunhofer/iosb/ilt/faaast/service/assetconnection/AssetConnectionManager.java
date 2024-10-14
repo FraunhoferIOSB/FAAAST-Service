@@ -166,21 +166,30 @@ public class AssetConnectionManager {
 
 
     private void tryConnectingUntilSuccess(AssetConnection connection) {
+        try {
+            tryConnecting(connection);
+        }
+        catch (AssetConnectionException e) {
+            LOGGER.info(
+                    "Establishing asset connection failed on initial attempt (endpoint: {}, reason: {}). Connecting will be retried every {} ms but no more messages about failures will be shown.",
+                    connection.getEndpointInformation(),
+                    e.getMessage(),
+                    coreConfig.getAssetConnectionRetryInterval(),
+                    e);
+        }
         while (active && !connection.isConnected()) {
             try {
                 tryConnecting(connection);
             }
             catch (AssetConnectionException e) {
+                LOGGER.trace("Establishing asset connection failed (endpoint: {})",
+                        connection.getEndpointInformation(),
+                        e);
                 try {
-                    LOGGER.trace("Establishing asset connection failed (endpoint: {})",
-                            connection.getEndpointInformation(),
-                            e);
-
                     Thread.sleep(coreConfig.getAssetConnectionRetryInterval());
                 }
                 catch (InterruptedException e2) {
-                    LOGGER.error("Error while establishing asset connection (endpoint: {})", connection.getEndpointInformation(), e2);
-                    Thread.currentThread().interrupt();
+                    // intentionally empty
                 }
             }
         }
