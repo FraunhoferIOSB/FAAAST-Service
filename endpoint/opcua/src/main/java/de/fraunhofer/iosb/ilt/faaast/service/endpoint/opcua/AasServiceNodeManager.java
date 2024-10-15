@@ -262,7 +262,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.debug("getAasSubmodelElement: NodeId: {}; Property {}", node, retval);
         }
         else {
-            LOG.info("Node {} not found in submodelElementMap", node);
+            LOG.trace("Node {} not found in submodelElementMap", node);
         }
 
         return retval;
@@ -455,8 +455,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
         }
-        else if (LOG.isInfoEnabled()) {
-            LOG.info("elementDeleted: element not found in referableMap: {}", ReferenceHelper.toString(element));
+        else {
+            LOG.atTrace().log("elementDeleted: element not found in referableMap: {}", ReferenceHelper.toString(element));
         }
     }
 
@@ -752,8 +752,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 doRemoveFromMaps(aASSubmodelElementType, ref, de);
             }
         }
-        else if (LOG.isDebugEnabled()) {
-            LOG.info("doRemoveFromMaps: element not found in referableMap: {}", ReferenceHelper.toString(ref));
+        else {
+            LOG.atTrace().log("doRemoveFromMaps: element not found in referableMap: {}", ReferenceHelper.toString(ref));
         }
     }
 
