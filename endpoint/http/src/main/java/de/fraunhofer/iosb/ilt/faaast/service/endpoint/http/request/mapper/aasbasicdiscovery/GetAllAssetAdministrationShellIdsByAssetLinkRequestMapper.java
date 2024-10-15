@@ -24,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
@@ -49,7 +48,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper
             GetAllAssetAdministrationShellIdsByAssetLinkRequest.Builder builder = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder();
             if (httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)) {
                 builder = builder.assetIdentifierPairs(deserializer.readList(
-                        EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
+                        getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.ASSET_IDS),
                         SpecificAssetId.class));
             }
             return builder.build();

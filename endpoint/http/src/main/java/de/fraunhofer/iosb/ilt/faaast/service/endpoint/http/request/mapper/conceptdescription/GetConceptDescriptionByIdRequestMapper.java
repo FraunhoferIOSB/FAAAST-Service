@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -39,9 +39,9 @@ public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return GetConceptDescriptionByIdRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(CONCEPT_ID)))
+                .id(getParameterBase64UrlEncoded(urlParameters, CONCEPT_ID))
                 .build();
     }
 }

@@ -4,6 +4,9 @@
 
 **New Features & Major Changes**
 - Endpoint
+	- HTTP
+		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
+		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
 	- OPC UA
 		- Added support for all datatypes of the AAS specification
 
@@ -24,6 +27,7 @@
 		- `/serialization` no longer fails when model contains 'embedded' files but target file format does not. Instead, files are ignored.
 		- Fixed bug where `/aas/asset-information/thumbnail` incorrectly returns `500 Internal Server Error` when property `content-type` is not set
 		- Enable paging for `/submodel/submodel-elements/$path`
+		- Upgraded to Jetty 12
 - Serialization
 	- JSON
 		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization

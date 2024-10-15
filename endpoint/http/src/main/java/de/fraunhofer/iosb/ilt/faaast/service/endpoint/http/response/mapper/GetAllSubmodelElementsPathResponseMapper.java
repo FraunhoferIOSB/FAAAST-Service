@@ -15,16 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,23 +38,12 @@ public class GetAllSubmodelElementsPathResponseMapper extends AbstractResponseMa
 
 
     @Override
-    public void map(GetAllSubmodelElementsPathRequest apiRequest, GetAllSubmodelElementsPathResponse apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException {
+    public void map(GetAllSubmodelElementsPathRequest apiRequest, GetAllSubmodelElementsPathResponse apiResponse, HttpServletResponse httpResponse) throws Exception {
         Page<String> result = Page.of(
                 apiResponse.getPayload().getContent().stream().map(Object::toString).toList(),
                 apiResponse.getPayload().getMetadata());
-        try {
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(result));
-        }
-        catch (SerializationException e) {
-            LOGGER.warn("error serializing response", e);
-            HttpHelper.send(
-                    httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
+        HttpHelper.sendJson(httpResponse,
+                apiResponse.getStatusCode(),
+                new HttpJsonApiSerializer().write(result));
     }
 }

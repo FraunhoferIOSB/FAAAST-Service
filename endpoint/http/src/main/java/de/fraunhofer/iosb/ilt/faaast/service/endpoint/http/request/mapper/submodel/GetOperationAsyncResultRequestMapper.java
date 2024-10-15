@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterf
         return GetOperationAsyncResultRequest.builder()
                 .path(urlParameters.get(SUBMODEL_ELEMENT_PATH))
                 .handle(OperationHandle.builder()
-                        .handleId(EncodingHelper.base64UrlDecode(urlParameters.get(HANDLE_ID)))
+                        .handleId(getParameterBase64UrlEncoded(urlParameters, HANDLE_ID))
                         .build())
                 .build();
     }

@@ -17,10 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
@@ -56,25 +53,15 @@ public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends Abs
 
 
     @Override
-    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
-        try {
-            httpResponse.addHeader("Location", computeLocationHeader(apiRequest, apiResponse));
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(
-                            apiResponse.getPayload(),
-                            AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
-                                    ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
-                                    : OutputModifier.DEFAULT));
-        }
-        catch (Exception e) {
-            LOGGER.warn("error handling request", e);
-            HttpHelper.send(
-                    httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws Exception {
+        httpResponse.addHeader("Location", computeLocationHeader(apiRequest, apiResponse));
+        HttpHelper.sendJson(httpResponse,
+                apiResponse.getStatusCode(),
+                new HttpJsonApiSerializer().write(
+                        apiResponse.getPayload(),
+                        AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
+                                ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
+                                : OutputModifier.DEFAULT));
+
     }
 }

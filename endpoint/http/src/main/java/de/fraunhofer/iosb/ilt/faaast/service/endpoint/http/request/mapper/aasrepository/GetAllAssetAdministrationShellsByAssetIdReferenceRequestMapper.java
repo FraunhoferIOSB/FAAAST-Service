@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
@@ -57,7 +56,8 @@ public class GetAllAssetAdministrationShellsByAssetIdReferenceRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdReferenceRequest.builder()
-                    .assetIds(deserializer.readList(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
+                    .assetIds(deserializer.readList(
+                            getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.ASSET_IDS),
                             SpecificAssetId.class))
                     .build();
         }
