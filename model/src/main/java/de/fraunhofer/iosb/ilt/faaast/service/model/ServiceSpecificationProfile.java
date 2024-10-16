@@ -24,7 +24,7 @@ public enum ServiceSpecificationProfile {
     SUBMODEL_VALUE("https://admin-shell.io/aas/API/3/0/SubmodelServiceSpecification/SSP-002"),
     SUBMODEL_READ("https://admin-shell.io/aas/API/3/0/SubmodelServiceSpecification/SSP-003"),
     AASX_FILE_SERVER_FULL("https://admin-shell.io/aas/API/3/0/AasxFileServerServiceSpecification/SSP-001"),
-    AAS_REGISTRY_FULL("https://admin-shell.io/aas/API/3/0/AasxFileServerServiceSpecification/SSP-001"),
+    AAS_REGISTRY_FULL("https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRegistryServiceSpecification/SSP-001"),
     AAS_REGISTRY_READ("https://admin-shell.io/aas/API/3/0/AssetAdministrationShellRegistryServiceSpecification/SSP-002"),
     SUBMODEL_REGISTRY_FULL("https://admin-shell.io/aas/API/3/0/SubmodelRegistryServiceSpecification/SSP-001"),
     SUBMODEL_REGISTRY_READ("https://admin-shell.io/aas/API/3/0/SubmodelRegistryServiceSpecification/SSP-002"),
