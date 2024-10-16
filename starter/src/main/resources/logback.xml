@@ -47,4 +47,5 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
+    <logger name="org.eclipse.jetty.ee10.servlet.ServletChannel" level="ERROR"/>
 </configuration>

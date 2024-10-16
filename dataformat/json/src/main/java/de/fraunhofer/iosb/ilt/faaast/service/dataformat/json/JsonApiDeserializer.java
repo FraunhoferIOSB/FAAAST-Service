@@ -138,6 +138,9 @@ public class JsonApiDeserializer implements ApiDeserializer {
 
     @Override
     public <T> List<T> readList(String json, JavaType type) throws DeserializationException {
+        if (Objects.isNull(json)) {
+            return new ArrayList<>();
+        }
         try {
             return wrapper.getMapper().readValue(
                     json,

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import jakarta.servlet.http.HttpServletResponse;
 
 
@@ -32,7 +33,7 @@ public class DefaultResponseMapper extends AbstractResponseMapper<AbstractRespon
 
 
     @Override
-    public void map(Request<AbstractResponse> apiRequest, AbstractResponse apiResponse, HttpServletResponse httpResponse) {
+    public void map(Request<AbstractResponse> apiRequest, AbstractResponse apiResponse, HttpServletResponse httpResponse) throws InvalidRequestException {
         HttpHelper.send(httpResponse, apiResponse.getStatusCode());
     }
 }

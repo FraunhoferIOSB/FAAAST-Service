@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
+import org.eclipse.jetty.client.transport.HttpClientTransportDynamic;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;

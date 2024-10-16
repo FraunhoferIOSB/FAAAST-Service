@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.BooleanHelper;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +50,24 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         GenerateSerializationByIdsRequest.Builder builder = GenerateSerializationByIdsRequest.builder();
         if (httpRequest.hasQueryParameter(QueryParameters.AAS_IDS)) {
-            builder.aasIds(parseAndDecodeQueryParameter(httpRequest.getQueryParameter(QueryParameters.AAS_IDS)));
+            builder.aasIds(parseAndDecodeQueryParameter(httpRequest.getQueryParameters(), QueryParameters.AAS_IDS));
         }
         if (httpRequest.hasQueryParameter(QueryParameters.SUBMODEL_IDS)) {
-            builder.submodelIds(parseAndDecodeQueryParameter(httpRequest.getQueryParameter(QueryParameters.SUBMODEL_IDS)));
+            builder.submodelIds(parseAndDecodeQueryParameter(httpRequest.getQueryParameters(), QueryParameters.SUBMODEL_IDS));
         }
         if (httpRequest.hasQueryParameter(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS)) {
-            builder.includeConceptDescriptions(Boolean.valueOf(httpRequest.getQueryParameter(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS)));
+            try {
+                builder.includeConceptDescriptions(
+                        BooleanHelper.parseStrictIgnoreCase(
+                                httpRequest.getQueryParameter(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS)));
+            }
+            catch (IllegalArgumentException e) {
+                throw new InvalidRequestException(
+                        String.format("invalid query parameter, must be valid boolean (name: %s, value: %s)",
+                                QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS,
+                                httpRequest.getQueryParameter(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS)),
+                        e);
+            }
         }
         if (httpRequest.hasHeader(HttpConstants.HEADER_ACCEPT)) {
             builder.serializationFormat(determineDataFormat(httpRequest.getHeader(HttpConstants.HEADER_ACCEPT)));
@@ -84,7 +95,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
     }
 
 
-    private List<String> parseAndDecodeQueryParameter(String input) {
-        return HttpHelper.parseCommaSeparatedList(EncodingHelper.base64UrlDecode(input));
+    private List<String> parseAndDecodeQueryParameter(Map<String, String> parameters, String parameterName) throws InvalidRequestException {
+        return HttpHelper.parseCommaSeparatedList(getParameterBase64UrlEncoded(parameters, parameterName));
     }
 }
