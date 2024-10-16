@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +69,7 @@ import opc.i4aas.datatypes.AASKeyTypesDataType;
 import opc.i4aas.datatypes.AASModellingKindDataType;
 import opc.i4aas.objecttypes.AASEntityType;
 import opc.i4aas.objecttypes.AASRelationshipElementType;
+import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -923,7 +925,7 @@ public class OpcUaEndpointFullTest {
         Long oldValue = Long.MAX_VALUE;
         Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
 
-        Long newValue = Long.valueOf(159785);
+        final Long newValue = Long.valueOf(159785);
 
         // set new value in service
         SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.FULL_SUBMODEL_6_ID)
@@ -932,12 +934,16 @@ public class OpcUaEndpointFullTest {
                 .build();
         Response response = service.execute(request);
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-
-        // read new value
-        value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
-
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .atMost(10, TimeUnit.SECONDS)
+                .until(() -> {
+                    DataValue latestValue = client.readValue(targets[0].getTargetId());
+                    return Objects.equals(StatusCode.GOOD, latestValue.getStatusCode())
+                            && Objects.equals(newValue, latestValue.getValue().getValue());
+                });
         System.out.println("disconnect client");
         client.disconnect();
     }

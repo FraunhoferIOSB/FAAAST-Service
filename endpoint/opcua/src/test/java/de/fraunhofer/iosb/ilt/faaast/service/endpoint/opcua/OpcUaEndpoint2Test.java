@@ -286,7 +286,6 @@ public class OpcUaEndpoint2Test {
                         .build())
                 .build());
         service.getMessageBus().publish(msg);
-
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the old element is not there anymore, but the new element
