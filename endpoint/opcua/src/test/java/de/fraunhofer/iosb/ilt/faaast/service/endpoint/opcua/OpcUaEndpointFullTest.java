@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -893,7 +894,7 @@ public class OpcUaEndpointFullTest {
 
 
     @Test
-    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException {
+    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException, InterruptedException {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
@@ -936,6 +937,13 @@ public class OpcUaEndpointFullTest {
         // read new value
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (Objects.equals(oldValue, value.getValue().getValue())) {
+            // if we read the old value again, we try again after a short waiting time
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(targets[0].getTargetId());
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
         Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
 
         System.out.println("disconnect client");

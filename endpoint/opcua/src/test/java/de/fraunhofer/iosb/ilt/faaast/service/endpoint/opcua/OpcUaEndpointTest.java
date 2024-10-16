@@ -255,6 +255,13 @@ public class OpcUaEndpointTest {
         // read new value
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (oldValue == value.getValue().getValue()) {
+            // if we read the old value again, we try again after a short waiting time
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(targets[0].getTargetId());
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
         Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
 
         System.out.println("disconnect client");
@@ -338,6 +345,13 @@ public class OpcUaEndpointTest {
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (value.getValue().getValue() == "5000") {
+            // if we read the old value again, we try again after a short waiting time
+            CountDownLatch condition = new CountDownLatch(1);
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            value = client.readValue(targets[0].getTargetId());
+            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        }
         Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
 
         System.out.println("disconnect client");
