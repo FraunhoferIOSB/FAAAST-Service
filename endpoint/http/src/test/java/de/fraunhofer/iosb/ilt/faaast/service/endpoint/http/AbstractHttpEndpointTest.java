@@ -68,13 +68,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -90,7 +88,6 @@ import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.Request;
 import org.eclipse.jetty.client.StringRequestContent;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
@@ -866,15 +863,6 @@ public abstract class AbstractHttpEndpointTest {
             }
         }
         return request.send();
-    }
-
-
-    private void assertAccessControllAllowMessageHeader(ContentResponse response, HttpMethod... expected) {
-        List<String> actual = Arrays.asList(response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER).split(HttpConstants.HEADER_VALUE_SEPARATOR));
-        List<String> expectedAsString = Stream.of(expected).map(Enum::name).collect(Collectors.toList());
-        Assert.assertTrue(actual.size() == expectedAsString.size()
-                && actual.containsAll(expectedAsString)
-                && expectedAsString.containsAll(actual));
     }
 
 

@@ -22,8 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,8 +31,6 @@ import org.slf4j.LoggerFactory;
  * @param <U> type of the request
  */
 public abstract class AbstractPostResponseWithLocationHeaderMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends ResponseWithPayloadResponseMapper<T, U> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPostResponseWithLocationHeaderMapper.class);
 
     protected AbstractPostResponseWithLocationHeaderMapper(ServiceContext serviceContext) {
         super(serviceContext);

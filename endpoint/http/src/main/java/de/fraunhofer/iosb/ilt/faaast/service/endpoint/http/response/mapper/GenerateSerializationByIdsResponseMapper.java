@@ -21,8 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,8 +28,6 @@ import org.slf4j.LoggerFactory;
  * the desired data format.
  */
 public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse, GenerateSerializationByIdsRequest> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateSerializationByIdsResponseMapper.class);
 
     public GenerateSerializationByIdsResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

@@ -23,16 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOper
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * HTTP response mapper for {@link GetOperationAsyncStatusResponse}.
  */
 public class GetOperationAsyncStatusResponseMapper extends AbstractResponseMapper<GetOperationAsyncStatusResponse, GetOperationAsyncStatusRequest> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetOperationAsyncStatusResponseMapper.class);
 
     public GetOperationAsyncStatusResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

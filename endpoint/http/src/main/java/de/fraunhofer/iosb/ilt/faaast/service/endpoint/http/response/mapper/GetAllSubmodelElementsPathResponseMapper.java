@@ -21,16 +21,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsPathResponse;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * HTTP response mapper for {@link GetAllSubmodelElementsPathResponse}.
  */
 public class GetAllSubmodelElementsPathResponseMapper extends AbstractResponseMapper<GetAllSubmodelElementsPathResponse, GetAllSubmodelElementsPathRequest> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetAllSubmodelElementsPathResponseMapper.class);
 
     public GetAllSubmodelElementsPathResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);

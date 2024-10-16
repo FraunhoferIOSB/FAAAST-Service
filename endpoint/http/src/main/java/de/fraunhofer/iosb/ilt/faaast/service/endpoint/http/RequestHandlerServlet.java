@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
@@ -23,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -38,8 +38,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,17 +46,13 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestHandlerServlet extends HttpServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerServlet.class);
     private final ServiceContext serviceContext;
-    private final HttpEndpointConfig config;
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
 
-    public RequestHandlerServlet(ServiceContext serviceContext, HttpEndpointConfig config) {
+    public RequestHandlerServlet(ServiceContext serviceContext) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
         this.serviceContext = serviceContext;
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
@@ -95,7 +89,7 @@ public class RequestHandlerServlet extends HttpServlet {
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(
                                 x -> x,
-                                x -> request.getHeader(x))))
+                                request::getHeader)))
                 .build();
         try {
             executeAndSend(response, requestMappingManager.map(httpRequest));
@@ -107,14 +101,13 @@ public class RequestHandlerServlet extends HttpServlet {
     }
 
 
-    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
-            throws SerializationException, InvalidRequestException, Exception {
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws Exception {
         if (Objects.isNull(apiRequest)) {
             throw new InvalidRequestException("empty api request");
         }
         de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(apiRequest);
         if (Objects.isNull(apiResponse)) {
-            throw new RuntimeException("empty API response");
+            throw new ServletException("empty API response");
         }
 
         if (isSuccessful(apiResponse)) {
@@ -133,7 +126,7 @@ public class RequestHandlerServlet extends HttpServlet {
                 && Optional.ofNullable(response.getResult().getMessages())
                         .orElse(List.of())
                         .stream()
-                        .map(x -> x.getMessageType())
+                        .map(Message::getMessageType)
                         .noneMatch(x -> Objects.equals(x, MessageType.ERROR) || Objects.equals(x, MessageType.EXCEPTION));
     }
 

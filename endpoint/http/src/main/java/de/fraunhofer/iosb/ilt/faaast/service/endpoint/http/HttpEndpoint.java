@@ -124,7 +124,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         context.setContextPath("/");
         crossOriginHandler.setHandler(context);
 
-        RequestHandlerServlet handler = new RequestHandlerServlet(serviceContext, config);
+        RequestHandlerServlet handler = new RequestHandlerServlet(serviceContext);
         context.addServlet(handler, "/*");
         server.setErrorHandler(new HttpErrorHandler(config));
         try {
