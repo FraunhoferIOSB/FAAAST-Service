@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
@@ -43,7 +42,7 @@ public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostAllAssetLinksByIdRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
+                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
                 .assetLinks(parseBodyAsList(httpRequest, SpecificAssetId.class))
                 .build();
     }

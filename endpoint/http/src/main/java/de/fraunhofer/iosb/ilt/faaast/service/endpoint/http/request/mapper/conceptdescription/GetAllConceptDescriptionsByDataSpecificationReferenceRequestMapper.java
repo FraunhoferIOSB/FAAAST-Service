@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -56,7 +55,9 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                    .dataSpecification(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF)), Reference.class))
+                    .dataSpecification(deserializer.read(
+                            getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.DATA_SPECIFICATION_REF),
+                            Reference.class))
                     .build();
         }
         catch (DeserializationException e) {

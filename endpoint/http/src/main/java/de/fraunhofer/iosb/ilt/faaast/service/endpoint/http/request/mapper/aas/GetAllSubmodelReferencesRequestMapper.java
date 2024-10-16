@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -40,9 +40,9 @@ public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapper
 
 
     @Override
-    public GetAllSubmodelReferencesRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo) {
+    public GetAllSubmodelReferencesRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, PagingInfo pagingInfo) throws InvalidRequestException {
         return GetAllSubmodelReferencesRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
+                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
                 .build();
     }
 }

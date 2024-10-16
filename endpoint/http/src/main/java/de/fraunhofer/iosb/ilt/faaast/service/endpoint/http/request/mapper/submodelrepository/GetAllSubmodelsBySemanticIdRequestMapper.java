@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -54,7 +53,9 @@ public class GetAllSubmodelsBySemanticIdRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllSubmodelsBySemanticIdRequest.builder()
-                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.SEMANTIC_ID)), Reference.class))
+                    .semanticId(deserializer.read(
+                            getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.SEMANTIC_ID),
+                            Reference.class))
                     .build();
         }
         catch (DeserializationException e) {

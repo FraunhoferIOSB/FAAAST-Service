@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
@@ -43,10 +43,10 @@ public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper 
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
-                .submodelRef(ReferenceBuilder.forSubmodel(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))))
+                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
+                .submodelRef(ReferenceBuilder.forSubmodel(getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID)))
                 .build();
     }
 }

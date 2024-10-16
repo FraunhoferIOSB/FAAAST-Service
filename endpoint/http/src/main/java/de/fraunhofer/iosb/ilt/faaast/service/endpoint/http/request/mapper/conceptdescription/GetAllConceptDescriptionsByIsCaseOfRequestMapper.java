@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -54,7 +53,9 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
-                    .isCaseOf(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF)), Reference.class))
+                    .isCaseOf(deserializer.read(
+                            getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.IS_CASE_OF),
+                            Reference.class))
                     .build();
         }
         catch (DeserializationException e) {

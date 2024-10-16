@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
@@ -41,9 +41,9 @@ public class GetAssetAdministrationShellRequestMapper extends AbstractRequestMap
 
 
     @Override
-    public GetAssetAdministrationShellRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAssetAdministrationShellRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return GetAssetAdministrationShellRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID)))
+                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
                 .build();
     }
 }
