@@ -48,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElemen
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -79,10 +80,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -94,9 +97,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Test class for the general OPC UA Endpoint test with the full example
  */
-public class OpcUaEndpointFullTest {
+public class OpcUaEndpointFullModelTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointFullTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointFullModelTest.class);
 
     private static final long DEFAULT_TIMEOUT = 500;
 
@@ -944,6 +947,121 @@ public class OpcUaEndpointFullTest {
                     return Objects.equals(StatusCode.GOOD, latestValue.getStatusCode())
                             && Objects.equals(newValue, latestValue.getValue().getValue());
                 });
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    @Test
+    public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testUpdateSubmodelElement: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        // make sure one of the old elements exists, the new element exists not yet
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_RANGE_NAME)));
+        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MAX_NAME)));
+        //relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        //browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 1 Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 1 not Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testUpdateSubmodelElement Target 1 Null", targets);
+        Assert.assertTrue("testUpdateSubmodelElement Target 1 empty", targets.length > 0);
+
+        // update submodel 
+        // Send update event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
+        ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .type(ReferenceTypes.MODEL_REFERENCE)
+                .keys(new DefaultKey.Builder().type(KeyTypes.SUBMODEL).value(TestConstants.FULL_SUBMODEL_6_ID).build())
+                .keys(new DefaultKey.Builder().type(KeyTypes.RELATIONSHIP_ELEMENT).value(TestConstants.FULL_REL_ELEMENT_NAME).build())
+                .build());
+        msg.setValue(new DefaultRelationshipElement.Builder()
+                .idShort("ExampleRelationshipElement")
+                .category("PARAMETER")
+                .description(new DefaultLangStringTextType.Builder().text("Example RelationshipElement object").language("en-us").build())
+                .description(new DefaultLangStringTextType.Builder().text("Beispiel RelationshipElement Element").language("de").build())
+                .semanticId(new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
+                                .build())
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .build())
+                .first(new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
+                                .value("https://acplt.org/Test_Submodel_Missing")
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL_ELEMENT_LIST)
+                                .value("ExampleSubmodelElementListOrdered")
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.PROPERTY)
+                                .value("ExampleProperty")
+                                .build())
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .build())
+                .second(new DefaultReference.Builder()
+                        .type(ReferenceTypes.MODEL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
+                                .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.ENTITY)
+                                .value("ExampleEntity")
+                                .build())
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.PROPERTY)
+                                .value("ExampleProperty2")
+                                .build())
+                        .build())
+                .build());
+        service.getMessageBus().publish(msg);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        // check that the element was updated
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 2 Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result not Good", bpres[0].getStatusCode().isGood());
+
+        // read value of the updated SubmodelElement
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("testUpdateSubmodelElement Target 2 Null", targets);
+        Assert.assertTrue("testUpdateSubmodelElement Taget 2 empty", targets.length > 0);
+
+        List<AASKeyDataType> smeValue = new ArrayList<>();
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
+        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
+
+        DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()));
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("updated SubmodelElement value not equal", smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+
         System.out.println("disconnect client");
         client.disconnect();
     }

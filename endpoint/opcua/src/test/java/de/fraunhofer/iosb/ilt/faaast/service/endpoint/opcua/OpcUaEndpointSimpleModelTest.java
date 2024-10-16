@@ -89,9 +89,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Test class for the general OPC UA Endpoint test with the simple example
  */
-public class OpcUaEndpointTest {
+public class OpcUaEndpointSimpleModelTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointSimpleModelTest.class);
 
     private static final long DEFAULT_TIMEOUT = 400;
 
