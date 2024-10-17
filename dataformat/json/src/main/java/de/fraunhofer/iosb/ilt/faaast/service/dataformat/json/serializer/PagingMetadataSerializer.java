@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.io.IOException;
+import java.util.Objects;
 
 
 /**
@@ -41,7 +42,9 @@ public class PagingMetadataSerializer extends StdSerializer<PagingMetadata> {
     @Override
     public void serialize(PagingMetadata value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField(FaaastConstants.CURSOR, EncodingHelper.base64UrlEncode(value.getCursor()));
+        if (Objects.nonNull(value.getCursor())) {
+            generator.writeStringField(FaaastConstants.CURSOR, EncodingHelper.base64UrlEncode(value.getCursor()));
+        }
         generator.writeEndObject();
     }
 }

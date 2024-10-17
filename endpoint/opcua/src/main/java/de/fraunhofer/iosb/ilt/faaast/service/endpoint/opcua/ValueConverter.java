@@ -29,15 +29,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -121,22 +129,36 @@ public class ValueConverter {
 
     static {
         typeList = new ArrayList<>();
-        typeList.add(new DatatypeMapper(Identifiers.ByteString, null, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.BASE64_BINARY, AASDataTypeDefXsd.Base64Binary));
+        typeList.add(new DatatypeMapper(Identifiers.ByteString, Datatype.HEX_BINARY, AASDataTypeDefXsd.HexBinary));
         typeList.add(new DatatypeMapper(Identifiers.Boolean, Datatype.BOOLEAN, AASDataTypeDefXsd.Boolean));
         typeList.add(new DatatypeMapper(Identifiers.DateTime, Datatype.DATE_TIME, AASDataTypeDefXsd.DateTime));
-        typeList.add(new DatatypeMapper(Identifiers.Decimal, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
-        typeList.add(new DatatypeMapper(Identifiers.Integer, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DECIMAL, AASDataTypeDefXsd.Decimal));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.INTEGER, AASDataTypeDefXsd.Integer));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.POSITIVE_INTEGER, AASDataTypeDefXsd.PositiveInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_NEGATIVE_INTEGER, AASDataTypeDefXsd.NonNegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NEGATIVE_INTEGER, AASDataTypeDefXsd.NegativeInteger));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.NON_POSITIVE_INTEGER, AASDataTypeDefXsd.NonPositiveInteger));
         typeList.add(new DatatypeMapper(Identifiers.Int32, Datatype.INT, AASDataTypeDefXsd.Int));
-        typeList.add(new DatatypeMapper(Identifiers.UInt32, null, AASDataTypeDefXsd.UnsignedInt));
+        typeList.add(new DatatypeMapper(Identifiers.UInt32, Datatype.UNSIGNED_INT, AASDataTypeDefXsd.UnsignedInt));
         typeList.add(new DatatypeMapper(Identifiers.Int64, Datatype.LONG, AASDataTypeDefXsd.Long));
-        typeList.add(new DatatypeMapper(Identifiers.UInt64, null, AASDataTypeDefXsd.UnsignedLong));
+        typeList.add(new DatatypeMapper(Identifiers.UInt64, Datatype.UNSIGNED_LONG, AASDataTypeDefXsd.UnsignedLong));
         typeList.add(new DatatypeMapper(Identifiers.Int16, Datatype.SHORT, AASDataTypeDefXsd.Short));
-        typeList.add(new DatatypeMapper(Identifiers.UInt16, null, AASDataTypeDefXsd.UnsignedShort));
+        typeList.add(new DatatypeMapper(Identifiers.UInt16, Datatype.UNSIGNED_SHORT, AASDataTypeDefXsd.UnsignedShort));
         typeList.add(new DatatypeMapper(Identifiers.SByte, Datatype.BYTE, AASDataTypeDefXsd.Byte));
-        typeList.add(new DatatypeMapper(Identifiers.Byte, null, AASDataTypeDefXsd.UnsignedByte));
+        typeList.add(new DatatypeMapper(Identifiers.Byte, Datatype.UNSIGNED_BYTE, AASDataTypeDefXsd.UnsignedByte));
         typeList.add(new DatatypeMapper(Identifiers.Double, Datatype.DOUBLE, AASDataTypeDefXsd.Double));
         typeList.add(new DatatypeMapper(Identifiers.Float, Datatype.FLOAT, AASDataTypeDefXsd.Float));
         typeList.add(new DatatypeMapper(Identifiers.String, Datatype.STRING, AASDataTypeDefXsd.String));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.ANY_URI, AASDataTypeDefXsd.AnyUri));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DATE, AASDataTypeDefXsd.Date));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.TIME, AASDataTypeDefXsd.Time));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.DURATION, AASDataTypeDefXsd.Duration));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GDAY, AASDataTypeDefXsd.GDay));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH, AASDataTypeDefXsd.GMonth));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GMONTH_DAY, AASDataTypeDefXsd.GMonthDay));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR, AASDataTypeDefXsd.GYear));
+        typeList.add(new DatatypeMapper(Identifiers.String, Datatype.GYEAR_MONTH, AASDataTypeDefXsd.GYearMonth));
 
         MODELING_KIND_MAP = new EnumMap<>(ModellingKind.class);
         MODELING_KIND_MAP.put(ModellingKind.INSTANCE, AASModellingKindDataType.Instance);
@@ -503,9 +525,10 @@ public class ValueConverter {
      *
      * @param data The desired SubmodelElementData.
      * @param dv The desired Value.
+     * @return Shows whether the value is valid (true) or not (false).
      */
-    public static void setSubmodelElementValue(SubmodelElementData data, DataValue dv) {
-        setSubmodelElementValue(data.getSubmodelElement(), data.getType(), dv.getValue());
+    public static boolean setSubmodelElementValue(SubmodelElementData data, DataValue dv) {
+        return setSubmodelElementValue(data.getSubmodelElement(), data.getType(), dv.getValue());
     }
 
 
@@ -515,95 +538,67 @@ public class ValueConverter {
      * @param submodelElement The desired SubmodelElement.
      * @param type The desired type.
      * @param variant The desired Value.
+     * @return Shows whether the value is valid (true) or not (false).
      */
-    public static void setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
+    public static boolean setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
+        boolean retval = true;
         switch (type) {
             case PROPERTY_VALUE: {
                 Property aasProp = (Property) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasProp.getValueType());
+                retval = checkValue(aasProp.getValueType(), newValue);
                 aasProp.setValue(newValue);
                 break;
             }
             case RANGE_MIN: {
                 Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+                retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMin(newValue);
                 break;
             }
             case RANGE_MAX: {
                 Range aasRange = (Range) submodelElement;
-                String newValue = convertVariantValueToString(variant);
+                String newValue = convertVariantValueToString(variant, aasRange.getValueType());
+                retval = checkValue(aasRange.getValueType(), newValue);
                 aasRange.setMax(newValue);
                 break;
             }
             case BLOB_VALUE: {
-                Blob aasBlob = (Blob) submodelElement;
-                ByteString bs = null;
-                if (variant.getValue() != null) {
-                    bs = (ByteString) variant.getValue();
-                }
-                aasBlob.setValue(ByteString.asByteArray(bs));
+                setBlobValue(submodelElement, variant);
                 break;
             }
             case MULTI_LANGUAGE_VALUE: {
-                MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                    aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasMultiProp.setValue(new ArrayList<>());
-                }
+                setMultiLanguageValue(submodelElement, variant);
                 break;
             }
             case REFERENCE_ELEMENT_VALUE: {
-                ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRefElem.setValue(null);
-                }
+                setReferenceElementValue(submodelElement, variant);
                 break;
             }
             case RELATIONSHIP_ELEMENT_FIRST: {
-                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRelElem.setFirst(null);
-                }
+                setRelationshipElementFirstValue(submodelElement, variant);
                 break;
             }
             case RELATIONSHIP_ELEMENT_SECOND: {
-                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                }
-                else if (variant.isEmpty()) {
-                    aasRelElem.setSecond(null);
-                }
+                setRelationshipElementSecondValue(submodelElement, variant);
                 break;
             }
             case ENTITY_GLOBAL_ASSET_ID: {
                 Entity aasEntity = (Entity) submodelElement;
-                aasEntity.setGlobalAssetId(convertVariantValueToString(variant));
+                aasEntity.setGlobalAssetId(convertVariantValueToString(variant, DataTypeDefXsd.STRING));
                 break;
             }
             case ENTITY_TYPE: {
-                Entity aasEntity = (Entity) submodelElement;
-                if (variant.isEmpty()) {
-                    aasEntity.setEntityType(null);
-                }
-                else {
-                    aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
-                }
+                setEntityValue(submodelElement, variant);
                 break;
             }
             default:
                 LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
                 throw new IllegalArgumentException("unkown type " + type);
         }
+
+        return retval;
     }
 
 
@@ -713,12 +708,24 @@ public class ValueConverter {
     }
 
 
-    private static String convertVariantValueToString(Variant variant) {
+    private static String convertVariantValueToString(Variant variant, DataTypeDefXsd type) {
         String retval = "";
         if (variant.getValue() != null) {
-            // special treatment for DateTime
-            if (variant.getValue() instanceof DateTime dateTime) {
-                retval = OffsetDateTime.ofInstant(dateTime.toInstant(), ZoneId.systemDefault()).toString();
+            // special treatment for DateTime and ByteString
+            if (variant.getValue() instanceof DateTime dt) {
+                retval = OffsetDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()).toString();
+            }
+            else if (variant.getValue() instanceof ByteString bt) {
+                if (type == DataTypeDefXsd.HEX_BINARY) {
+                    retval = bt.toHex();
+                    // we must remove the '0x' at the beginning
+                    if ((retval != null) && (retval.startsWith("0x"))) {
+                        retval = retval.substring(2);
+                    }
+                }
+                else {
+                    retval = Base64.getEncoder().encodeToString(bt.getValue());
+                }
             }
             else {
                 retval = variant.getValue().toString();
@@ -756,11 +763,32 @@ public class ValueConverter {
             return null;
         }
         Object retval = typedValue.getValue();
-        if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
-            retval = Long.valueOf(retval.toString());
+        if (typedValue instanceof IntegerValue integerValue) {
+            retval = integerValue.asString();
         }
-        else if (typedValue instanceof DateTimeValue) {
-            retval = ValueConverter.createDateTime((OffsetDateTime) retval);
+        else if (typedValue instanceof DurationValue dv) {
+            retval = dv.asString();
+        }
+        else if (typedValue instanceof DecimalValue decimalValue) {
+            retval = decimalValue.asString();
+        }
+        else if (typedValue instanceof PositiveIntegerValue positiveIntegerValue) {
+            retval = positiveIntegerValue.asString();
+        }
+        else if (typedValue instanceof NonPositiveIntegerValue nonPositiveIntegerValue) {
+            retval = nonPositiveIntegerValue.asString();
+        }
+        else if (typedValue instanceof NegativeIntegerValue negativeIntegerValue) {
+            retval = negativeIntegerValue.asString();
+        }
+        else if (typedValue instanceof NonNegativeIntegerValue nonNegativeIntegerValue) {
+            retval = nonNegativeIntegerValue.asString();
+        }
+        else if (typedValue instanceof DateTimeValue dateTimeValue) {
+            retval = convertDateTime(dateTimeValue);
+        }
+        else if (typedValue instanceof AbstractDateTimeValue<?> sbstractDateTimeValue) {
+            retval = sbstractDateTimeValue.asString();
         }
         return retval;
     }
@@ -826,6 +854,98 @@ public class ValueConverter {
         }
 
         return retval;
+    }
+
+
+    private static Object convertDateTime(TypedValue<?> typedValue) {
+        Object retval;
+        if ((typedValue.getDataType() == Datatype.DATE) || (typedValue.getDataType() == Datatype.DATE_TIME)) {
+            retval = ValueConverter.createDateTime((OffsetDateTime) typedValue.getValue());
+        }
+        else {
+            retval = typedValue.asString();
+        }
+        return retval;
+    }
+
+
+    private static boolean checkValue(DataTypeDefXsd datatype, String value) {
+        boolean retval;
+
+        try {
+            TypedValueFactory.create(datatype, value);
+            retval = true;
+        }
+        catch (Exception ex) {
+            retval = false;
+        }
+
+        return retval;
+    }
+
+
+    private static void setEntityValue(SubmodelElement submodelElement, Variant variant) {
+        Entity aasEntity = (Entity) submodelElement;
+        if (variant.isEmpty()) {
+            aasEntity.setEntityType(null);
+        }
+        else {
+            aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+        }
+    }
+
+
+    private static void setRelationshipElementSecondValue(SubmodelElement submodelElement, Variant variant) {
+        RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRelElem.setSecond(null);
+        }
+    }
+
+
+    private static void setRelationshipElementFirstValue(SubmodelElement submodelElement, Variant variant) {
+        RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRelElem.setFirst(null);
+        }
+    }
+
+
+    private static void setReferenceElementValue(SubmodelElement submodelElement, Variant variant) {
+        ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+            aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasRefElem.setValue(null);
+        }
+    }
+
+
+    private static void setMultiLanguageValue(SubmodelElement submodelElement, Variant variant) {
+        MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
+        if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
+            aasMultiProp.setValue(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+        }
+        else if (variant.isEmpty()) {
+            aasMultiProp.setValue(new ArrayList<>());
+        }
+    }
+
+
+    private static void setBlobValue(SubmodelElement submodelElement, Variant variant) {
+        Blob aasBlob = (Blob) submodelElement;
+        ByteString bs = null;
+        if (variant.getValue() != null) {
+            bs = (ByteString) variant.getValue();
+        }
+        aasBlob.setValue(ByteString.asByteArray(bs));
     }
 
 }

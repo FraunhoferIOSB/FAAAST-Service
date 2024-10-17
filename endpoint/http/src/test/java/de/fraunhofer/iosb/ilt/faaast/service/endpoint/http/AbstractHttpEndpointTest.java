@@ -69,13 +69,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -87,15 +85,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.StringRequestContent;
+import org.eclipse.jetty.client.Request;
+import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -176,15 +174,6 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testCORSEnabled() throws Exception {
-        ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
-        Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
-        Assert.assertEquals("true", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
-        Assert.assertEquals("Content-Type", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER));
-    }
-
-
-    @Test
     public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
         HttpFields headers = client.newRequest(HOST, port)
                 .method(HttpMethod.GET)
@@ -194,49 +183,6 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertFalse(headers.contains(HttpHeader.SERVER));
         Assert.assertFalse(headers.contains(HttpHeader.DATE));
         Assert.assertFalse(headers.contains(HttpHeader.X_POWERED_BY));
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestSupported() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "GET,POST"));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestUnsupported() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "PUT"));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS);
-        Assert.assertEquals(400, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestInvalidRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "FOO"));
-        Assert.assertEquals(400, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestNoRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/", null, null, null, null, null);
-        assertAccessControllAllowMessageHeader(response, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestEmptyRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, ""));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
     }
 
 
@@ -627,7 +573,7 @@ public abstract class AbstractHttpEndpointTest {
                 new OutputModifier.Builder()
                         .level(Level.CORE)
                         .build()))
-                                .thenReturn(aas);
+                .thenReturn(aas);
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
@@ -769,8 +715,8 @@ public abstract class AbstractHttpEndpointTest {
                         .id(aasId)
                         .build())
                 .build())
-                        .when(serviceContext)
-                        .getAASEnvironment();
+                .when(serviceContext)
+                .getAASEnvironment();
     }
 
 
@@ -891,7 +837,7 @@ public abstract class AbstractHttpEndpointTest {
             actualPath = String.format("%s/$%s", path, content.name().toLowerCase());
         }
         actualPath = API_PREFIX + actualPath;
-        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
+        Request request = client.newRequest(HOST, port)
                 // TODO remove
                 .timeout(1, TimeUnit.HOURS)
                 .idleTimeout(1, TimeUnit.HOURS)
@@ -911,21 +857,13 @@ public abstract class AbstractHttpEndpointTest {
                 request = request.body(new StringRequestContent(body));
             }
         }
+
         if (headers != null) {
             for (Map.Entry<String, String> header: headers.entrySet()) {
-                request = request.header(header.getKey(), header.getValue());
+                request = request.headers(x -> x.add(header.getKey(), header.getValue()));
             }
         }
         return request.send();
-    }
-
-
-    private void assertAccessControllAllowMessageHeader(ContentResponse response, HttpMethod... expected) {
-        List<String> actual = Arrays.asList(response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER).split(HttpConstants.HEADER_VALUE_SEPARATOR));
-        List<String> expectedAsString = Stream.of(expected).map(Enum::name).collect(Collectors.toList());
-        Assert.assertTrue(actual.size() == expectedAsString.size()
-                && actual.containsAll(expectedAsString)
-                && expectedAsString.containsAll(actual));
     }
 
 

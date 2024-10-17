@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.path.IdShortPathEle
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,8 +50,9 @@ public class PathJsonSerializer {
      * @param obj the object to serialize
      * @return the string serialization of the object
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public String write(IdShortPath parent, Object obj) throws SerializationException {
+    public String write(IdShortPath parent, Object obj) throws SerializationException, UnsupportedModifierException {
         return write(parent, obj, Level.DEFAULT);
     }
 
@@ -64,8 +66,9 @@ public class PathJsonSerializer {
      * @param level level of serialization
      * @return JSON array of all idShort paths subject to serialization according to specification.
      * @throws SerializationException if serialization fails
+     * @throws UnsupportedModifierException if the modifier is not supported for this element
      */
-    public String write(IdShortPath parent, Object obj, Level level) throws SerializationException {
+    public String write(IdShortPath parent, Object obj, Level level) throws SerializationException, UnsupportedModifierException {
         if (Objects.nonNull(obj) && Page.class.isAssignableFrom(obj.getClass())) {
             Page page = (Page) obj;
             return new JsonApiSerializer().write(Page.of(

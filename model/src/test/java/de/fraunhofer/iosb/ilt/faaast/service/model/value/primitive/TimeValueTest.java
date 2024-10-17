@@ -33,6 +33,7 @@ public class TimeValueTest {
         TypedValue actual = TypedValueFactory.create(Datatype.TIME, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
+        Assert.assertEquals(Datatype.TIME, actual.getDataType());
     }
 
 

@@ -128,7 +128,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             LocalizedText displayName = LocalizedText.english(AASPropertyType.VALUE);
 
             nodeManager.addSubmodelElementAasMap(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
-            LOGGER.debug("setPropertyValueAndType: NodeId {}; Property: {}", myPropertyId, aasProperty);
+            LOGGER.debug("addOpcUaProperty: NodeId {}; Property: {}", myPropertyId, aasProperty);
 
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName, nodeManager));
         }

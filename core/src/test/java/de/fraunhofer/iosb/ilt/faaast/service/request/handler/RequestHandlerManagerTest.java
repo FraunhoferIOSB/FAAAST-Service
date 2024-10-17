@@ -276,9 +276,9 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(
-                                environment.getAssetAdministrationShells().get(0),
-                                environment.getAssetAdministrationShells().get(1)));
+                .thenReturn(Page.of(
+                        environment.getAssetAdministrationShells().get(0),
+                        environment.getAssetAdministrationShells().get(1)));
 
         List<SpecificAssetId> assetIds = List.of(
                 new DefaultSpecificAssetId.Builder()
@@ -310,7 +310,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getAssetAdministrationShells()));
+                .thenReturn(Page.of(environment.getAssetAdministrationShells()));
 
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
@@ -344,10 +344,10 @@ public class RequestHandlerManagerTest {
     public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
         PostAssetAdministrationShellResponse actual = new RequestHandlerManager(
                 new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                        .execute(new PostAssetAdministrationShellRequest.Builder()
-                                .aas(new DefaultAssetAdministrationShell.Builder()
-                                        .build())
-                                .build());
+                .execute(new PostAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder()
+                                .build())
+                        .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -437,9 +437,9 @@ public class RequestHandlerManagerTest {
     public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
         PutAssetAdministrationShellResponse actual = new RequestHandlerManager(
                 new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                        .execute(new PutAssetAdministrationShellRequest.Builder()
-                                .aas(new DefaultAssetAdministrationShell.Builder().build())
-                                .build());
+                .execute(new PutAssetAdministrationShellRequest.Builder()
+                        .aas(new DefaultAssetAdministrationShell.Builder().build())
+                        .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -652,7 +652,7 @@ public class RequestHandlerManagerTest {
                 eq(SubmodelSearchCriteria.NONE),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getSubmodels()));
+                .thenReturn(Page.of(environment.getSubmodels()));
 
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
@@ -674,7 +674,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getSubmodels()));
+                .thenReturn(Page.of(environment.getSubmodels()));
         GetAllSubmodelsBySemanticIdRequest request = new GetAllSubmodelsBySemanticIdRequest.Builder()
                 .semanticId(SUBMODEL_ELEMENT_REF)
                 .outputModifier(OutputModifier.DEFAULT)
@@ -696,7 +696,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getSubmodels()));
+                .thenReturn(Page.of(environment.getSubmodels()));
         GetAllSubmodelsByIdShortRequest request = new GetAllSubmodelsByIdShortRequest.Builder()
                 .idShort("Test")
                 .outputModifier(OutputModifier.DEFAULT)
@@ -1359,7 +1359,7 @@ public class RequestHandlerManagerTest {
                 eq(ConceptDescriptionSearchCriteria.NONE),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getConceptDescriptions()));
+                .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
@@ -1380,7 +1380,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getConceptDescriptions()));
+                .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByIdShortRequest request = new GetAllConceptDescriptionsByIdShortRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .idShort(environment.getConceptDescriptions().get(0).getIdShort())
@@ -1403,7 +1403,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getConceptDescriptions()));
+                .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .isCaseOf(reference)
@@ -1426,7 +1426,7 @@ public class RequestHandlerManagerTest {
                         .build()),
                 any(),
                 any()))
-                        .thenReturn(Page.of(environment.getConceptDescriptions()));
+                .thenReturn(Page.of(environment.getConceptDescriptions()));
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .dataSpecification(reference)
@@ -1474,9 +1474,9 @@ public class RequestHandlerManagerTest {
     public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
         PostConceptDescriptionResponse actual = new RequestHandlerManager(
                 new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                        .execute(new PostConceptDescriptionRequest.Builder()
-                                .conceptDescription(new DefaultConceptDescription.Builder().build())
-                                .build());
+                .execute(new PostConceptDescriptionRequest.Builder()
+                        .conceptDescription(new DefaultConceptDescription.Builder().build())
+                        .build());
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 

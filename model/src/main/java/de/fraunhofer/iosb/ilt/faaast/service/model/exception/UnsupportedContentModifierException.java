@@ -40,6 +40,11 @@ public class UnsupportedContentModifierException extends UnsupportedModifierExce
     }
 
 
+    public UnsupportedContentModifierException(Content contentModifier, Class<?> type) {
+        super(String.format("content modifier not supported for type (modifier: %s, type: %s)", contentModifier, type.getSimpleName()));
+    }
+
+
     public UnsupportedContentModifierException(String contentModifier, Collection<Content> supportedContentModifiers) {
         super(String.format("unsupported content modifier '%s' (supported content modifiers: %s)",
                 contentModifier,

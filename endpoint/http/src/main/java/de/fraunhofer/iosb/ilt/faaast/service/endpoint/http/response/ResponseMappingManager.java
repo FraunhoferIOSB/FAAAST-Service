@@ -43,11 +43,12 @@ public class ResponseMappingManager extends AbstractMappingManager<AbstractRespo
      * @param apiRequest the original API request received
      * @param apiResponse the API response to process
      * @param httpResponse the HTTP response to write to
+     * @throws Exception if mapping fails
      * @throws IllegalArgumentException is apiRequest is null
-     *             * @throws IllegalArgumentException is apiResponse is null
-     *             * @throws IllegalArgumentException is httpResponse is null
+     * @throws IllegalArgumentException is apiResponse is null
+     * @throws IllegalArgumentException is httpResponse is null
      */
-    public void map(Request apiRequest, Response apiResponse, HttpServletResponse httpResponse) {
+    public void map(Request apiRequest, Response apiResponse, HttpServletResponse httpResponse) throws Exception {
         Ensure.requireNonNull(apiRequest, "apiRequest must be non-null");
         Ensure.requireNonNull(apiResponse, "apiResponse must be non-null");
         Ensure.requireNonNull(httpResponse, "httpResponse must be non-null");

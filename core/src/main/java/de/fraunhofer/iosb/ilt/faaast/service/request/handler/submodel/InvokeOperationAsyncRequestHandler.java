@@ -33,12 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -86,22 +81,6 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                         .message(MessageType.ERROR, String.format(
                                 "operation failed to execute (reason: %s)",
                                 error.getMessage()))
-                        .success(false)
-                        .build());
-    }
-
-
-    private void handleOperationTimeout(Reference reference, InvokeOperationAsyncRequest request, OperationHandle operationHandle) {
-        handleOperationResult(
-                reference,
-                operationHandle,
-                new OperationResult.Builder()
-                        .executionState(ExecutionState.TIMEOUT)
-                        .inoutputArguments(request.getInoutputArguments())
-                        .outputArguments(List.of())
-                        .message(MessageType.WARNING, String.format(
-                                "operation execution timed out after %s ms",
-                                request.getTimeout()))
                         .success(false)
                         .build());
     }
@@ -168,29 +147,16 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
         OperationHandle operationHandle = new OperationHandle();
         handleOperationInvoke(reference, operationHandle, request);
 
-        AtomicBoolean timeoutOccured = new AtomicBoolean(false);
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        // The timeout is ignored, as the server may choose to take it into account or ignore it.
         try {
             context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    (output, inoutput) -> {
-                        if (timeoutOccured.get()) {
-                            return;
-                        }
-                        handleOperationSuccess(reference, operationHandle, inoutput, output);
-                    },
+                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output),
                     error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error));
-            executor.schedule(() -> {
-                timeoutOccured.set(true);
-                handleOperationTimeout(reference, request, operationHandle);
-            }, request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
         }
         catch (Exception e) {
             handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e);
-        }
-        finally {
-            executor.shutdown();
         }
         return InvokeOperationAsyncResponse.builder()
                 .payload(operationHandle)

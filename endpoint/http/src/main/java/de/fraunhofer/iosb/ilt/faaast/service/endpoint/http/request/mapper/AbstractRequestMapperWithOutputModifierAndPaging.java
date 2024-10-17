@@ -56,15 +56,10 @@ public abstract class AbstractRequestMapperWithOutputModifierAndPaging<T extends
 
     @Override
     public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        try {
-            PagingInfo pagingInfo = PagingHelper.parsePagingInfo(httpRequest.getQueryParameters());
-            T result = doParse(httpRequest, urlParameters, outputModifier, pagingInfo);
-            result.setPagingInfo(pagingInfo);
-            return result;
-        }
-        catch (IllegalArgumentException e) {
-            throw new InvalidRequestException("invalid output modifier", e);
-        }
+        PagingInfo pagingInfo = PagingHelper.parsePagingInfo(httpRequest.getQueryParameters());
+        T result = doParse(httpRequest, urlParameters, outputModifier, pagingInfo);
+        result.setPagingInfo(pagingInfo);
+        return result;
     }
 
 }

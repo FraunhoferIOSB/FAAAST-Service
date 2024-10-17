@@ -22,9 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
@@ -36,17 +36,22 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
-import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +78,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;
-    private Handler handler;
+    private ServletContextHandler context;
 
     @Override
     public HttpEndpointConfig asConfig() {
@@ -112,9 +117,16 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         }
         server = new Server();
         configureHttpServer();
-        handler = new RequestHandler(serviceContext, config);
-        server.setHandler(handler);
-        server.setErrorHandler(new HttpErrorHandler());
+        CrossOriginHandler crossOriginHandler = buildCorsHandler();
+        server.setHandler(crossOriginHandler);
+
+        context = new ServletContextHandler();
+        context.setContextPath("/");
+        crossOriginHandler.setHandler(context);
+
+        RequestHandlerServlet handler = new RequestHandlerServlet(serviceContext);
+        context.addServlet(handler, "/*");
+        server.setErrorHandler(new HttpErrorHandler(config));
         try {
             server.start();
         }
@@ -143,6 +155,18 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         }
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
+    }
+
+
+    private CrossOriginHandler buildCorsHandler() {
+        CrossOriginHandler result = new CrossOriginHandler();
+        result.setAllowCredentials(config.isCorsAllowCredentials());
+        result.setAllowedHeaders(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedHeaders())));
+        result.setAllowedMethods(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedMethods())));
+        result.setAllowedOriginPatterns(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedOrigin())));
+        result.setExposedHeaders(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsExposedHeaders())));
+        result.setPreflightMaxAge(Duration.ofMillis(config.getCorsMaxAge()));
+        return result;
     }
 
 
@@ -192,9 +216,9 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     @Override
     public void stop() {
-        if (handler != null) {
+        if (context != null) {
             try {
-                handler.stop();
+                context.stop();
             }
             catch (Exception e) {
                 LOGGER.debug("stopping HTTP handler failed", e);
@@ -212,7 +236,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     @Override
-    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+    public List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getAasEndpointInformation(String aasId) {
         if (Objects.isNull(server)) {
             return List.of();
         }
@@ -223,7 +247,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     @Override
-    public List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getSubmodelEndpointInformation(String submodelId) {
+    public List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getSubmodelEndpointInformation(String submodelId) {
         if (Objects.isNull(server)) {
             return List.of();
         }
@@ -233,14 +257,14 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     }
 
 
-    private de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint endpointFor(String interfaceName, String path) {
-        return de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint.builder()
+    private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(String interfaceName, String path) {
+        return new DefaultEndpoint.Builder()
                 ._interface(interfaceName)
-                .protocolInformation(DefaultProtocolInformation.builder()
+                .protocolInformation(new DefaultProtocolInformation.Builder()
                         .href(getEndpointUri().resolve(getVersionPrefix() + path).toASCIIString())
                         .endpointProtocol(ENDPOINT_PROTOCOL)
                         .endpointProtocolVersion(ENDPOINT_PROTOCOL_VERSION)
-                        .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                        .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                 .type(SecurityTypeEnum.NONE)
                                 .key("")
                                 .value("")

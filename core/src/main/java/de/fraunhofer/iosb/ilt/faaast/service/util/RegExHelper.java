@@ -53,6 +53,17 @@ public class RegExHelper {
 
 
     /**
+     * Checks if a string is a known group name.
+     *
+     * @param value the value to check
+     * @return True if the value is a known group name, false otherwise
+     */
+    public static boolean isGroupName(String value) {
+        return ACTIVE_GROUP_NAMES.contains(value);
+    }
+
+
+    /**
      * Checks if the pattern is doing an exact line match, i.e. starts with '^' and ends with '$'.
      *
      * @param pattern the pattern to check

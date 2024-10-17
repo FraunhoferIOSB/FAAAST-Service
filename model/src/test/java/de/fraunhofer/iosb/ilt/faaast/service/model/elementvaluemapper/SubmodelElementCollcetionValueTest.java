@@ -59,7 +59,6 @@ public class SubmodelElementCollcetionValueTest {
     @Test
     public void testToValueMappingWithNull() throws ValueMappingException {
         SubmodelElementCollectionValue expected = SubmodelElementCollectionValue.builder()
-                .values(null)
                 .build();
         SubmodelElement input = new DefaultSubmodelElementCollection.Builder()
                 .value((List<SubmodelElement>) null)

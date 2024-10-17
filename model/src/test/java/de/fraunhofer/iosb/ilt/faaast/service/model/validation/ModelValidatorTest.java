@@ -16,12 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.validation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
@@ -170,6 +172,23 @@ public class ModelValidatorTest {
                         .submodels(AasUtils.toReference(submodel))
                         .build())
                 .submodels(submodel)
+                .build();
+        ModelValidator.validate(
+                input,
+                ModelValidatorConfig.builder()
+                        .validateConstraints(false)
+                        .build());
+    }
+
+
+    @Test
+    public void testIdentifierNotUniqueObjectCopy() throws ValidationException {
+        ConceptDescription conceptDescription = new DefaultConceptDescription.Builder()
+                .id(ID_1)
+                .build();
+        Environment input = new DefaultEnvironment.Builder()
+                .conceptDescriptions(conceptDescription)
+                .conceptDescriptions(conceptDescription)
                 .build();
         ModelValidator.validate(
                 input,

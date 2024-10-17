@@ -24,10 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -59,10 +55,15 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +95,8 @@ public class RegistrySynchronization {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class);
+            .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
+            .addMixIn(Endpoint.class, EndpointMixin.class);
     private ExecutorService executor;
     private boolean running = false;
 
@@ -412,9 +414,18 @@ public class RegistrySynchronization {
 
 
     private AssetAdministrationShellDescriptor asDescriptor(AssetAdministrationShell aas) {
-        return DefaultAssetAdministrationShellDescriptor.builder()
-                .from(aas)
-                .submodels(aas.getSubmodels().stream()
+        return new DefaultAssetAdministrationShellDescriptor.Builder()
+                .administration(aas.getAdministration())
+                .id(aas.getId())
+                .idShort(aas.getIdShort())
+                .description(aas.getDescription())
+                .displayName(aas.getDisplayName())
+                .extensions(aas.getExtensions())
+                .assetKind(Objects.isNull(aas.getAssetInformation()) ? null : aas.getAssetInformation().getAssetKind())
+                .assetType(Objects.isNull(aas.getAssetInformation()) ? null : aas.getAssetInformation().getAssetType())
+                .globalAssetId(Objects.isNull(aas.getAssetInformation()) ? null : aas.getAssetInformation().getGlobalAssetId())
+                .specificAssetIds(Objects.isNull(aas.getAssetInformation()) ? null : aas.getAssetInformation().getSpecificAssetIds())
+                .submodelDescriptors(aas.getSubmodels().stream()
                         .map(x -> ReferenceHelper.findFirstKeyType(x, KeyTypes.SUBMODEL))
                         .filter(persistence::submodelExists)
                         .map(LambdaExceptionHelper.wrapFunction(x -> persistence.getSubmodel(x, QueryModifier.MINIMAL)))
@@ -428,8 +439,15 @@ public class RegistrySynchronization {
 
 
     private SubmodelDescriptor asDescriptor(Submodel submodel) {
-        return DefaultSubmodelDescriptor.builder()
-                .from(submodel)
+        return new DefaultSubmodelDescriptor.Builder()
+                .administration(submodel.getAdministration())
+                .id(submodel.getId())
+                .idShort(submodel.getIdShort())
+                .description(submodel.getDescription())
+                .semanticId(submodel.getSemanticId())
+                .supplementalSemanticId(submodel.getSupplementalSemanticIds())
+                .displayName(submodel.getDisplayName())
+                .extensions(submodel.getExtensions())
                 .endpoints(endpoints.stream()
                         .flatMap(x -> x.getSubmodelEndpointInformation(submodel.getId()).stream())
                         .toList())

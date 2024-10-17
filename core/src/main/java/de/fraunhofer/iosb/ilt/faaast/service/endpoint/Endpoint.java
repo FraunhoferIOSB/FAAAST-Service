@@ -48,7 +48,7 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
      * @param aasId the id of the AAS
      * @return a list of endpoint information where this AAS can be accessed
      */
-    public default List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getAasEndpointInformation(String aasId) {
+    public default List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getAasEndpointInformation(String aasId) {
         return List.of();
     }
 
@@ -60,7 +60,7 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
      * @param submodelId the id of the submodel
      * @return a list of endpoint information where this submodel can be accessed
      */
-    public default List<de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint> getSubmodelEndpointInformation(String submodelId) {
+    public default List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> getSubmodelEndpointInformation(String submodelId) {
         return List.of();
     }
 }

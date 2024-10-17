@@ -19,8 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryP
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -254,7 +257,7 @@ public class ApiPaths {
         }
 
 
-        public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException {
+        public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException, UnsupportedModifierException {
             return String.format("%s?assetIds=%s",
                     assetAdministrationShells(),
                     EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
@@ -267,7 +270,7 @@ public class ApiPaths {
         }
 
 
-        public String assetAdministrationShells(Map<String, String> assetIds, String cursor, long limit) throws SerializationException {
+        public String assetAdministrationShells(Map<String, String> assetIds, String cursor, long limit) throws SerializationException, UnsupportedModifierException {
             return paging(assetAdministrationShells(assetIds), cursor, limit);
         }
 
@@ -406,6 +409,11 @@ public class ApiPaths {
         }
 
 
+        private String extent(Extent extent) {
+            return String.format("extent=%s", StringHelper.decapitalize(extent.getName()));
+        }
+
+
         private SubmodelInterface(String root) {
             this.root = root;
         }
@@ -498,6 +506,11 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(IdShortPath idShortPath, Extent extent) {
+            return submodelElement(idShortPath.toString(), extent);
+        }
+
+
         public String submodelElement(String idShortPath, Level level) {
             return String.format("%s?%s",
                     submodelElement(idShortPath),
@@ -505,10 +518,33 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(String idShortPath, Extent extent) {
+            return String.format("%s?%s",
+                    submodelElement(idShortPath),
+                    extent(extent));
+        }
+
+
         public String submodelElement(String idShortPath, Content content) {
             return String.format("%s%s",
                     submodelElement(idShortPath),
                     content(content));
+        }
+
+
+        public String submodelElement(String idShortPath, Content content, Extent extent) {
+            return String.format("%s%s?%s",
+                    submodelElement(idShortPath),
+                    content(content),
+                    extent(extent));
+        }
+
+
+        public String submodelElement(String idShortPath, Level level, Extent extent) {
+            return String.format("%s?%s&%s",
+                    submodelElement(idShortPath),
+                    extent(extent),
+                    level(level));
         }
 
 
@@ -520,8 +556,22 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(String idShortPath, Level level, Content content, Extent extent) {
+            return String.format("%s%s?%s&%s",
+                    submodelElement(idShortPath),
+                    content(content),
+                    level(level),
+                    extent(extent));
+        }
+
+
         public String submodelElement(SubmodelElement submodelElement) {
             return submodelElement(submodelElement.getIdShort());
+        }
+
+
+        public String submodelElement(SubmodelElement submodelElement, Extent extent) {
+            return submodelElement(submodelElement.getIdShort(), extent);
         }
 
 
@@ -530,13 +580,28 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(SubmodelElement submodelElement, Level level, Extent extent) {
+            return submodelElement(submodelElement.getIdShort(), level, extent);
+        }
+
+
         public String submodelElement(SubmodelElement submodelElement, Content content) {
             return submodelElement(submodelElement.getIdShort(), content);
         }
 
 
+        public String submodelElement(SubmodelElement submodelElement, Content content, Extent extent) {
+            return submodelElement(submodelElement.getIdShort(), content, extent);
+        }
+
+
         public String submodelElement(SubmodelElement submodelElement, Level level, Content content) {
             return submodelElement(submodelElement.getIdShort(), level, content);
+        }
+
+
+        public String submodelElement(SubmodelElement submodelElement, Level level, Content content, Extent extent) {
+            return submodelElement(submodelElement.getIdShort(), level, content, extent);
         }
 
 

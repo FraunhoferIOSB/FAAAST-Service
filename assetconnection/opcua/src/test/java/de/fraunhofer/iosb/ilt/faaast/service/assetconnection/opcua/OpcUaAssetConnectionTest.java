@@ -519,8 +519,8 @@ public class OpcUaAssetConnectionTest {
                 .type(expected.getClass())
                 .datatype(expected.getValue().getDataType())
                 .build())
-                        .when(serviceContext)
-                        .getTypeInfo(reference);
+                .when(serviceContext)
+                .getTypeInfo(reference);
         OpcUaAssetConnectionConfig assetConnConfig = OpcUaAssetConnectionConfig.builder()
                 .of(config)
                 .valueProvider(reference,
@@ -854,8 +854,8 @@ public class OpcUaAssetConnectionTest {
                 .type(expected.getClass())
                 .datatype(expected.getValue().getDataType())
                 .build())
-                        .when(serviceContext)
-                        .getTypeInfo(reference);
+                .when(serviceContext)
+                .getTypeInfo(reference);
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .securityBaseDir(Files.createTempDirectory("asset-connection"))
                 .valueProvider(reference,

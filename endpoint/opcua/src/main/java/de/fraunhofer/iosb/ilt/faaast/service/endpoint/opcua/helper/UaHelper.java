@@ -65,7 +65,7 @@ public class UaHelper {
         stringProperty.setDataTypeId(Identifiers.String);
         stringProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            stringProperty.setValue(typedValue.getValue());
+            stringProperty.setValue(typedValue.asString());
         }
         return stringProperty;
     }

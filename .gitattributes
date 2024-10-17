@@ -9,6 +9,7 @@
 *.java text eol=crlf
 
 # Denote all files that are truly binary and should not be modified.
+*.aasx binary
 *.png binary
 *.jpg binary
 *.jpeg binary

@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -61,13 +62,15 @@ public class HttpHelper {
 
 
     public static <T> T postWithSingleResult(HttpClient client, String url, T payload, Class<T> type)
-            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, URISyntaxException, InterruptedException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         return (T) readResponse(post(client, url, payload), type);
     }
 
 
     public static <T> T putWithSingleResult(HttpClient client, String url, T payload, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, DeserializationException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         return (T) readResponse(put(client, url, payload), type);
     }
 
@@ -79,7 +82,7 @@ public class HttpHelper {
 
 
     public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url, Object payload)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
         switch (method) {
             case GET:
                 return get(client, url);
@@ -96,13 +99,13 @@ public class HttpHelper {
 
 
     public static HttpResponse<String> execute(HttpClient client, HttpMethod method, String url)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
         return execute(client, method, url, null);
     }
 
 
     public static HttpResponse<String> put(HttpClient client, String url, Object payload)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
         return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
@@ -114,7 +117,7 @@ public class HttpHelper {
 
 
     public static HttpResponse<String> post(HttpClient client, String url, Object payload)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException, UnsupportedModifierException {
         return client
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))

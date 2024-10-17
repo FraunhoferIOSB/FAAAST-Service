@@ -16,11 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,24 +35,15 @@ public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMa
 
 
     @Override
-    public void map(GenerateSerializationByIdsRequest apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
-        try {
-            HttpHelper.sendContent(httpResponse,
-                    apiResponse.getStatusCode(),
-                    EnvironmentSerializationManager.serializerFor(apiResponse.getDataformat()).write(apiResponse.getPayload()),
-                    apiResponse.getDataformat().getContentType(),
-                    Map.of("Content-Disposition",
-                            String.format(
-                                    "attachment; filename=\"download.%s\"",
-                                    apiResponse.getDataformat().getFileExtensions().get(0))));
-        }
-        catch (SerializationException e) {
-            HttpHelper.send(
-                    httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
+    public void map(GenerateSerializationByIdsRequest apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) throws Exception {
+        HttpHelper.sendContent(httpResponse,
+                apiResponse.getStatusCode(),
+                EnvironmentSerializationManager.serializerFor(apiResponse.getDataformat()).write(apiResponse.getPayload()),
+                apiResponse.getDataformat().getContentType(),
+                Map.of("Content-Disposition",
+                        String.format(
+                                "attachment; filename=\"download.%s\"",
+                                apiResponse.getDataformat().getFileExtensions().get(0))));
+
     }
 }

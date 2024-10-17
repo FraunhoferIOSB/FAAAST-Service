@@ -15,13 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
@@ -42,23 +38,14 @@ public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPay
 
 
     @Override
-    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
-        try {
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(
-                            apiResponse.getPayload(),
-                            AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
-                                    ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
-                                    : OutputModifier.DEFAULT));
-        }
-        catch (SerializationException e) {
-            HttpHelper.send(
-                    httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws Exception {
+        HttpHelper.sendJson(httpResponse,
+                apiResponse.getStatusCode(),
+                new HttpJsonApiSerializer().write(
+                        apiResponse.getPayload(),
+                        AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
+                                ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
+                                : OutputModifier.DEFAULT));
+
     }
 }

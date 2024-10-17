@@ -72,12 +72,14 @@ public class IdShortPath {
         Ensure.require(Objects.nonNull(reference.getKeys()) && !reference.getKeys().isEmpty(), "reference must contain at least one keys");
         Ensure.require(Objects.equals(reference.getType(), ReferenceTypes.MODEL_REFERENCE), "reference must be a model reference");
         int startIndex = 0;
-        if (ReferenceHelper.isKeyType(reference.getKeys().get(0), AssetAdministrationShell.class)) {
-            startIndex = 1;
+        if (ReferenceHelper.isKeyType(reference.getKeys().get(startIndex), AssetAdministrationShell.class)) {
+            startIndex++;
         }
-        ReferenceHelper.ensureKeyType(reference.getKeys().get(startIndex), Submodel.class);
+        if (ReferenceHelper.isKeyType(reference.getKeys().get(startIndex), Submodel.class)) {
+            startIndex++;
+        }
         IdShortPath.Builder builder = IdShortPath.builder();
-        for (int i = startIndex + 1; i < reference.getKeys().size(); i++) {
+        for (int i = startIndex; i < reference.getKeys().size(); i++) {
             ReferenceHelper.ensureKeyType(reference.getKeys().get(i), SubmodelElement.class);
             String value = reference.getKeys().get(i).getValue();
             if (isIndex(value)) {

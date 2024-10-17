@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.StorageException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -51,7 +51,7 @@ public class CustomOperationProvider implements AssetOperationProvider<CustomOpe
         try {
             outputVariables = serviceContext.getOperationOutputVariables(reference);
         }
-        catch (ResourceNotFoundException | StorageException e) {
+        catch (ResourceNotFoundException | PersistenceException e) {
             throw new ConfigurationInitializationException(
                     String.format(
                             "Operation not found in AAS model (reference: %s)",

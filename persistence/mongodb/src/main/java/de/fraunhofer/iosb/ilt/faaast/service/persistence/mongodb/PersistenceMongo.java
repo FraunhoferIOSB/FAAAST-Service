@@ -52,6 +52,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -229,7 +230,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             //TODO convert POJO directly to document if possible
             return Document.parse(serializer.write(referable));
         }
-        catch (SerializationException e) {
+        catch (SerializationException | UnsupportedModifierException e) {
             throw new PersistenceException(String.format("Error serializing referable to JSON (idShort: %s)", referable.getIdShort()), e);
         }
     }
@@ -334,7 +335,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 throw new ResourceNotFoundException(handle.getHandleId());
             return deserializer.read(((Document) operationDocument.get("result")).toJson(), OperationResult.class);
         }
-        catch (SerializationException | DeserializationException e) {
+        catch (SerializationException | DeserializationException | UnsupportedModifierException e) {
             throw new PersistenceException(e);
         }
     }
@@ -582,7 +583,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             Document resultDocument = Document.parse(serializer.write(result));
             document.append("handle", handleDocument).append("result", resultDocument);
         }
-        catch (SerializationException e) {
+        catch (SerializationException | UnsupportedModifierException e) {
             LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
         }
         operationCollection.replaceOne(Filters.eq("handle", document.get("handle")),
@@ -730,7 +731,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             String refJson = serializer.write(reference);
             return Document.parse(refJson);
         }
-        catch (SerializationException e) {
+        catch (SerializationException | UnsupportedModifierException e) {
             throw new PersistenceException(e);
         }
     }
