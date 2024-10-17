@@ -182,8 +182,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyInvalidMessage()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException,
-            PersistenceException {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         String message = "7";
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
@@ -205,8 +204,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException,
-            PersistenceException {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
@@ -333,7 +331,7 @@ public class MqttAssetConnectionTest {
 
 
     private void assertSubscriptionProvider(MqttSubscriptionProviderConfig config, Runnable publisher, Callable<Boolean> waitCondition, PropertyValue... expected)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException, PersistenceException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException, PersistenceException {
         MqttAssetConnection assetConnection = newConnection(
                 ArrayUtils.isEmpty(expected)
                         ? null
@@ -419,7 +417,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException, PersistenceException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig config = MqttAssetConnectionConfig.builder()
                 .serverUri(url)
                 .build();

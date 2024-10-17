@@ -162,7 +162,7 @@ public class RegistrySynchronization {
             unregisterAllSubmodels();
         }
         catch (PersistenceException e) {
-            LOGGER.error(String.format("unregistration could not be completed."));
+            LOGGER.error("unregistration could not be completed.");
         }
         if (Objects.nonNull(executor)) {
             executor.shutdown();

@@ -654,7 +654,7 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> inoutput,
                                        Map<String, PropertyValue> expectedInoutput,
                                        Map<String, PropertyValue> expectedOutput)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
+            throws AssetConnectionException, InterruptedException, ConfigurationException, IOException, ResourceNotFoundException,
             PersistenceException {
         assertInvokeOperation(server, nodeId, sync, input, inoutput, expectedInoutput, expectedOutput, null, null);
     }
@@ -670,7 +670,7 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> expectedOutput,
                                        List<ArgumentMapping> inputMapping,
                                        List<ArgumentMapping> outputMapping)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
+            throws AssetConnectionException, InterruptedException, ConfigurationException, IOException, ResourceNotFoundException,
             PersistenceException {
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
@@ -846,7 +846,7 @@ public class OpcUaAssetConnectionTest {
                                       String nodeId,
                                       PropertyValue expected,
                                       String arrayIndex)
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ConfigurationException, IOException, ResourceNotFoundException,
+            throws AssetConnectionException, ConfigurationException, IOException, ResourceNotFoundException,
             PersistenceException {
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);

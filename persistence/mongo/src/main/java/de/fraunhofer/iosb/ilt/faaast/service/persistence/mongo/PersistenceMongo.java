@@ -104,6 +104,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private static final int RANDOM_VALUE_LENGTH = 100;
     private static final String SERIALIZATION_ERROR = "Serialization of document with id %s failed!";
+    private static final String HANDLE = "handle";
 
     private static final String MSG_RESOURCE_NOT_FOUND_BY_ID = "resource not found (id %s)";
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
@@ -123,12 +124,108 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private static final Pattern INDEX_REGEX = Pattern.compile("\\[\\d+\\]");
 
+    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) throws PersistenceException {
+        Stream<T> result = input;
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
+        }
+        List<T> temp = result.collect(Collectors.toList());
+        return Page.<T> builder()
+                .result(temp.stream()
+                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                        .collect(Collectors.toList()))
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
+    }
+
+
+    private static <T> FindIterable<T> applyPaging(FindIterable<T> iterable, PagingInfo paging) {
+        FindIterable<T> result = iterable;
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            result = result.limit((int) paging.getLimit() + 1);
+        }
+        return result;
+    }
+
+
+    private static void ensureIdShortPresent(SubmodelElement submodelElement) {
+        if (Objects.nonNull(submodelElement) && StringHelper.isBlank(submodelElement.getIdShort())) {
+            throw new IllegalArgumentException("idShort most be non-empty");
+        }
+    }
+
+
+    private static <T extends Referable> T prepareResult(T result, QueryModifier modifier) {
+        if (result == null || modifier == null) {
+            throw new IllegalArgumentException("Result or modifier cannot be null.");
+        }
+        return QueryModifierHelper.applyQueryModifier(result, modifier);
+    }
+
+
+    private static boolean isIndex(String keyValue) {
+        return INDEX_REGEX.matcher(keyValue).matches();
+    }
+
+
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+        List<T> temp = input.toList();
+        return Page.<T> builder()
+                .result(QueryModifierHelper.applyQueryModifier(
+                        temp.stream()
+                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                                .map(DeepCopyHelper::deepCopy)
+                                .collect(Collectors.toList()),
+                        modifier))
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
+    }
+
+
+    private static String nextCursor(PagingInfo paging, int resultCount) throws PersistenceException {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
+    }
+
+
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) throws PersistenceException {
+        if (!hasMoreData) {
+            return null;
+        }
+        if (!paging.hasLimit()) {
+            throw new PersistenceException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+        }
+        if (Objects.isNull(paging.getCursor())) {
+            return writeCursor((int) paging.getLimit());
+        }
+        return writeCursor(readCursor(paging.getCursor()) + (int) paging.getLimit());
+    }
+
+
+    private static int readCursor(String cursor) {
+        return Integer.parseInt(cursor);
+    }
+
+
+    private static String writeCursor(int index) {
+        return Long.toString(index);
+    }
+
     private final JsonApiSerializer serializer = new JsonApiSerializer();
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
 
     private PersistenceMongoConfig config;
     private MongoClient client;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     private MongoCollection<Document> aasCollection;
     private MongoCollection<Document> cdCollection;
@@ -288,26 +385,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) throws PersistenceException {
-        Stream<T> result = input;
-        if (Objects.nonNull(paging.getCursor())) {
-            result = result.skip(readCursor(paging.getCursor()));
-        }
-        if (paging.hasLimit()) {
-            result = result.limit(paging.getLimit() + 1);
-        }
-        List<T> temp = result.collect(Collectors.toList());
-        return Page.<T> builder()
-                .result(temp.stream()
-                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                        .collect(Collectors.toList()))
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor(paging, temp.size()))
-                        .build())
-                .build();
-    }
-
-
     @Override
     public Submodel getSubmodel(String id, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
         return prepareResult(
@@ -336,7 +413,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException, PersistenceException {
         try {
             Document handleDocument = Document.parse(serializer.write(handle));
-            Bson filter = Filters.eq("handle", handleDocument);
+            Bson filter = Filters.eq(HANDLE, handleDocument);
             Document operationDocument = operationCollection.find(filter).first();
             if (Objects.isNull(operationDocument))
                 throw new ResourceNotFoundException(handle.getHandleId());
@@ -354,7 +431,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-
         Bson filter = NO_FILTER;
         if (criteria.isIdShortSet())
             filter = Filters.and(filter, getIdShortFilter(criteria.getIdShort()));
@@ -370,36 +446,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static <T> FindIterable<T> applyPaging(FindIterable<T> iterable, PagingInfo paging) {
-        FindIterable<T> result = iterable;
-        if (Objects.nonNull(paging.getCursor())) {
-            result = result.skip(readCursor(paging.getCursor()));
-        }
-        if (paging.hasLimit()) {
-            result = result.limit((int) paging.getLimit() + 1);
-        }
-        return result;
-    }
-
-
-    private <T extends Referable> Stream<T> applyPaging(Stream<T> input, PagingInfo paging) {
-        Stream result = input;
-        if (Objects.nonNull(paging.getCursor())) {
-            result = result.skip(readCursor(paging.getCursor()));
-        }
-        if (paging.hasLimit()) {
-            result = result.limit(paging.getLimit() + 1);
-        }
-        return result;
-    }
-
-
     @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-
         Bson filter = NO_FILTER;
         if (criteria.isIdShortSet())
             filter = Filters.and(filter, getIdShortFilter(criteria.getIdShort()));
@@ -418,12 +469,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
             Referable parent = fetch(criteria.getParent(), Referable.class);
-
             PersistenceHelper.addSubmodelElementsFromParentToCollection(parent, elements);
         }
         Stream<SubmodelElement> result = elements.stream();
         if (criteria.isSemanticIdSet()) {
-            // TODO refactor
             result = PersistenceHelper.filterBySemanticId(result, criteria.getSemanticId());
         }
         return preparePagedResult(result, modifier, paging);
@@ -435,7 +484,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-
         Bson filter = NO_FILTER;
         if (criteria.isIdShortSet())
             filter = Filters.and(filter, getIdShortFilter(criteria.getIdShort()));
@@ -443,7 +491,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             filter = Filters.and(filter, getIsCaseOfFilter(criteria.getIsCaseOf()));
         if (criteria.isDataSpecificationSet())
             filter = Filters.and(filter, getDataSpecificationFilter(criteria.getDataSpecification()));
-
         return preparePagedResult(cdCollection, filter, paging, modifier, ConceptDescription.class);
     }
 
@@ -466,13 +513,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static void ensureIdShortPresent(SubmodelElement submodelElement) {
-        if (Objects.nonNull(submodelElement) && StringHelper.isBlank(submodelElement.getIdShort())) {
-            throw new IllegalArgumentException("idShort most be non-empty");
-        }
-    }
-
-
     private void ensureDoesNotAlreadyExist(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement) throws ResourceAlreadyExistsException {
         Reference newElementReference = ReferenceBuilder.forParent(parentIdentifier.toReference(), submodelElement);
         if (submodelElementExists(newElementReference)) {
@@ -486,7 +526,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             throws ResourceNotFoundException, ResourceNotAContainerElementException, ResourceAlreadyExistsException, PersistenceException {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
-
         Referable parent;
         if (parentIdentifier.getIdShortPath().isEmpty()) {
             parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL);
@@ -545,19 +584,18 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                     Updates.set(filter.fieldname, asDocument(submodelElement)),
                     new UpdateOptions().arrayFilters(filter.arrayFilters));
         }
-        if (result.getModifiedCount() == 0)
+        if (result.getModifiedCount() == 0) {
             throw new ResourceNotFoundException(identifier.toReference());
+        }
     }
 
 
     private MongoSubmodelElementPath getFilter(IdShortPath path) {
         MongoSubmodelElementPath result = new MongoSubmodelElementPath();
         result.fieldname = SUBMODEL_ELEMENTS_KEY;
-
         if (path.isEmpty()) {
             return result;
         }
-
         for (int i = 0; i < path.getElements().size() - 1; i++) {
             String key = path.getElements().get(i);
             if (isIndex(key)) {
@@ -588,12 +626,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         try {
             Document handleDocument = Document.parse(serializer.write(handle));
             Document resultDocument = Document.parse(serializer.write(result));
-            document.append("handle", handleDocument).append("result", resultDocument);
+            document.append(HANDLE, handleDocument).append("result", resultDocument);
         }
         catch (SerializationException | UnsupportedModifierException e) {
             LOGGER.error(String.format(SERIALIZATION_ERROR, handle.getHandleId()));
         }
-        operationCollection.replaceOne(Filters.eq("handle", document.get("handle")),
+        operationCollection.replaceOne(Filters.eq(HANDLE, document.get(HANDLE)),
                 document,
                 new ReplaceOptions().upsert(true));
     }
@@ -631,7 +669,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
         SubmodelElementIdentifier parentIdentifier = SubmodelElementIdentifier.fromReference(ReferenceHelper.getParent(identifier.toReference()));
         UpdateResult result;
-
         // deleting from submodel
         if (parentIdentifier.getIdShortPath().isEmpty()) {
             result = submodelCollection.updateOne(
@@ -640,7 +677,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
         else {
             // delete from collection or list
-
             String lastKeyValue = identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1);
             MongoSubmodelElementPath filter = getFilter(parentIdentifier.getIdShortPath());
             filter.fieldname += "." + VALUE_KEY;
@@ -743,20 +779,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static <T extends Referable> T prepareResult(T result, QueryModifier modifier) {
-        if (result == null || modifier == null) {
-            throw new IllegalArgumentException("Result or modifier cannot be null.");
-        }
-        return QueryModifierHelper.applyQueryModifier(result, modifier);
-    }
-
-
     private <T extends Referable> T fetch(SubmodelElementIdentifier identifier, Class<T> returnType) throws ResourceNotFoundException, PersistenceException {
         Document result = loadDocument(identifier);
         if (Objects.isNull(result))
             throw new ResourceNotFoundException(identifier.toReference());
         try {
-            // TODO Test failed hier beim Lesen
             return deserializer.read(result.toJson(), returnType);
         }
         catch (DeserializationException e) {
@@ -765,7 +792,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private Document loadDocument(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
+    private Document loadDocument(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
         List<Bson> pipelineStages = new ArrayList<>();
         // Filter for the right submodel
         pipelineStages.add(Aggregates.match(Filters.eq(ID_KEY, identifier.getSubmodelId())));
@@ -805,33 +832,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
     }
 
-    //    private Bson getFilter(SubmodelElementIdentifier identifier) {
-    //        Reference reference = identifier.toReference();
-    //        if (Objects.isNull(reference) || reference.getKeys().isEmpty()) {
-    //            return Filters.empty();
-    //        }
-    //        Bson filter = Filters.eq(ID_KEY, reference.getKeys().get(0).getValue());
-    //        if (reference.getKeys().size() > 1) {
-    //            String currentPropertyKey = SUBMODEL_ELEMENTS_KEY;
-    //            for (int i = 1; i < reference.getKeys().size(); i++) {
-    //                String key = reference.getKeys().get(i).getValue();
-    //                if (isIndex(key)) {
-    //                    filter = Filters.and(filter, Filters.exists(currentPropertyKey + "." + VALUE_KEY + "." + key));
-    //                }
-    //                else {
-    //                    filter = Filters.and(filter, Filters.eq(currentPropertyKey + "." + ID_SHORT_KEY, key));
-    //                }
-    //                currentPropertyKey += "." + VALUE_KEY;
-    //            }
-    //        }
-    //        return filter;
-    //    }
-
-
-    private static boolean isIndex(String keyValue) {
-        return INDEX_REGEX.matcher(keyValue).matches();
-    }
-
 
     private <T extends Referable> Page<T> preparePagedResult(MongoCollection<Document> collection, Bson filter, PagingInfo paging, QueryModifier modifier, Class<T> type)
             throws PersistenceException {
@@ -841,51 +841,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                         type),
                 modifier,
                 paging);
-    }
-
-
-    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        List<T> temp = input.collect(Collectors.toList());
-        return Page.<T> builder()
-                .result(QueryModifierHelper.applyQueryModifier(
-                        temp.stream()
-                                .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                                .map(DeepCopyHelper::deepCopy)
-                                .collect(Collectors.toList()),
-                        modifier))
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor(paging, temp.size()))
-                        .build())
-                .build();
-    }
-
-
-    private static String nextCursor(PagingInfo paging, int resultCount) throws PersistenceException {
-        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
-    }
-
-
-    private static String nextCursor(PagingInfo paging, boolean hasMoreData) throws PersistenceException {
-        if (!hasMoreData) {
-            return null;
-        }
-        if (!paging.hasLimit()) {
-            throw new PersistenceException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-        }
-        if (Objects.isNull(paging.getCursor())) {
-            return writeCursor((int) paging.getLimit());
-        }
-        return writeCursor(readCursor(paging.getCursor()) + (int) paging.getLimit());
-    }
-
-
-    private static int readCursor(String cursor) {
-        return Integer.parseInt(cursor);
-    }
-
-
-    private static String writeCursor(int index) {
-        return Long.toString(index);
     }
 
     private static class MongoSubmodelElementPath {

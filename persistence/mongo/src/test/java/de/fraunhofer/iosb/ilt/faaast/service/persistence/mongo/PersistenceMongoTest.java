@@ -84,7 +84,7 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
 
 
     private void startEmbeddedMongoDB() {
-        Transitions transitions = Mongod.instance().transitions(Version.Main.PRODUCTION);
+        Transitions transitions = Mongod.instance().transitions(Version.Main.V4_4);
         runningProcess = transitions.walker()
                 .initState(StateID.of(RunningMongodProcess.class));
         serverAddress = runningProcess.current().getServerAddress();

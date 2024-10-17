@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -95,13 +94,13 @@ public class PersistenceHelper {
                 .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
                 .map(GlobalAssetIdentification.class::cast)
                 .map(x -> x.getValue())
-                .collect(Collectors.toList()));
+                .toList());
         specificIds.addAll(assetIds.stream()
                 .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
                 .map(x -> new DefaultSpecificAssetId.Builder()
                         .name(((SpecificAssetIdentification) x).getKey())
-                        .value(((SpecificAssetIdentification) x).getValue())
+                        .value(x.getValue())
                         .build())
-                .collect(Collectors.toList()));
+                .toList());
     }
 }

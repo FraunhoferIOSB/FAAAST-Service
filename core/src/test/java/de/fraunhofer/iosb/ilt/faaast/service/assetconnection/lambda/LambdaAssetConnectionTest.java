@@ -217,8 +217,7 @@ public class LambdaAssetConnectionTest {
 
     @Test
     public void testOperationProvider()
-            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException,
-            PersistenceException {
+            throws MessageBusException, EndpointException, ResourceNotFoundException, PersistenceException {
         final String submodelId = "submodel";
         final String operationId = "property";
         final String input1Id = "in1";

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo;
 
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import java.util.Objects;
 
 
 /**
@@ -52,6 +53,32 @@ public class PersistenceMongoConfig extends PersistenceConfig<PersistenceMongo> 
 
     public void setOverride(boolean override) {
         this.override = override;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(connectionString,
+                database,
+                override);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PersistenceMongoConfig other = (PersistenceMongoConfig) obj;
+        return Objects.equals(this.connectionString, other.connectionString)
+                && Objects.equals(this.database, other.database)
+                && Objects.equals(this.override, other.override);
     }
 
 
