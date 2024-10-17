@@ -42,7 +42,7 @@
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
         <module>persistence/file</module>
-        <module>persistence/mongodb</module>
+        <module>persistence/mongo</module>
         <module>filestorage/memory</module>
         <module>filestorage/filesystem</module>
         <module>assetconnection/common</module>
