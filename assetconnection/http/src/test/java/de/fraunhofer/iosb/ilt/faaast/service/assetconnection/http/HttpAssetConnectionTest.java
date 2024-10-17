@@ -175,7 +175,7 @@ public class HttpAssetConnectionTest {
 
     @Test
     public void testValueProviderPropertyGetValueJSON()
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException, PersistenceException {
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "5",
@@ -209,7 +209,7 @@ public class HttpAssetConnectionTest {
 
     @Test
     public void testValueProviderPropertyGetValueWithQueryJSON()
-            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ValueFormatException, ResourceNotFoundException, PersistenceException {
+            throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "{\"foo\" : [1, 2, 5]}",

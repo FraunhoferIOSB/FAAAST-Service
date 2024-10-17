@@ -204,7 +204,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
@@ -318,7 +318,7 @@ public class MqttAssetConnectionTest {
 
 
     private void assertSubscriptionProvider(String format, String message, String query, PropertyValue expected)
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
                         .format(format)
@@ -406,7 +406,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException, PersistenceException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(mqttServerUri, reference, expectedTypeInfo, valueProvider, operationProvider, subscriptionProvider);
     }
 

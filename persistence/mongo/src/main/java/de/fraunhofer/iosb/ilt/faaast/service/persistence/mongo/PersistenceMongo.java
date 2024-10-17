@@ -494,7 +494,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private Document asDocument(Referable referable) throws PersistenceException {
         try {
-            //TODO convert POJO directly to document if possible
             return Document.parse(serializer.write(referable));
         }
         catch (SerializationException | UnsupportedModifierException e) {
@@ -561,7 +560,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private <T> T fromDocument(Document document, Class<T> type) throws PersistenceException {
         try {
-            //TODO convert bson directly to POJO if possible
             return deserializer.read(document.toJson(), type);
         }
         catch (DeserializationException e) {
