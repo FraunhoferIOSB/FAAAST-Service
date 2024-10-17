@@ -91,6 +91,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -98,14 +99,12 @@ import org.slf4j.LoggerFactory;
  * Persistence implementation for a mongo database.
  */
 public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
-    private static final String ID_KEY = "id";
-    private static final String ID_SHORT_KEY = "idShort";
-    private static final String SUBMODEL_ELEMENTS_KEY = "submodelElements";
-    private static final String VALUE_KEY = "value";
-    private static final String SERIALIZATION_ERROR = "Serialization of document with id %s failed!";
-    private static final String DESERIALIZATION_ERROR = "Deserialization of document with id %s failed!";
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceMongo.class);
+
+    private static final int RANDOM_VALUE_LENGTH = 100;
+    private static final String SERIALIZATION_ERROR = "Serialization of document with id %s failed!";
+
     private static final String MSG_RESOURCE_NOT_FOUND_BY_ID = "resource not found (id %s)";
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     private static final String MSG_CRITERIA_NOT_NULL = "criteria must be non-null";
@@ -116,6 +115,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String CD_COLLECTION_NAME = "contentDescriptions";
     private static final String SUBMODEL_COLLECTION_NAME = "submodels";
     private static final String OPERATION_COLLECTION_NAME = "operationResults";
+
+    private static final String ID_KEY = "id";
+    private static final String ID_SHORT_KEY = "idShort";
+    private static final String SUBMODEL_ELEMENTS_KEY = "submodelElements";
+    private static final String VALUE_KEY = "value";
 
     private static final Pattern INDEX_REGEX = Pattern.compile("\\[\\d+\\]");
 
@@ -612,7 +616,6 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         deleteElementById(cdCollection, id);
     }
 
-    private static final int RANDOM_VALUE_LENGTH = 100;
 
     private static String generateRandomValue() {
         byte[] data = new byte[RANDOM_VALUE_LENGTH];
