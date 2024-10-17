@@ -43,6 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.AmbiguousElementException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -388,9 +389,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
+     * @throws PersistenceException if accessing the environment fails
      */
     private void elementCreated(Reference element, Referable value)
-            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException, PersistenceException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
@@ -472,9 +474,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      * @throws ValueFormatException The data format of the value is invalid
      * @throws AmbiguousElementException if there are multiple matching elements in the environment
+     * @throws PersistenceException if accessing the environment fails
      */
     private void elementUpdated(Reference element, Referable value)
-            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException {
+            throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, ValueFormatException, AmbiguousElementException, PersistenceException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 

@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.prov
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -60,7 +61,7 @@ public class CustomAssetConnection extends
         try {
             return new CustomSubscriptionProvider(reference, providerConfig, serviceContext);
         }
-        catch (ResourceNotFoundException | ValueMappingException e) {
+        catch (ResourceNotFoundException | ValueMappingException | PersistenceException e) {
             throw new AssetConnectionException(String.format("creating subscription provider failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
@@ -71,7 +72,7 @@ public class CustomAssetConnection extends
         try {
             return new CustomValueProvider(reference, providerConfig, serviceContext);
         }
-        catch (ResourceNotFoundException | ValueMappingException e) {
+        catch (ResourceNotFoundException | ValueMappingException | PersistenceException e) {
             throw new AssetConnectionException(String.format("creating value provider failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }
