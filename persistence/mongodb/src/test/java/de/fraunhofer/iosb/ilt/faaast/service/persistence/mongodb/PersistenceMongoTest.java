@@ -22,28 +22,22 @@ import de.flapdoodle.reverse.TransitionWalker;
 import de.flapdoodle.reverse.Transitions;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -51,7 +45,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -145,37 +138,5 @@ public class PersistenceMongoTest extends AbstractPersistenceTest<PersistenceMon
                         .build());
         Assert.assertEquals(expected, actual);
         persistence.stop();
-    }
-
-
-    @Test
-    @Ignore
-    //currently no specificAssetIds in environment available
-    public void getShellsWithSpecialAssetIdentification() throws ConfigurationException, SerializationException, PersistenceException {
-        Environment environment = AASFull.createEnvironment();
-        Persistence persistence = getPersistenceConfig(null, environment, true).newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
-        persistence.start();
-        SpecificAssetIdentification specialAssetIdentification = new SpecificAssetIdentification();
-        specialAssetIdentification.setKey("Test Asset");
-        specialAssetIdentification.setValue("https://acplt.org/Test_Asset");
-
-        List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> getSpecificAssetIdValues(x).contains(specialAssetIdentification.getValue()))
-                .collect(Collectors.toList());
-        List<AssetAdministrationShell> actual = persistence.findAssetAdministrationShells(
-                AssetAdministrationShellSearchCriteria.builder()
-                        .assetIds(List.of(specialAssetIdentification))
-                        .build(),
-                QueryModifier.DEFAULT,
-                PagingInfo.ALL)
-                .getContent();
-        Assert.assertEquals(expected, actual);
-        persistence.stop();
-    }
-
-
-    private List<String> getSpecificAssetIdValues(AssetAdministrationShell aas) {
-        return aas.getAssetInformation().getSpecificAssetIds().stream()
-                .map(y -> y.getValue()).collect(Collectors.toList());
     }
 }

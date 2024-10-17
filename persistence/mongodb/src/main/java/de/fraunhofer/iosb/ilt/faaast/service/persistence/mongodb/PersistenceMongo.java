@@ -116,7 +116,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private static final String SUBMODEL_COLLECTION_NAME = "submodels";
     private static final String OPERATION_COLLECTION_NAME = "operationResults";
 
-    private static final Pattern INDEX_REGEX = Pattern.compile("\\d+");
+    private static final Pattern INDEX_REGEX = Pattern.compile("\\[\\d+\\]");
 
     private final JsonApiSerializer serializer = new JsonApiSerializer();
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
@@ -479,24 +479,38 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         Ensure.requireNonNull(parentIdentifier, "parent must be non-null");
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
 
-        SubmodelElement parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL);
+        Referable parent;
+        if (parentIdentifier.getIdShortPath().isEmpty()) {
+            parent = getSubmodel(parentIdentifier.getSubmodelId(), QueryModifier.MINIMAL);
+        }
+        else {
+            parent = getSubmodelElement(parentIdentifier, QueryModifier.MINIMAL);
+        }
         if (!SubmodelElementCollection.class.isAssignableFrom(parent.getClass())
                 && !SubmodelElementList.class.isAssignableFrom(parent.getClass())
-                && !Entity.class.isAssignableFrom(parent.getClass())) {
-            throw new ResourceNotAContainerElementException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                && !Entity.class.isAssignableFrom(parent.getClass())
+                && !Submodel.class.isAssignableFrom(parent.getClass())) {
+            throw new ResourceNotAContainerElementException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s, %s",
                     parent.getClass(),
                     Submodel.class,
                     SubmodelElementCollection.class,
-                    SubmodelElementList.class));
+                    SubmodelElementList.class,
+                    Entity.class));
         }
-        if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())
-                || Entity.class.isAssignableFrom(parent.getClass())) {
+        if (!SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
             ensureIdShortPresent(submodelElement);
             ensureDoesNotAlreadyExist(parentIdentifier, submodelElement);
         }
 
-        MongoSubmodelElementPath filter = getFilter(parentIdentifier.getIdShortPath());
-        filter.fieldname += String.format(".%s", VALUE_KEY);
+        MongoSubmodelElementPath filter;
+        if (parentIdentifier.getIdShortPath().isEmpty()) {
+            filter = new MongoSubmodelElementPath();
+            filter.fieldname = String.format("%s", SUBMODEL_ELEMENTS_KEY);
+        }
+        else {
+            filter = getFilter(parentIdentifier.getIdShortPath());
+            filter.fieldname += String.format(".%s", VALUE_KEY);
+        }
         submodelCollection.updateOne(
                 getFilterForSubmodel(parentIdentifier.getSubmodelId()),
                 Updates.push(filter.fieldname, asDocument(submodelElement)),
@@ -531,6 +545,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private MongoSubmodelElementPath getFilter(IdShortPath path) {
         MongoSubmodelElementPath result = new MongoSubmodelElementPath();
         result.fieldname = SUBMODEL_ELEMENTS_KEY;
+
+        if (path.isEmpty()) {
+            return result;
+        }
+
         for (int i = 0; i < path.getElements().size() - 1; i++) {
             String key = path.getElements().get(i);
             if (isIndex(key)) {
@@ -544,6 +563,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
         String lastKey = path.getElements().get(path.getElements().size() - 1);
         if (isIndex(lastKey)) {
+            lastKey = lastKey.substring(1, lastKey.length() - 1);
             result.fieldname += "." + lastKey;
         }
         else {
@@ -621,6 +641,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             // As deletion by index is not possible, set value to random unique value and the delete all entries with this value.
             // This potentially deletes elements that are not intended to be deleted by probability converges to zero if random value is long enough.
             if (isIndex(lastKeyValue)) {
+                lastKeyValue = lastKeyValue.substring(1, lastKeyValue.length() - 1);
                 String randomValue = generateRandomValue();
                 submodelCollection.updateOne(
                         getFilterForSubmodel(identifier.getSubmodelId()),
@@ -728,6 +749,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (Objects.isNull(result))
             throw new ResourceNotFoundException(identifier.toReference());
         try {
+            // TODO Test failed hier beim Lesen
             return deserializer.read(result.toJson(), returnType);
         }
         catch (DeserializationException e) {
@@ -753,7 +775,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
                 currentFieldName += "." + VALUE_KEY;
                 pipelineStages.add(Aggregates.unwind("$" + currentFieldName));
                 if (isIndex(identifier.getIdShortPath().getElements().get(i))) {
-                    pipelineStages.add(Aggregates.skip(Integer.parseInt(identifier.getIdShortPath().getElements().get(i))));
+                    String index = identifier.getIdShortPath().getElements().get(i);
+                    index = index.substring(1, index.length() - 1);
+                    pipelineStages.add(Aggregates.skip(Integer.parseInt(index)));
                     pipelineStages.add(Aggregates.limit(1));
                 }
                 else {
