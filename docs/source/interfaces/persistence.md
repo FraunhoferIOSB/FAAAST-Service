@@ -73,9 +73,9 @@ Each modification of the model results in writing the whole model to the file wh
 ```
 
 
-## MongoDB
+## Mongo
 
-The MongoDB Persistence stores the AAS model in a MongoDB according to the AAS specification.
+The Mongo Persistence stores the AAS model in a MongoDB according to the AAS specification.
 Therefore, changes are stored permanently even when FA³ST Service is stopped or crashes.
 
 :::{important}
@@ -85,11 +85,11 @@ Each modification of the model results in only writing the specific part to the 
 ### Configuration
 
 :::{table} Configuration properties of MongoDB-based Persistence.
-| Name                        | Allowed Value       | Description                                                                                                                                                                                                     | Default Value              |
-| ----------------------------| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| connectionString<br>*(mandatory)*     | String              | The connection string where the MongoDB is located.                                                                                                                                           | .                          |
-| databaseName<br>*(optional)*  | String | The name of the database to be used inside the MongoDB.                                                                                                                                |  `MongoTest` |
-| override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false                       |
+| Name                     | Allowed Value       | Description                                                                                            | Default Value |
+| -------------------------| ------------------- | ------------------------------------------------------------------------------------------------------ | ------------- |
+| connectionString<br>     | String              | The connection string where the MongoDB is located.                                                    |               |
+| database<br>*(optional)* | String              | The name of the database to be used inside the MongoDB.                                                | `faaast`      |
+| override<br>*(optional)* | Boolean             | If true, FA³ST persistence will always override the previous database, this might result in data loss. | false         |
 
 :::
 
@@ -98,9 +98,9 @@ Each modification of the model results in only writing the specific part to the 
 :lineno-start: 1
 {
 	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongodb.PersistenceMongo",
-		"connectionString" : "mongodb://mongoURL:12345",
-		"databaseName": "MongoAAS",
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo.PersistenceMongo",
+		"connectionString" : "mongodb://localhost:27017",
+		"database": "faaast-database",
 		"override": true
 	},
 	//...
