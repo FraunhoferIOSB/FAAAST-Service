@@ -125,8 +125,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private final JsonApiSerializer serializer = new JsonApiSerializer();
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
+
     private PersistenceMongoConfig config;
     private MongoClient client;
+    private Random random = new Random();
+
     private MongoCollection<Document> aasCollection;
     private MongoCollection<Document> cdCollection;
     private MongoCollection<Document> submodelCollection;
@@ -617,9 +620,9 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     }
 
 
-    private static String generateRandomValue() {
+    private String generateRandomValue() {
         byte[] data = new byte[RANDOM_VALUE_LENGTH];
-        new Random().nextBytes(data);
+        random.nextBytes(data);
         return new String(data, StandardCharsets.UTF_8);
     }
 
