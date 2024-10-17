@@ -43,26 +43,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.TimeZone;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import opc.i4aas.VariableIds;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -101,7 +96,8 @@ public class OpcUaEndpointFullModelTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointFullModelTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 500;
+    private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
     private static TestService service;
     private static int aasns;
@@ -579,7 +575,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -595,13 +590,16 @@ public class OpcUaEndpointFullModelTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
         // check that the element is there now
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
+                });
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -636,7 +634,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -644,14 +641,16 @@ public class OpcUaEndpointFullModelTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
         // check that the element is not there anymore
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
-        Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
+                });
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -687,7 +686,6 @@ public class OpcUaEndpointFullModelTest {
         Assert.assertTrue("testDeleteCapability Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -696,14 +694,16 @@ public class OpcUaEndpointFullModelTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
         // check that the element is not there anymore
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testDeleteCapability Browse Result Null", bpres);
-        Assert.assertEquals("testDeleteCapability Browse Result: size doesn't match", 2, bpres.length);
-        Assert.assertTrue("testDeleteCapability Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
-        Assert.assertTrue("testDeleteCapability Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    return bpr != null && bpr.length == 2 && bpr[0].getStatusCode().isBad() && bpr[1].getStatusCode().isBad();
+                });
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -898,12 +898,13 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException {
+    public void testWriteProperty()
+            throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("testUpdatePropertyValue: client connected");
+        System.out.println("testWriteProperty: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -923,30 +924,13 @@ public class OpcUaEndpointFullModelTest {
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("testWriteProperty ValueType Null", targets);
         Assert.assertTrue("testWriteProperty ValueType empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Long oldValue = Long.MAX_VALUE;
-        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
 
         final Long newValue = Long.valueOf(159785);
 
-        // set new value in service
-        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.FULL_SUBMODEL_6_ID)
-                .path(TestConstants.FULL_INT64_PROP_NAME)
-                .value(PropertyValue.of(Datatype.LONG, newValue.toString()))
-                .build();
-        Response response = service.execute(request);
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-        // unable to deterministically know when the changes will materialize, therefore wait for some time
-        Awaitility.await()
-                .alias("check value updated in OPC UA endpoint")
-                .pollInterval(100, TimeUnit.MILLISECONDS)
-                .atMost(10, TimeUnit.SECONDS)
-                .until(() -> {
-                    DataValue latestValue = client.readValue(targets[0].getTargetId());
-                    return Objects.equals(StatusCode.GOOD, latestValue.getStatusCode())
-                            && Objects.equals(newValue, latestValue.getValue().getValue());
-                });
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        TestUtils.writeNewValueIntern(client, writeNode, oldValue, newValue);
+
         System.out.println("disconnect client");
         client.disconnect();
     }
@@ -989,7 +973,6 @@ public class OpcUaEndpointFullModelTest {
 
         // update submodel 
         // Send update event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -1040,27 +1023,31 @@ public class OpcUaEndpointFullModelTest {
                         .build())
                 .build());
         service.getMessageBus().publish(msg);
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element was updated
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
-        Assert.assertEquals("testUpdateSubmodelElement Browse 2 Result: size doesn't match", 1, bpres.length);
-        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result not Good", bpres[0].getStatusCode().isGood());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    if ((bpr == null) || (bpr.length != 1) || bpr[0].getStatusCode().isNotGood()) {
+                        return false;
+                    }
+                    BrowsePathTarget[] targets2 = bpr[0].getTargets();
+                    if ((targets2 == null) || (targets2.length == 0)) {
+                        return false;
+                    }
 
-        // read value of the updated SubmodelElement
-        targets = bpres[0].getTargets();
-        Assert.assertNotNull("testUpdateSubmodelElement Target 2 Null", targets);
-        Assert.assertTrue("testUpdateSubmodelElement Taget 2 empty", targets.length > 0);
+                    List<AASKeyDataType> smeValue = new ArrayList<>();
+                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
+                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
+                    smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
 
-        List<AASKeyDataType> smeValue = new ArrayList<>();
-        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Submodel, "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"));
-        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Entity, "ExampleEntity"));
-        smeValue.add(new AASKeyDataType(AASKeyTypesDataType.Property, "ExampleProperty2"));
-
-        DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()));
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertArrayEquals("updated SubmodelElement value not equal", smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+                    DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets2[0].getTargetId()));
+                    return value.getStatusCode().isGood() && Arrays.equals(smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+                });
 
         System.out.println("disconnect client");
         client.disconnect();

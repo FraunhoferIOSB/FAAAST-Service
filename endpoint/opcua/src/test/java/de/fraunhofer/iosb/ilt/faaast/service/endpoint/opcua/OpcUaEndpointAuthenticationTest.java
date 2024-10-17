@@ -51,7 +51,6 @@ public class OpcUaEndpointAuthenticationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointAuthenticationTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 150;
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
     private static int OPC_TCP_PORT;
