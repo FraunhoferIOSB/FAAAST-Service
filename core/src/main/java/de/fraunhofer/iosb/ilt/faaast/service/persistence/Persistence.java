@@ -252,7 +252,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param modifier the modifier
      * @param paging paging information
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
-     * @throws ResourceNotFoundException if the handle does not exist
+     * @throws ResourceNotFoundException if the parent does not exist
      * @throws PersistenceException if there was an error with the storage.
      */
     public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
@@ -591,8 +591,13 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return all {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException, PersistenceException {
-        return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
+    public default Page<SubmodelElement> getAllSubmodelElements(QueryModifier modifier, PagingInfo paging) throws PersistenceException {
+        try {
+            return findSubmodelElements(SubmodelElementSearchCriteria.NONE, modifier, paging);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new PersistenceException("unexpected persistence exception", e);
+        }
     }
 
 

@@ -106,8 +106,7 @@ public class MqttAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderConnectionLost()
-            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, IOException, ConfigurationException {
+    public void testSubscriptionProviderConnectionLost() throws IOException, ConfigurationException {
         int port = PortHelper.findFreePort();
         Server localServer = startMqttServer(port);
 
@@ -389,14 +388,13 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException, PersistenceException {
+    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
     }
 
 
     private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException, PersistenceException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
