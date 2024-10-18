@@ -164,7 +164,7 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testOpcUaEndpointFull()
-            throws InterruptedException, SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
         UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
