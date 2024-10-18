@@ -43,7 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -52,12 +52,11 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 import opc.i4aas.VariableIds;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -101,15 +100,15 @@ public class OpcUaEndpointFullModelTest {
 
     private static TestService service;
     private static int aasns;
-    private static int OPC_TCP_PORT;
-    private static String ENDPOINT_URL;
+    private static int opcTcpPort;
+    private static String endpointUrl;
 
     @BeforeClass
     public static void startTest() throws Exception {
-        OPC_TCP_PORT = PortHelper.findFreePort();
-        ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
+        opcTcpPort = PortHelper.findFreePort();
+        endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
-                .tcpPort(OPC_TCP_PORT)
+                .tcpPort(opcTcpPort)
                 .secondsTillShutdown(0)
                 .supportedAuthentication(UserTokenType.Anonymous)
                 .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
@@ -164,8 +163,9 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testOpcUaEndpointFull() throws InterruptedException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testOpcUaEndpointFull()
+            throws InterruptedException, SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -221,8 +221,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -270,8 +270,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testWriteSubmodelElementCollectionValue()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -318,8 +318,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testWriteSubmodelElementListValue()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -356,8 +356,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testWriteSubmodelElementListValue2()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -399,8 +399,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testWriteEntityGlobalAssetId()
-            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -438,7 +438,7 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -493,8 +493,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -548,8 +548,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -607,8 +607,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -658,8 +658,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -712,8 +712,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testDateTimeProperty()
-            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException, StatusException, InterruptedException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException, StatusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -756,7 +756,7 @@ public class OpcUaEndpointFullModelTest {
         NodeId propValueNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
 
-        DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getDefault());
+        DateTime dt = DateTime.fromInstant(ZonedDateTime.of(2022, 7, 8, 10, 22, 4, 0, ZoneId.systemDefault()).toInstant());
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, "Parameter",
                 AASDataTypeDefXsd.DateTime, dt, new ArrayList<>());
 
@@ -771,7 +771,7 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -824,7 +824,7 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testSubmodelElementList() throws ServiceException, SecureIdentityException, IOException, StatusException, ServiceResultException, AddressSpaceException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -899,8 +899,8 @@ public class OpcUaEndpointFullModelTest {
 
     @Test
     public void testWriteProperty()
-            throws SecureIdentityException, ServiceException, IOException, StatusException, ValueFormatException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+            throws SecureIdentityException, ServiceException, IOException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -937,8 +937,8 @@ public class OpcUaEndpointFullModelTest {
 
 
     @Test
-    public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -949,12 +949,6 @@ public class OpcUaEndpointFullModelTest {
         // make sure one of the old elements exists, the new element exists not yet
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-        //browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_RANGE_NAME)));
-        //browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MAX_NAME)));
-        //relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-        //browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_REL_ELEMENT_NAME)));

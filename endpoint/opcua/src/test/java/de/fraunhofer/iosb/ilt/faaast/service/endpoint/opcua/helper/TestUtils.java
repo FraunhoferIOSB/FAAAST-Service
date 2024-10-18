@@ -233,8 +233,8 @@ public class TestUtils {
             NodeId nid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             checkType(client, nid, new NodeId(aasns, TestConstants.AAS_QUALIFIER_TYPE_ID));
             UaNode qnode = client.getAddressSpace().getNode(nid);
-            if (qnode instanceof AASQualifierType) {
-                nodeList.add((AASQualifierType) qnode);
+            if (qnode instanceof AASQualifierType aASQualifierType) {
+                nodeList.add(aASQualifierType);
             }
         }
 
@@ -570,7 +570,7 @@ public class TestUtils {
     }
 
 
-    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
+    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         if (oldValue == null) {
@@ -596,7 +596,7 @@ public class TestUtils {
 
 
     public static void writeNewValueArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
-            throws ServiceException, StatusException, InterruptedException {
+            throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("intial value not equal", oldValue, (LocalizedText[]) value.getValue().getValue());
@@ -617,7 +617,7 @@ public class TestUtils {
 
 
     public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKeyDataType[] oldValue, AASKeyDataType[] newValue)
-            throws ServiceException, StatusException, InterruptedException {
+            throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());

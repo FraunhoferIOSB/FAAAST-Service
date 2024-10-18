@@ -21,10 +21,13 @@ import com.prosysopc.ua.UserIdentity;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.File;
 import java.io.IOException;
@@ -53,20 +56,20 @@ public class OpcUaEndpointAuthenticationTest {
 
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
-    private static int OPC_TCP_PORT;
-    private static String ENDPOINT_URL;
+    private static int opcTcpPort;
+    private static String endpointUrl;
 
     private static TestService service;
 
     @BeforeClass
-    public static void startTest() throws ConfigurationException, Exception {
+    public static void startTest() throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException {
         LOGGER.trace("startTest");
-        OPC_TCP_PORT = PortHelper.findFreePort();
-        ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
+        opcTcpPort = PortHelper.findFreePort();
+        endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
         Map<String, String> users = new HashMap<>();
         users.put(USERNAME, PASSWORD);
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
-                .tcpPort(OPC_TCP_PORT)
+                .tcpPort(opcTcpPort)
                 .secondsTillShutdown(0)
                 .supportedAuthentications(Set.of(UserTokenType.UserName))
                 .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
@@ -104,8 +107,8 @@ public class OpcUaEndpointAuthenticationTest {
 
 
     @Test
-    public void testSuccessfulLogin() throws SessionActivationException, SecureIdentityException, IOException, ServiceException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testSuccessfulLogin() throws SecureIdentityException, IOException, ServiceException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
@@ -115,8 +118,8 @@ public class OpcUaEndpointAuthenticationTest {
 
 
     @Test(expected = SessionActivationException.class)
-    public void testPreventAnonymousAccess() throws SessionActivationException, SecureIdentityException, IOException, ServiceException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testPreventAnonymousAccess() throws SecureIdentityException, IOException, ServiceException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         // The call to connect is expected to throw an exception as anonymous access is not allowed
