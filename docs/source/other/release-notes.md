@@ -33,6 +33,10 @@
 		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization
 		- Added support for valueOnly serialization of `BasicEventElement`
 		- Fixed serialization of `Message` object to only include `code` property if set
+- Asset Connection
+	- General
+		- Fixed bug that caused FA³ST Service to crash when an Asset Connection threw an exception on startup
+
 ## 1.1.0
 
 **New Features & Major Changes**

@@ -44,14 +44,14 @@ import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 import opc.i4aas.datatypes.AASAssetKindDataType;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -59,10 +59,9 @@ import opc.i4aas.datatypes.AASKeyTypesDataType;
 import opc.i4aas.datatypes.AASModellingKindDataType;
 import opc.i4aas.objecttypes.AASQualifierType;
 import opc.i4aas.objecttypes.AASSpecificAssetIdType;
+import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -70,8 +69,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TestUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
-    private static final long DEFAULT_TIMEOUT = 100;
+    private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
         ApplicationDescription appDescription = new ApplicationDescription();
@@ -234,8 +233,8 @@ public class TestUtils {
             NodeId nid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             checkType(client, nid, new NodeId(aasns, TestConstants.AAS_QUALIFIER_TYPE_ID));
             UaNode qnode = client.getAddressSpace().getNode(nid);
-            if (qnode instanceof AASQualifierType) {
-                nodeList.add((AASQualifierType) qnode);
+            if (qnode instanceof AASQualifierType aASQualifierType) {
+                nodeList.add(aASQualifierType);
             }
         }
 
@@ -571,7 +570,7 @@ public class TestUtils {
     }
 
 
-    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
+    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         if (oldValue == null) {
@@ -583,65 +582,58 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // read new value
-        value = client.readValue(writeNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        if (oldValue == value.getValue().getValue()) {
-            // if we read the old value again, we try again after a short waiting time
-            LOGGER.atTrace().log("writeNewValueIntern: read failed, try again after a short waiting time");
-            CountDownLatch condition = new CountDownLatch(1);
-            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-            value = client.readValue(writeNode);
-            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        }
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
+        // check new value
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    DataValue val = client.readValue(writeNode);
+                    return val.getStatusCode().isGood() && (val.getValue() != null) && Objects.equals(val.getValue().getValue(), newValue);
+                });
     }
 
 
     public static void writeNewValueArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
-            throws ServiceException, StatusException, InterruptedException {
+            throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("intial value not equal", oldValue, (LocalizedText[]) value.getValue().getValue());
 
         client.writeValue(writeNode, newValue);
 
-        // read new value
-        value = client.readValue(writeNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        if (Arrays.equals(oldValue, (LocalizedText[]) value.getValue().getValue())) {
-            // if we read the old value again, we try again after a short waiting time
-            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
-            CountDownLatch condition = new CountDownLatch(1);
-            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-            value = client.readValue(writeNode);
-            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        }
-
-        Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+        // check new value
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    DataValue val = client.readValue(writeNode);
+                    return val.getStatusCode().isGood() && (val.getValue() != null) && Arrays.equals((LocalizedText[]) val.getValue().getValue(), newValue);
+                });
     }
 
 
     public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKeyDataType[] oldValue, AASKeyDataType[] newValue)
-            throws ServiceException, StatusException, InterruptedException {
+            throws ServiceException, StatusException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());
 
         client.writeValue(writeNode, newValue);
 
-        // read new value
-        value = client.readValue(writeNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        if (Arrays.equals(oldValue, (AASKeyDataType[]) value.getValue().getValue())) {
-            // if we read the old value again, we try again after a short waiting time
-            LOGGER.atTrace().log("writeNewValueArray: read failed, try again after a short waiting time");
-            CountDownLatch condition = new CountDownLatch(1);
-            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-            value = client.readValue(writeNode);
-            Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        }
-        Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
+        // check new value
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    DataValue val = client.readValue(writeNode);
+                    return val.getStatusCode().isGood() && (val.getValue() != null) && Arrays.equals((AASKeyDataType[]) val.getValue().getValue(), newValue);
+                });
     }
 
 
