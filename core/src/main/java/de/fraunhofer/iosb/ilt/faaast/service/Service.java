@@ -246,7 +246,7 @@ public class Service implements ServiceContext {
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
-    public void start() throws MessageBusException, EndpointException {
+    public void start() throws MessageBusException, EndpointException, PersistenceException {
         LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
         if (!endpoints.isEmpty()) {
@@ -258,6 +258,7 @@ public class Service implements ServiceContext {
         }
         registrySynchronization.start();
         assetConnectionManager.start();
+        persistence.start();
         LOGGER.debug("FA³ST Service is running!");
     }
 
@@ -271,6 +272,7 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
+        persistence.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
