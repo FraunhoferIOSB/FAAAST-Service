@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.DeleteAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -42,7 +43,8 @@ public class DeleteAssetAdministrationShellByIdRequestHandler
 
 
     @Override
-    public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
+    public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteAssetAdministrationShell(request.getId());

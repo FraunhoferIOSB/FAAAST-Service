@@ -72,7 +72,7 @@ public class LambdaExceptionHelper {
      * @param <E> the type of expected exception
      */
     @FunctionalInterface
-    public interface FunctionWithExceptions<T, R, E extends Exception> {
+    public interface FunctionWithException<T, R, E extends Exception> {
 
         /**
          * Wrapper for {@link java.util.function.Function#apply(java.lang.Object)}.
@@ -192,7 +192,36 @@ public class LambdaExceptionHelper {
      * @return a wrapping function
      * @throws E if execution of underlying function throws given exception
      */
-    public static <T, R, E extends Exception> Function<T, R> rethrowFunction(FunctionWithExceptions<T, R, E> function) throws E {
+    public static <T, R, E extends Exception> Function<T, R> rethrowFunction(FunctionWithException<T, R, E> function) throws E {
+        return t -> {
+            try {
+                return function.apply(t);
+            }
+            catch (Exception e) {
+                throwAsUnchecked(e);
+                return null;
+            }
+        };
+    }
+
+
+    /**
+     * Wraps a {@link Function} throwing an Exception to be conveniently used in functional expressions.
+     *
+     * @param <T> input type of the function
+     * @param <R> result type of the function
+     * @param <E1> type of the first potentially thrown exception
+     * @param <E2> type of the second potentially thrown exception
+     * @param function the actual function
+     * @param e1 type of the first potentially thrown exception
+     * @param e2 type of the second potentially thrown exception
+     * @return a wrapping function
+     * @throws E1 if execution of underlying function throws given exception
+     * @throws E2 if execution of underlying function throws given exception
+     */
+    public static <T, R, E1 extends Exception, E2 extends Exception> Function<T, R> rethrowFunction(FunctionWithException<T, R, ? extends Exception> function, Class<E1> e1,
+                                                                                                    Class<E2> e2)
+            throws E1, E2 {
         return t -> {
             try {
                 return function.apply(t);
@@ -300,7 +329,7 @@ public class LambdaExceptionHelper {
      * @return wrapped function
      * @throws RuntimeException if calling the consumer fails
      */
-    public static <T, R> Function<T, R> wrapFunction(FunctionWithExceptions<T, R, Exception> function) {
+    public static <T, R> Function<T, R> wrapFunction(FunctionWithException<T, R, Exception> function) {
         return t -> {
             try {
                 return function.apply(t);

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteFileByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -44,7 +45,8 @@ public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceReq
 
     @Override
     public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException {
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException,
+            PersistenceException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())

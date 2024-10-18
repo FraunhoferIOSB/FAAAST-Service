@@ -42,6 +42,7 @@
         <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
         <module>persistence/file</module>
+        <module>persistence/mongo</module>
         <module>filestorage/memory</module>
         <module>filestorage/filesystem</module>
         <module>assetconnection/common</module>
@@ -84,6 +85,7 @@
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
+        <de.flapdoodle.embed.version>4.17.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.17.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
@@ -128,6 +130,7 @@
         <maven.plugin.surefire.version>3.5.1</maven.plugin.surefire.version>
         <milo.version>0.6.14</milo.version>
         <mockito.version>5.14.2</mockito.version>
+        <mongodb.version>5.1.3</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.114.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4</org.apache.httpcomponents.client5.version>

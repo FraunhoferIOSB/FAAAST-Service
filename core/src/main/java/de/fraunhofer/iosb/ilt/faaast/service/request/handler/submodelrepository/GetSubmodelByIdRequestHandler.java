@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -45,7 +46,7 @@ public class GetSubmodelByIdRequestHandler extends AbstractRequestHandler<GetSub
 
     @Override
     public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getId(), request.getOutputModifier());
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -56,7 +57,7 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
      * @param request the request
      * @throws ResourceNotFoundException if AAS does not exist or submodel does not belong to AAS
      */
-    protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
+    protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException, PersistenceException {
         if (request.getAasId() != null) {
             Reference submodelRef = ReferenceBuilder.forSubmodel(request.getSubmodelId());
             AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(

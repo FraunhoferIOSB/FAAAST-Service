@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsValueRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsValueResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -49,7 +50,7 @@ public class GetAllSubmodelElementsValueRequestHandler extends AbstractSubmodelI
 
     @Override
     public GetAllSubmodelElementsValueResponse doProcess(GetAllSubmodelElementsValueRequest request)
-            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
+            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> page = context.getPersistence().getSubmodelElementsValueOnly(reference, request.getOutputModifier(), request.getPagingInfo());
         syncWithAsset(reference, page.getContent(), !request.isInternal());

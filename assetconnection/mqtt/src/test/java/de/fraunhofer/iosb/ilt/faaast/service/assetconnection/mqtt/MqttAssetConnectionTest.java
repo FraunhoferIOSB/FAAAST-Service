@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -105,8 +106,7 @@ public class MqttAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderConnectionLost()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
+    public void testSubscriptionProviderConnectionLost() throws IOException, ConfigurationException {
         int port = PortHelper.findFreePort();
         Server localServer = startMqttServer(port);
 
@@ -125,7 +125,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonProperty()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException, ValueFormatException {
         assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
     }
@@ -133,7 +133,8 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testReconnect()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, IOException, ResourceNotFoundException,
+            PersistenceException, ValueFormatException {
         int assetMqttPort = PortHelper.findFreePort();
         Server localMqttServer = startMqttServer(assetMqttPort);
         String localMqttServerUri = "tcp://" + LOCALHOST + ":" + assetMqttPort;
@@ -180,7 +181,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyInvalidMessage()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException, ValueFormatException {
         TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         String message = "7";
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
@@ -202,7 +203,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
@@ -216,7 +217,7 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithQuery()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException, ValueFormatException {
         assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
     }
@@ -224,8 +225,8 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testValueProviderProperty()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
-            ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, MqttException, JSONException, ConfigurationInitializationException,
+            ResourceNotFoundException, PersistenceException, ValueFormatException {
         String expected = "\"hello world\"";
         String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
@@ -234,8 +235,8 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testValueProviderPropertyWithTemplate()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException,
-            ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, MqttException, JSONException, ConfigurationInitializationException,
+            ResourceNotFoundException, PersistenceException, ValueFormatException {
         String expected = "{\"foo\": \"hello world\"}";
         String template = "{\"foo\": ${value}}";
         String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), template);
@@ -275,7 +276,7 @@ public class MqttAssetConnectionTest {
 
 
     private String invokeValueProvider(String format, DataElementValue newValue, String template)
-            throws AssetConnectionException, InterruptedException, MqttException, ConfigurationInitializationException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, MqttException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         MqttAssetConnection assetConnection = newConnection(MqttValueProviderConfig.builder()
                 .format(format)
                 .template(template)
@@ -310,13 +311,13 @@ public class MqttAssetConnectionTest {
 
 
     private void assertSubscriptionProvider(String format, String message, PropertyValue expected)
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         assertSubscriptionProvider(format, message, null, expected);
     }
 
 
     private void assertSubscriptionProvider(String format, String message, String query, PropertyValue expected)
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, ResourceNotFoundException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
                         .format(format)
@@ -329,7 +330,7 @@ public class MqttAssetConnectionTest {
 
 
     private void assertSubscriptionProvider(MqttSubscriptionProviderConfig config, Runnable publisher, Callable<Boolean> waitCondition, PropertyValue... expected)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException {
+            throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException, PersistenceException {
         MqttAssetConnection assetConnection = newConnection(
                 ArrayUtils.isEmpty(expected)
                         ? null
@@ -387,14 +388,13 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException {
+    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
     }
 
 
     private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
@@ -404,7 +404,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         return newConnection(mqttServerUri, reference, expectedTypeInfo, valueProvider, operationProvider, subscriptionProvider);
     }
 
@@ -415,7 +415,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException, AssetConnectionException, ResourceNotFoundException {
+            throws ConfigurationInitializationException, ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig config = MqttAssetConnectionConfig.builder()
                 .serverUri(url)
                 .build();

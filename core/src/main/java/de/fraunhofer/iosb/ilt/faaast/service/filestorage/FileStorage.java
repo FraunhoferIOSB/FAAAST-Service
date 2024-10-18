@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.filestorage;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import java.io.IOException;
 
 
 /**
@@ -33,8 +33,9 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      * @param path the path to the file
      * @return the file content
      * @throws ResourceNotFoundException if the path does not exist
+     * @throws PersistenceException if storage error occurs
      */
-    public byte[] get(String path) throws ResourceNotFoundException;
+    public byte[] get(String path) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
@@ -42,8 +43,9 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to the file
      * @return true if file is in storage
+     * @throws PersistenceException if storage error occurs
      */
-    public boolean contains(String path);
+    public boolean contains(String path) throws PersistenceException;
 
 
     /**
@@ -51,9 +53,9 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to save the file under
      * @param content the file content to save
-     * @throws java.io.IOException if saving fails
+     * @throws PersistenceException if storage error occurs
      */
-    public void save(String path, byte[] content) throws IOException;
+    public void save(String path, byte[] content) throws PersistenceException;
 
 
     /**
@@ -61,18 +63,18 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
      *
      * @param path the path to the file to delete
      * @throws ResourceNotFoundException if path does not exist
-     * @throws java.io.IOException if deleting fails
+     * @throws PersistenceException if storage error occurs
      */
-    public void delete(String path) throws ResourceNotFoundException, IOException;
+    public void delete(String path) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
      * Saves the file to given path.
      *
      * @param file the file to save
-     * @throws java.io.IOException if saving fails
+     * @throws PersistenceException if storage error occurs
      */
-    public default void save(InMemoryFile file) throws IOException {
+    public default void save(InMemoryFile file) throws PersistenceException {
         save(file.getPath(), file.getContent());
     }
 }
