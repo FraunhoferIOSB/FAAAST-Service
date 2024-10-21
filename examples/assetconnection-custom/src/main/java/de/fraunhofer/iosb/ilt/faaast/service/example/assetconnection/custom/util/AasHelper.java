@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -32,7 +33,7 @@ public class AasHelper {
     private AasHelper() {}
 
 
-    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException, ResourceNotFoundException {
+    public static Datatype getDatatype(Reference reference, ServiceContext serviceContext) throws ValueMappingException, ResourceNotFoundException, PersistenceException {
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new IllegalArgumentException(String.format("type info does not provide datatype (type info: %s)", typeInfo.getClass()));
@@ -41,7 +42,7 @@ public class AasHelper {
     }
 
 
-    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) throws ResourceNotFoundException {
+    public static void ensureType(Reference reference, Class<?> type, ServiceContext serviceContext) throws ResourceNotFoundException, PersistenceException {
         Referable element = EnvironmentHelper.resolve(reference, serviceContext.getAASEnvironment());
         if (element == null) {
             throw new IllegalArgumentException(String.format("element could not be resolved (reference: %s)", ReferenceHelper.toString(reference)));

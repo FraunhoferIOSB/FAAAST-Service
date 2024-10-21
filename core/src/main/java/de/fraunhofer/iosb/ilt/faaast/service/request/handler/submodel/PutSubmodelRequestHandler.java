@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -47,7 +48,8 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
 
     @Override
     public PutSubmodelResponse process(PutSubmodelRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
+            PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
         context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);

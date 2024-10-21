@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -43,7 +44,8 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
 
 
     @Override
-    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException, MessageBusException, AssetConnectionException {
+    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request)
+            throws ResourceNotFoundException, MessageBusException, AssetConnectionException, PersistenceException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteSubmodel(request.getSubmodelId());

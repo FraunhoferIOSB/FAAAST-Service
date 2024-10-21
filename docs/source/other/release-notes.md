@@ -3,6 +3,8 @@
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+- Persistence
+	- Added Mongo persistence for storing AAS model in MongoDB
 - Endpoint
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`

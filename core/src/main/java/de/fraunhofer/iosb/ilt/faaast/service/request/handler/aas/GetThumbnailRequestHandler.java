@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -38,7 +39,7 @@ public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbn
 
 
     @Override
-    public GetThumbnailResponse process(GetThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetThumbnailResponse process(GetThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())
                 || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())

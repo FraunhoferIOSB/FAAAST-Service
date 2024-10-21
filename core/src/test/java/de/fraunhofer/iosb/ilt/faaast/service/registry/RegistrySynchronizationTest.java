@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -310,7 +311,7 @@ public class RegistrySynchronizationTest {
     }
 
 
-    private void mockPersistence() throws ResourceNotFoundException {
+    private void mockPersistence() throws ResourceNotFoundException, PersistenceException {
         persistence = Mockito.mock(Persistence.class);
         environment = AASFull.createEnvironment();
         when(persistence.getAllAssetAdministrationShells(any(), any()))

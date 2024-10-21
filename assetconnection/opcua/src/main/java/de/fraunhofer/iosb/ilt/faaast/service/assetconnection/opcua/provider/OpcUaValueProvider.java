@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -63,7 +64,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
         try {
             typeInfo = serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException ex) {
+        catch (ResourceNotFoundException | PersistenceException ex) {
             throw new AssetConnectionException(
                     String.format("%s - could not resolve type information (reference: %s)",
                             baseErrorMessage,

@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class OpcUaEndpointSimpleModelTest {
     private static int aasns;
 
     @BeforeClass
-    public static void startTest() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public static void startTest() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         opcTcpPort = PortHelper.findFreePort();
         endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
 
@@ -566,7 +567,7 @@ public class OpcUaEndpointSimpleModelTest {
 
 
     @Test
-    public void testSecurityPolicies() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException {
+    public void testSecurityPolicies() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException, PersistenceException {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.NONE),
                 Set.of(UserTokenType.Anonymous)));
@@ -607,7 +608,7 @@ public class OpcUaEndpointSimpleModelTest {
 
 
     private boolean testConfig(Set<SecurityPolicy> expectedPolicies, Set<UserTokenType> expectedUserTokens)
-            throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException {
+            throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException, PersistenceException {
         int port = PortHelper.findFreePort();
         String url = "opc.tcp://localhost:" + port;
 

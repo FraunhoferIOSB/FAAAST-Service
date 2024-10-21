@@ -28,7 +28,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -80,18 +79,28 @@ public class IdShortPath {
             startIndex++;
         }
         IdShortPath.Builder builder = IdShortPath.builder();
-        boolean inList = false;
         for (int i = startIndex; i < reference.getKeys().size(); i++) {
             ReferenceHelper.ensureKeyType(reference.getKeys().get(i), SubmodelElement.class);
-            if (inList) {
-                builder.index(Long.parseUnsignedLong(reference.getKeys().get(i).getValue()));
+            String value = reference.getKeys().get(i).getValue();
+            if (isIndex(value)) {
+                builder.index(Long.parseUnsignedLong(value));
             }
             else {
-                builder.idShort(reference.getKeys().get(i).getValue());
+                builder.idShort(value);
             }
-            inList = ReferenceHelper.isKeyType(reference.getKeys().get(i), SubmodelElementList.class);
         }
         return builder.build();
+    }
+
+
+    private static boolean isIndex(String value) {
+        try {
+            Long.parseLong(value);
+            return true;
+        }
+        catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 

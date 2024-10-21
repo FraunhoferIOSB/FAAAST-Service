@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmo
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -101,10 +102,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             return;
         }
 
-        aasEnvironment = service.getAASEnvironment();
-        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
-
         try {
+            aasEnvironment = service.getAASEnvironment();
+            Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
             server.startup();
             LOGGER.debug("server started");
@@ -270,8 +270,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * Read the current environment from the service.
      *
      * @return The current environment.
+     * @throws PersistenceException if accessing the environment fails
      */
-    public Environment getAASEnvironment() {
+    public Environment getAASEnvironment() throws PersistenceException {
         return service.getAASEnvironment();
     }
 }

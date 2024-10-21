@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -49,7 +50,7 @@ public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterface
     @Override
     public PostSubmodelElementResponse doProcess(PostSubmodelElementRequest request)
             throws ResourceNotFoundException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, AssetConnectionException, MessageBusException,
-            ResourceAlreadyExistsException {
+            ResourceAlreadyExistsException, PersistenceException {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());
         Reference parentReference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Reference childReference = ReferenceBuilder
