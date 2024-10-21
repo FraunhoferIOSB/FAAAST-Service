@@ -248,6 +248,7 @@ public class Service implements ServiceContext {
      */
     public void start() throws MessageBusException, EndpointException, PersistenceException {
         LOGGER.debug("Get command for starting FA³ST Service");
+        persistence.start();
         messageBus.start();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
@@ -258,7 +259,6 @@ public class Service implements ServiceContext {
         }
         registrySynchronization.start();
         assetConnectionManager.start();
-        persistence.start();
         LOGGER.debug("FA³ST Service is running!");
     }
 

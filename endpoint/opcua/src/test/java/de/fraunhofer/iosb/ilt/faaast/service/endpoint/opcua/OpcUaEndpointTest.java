@@ -48,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -734,7 +735,8 @@ public class OpcUaEndpointTest {
 
 
     private boolean testConfig(Set<SecurityPolicy> expectedPolicies, Set<UserTokenType> expectedUserTokens)
-            throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException {
+            throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException,
+            PersistenceException {
         int port = PortHelper.findFreePort();
         String url = "opc.tcp://localhost:" + port;
 

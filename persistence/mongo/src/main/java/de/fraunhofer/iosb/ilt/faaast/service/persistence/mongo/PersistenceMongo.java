@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientException;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
@@ -72,6 +73,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -382,10 +384,16 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public void start() throws PersistenceException {
         client = MongoClients.create(
                 MongoClientSettings.builder()
+                        .applyToClusterSettings(x -> x.serverSelectionTimeout(3000, TimeUnit.MILLISECONDS))
                         .applyConnectionString(new ConnectionString(config.getConnectionString()))
                         .build());
         MongoDatabase database = client.getDatabase(config.getDatabase());
-
+        try {
+            client.listDatabaseNames().first();
+        }
+        catch (MongoClientException e) {
+            throw new PersistenceException(String.format("connecting to MongoDB failed (reason: %s)", e.getMessage()), e);
+        }
         aasCollection = database.getCollection(AAS_COLLECTION_NAME);
         cdCollection = database.getCollection(CD_COLLECTION_NAME);
         submodelCollection = database.getCollection(SUBMODEL_COLLECTION_NAME);
