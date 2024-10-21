@@ -44,21 +44,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import opc.i4aas.VariableIds;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
 import opc.i4aas.datatypes.AASKeyDataType;
@@ -66,6 +61,7 @@ import opc.i4aas.datatypes.AASKeyTypesDataType;
 import opc.i4aas.datatypes.AASModellingKindDataType;
 import opc.i4aas.objecttypes.AASEntityType;
 import opc.i4aas.objecttypes.AASRelationshipElementType;
+import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind;
@@ -88,25 +84,26 @@ import org.slf4j.LoggerFactory;
 /**
  * Test class for the general OPC UA Endpoint test with the simple example
  */
-public class OpcUaEndpointTest {
+public class OpcUaEndpointSimpleModelTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointSimpleModelTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 400;
+    private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
-    private static int OPC_TCP_PORT;
-    private static String ENDPOINT_URL;
+    private static int opcTcpPort;
+    private static String endpointUrl;
 
     private static TestService service;
     private static int aasns;
 
     @BeforeClass
-    public static void startTest() throws ConfigurationException, Exception {
-        OPC_TCP_PORT = PortHelper.findFreePort();
-        ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
+    public static void startTest() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+        opcTcpPort = PortHelper.findFreePort();
+        endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
-                .tcpPort(OPC_TCP_PORT)
+                .tcpPort(opcTcpPort)
                 .secondsTillShutdown(0)
                 .supportedAuthentication(UserTokenType.Anonymous)
                 .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
@@ -130,8 +127,9 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testOpcUaEndpoint() throws InterruptedException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testOpcUaEndpoint()
+            throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException, AddressSpaceException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -213,59 +211,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("testUpdatePropertyValue: client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ROTATION_SPEED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWriteProperty Browse Result Null", bpres);
-        Assert.assertTrue("testWriteProperty Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testWriteProperty Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWriteProperty ValueType Null", targets);
-        Assert.assertTrue("testWriteProperty ValueType empty", targets.length > 0);
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        String oldValue = "4370";
-        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
-
-        String newValue = "9999";
-
-        // set new value in service
-        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_OPER_DATA_NAME)
-                .path(TestConstants.ROTATION_SPEED_NAME)
-                .value(PropertyValue.of(Datatype.INTEGER, newValue))
-                .build();
-        Response response = service.execute(request);
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-
-        // read new value
-        value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWritePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWritePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -283,7 +230,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWritePropertyValue Browse Result Null", bpres);
-        Assert.assertTrue("testWritePropertyValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWritePropertyValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWritePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -300,55 +247,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testPropertyChange() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
-        client.setSecurityMode(SecurityMode.NONE);
-        TestUtils.initialize(client);
-        client.connect();
-        System.out.println("testPropertyChangeFromMessageBus: client connected");
-
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
-
-        List<RelativePath> relPath = new ArrayList<>();
-        List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_TECH_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.MAX_ROTATION_SPEED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
-
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testPropertyChangeFromMessageBus Browse Result Null", bpres);
-        Assert.assertTrue("testPropertyChangeFromMessageBus Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testPropertyChangeFromMessageBus Browse Result Good", bpres[0].getStatusCode().isGood());
-
-        BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testPropertyChangeFromMessageBus ValueType Null", targets);
-        Assert.assertTrue("testPropertyChangeFromMessageBus ValueType empty", targets.length > 0);
-
-        String newValue = "5005";
-
-        // set new value in service
-        SetSubmodelElementValueByPathRequest request = SetSubmodelElementValueByPathRequest.builder().submodelId(TestConstants.SUBMODEL_TECH_DATA_NAME)
-                .path(TestConstants.MAX_ROTATION_SPEED_NAME)
-                .value(PropertyValue.of(Datatype.INTEGER, newValue))
-                .build();
-        Response response = service.execute(request);
-        Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_NO_CONTENT, response.getStatusCode());
-
-        // read new value
-        DataValue value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
-
-        System.out.println("disconnect client");
-        client.disconnect();
-    }
-
-
-    @Test
-    public void testWriteRangeValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWriteRangeValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -366,7 +266,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteRangeValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteRangeValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteRangeValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteRangeValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -383,8 +283,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testWriteMultiLanguagePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWriteMultiLanguagePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -402,7 +302,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -428,8 +328,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testWriteReferenceElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWriteReferenceElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -448,7 +348,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteReferenceElementValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteReferenceElementValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteReferenceElementValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteReferenceElementValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -474,8 +374,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testWriteEntityType() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testWriteEntityType() throws SecureIdentityException, IOException, ServiceException, StatusException, ServiceResultException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -493,7 +393,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteEntityType Browse Result Null", bpres);
-        Assert.assertTrue("testWriteEntityType Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteEntityType Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteEntityType Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -510,8 +410,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -532,10 +432,8 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
-
-        CountDownLatch condition = new CountDownLatch(1);
 
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
                 .submodelId("http://i40.customer.com/type/1/1/7A7104BDAB57E184")
@@ -549,13 +447,16 @@ public class OpcUaEndpointTest {
         PostSubmodelElementResponse response = (PostSubmodelElementResponse) service.execute(request);
         Assert.assertEquals(de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.SUCCESS_CREATED, response.getStatusCode());
 
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
         // check that the element is there now
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
+                });
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -563,8 +464,8 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testAddSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
-        UaClient client = new UaClient(ENDPOINT_URL);
+    public void testAddSubmodel() throws SecureIdentityException, IOException, ServiceException, MessageBusException {
+        UaClient client = new UaClient(endpointUrl);
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
@@ -586,11 +487,10 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testAddSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testAddSubmodel Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testAddSubmodel Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testAddSubmodel Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
-        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .type(ReferenceTypes.MODEL_REFERENCE)
@@ -650,13 +550,16 @@ public class OpcUaEndpointTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
         // check that the element is there now
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testAddSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testAddSubmodel Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testAddSubmodel Browse Result Good", bpres[0].getStatusCode().isGood());
+        // unable to deterministically know when the changes will materialize, therefore wait for some time
+        Awaitility.await()
+                .alias("check value updated in OPC UA endpoint")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    BrowsePathResult[] bpr = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+                    return bpr != null && bpr.length == 1 && bpr[0].getStatusCode().isGood();
+                });
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -664,53 +567,28 @@ public class OpcUaEndpointTest {
 
 
     @Test
-    public void testSecurityPolicyOnlyNone() throws ConfigurationException, Exception {
+    public void testSecurityPolicies() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.NONE),
                 Set.of(UserTokenType.Anonymous)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyBasic256Sha256() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.BASIC256SHA256),
                 Set.of(UserTokenType.UserName)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyBasic128() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.BASIC128RSA15),
                 Set.of(UserTokenType.Anonymous,
                         UserTokenType.Certificate)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyAllSecure104() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 SecurityPolicy.ALL_SECURE_104,
                 Set.of(UserTokenType.Anonymous,
                         UserTokenType.UserName,
                         UserTokenType.Certificate)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyMultiple1() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.BASIC256SHA256,
                         SecurityPolicy.NONE,
                         SecurityPolicy.BASIC256),
                 Set.of(UserTokenType.Anonymous,
                         UserTokenType.Certificate)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyMultiple2() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.BASIC256SHA256,
                         SecurityPolicy.AES128_SHA256_RSAOAEP,
@@ -718,11 +596,6 @@ public class OpcUaEndpointTest {
                         SecurityPolicy.BASIC128RSA15),
                 Set.of(UserTokenType.UserName,
                         UserTokenType.Certificate)));
-    }
-
-
-    @Test
-    public void testSecurityPolicyMultiple3() throws ConfigurationException, Exception {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.NONE,
                         SecurityPolicy.BASIC256SHA256,
@@ -735,8 +608,7 @@ public class OpcUaEndpointTest {
 
 
     private boolean testConfig(Set<SecurityPolicy> expectedPolicies, Set<UserTokenType> expectedUserTokens)
-            throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException,
-            PersistenceException {
+            throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException, PersistenceException {
         int port = PortHelper.findFreePort();
         String url = "opc.tcp://localhost:" + port;
 
@@ -799,7 +671,7 @@ public class OpcUaEndpointTest {
 
 
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
-            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
+            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
@@ -866,7 +738,7 @@ public class OpcUaEndpointTest {
     }
 
 
-    private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
+    private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
@@ -885,7 +757,7 @@ public class OpcUaEndpointTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testSubmodelRefs Browse Result Null", bpres);
-        Assert.assertTrue("testSubmodelRefs Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testSubmodelRefs Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testSubmodelRefs Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
