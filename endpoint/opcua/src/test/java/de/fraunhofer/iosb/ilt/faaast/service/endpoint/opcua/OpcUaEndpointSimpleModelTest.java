@@ -98,7 +98,7 @@ public class OpcUaEndpointSimpleModelTest {
     private static int aasns;
 
     @BeforeClass
-    public static void startTest() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public static void startTest() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         opcTcpPort = PortHelper.findFreePort();
         endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
 
@@ -567,7 +567,7 @@ public class OpcUaEndpointSimpleModelTest {
 
 
     @Test
-    public void testSecurityPolicies() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException {
+    public void testSecurityPolicies() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ServiceException, PersistenceException {
         Assert.assertTrue(testConfig(
                 Set.of(SecurityPolicy.NONE),
                 Set.of(UserTokenType.Anonymous)));

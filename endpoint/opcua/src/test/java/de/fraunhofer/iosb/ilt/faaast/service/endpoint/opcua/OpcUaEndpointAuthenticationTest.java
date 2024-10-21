@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class OpcUaEndpointAuthenticationTest {
     private static TestService service;
 
     @BeforeClass
-    public static void startTest() throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException {
+    public static void startTest() throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         LOGGER.trace("startTest");
         opcTcpPort = PortHelper.findFreePort();
         endpointUrl = "opc.tcp://localhost:" + opcTcpPort;
