@@ -14,27 +14,28 @@
 
 **Internal changes & bugfixes**
 - General
-	- Model validation no longer throws an error if a model contains multiple instances of exactly the same Identifiable. This is not 100% correct behavior according to the specification as it validates the uniqueness criteria of their ID, however, it helps tremendously when working with existing SMTs as many of them are currently also not 100% standard-compliant and contain such duplicate elements.
 	- Fixed bug when executing an operation asynchronously. When the timeout has expired, the status of the operation was set to timeout, even if the operation  already finished successfully. This does no longer happen - the timeout no longer overwrites the result of the operation.
 	- Fix warning message about missing Log4j2 logging implementation
 	- Fix registry synchronization because of invalid _interface serialization
+	- Fixed bug that occured when having multiple elements in a SubmodelElementList with exactly the same attributes
 	- Invoke asynchronous operation now ignores the clientTimeout
+	- Model validation no longer throws an error if a model contains multiple instances of exactly the same Identifiable. This is not 100% correct behavior according to the specification as it validates the uniqueness criteria of their ID, however, it helps tremendously when working with existing SMTs as many of them are currently also not 100% standard-compliant and contain such duplicate elements.
 - Endpoint
 	- HTTP
 		- Fixed query modifier `extent` which has not been working as intended
 		- Fixed bug in JSON valueOnly deserialization that could occur with complex strcutures (e.g. SubmodelElementCollections within SubmodelElementLists)
 		- Fixed bug caused by null values in JSON payload when inserting data via HTTP - null values are now treated as empty/default values
-		- Fixed "serialization failed" bug when retrieving a property of type `GDay`
+		- Fixed bug "serialization failed" when retrieving a property of type `GDay`
+		- Fixed bug where `/aas/asset-information/thumbnail` incorrectly returns `500 Internal Server Error` when property `content-type` is not set
 		- Added support for query parameters `assetId` and `idShort` for `/shells/$reference`
 		- `/serialization` no longer fails when model contains 'embedded' files but target file format does not. Instead, files are ignored.
-		- Fixed bug where `/aas/asset-information/thumbnail` incorrectly returns `500 Internal Server Error` when property `content-type` is not set
 		- Enable paging for `/submodel/submodel-elements/$path`
 		- Upgraded to Jetty 12
 - Serialization
 	- JSON
-		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization
-		- Added support for valueOnly serialization of `BasicEventElement`
+		- Fixed exception occuring when trying to serialize an element as valueOnly that contains elements that do not support valueOnly serialization		
 		- Fixed serialization of `Message` object to only include `code` property if set
+		- Added support for valueOnly serialization of `BasicEventElement`
 - Asset Connection
 	- General
 		- Fixed bug that caused FA³ST Service to crash when an Asset Connection threw an exception on startup
