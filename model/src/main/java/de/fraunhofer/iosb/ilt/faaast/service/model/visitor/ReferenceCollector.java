@@ -45,11 +45,13 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
     private Map<Reference, List<Reference>> aasContext;
     private Reference parent;
     private Map<Reference, Referable> result;
+    private int currentListIndex;
 
     private void init() {
         aasContext = new HashMap<>();
         parent = null;
         result = new HashMap<>();
+        currentListIndex = -1;
     }
 
 
@@ -96,7 +98,10 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
                     id = ((Identifiable) referable).getId();
                 }
                 if (Objects.nonNull(parent) && parent.getKeys().get(parent.getKeys().size() - 1).getType() == KeyTypes.SUBMODEL_ELEMENT_LIST) {
-                    id = Integer.toString(((SubmodelElementList) result.get(parent)).getValue().indexOf(referable));
+                    if (currentListIndex < 0) {
+                        throw new IllegalStateException("trying to process element in SubmodelElementList but no list index information available");
+                    }
+                    id = Integer.toString(currentListIndex);
                 }
 
                 Reference reference = ReferenceHelper.combine(
@@ -165,6 +170,29 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
                 || Submodel.class.isAssignableFrom(referable.getClass())
                 || SubmodelElementCollection.class.isAssignableFrom(referable.getClass())
                 || SubmodelElementList.class.isAssignableFrom(referable.getClass());
+    }
+
+
+    @Override
+    public void visit(SubmodelElementList submodelElementList) {
+        visitBefore(submodelElementList);
+        if (submodelElementList != null) {
+            visit(submodelElementList.getSemanticId());
+            submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
+            submodelElementList.getDescription().forEach(this::visit);
+            submodelElementList.getDisplayName().forEach(this::visit);
+            submodelElementList.getQualifiers().forEach(this::visit);
+            submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
+            submodelElementList.getExtensions().forEach(this::visit);
+            if (Objects.nonNull(submodelElementList.getValue())) {
+                for (int i = 0; i < submodelElementList.getValue().size(); i++) {
+                    currentListIndex = i;
+                    visit(submodelElementList.getValue().get(i));
+                }
+                currentListIndex = -1;
+            }
+        }
+        visitAfter(submodelElementList);
     }
 
 }
