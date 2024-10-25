@@ -32,9 +32,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.AbstractDateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Base64BinaryValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
@@ -789,6 +791,12 @@ public class ValueConverter {
         }
         else if (typedValue instanceof AbstractDateTimeValue<?> sbstractDateTimeValue) {
             retval = sbstractDateTimeValue.asString();
+        }
+        else if (typedValue instanceof HexBinaryValue hexBinaryValue) {
+            retval = ByteString.valueOf(hexBinaryValue.getValue());
+        }
+        else if (typedValue instanceof Base64BinaryValue base64BinaryValue) {
+            retval = ByteString.valueOf(base64BinaryValue.getValue());
         }
         return retval;
     }
