@@ -110,7 +110,7 @@
         <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
+        <maven.plugin.dependency.version>3.8.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.1</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.7</maven.plugin.gpg.version>
