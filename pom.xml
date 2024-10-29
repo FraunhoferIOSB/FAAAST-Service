@@ -90,7 +90,7 @@
         <equalsverifier.version>3.17.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.1-jre</guava.version>
-        <jackson.databind.version>2.18.0</jackson.databind.version>
+        <jackson.databind.version>2.18.1</jackson.databind.version>
         <jackson.version>2.18.0</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
