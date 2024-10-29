@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.netty.buffer.ByteBufUtil;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -32,15 +33,20 @@ import javax.xml.datatype.DatatypeFactory;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
+import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Converts values bi-directional between OPC UA and AAS types.
  */
 public class ValueConverter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
@@ -71,6 +77,47 @@ public class ValueConverter {
                                     Double.valueOf(value.getValue().toString()).longValue()));
                 }
                 catch (NumberFormatException e) {
+                    throw new ValueConversionException(e);
+                }
+            }
+        });
+        register(Datatype.HEX_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+                if (Objects.isNull(value) || value.isNull()) {
+                    return null;
+                }
+                try {
+                    String txt;
+                    if (value.getValue() instanceof ByteString bs) {
+                        txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                    }
+                    else {
+                        txt = value.getValue().toString();
+                    }
+                    return TypedValueFactory.create(targetType, txt);
+                }
+                catch (NumberFormatException | ValueFormatException e) {
+                    throw new ValueConversionException(e);
+                }
+            }
+        });
+        register(Datatype.BASE64_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+                if (Objects.isNull(value) || value.isNull()) {
+                    return null;
+                }
+                try {
+                    String txt;
+                    if (value.getValue() instanceof ByteString bs) {
+                        txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+                    }
+                    else {
+                        txt = value.getValue().toString();
+                    }
+                    LOGGER.info("convert: {}", txt);
+                    return TypedValueFactory.create(targetType, txt);
+                }
+                catch (NumberFormatException | ValueFormatException e) {
                     throw new ValueConversionException(e);
                 }
             }
