@@ -37,16 +37,12 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Converts values bi-directional between OPC UA and AAS types.
  */
 public class ValueConverter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
@@ -114,7 +110,6 @@ public class ValueConverter {
                     else {
                         txt = value.getValue().toString();
                     }
-                    LOGGER.info("convert: {}", txt);
                     return TypedValueFactory.create(targetType, txt);
                 }
                 catch (NumberFormatException | ValueFormatException e) {
