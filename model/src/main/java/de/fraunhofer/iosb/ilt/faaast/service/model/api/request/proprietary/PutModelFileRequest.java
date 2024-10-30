@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.upload;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.upload.PutModelFileResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PutModelFileResponse;
 import java.util.Objects;
 
 

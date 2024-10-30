@@ -12,46 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.upload;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.proprietary;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants.HEADER_CONTENT_TYPE;
-
-import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.upload.PutModelFileRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: /upload.
+ * class to map HTTP-DELETE-Request path: /reset.
  */
-public class PutModelFileRequestMapper extends AbstractRequestMapper {
+public class ResetRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = "upload";
+    private static final String PATTERN = "reset";
 
-    public PutModelFileRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.PUT, PATTERN);
+    public ResetRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        MediaType contentType = MediaType.parse(httpRequest.getHeader(HEADER_CONTENT_TYPE));
-        Map<String, TypedInMemoryFile> multipart = parseMultiPartBody(httpRequest, contentType);
-        return PutModelFileRequest.builder()
+        return ResetRequest.builder()
                 .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
-                .content(new TypedInMemoryFile.Builder()
-                        .content(multipart.get("file").getContent())
-                        .contentType(multipart.get("file").getContentType())
-                        .build())
                 .build();
     }
 }

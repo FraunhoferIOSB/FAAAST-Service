@@ -32,10 +32,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Response;
 
@@ -50,13 +47,15 @@ public class RequestHandlerServlet extends HttpServlet {
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
+    private final String allowedMethods;
 
-    public RequestHandlerServlet(ServiceContext serviceContext) {
+    public RequestHandlerServlet(ServiceContext serviceContext, String allowedMethods) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.serviceContext = serviceContext;
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
+        this.allowedMethods = allowedMethods;
     }
 
 
@@ -79,6 +78,9 @@ public class RequestHandlerServlet extends HttpServlet {
             doThrow(new MethodNotAllowedException(
                     String.format("Unknown method '%s'", request.getMethod()),
                     e));
+        }
+        if (!allowedMethods.contains(method.name())) {
+            throw new ServletException(String.format("Method not allowed by FA³ST configuration: '%s'", request.getMethod()));
         }
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(url.replaceAll("/$", ""))

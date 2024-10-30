@@ -36,6 +36,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
+    public static final String DEFAULT_ALLOWED_METHODS = "GET, POST, PUT, PATCH, DELETE";
 
     public static Builder builder() {
         return new Builder();
@@ -55,6 +56,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private boolean sniEnabled;
     private boolean sslEnabled;
 
+    private String allowedMethods;
+
     public HttpEndpointConfig() {
         certificate = CertificateConfig.builder()
                 .build();
@@ -70,6 +73,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
+        allowedMethods = DEFAULT_ALLOWED_METHODS;
     }
 
 
@@ -203,6 +207,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getAllowedMethods() {
+        return allowedMethods;
+    }
+
+
+    public void setAllowedMethods(String allowedMethods) {
+        this.allowedMethods = allowedMethods;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -224,7 +238,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
-                && Objects.equals(sslEnabled, that.sslEnabled);
+                && Objects.equals(sslEnabled, that.sslEnabled)
+                && Objects.equals(allowedMethods, that.allowedMethods);
     }
 
 
@@ -242,7 +257,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 includeErrorDetails,
                 port,
                 sniEnabled,
-                sslEnabled);
+                sslEnabled,
+                allowedMethods);
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
@@ -351,6 +367,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B ssl(boolean value) {
             getBuildingInstance().setSslEnabled(value);
+            return getSelf();
+        }
+
+
+        public B allowedMethods(String value) {
+            getBuildingInstance().setAllowedMethods(value);
             return getSelf();
         }
 

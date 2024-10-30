@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.upload;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
 
 
 /**
- * Response class for PutThumbnail requests.
+ * Response class for PutModelFile requests.
  */
 public class PutModelFileResponse extends AbstractResponse {
 
