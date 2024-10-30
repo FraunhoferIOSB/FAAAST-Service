@@ -51,11 +51,11 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
+    private String allowedMethods;
     private boolean includeErrorDetails;
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
-    private String allowedMethods;
 
     public HttpEndpointConfig() {
         certificate = CertificateConfig.builder()
