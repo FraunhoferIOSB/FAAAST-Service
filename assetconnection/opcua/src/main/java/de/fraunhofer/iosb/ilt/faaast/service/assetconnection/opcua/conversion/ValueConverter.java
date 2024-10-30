@@ -79,42 +79,12 @@ public class ValueConverter {
         });
         register(Datatype.HEX_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
-                if (Objects.isNull(value) || value.isNull()) {
-                    return null;
-                }
-                try {
-                    String txt;
-                    if (value.getValue() instanceof ByteString bs) {
-                        txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
-                    }
-                    else {
-                        txt = value.getValue().toString();
-                    }
-                    return TypedValueFactory.create(targetType, txt);
-                }
-                catch (NumberFormatException | ValueFormatException e) {
-                    throw new ValueConversionException(e);
-                }
+                return convertByteString(value, targetType);
             }
         });
         register(Datatype.BASE64_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
-                if (Objects.isNull(value) || value.isNull()) {
-                    return null;
-                }
-                try {
-                    String txt;
-                    if (value.getValue() instanceof ByteString bs) {
-                        txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
-                    }
-                    else {
-                        txt = value.getValue().toString();
-                    }
-                    return TypedValueFactory.create(targetType, txt);
-                }
-                catch (NumberFormatException | ValueFormatException e) {
-                    throw new ValueConversionException(e);
-                }
+                return convertByteString(value, targetType);
             }
         });
     }
@@ -186,6 +156,26 @@ public class ValueConverter {
                 new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());
         return converter.convert(value, targetType);
+    }
+
+
+    private TypedValue<?> convertByteString(Variant value, Datatype targetType) throws ValueConversionException {
+        if (Objects.isNull(value) || value.isNull()) {
+            return null;
+        }
+        try {
+            String txt;
+            if (value.getValue() instanceof ByteString bs) {
+                txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+            }
+            else {
+                txt = value.getValue().toString();
+            }
+            return TypedValueFactory.create(targetType, txt);
+        }
+        catch (NumberFormatException | ValueFormatException e) {
+            throw new ValueConversionException(e);
+        }
     }
 
     private static class DefaultConverter implements AasToOpcUaValueConverter, OpcUaToAasValueConverter {
