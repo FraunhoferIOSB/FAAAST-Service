@@ -35,14 +35,21 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 ### Configuration
 
 :::{table} Configuration properties of HTTP Endpoint.
-| Name                        | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                      |
-| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| certificate<br>*(optional)* | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate            |
-| corsEnabled<br>*(optional)* | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.    | false                              |
-| hostname<br>*(optional)*    | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address) |
-| port<br>*(optional)*        | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                |
-| sniEnabled<br>*(optional)*  | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                               |
-| sslEnabled<br>*(optional)*  | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                               |
+| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                      |
+| ------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate            |
+| corsAllowCredentials<br>*(optional)* | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                             | false                              |
+| corsAllowedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                 | *                                  |
+| corsAllowedMethods<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                 | GET, POST, HEAD                    |
+| corsAllowedOrigin<br>*(optional)*    | String                                                      | Sets the `Access-Control-Allow-Origin` response header.                                                                                                                                  | *                                  |
+| corsEnabled<br>*(optional)*          | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                              |
+| corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                    |
+| corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                               |
+| hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address) |
+| includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                              |
+| port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                |
+| sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                               |
+| sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                               |
 :::
 
 ```{code-block} json
@@ -58,8 +65,15 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 			"keyAlias": "server-key",
 			"keyPassword": "changeit"
 		},
+		"corsAllowCredentials": false,
+		"corsAllowedHeaders": "X-Custom-Header",
+		"corsAllowedMethods": "GET, PUT, POST, PATCH, DELETE, HEAD",
+		"corsAllowedOrigin": "localhost",
 		"corsEnabled": true,
+		"corsExposedHeaders": "X-Custom-Header",
+		"corsMaxAge": 1000,
 		"hostname": "localhost",
+		"includeErrorDetails": true,
 		"port": 443,
 		"sniEnabled": true,
 		"sslEnabled": true

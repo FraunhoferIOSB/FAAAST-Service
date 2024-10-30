@@ -15,11 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncStatusRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncStatusResponse;
@@ -39,39 +36,29 @@ public class GetOperationAsyncStatusResponseMapper extends AbstractResponseMappe
 
 
     @Override
-    public void map(GetOperationAsyncStatusRequest apiRequest, GetOperationAsyncStatusResponse apiResponse, HttpServletResponse httpResponse) {
-        try {
-            switch (apiResponse.getPayload().getExecutionState()) {
-                case INITIATED:
-                case RUNNING: {
-                    HttpHelper.sendJson(
-                            httpResponse,
-                            StatusCode.SUCCESS,
-                            new HttpJsonApiSerializer().write(apiResponse.getPayload()));
-                    break;
-                }
-                case COMPLETED:
-                case FAILED:
-                case CANCELED:
-                case TIMEOUT:
-                default: {
-                    HttpHelper.sendEmpty(
-                            httpResponse,
-                            StatusCode.SUCCESS_FOUND,
-                            Map.of("Location", String.format(
-                                    "../operation-results/%s",
-                                    EncodingHelper.base64UrlEncode(apiRequest.getHandle().getHandleId()))));
-                    break;
-                }
+    public void map(GetOperationAsyncStatusRequest apiRequest, GetOperationAsyncStatusResponse apiResponse, HttpServletResponse httpResponse) throws Exception {
+        switch (apiResponse.getPayload().getExecutionState()) {
+            case INITIATED:
+            case RUNNING: {
+                HttpHelper.sendJson(
+                        httpResponse,
+                        StatusCode.SUCCESS,
+                        new HttpJsonApiSerializer().write(apiResponse.getPayload()));
+                break;
+            }
+            case COMPLETED:
+            case FAILED:
+            case CANCELED:
+            case TIMEOUT:
+            default: {
+                HttpHelper.sendEmpty(
+                        httpResponse,
+                        StatusCode.SUCCESS_FOUND,
+                        Map.of("Location", String.format(
+                                "../operation-results/%s",
+                                EncodingHelper.base64UrlEncode(apiRequest.getHandle().getHandleId()))));
+                break;
             }
         }
-        catch (SerializationException e) {
-            HttpHelper.send(httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
-
     }
 }

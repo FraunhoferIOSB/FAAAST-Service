@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.AnnotatedRelationshipElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.BasicEventElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EntityValueDeserializer;
@@ -52,10 +53,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueM
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.value.ReferenceElementValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -67,6 +70,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.BasicEventElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
@@ -134,6 +138,9 @@ public class JsonApiDeserializer implements ApiDeserializer {
 
     @Override
     public <T> List<T> readList(String json, JavaType type) throws DeserializationException {
+        if (Objects.isNull(json)) {
+            return new ArrayList<>();
+        }
         try {
             return wrapper.getMapper().readValue(
                     json,
@@ -481,6 +488,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
+        mapper.addMixIn(Message.class, MessageMixin.class);
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
@@ -524,6 +532,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
         module.addDeserializer(PropertyValue.class, new PropertyValueDeserializer());
         module.addDeserializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueDeserializer());
+        module.addDeserializer(BasicEventElementValue.class, new BasicEventElementValueDeserializer());
         module.addDeserializer(SubmodelElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
         module.addDeserializer(SubmodelElementListValue.class, new SubmodelElementListValueDeserializer());
         module.addDeserializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueDeserializer());

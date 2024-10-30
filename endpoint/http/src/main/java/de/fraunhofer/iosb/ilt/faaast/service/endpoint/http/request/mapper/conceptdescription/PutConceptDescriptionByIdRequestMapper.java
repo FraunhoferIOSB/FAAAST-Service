@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -43,7 +42,7 @@ public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutConceptDescriptionByIdRequest.builder()
-                .id(EncodingHelper.base64UrlDecode(urlParameters.get(CONCEPT_ID)))
+                .id(getParameterBase64UrlEncoded(urlParameters, CONCEPT_ID))
                 .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
                 .build();
     }

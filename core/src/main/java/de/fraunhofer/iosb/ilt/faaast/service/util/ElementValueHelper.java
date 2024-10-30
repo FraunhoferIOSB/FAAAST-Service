@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -120,12 +121,13 @@ public class ElementValueHelper {
      */
     public static boolean isSerializableAsValue(Class<?> type) {
         return DataElement.class.isAssignableFrom(type)
-                || SubmodelElementCollection.class.isAssignableFrom(type)
-                || SubmodelElementList.class.isAssignableFrom(type)
+                || AnnotatedRelationshipElement.class.isAssignableFrom(type)
+                || BasicEventElement.class.isAssignableFrom(type)
+                || Entity.class.isAssignableFrom(type)
                 || ReferenceElement.class.isAssignableFrom(type)
                 || RelationshipElement.class.isAssignableFrom(type)
-                || AnnotatedRelationshipElement.class.isAssignableFrom(type)
-                || Entity.class.isAssignableFrom(type);
+                || SubmodelElementCollection.class.isAssignableFrom(type)
+                || SubmodelElementList.class.isAssignableFrom(type);
     }
 
 

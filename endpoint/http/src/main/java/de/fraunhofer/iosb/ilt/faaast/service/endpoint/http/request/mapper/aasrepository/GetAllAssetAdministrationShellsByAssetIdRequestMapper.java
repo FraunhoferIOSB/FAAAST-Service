@@ -20,12 +20,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapperWithOutputModifierAndPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
@@ -36,10 +36,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
         extends AbstractRequestMapperWithOutputModifierAndPaging<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
-    private static final String PATTERN = "shells";
+    private static final String PATTERN = "shells$";
 
     public GetAllAssetAdministrationShellsByAssetIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN, Content.REFERENCE);
     }
 
 
@@ -54,7 +54,8 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
-                    .assetIds(deserializer.readList(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
+                    .assetIds(deserializer.readList(
+                            getParameterBase64UrlEncoded(httpRequest.getQueryParameters(), QueryParameters.ASSET_IDS),
                             SpecificAssetId.class))
                     .build();
         }

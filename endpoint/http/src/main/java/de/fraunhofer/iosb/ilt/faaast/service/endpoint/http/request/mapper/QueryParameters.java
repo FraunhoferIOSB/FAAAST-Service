@@ -24,7 +24,7 @@ public class QueryParameters {
     public static final String ASSET_IDS = "assetIds";
     public static final String ASYNC = "async";
     public static final String DATA_SPECIFICATION_REF = "dataSpecificationRef";
-    public static final String EXTENT = "extend";
+    public static final String EXTENT = "extent";
     public static final String ID_SHORT = "idShort";
     public static final String INCLUDE_CONCEPT_DESCRIPTIONS = "includeConceptDescriptions";
     public static final String IS_CASE_OF = "isCaseOf";

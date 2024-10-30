@@ -17,10 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.submo
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapperWithPaging;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsPathResponse;
 import java.util.Map;
@@ -31,7 +32,7 @@ import java.util.Map;
  * shells/{aasIdentifier}/submodels/{submodelIdentifier}/submodel-elements/$path.
  */
 public class GetAllSubmodelElementsPathRequestMapper
-        extends AbstractSubmodelInterfaceRequestMapper<GetAllSubmodelElementsPathRequest, GetAllSubmodelElementsPathResponse> {
+        extends AbstractSubmodelInterfaceRequestMapperWithPaging<GetAllSubmodelElementsPathRequest, GetAllSubmodelElementsPathResponse> {
 
     private static final String PATTERN = "submodel-elements/\\$path";
 
@@ -47,7 +48,7 @@ public class GetAllSubmodelElementsPathRequestMapper
 
 
     @Override
-    public GetAllSubmodelElementsPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public GetAllSubmodelElementsPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier, PagingInfo pagingInfo) {
         return GetAllSubmodelElementsPathRequest.builder()
                 .build();
     }

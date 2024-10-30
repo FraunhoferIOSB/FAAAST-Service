@@ -351,7 +351,7 @@ public class App implements Runnable {
             config = getConfig();
         }
         catch (IOException e) {
-            throw new InitializationException("Error loading config file", e);
+            throw new InitializationException("Error loading config file: " + e.getMessage(), e);
         }
         config = ServiceConfigHelper.autoComplete(config);
         config = withModel(config);
@@ -387,12 +387,16 @@ public class App implements Runnable {
     private Optional<File> findDefaultModel() {
         try {
             List<File> modelFiles;
+            List<String> fileExtensions = new ArrayList<>(DataFormat.AASX.getFileExtensions());
+            fileExtensions.addAll(DataFormat.JSON.getFileExtensions());
             try (Stream<File> stream = Files.find(Paths.get(""), 1,
                     (file, attributes) -> file.toFile()
                             .getName()
                             .matches(MODEL_FILENAME_PATTERN))
                     .map(Path::toFile)) {
-                modelFiles = stream.collect(Collectors.toList());
+                modelFiles = stream.filter(f -> fileExtensions.stream()
+                        .anyMatch(FileHelper.getFileExtensionWithoutSeparator(f.getName())::equalsIgnoreCase))
+                        .toList();
             }
             if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",

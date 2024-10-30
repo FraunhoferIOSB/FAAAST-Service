@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.PathJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class PathJsonSerializerTest {
     private static final String ID_PROPERTY_3 = "property3";
 
     @Test
-    public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultProperty.Builder()
                 .idShort(ID_PROPERTY_1)
                 .build();
@@ -69,7 +70,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testCollection() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementCollection.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -105,7 +106,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testCollectionWithParent() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testCollectionWithParent() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementCollection.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -149,7 +150,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testListProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testListProperty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodelElementList.Builder()
                 .idShort(ID_COLLECTION_1)
                 .value(new DefaultProperty.Builder()
@@ -170,7 +171,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testListComplex() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testListComplex() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort("Submodel")
                 .submodelElements(new DefaultProperty.Builder()
@@ -300,7 +301,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testSubmodelEmpty() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testSubmodelEmpty() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort(ID_SUBMODEL_1)
                 .build();
@@ -311,7 +312,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testSubmodel() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testSubmodel() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort(ID_SUBMODEL_1)
                 .submodelElements(new DefaultProperty.Builder()
@@ -340,7 +341,7 @@ public class PathJsonSerializerTest {
 
 
     @Test
-    public void testComplex() throws SerializationException, JSONException, IOException, ValueMappingException {
+    public void testComplex() throws SerializationException, JSONException, IOException, ValueMappingException, JsonProcessingException, UnsupportedModifierException {
         Object input = new DefaultSubmodel.Builder()
                 .idShort("TestSubmodel3")
                 .id("https://acplt.org/Test_Submodel")
@@ -426,21 +427,23 @@ public class PathJsonSerializerTest {
     }
 
 
-    private void assertEquals(IdShortPath parent, Object obj, Path path, Level level) throws SerializationException, JsonProcessingException, JSONException {
+    private void assertEquals(IdShortPath parent, Object obj, Path path, Level level)
+            throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
         String actual = serializer.write(parent, obj, level);
         String expected = new ObjectMapper().writeValueAsString(path.getPaths());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    private void assertEquals(IdShortPath parent, Object obj, List<String> expectedPaths, Level level) throws SerializationException, JsonProcessingException, JSONException {
+    private void assertEquals(IdShortPath parent, Object obj, List<String> expectedPaths, Level level)
+            throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
         String actual = serializer.write(parent, obj, level);
         String expected = new ObjectMapper().writeValueAsString(expectedPaths);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    private void assertEquals(IdShortPath parent, Object obj, Path path) throws SerializationException, JsonProcessingException, JSONException {
+    private void assertEquals(IdShortPath parent, Object obj, Path path) throws SerializationException, JsonProcessingException, JSONException, UnsupportedModifierException {
         assertEquals(parent, obj, path.asCorePath(), Level.CORE);
         assertEquals(parent, obj, path, Level.DEEP);
     }

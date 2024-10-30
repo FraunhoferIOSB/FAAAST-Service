@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,8 @@ import java.util.List;
  */
 public class TestService extends Service {
 
-    public TestService(OpcUaEndpointConfig config, TestAssetConnectionConfig assetConnectionConfig, boolean full) throws ConfigurationException, AssetConnectionException {
+    public TestService(OpcUaEndpointConfig config, TestAssetConnectionConfig assetConnectionConfig, boolean full)
+            throws ConfigurationException, AssetConnectionException, PersistenceException {
         super(ServiceConfig.builder()
                 .core(CoreConfig.builder()
                         .requestHandlerThreadPoolSize(2)

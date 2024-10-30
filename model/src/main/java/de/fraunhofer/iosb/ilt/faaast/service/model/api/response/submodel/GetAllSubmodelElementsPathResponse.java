@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
-import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractPagedResponse;
 
 
 /**
  * Response class for GetAllSubmodelElements requests with content modifier Path.
  */
-public class GetAllSubmodelElementsPathResponse extends AbstractResponseWithPayload<List<SubmodelElement>> {
+public class GetAllSubmodelElementsPathResponse extends AbstractPagedResponse<IdShortPath> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<SubmodelElement>, GetAllSubmodelElementsPathResponse, Builder> {
+    public static class Builder extends AbstractBuilder<IdShortPath, GetAllSubmodelElementsPathResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

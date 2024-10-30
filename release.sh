@@ -37,7 +37,7 @@ function replaceValue()
 	local file=$1
 	local tag=$2
 	local newValue=$3
-	local originalValue=${4:-[^<]*}
+	local originalValue=${4:-.*}
 	local startTag=$(startTag "$tag")
 	local endTag=$(endTag "$tag")
 	sed -r -z "s/$startTag($originalValue)$endTag/$startTag$newValue$endTag/g" -i "$file"
@@ -50,7 +50,7 @@ function removeTag()
 	local tag=$2
 	local startTag=$(startTag "$tag")
 	local endTag=$(endTag "$tag")
-	sed -r -z "s/$startTag([^<]*)$endTag/\1/g" -i "$file"
+	sed -r -z "s/$startTag(.*)$endTag/\1/g" -i "$file"
 }
 
 # arguments: file, newVersion
@@ -79,8 +79,9 @@ sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
 replaceVersion "$README_FILE" "$VERSION"
 replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" ""
 replaceValue "$README_FILE" "$TAG_DOWNLOAD_RELEASE" "$README_LATEST_RELEASE_VERSION_CONTENT"
-replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_RELEASE" "$INSTALLATION_LATEST_RELEASE_VERSION_CONTENT"
 replaceVersion "$INSTALLATION_FILE" "$VERSION"
+replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_SNAPSHOT" ""
+replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_RELEASE" "$INSTALLATION_LATEST_RELEASE_VERSION_CONTENT"
 replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## ${VERSION}"
 removeTag "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER"
 

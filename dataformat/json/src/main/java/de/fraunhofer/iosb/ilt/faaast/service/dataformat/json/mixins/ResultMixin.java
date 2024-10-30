@@ -14,10 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import java.util.List;
 
 
 /**
@@ -25,6 +23,6 @@ import java.util.List;
  */
 public interface ResultMixin {
 
-    @JsonUnwrapped
-    public List<Message> getMessages();
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getCode();
 }

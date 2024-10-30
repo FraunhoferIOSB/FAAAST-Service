@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -34,13 +35,13 @@ public class HttpJsonSerializerTest {
     private final HttpJsonApiSerializer serializer = new HttpJsonApiSerializer();
 
     @Test
-    public void testEnumsWithCustomNaming() throws SerializationException {
+    public void testEnumsWithCustomNaming() throws SerializationException, UnsupportedModifierException {
         Assert.assertEquals("\"Error\"", serializer.write(MessageType.ERROR));
     }
 
 
     @Test
-    public void testResult() throws SerializationException, ParseException, JSONException {
+    public void testResult() throws SerializationException, ParseException, JSONException, UnsupportedModifierException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Result result = Result.builder()

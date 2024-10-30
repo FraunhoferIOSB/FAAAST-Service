@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -132,7 +133,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
                     .forEach(LambdaExceptionHelper.rethrowConsumer(
                             x -> save(x.getPath(), x.getFileContent())));
         }
-        catch (DeserializationException | InvalidConfigurationException | IOException e) {
+        catch (DeserializationException | InvalidConfigurationException | PersistenceException e) {
             throw new ConfigurationInitializationException("error initializing file-system file storage", e);
         }
     }
@@ -170,21 +171,33 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
 
 
     @Override
-    public void save(String path, byte[] content) throws IOException {
-        Files.write(
-                Path.of(config.getPath(), encodeFilePath(path)),
-                content);
+    public void save(String path, byte[] content) throws PersistenceException {
+        try {
+            Files.write(
+                    Path.of(config.getPath(), encodeFilePath(path)),
+                    content);
+        }
+        catch (IOException e) {
+            throw new PersistenceException(e);
+        }
     }
 
 
     @Override
-    public void delete(String path) throws ResourceNotFoundException, IOException {
+    public void delete(String path) throws ResourceNotFoundException, PersistenceException {
         String encodedFilePath = encodeFilePath(path);
         if (existingFiles.containsKey(encodedFilePath)) {
             existingFiles.remove(encodedFilePath);
         }
-        else if (!Files.deleteIfExists(Path.of(config.getPath(), encodedFilePath))) {
-            throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
+        else {
+            try {
+                if (!Files.deleteIfExists(Path.of(config.getPath(), encodedFilePath))) {
+                    throw new ResourceNotFoundException(String.format("could not delete file for path '%s'", path));
+                }
+            }
+            catch (IOException e) {
+                throw new PersistenceException(e);
+            }
         }
     }
 

@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -71,7 +72,7 @@ public class LambdaAssetConnectionTest {
     private Persistence persistence;
 
     @Before
-    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
         MessageBus messageBus = mock(MessageBus.class);
@@ -80,7 +81,7 @@ public class LambdaAssetConnectionTest {
 
 
     @Test
-    public void testValueProvider() throws MessageBusException, EndpointException, ResourceNotFoundException {
+    public void testValueProvider() throws MessageBusException, EndpointException, ResourceNotFoundException, PersistenceException {
         final String submodelId = "submodel";
         final String propertyId = "property";
         final int initialValueAAS = 0;
@@ -147,7 +148,7 @@ public class LambdaAssetConnectionTest {
     @Test
     public void testSubscriptionProvider()
             throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException,
-            InterruptedException {
+            InterruptedException, PersistenceException {
         final String submodelId = "submodel";
         final String propertyId = "property";
         final int initialValueAAS = 0;
@@ -216,7 +217,7 @@ public class LambdaAssetConnectionTest {
 
     @Test
     public void testOperationProvider()
-            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException {
+            throws MessageBusException, EndpointException, ResourceNotFoundException, PersistenceException {
         final String submodelId = "submodel";
         final String operationId = "property";
         final String input1Id = "in1";

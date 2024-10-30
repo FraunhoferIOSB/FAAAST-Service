@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
@@ -120,6 +121,18 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         catch (ConfigurationException | DeserializationException e) {
             throw new ConfigurationInitializationException("initializing file persistence failed", e);
         }
+    }
+
+
+    @Override
+    public void start() throws PersistenceException {
+        //intentionally left empty
+    }
+
+
+    @Override
+    public void stop() {
+        //intentionally left empty
     }
 
 

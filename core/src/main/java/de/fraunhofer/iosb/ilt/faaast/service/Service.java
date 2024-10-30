@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
@@ -90,6 +91,7 @@ public class Service implements ServiceContext {
      * @param submodelTemplateProcessors submodel template processor to use
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if persistence is null
+     * @throws PersistenceException if storage error occurs
      * @throws IllegalArgumentException if messageBus is null
      * @throws RuntimeException if creating a deep copy of aasEnvironment fails
      * @throws ConfigurationException the configuration the {@link AssetConnectionManager} fails
@@ -101,7 +103,7 @@ public class Service implements ServiceContext {
             MessageBus messageBus,
             List<Endpoint> endpoints,
             List<AssetConnection> assetConnections,
-            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException {
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException, PersistenceException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
@@ -137,10 +139,11 @@ public class Service implements ServiceContext {
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
+     * @throws PersistenceException if storage error occurs
      * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(ServiceConfig config)
-            throws ConfigurationException, AssetConnectionException {
+            throws ConfigurationException, AssetConnectionException, PersistenceException {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
         init();
@@ -160,7 +163,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
         if (reference == null) {
             throw new IllegalArgumentException("reference must be non-null");
         }
@@ -178,7 +181,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
@@ -190,7 +193,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Environment getAASEnvironment() {
+    public Environment getAASEnvironment() throws PersistenceException {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(
@@ -245,10 +248,12 @@ public class Service implements ServiceContext {
      *
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
+     * @throws PersistenceException if storage error occurs
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
-    public void start() throws MessageBusException, EndpointException {
+    public void start() throws MessageBusException, EndpointException, PersistenceException {
         LOGGER.debug("Get command for starting FA³ST Service");
+        persistence.start();
         messageBus.start();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
@@ -271,11 +276,12 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
+        persistence.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
 
-    private void init() throws ConfigurationException {
+    private void init() throws ConfigurationException, PersistenceException {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
@@ -316,7 +322,7 @@ public class Service implements ServiceContext {
     }
 
 
-    private void initSubmodelTemplateProcessors() throws ConfigurationException {
+    private void initSubmodelTemplateProcessors() throws ConfigurationException, PersistenceException {
         if (submodelTemplateProcessors == null) {
             submodelTemplateProcessors = new ArrayList<>();
         }

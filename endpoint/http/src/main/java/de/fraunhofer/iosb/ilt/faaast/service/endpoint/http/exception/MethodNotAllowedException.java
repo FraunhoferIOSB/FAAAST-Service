@@ -28,6 +28,11 @@ import java.util.stream.Collectors;
  */
 public class MethodNotAllowedException extends InvalidRequestException {
 
+    public MethodNotAllowedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
     public MethodNotAllowedException(HttpRequest request, HttpMethod... allowedMethods) {
         super(String.format("method '%s' not allowed for URL '%s' (allowed methods: %s)",
                 request.getMethod(),

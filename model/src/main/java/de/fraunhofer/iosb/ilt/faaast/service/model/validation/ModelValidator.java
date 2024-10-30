@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -65,7 +65,7 @@ public class ModelValidator {
      */
     public static void validate(Object obj, ModelValidatorConfig config) throws ValidationException {
         List<String> errors = new ArrayList<>();
-        Set<String> identifiers = new HashSet<>();
+        Map<String, Identifiable> identifiers = new HashMap<>();
         Deque<String> path = new LinkedList<>();
         AssetAdministrationShellElementWalker.builder()
                 .before(new DefaultAssetAdministrationShellElementVisitor() {
@@ -94,11 +94,20 @@ public class ModelValidator {
                 })
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
 
-                    private void validateIdentifierUniqueness(String identifier) {
-                        if (config.getIdentifierUniqueness() && !identifiers.add(identifier)) {
-                            errors.add(String.format(
-                                    "Duplicate identifier '%s' - identifiers must be globally unique",
-                                    identifier));
+                    private void validateIdentifierUniqueness(String identifier, Identifiable identifiable) {
+                        if (config.getIdentifierUniqueness()) {
+                            if (identifiers.containsKey(identifier)) {
+                                Identifiable existingIdentifiable = identifiers.get(identifier);
+                                if (Objects.equals(existingIdentifiable, identifiable)) {
+                                    LOGGER.debug(String.format("Duplicate identifier '%s' - the same object is present multiple times", identifier));
+                                }
+                                else {
+                                    errors.add(String.format("Duplicate identifier '%s' - identifiers must be globally unique.", identifier));
+                                }
+                            }
+                            else {
+                                identifiers.put(identifier, identifiable);
+                            }
                         }
                     }
 
@@ -122,7 +131,7 @@ public class ModelValidator {
 
                     @Override
                     public void visit(Identifiable identifiable) {
-                        validateIdentifierUniqueness(identifiable.getId());
+                        validateIdentifierUniqueness(identifiable.getId(), identifiable);
                     }
 
 
