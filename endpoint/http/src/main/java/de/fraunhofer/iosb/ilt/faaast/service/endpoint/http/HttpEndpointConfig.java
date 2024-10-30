@@ -55,7 +55,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private int port;
     private boolean sniEnabled;
     private boolean sslEnabled;
-
     private String allowedMethods;
 
     public HttpEndpointConfig() {

@@ -50,6 +50,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                |
 | sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                               |
 | sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                               |
+| allowedMethods<br>*(optional)*       | String                                                      | Define the allowed methods. Typically required if you want to make the service read-only.                                                                                                | GET, POST, PUT, PATCH, DELETE      |
 :::
 
 ```{code-block} json
