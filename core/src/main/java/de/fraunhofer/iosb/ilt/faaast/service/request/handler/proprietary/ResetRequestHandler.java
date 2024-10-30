@@ -57,8 +57,8 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
                             .element(x)
                             .value(x)
                             .build())));
+            aas.forEach(LambdaExceptionHelper.wrap(a -> context.getPersistence().deleteAssetAdministrationShell(a)));
         }
-        aas.forEach(LambdaExceptionHelper.wrap(a -> context.getPersistence().deleteAssetAdministrationShell(a)));
         List<Submodel> submodel = context.getPersistence().getAllSubmodels(QueryModifier.DEFAULT, PagingInfo.ALL)
                 .getContent();
         if (!request.isInternal() && Objects.nonNull(submodel)) {
@@ -67,8 +67,8 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
                             .element(x)
                             .value(x)
                             .build())));
+            submodel.forEach(LambdaExceptionHelper.wrap(s -> context.getPersistence().deleteSubmodel(s)));
         }
-        submodel.forEach(LambdaExceptionHelper.wrap(s -> context.getPersistence().deleteSubmodel(s)));
         List<ConceptDescription> concept = context.getPersistence().getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL)
                 .getContent();
         if (!request.isInternal() && Objects.nonNull(concept)) {
@@ -77,8 +77,8 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
                             .element(x)
                             .value(x)
                             .build())));
+            concept.forEach(LambdaExceptionHelper.wrap(c -> context.getPersistence().deleteConceptDescription(c)));
         }
-        concept.forEach(LambdaExceptionHelper.wrap(c -> context.getPersistence().deleteConceptDescription(c)));
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         return response;
     }
