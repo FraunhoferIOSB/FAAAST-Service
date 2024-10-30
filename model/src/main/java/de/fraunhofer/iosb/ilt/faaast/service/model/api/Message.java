@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import java.util.Date;
 import java.util.Objects;
+
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
