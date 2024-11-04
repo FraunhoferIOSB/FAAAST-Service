@@ -340,7 +340,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             try {
                 updateSubmodelElementValue(x.getElement(), x.getNewValue(), x.getOldValue());
             }
-            catch (StatusException | ValueFormatException e) {
+            catch (Exception e) {
                 LOG.error("valueChanged Exception", e);
             }
         });

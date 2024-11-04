@@ -75,8 +75,8 @@
     <properties>
         <aas4j.version>1.0.2</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <bouncycastle.version>1.78.1</bouncycastle.version>
-        <checkstyle.version>10.19.0</checkstyle.version>
+        <bouncycastle.version>1.79</bouncycastle.version>
+        <checkstyle.version>10.20.0</checkstyle.version>
         <classgraph.version>4.8.177</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -85,7 +85,7 @@
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <de.flapdoodle.embed.version>4.17.0</de.flapdoodle.embed.version>
+        <de.flapdoodle.embed.version>4.18.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.17.1</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
@@ -119,7 +119,7 @@
         <maven.plugin.javadoc.version>3.10.1</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>11.0.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>11.1.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.4-127</maven.plugin.prosys.codegen.version>
