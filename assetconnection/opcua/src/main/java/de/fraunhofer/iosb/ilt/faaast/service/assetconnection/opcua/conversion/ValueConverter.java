@@ -63,6 +63,7 @@ public class ValueConverter {
             }
         });
         register(Datatype.DURATION, Identifiers.Double, new OpcUaToAasValueConverter() {
+            @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 if (Objects.isNull(value) || value.isNull()) {
                     return null;
@@ -78,11 +79,13 @@ public class ValueConverter {
             }
         });
         register(Datatype.HEX_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 return convertByteString(value, targetType);
             }
         });
         register(Datatype.BASE64_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 return convertByteString(value, targetType);
             }
