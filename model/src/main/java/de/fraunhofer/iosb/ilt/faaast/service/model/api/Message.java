@@ -14,134 +14,42 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
 
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
 
 
 /**
- * Model class representing a message.
+ * Model class representing a message and is extending the aas4j defaultMessage implementation.
  */
-public class Message {
+public class Message extends DefaultMessage {
+    
+    // ? Which timeformat is required - both with milisec & timzone and without are consitent with the spec
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    private MessageType messageType;
-    private String text;
-    private String code;
-    private Date timestamp;
-
+    // enshure variables are set to the default values as required by the implementation 
     public Message() {
-        this.messageType = MessageType.INFO;
+        Date date = new Date();
+        this.timestamp = formatter.format(date);
         this.text = "";
         this.code = "";
-        this.timestamp = new Date();
-    }
+        this.messageType = MessageTypeEnum.INFO;    
+    }   
 
-
-    public MessageType getMessageType() {
-        return messageType;
-    }
-
-
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
-    }
-
-
-    public String getText() {
-        return text;
-    }
-
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-
-    public String getCode() {
-        return code;
-    }
-
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Message message = (Message) o;
-        return messageType == message.messageType
-                && Objects.equals(text, message.text)
-                && Objects.equals(code, message.code)
-                && Objects.equals(timestamp, message.timestamp);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(messageType, text, code, timestamp);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    private abstract static class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B messageType(MessageType value) {
-            getBuildingInstance().setMessageType(value);
-            return getSelf();
-        }
-
-
-        public B text(String value) {
-            getBuildingInstance().setText(value);
-            return getSelf();
-        }
-
-
-        public B code(String value) {
-            getBuildingInstance().setCode(value);
-            return getSelf();
-        }
-
-
-        public B timestamp(Date value) {
-            getBuildingInstance().setTimestamp(value);
-            return getSelf();
-        }
-
-    }
-
-    public static class Builder extends AbstractBuilder<Message, Builder> {
+    public static class Builder extends MessageBuilder<Message, Builder> {
 
         @Override
         protected Builder getSelf() {
             return this;
         }
 
-
         @Override
         protected Message newBuildingInstance() {
             return new Message();
         }
     }
+
 }

@@ -6,6 +6,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ResultBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 
+
+/**
+ * CustumResul class is extending the implementation of AAS4J result class.
+ */
 public class CustomResult extends DefaultResult {
     
 
