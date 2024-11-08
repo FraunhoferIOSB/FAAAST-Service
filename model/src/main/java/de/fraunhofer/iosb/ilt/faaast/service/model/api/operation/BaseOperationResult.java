@@ -14,83 +14,31 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.BaseOperationResultBuilderHelper;
 
 
 /**
  * The result of invoking an {@link org.eclipse.digitaltwin.aas4j.v3.model.Operation}.
  */
-public class BaseOperationResult extends Result {
+public class BaseOperationResult extends DefaultBaseOperationResult {
 
-    private ExecutionState executionState;
-    private boolean success;
-
-    public boolean getSuccess() {
-        return success;
+    public static Builder builder() {
+        return new Builder();
     }
 
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-
-    public ExecutionState getExecutionState() {
-        return executionState;
-    }
-
-
-    public void setExecutionState(ExecutionState executionState) {
-        this.executionState = executionState;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        BaseOperationResult that = (BaseOperationResult) o;
-        return super.equals(that)
-                && Objects.equals(success, that.success)
-                && executionState == that.executionState;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), success, executionState);
-    }
-
-    protected abstract static class AbstractBuilder<T extends BaseOperationResult, B extends AbstractBuilder<T, B>> extends Result.AbstractBuilder<T, B> {
-
-        public B success(boolean value) {
-            getBuildingInstance().setSuccess(value);
-            return getSelf();
-        }
-
-
-        public B executionState(ExecutionState value) {
-            getBuildingInstance().setExecutionState(value);
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<BaseOperationResult, Builder> {
-
+    public static class Builder extends BaseOperationResultBuilderHelper<BaseOperationResult, Builder> {
+        
         @Override
         protected Builder getSelf() {
             return this;
         }
 
-
         @Override
         protected BaseOperationResult newBuildingInstance() {
             return new BaseOperationResult();
         }
+
     }
 }
