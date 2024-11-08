@@ -19,4 +19,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
  */
 public class Constants {
     public static final String AIMC_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/Submodel";
+    public static final String AIMC_MAPPING_CONFIGURATIONS = "MappingConfigurations";
+    public static final String AIMC_INTERFACE_REFERENCE = "InterfaceReference";
+    public static final String AIMC_MAPPING_RELATIONS = "MappingSourceSinkRelations";
+    public static final String AID_INTERFACE_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Interface";
+    public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP = "http://www.w3.org/2011/http";
+    public static final String AID_INTERFACE_TITLE = "title";
+    public static final String AID_ENDPOINT_METADATA = "EndpointMetadata";
+    public static final String AID_METADATA_BASE = "base";
+    public static final String AID_METADATA_CONTENT_TYPE = "contentType";
+    public static final String AID_PROPERTY_FORMS = "forms";
+    public static final String AID_PROPERTY_OBSERVABLE = "observable";
+    public static final String AID_FORMS_CONTENT_TYPE = "contentType";
+    public static final String AID_FORMS_HREF = "href";
 }
