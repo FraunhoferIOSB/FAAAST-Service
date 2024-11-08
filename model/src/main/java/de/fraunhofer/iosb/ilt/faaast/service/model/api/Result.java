@@ -14,93 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.ResultBuilderHelper;
 
 
 /**
  * Model class for a result.
  */
-public class Result {
+public class Result extends DefaultResult{
 
-    private List<Message> messages;
-
-    public Result() {
-        this.messages = new ArrayList<>();
-    }
-
-
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Result result = (Result) o;
-        return Objects.equals(messages, result.messages);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(messages);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    protected abstract static class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B messages(List<Message> value) {
-            getBuildingInstance().setMessages(value);
-            return getSelf();
-        }
-
-
-        public B message(Message value) {
-            getBuildingInstance().getMessages().add(value);
-            return getSelf();
-        }
-
-
-        public B message(MessageType messageType, String messageText) {
-            getBuildingInstance().getMessages().add(
-                    Message.builder()
-                            .messageType(messageType)
-                            .text(messageText)
-                            .build());
-            return getSelf();
-        }
-
-    }
-
-    public static class Builder extends AbstractBuilder<Result, Builder> {
-
+    public static class Builder extends ResultBuilderHelper<Result, Builder> {
+        
         @Override
         protected Builder getSelf() {
             return this;
         }
 
-
         @Override
         protected Result newBuildingInstance() {
             return new Result();
         }
+
     }
+
 }
