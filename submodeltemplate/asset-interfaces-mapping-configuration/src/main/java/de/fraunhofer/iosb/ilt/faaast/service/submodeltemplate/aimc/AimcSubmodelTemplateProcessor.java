@@ -72,7 +72,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         try {
             Ensure.requireNonNull(submodel);
 
-            LOGGER.info("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
+            LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
             processSubmodel(submodel, assetConnectionManager);
 
             return true;
@@ -133,27 +133,31 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             relations = new ArrayList<>();
         }
 
-        element = configuration.getValue().stream().filter(e -> Constants.AIMC_INTERFACE_REFERENCE.equals(e.getIdShort())).findFirst();
+        processInterfaceReference(configuration, relations, assetConnectionManager);
+    }
+
+
+    private void processInterfaceReference(SubmodelElementCollection configuration, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
+            throws ResourceNotFoundException, ConfigurationException, PersistenceException, MalformedURLException, AssetConnectionException, IllegalArgumentException {
+        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_INTERFACE_REFERENCE.equals(e.getIdShort())).findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel invalid: InterfaceReference not found.");
         }
         if (element.get() instanceof ReferenceElement interfaceReference) {
             Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
             if (referenceElement instanceof SubmodelElementCollection assetInterface) {
-                if (ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId())) {
-                    if ((assetInterface.getSupplementalSemanticIds() != null)
-                            && (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)))) {
-                        // HTTP Interface
-                        processHttpInterface(assetInterface, relations, assetConnectionManager);
-                    }
+                if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId())) && ((assetInterface.getSupplementalSemanticIds() != null)
+                        && (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))))) {
+                    // HTTP Interface
+                    processHttpInterface(assetInterface, relations, assetConnectionManager);
                 }
             }
             else {
-                LOGGER.debug("processConfiguration: Interface not a SubmodelElementCollection");
+                LOGGER.debug("processInterfaceReference: Interface not a SubmodelElementCollection");
             }
         }
         else {
-            LOGGER.debug("processConfiguration: InterfaceReference not a ReferenceElement");
+            LOGGER.debug("processInterfaceReference: InterfaceReference not a ReferenceElement");
         }
     }
 
@@ -182,29 +186,13 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             // contentType
             String contentType = null;
             element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-            if (element.isPresent()) {
-                contentType = ((Property) element.get()).getValue();
+            if (element.isPresent() && (element.get() instanceof Property prop)) {
+                contentType = prop.getValue();
             }
 
             Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
             Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-            for (var r: relations) {
-                if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                    boolean observable = false;
-                    element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
-                    if (element.isPresent()) {
-                        String obsText = ((Property) element.get()).getValue();
-                        observable = Boolean.parseBoolean(obsText);
-                    }
-
-                    if (observable) {
-                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, base, contentType));
-                    }
-                    else {
-                        valueProviders.put(r.getSecond(), createValueProvider(property, base, contentType));
-                    }
-                }
-            }
+            processRelations(relations, subscriptionProviders, base, contentType, valueProviders);
 
             HttpAssetConnectionConfig assetConfig = HttpAssetConnectionConfig.builder()
                     .baseUrl(base)
@@ -212,6 +200,30 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                     .subscriptionProviders(subscriptionProviders)
                     .build();
             assetConnectionManager.add(assetConfig);
+        }
+    }
+
+
+    private void processRelations(List<RelationshipElement> relations, Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, String base, String contentType,
+                                  Map<Reference, HttpValueProviderConfig> valueProviders)
+            throws PersistenceException, ResourceNotFoundException {
+        Optional<SubmodelElement> element;
+        for (var r: relations) {
+            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
+                boolean observable = false;
+                element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
+                if (element.isPresent() && (element.get() instanceof Property prop)) {
+                    String obsText = prop.getValue();
+                    observable = Boolean.parseBoolean(obsText);
+                }
+
+                if (observable) {
+                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, base, contentType));
+                }
+                else {
+                    valueProviders.put(r.getSecond(), createValueProvider(property, base, contentType));
+                }
+            }
         }
     }
 
@@ -227,15 +239,17 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         if (element.get() instanceof SubmodelElementCollection forms) {
             String contentType = baseContentType;
             element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-            if (element.isPresent()) {
-                contentType = ((Property) element.get()).getValue();
+            if (element.isPresent() && (element.get() instanceof Property prop)) {
+                contentType = prop.getValue();
             }
 
             String href = getUrl(baseUrl, forms);
+            Map<String, String> headers = getHeaders(forms);
             LOGGER.debug("createValueProvider: href: {}; contentType: {}", href, contentType);
             retval = HttpValueProviderConfig.builder()
                     .format(getFormatFromContentType(contentType))
                     .path(href)
+                    .headers(headers)
                     .build();
         }
 
@@ -254,15 +268,17 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         if (element.get() instanceof SubmodelElementCollection forms) {
             String contentType = baseContentType;
             element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-            if (element.isPresent()) {
-                contentType = ((Property) element.get()).getValue();
+            if (element.isPresent() && (element.get() instanceof Property prop)) {
+                contentType = prop.getValue();
             }
 
             String href = getUrl(baseUrl, forms);
+            Map<String, String> headers = getHeaders(forms);
             LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
             retval = HttpSubscriptionProviderConfig.builder()
                     .format(getFormatFromContentType(contentType))
                     .path(href)
+                    .headers(headers)
                     .build();
         }
 
@@ -271,8 +287,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private String getUrl(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
-        Optional<SubmodelElement> element;
-        element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HREF.equals(e.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HREF.equals(e.getIdShort())).findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel AID invalid: Property href not found in forms.");
         }
@@ -282,6 +297,29 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             href = URI.create(baseUrl).resolve(href).toString();
         }
         return href;
+    }
+
+
+    private Map<String, String> getHeaders(SubmodelElementCollection forms) {
+        Map<String, String> retval = new HashMap<>();
+        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HEADERS.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
+            for (var h: list.getValue()) {
+                addHeader(retval, h);
+            }
+        }
+        return retval;
+    }
+
+
+    private void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
+        if (headerElement instanceof SubmodelElementCollection header) {
+            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_NAME.equals(h.getIdShort())).findFirst();
+            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_VALUE.equals(h.getIdShort())).findFirst();
+            if (nameElement.isPresent() && valueElement.isPresent() && (nameElement.get() instanceof Property name) && (valueElement.get() instanceof Property value)) {
+                headers.put(name.getValue(), value.getValue());
+            }
+        }
     }
 
 
@@ -300,8 +338,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private String getFormatFromContentType(String contentType) {
         Ensure.requireNonNull(contentType);
         switch (contentType) {
-            case "application/xml":
-            case "text/xml":
+            case "application/xml", "text/xml":
                 return "XML";
 
             case "application/json":

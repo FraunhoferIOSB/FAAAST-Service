@@ -32,4 +32,9 @@ public class Constants {
     public static final String AID_PROPERTY_OBSERVABLE = "observable";
     public static final String AID_FORMS_CONTENT_TYPE = "contentType";
     public static final String AID_FORMS_HREF = "href";
+    public static final String AID_FORMS_HEADERS = "htv_headers";
+    public static final String AID_HEADER_FIELD_NAME = "htv_fieldName";
+    public static final String AID_HEADER_FIELD_VALUE = "htv_fieldValue";
+
+    private Constants() {}
 }
