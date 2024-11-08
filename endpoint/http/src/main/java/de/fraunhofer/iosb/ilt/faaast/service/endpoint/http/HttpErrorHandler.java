@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAl
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -36,6 +35,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes.Type;
@@ -45,7 +45,6 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 
 
 /**
@@ -113,7 +112,7 @@ public class HttpErrorHandler extends ErrorHandler {
 
     private void send(Response response, StatusCode statusCode, Throwable cause, Callback callback) {
         Result result = Result.builder()
-                .message(
+                .messages(
                         HttpHelper.messageTypeFromstatusCode(statusCode),
                         Objects.nonNull(cause) && !StringHelper.isEmpty(cause.getMessage())
                                 ? cause.getMessage()

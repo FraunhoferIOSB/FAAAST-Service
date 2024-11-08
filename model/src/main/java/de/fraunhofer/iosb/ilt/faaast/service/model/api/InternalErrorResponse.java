@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 
 
 /**
@@ -25,7 +26,7 @@ public class InternalErrorResponse extends AbstractResponse {
     public InternalErrorResponse(String message) {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
         this.result = Result.builder()
-                .message(MessageType.EXCEPTION, message)
+                .messages(MessageTypeEnum.EXCEPTION, message)
                 .build();
     }
 

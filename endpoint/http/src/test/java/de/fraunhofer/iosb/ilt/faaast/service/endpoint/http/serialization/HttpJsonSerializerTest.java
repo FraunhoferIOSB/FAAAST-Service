@@ -20,19 +20,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DateStringHelper;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-
-
 
 
 public class HttpJsonSerializerTest {
@@ -50,9 +47,9 @@ public class HttpJsonSerializerTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Result result = Result.builder()
-                .message(Message.builder()
+                .messages(Message.builder()
                         .text(HttpStatus.getMessage(404))
-                        .messageType(MessageType.ERROR)
+                        .messageType(MessageTypeEnum.ERROR)
                         .code(HttpStatus.getMessage(404))
                         .timestamp(DateStringHelper.formateToString(dateFormat.parse("01-01-2022 00:00:00")))
                         .build())

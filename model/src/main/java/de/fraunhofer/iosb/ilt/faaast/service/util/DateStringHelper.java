@@ -17,12 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 /**
  * Generic helper functions to convert Date type into String type.
  */
 public class DateStringHelper {
 
     private DateStringHelper() {}
+
 
     /**
      * Convert Date object into stringr.
@@ -31,13 +33,13 @@ public class DateStringHelper {
      * @return the corresponding string representation in format ("yyyy-MM-dd'T'HH:mm:ss")
      * @throws IllegalArgumentException if the value is not a valid date
      */
-    public static String formateToString (Date date) {
+    public static String formateToString(Date date) {
 
         // ? Which timeformat is required - both with milisec & timzone and without are consitent with the spec
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
         return formatter.format(date);
-        
+
     }
 
 }

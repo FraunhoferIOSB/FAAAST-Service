@@ -14,93 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import de.fraunhofer.iosb.ilt.faaast.service.util.OperationResultBuilderHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 
 
 /**
  * The result of invoking an {@link org.eclipse.digitaltwin.aas4j.v3.model.Operation}.
  */
-public class OperationResult extends BaseOperationResult {
+public class OperationResult extends DefaultOperationResult {
 
-    private List<OperationVariable> outputArguments;
-    private List<OperationVariable> inoutputArguments;
-
-    public OperationResult() {
-        this.outputArguments = new ArrayList<>();
-        this.inoutputArguments = new ArrayList<>();
+    public static Builder builder() {
+        return new Builder();
     }
 
-
-    public List<OperationVariable> getOutputArguments() {
-        return outputArguments;
-    }
-
-
-    public void setOutputArguments(List<OperationVariable> outputArguments) {
-        this.outputArguments = outputArguments;
-    }
-
-
-    public List<OperationVariable> getInoutputArguments() {
-        return inoutputArguments;
-    }
-
-
-    public void setInoutputArguments(List<OperationVariable> inoutputArguments) {
-        this.inoutputArguments = inoutputArguments;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OperationResult that = (OperationResult) o;
-        return super.equals(that)
-                && Objects.equals(outputArguments, that.outputArguments)
-                && Objects.equals(inoutputArguments, that.inoutputArguments);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), outputArguments, inoutputArguments);
-    }
-
-    protected abstract static class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends BaseOperationResult.AbstractBuilder<T, B> {
-
-        public B outputArguments(List<OperationVariable> value) {
-            getBuildingInstance().setOutputArguments(value);
-            return getSelf();
-        }
-
-
-        public B outputArgument(OperationVariable value) {
-            getBuildingInstance().getOutputArguments().add(value);
-            return getSelf();
-        }
-
-
-        public B inoutputArguments(List<OperationVariable> value) {
-            getBuildingInstance().setInoutputArguments(value);
-            return getSelf();
-        }
-
-
-        public B inoutputArgument(OperationVariable value) {
-            getBuildingInstance().getInoutputArguments().add(value);
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<OperationResult, Builder> {
+    public static class Builder extends OperationResultBuilderHelper<OperationResult, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -112,5 +39,6 @@ public class OperationResult extends BaseOperationResult {
         protected OperationResult newBuildingInstance() {
             return new OperationResult();
         }
+
     }
 }

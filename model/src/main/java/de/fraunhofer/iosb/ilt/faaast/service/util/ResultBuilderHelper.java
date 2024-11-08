@@ -14,24 +14,32 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ResultBuilder;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 
-
-
-
+/**
+ * The ResultBuilderHelper extends the functionalities of aas4js ResultBuilder.
+ */
 public abstract class ResultBuilderHelper<T extends Result, B extends ResultBuilderHelper<T, B>> extends ResultBuilder<T, B> {
 
-    public B message(MessageTypeEnum messageType, String messageText) {
-            getBuildingInstance().getMessages().add(
-                    new Message.Builder()
-                            .messageType(messageType)
-                            .text(messageText)
-                            .build());
-            return getSelf();
-        }
+    /**
+     * Adds a message with the specified message type and message text.
+     *
+     * @param messageType the type of the message
+     * @param messageText the text of the message
+     * @return the current instance of the builder for method chaining
+     */
+
+    public B messages(MessageTypeEnum messageType, String messageText) {
+        getBuildingInstance().getMessages().add(
+                new Message.Builder()
+                        .messageType(messageType)
+                        .text(messageText)
+                        .build());
+        return getSelf();
+    }
 
 }

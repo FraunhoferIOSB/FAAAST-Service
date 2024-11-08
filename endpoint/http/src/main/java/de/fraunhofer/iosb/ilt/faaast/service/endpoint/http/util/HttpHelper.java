@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
 import com.google.common.net.MediaType;
-
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
@@ -25,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifier
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -140,7 +137,7 @@ public class HttpHelper {
         send(response,
                 statusCode,
                 Result.builder()
-                        .message(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                        .messages(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
                         .build());
     }
 
@@ -252,7 +249,7 @@ public class HttpHelper {
             send(response,
                     StatusCode.SERVER_INTERNAL_ERROR,
                     Result.builder()
-                            .message(MessageTypeEnum.EXCEPTION, exception.getMessage())
+                            .messages(MessageTypeEnum.EXCEPTION, exception.getMessage())
                             .build());
         }
         catch (Exception e) {
