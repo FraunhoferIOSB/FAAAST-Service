@@ -40,7 +40,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -162,6 +161,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodelrepository.
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -183,6 +183,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
@@ -1536,7 +1537,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelByIdResponse actual = manager.execute(request);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
                 .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                        .message(MessageTypeEnum.ERROR, "Resource not found with id")
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
@@ -1552,7 +1553,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathResponse actual = manager.execute(request);
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
                 .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                        .message(MessageTypeEnum.ERROR, "Resource not found with id")
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -68,15 +69,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
@@ -723,7 +727,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testResultServerError() throws Exception {
         Result expected = Result.builder()
-                .message(MessageType.ERROR, HttpStatus.getMessage(500))
+                .message(MessageTypeEnum.ERROR, HttpStatus.getMessage(500))
                 .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
@@ -739,7 +743,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testResultBadRequest() throws Exception {
         Result expected = Result.builder()
-                .message(MessageType.ERROR, "no matching request mapper found for URL 'shellsX'")
+                .message(MessageTypeEnum.ERROR, "no matching request mapper found for URL 'shellsX'")
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
@@ -750,7 +754,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testMethodNotAllowed() throws Exception {
         Result expected = Result.builder()
-                .message(MessageType.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+                .message(MessageTypeEnum.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
                 .build();
         ContentResponse response = execute(HttpMethod.PUT, "/shells");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);

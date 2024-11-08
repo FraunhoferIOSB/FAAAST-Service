@@ -24,6 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ResultBuilderHelper;
  */
 public class Result extends DefaultResult{
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder extends ResultBuilderHelper<Result, Builder> {
         
         @Override
