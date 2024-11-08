@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DateStringHelper;
 import java.io.File;
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
@@ -212,9 +214,9 @@ public class ValueOnlyExamples {
                     .build())
             .result(Result.builder()
                     .message(Message.builder()
-                            .messageType(MessageType.INFO)
+                            .messageType(MessageTypeEnum.INFO)
                             .text("some message text")
-                            .timestamp(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant()))
+                            .timestamp(DateStringHelper.formateToString(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant())))
                             .build())
                     .build())
             .build();

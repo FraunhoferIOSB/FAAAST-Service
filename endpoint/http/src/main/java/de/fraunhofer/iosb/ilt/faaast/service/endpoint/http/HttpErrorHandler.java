@@ -45,6 +45,7 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 
 
 /**
@@ -120,7 +121,7 @@ public class HttpErrorHandler extends ErrorHandler {
                 .build();
         if (config.isIncludeErrorDetails() && Objects.nonNull(cause)) {
             result.getMessages().add(Message.builder()
-                    .messageType(MessageType.EXCEPTION)
+                    .messageType(MessageTypeEnum.EXCEPTION)
                     .text(getStacktrace(
                             cause))
                     .build());

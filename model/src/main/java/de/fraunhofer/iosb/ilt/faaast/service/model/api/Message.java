@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.DateStringHelper;
 
 
 /**
@@ -27,17 +28,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
  */
 public class Message extends DefaultMessage {
     
-    // ? Which timeformat is required - both with milisec & timzone and without are consitent with the spec
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
     // enshure variables are set to the default values as required by the implementation 
     public Message() {
         Date date = new Date();
-        this.timestamp = formatter.format(date);
+        this.timestamp = DateStringHelper.formateToString(date);
         this.text = "";
         this.code = "";
         this.messageType = MessageTypeEnum.INFO;    
     }   
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public static class Builder extends MessageBuilder<Message, Builder> {
 
