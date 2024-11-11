@@ -77,7 +77,7 @@
         <aas4j.version>1.0.2</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.79</bouncycastle.version>
-        <checkstyle.version>10.20.0</checkstyle.version>
+        <checkstyle.version>10.20.1</checkstyle.version>
         <classgraph.version>4.8.177</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -88,7 +88,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.18.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.17.2</equalsverifier.version>
+        <equalsverifier.version>3.17.3</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.1-jre</guava.version>
         <jackson.databind.version>2.18.1</jackson.databind.version>
@@ -98,7 +98,7 @@
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.2.0</jena.version>
-        <jetty.version>12.0.14</jetty.version>
+        <jetty.version>12.0.15</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.1</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -131,7 +131,7 @@
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.14</milo.version>
         <mockito.version>5.14.2</mockito.version>
-        <mongodb.version>5.2.0</mongodb.version>
+        <mongodb.version>5.2.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.114.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4.1</org.apache.httpcomponents.client5.version>
