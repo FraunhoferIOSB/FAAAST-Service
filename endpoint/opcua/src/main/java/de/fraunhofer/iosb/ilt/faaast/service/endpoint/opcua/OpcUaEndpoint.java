@@ -54,7 +54,6 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
     private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
     private Environment aasEnvironment;
-    private MessageBus<?> messageBus;
     private Server server;
 
     /**
@@ -62,7 +61,6 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
-        messageBus = null;
         config = null;
         server = null;
     }
@@ -74,7 +72,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      * @return The MessageBus
      */
     public MessageBus<?> getMessageBus() {
-        return messageBus;
+        return serviceContext.getMessageBus();
     }
 
 
