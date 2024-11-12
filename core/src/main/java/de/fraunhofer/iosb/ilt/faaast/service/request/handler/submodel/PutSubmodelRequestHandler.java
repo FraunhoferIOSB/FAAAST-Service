@@ -41,13 +41,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmodelRequest, PutSubmodelResponse> {
 
-    public PutSubmodelRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutSubmodelResponse process(PutSubmodelRequest request)
+    public PutSubmodelResponse process(PutSubmodelRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
             PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
@@ -56,7 +51,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
         context.getPersistence().deleteSubmodel(request.getSubmodelId());
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
         context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(request.getSubmodel())

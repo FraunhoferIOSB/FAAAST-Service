@@ -56,13 +56,8 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
             .level(Level.DEEP)
             .build();
 
-    public GenerateSerializationByIdsRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request)
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, SerializationException, IOException, PersistenceException {
         DefaultEnvironment environment;
         if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {

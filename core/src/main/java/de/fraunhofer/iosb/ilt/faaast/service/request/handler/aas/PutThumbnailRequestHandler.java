@@ -36,13 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
  */
 public class PutThumbnailRequestHandler extends AbstractRequestHandler<PutThumbnailRequest, PutThumbnailResponse> {
 
-    public PutThumbnailRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutThumbnailResponse process(PutThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException, PersistenceException {
+    public PutThumbnailResponse process(PutThumbnailRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, IOException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())) {
             throw new ResourceNotFoundException(String.format("no thumbnail information set for AAS (id: %s)", request.getId()));

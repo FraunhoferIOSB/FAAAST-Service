@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PutFileByPathRequest, PutFileByPathResponse> {
 
-    public PutFileByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutFileByPathResponse doProcess(PutFileByPathRequest request)
+    public PutFileByPathResponse doProcess(PutFileByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException,
             PersistenceException {
         Reference reference = new ReferenceBuilder()

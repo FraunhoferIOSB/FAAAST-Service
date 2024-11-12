@@ -66,6 +66,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsReferenceRequest;
@@ -738,7 +740,7 @@ public class RequestMappingManagerTest {
                 .content(Content.VALUE)
                 .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H"))
                 .build();
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -766,7 +768,7 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -805,7 +807,7 @@ public class RequestMappingManagerTest {
                 .content(Content.VALUE)
                 .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H2M3S"))
                 .build();
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -1165,4 +1167,45 @@ public class RequestMappingManagerTest {
                 .build()));
     }
 
+
+    @Test
+    public void testImportMissingContentType() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("import")
+                .body("{}".getBytes())
+                .build()));
+    }
+
+
+    @Test
+    public void testImport() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        String json = "{}";
+        Request expected = ImportRequest.builder()
+                .contentType("application/json")
+                .content(json.getBytes())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("import")
+                .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
+                .body(json.getBytes())
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReset() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+        String json = "{}";
+        Request expected = ResetRequest.builder()
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("reset")
+                .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
+                .body(json.getBytes())
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
 }

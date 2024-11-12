@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
@@ -56,18 +56,23 @@ public class AssetConnectionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
-    private final ServiceContext serviceContext;
-    private final ScheduledExecutorService scheduledExecutorService;
-    private final LambdaAssetConnection lambdaAssetConnection;
+    private final Service service;
+    private ScheduledExecutorService scheduledExecutorService;
+    private LambdaAssetConnection lambdaAssetConnection;
     private volatile boolean active;
 
-    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
+    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, Service service) throws ConfigurationException {
         this.active = true;
         this.coreConfig = coreConfig;
         this.connections = connections != null ? new ArrayList<>(connections) : new ArrayList<>();
-        this.serviceContext = context;
-        this.lambdaAssetConnection = new LambdaAssetConnection();
+        this.service = service;
         validateConnections();
+        init();
+    }
+
+
+    private void init() {
+        lambdaAssetConnection = new LambdaAssetConnection();
         ThreadFactory threadFactory = new ThreadFactory() {
             AtomicLong count = new AtomicLong(0);
 
@@ -150,6 +155,20 @@ public class AssetConnectionManager {
 
 
     /**
+     * Reset the AssetConnectionManager by first stopping the manager if active, then removing all connections and
+     * restarting the manager.
+     */
+    public void reset() {
+        if (active) {
+            stop();
+        }
+        connections.clear();
+        init();
+        start();
+    }
+
+
+    /**
      * Unregister a {@link LambdaOperationProvider}.
      *
      * @param reference the reference
@@ -202,7 +221,7 @@ public class AssetConnectionManager {
         }
         try {
             provider.addNewDataListener((DataElementValue data) -> {
-                Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
+                Response response = service.execute(SetSubmodelElementValueByPathRequest.builder()
                         .submodelId(ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL))
                         .path(ReferenceHelper.toPath(reference))
                         .disableSyncWithAsset()
@@ -253,7 +272,7 @@ public class AssetConnectionManager {
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException, AssetConnectionException {
-        AssetConnection newConnection = connectionConfig.newInstance(coreConfig, serviceContext);
+        AssetConnection newConnection = connectionConfig.newInstance(coreConfig, service);
         Optional<AssetConnection> connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst();
         if (connection.isPresent()) {
             connectionConfig.getValueProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(

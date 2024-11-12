@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.Abstra
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -30,18 +29,16 @@ import java.util.Map;
  */
 public class ResetRequestMapper extends AbstractRequestMapper {
 
-    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = "reset";
 
     public ResetRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.DELETE, PATTERN);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return ResetRequest.builder()
-                .id(getParameterBase64UrlEncoded(urlParameters, AAS_ID))
                 .build();
     }
 }

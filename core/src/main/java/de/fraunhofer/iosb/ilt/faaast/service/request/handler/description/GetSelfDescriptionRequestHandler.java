@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.description;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
-import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.description.GetSelfDescriptionResponse;
@@ -32,20 +31,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  */
 public class GetSelfDescriptionRequestHandler extends AbstractRequestHandler<GetSelfDescriptionRequest, GetSelfDescriptionResponse> {
 
-    public GetSelfDescriptionRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetSelfDescriptionResponse process(GetSelfDescriptionRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
+    public GetSelfDescriptionResponse process(GetSelfDescriptionRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         return GetSelfDescriptionResponse.builder()
-                .payload(ServiceDescription.builder()
-                        .profile(ServiceSpecificationProfile.AAS_REPOSITORY_FULL)
-                        .profile(ServiceSpecificationProfile.SUBMODEL_REPOSITORY_FULL)
-                        .profile(ServiceSpecificationProfile.CONCEPT_DESCRIPTION_FULL)
-                        .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
-                        .build())
+                .payload(
+                        context.hasEndpoint()
+                                ? ServiceDescription.builder()
+                                        .profiles(context.getEndpoint().getProfiles())
+                                        .build()
+                                : ServiceDescription.builder().build())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
     }

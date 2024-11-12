@@ -14,26 +14,37 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.PutModelFileResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
+import java.util.Arrays;
 import java.util.Objects;
 
 
 /**
- * Request class for PutModelFile requests.
+ * Request class for Import requests.
  */
-public class PutModelFileRequest extends AbstractRequestWithId<PutModelFileResponse> {
+public class ImportRequest extends Request<ImportResponse> {
 
-    private TypedInMemoryFile content;
+    private byte[] content;
+    private String contentType;
 
-    public TypedInMemoryFile getContent() {
+    public byte[] getContent() {
         return content;
     }
 
 
-    public void setContent(TypedInMemoryFile content) {
+    public void setContent(byte[] content) {
         this.content = content;
+    }
+
+
+    public String getContentType() {
+        return contentType;
+    }
+
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
 
@@ -45,15 +56,16 @@ public class PutModelFileRequest extends AbstractRequestWithId<PutModelFileRespo
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PutModelFileRequest that = (PutModelFileRequest) o;
+        ImportRequest that = (ImportRequest) o;
         return super.equals(that)
-                && Objects.equals(content, that.content);
+                && Arrays.equals(content, that.content)
+                && Objects.equals(contentType, that.contentType);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), content);
+        return Objects.hash(super.hashCode(), content, contentType);
     }
 
 
@@ -61,16 +73,22 @@ public class PutModelFileRequest extends AbstractRequestWithId<PutModelFileRespo
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutModelFileRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithId.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends ImportRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
-        public B content(TypedInMemoryFile value) {
+        public B content(byte[] value) {
             getBuildingInstance().setContent(value);
+            return getSelf();
+        }
+
+
+        public B contentType(String value) {
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
 
     }
 
-    public static class Builder extends AbstractBuilder<PutModelFileRequest, Builder> {
+    public static class Builder extends AbstractBuilder<ImportRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -79,8 +97,9 @@ public class PutModelFileRequest extends AbstractRequestWithId<PutModelFileRespo
 
 
         @Override
-        protected PutModelFileRequest newBuildingInstance() {
-            return new PutModelFileRequest();
+        protected ImportRequest newBuildingInstance() {
+            return new ImportRequest();
         }
     }
+
 }

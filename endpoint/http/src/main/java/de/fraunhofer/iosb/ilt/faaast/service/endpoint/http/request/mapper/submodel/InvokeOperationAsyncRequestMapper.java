@@ -55,8 +55,7 @@ public class InvokeOperationAsyncRequestMapper extends AbstractSubmodelInterface
                 .build();
         if (outputModifier.getContent() == Content.VALUE) {
             try {
-                result = deserializer.readValueOperationRequest(
-                        httpRequest.getBodyAsString(),
+                result = deserializer.readValueOperationRequest(httpRequest.getBodyAsString(),
                         InvokeOperationAsyncRequest.class,
                         serviceContext,
                         identifier);

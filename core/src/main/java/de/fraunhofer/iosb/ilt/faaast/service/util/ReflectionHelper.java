@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import io.github.classgraph.ClassGraph;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -46,6 +48,63 @@ public class ReflectionHelper {
                 .stream()
                 .filter(x -> !EXCLUDED.contains(x))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Reads the value of a field of the obj.
+     *
+     * @param <T> the type of the value to read
+     * @param obj the obj to read the property from
+     * @param fieldName the name of the field to read
+     * @param type the type of the value to read
+     * @return the value of the field
+     * @throws NoSuchFieldException if the field does not exist
+     * @throws IllegalAccessException if the field cannot be accessed
+     */
+    public static <T> T getField(Object obj, String fieldName, Class<T> type) throws NoSuchFieldException, IllegalAccessException {
+        Field field = findField(obj, fieldName);
+        field.setAccessible(true);
+        return type.cast(field.get(obj));
+    }
+
+
+    /**
+     * Sets the value of a field of the obj.
+     *
+     * @param obj the obj to set the property on
+     * @param fieldName the name of the field to read
+     * @param value the value to set
+     * @throws NoSuchFieldException if the field does not exist
+     * @throws IllegalAccessException if the field cannot be accessed
+     */
+    public static void setField(Object obj, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
+        Field field = findField(obj, fieldName);
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+
+
+    /**
+     * Recursively finds a field with given name on the obj.
+     *
+     * @param obj the object to find the field on
+     * @param fieldName the name of the field
+     * @return the field if found, if not null
+     */
+    public static Field findField(Object obj, String fieldName) {
+        if (Objects.isNull(obj)) {
+            return null;
+        }
+        Class<?> clazz = obj.getClass();
+        while (Objects.nonNull(clazz)) {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            }
+            catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass(); // Move to superclass
+            }
+        }
+        return null;
     }
 
 }

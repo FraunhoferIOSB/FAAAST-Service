@@ -6,10 +6,10 @@
 - Persistence
 	- Added Mongo persistence for storing AAS model in MongoDB
 - Endpoint
+	- Supported AAS Profiles can now be configured per Endpoint
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
 		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
-		- Allowed HTTP methods can now be defined, default values: "GET, POST, PUT, PATCH, DELETE"
 		- New API calls: PUT on /upload will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
 	- OPC UA
 		- Added support for all datatypes of the AAS specification

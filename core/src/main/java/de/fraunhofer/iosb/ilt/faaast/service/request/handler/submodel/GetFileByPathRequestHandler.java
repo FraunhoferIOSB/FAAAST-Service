@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class GetFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetFileByPathRequest, GetFileByPathResponse> {
 
-    public GetFileByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetFileByPathResponse doProcess(GetFileByPathRequest request)
+    public GetFileByPathResponse doProcess(GetFileByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())

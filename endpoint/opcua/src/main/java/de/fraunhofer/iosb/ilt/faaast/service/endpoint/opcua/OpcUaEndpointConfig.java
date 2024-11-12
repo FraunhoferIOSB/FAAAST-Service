@@ -65,7 +65,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
             return false;
         }
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
-        return Objects.equals(tcpPort, that.tcpPort)
+        return super.equals(o)
+                && Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
@@ -78,7 +79,15 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath, supportedSecurityPolicies,
+        return Objects.hash(
+                super.hashCode(),
+                tcpPort,
+                secondsTillShutdown,
+                discoveryServerUrl,
+                userMap,
+                serverCertificateBasePath,
+                userCertificateBasePath,
+                supportedSecurityPolicies,
                 supportedAuthentications);
     }
 

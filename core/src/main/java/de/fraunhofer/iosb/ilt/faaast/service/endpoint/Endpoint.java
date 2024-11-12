@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import java.util.List;
 
 
@@ -39,6 +40,14 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
      * Stops the endpoint.
      */
     public void stop();
+
+
+    /**
+     * Gets a list of supported service profiles.
+     *
+     * @return list of supported service profiles.
+     */
+    public List<ServiceSpecificationProfile> getProfiles();
 
 
     /**

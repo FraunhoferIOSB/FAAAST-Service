@@ -36,7 +36,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
-    public static final String DEFAULT_ALLOWED_METHODS = "GET, POST, PUT, PATCH, DELETE";
 
     public static Builder builder() {
         return new Builder();
@@ -51,7 +50,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
-    private String allowedMethods;
     private boolean includeErrorDetails;
     private int port;
     private boolean sniEnabled;
@@ -72,7 +70,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
         sslEnabled = DEFAULT_SSL_ENABLED;
-        allowedMethods = DEFAULT_ALLOWED_METHODS;
     }
 
 
@@ -206,16 +203,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
-    public String getAllowedMethods() {
-        return allowedMethods;
-    }
-
-
-    public void setAllowedMethods(String allowedMethods) {
-        this.allowedMethods = allowedMethods;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -225,7 +212,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             return false;
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
-        return Objects.equals(certificate, that.certificate)
+        return super.equals(o)
+                && Objects.equals(certificate, that.certificate)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(corsAllowCredentials, that.corsAllowCredentials)
                 && Objects.equals(corsAllowedHeaders, that.corsAllowedHeaders)
@@ -238,13 +226,15 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
                 && Objects.equals(sslEnabled, that.sslEnabled)
-                && Objects.equals(allowedMethods, that.allowedMethods);
+                && Objects.equals(profiles, that.profiles);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(certificate,
+        return Objects.hash(
+                super.hashCode(),
+                certificate,
                 corsEnabled,
                 corsAllowCredentials,
                 corsAllowedHeaders,
@@ -257,7 +247,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 port,
                 sniEnabled,
                 sslEnabled,
-                allowedMethods);
+                profiles);
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
@@ -368,13 +358,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             getBuildingInstance().setSslEnabled(value);
             return getSelf();
         }
-
-
-        public B allowedMethods(String value) {
-            getBuildingInstance().setAllowedMethods(value);
-            return getSelf();
-        }
-
     }
 
     public static class Builder extends AbstractBuilder<HttpEndpointConfig, Builder> {

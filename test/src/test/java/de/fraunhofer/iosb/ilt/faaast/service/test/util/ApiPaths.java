@@ -114,6 +114,11 @@ public class ApiPaths {
         return new AASInterface(aas.getId());
     }
 
+
+    public ProprietaryInterface proprietaryInterface() {
+        return new ProprietaryInterface();
+    }
+
     public class AASRespositoryInterface {
 
         public String assetAdministrationShells() {
@@ -660,6 +665,18 @@ public class ApiPaths {
             return String.format("%s/operation-status/%s",
                     submodelElement(idShortPath),
                     handleId);
+        }
+    }
+
+    public class ProprietaryInterface {
+
+        public String reset() {
+            return String.format("%s/reset", ApiPaths.this.root());
+        }
+
+
+        public String importFile() {
+            return String.format("%s/import", ApiPaths.this.root());
         }
     }
 

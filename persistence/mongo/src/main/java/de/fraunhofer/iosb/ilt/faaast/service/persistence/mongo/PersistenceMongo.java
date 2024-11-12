@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.mongo;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientException;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
@@ -205,6 +206,40 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         }
         if (result.getModifiedCount() == 0)
             throw new ResourceNotFoundException(identifier.toReference());
+    }
+
+
+    @Override
+    public void deleteAll() throws PersistenceException {
+        aasCollection = resetCollection(AAS_COLLECTION_NAME);
+        submodelCollection = resetCollection(SUBMODEL_COLLECTION_NAME);
+        cdCollection = resetCollection(CD_COLLECTION_NAME);
+        operationCollection = resetCollection(OPERATION_COLLECTION_NAME);
+    }
+
+
+    private MongoCollection<Document> resetCollection(String name) throws PersistenceException {
+        MongoDatabase database = client.getDatabase(config.getDatabase());
+        MongoCollection<Document> collection = database.getCollection(name);
+        if (Objects.isNull(collection)) {
+            try {
+                database.createCollection(name);
+                return database.getCollection(name);
+            }
+            catch (MongoCommandException e) {
+                throw new PersistenceException(String.format("error creating MongoDB collection '%s'", name), e);
+            }
+        }
+        else {
+            try {
+                //collection.deleteMany(new Document());
+                collection.drop();
+                return collection;
+            }
+            catch (MongoException e) {
+                throw new PersistenceException(String.format("error clearing MongoDB collection '%s'", name), e);
+            }
+        }
     }
 
 
@@ -400,17 +435,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         operationCollection = database.getCollection(OPERATION_COLLECTION_NAME);
 
         if (config.isOverride()) {
-            aasCollection.drop();
-            cdCollection.drop();
-            submodelCollection.drop();
-            operationCollection.drop();
+            deleteAll();
         }
 
         if (!databaseHasSavedEnvironment(database)) {
-            aasCollection.drop();
-            cdCollection.drop();
-            submodelCollection.drop();
-            operationCollection.drop();
+            deleteAll();
             try {
                 saveEnvironment(config.loadInitialModel());
             }

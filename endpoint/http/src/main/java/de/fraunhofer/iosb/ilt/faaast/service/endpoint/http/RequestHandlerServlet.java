@@ -46,19 +46,23 @@ import org.eclipse.jetty.server.Response;
  */
 public class RequestHandlerServlet extends HttpServlet {
 
+    private final HttpEndpoint endpoint;
+    private final HttpEndpointConfig config;
     private final ServiceContext serviceContext;
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
-    private final String allowedMethods;
 
-    public RequestHandlerServlet(ServiceContext serviceContext, String allowedMethods) {
+    public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext) {
+        Ensure.requireNonNull(endpoint, "endpoint must be non-null");
+        Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
+        this.endpoint = endpoint;
+        this.config = config;
         this.serviceContext = serviceContext;
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.allowedMethods = allowedMethods;
     }
 
 
@@ -82,9 +86,6 @@ public class RequestHandlerServlet extends HttpServlet {
                     String.format("Unknown method '%s'", request.getMethod()),
                     e));
         }
-        if (!allowedMethods.contains(method.name())) {
-            throw new ServletException(String.format("Method not allowed by FA³ST configuration: '%s'", request.getMethod()));
-        }
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(url.replaceAll("/$", ""))
                 .query(request.getQueryString())
@@ -106,15 +107,29 @@ public class RequestHandlerServlet extends HttpServlet {
     }
 
 
+    private void checkRequestSupportedByProfiles(de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws InvalidRequestException {
+        if (Objects.isNull(config.getProfiles()) || config.getProfiles().isEmpty()) {
+            return;
+        }
+        config.getProfiles().stream()
+                .flatMap(x -> x.getSupportedRequests().stream())
+                .filter(x -> Objects.equals(x, apiRequest.getClass()))
+                .findAny()
+                .orElseThrow(() -> new InvalidRequestException(String.format(
+                        "Operations of type %s not supported on this server",
+                        apiRequest.getClass())));
+    }
+
+
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest) throws Exception {
         if (Objects.isNull(apiRequest)) {
-            throw new InvalidRequestException("empty api request");
+            throw new InvalidRequestException("empty API request");
         }
-        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(apiRequest);
+        checkRequestSupportedByProfiles(apiRequest);
+        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(endpoint, apiRequest);
         if (Objects.isNull(apiResponse)) {
             throw new ServletException("empty API response");
         }
-
         if (isSuccessful(apiResponse)) {
             responseMappingManager.map(apiRequest, apiResponse, response);
         }

@@ -50,11 +50,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class GetAllSubmodelElementsPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsPathRequest, GetAllSubmodelElementsPathResponse> {
 
-    public GetAllSubmodelElementsPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
         Stream<T> result = input;
         if (Objects.nonNull(paging.getCursor())) {
@@ -105,7 +100,7 @@ public class GetAllSubmodelElementsPathRequestHandler extends AbstractSubmodelIn
 
 
     @Override
-    public GetAllSubmodelElementsPathResponse doProcess(GetAllSubmodelElementsPathRequest request)
+    public GetAllSubmodelElementsPathResponse doProcess(GetAllSubmodelElementsPathRequest request, RequestExecutionContext context)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> submodelElements = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), PagingInfo.ALL);

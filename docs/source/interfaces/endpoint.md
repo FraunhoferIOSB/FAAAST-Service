@@ -24,6 +24,17 @@ The following is an example of the relevant part of the configuration part compr
 	// ...
 }
 ```
+
+## Generic Configuration
+
+All endpoint implementations share the following common configuration properties.
+
+:::{table} Configuration properties of all Endpoint implementations.
+| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                               |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------- |
+| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL,<br>AAS_READ,<br>SUBMODEL_FULL,<br>SUBMODEL_READ,<br>SUBMODEL_VALUE,<br>AASX_FILE_SERVER_FULL,<br>AAS_REGISTRY_FULL,<br>AAS_REGISTRY_READ,<br>SUBMODEL_REGISTRY_FULL,<br>SUBMODEL_REGISTRY_READ,<br>DISCOVERY_FULL,<br>AAS_REPOSITORY_FULL,<br>AAS_REPOSITORY_READ,<br>SUBMODEL_REPOSITORY_FULL,<br>SUBMODEL_REPOSITORY_READ,<br>CONCEPT_DESCRIPTION_FULL,<br>FAAAST_IMPORT,<br>FAAAST_RESET | The AAS Service Profiles that the endpoint should support. | (empty, meaning all profiles are supported) |
+:::
+
 (endpoint-http)=
 ## HTTP
 
@@ -35,22 +46,22 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 ### Configuration
 
 :::{table} Configuration properties of HTTP Endpoint.
-| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                      |
-| ------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate            |
-| corsAllowCredentials<br>*(optional)* | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                             | false                              |
-| corsAllowedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                 | *                                  |
-| corsAllowedMethods<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                 | GET, POST, HEAD                    |
-| corsAllowedOrigin<br>*(optional)*    | String                                                      | Sets the `Access-Control-Allow-Origin` response header.                                                                                                                                  | *                                  |
-| corsEnabled<br>*(optional)*          | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                              |
-| corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                    |
-| corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                               |
-| hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address) |
-| includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                              |
-| port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                |
-| sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                               |
-| sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                               |
-| allowedMethods<br>*(optional)*       | String                                                      | Define the allowed methods. Typically required if you want to make the service read-only.                                                                                                | GET, POST, PUT, PATCH, DELETE      |
+| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                               |
+| ------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate                     |
+| corsAllowCredentials<br>*(optional)* | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                             | false                                       |
+| corsAllowedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                 | *                                           |
+| corsAllowedMethods<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                 | GET, POST, HEAD                             |
+| corsAllowedOrigin<br>*(optional)*    | String                                                      | Sets the `Access-Control-Allow-Origin` response header.                                                                                                                                  | *                                           |
+| corsEnabled<br>*(optional)*          | Boolean                                                     | If Cross-Origin Resource Sharing (CORS) should be enabled.<br>Typically required if you want to access the REST interface from any machine other than the one running FA³ST Service.     | false                                       |
+| corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                             |
+| corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                                        |
+| hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address)          |
+| includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                                       |
+| port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                         |
+| profiles<br>*(optional)*             | List                                                        | The AAS Service Profiles that FA³ST Service should support.                                                                                                                              | (empty, meaning all profiles are supported) |
+| sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                                        |
+| sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                                        |
 :::
 
 ```{code-block} json
@@ -95,6 +106,14 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 - Asset Administration Shell Basic Discovery API
 - Serialization API
 - Description API
+
+Additionally, FA³ST Service offers the following proprietary API calls:
+
+| HTTP Method | URL Path | Description                                                                                                                             | Payload             | Response                                                                 |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| GET         | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.  | -                   | `204 No Content`                                                         |
+| POST        | /import  | Imports an AAS files in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+
 
 #### Using HTTP PATCH
 

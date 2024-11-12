@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithId;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ResetResponse;
 import java.util.Objects;
 
@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Request class for Reset requests.
  */
-public class ResetRequest extends AbstractRequestWithId<ResetResponse> {
+public class ResetRequest extends Request<ResetResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -47,8 +47,7 @@ public class ResetRequest extends AbstractRequestWithId<ResetResponse> {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends ResetRequest, B extends AbstractBuilder<T, B>>
-            extends AbstractRequestWithId.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends ResetRequest, B extends AbstractBuilder<T, B>> extends Request.AbstractBuilder<T, B> {
 
     }
 

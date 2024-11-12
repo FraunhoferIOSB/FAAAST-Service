@@ -14,19 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 
 
 /**
- * Response class for PutModelFile requests.
+ * Response class for Import requests.
  */
-public class PutModelFileResponse extends AbstractResponse {
+public class ImportResponse extends AbstractResponseWithPayload<ImportResult> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PutModelFileResponse, Builder> {
+    public static class Builder extends AbstractBuilder<ImportResult, ImportResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -35,8 +35,9 @@ public class PutModelFileResponse extends AbstractResponse {
 
 
         @Override
-        protected PutModelFileResponse newBuildingInstance() {
-            return new PutModelFileResponse();
+        protected ImportResponse newBuildingInstance() {
+            return new ImportResponse();
         }
     }
+
 }

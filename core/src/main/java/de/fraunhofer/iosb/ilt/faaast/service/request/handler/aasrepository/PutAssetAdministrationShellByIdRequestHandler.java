@@ -37,13 +37,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  */
 public class PutAssetAdministrationShellByIdRequestHandler extends AbstractRequestHandler<PutAssetAdministrationShellByIdRequest, PutAssetAdministrationShellByIdResponse> {
 
-    public PutAssetAdministrationShellByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutAssetAdministrationShellByIdResponse process(PutAssetAdministrationShellByIdRequest request)
+    public PutAssetAdministrationShellByIdResponse process(PutAssetAdministrationShellByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getAssetAdministrationShell(request.getAas().getId(), QueryModifier.DEFAULT);

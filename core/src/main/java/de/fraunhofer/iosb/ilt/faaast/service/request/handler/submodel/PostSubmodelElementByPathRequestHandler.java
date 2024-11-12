@@ -47,13 +47,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
  */
 public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
-    public PostSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request)
+    public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, AssetConnectionException, MessageBusException,
             ResourceAlreadyExistsException, PersistenceException {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());

@@ -730,6 +730,15 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
+    public void removeAll() throws ResourceNotFoundException, PersistenceException {
+        persistence.deleteAll();
+        Assert.assertTrue(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
+        Assert.assertTrue(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
+        Assert.assertTrue(persistence.getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
+    }
+
+
+    @Test
     public void removeByReference() throws ResourceNotFoundException, PersistenceException {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionId = "ExampleSubmodelElementCollection";

@@ -34,13 +34,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class DeleteAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<DeleteAllAssetLinksByIdRequest, DeleteAllAssetLinksByIdResponse> {
 
-    public DeleteAllAssetLinksByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteAllAssetLinksByIdResponse process(DeleteAllAssetLinksByIdRequest request) throws ResourceNotFoundException, PersistenceException {
+    public DeleteAllAssetLinksByIdResponse process(DeleteAllAssetLinksByIdRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         DeleteAllAssetLinksByIdResponse response = new DeleteAllAssetLinksByIdResponse();
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         aas.getAssetInformation().setGlobalAssetId(null);

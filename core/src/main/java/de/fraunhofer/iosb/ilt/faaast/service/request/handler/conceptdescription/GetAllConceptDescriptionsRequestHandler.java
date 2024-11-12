@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class GetAllConceptDescriptionsRequestHandler extends AbstractRequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
-    public GetAllConceptDescriptionsRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request) throws MessageBusException, PersistenceException {
+    public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request, RequestExecutionContext context) throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.NONE,
                 request.getOutputModifier(),

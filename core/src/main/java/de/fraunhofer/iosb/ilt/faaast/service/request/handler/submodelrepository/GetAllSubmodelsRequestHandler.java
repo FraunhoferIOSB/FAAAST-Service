@@ -42,13 +42,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class GetAllSubmodelsRequestHandler extends AbstractRequestHandler<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 
-    public GetAllSubmodelsRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelsResponse process(GetAllSubmodelsRequest request)
+    public GetAllSubmodelsResponse process(GetAllSubmodelsRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.NONE,
@@ -57,7 +52,7 @@ public class GetAllSubmodelsRequestHandler extends AbstractRequestHandler<GetAll
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
                 if (!request.isInternal()) {
                     context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(reference)

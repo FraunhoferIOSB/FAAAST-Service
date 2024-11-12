@@ -28,13 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  */
 public class GetOperationAsyncStatusRequestHandler extends AbstractRequestHandler<GetOperationAsyncStatusRequest, GetOperationAsyncStatusResponse> {
 
-    public GetOperationAsyncStatusRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request) throws ResourceNotFoundException, PersistenceException {
+    public GetOperationAsyncStatusResponse process(GetOperationAsyncStatusRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         return GetOperationAsyncStatusResponse.builder()
                 .payload(context.getPersistence().getOperationResult(request.getHandle()))
                 .success()

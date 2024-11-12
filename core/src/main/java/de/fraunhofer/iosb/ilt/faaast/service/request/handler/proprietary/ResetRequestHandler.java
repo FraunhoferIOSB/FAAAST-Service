@@ -21,16 +21,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ResetResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import java.util.List;
-import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
-import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StreamHelper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,47 +37,36 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  * for communication with the persistence.
  */
 public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, ResetResponse> {
-
-    public ResetRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResetRequestHandler.class);
 
     @Override
-    public ResetResponse process(ResetRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
-        ResetResponse response = new ResetResponse();
-        List<AssetAdministrationShell> aas = context.getPersistence().getAllAssetAdministrationShells(QueryModifier.DEFAULT, PagingInfo.ALL)
-                .getContent();
-        if (!request.isInternal() && Objects.nonNull(aas)) {
-            aas.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                            .element(x)
-                            .value(x)
-                            .build())));
-            aas.forEach(LambdaExceptionHelper.wrap(a -> context.getPersistence().deleteAssetAdministrationShell(a)));
+    public ResetResponse process(ResetRequest request, RequestExecutionContext context) {
+        try {
+            context.getAssetConnectionManager().reset();
+            context.getPersistence().deleteAll();
+            context.getFileStorage().deleteAll();
+            StreamHelper.concat(
+                    context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
+                    context.getPersistence().getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream(),
+                    context.getPersistence().getAllConceptDescriptions(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream())
+                    .forEach(x -> {
+                        try {
+                            context.getMessageBus().publish(ElementDeleteEventMessage.builder()
+                                    .element(x)
+                                    .value(x)
+                                    .build());
+                        }
+                        catch (MessageBusException e) {
+                            LOGGER.warn("Publishing ElementDeleteEvent on message bus after reset failed (reference: %s)", AasUtils.toReference(x));
+                        }
+                    });
+            return ResetResponse.builder().statusCode(StatusCode.SUCCESS_NO_CONTENT).build();
         }
-        List<Submodel> submodel = context.getPersistence().getAllSubmodels(QueryModifier.DEFAULT, PagingInfo.ALL)
-                .getContent();
-        if (!request.isInternal() && Objects.nonNull(submodel)) {
-            submodel.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                            .element(x)
-                            .value(x)
-                            .build())));
-            submodel.forEach(LambdaExceptionHelper.wrap(s -> context.getPersistence().deleteSubmodel(s)));
+        catch (PersistenceException e) {
+            String message = "Error resetting FA³ST Service - the server might now be in an undefined and unstable state. It is recommended to restart the server";
+            LOGGER.error(message, e);
+            throw new IllegalStateException(message, e);
         }
-        List<ConceptDescription> concept = context.getPersistence().getAllConceptDescriptions(QueryModifier.DEFAULT, PagingInfo.ALL)
-                .getContent();
-        if (!request.isInternal() && Objects.nonNull(concept)) {
-            concept.forEach(LambdaExceptionHelper.rethrowConsumer(
-                    x -> context.getMessageBus().publish(ElementDeleteEventMessage.builder()
-                            .element(x)
-                            .value(x)
-                            .build())));
-            concept.forEach(LambdaExceptionHelper.wrap(c -> context.getPersistence().deleteConceptDescription(c)));
-        }
-        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        return response;
     }
 
 }
