@@ -105,7 +105,7 @@ public class ReflectionHelper {
                 clazz = clazz.getSuperclass();
             }
         }
-        throw new NoSuchFieldException(String.format("no field with name '%s' found"));
+        throw new NoSuchFieldException(String.format("no field with name '%s' found", fieldName));
     }
 
 }

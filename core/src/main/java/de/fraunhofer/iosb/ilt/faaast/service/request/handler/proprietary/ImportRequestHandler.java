@@ -113,7 +113,7 @@ public class ImportRequestHandler extends AbstractRequestHandler<ImportRequest, 
                     .build());
         }
         catch (MessageBusException e) {
-            LOGGER.warn("Publishing ElementCreateEvent on message bus after import failed (reference: %s)", AasUtils.toReference(identifiable));
+            LOGGER.warn("Publishing ElementCreateEvent on message bus after import failed (reference: {})", AasUtils.toReference(identifiable));
         }
     }
 }
