@@ -187,9 +187,7 @@ Validation of operation argument can be configured independently for in-, out-, 
 | format                      | JSON<br>XML        | Content format of the payload.                                                                                                                  |               |
 | headers<br>*(optional)*     | Map<String,String> | Headers to send with each request.<br>Overrides connection-level headers.                                                                       | *empty list*  |
 | interval<br>*(optional)*    | long               | Interval to poll the server for changes (in ms).                                                                                                | 100           |
-| method<br>*(optional)*      | GET<br>PUT<br>POST | HTTP method to use when writing a value to HTTP.                                                                                                | GET           |
 | path                        | String             | Path for the HTTP request, relative to the `baseUrl` of the connection.                                                                         |               |
-| payload<br>*(optional)*     | String             | Static content to send with each request.                                                                                                       |               |
 | query<br>*(optional)*       | String             | Additional information how to extract actual value from received messages.<br>Depends on `format`, e.g. for JSON this is a JSONPath expression. |               |
 :::
 

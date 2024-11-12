@@ -41,6 +41,8 @@
 - Asset Connection
 	- General
 		- Fixed bug that caused FA³ST Service to crash when an Asset Connection threw an exception on startup
+	- HTTP
+		- Remove method and payload from Subscription Provider
 
 ## 1.1.0
 
