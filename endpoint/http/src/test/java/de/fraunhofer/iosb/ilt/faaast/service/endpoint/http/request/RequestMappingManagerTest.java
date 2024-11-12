@@ -1169,7 +1169,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testImportMissingContentType() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testImportMissingContentType() {
         Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .path("import")
@@ -1179,7 +1179,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testImport() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testImport() throws InvalidRequestException {
         String json = "{}";
         Request expected = ImportRequest.builder()
                 .contentType("application/json")
@@ -1196,7 +1196,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testReset() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
+    public void testReset() throws InvalidRequestException {
         String json = "{}";
         Request expected = ResetRequest.builder()
                 .build();

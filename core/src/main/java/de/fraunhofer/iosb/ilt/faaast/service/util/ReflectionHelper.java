@@ -90,8 +90,9 @@ public class ReflectionHelper {
      * @param obj the object to find the field on
      * @param fieldName the name of the field
      * @return the field if found, if not null
+     * @throws java.lang.NoSuchFieldException if field does not exist
      */
-    public static Field findField(Object obj, String fieldName) {
+    public static Field findField(Object obj, String fieldName) throws NoSuchFieldException {
         if (Objects.isNull(obj)) {
             return null;
         }
@@ -101,10 +102,10 @@ public class ReflectionHelper {
                 return clazz.getDeclaredField(fieldName);
             }
             catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass(); // Move to superclass
+                clazz = clazz.getSuperclass();
             }
         }
-        return null;
+        throw new NoSuchFieldException(String.format("no field with name '%s' found"));
     }
 
 }

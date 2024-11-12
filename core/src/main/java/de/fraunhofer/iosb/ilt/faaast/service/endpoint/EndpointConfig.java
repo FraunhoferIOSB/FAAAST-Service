@@ -30,7 +30,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
-    protected List<ServiceSpecificationProfile> profiles = new ArrayList<>();;
+    protected List<ServiceSpecificationProfile> profiles = new ArrayList<>();
 
     public List<ServiceSpecificationProfile> getProfiles() {
         return profiles;

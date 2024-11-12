@@ -284,4 +284,25 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         }
         return server.getURI();
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpEndpoint that = (HttpEndpoint) o;
+        return super.equals(o)
+                && Objects.equals(server, that.server)
+                && Objects.equals(context, that.context);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), server, context);
+    }
 }

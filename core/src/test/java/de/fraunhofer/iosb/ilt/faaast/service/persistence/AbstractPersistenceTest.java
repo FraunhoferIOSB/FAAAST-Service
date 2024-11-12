@@ -730,7 +730,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
 
 
     @Test
-    public void removeAll() throws ResourceNotFoundException, PersistenceException {
+    public void removeAll() throws PersistenceException {
         persistence.deleteAll();
         Assert.assertTrue(persistence.getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());
         Assert.assertTrue(persistence.getAllSubmodels(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().isEmpty());

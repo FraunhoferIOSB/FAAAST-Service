@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -222,7 +223,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
         request.setInputArguments(inputVariables);
 
         // execute method
-        InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) serviceContext.execute(this, request);
+        InvokeOperationSyncResponse response = serviceContext.execute(this, request);
         if (response.getStatusCode().isSuccess()) {
             if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
                 LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
@@ -255,5 +256,26 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
      */
     public Environment getAASEnvironment() throws PersistenceException {
         return serviceContext.getAASEnvironment();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaEndpoint that = (OpcUaEndpoint) o;
+        return super.equals(o)
+                && Objects.equals(aasEnvironment, that.aasEnvironment)
+                && Objects.equals(server, that.server);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), aasEnvironment, server);
     }
 }

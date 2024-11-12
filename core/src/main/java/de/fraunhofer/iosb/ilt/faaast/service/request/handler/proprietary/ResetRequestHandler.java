@@ -57,15 +57,14 @@ public class ResetRequestHandler extends AbstractRequestHandler<ResetRequest, Re
                                     .build());
                         }
                         catch (MessageBusException e) {
-                            LOGGER.warn("Publishing ElementDeleteEvent on message bus after reset failed (reference: %s)", AasUtils.toReference(x));
+                            LOGGER.warn("Publishing ElementDeleteEvent on message bus after reset failed (reference: {})", AasUtils.toReference(x));
                         }
                     });
             return ResetResponse.builder().statusCode(StatusCode.SUCCESS_NO_CONTENT).build();
         }
         catch (PersistenceException e) {
-            String message = "Error resetting FA³ST Service - the server might now be in an undefined and unstable state. It is recommended to restart the server";
-            LOGGER.error(message, e);
-            throw new IllegalStateException(message, e);
+            throw new IllegalStateException("Error resetting FA³ST Service - the server might now be in an undefined and unstable state. It is recommended to restart the server",
+                    e);
         }
     }
 

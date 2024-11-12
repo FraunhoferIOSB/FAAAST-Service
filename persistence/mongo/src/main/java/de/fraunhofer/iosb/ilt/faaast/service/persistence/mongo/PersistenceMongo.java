@@ -220,25 +220,23 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     private MongoCollection<Document> resetCollection(String name) throws PersistenceException {
         MongoDatabase database = client.getDatabase(config.getDatabase());
-        MongoCollection<Document> collection = database.getCollection(name);
-        if (Objects.isNull(collection)) {
+        boolean exists = database.listCollectionNames().into(new ArrayList()).contains(name);
+        if (exists) {
             try {
-                database.createCollection(name);
-                return database.getCollection(name);
-            }
-            catch (MongoCommandException e) {
-                throw new PersistenceException(String.format("error creating MongoDB collection '%s'", name), e);
-            }
-        }
-        else {
-            try {
-                //collection.deleteMany(new Document());
+                MongoCollection<Document> collection = database.getCollection(name);
                 collection.drop();
                 return collection;
             }
             catch (MongoException e) {
                 throw new PersistenceException(String.format("error clearing MongoDB collection '%s'", name), e);
             }
+        }
+        try {
+            database.createCollection(name);
+            return database.getCollection(name);
+        }
+        catch (MongoCommandException e) {
+            throw new PersistenceException(String.format("error creating MongoDB collection '%s'", name), e);
         }
     }
 

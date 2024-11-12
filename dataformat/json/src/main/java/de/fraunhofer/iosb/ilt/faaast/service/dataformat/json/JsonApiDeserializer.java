@@ -381,7 +381,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                 .path(operationIdentifier.getIdShortPath().toString())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetSubmodelElementByPathResponse metadataResponse = (GetSubmodelElementByPathResponse) serviceContext.execute(null, metadataRequest);
+        GetSubmodelElementByPathResponse metadataResponse = serviceContext.execute(null, metadataRequest);
         if (metadataResponse.getStatusCode() == StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND
                 || Objects.isNull(metadataResponse.getPayload())) {
             throw new DeserializationException(String.format(
