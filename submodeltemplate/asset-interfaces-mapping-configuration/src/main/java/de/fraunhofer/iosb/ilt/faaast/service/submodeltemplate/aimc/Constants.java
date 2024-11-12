@@ -28,6 +28,7 @@ public class Constants {
     public static final String AID_ENDPOINT_METADATA = "EndpointMetadata";
     public static final String AID_METADATA_BASE = "base";
     public static final String AID_METADATA_CONTENT_TYPE = "contentType";
+    public static final String AID_METADATA_SECURITY = "security";
     public static final String AID_PROPERTY_FORMS = "forms";
     public static final String AID_PROPERTY_OBSERVABLE = "observable";
     public static final String AID_FORMS_CONTENT_TYPE = "contentType";
@@ -35,6 +36,8 @@ public class Constants {
     public static final String AID_FORMS_HEADERS = "htv_headers";
     public static final String AID_HEADER_FIELD_NAME = "htv_fieldName";
     public static final String AID_HEADER_FIELD_VALUE = "htv_fieldValue";
+    public static final String AID_SECURITY_NOSEC = "nosec_sc";
+    public static final String AID_SECURITY_BASIC = "basic_sc";
 
     private Constants() {}
 }

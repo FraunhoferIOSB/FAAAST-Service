@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -22,4 +24,84 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
  */
 public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<AimcSubmodelTemplateProcessor> {
 
+    private String username;
+    private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, password);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
+        return super.equals(other)
+                && Objects.equals(this.username, other.username)
+                && Objects.equals(this.password, other.password)
+        //&& Objects.equals(this.trustedCertificates, other.trustedCertificates)
+        ;
+    }
+
+    protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
+            extends ExtendableBuilder<C, B> {
+
+        public B username(String value) {
+            getBuildingInstance().setUsername(value);
+            return getSelf();
+        }
+
+
+        public B password(String value) {
+            getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<AimcSubmodelTemplateProcessorConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected AimcSubmodelTemplateProcessorConfig newBuildingInstance() {
+            return new AimcSubmodelTemplateProcessorConfig();
+        }
+    }
 }

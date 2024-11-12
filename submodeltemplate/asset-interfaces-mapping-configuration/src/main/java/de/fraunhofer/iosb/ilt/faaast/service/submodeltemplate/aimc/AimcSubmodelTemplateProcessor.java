@@ -176,12 +176,23 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata not found.");
         }
         if (element.get() instanceof SubmodelElementCollection metadata) {
+            // Endpoint Metadata
             // base
             element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_BASE.equals(e.getIdShort())).findFirst();
             if (element.isEmpty()) {
                 throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata base not found.");
             }
             String base = ((Property) element.get()).getValue();
+            HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
+
+            // security
+            element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
+            if (element.isEmpty()) {
+                throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata security not found.");
+            }
+            else if (element.get() instanceof SubmodelElementList securityList) {
+                configureSecurity(securityList, assetConfigBuilder);
+            }
 
             // contentType
             String contentType = null;
@@ -194,8 +205,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
             processRelations(relations, subscriptionProviders, base, contentType, valueProviders);
 
-            HttpAssetConnectionConfig assetConfig = HttpAssetConnectionConfig.builder()
-                    .baseUrl(base)
+            HttpAssetConnectionConfig assetConfig = assetConfigBuilder
                     .valueProviders(valueProviders)
                     .subscriptionProviders(subscriptionProviders)
                     .build();
@@ -228,7 +238,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private HttpValueProviderConfig createValueProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static HttpValueProviderConfig createValueProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
         HttpValueProviderConfig retval = null;
 
         Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
@@ -257,7 +267,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
         HttpSubscriptionProviderConfig retval = null;
 
         Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
@@ -286,7 +296,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private String getUrl(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
+    private static String getUrl(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
         Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HREF.equals(e.getIdShort())).findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel AID invalid: Property href not found in forms.");
@@ -300,7 +310,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private Map<String, String> getHeaders(SubmodelElementCollection forms) {
+    private static Map<String, String> getHeaders(SubmodelElementCollection forms) {
         Map<String, String> retval = new HashMap<>();
         Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HEADERS.equals(e.getIdShort())).findFirst();
         if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
@@ -312,7 +322,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
+    private static void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
         if (headerElement instanceof SubmodelElementCollection header) {
             Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_NAME.equals(h.getIdShort())).findFirst();
             Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_VALUE.equals(h.getIdShort())).findFirst();
@@ -335,7 +345,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private String getFormatFromContentType(String contentType) {
+    private static String getFormatFromContentType(String contentType) {
         Ensure.requireNonNull(contentType);
         switch (contentType) {
             case "application/xml", "text/xml":
@@ -346,6 +356,35 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
             default:
                 throw new IllegalArgumentException("unsupported contentType: " + contentType);
+        }
+    }
+
+
+    private void configureSecurity(SubmodelElementList securityList, HttpAssetConnectionConfig.Builder assetConfigBuilder) throws ResourceNotFoundException, PersistenceException {
+        List<String> supportedSecurity = new ArrayList<>();
+        for (SubmodelElement se: securityList.getValue()) {
+            if (se instanceof ReferenceElement refElem) {
+                Referable securityElement = EnvironmentHelper.resolve(refElem.getValue(), serviceContext.getAASEnvironment());
+                if (Constants.AID_SECURITY_NOSEC.equals(securityElement.getIdShort()) || Constants.AID_SECURITY_BASIC.equals(securityElement.getIdShort())) {
+                    supportedSecurity.add(securityElement.getIdShort());
+                }
+
+            }
+        }
+
+        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
+            // no security found. We choose that.
+            LOGGER.trace("configureSecurity: use no security");
+        }
+        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
+            // use basic security. Username and password are userd from the configuration.
+            LOGGER.trace("configureSecurity: use basic security");
+            if ((config.getUsername() == null) || config.getUsername().isEmpty()) {
+                LOGGER.warn("configureSecurity: basic security configured, but no username given");
+            }
+            else {
+                assetConfigBuilder = assetConfigBuilder.username(config.getUsername()).password(config.getPassword());
+            }
         }
     }
 }
