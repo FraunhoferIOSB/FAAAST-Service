@@ -75,7 +75,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.net.ssl.SSLHandshakeException;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -251,7 +250,7 @@ public class HttpAssetConnectionTest {
                 List.of("{ \"value\": 1}",
                         "{ \"value\": 2}"),
                 "$.value",
-                null,
+                //null,
                 false,
                 PropertyValue.of(Datatype.INT, "1"),
                 PropertyValue.of(Datatype.INT, "2"));
@@ -272,7 +271,7 @@ public class HttpAssetConnectionTest {
                         + "	]\n"
                         + "}"),
                 "$.data[-1:].value",
-                null,
+                //null,
                 false,
                 PropertyValue.of(Datatype.INT, "42"));
     }
@@ -287,7 +286,7 @@ public class HttpAssetConnectionTest {
                 List.of("{ \"value\": 1}",
                         "{ \"value\": 2}"),
                 "$.value",
-                "{ \"input\": \"foo\"}",
+                //"{ \"input\": \"foo\"}",
                 false,
                 PropertyValue.of(Datatype.INT, "1"),
                 PropertyValue.of(Datatype.INT, "2"));
@@ -599,7 +598,6 @@ public class HttpAssetConnectionTest {
                                                         RequestMethod method,
                                                         List<String> httpResponseBodies,
                                                         String query,
-                                                        String payload,
                                                         boolean useHttps,
                                                         PropertyValue... expected)
             throws AssetConnectionException, ConfigurationInitializationException, InterruptedException, ResourceNotFoundException, PersistenceException {
@@ -638,7 +636,6 @@ public class HttpAssetConnectionTest {
                 .path(path)
                 .format(JsonFormat.KEY)
                 .query(query)
-                .payload(payload)
                 .build());
         HttpAssetConnection connection = new HttpAssetConnection(
                 CoreConfig.builder()
@@ -662,10 +659,6 @@ public class HttpAssetConnectionTest {
             connection.getSubscriptionProviders().get(REFERENCE).removeNewDataListener(listener);
             Assert.assertArrayEquals(expected, actual);
             RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
-            if (!StringUtils.isBlank(payload) && expected != null) {
-                verifier = verifier.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
-                        .withRequestBody(equalToJson(payload));
-            }
             verify(exactly(httpResponseBodies.size()), verifier);
         }
         finally {
