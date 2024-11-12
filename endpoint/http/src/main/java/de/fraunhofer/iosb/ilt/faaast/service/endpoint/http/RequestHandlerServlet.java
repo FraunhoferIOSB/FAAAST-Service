@@ -116,8 +116,8 @@ public class RequestHandlerServlet extends HttpServlet {
                 .filter(x -> Objects.equals(x, apiRequest.getClass()))
                 .findAny()
                 .orElseThrow(() -> new InvalidRequestException(String.format(
-                        "Operations of type %s not supported on this server",
-                        apiRequest.getClass())));
+                        "'%s' not supported on this server",
+                        apiRequest.getClass().getSimpleName())));
     }
 
 

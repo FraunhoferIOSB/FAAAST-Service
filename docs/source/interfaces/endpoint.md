@@ -30,9 +30,9 @@ The following is an example of the relevant part of the configuration part compr
 All endpoint implementations share the following common configuration properties.
 
 :::{table} Configuration properties of all Endpoint implementations.
-| Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                               |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------- |
-| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL,<br>AAS_READ,<br>SUBMODEL_FULL,<br>SUBMODEL_READ,<br>SUBMODEL_VALUE,<br>AASX_FILE_SERVER_FULL,<br>AAS_REGISTRY_FULL,<br>AAS_REGISTRY_READ,<br>SUBMODEL_REGISTRY_FULL,<br>SUBMODEL_REGISTRY_READ,<br>DISCOVERY_FULL,<br>AAS_REPOSITORY_FULL,<br>AAS_REPOSITORY_READ,<br>SUBMODEL_REPOSITORY_FULL,<br>SUBMODEL_REPOSITORY_READ,<br>CONCEPT_DESCRIPTION_FULL,<br>FAAAST_IMPORT,<br>FAAAST_RESET | The AAS Service Profiles that the endpoint should support. | (empty, meaning all profiles are supported) |
+| Name                                 | Allowed Value                                                                                                                                                                                                                                                                                               | Description                                                | Default Value                               |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| profiles<br>*(optional)*             | List, allowed values:<br>AAS_FULL<br>AAS_READ<br>AAS_REPOSITORY_FULL<br>AAS_REPOSITORY_READ<br>AASX_FILE_SERVER_FULL<br>CONCEPT_DESCRIPTION_FULL<br>DISCOVERY_FULL<br>FAAAST_IMPORT<br>FAAAST_RESET<br>SUBMODEL_FULL<br>SUBMODEL_READ<br>SUBMODEL_VALUE<br>SUBMODEL_REPOSITORY_FULL<br>SUBMODEL_REPOSITORY_READ | The AAS Service Profiles that the endpoint should support. | (empty, meaning all profiles are supported) |
 :::
 
 (endpoint-http)=
@@ -59,7 +59,6 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address)          |
 | includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                                       |
 | port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                         |
-| profiles<br>*(optional)*             | List                                                        | The AAS Service Profiles that FA³ST Service should support.                                                                                                                              | (empty, meaning all profiles are supported) |
 | sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                                        |
 | sslEnabled<br>*(optional)*           | Boolean                                                     | If SSL/HTTPS should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                                              | true                                        |
 :::
@@ -87,6 +86,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"hostname": "localhost",
 		"includeErrorDetails": true,
 		"port": 443,
+		"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],
 		"sniEnabled": true,
 		"sslEnabled": true
 	} ],
@@ -249,17 +249,18 @@ These directories contain the following subdirectories:
 
 {
 	"endpoints": [ {
-			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
-			"tcpPort" : 18123,
-			"secondsTillShutdown" : 5,
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",			
 			"discoveryServerUrl" : "opc.tcp://localhost:4840",
+			"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],
 			"userMap" : {
 			  "user1" : "secret"
 			},
+			"secondsTillShutdown" : 5,
 			"serverCertificateBasePath" : "PKI/CA",
-			"userCertificateBasePath" : "USERS_PKI/CA",
 			"supportedSecurityPolicies" : [ "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" ],
 			"supportedAuthentications" : [ "Anonymous", "UserName" ]
+			"tcpPort" : 18123,
+			"userCertificateBasePath" : "USERS_PKI/CA",			
 	} ],
 	//...
 }
