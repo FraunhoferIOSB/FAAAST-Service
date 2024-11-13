@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -47,10 +48,23 @@ public interface ServiceContext {
      * Executes a request.
      *
      * @param <T> type of expected response
+     * @param source the endpoint via which the request has been triggered
      * @param request request to execute
      * @return result of executing the request
      */
-    public <T extends Response> T execute(Request<T> request);
+    public <T extends Response> T execute(Endpoint source, Request<T> request);
+
+
+    /**
+     * Execute a request without context of an endpoint. This is typically used when executed for custom code.
+     *
+     * @param <T> type of expected response
+     * @param request The request to execute.
+     * @return the corresponding response
+     */
+    public default <T extends Response> T execute(Request<T> request) {
+        return execute(null, request);
+    }
 
 
     /**

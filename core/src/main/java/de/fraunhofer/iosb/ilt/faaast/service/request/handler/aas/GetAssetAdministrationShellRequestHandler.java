@@ -34,13 +34,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class GetAssetAdministrationShellRequestHandler extends AbstractRequestHandler<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
-    public GetAssetAdministrationShellRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

@@ -33,13 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler<PostConceptDescriptionRequest, PostConceptDescriptionResponse> {
 
-    public PostConceptDescriptionRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) throws Exception {
+    public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request, RequestExecutionContext context) throws Exception {
         ModelValidator.validate(request.getConceptDescription(), context.getCoreConfig().getValidationOnCreate());
         if (context.getPersistence().conceptDescriptionExists(request.getConceptDescription().getId())) {
             throw new ResourceAlreadyExistsException(request.getConceptDescription().getId(), ConceptDescription.class);

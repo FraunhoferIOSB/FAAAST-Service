@@ -266,6 +266,13 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     }
 
 
+    @Override
+    public void deleteAll() throws PersistenceException {
+        persistence.deleteAll();
+        saveEnvironment();
+    }
+
+
     private void saveEnvironment() {
         try {
             EnvironmentSerializationManager

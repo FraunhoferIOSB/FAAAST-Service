@@ -16,9 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.StatusCodes;
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -36,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -50,15 +49,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Class for the OPC UA endpoint
  */
-public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
+public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
     private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
-    private ServiceContext service;
     private Environment aasEnvironment;
-    private MessageBus<?> messageBus;
-    private OpcUaEndpointConfig currentConfig;
     private Server server;
 
     /**
@@ -66,8 +62,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
-        messageBus = null;
-        currentConfig = null;
+        config = null;
         server = null;
     }
 
@@ -78,20 +73,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @return The MessageBus
      */
     public MessageBus<?> getMessageBus() {
-        return messageBus;
-    }
-
-
-    @Override
-    public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
-        currentConfig = config;
-        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
-        Ensure.requireNonNull(currentConfig.getServerCertificateBasePath(), "ServerCertificateBasePath must not be null");
-        Ensure.requireNonNull(currentConfig.getUserCertificateBasePath(), "UserCertificateBasePath must not be null");
-        service = context;
-        Ensure.requireNonNull(service, "service must not be null");
-        messageBus = service.getMessageBus();
-        Ensure.requireNonNull(messageBus, "messageBus must not be null");
+        return serviceContext.getMessageBus();
     }
 
 
@@ -103,9 +85,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         try {
-            aasEnvironment = service.getAASEnvironment();
+            aasEnvironment = serviceContext.getAASEnvironment();
             Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
-            server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
+            server = new Server(config.getTcpPort(), aasEnvironment, this);
             server.startup();
             LOGGER.debug("server started");
         }
@@ -120,7 +102,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         try {
             if (server != null) {
                 LOGGER.debug("stop server. Currently running: {}", server.isRunning());
-                server.shutdown(currentConfig.getSecondsTillShutdown());
+                server.shutdown(config.getSecondsTillShutdown());
             }
         }
         catch (Exception e) {
@@ -131,7 +113,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     @Override
     public OpcUaEndpointConfig asConfig() {
-        return currentConfig;
+        return config;
     }
 
 
@@ -172,7 +154,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 }
             }
 
-            Response response = service.execute(request);
+            Response response = serviceContext.execute(this, request);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("writeValue: Submodel {}; Element {} (Path {}); Status: {}", submodel.getId(), element.getIdShort(), ReferenceHelper.toPath(refElement),
                         response.getStatusCode());
@@ -202,7 +184,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
         SubmodelElement retval = null;
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
-        Response response = service.execute(request);
+        Response response = serviceContext.execute(this, request);
         if ((response.getStatusCode() == StatusCode.SUCCESS) && (GetSubmodelElementByPathResponse.class.isAssignableFrom(response.getClass()))) {
             retval = ((GetSubmodelElementByPathResponse) response).getPayload();
         }
@@ -218,7 +200,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @return True if it has a Value Provider, false otherwise.
      */
     public boolean hasValueProvider(Reference refElement) {
-        return service.hasValueProvider(refElement);
+        return serviceContext.hasValueProvider(refElement);
     }
 
 
@@ -241,7 +223,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         request.setInputArguments(inputVariables);
 
         // execute method
-        InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
+        InvokeOperationSyncResponse response = serviceContext.execute(this, request);
         if (response.getStatusCode().isSuccess()) {
             if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
                 LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
@@ -273,6 +255,27 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @throws PersistenceException if accessing the environment fails
      */
     public Environment getAASEnvironment() throws PersistenceException {
-        return service.getAASEnvironment();
+        return serviceContext.getAASEnvironment();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaEndpoint that = (OpcUaEndpoint) o;
+        return super.equals(o)
+                && Objects.equals(aasEnvironment, that.aasEnvironment)
+                && Objects.equals(server, that.server);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), aasEnvironment, server);
     }
 }

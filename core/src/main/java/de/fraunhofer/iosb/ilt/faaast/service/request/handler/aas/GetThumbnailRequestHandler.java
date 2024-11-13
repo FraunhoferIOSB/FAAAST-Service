@@ -33,13 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbnailRequest, GetThumbnailResponse> {
 
-    public GetThumbnailRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetThumbnailResponse process(GetThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public GetThumbnailResponse process(GetThumbnailRequest request, RequestExecutionContext context) throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())
                 || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())

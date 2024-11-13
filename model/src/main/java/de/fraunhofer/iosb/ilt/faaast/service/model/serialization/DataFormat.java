@@ -18,6 +18,7 @@ import com.google.common.net.MediaType;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,13 +29,14 @@ import java.util.stream.Stream;
  */
 public enum DataFormat {
 
-    JSON(MediaType.JSON_UTF_8, 0, "json"),
-    XML(MediaType.APPLICATION_XML_UTF_8, 1, "xml"),
-    RDF(MediaType.create("text", "turtle"), 2, "rdf", "xml", "ttl", "n3", "nt", "nq"),
-    JSONLD(MediaType.create("application", "ld+json"), 3, "jsonld", "json-ld"),
-    AASX(MediaType.create("application", "asset-administration-shell-package+xml"), 4, "aasx");
+    JSON(MediaType.JSON_UTF_8, false, 0, "json"),
+    XML(MediaType.APPLICATION_XML_UTF_8, false, 1, "xml"),
+    RDF(MediaType.create("text", "turtle"), false, 2, "rdf", "xml", "ttl", "n3", "nt", "nq"),
+    JSONLD(MediaType.create("application", "ld+json"), false, 3, "jsonld", "json-ld"),
+    AASX(MediaType.create("application", "asset-administration-shell-package+xml"), true, 4, "aasx");
 
     private final MediaType contentType;
+    private final boolean canStoreFiles;
     private final List<String> fileExtensions;
     private final int priority;
 
@@ -54,8 +56,24 @@ public enum DataFormat {
     }
 
 
-    private DataFormat(MediaType contentType, int priority, String... fileExtensions) {
+    /**
+     * Find data format for given content type.
+     *
+     * @param contentType file extension
+     * @return DataFormat for the given contentType
+     * @throws IllegalArgumentException if the given contenType does not match any data format.
+     */
+    public static DataFormat forContentType(MediaType contentType) {
+        return Stream.of(DataFormat.values())
+                .filter(x -> Objects.equals(x.getContentType(), contentType))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("unsupported dataformat '%s'", contentType)));
+    }
+
+
+    private DataFormat(MediaType contentType, boolean canStoreFiles, int priority, String... fileExtensions) {
         this.contentType = contentType;
+        this.canStoreFiles = canStoreFiles;
         this.priority = priority;
         this.fileExtensions = Arrays.asList(fileExtensions);
     }
@@ -63,6 +81,11 @@ public enum DataFormat {
 
     public MediaType getContentType() {
         return contentType;
+    }
+
+
+    public boolean getCanStoreFiles() {
+        return canStoreFiles;
     }
 
 

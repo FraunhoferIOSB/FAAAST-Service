@@ -54,8 +54,7 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
                 .build();
         if (outputModifier.getContent() == Content.VALUE) {
             try {
-                result = deserializer.readValueOperationRequest(
-                        httpRequest.getBodyAsString(),
+                result = deserializer.readValueOperationRequest(httpRequest.getBodyAsString(),
                         InvokeOperationSyncRequest.class,
                         serviceContext,
                         identifier);

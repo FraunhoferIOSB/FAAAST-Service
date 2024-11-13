@@ -38,19 +38,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
-    public DeleteSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request)
+    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, AssetConnectionException, PersistenceException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteSubmodel(request.getSubmodelId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence());
+        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                     .element(submodel)

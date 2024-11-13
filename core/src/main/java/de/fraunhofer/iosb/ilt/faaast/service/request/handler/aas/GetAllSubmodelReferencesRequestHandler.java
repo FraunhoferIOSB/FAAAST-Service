@@ -36,13 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
-    public GetAllSubmodelReferencesRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         Page<Reference> page = context.getPersistence().getSubmodelRefs(request.getId(), request.getPagingInfo());
         if (!request.isInternal()) {
             AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), OutputModifier.MINIMAL);

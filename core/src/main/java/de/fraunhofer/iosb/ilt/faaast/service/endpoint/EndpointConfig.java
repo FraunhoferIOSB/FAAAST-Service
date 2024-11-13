@@ -15,6 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -26,6 +30,36 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
+    protected List<ServiceSpecificationProfile> profiles = new ArrayList<>();
+
+    public List<ServiceSpecificationProfile> getProfiles() {
+        return profiles;
+    }
+
+
+    public void setProfiles(List<ServiceSpecificationProfile> profiles) {
+        this.profiles = profiles;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        EndpointConfig that = (EndpointConfig) o;
+        return Objects.equals(profiles, that.profiles);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profiles);
+    }
+
     /**
      * Abstract builder class that should be used for builders of inheriting classes.
      *
@@ -34,7 +68,16 @@ public class EndpointConfig<T extends Endpoint> extends Config<T> {
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
     public abstract static class AbstractBuilder<T extends Endpoint, C extends EndpointConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
+        public B profiles(List<ServiceSpecificationProfile> value) {
+            getBuildingInstance().setProfiles(value);
+            return getSelf();
+        }
 
+
+        public B profile(ServiceSpecificationProfile value) {
+            getBuildingInstance().getProfiles().add(value);
+            return getSelf();
+        }
     }
 
     /**

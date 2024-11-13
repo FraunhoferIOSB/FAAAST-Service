@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 public class DeleteAssetAdministrationShellByIdRequestHandler
         extends AbstractRequestHandler<DeleteAssetAdministrationShellByIdRequest, DeleteAssetAdministrationShellByIdResponse> {
 
-    public DeleteAssetAdministrationShellByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request)
+    public DeleteAssetAdministrationShellByIdResponse process(DeleteAssetAdministrationShellByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);

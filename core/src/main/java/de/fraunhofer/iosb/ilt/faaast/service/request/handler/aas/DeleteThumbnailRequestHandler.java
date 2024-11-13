@@ -35,13 +35,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
  */
 public class DeleteThumbnailRequestHandler extends AbstractRequestHandler<DeleteThumbnailRequest, DeleteThumbnailResponse> {
 
-    public DeleteThumbnailRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteThumbnailResponse process(DeleteThumbnailRequest request) throws ResourceNotFoundException, MessageBusException, IOException, PersistenceException {
+    public DeleteThumbnailResponse process(DeleteThumbnailRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, IOException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())
                 || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())

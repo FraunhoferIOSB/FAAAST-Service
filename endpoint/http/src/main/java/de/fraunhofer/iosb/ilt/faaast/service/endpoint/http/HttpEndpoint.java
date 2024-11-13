@@ -16,17 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -37,6 +35,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of HTTP endpoint. Accepts http request and maps them to Request objects passes them to the service and
  * expects a response object which is streamed as json response to the http client
  */
-public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
+public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
     public static final Version API_VERSION = Version.V3_0;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
@@ -75,16 +74,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             .build();
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
-    private HttpEndpointConfig config;
-    private ServiceContext serviceContext;
     private Server server;
     private ServletContextHandler context;
-
-    @Override
-    public HttpEndpointConfig asConfig() {
-        return config;
-    }
-
 
     /**
      * Gets the API version prefix.
@@ -93,20 +84,6 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
      */
     protected static String getVersionPrefix() {
         return String.format("/api/%s", API_VERSION);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException is config is null
-     */
-    @Override
-    public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        this.config = config;
-        this.serviceContext = serviceContext;
     }
 
 
@@ -124,7 +101,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         context.setContextPath("/");
         crossOriginHandler.setHandler(context);
 
-        RequestHandlerServlet handler = new RequestHandlerServlet(serviceContext);
+        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
         context.addServlet(handler, "/*");
         server.setErrorHandler(new HttpErrorHandler(config));
         try {
@@ -240,9 +217,18 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (Objects.isNull(server)) {
             return List.of();
         }
-        return List.of(
-                endpointFor("AAS-REPOSITORY-3.0", "/shells"),
-                endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+        List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> result = new ArrayList<>();
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
+            result.add(endpointFor("AAS-REPOSITORY-3.0", "/shells"));
+        }
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
+            result.add(endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+        }
+        return result;
     }
 
 
@@ -251,9 +237,19 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (Objects.isNull(server)) {
             return List.of();
         }
-        return List.of(
-                endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"),
-                endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+        List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> result = new ArrayList<>();
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
+            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"));
+        }
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
+            result.add(endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+        }
+
+        return result;
     }
 
 
@@ -289,4 +285,24 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         return server.getURI();
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpEndpoint that = (HttpEndpoint) o;
+        return super.equals(o)
+                && Objects.equals(server, that.server)
+                && Objects.equals(context, that.context);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), server, context);
+    }
 }
