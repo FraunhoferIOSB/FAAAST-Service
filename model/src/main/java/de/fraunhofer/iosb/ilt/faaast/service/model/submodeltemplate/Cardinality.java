@@ -27,7 +27,7 @@ public enum Cardinality {
     ONE_TO_MANY(true);
 
     public static final String SEMANTIC_ID = "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0";
-    public static Cardinality DEFAULT = Cardinality.ONE;
+    public static final Cardinality DEFAULT = Cardinality.ONE;
     private final boolean allowsMultipleValues;
 
     private Cardinality(boolean allowsMultipleValues) {
