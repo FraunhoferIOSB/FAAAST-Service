@@ -37,13 +37,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  */
 public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<PutConceptDescriptionByIdRequest, PutConceptDescriptionByIdResponse> {
 
-    public PutConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request)
+    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getConceptDescription(), context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().getConceptDescription(request.getConceptDescription().getId(), QueryModifier.DEFAULT);

@@ -37,13 +37,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandler<DeleteSubmodelReferenceRequest, DeleteSubmodelReferenceResponse> {
 
-    public DeleteSubmodelReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         Reference submodelRefToDelete = aas.getSubmodels().stream()

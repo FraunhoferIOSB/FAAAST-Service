@@ -456,7 +456,7 @@ public class ReferenceHelper {
         if (reference == null) {
             return null;
         }
-        return String.format("[%s]%s", reference.getType(),
+        return String.format("[%s]%s", toString(reference.getType()),
                 reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue()))
                         .collect(Collectors.joining(KEY_SEPARATOR)));
     }

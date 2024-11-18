@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.Spliterator;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -52,6 +53,20 @@ public class StreamHelper {
      */
     public static <T> Stream<T> toStream(Enumeration<T> enumeration) {
         return StreamSupport.stream(new EnumerationSpliterator<>(Long.MAX_VALUE, Spliterator.ORDERED, enumeration), false);
+    }
+
+
+    /**
+     * Concacts a number of streams.
+     *
+     * @param <T> the type of the concatted stream
+     * @param streams the stream to concat
+     * @return A stream containing all elements of all streams
+     */
+    public static <T> Stream<T> concat(Stream<? extends T>... streams) {
+        return Stream.of(streams)
+                .reduce(Stream.empty(), Stream::concat)
+                .map(Function.identity());
     }
 
     private static class EnumerationSpliterator<T> extends AbstractSpliterator<T> {

@@ -35,13 +35,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<PostSubmodelReferenceRequest, PostSubmodelReferenceResponse> {
 
-    public PostSubmodelReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request)
+    public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ResourceAlreadyExistsException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (aas.getSubmodels().contains(request.getSubmodelRef())) {

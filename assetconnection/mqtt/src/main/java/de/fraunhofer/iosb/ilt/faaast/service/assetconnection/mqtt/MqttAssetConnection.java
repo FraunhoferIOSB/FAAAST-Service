@@ -144,7 +144,7 @@ public class MqttAssetConnection extends
             client.connect(options);
             multiplexer = new MqttSubscriptionMultiplexer(serviceContext, client);
         }
-        catch (MqttException e) {
+        catch (Exception e) {
             throw new AssetConnectionException("initializaing MQTT asset connection failed", e);
         }
     }

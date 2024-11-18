@@ -38,13 +38,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 public class GetAllConceptDescriptionsByIsCaseOfRequestHandler
         extends AbstractRequestHandler<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
-    public GetAllConceptDescriptionsByIsCaseOfRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) throws MessageBusException, PersistenceException {
+    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request, RequestExecutionContext context)
+            throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.builder()
                         .isCaseOf(request.getIsCaseOf())

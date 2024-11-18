@@ -41,13 +41,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class GetAllAssetAdministrationShellsByAssetIdReferenceRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellsByAssetIdReferenceRequest, GetAllAssetAdministrationShellsByAssetIdReferenceResponse> {
 
-    public GetAllAssetAdministrationShellsByAssetIdReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllAssetAdministrationShellsByAssetIdReferenceResponse process(GetAllAssetAdministrationShellsByAssetIdReferenceRequest request)
+    public GetAllAssetAdministrationShellsByAssetIdReferenceResponse process(GetAllAssetAdministrationShellsByAssetIdReferenceRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException {
         Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()

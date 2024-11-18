@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -56,6 +58,16 @@ public class HttpRequest extends HttpMessage {
 
     public String getPath() {
         return path;
+    }
+
+
+    /**
+     * Gets the content type header value if present.
+     *
+     * @return the content type header value
+     */
+    public Optional<String> getContentType() {
+        return Optional.ofNullable(headers.get(HttpConstants.HEADER_CONTENT_TYPE));
     }
 
 

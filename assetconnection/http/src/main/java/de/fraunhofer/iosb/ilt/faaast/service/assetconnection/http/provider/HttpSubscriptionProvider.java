@@ -39,7 +39,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +87,8 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     config.getPath(),
                     config.getFormat(),
                     DEFAULT_METHOD,
-                    StringUtils.isBlank(config.getPayload())
-                            ? BodyPublishers.noBody()
-                            : BodyPublishers.ofString(config.getPayload()),
+
+                    BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {

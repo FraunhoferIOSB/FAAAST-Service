@@ -35,13 +35,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class GetConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<GetConceptDescriptionByIdRequest, GetConceptDescriptionByIdResponse> {
 
-    public GetConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), request.getOutputModifier());
         if (!request.isInternal() && Objects.nonNull(conceptDescription)) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
