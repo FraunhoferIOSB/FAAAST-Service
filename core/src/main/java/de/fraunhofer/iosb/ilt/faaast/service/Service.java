@@ -322,12 +322,6 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                this.config.getCore(),
-                this.persistence,
-                this.fileStorage,
-                this.messageBus,
-                this.assetConnectionManager));
         initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
