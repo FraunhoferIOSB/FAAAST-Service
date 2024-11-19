@@ -17,11 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -31,18 +26,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import helper.HttpHelper;
+import helper.MqttHelper;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -152,11 +144,11 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                         && ((assetInterface.getSupplementalSemanticIds() != null))) {
                     if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                         // HTTP Interface
-                        processInterfaceHttp(assetInterface, relations, assetConnectionManager);
+                        HttpHelper.processInterfaceHttp(serviceContext, config, assetInterface, relations, assetConnectionManager);
                     }
                     else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
                         // MQTT Interface
-                        processInterfaceMqtt(assetInterface, relations, assetConnectionManager);
+                        MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager);
                     }
                 }
             }
@@ -166,271 +158,6 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         else {
             LOGGER.debug("processInterfaceReference: InterfaceReference not a ReferenceElement");
-        }
-    }
-
-
-    private void processInterfaceHttp(SubmodelElementCollection assetInterface, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
-            throws MalformedURLException, PersistenceException, ResourceNotFoundException, ConfigurationException, AssetConnectionException {
-        String title = getInterfaceTitle(assetInterface);
-        LOGGER.debug("process HTTP interface {} with {} relations", title, relations.size());
-
-        // Endpoint Metadata
-        SubmodelElementCollection metadata = getEndpointMetadata(assetInterface);
-
-        // base
-        String base = getBaseUrl(metadata);
-        HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
-
-        // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurityHttp(securityList, assetConfigBuilder);
-        }
-
-        // contentType
-        String contentType = getContentType(metadata);
-
-        Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
-        Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        processRelationsHttp(relations, subscriptionProviders, base, contentType, valueProviders);
-
-        HttpAssetConnectionConfig assetConfig = assetConfigBuilder
-                .valueProviders(valueProviders)
-                .subscriptionProviders(subscriptionProviders)
-                .build();
-        assetConnectionManager.add(assetConfig);
-    }
-
-
-    private void processInterfaceMqtt(SubmodelElementCollection assetInterface, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
-            throws MalformedURLException, ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
-        String title = getInterfaceTitle(assetInterface);
-        LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
-
-        // Endpoint Metadata
-        SubmodelElementCollection metadata = getEndpointMetadata(assetInterface);
-
-        // base
-        String base = getBaseUrl(metadata);
-        MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
-
-        // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurityMqtt(securityList, assetConfigBuilder);
-        }
-
-        // contentType
-        String contentType = getContentType(metadata);
-
-        Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        processRelationsMqtt(relations, subscriptionProviders, contentType);
-
-        MqttAssetConnectionConfig assetConfig = assetConfigBuilder
-                .subscriptionProviders(subscriptionProviders)
-                .build();
-        assetConnectionManager.add(assetConfig);
-    }
-
-
-    private String getInterfaceTitle(SubmodelElementCollection assetInterface) {
-        Optional<SubmodelElement> element = assetInterface.getValue().stream().filter(p -> Constants.AID_INTERFACE_TITLE.equals(p.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: Interface Title not found.");
-        }
-        return (((Property) element.get()).getValue());
-    }
-
-
-    private SubmodelElementCollection getEndpointMetadata(SubmodelElementCollection assetInterface) {
-        Optional<SubmodelElement> element = assetInterface.getValue().stream().filter(e -> Constants.AID_ENDPOINT_METADATA.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata not found.");
-        }
-        return (SubmodelElementCollection) element.get();
-    }
-
-
-    private String getBaseUrl(SubmodelElementCollection metadata) {
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_BASE.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata base not found.");
-        }
-        return ((Property) element.get()).getValue();
-    }
-
-
-    private String getContentType(SubmodelElementCollection metadata) {
-        String contentType = null;
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            contentType = prop.getValue();
-        }
-        return contentType;
-    }
-
-
-    private void processRelationsHttp(List<RelationshipElement> relations, Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, String base, String contentType,
-                                      Map<Reference, HttpValueProviderConfig> valueProviders)
-            throws PersistenceException, ResourceNotFoundException {
-        for (var r: relations) {
-            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                boolean observable = false;
-                Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
-                if (element.isPresent() && (element.get() instanceof Property prop)) {
-                    String obsText = prop.getValue();
-                    observable = Boolean.parseBoolean(obsText);
-                }
-
-                if (observable) {
-                    subscriptionProviders.put(r.getSecond(), createSubscriptionProviderHttp(property, base, contentType));
-                }
-                else {
-                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, contentType));
-                }
-            }
-        }
-    }
-
-
-    private void processRelationsMqtt(List<RelationshipElement> relations, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, String contentType)
-            throws PersistenceException, ResourceNotFoundException {
-        for (var r: relations) {
-            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, contentType));
-            }
-        }
-    }
-
-
-    private static HttpValueProviderConfig createValueProviderHttp(SubmodelElementCollection property, String baseUrl, String baseContentType) {
-        HttpValueProviderConfig retval = null;
-
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (HTTP) invalid: Property forms not found.");
-        }
-
-        if (element.get() instanceof SubmodelElementCollection forms) {
-            String contentType = baseContentType;
-            element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-            if (element.isPresent() && (element.get() instanceof Property prop)) {
-                contentType = prop.getValue();
-            }
-
-            String href = getUrl(baseUrl, forms);
-            Map<String, String> headers = getHeaders(forms);
-            LOGGER.debug("createValueProviderHttp: href: {}; contentType: {}", href, contentType);
-            retval = HttpValueProviderConfig.builder()
-                    .format(getFormatFromContentType(contentType))
-                    .path(href)
-                    .headers(headers)
-                    .build();
-        }
-
-        return retval;
-    }
-
-
-    private static HttpSubscriptionProviderConfig createSubscriptionProviderHttp(SubmodelElementCollection property, String baseUrl, String baseContentType) {
-        HttpSubscriptionProviderConfig retval = null;
-
-        SubmodelElementCollection forms = getPropertyForms(property);
-        String contentType = baseContentType;
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            contentType = prop.getValue();
-        }
-
-        String href = getUrl(baseUrl, forms);
-        Map<String, String> headers = getHeaders(forms);
-        LOGGER.debug("createSubscriptionProviderHttp: href: {}; contentType: {}", href, contentType);
-        retval = HttpSubscriptionProviderConfig.builder()
-                .format(getFormatFromContentType(contentType))
-                .path(href)
-                .headers(headers)
-                .build();
-        //}
-
-        return retval;
-    }
-
-
-    private static MqttSubscriptionProviderConfig createSubscriptionProviderMqtt(SubmodelElementCollection property, String baseContentType) {
-        MqttSubscriptionProviderConfig retval = null;
-
-        SubmodelElementCollection forms = getPropertyForms(property);
-        String contentType = baseContentType;
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            contentType = prop.getValue();
-        }
-
-        String href = getFormsHref(forms);
-        LOGGER.debug("createSubscriptionProviderMqtt: href: {}; contentType: {}", href, contentType);
-        retval = MqttSubscriptionProviderConfig.builder()
-                .format(getFormatFromContentType(contentType))
-                .topic(href)
-                .build();
-
-        return retval;
-    }
-
-
-    private static SubmodelElementCollection getPropertyForms(SubmodelElementCollection property) {
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
-        }
-        return (SubmodelElementCollection) element.get();
-    }
-
-
-    private static String getUrl(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
-        String href = getFormsHref(forms);
-        if (!href.toLowerCase().startsWith("http")) {
-            // create absolute URL from base URL
-            href = URI.create(baseUrl).resolve(href).toString();
-        }
-        return href;
-    }
-
-
-    private static String getFormsHref(SubmodelElementCollection forms) {
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HREF.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: Property href not found in forms.");
-        }
-        return (((Property) element.get()).getValue());
-    }
-
-
-    private static Map<String, String> getHeaders(SubmodelElementCollection forms) {
-        Map<String, String> retval = new HashMap<>();
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HEADERS.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
-            for (var h: list.getValue()) {
-                addHeader(retval, h);
-            }
-        }
-        return retval;
-    }
-
-
-    private static void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
-        if (headerElement instanceof SubmodelElementCollection header) {
-            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_NAME.equals(h.getIdShort())).findFirst();
-            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_VALUE.equals(h.getIdShort())).findFirst();
-            if (nameElement.isPresent() && valueElement.isPresent() && (nameElement.get() instanceof Property name) && (valueElement.get() instanceof Property value)) {
-                headers.put(name.getValue(), value.getValue());
-            }
         }
     }
 
@@ -446,82 +173,4 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         return retval;
     }
 
-
-    private static String getFormatFromContentType(String contentType) {
-        Ensure.requireNonNull(contentType);
-        switch (contentType) {
-            case "application/xml", "text/xml":
-                return "XML";
-
-            case "application/json":
-                return "JSON";
-
-            default:
-                throw new IllegalArgumentException("unsupported contentType: " + contentType);
-        }
-    }
-
-
-    private HttpAssetConnectionConfig.Builder configureSecurityHttp(SubmodelElementList securityList, HttpAssetConnectionConfig.Builder assetConfigBuilder)
-            throws ResourceNotFoundException, PersistenceException {
-        HttpAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = getSupportedSecurityList(securityList);
-
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
-            // no security found. We choose that.
-            LOGGER.trace("configureSecurity: use no security");
-        }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
-            // use basic security. Username and password are used from the configuration.
-            LOGGER.trace("configureSecurity: use basic security");
-            if ((config.getUsername() == null) || config.getUsername().isEmpty()) {
-                LOGGER.warn("configureSecurity: basic security configured, but no username given");
-            }
-            else {
-                retval = retval.username(config.getUsername()).password(config.getPassword());
-            }
-        }
-
-        return retval;
-    }
-
-
-    private MqttAssetConnectionConfig.Builder configureSecurityMqtt(SubmodelElementList securityList, MqttAssetConnectionConfig.Builder assetConfigBuilder)
-            throws ResourceNotFoundException, PersistenceException {
-        MqttAssetConnectionConfig.Builder retval = assetConfigBuilder;
-        List<String> supportedSecurity = getSupportedSecurityList(securityList);
-
-        if (supportedSecurity.contains(Constants.AID_SECURITY_NOSEC)) {
-            // no security found. We choose that.
-            LOGGER.trace("configureSecurity: use no security");
-        }
-        else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
-            // use basic security. Username and password are used from the configuration.
-            LOGGER.trace("configureSecurity: use basic security");
-            if ((config.getUsername() == null) || config.getUsername().isEmpty()) {
-                LOGGER.warn("configureSecurity: basic security configured, but no username given");
-            }
-            else {
-                retval = retval.username(config.getUsername()).password(config.getPassword());
-            }
-        }
-
-        return retval;
-    }
-
-
-    private List<String> getSupportedSecurityList(SubmodelElementList securityList) throws PersistenceException, ResourceNotFoundException {
-        List<String> supportedSecurity = new ArrayList<>();
-        for (SubmodelElement se: securityList.getValue()) {
-            if (se instanceof ReferenceElement refElem) {
-                Referable securityElement = EnvironmentHelper.resolve(refElem.getValue(), serviceContext.getAASEnvironment());
-                if (Constants.AID_SECURITY_NOSEC.equals(securityElement.getIdShort()) || Constants.AID_SECURITY_BASIC.equals(securityElement.getIdShort())) {
-                    supportedSecurity.add(securityElement.getIdShort());
-                }
-
-            }
-        }
-
-        return supportedSecurity;
-    }
 }
