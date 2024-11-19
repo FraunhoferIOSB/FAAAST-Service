@@ -376,6 +376,14 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
+     * Deletes all data in the persistence.
+     *
+     * @throws PersistenceException if there was an error with the storage.
+     */
+    public void deleteAll() throws PersistenceException;
+
+
+    /**
      * Deletes an {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell}.
      *
      * @param assetAdministrationShell the {@code org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell} to

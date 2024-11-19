@@ -39,17 +39,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class GetSubmodelByIdRequestHandler extends AbstractRequestHandler<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
 
-    public GetSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request)
+    public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getId(), request.getOutputModifier());
         Reference reference = AasUtils.toReference(submodel);
-        syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(reference)

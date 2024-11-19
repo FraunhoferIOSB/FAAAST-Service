@@ -38,13 +38,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<DeleteFileByPathRequest, DeleteFileByPathResponse> {
 
-    public DeleteFileByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request)
+    public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException,
             PersistenceException {
         Reference reference = new ReferenceBuilder()

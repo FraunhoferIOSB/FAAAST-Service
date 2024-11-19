@@ -41,13 +41,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<PatchSubmodelByIdRequest, PatchSubmodelByIdResponse> {
 
-    public PatchSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request)
+    public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
             InvalidRequestException, PersistenceException {
         Submodel current = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
@@ -55,8 +50,8 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
-        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
-        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal());
+        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence(), context);
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

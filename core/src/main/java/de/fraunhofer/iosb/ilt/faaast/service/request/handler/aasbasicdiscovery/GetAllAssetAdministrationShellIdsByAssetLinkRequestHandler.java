@@ -38,13 +38,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
-    public GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request) throws PersistenceException {
+    public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request, RequestExecutionContext context)
+            throws PersistenceException {
         Page<AssetAdministrationShell> aass = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()
                         .assetIds(parseSpecificAssetIds(request.getAssetIdentifierPairs()))

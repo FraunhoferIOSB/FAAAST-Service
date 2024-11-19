@@ -43,13 +43,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHandler<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
-    public GetAllSubmodelsBySemanticIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request)
+    public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.builder()
@@ -60,7 +55,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
                 if (!request.isInternal()) {
                     context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(reference)

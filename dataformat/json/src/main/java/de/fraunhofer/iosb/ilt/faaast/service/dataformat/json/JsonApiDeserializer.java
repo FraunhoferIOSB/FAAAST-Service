@@ -52,6 +52,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueC
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueMapDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ImportResultMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
@@ -67,6 +68,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWi
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -379,7 +381,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
                 .path(operationIdentifier.getIdShortPath().toString())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetSubmodelElementByPathResponse metadataResponse = (GetSubmodelElementByPathResponse) serviceContext.execute(metadataRequest);
+        GetSubmodelElementByPathResponse metadataResponse = serviceContext.execute(null, metadataRequest);
         if (metadataResponse.getStatusCode() == StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND
                 || Objects.isNull(metadataResponse.getPayload())) {
             throw new DeserializationException(String.format(
@@ -489,6 +491,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
         mapper.addMixIn(Message.class, MessageMixin.class);
+        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override

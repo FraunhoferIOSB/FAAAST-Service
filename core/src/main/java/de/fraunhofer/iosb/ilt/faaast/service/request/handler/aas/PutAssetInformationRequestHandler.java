@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class PutAssetInformationRequestHandler extends AbstractRequestHandler<PutAssetInformationRequest, PutAssetInformationResponse> {
 
-    public PutAssetInformationRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutAssetInformationResponse process(PutAssetInformationRequest request)
+    public PutAssetInformationResponse process(PutAssetInformationRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, ValidationException, PersistenceException {
         ModelValidator.validate(request.getAssetInformation(), context.getCoreConfig().getValidationOnUpdate());
         PutAssetInformationResponse response = new PutAssetInformationResponse();

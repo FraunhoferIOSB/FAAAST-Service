@@ -69,6 +69,14 @@ public interface FileStorage<C extends FileStorageConfig> extends Configurable<C
 
 
     /**
+     * Deletes all files present in the storage.
+     *
+     * @throws PersistenceException if storage error occurs
+     */
+    public void deleteAll() throws PersistenceException;
+
+
+    /**
      * Saves the file to given path.
      *
      * @param file the file to save

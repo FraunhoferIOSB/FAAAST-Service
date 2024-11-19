@@ -39,13 +39,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
  */
 public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<GetAllAssetLinksByIdRequest, GetAllAssetLinksByIdResponse> {
 
-    public GetAllAssetLinksByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request) throws ResourceNotFoundException, PersistenceException {
+    public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         List<SpecificAssetId> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         if (Objects.nonNull(aas.getAssetInformation().getGlobalAssetId())) {

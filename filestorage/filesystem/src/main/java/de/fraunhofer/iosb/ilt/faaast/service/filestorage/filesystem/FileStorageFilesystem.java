@@ -25,12 +25,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -198,6 +201,24 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
             catch (IOException e) {
                 throw new PersistenceException(e);
             }
+        }
+    }
+
+
+    @Override
+    public void deleteAll() throws PersistenceException {
+        List<String> filesFailedToDelete = Arrays.stream(
+                new File(config.getPath())
+                        .listFiles(x -> x.isFile() && !existingFiles.values().contains(x.toPath())))
+                .filter(x -> !x.delete())
+                .map(File::getName)
+                .toList();
+
+        if (!filesFailedToDelete.isEmpty()) {
+            throw new PersistenceException(String.format(
+                    "Delete all files failed. Following files have not been deleted: %s%s",
+                    System.lineSeparator(),
+                    filesFailedToDelete.stream().collect(Collectors.joining(System.lineSeparator()))));
         }
     }
 

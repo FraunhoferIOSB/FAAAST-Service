@@ -78,7 +78,7 @@
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.79</bouncycastle.version>
         <checkstyle.version>10.20.1</checkstyle.version>
-        <classgraph.version>4.8.177</classgraph.version>
+        <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
@@ -133,7 +133,7 @@
         <mockito.version>5.14.2</mockito.version>
         <mongodb.version>5.2.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.114.Final</netty.version>
+        <netty.version>4.1.115.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4.1</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.24.1</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>

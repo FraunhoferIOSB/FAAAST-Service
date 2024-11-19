@@ -42,13 +42,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmodelRequest, PostSubmodelResponse> {
 
-    public PostSubmodelRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostSubmodelResponse process(PostSubmodelRequest request)
+    public PostSubmodelResponse process(PostSubmodelRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException,
             ResourceAlreadyExistsException, PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
@@ -57,7 +52,7 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
         }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)
