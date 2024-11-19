@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,9 @@ public class MqttHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttHelper.class);
 
+    private MqttHelper() {}
+
+
     /**
      * Process a MQTT interface.
      *
@@ -55,7 +57,6 @@ public class MqttHelper {
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
      * @param assetConnectionManager The AssetConnectionManager.
-     * @throws MalformedURLException Invalif URL.
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist..
      * @throws ConfigurationException if invalid configuration is provided.
@@ -63,7 +64,7 @@ public class MqttHelper {
      */
     public static void processInterfaceMqtt(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
                                             List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
-            throws MalformedURLException, ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
+            throws ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
 

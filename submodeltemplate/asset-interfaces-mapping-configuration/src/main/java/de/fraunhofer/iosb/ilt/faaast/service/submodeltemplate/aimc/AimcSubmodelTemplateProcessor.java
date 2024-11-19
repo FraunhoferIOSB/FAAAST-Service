@@ -141,7 +141,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
             if (referenceElement instanceof SubmodelElementCollection assetInterface) {
                 if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
-                        && ((assetInterface.getSupplementalSemanticIds() != null))) {
+                        && (assetInterface.getSupplementalSemanticIds() != null)) {
                     if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                         // HTTP Interface
                         HttpHelper.processInterfaceHttp(serviceContext, config, assetInterface, relations, assetConnectionManager);

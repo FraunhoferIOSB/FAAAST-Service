@@ -36,6 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
  */
 public class Util {
 
+    private Util() {}
+
+
     /**
      * Extracts the Forms property from the given SubmodelElementCollection.
      *

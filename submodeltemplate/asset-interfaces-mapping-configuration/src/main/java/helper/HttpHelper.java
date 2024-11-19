@@ -49,6 +49,9 @@ public class HttpHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
+    private HttpHelper() {}
+
+
     /**
      * Process a HTTP interface.
      *
@@ -142,7 +145,6 @@ public class HttpHelper {
                 .path(href)
                 .headers(headers)
                 .build();
-        //}
 
         return retval;
     }
