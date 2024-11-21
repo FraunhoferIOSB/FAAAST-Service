@@ -23,12 +23,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.MqttHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import helper.HttpHelper;
-import helper.MqttHelper;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -63,18 +64,21 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
     @Override
     public boolean process(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+        Ensure.requireNonNull(submodel);
+        Ensure.requireNonNull(assetConnectionManager);
+        boolean retval;
         try {
-            Ensure.requireNonNull(submodel);
-
             LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
-            processSubmodel(submodel, assetConnectionManager);
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
 
-            return true;
+            retval = true;
         }
         catch (Exception ex) {
             LOGGER.error("error processing SMT AIMC (submodel: {})", AasUtils.asString(AasUtils.toReference(submodel)), ex);
-            return false;
+            retval = false;
         }
+
+        return retval;
     }
 
 
@@ -91,75 +95,93 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager)
-            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException {
-        Optional<SubmodelElement> element = submodel.getSubmodelElements().stream().filter(s -> Constants.AIMC_MAPPING_CONFIGURATIONS.equals(s.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel invalid: MappingConfigurations not found.");
+    /**
+     * Update the given Submodel.
+     *
+     * @param submodel The desired Submodel.
+     * @param assetConnectionManager The Asset Connection Manager.
+     * @return True, if the Submodel was processed successfully, false otherwise.
+     */
+    public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+        Ensure.requireNonNull(submodel);
+        Ensure.requireNonNull(assetConnectionManager);
+        boolean retval;
+
+        try {
+            LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            retval = true;
         }
-        if (element.get() instanceof SubmodelElementList mappingConfigurations) {
-            for (var c: mappingConfigurations.getValue()) {
-                if (c instanceof SubmodelElementCollection configuration) {
-                    processConfiguration(configuration, assetConnectionManager);
-                }
-                else {
-                    LOGGER.debug("processSubmodel: element {} not a Collection", c);
-                }
-            }
+        catch (Exception ex) {
+            LOGGER.error("error updating SMT AIMC (submodel: {})", AasUtils.asString(AasUtils.toReference(submodel)), ex);
+            retval = false;
         }
-        else {
-            throw new IllegalArgumentException("Submodel invalid: MappingConfigurations not a list.");
-        }
+        return retval;
     }
 
 
-    private void processConfiguration(SubmodelElementCollection configuration, AssetConnectionManager assetConnectionManager)
-            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException {
-        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_MAPPING_RELATIONS.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel invalid: MappingSourceSinkRelations not found.");
-        }
-        List<RelationshipElement> relations = null;
-        if (element.get() instanceof SubmodelElementList list) {
-            relations = getRelationshipElements(list.getValue());
-        }
-        if (relations == null) {
-            relations = new ArrayList<>();
-        }
-
-        processInterfaceReference(configuration, relations, assetConnectionManager);
-    }
-
-
-    private void processInterfaceReference(SubmodelElementCollection configuration, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
-            throws ResourceNotFoundException, ConfigurationException, PersistenceException, MalformedURLException, AssetConnectionException, IllegalArgumentException {
-        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_INTERFACE_REFERENCE.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel invalid: InterfaceReference not found.");
-        }
-        if (element.get() instanceof ReferenceElement interfaceReference) {
-            Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
-            if (referenceElement instanceof SubmodelElementCollection assetInterface) {
-                if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
-                        && (assetInterface.getSupplementalSemanticIds() != null)) {
-                    if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
-                        // HTTP Interface
-                        HttpHelper.processInterfaceHttp(serviceContext, config, assetInterface, relations, assetConnectionManager);
-                    }
-                    else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
-                        // MQTT Interface
-                        MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager);
-                    }
-                }
+    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException {
+        SubmodelElementList mappingConfigurations = getMappingConfiguration(submodel);
+        for (var c: mappingConfigurations.getValue()) {
+            if (c instanceof SubmodelElementCollection configuration) {
+                processConfiguration(configuration, assetConnectionManager, mode);
             }
             else {
-                LOGGER.debug("processInterfaceReference: Interface not a SubmodelElementCollection");
+                LOGGER.debug("processSubmodel: element {} not a Collection", c);
+            }
+        }
+    }
+
+
+    private void processConfiguration(SubmodelElementCollection configuration, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException {
+        List<RelationshipElement> relations = getMappingRelations(configuration);
+        processInterfaceReference(configuration, relations, assetConnectionManager, mode);
+    }
+
+
+    private void processInterfaceReference(SubmodelElementCollection configuration, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager,
+                                           ProcessingMode mode)
+            throws ResourceNotFoundException, ConfigurationException, PersistenceException, MalformedURLException, AssetConnectionException, IllegalArgumentException,
+            URISyntaxException {
+        ReferenceElement interfaceReference = getInterfaceReference(configuration);
+        Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
+        if (referenceElement instanceof SubmodelElementCollection assetInterface) {
+            if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
+                    && (assetInterface.getSupplementalSemanticIds() != null)) {
+                if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
+                    // HTTP Interface
+                    HttpHelper.processInterfaceHttp(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
+                }
+                else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
+                    // MQTT Interface
+                    MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager);
+                }
             }
         }
         else {
-            LOGGER.debug("processInterfaceReference: InterfaceReference not a ReferenceElement");
+            LOGGER.debug("processInterfaceReference: Interface not a SubmodelElementCollection");
         }
     }
+
+    //    private void updateSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+    //        SubmodelElementList mappingConfigurations = getMappingConfiguration(submodel);
+    //        for (var c: mappingConfigurations.getValue()) {
+    //            if (c instanceof SubmodelElementCollection configuration) {
+    //                updateConfiguration(configuration, assetConnectionManager);
+    //            }
+    //            else {
+    //                LOGGER.debug("processSubmodel: element {} not a Collection", c);
+    //            }
+    //        }
+    //    }
+    //    
+    //    
+    //    private void updateConfiguration(SubmodelElementCollection configuration, AssetConnectionManager assetConnectionManager) {
+    //        List<RelationshipElement> relations = getMappingRelations(configuration);
+    //        updateInterfaceReference(configuration, relations, assetConnectionManager);
+    //    }
 
 
     private static List<RelationshipElement> getRelationshipElements(List<SubmodelElement> relations) {
@@ -173,4 +195,47 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         return retval;
     }
 
+
+    private static SubmodelElementList getMappingConfiguration(Submodel submodel) {
+        Optional<SubmodelElement> element = submodel.getSubmodelElements().stream().filter(s -> Constants.AIMC_MAPPING_CONFIGURATIONS.equals(s.getIdShort())).findFirst();
+        if (element.isEmpty()) {
+            throw new IllegalArgumentException("Submodel invalid: MappingConfigurations not found.");
+        }
+        if (element.get() instanceof SubmodelElementList list) {
+            return list;
+        }
+        else {
+            throw new IllegalArgumentException("Submodel invalid: MappingConfigurations not a list.");
+        }
+    }
+
+
+    private static List<RelationshipElement> getMappingRelations(SubmodelElementCollection configuration) {
+        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_MAPPING_RELATIONS.equals(e.getIdShort())).findFirst();
+        if (element.isEmpty()) {
+            throw new IllegalArgumentException("Submodel invalid: MappingSourceSinkRelations not found.");
+        }
+        List<RelationshipElement> relations = null;
+        if (element.get() instanceof SubmodelElementList list) {
+            relations = getRelationshipElements(list.getValue());
+        }
+        if (relations == null) {
+            relations = new ArrayList<>();
+        }
+        return relations;
+    }
+
+
+    private static ReferenceElement getInterfaceReference(SubmodelElementCollection configuration) {
+        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_INTERFACE_REFERENCE.equals(e.getIdShort())).findFirst();
+        if (element.isEmpty()) {
+            throw new IllegalArgumentException("Submodel invalid: InterfaceReference not found.");
+        }
+        if (element.get() instanceof ReferenceElement interfaceReference) {
+            return interfaceReference;
+        }
+        else {
+            throw new IllegalArgumentException("Submodel invalid: InterfaceReference not a ReferenceElement.");
+        }
+    }
 }

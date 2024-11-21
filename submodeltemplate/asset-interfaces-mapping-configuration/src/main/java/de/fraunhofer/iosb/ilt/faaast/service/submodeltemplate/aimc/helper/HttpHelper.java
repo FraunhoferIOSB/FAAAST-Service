@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package helper;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
@@ -25,13 +27,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
@@ -60,15 +65,17 @@ public class HttpHelper {
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
      * @param assetConnectionManager The AssetConnectionManager.
+     * @param mode The desired Processing Mode.
      * @throws MalformedURLException Invalif URL.
      * @throws PersistenceException if storage error occurs
      * @throws ResourceNotFoundException if the resource dcesn't exist.
      * @throws ConfigurationException if invalid configuration is provided.
      * @throws AssetConnectionException if there is an error in the Asset Connection.
+     * @throws java.net.URISyntaxException
      */
     public static void processInterfaceHttp(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
-                                            List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
-            throws MalformedURLException, PersistenceException, ResourceNotFoundException, ConfigurationException, AssetConnectionException {
+                                            List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+            throws MalformedURLException, PersistenceException, ResourceNotFoundException, ConfigurationException, AssetConnectionException, URISyntaxException {
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process HTTP interface {} with {} relations", title, relations.size());
 
@@ -93,13 +100,45 @@ public class HttpHelper {
 
         Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        processRelationsHttp(serviceContext, relations, subscriptionProviders, base, contentType, valueProviders);
+        HttpAssetConnection assetConnection = null;
+        boolean callAdd = false;
+        if (mode == ProcessingMode.UPDATE) {
+            List<AssetConnection> connections = assetConnectionManager.getConnections();
+            for (var c: connections) {
+                if ((c instanceof HttpAssetConnection hac) && (new URI(base).equals(hac.asConfig().getBaseUrl().toURI()))) {
+                    assetConnection = hac;
+                    Set<Reference> currentValueProviders = hac.asConfig().getValueProviders().keySet();
+                    Set<Reference> currentSubscriptionProviders = hac.asConfig().getSubscriptionProviders().keySet();
 
-        HttpAssetConnectionConfig assetConfig = assetConfigBuilder
-                .valueProviders(valueProviders)
-                .subscriptionProviders(subscriptionProviders)
-                .build();
-        assetConnectionManager.add(assetConfig);
+                    // search for removed providers
+                    for (var k: currentValueProviders) {
+                        if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
+                            assetConnection.unregisterValueProvider(k);
+                        }
+                    }
+                    for (var k: currentSubscriptionProviders) {
+                        if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
+                            assetConnection.unregisterSubscriptionProvider(k);
+                        }
+                    }
+                    updateRelationsHttp(serviceContext, relations, subscriptionProviders, valueProviders, base, contentType, currentSubscriptionProviders, currentValueProviders);
+                    callAdd = !(subscriptionProviders.isEmpty() && valueProviders.isEmpty());
+                    break;
+                }
+            }
+        }
+        else if (mode == ProcessingMode.ADD) {
+            processRelationsHttp(serviceContext, relations, subscriptionProviders, base, contentType, valueProviders);
+            callAdd = true;
+        }
+
+        if (callAdd) {
+            HttpAssetConnectionConfig assetConfig = assetConfigBuilder
+                    .valueProviders(valueProviders)
+                    .subscriptionProviders(subscriptionProviders)
+                    .build();
+            assetConnectionManager.add(assetConfig);
+        }
     }
 
 
@@ -109,17 +148,30 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: relations) {
             if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                boolean observable = false;
-                Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
-                if (element.isPresent() && (element.get() instanceof Property prop)) {
-                    String obsText = prop.getValue();
-                    observable = Boolean.parseBoolean(obsText);
-                }
-
-                if (observable) {
+                if (isObservable(property)) {
                     subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, contentType));
                 }
                 else {
+                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, contentType));
+                }
+            }
+        }
+    }
+
+
+    private static void updateRelationsHttp(ServiceContext serviceContext, List<RelationshipElement> relations,
+                                            Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, Map<Reference, HttpValueProviderConfig> valueProviders,
+                                            String base, String contentType,
+                                            Set<Reference> currentSubscriptions, Set<Reference> currentValues)
+            throws PersistenceException, ResourceNotFoundException {
+        for (var r: relations) {
+            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
+                if (isObservable(property)) {
+                    if (!currentSubscriptions.contains(r.getSecond())) {
+                        subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, contentType));
+                    }
+                }
+                else if (!currentValues.contains(r.getSecond())) {
                     valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, contentType));
                 }
             }
@@ -236,4 +288,14 @@ public class HttpHelper {
         return retval;
     }
 
+
+    private static boolean isObservable(SubmodelElementCollection property) {
+        boolean retval = false;
+        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            String obsText = prop.getValue();
+            retval = Boolean.parseBoolean(obsText);
+        }
+        return retval;
+    }
 }
