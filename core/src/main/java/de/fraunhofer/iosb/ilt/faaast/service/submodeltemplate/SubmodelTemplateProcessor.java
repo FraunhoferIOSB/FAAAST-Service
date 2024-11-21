@@ -43,4 +43,14 @@ public interface SubmodelTemplateProcessor<T extends SubmodelTemplateProcessorCo
      * @return true if submodel has been modified, false otherwise
      */
     public boolean process(Submodel submodel, AssetConnectionManager assetConnectionManager);
+
+
+    /**
+     * Processes a given submodel to update the information.
+     *
+     * @param submodel the submodel to check
+     * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
+     * @return true if submodel has been modified, false otherwise
+     */
+    public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager);
 }

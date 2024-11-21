@@ -371,6 +371,15 @@ public class Service implements ServiceContext {
     }
 
 
+    private void updateSubmodel(Submodel submodel) throws PersistenceException {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
+                persistence.save(submodel);
+            }
+        }
+    }
+
+
     private void subscribeMessageBus() throws MessageBusException {
         if (subscriptions == null) {
             subscriptions = new ArrayList<>();
@@ -436,9 +445,12 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementUpdated(Reference element, Referable value) {
+    private void elementUpdated(Reference element, Referable value) throws PersistenceException {
         Ensure.requireNonNull(element, ELEMENT_NULL);
         Ensure.requireNonNull(value, VALUE_NULL);
 
+        if (value instanceof Submodel submodel) {
+            updateSubmodel(submodel);
+        }
     }
 }
