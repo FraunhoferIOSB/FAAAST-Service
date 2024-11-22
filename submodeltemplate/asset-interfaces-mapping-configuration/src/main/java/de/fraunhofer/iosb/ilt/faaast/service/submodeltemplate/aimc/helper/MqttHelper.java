@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -24,11 +26,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
@@ -57,13 +61,14 @@ public class MqttHelper {
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
      * @param assetConnectionManager The AssetConnectionManager.
+     * @param mode The desired Processing Mode.
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist..
      * @throws ConfigurationException if invalid configuration is provided.
      * @throws AssetConnectionException if there is an error in the Asset Connection.
      */
     public static void processInterfaceMqtt(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
-                                            List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager)
+                                            List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
             throws ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
@@ -88,12 +93,33 @@ public class MqttHelper {
         String contentType = Util.getContentType(metadata);
 
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        processRelationsMqtt(serviceContext, relations, subscriptionProviders, contentType);
+        if (mode == ProcessingMode.UPDATE) {
+            List<AssetConnection> connections = assetConnectionManager.getConnections();
+            for (var c: connections) {
+                if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
+                    Set<Reference> currentSubscriptionProviders = mac.asConfig().getSubscriptionProviders().keySet();
 
-        MqttAssetConnectionConfig assetConfig = assetConfigBuilder
-                .subscriptionProviders(subscriptionProviders)
-                .build();
-        assetConnectionManager.add(assetConfig);
+                    // search for removed providers
+                    for (var k: currentSubscriptionProviders) {
+                        if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
+                            mac.unregisterSubscriptionProvider(k);
+                        }
+                    }
+                    updateRelationsMqtt(new RelationData(serviceContext, relations, contentType), subscriptionProviders, currentSubscriptionProviders);
+                }
+            }
+        }
+        else if (mode == ProcessingMode.ADD) {
+            processRelationsMqtt(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+        }
+
+        if (!subscriptionProviders.isEmpty()) {
+            LOGGER.debug("processInterfaceMqtt: add {} subscriptionProviders", subscriptionProviders.size());
+            MqttAssetConnectionConfig assetConfig = assetConfigBuilder
+                    .subscriptionProviders(subscriptionProviders)
+                    .build();
+            assetConnectionManager.add(assetConfig);
+        }
     }
 
 
@@ -118,12 +144,22 @@ public class MqttHelper {
     }
 
 
-    private static void processRelationsMqtt(ServiceContext serviceContext, List<RelationshipElement> relations,
-                                             Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, String contentType)
+    private static void processRelationsMqtt(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
             throws PersistenceException, ResourceNotFoundException {
-        for (var r: relations) {
-            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, contentType));
+        for (var r: data.getRelations()) {
+            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
+                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, data.getContentType()));
+            }
+        }
+    }
+
+
+    private static void updateRelationsMqtt(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, Set<Reference> currentSubscriptions)
+            throws PersistenceException, ResourceNotFoundException {
+        for (var r: data.getRelations()) {
+            if ((EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property)
+                    && (!currentSubscriptions.contains(r.getSecond()))) {
+                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, data.getContentType()));
             }
         }
     }

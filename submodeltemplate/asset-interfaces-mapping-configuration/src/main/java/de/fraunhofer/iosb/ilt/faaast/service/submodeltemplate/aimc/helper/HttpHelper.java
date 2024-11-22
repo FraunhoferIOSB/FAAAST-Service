@@ -100,39 +100,36 @@ public class HttpHelper {
 
         Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        HttpAssetConnection assetConnection = null;
-        boolean callAdd = false;
         if (mode == ProcessingMode.UPDATE) {
             List<AssetConnection> connections = assetConnectionManager.getConnections();
             for (var c: connections) {
                 if ((c instanceof HttpAssetConnection hac) && (new URI(base).equals(hac.asConfig().getBaseUrl().toURI()))) {
-                    assetConnection = hac;
                     Set<Reference> currentValueProviders = hac.asConfig().getValueProviders().keySet();
                     Set<Reference> currentSubscriptionProviders = hac.asConfig().getSubscriptionProviders().keySet();
 
                     // search for removed providers
                     for (var k: currentValueProviders) {
                         if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
-                            assetConnection.unregisterValueProvider(k);
+                            hac.unregisterValueProvider(k);
                         }
                     }
                     for (var k: currentSubscriptionProviders) {
                         if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
-                            assetConnection.unregisterSubscriptionProvider(k);
+                            hac.unregisterSubscriptionProvider(k);
                         }
                     }
-                    updateRelationsHttp(serviceContext, relations, subscriptionProviders, valueProviders, base, contentType, currentSubscriptionProviders, currentValueProviders);
-                    callAdd = !(subscriptionProviders.isEmpty() && valueProviders.isEmpty());
+                    updateRelationsHttp(new RelationData(serviceContext, relations, contentType), subscriptionProviders, valueProviders, base, currentSubscriptionProviders,
+                            currentValueProviders);
                     break;
                 }
             }
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelationsHttp(serviceContext, relations, subscriptionProviders, base, contentType, valueProviders);
-            callAdd = true;
+            processRelationsHttp(new RelationData(serviceContext, relations, contentType), subscriptionProviders, base, valueProviders);
         }
 
-        if (callAdd) {
+        if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
+            LOGGER.debug("processInterfaceHttp: add {} valueProviders; {} subscriptionProviders", valueProviders.size(), subscriptionProviders.size());
             HttpAssetConnectionConfig assetConfig = assetConfigBuilder
                     .valueProviders(valueProviders)
                     .subscriptionProviders(subscriptionProviders)
@@ -142,37 +139,36 @@ public class HttpHelper {
     }
 
 
-    private static void processRelationsHttp(ServiceContext serviceContext, List<RelationshipElement> relations,
-                                             Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, String base, String contentType,
+    private static void processRelationsHttp(RelationData data,
+                                             Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, String base,
                                              Map<Reference, HttpValueProviderConfig> valueProviders)
             throws PersistenceException, ResourceNotFoundException {
-        for (var r: relations) {
-            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
+        for (var r: data.getRelations()) {
+            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
                 if (isObservable(property)) {
-                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, contentType));
+                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, data.getContentType()));
                 }
                 else {
-                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, contentType));
+                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, data.getContentType()));
                 }
             }
         }
     }
 
 
-    private static void updateRelationsHttp(ServiceContext serviceContext, List<RelationshipElement> relations,
+    private static void updateRelationsHttp(RelationData data,
                                             Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders, Map<Reference, HttpValueProviderConfig> valueProviders,
-                                            String base, String contentType,
-                                            Set<Reference> currentSubscriptions, Set<Reference> currentValues)
+                                            String base, Set<Reference> currentSubscriptions, Set<Reference> currentValues)
             throws PersistenceException, ResourceNotFoundException {
-        for (var r: relations) {
-            if (EnvironmentHelper.resolve(r.getFirst(), serviceContext.getAASEnvironment()) instanceof SubmodelElementCollection property) {
+        for (var r: data.getRelations()) {
+            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
                 if (isObservable(property)) {
                     if (!currentSubscriptions.contains(r.getSecond())) {
-                        subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, contentType));
+                        subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, data.getContentType()));
                     }
                 }
                 else if (!currentValues.contains(r.getSecond())) {
-                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, contentType));
+                    valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, data.getContentType()));
                 }
             }
         }

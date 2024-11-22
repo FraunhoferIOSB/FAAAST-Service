@@ -95,13 +95,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    /**
-     * Update the given Submodel.
-     *
-     * @param submodel The desired Submodel.
-     * @param assetConnectionManager The Asset Connection Manager.
-     * @return True, if the Submodel was processed successfully, false otherwise.
-     */
+    @Override
     public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager) {
         Ensure.requireNonNull(submodel);
         Ensure.requireNonNull(assetConnectionManager);
@@ -156,7 +150,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 }
                 else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
                     // MQTT Interface
-                    MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager);
+                    MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
                 }
             }
         }
@@ -164,24 +158,6 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             LOGGER.debug("processInterfaceReference: Interface not a SubmodelElementCollection");
         }
     }
-
-    //    private void updateSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager) {
-    //        SubmodelElementList mappingConfigurations = getMappingConfiguration(submodel);
-    //        for (var c: mappingConfigurations.getValue()) {
-    //            if (c instanceof SubmodelElementCollection configuration) {
-    //                updateConfiguration(configuration, assetConnectionManager);
-    //            }
-    //            else {
-    //                LOGGER.debug("processSubmodel: element {} not a Collection", c);
-    //            }
-    //        }
-    //    }
-    //    
-    //    
-    //    private void updateConfiguration(SubmodelElementCollection configuration, AssetConnectionManager assetConnectionManager) {
-    //        List<RelationshipElement> relations = getMappingRelations(configuration);
-    //        updateInterfaceReference(configuration, relations, assetConnectionManager);
-    //    }
 
 
     private static List<RelationshipElement> getRelationshipElements(List<SubmodelElement> relations) {
