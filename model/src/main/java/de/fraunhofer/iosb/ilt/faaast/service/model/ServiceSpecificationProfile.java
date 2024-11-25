@@ -86,6 +86,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -452,6 +453,8 @@ public enum ServiceSpecificationProfile {
             "https://github.com/FraunhoferIOSB/FAAAST-Service/API/1/1/Reset",
             List.of(),
             List.of(ResetRequest.class));
+
+    public static List<ServiceSpecificationProfile> ALL = Arrays.asList(ServiceSpecificationProfile.values());
 
     private final String id;
     private final List<Interface> interfaces;
