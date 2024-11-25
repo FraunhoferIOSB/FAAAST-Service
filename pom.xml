@@ -226,7 +226,7 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${maven.plugin.owasp.version}</version>
                     <configuration>
-                        <nvdApiServerId>NIST_NVD_API</nvdApiServerId>
+                        <nvdApiKey>${env.NIST_NVD_API_KEY}</nvdApiKey>
                         <failBuildOnCVSS>6</failBuildOnCVSS>
                         <suppressionFiles>
                             <suppressionFile>owaspSuppressions.xml</suppressionFile>
