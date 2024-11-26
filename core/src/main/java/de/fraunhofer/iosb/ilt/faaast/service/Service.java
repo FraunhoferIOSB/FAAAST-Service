@@ -355,16 +355,16 @@ public class Service implements ServiceContext {
         }
         List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
         for (var submodel: submodels) {
-            processSubmodel(submodel);
+            addSubmodel(submodel);
         }
 
         subscribeMessageBus();
     }
 
 
-    private void processSubmodel(Submodel submodel) throws PersistenceException {
+    private void addSubmodel(Submodel submodel) throws PersistenceException {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
                 persistence.save(submodel);
             }
         }
@@ -380,13 +380,22 @@ public class Service implements ServiceContext {
     }
 
 
+    private void deleteSubmodel(Submodel submodel) throws PersistenceException {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
+                persistence.save(submodel);
+            }
+        }
+    }
+
+
     private void subscribeMessageBus() throws MessageBusException {
         if (subscriptions == null) {
             subscriptions = new ArrayList<>();
         }
         SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
             try {
-                elementCreated(x.getElement(), x.getValue());
+                elementCreated(x.getValue());
             }
             catch (Exception e) {
                 LOGGER.error("elementCreated Exception", e);
@@ -396,7 +405,7 @@ public class Service implements ServiceContext {
 
         info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
             try {
-                elementDeleted(x.getElement());
+                elementDeleted(x.getValue());
             }
             catch (Exception e) {
                 LOGGER.error("elementDeleted Exception", e);
@@ -406,7 +415,7 @@ public class Service implements ServiceContext {
 
         info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
             try {
-                elementUpdated(x.getElement(), x.getValue());
+                elementUpdated(x.getValue());
             }
             catch (Exception e) {
                 LOGGER.error("elementUpdated Exception", e);
@@ -429,24 +438,25 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementCreated(Reference element, Referable value) throws PersistenceException {
-        Ensure.requireNonNull(element, ELEMENT_NULL);
+    private void elementCreated(Referable value) throws PersistenceException {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         if (value instanceof Submodel submodel) {
-            processSubmodel(submodel);
+            addSubmodel(submodel);
         }
     }
 
 
-    private void elementDeleted(Reference element) {
-        Ensure.requireNonNull(element, ELEMENT_NULL);
+    private void elementDeleted(Referable value) throws PersistenceException, ResourceNotFoundException {
+        Ensure.requireNonNull(value, ELEMENT_NULL);
 
+        if (value instanceof Submodel submodel) {
+            deleteSubmodel(submodel);
+        }
     }
 
 
-    private void elementUpdated(Reference element, Referable value) throws PersistenceException {
-        Ensure.requireNonNull(element, ELEMENT_NULL);
+    private void elementUpdated(Referable value) throws PersistenceException {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         if (value instanceof Submodel submodel) {
