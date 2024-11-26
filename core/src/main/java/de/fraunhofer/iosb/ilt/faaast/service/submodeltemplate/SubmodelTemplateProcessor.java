@@ -36,13 +36,13 @@ public interface SubmodelTemplateProcessor<T extends SubmodelTemplateProcessorCo
 
 
     /**
-     * Processes a given submodel, e.g.by adding elements or modify the configuration.
+     * Processes a given submodel, by adding elements.
      *
      * @param submodel the submodel to check
      * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
      * @return true if submodel has been modified, false otherwise
      */
-    public boolean process(Submodel submodel, AssetConnectionManager assetConnectionManager);
+    public boolean add(Submodel submodel, AssetConnectionManager assetConnectionManager);
 
 
     /**
@@ -53,4 +53,14 @@ public interface SubmodelTemplateProcessor<T extends SubmodelTemplateProcessorCo
      * @return true if submodel has been modified, false otherwise
      */
     public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager);
+
+
+    /**
+     * Processes a given submodel to delete the information.
+     *
+     * @param submodel the submodel to check
+     * @param assetConnectionManager manager for asset connection, can be used to modify underlying asset connection
+     * @return true if submodel has been modified, false otherwise
+     */
+    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager);
 }
