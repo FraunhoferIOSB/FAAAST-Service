@@ -762,7 +762,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testResultNotFound() throws Exception {
         Result expected = Result.builder()
-                .messages(MessageType.ERROR, HttpStatus.getMessage(404))
+                .messages(MessageTypeEnum.ERROR, HttpStatus.getMessage(404))
                 .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)

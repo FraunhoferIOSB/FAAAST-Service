@@ -14,18 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.BaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.BaseOperationResultBuilder;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 
 
 /**
  * The AbstractBaseOperationResultBuilder extends the functionalities of aas4js BaseOperationBuilder.
  * 
  */
-public abstract class AbstractBaseOperationResultBuilder<T extends BaseOperationResult, B extends AbstractBaseOperationResultBuilder<T, B>> extends BaseOperationResultBuilder<T, B> {
+public abstract class AbstractBaseOperationResultBuilder<T extends BaseOperationResult, B extends AbstractBaseOperationResultBuilder<T, B>>
+        extends BaseOperationResultBuilder<T, B> {
 
     /**
      * Adds a message with the specified message type and message text.

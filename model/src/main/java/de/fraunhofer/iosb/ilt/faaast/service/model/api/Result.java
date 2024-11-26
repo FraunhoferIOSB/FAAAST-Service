@@ -34,6 +34,7 @@ public class Result extends DefaultResult {
             return this;
         }
 
+
         @Override
         protected Result newBuildingInstance() {
             return new Result();

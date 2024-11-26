@@ -34,6 +34,7 @@ public class OperationResult extends DefaultOperationResult {
             return this;
         }
 
+
         @Override
         protected OperationResult newBuildingInstance() {
             return new OperationResult();

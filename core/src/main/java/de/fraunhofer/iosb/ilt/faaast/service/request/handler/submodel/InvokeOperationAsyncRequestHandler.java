@@ -78,7 +78,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                         .executionState(ExecutionState.FAILED)
                         .inoutputArguments(inoutput)
                         .outputArguments(List.of())
-                        .message(MessageTypeEnum.ERROR, String.format(
+                        .messages(MessageTypeEnum.ERROR, String.format(
                                 "operation failed to execute (reason: %s)",
                                 error.getMessage()))
                         .success(false)

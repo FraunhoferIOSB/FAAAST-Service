@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DateStringHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
 import java.sql.Date;
@@ -215,7 +215,7 @@ public class ValueOnlyExamples {
                     .messages(Message.builder()
                             .messageType(MessageTypeEnum.INFO)
                             .text("some message text")
-                            .timestamp(DateStringHelper.formateToString(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant())))
+                            .timestamp(FormatToISO8601.formateToISO8601(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant())))
                             .build())
                     .build())
             .build();

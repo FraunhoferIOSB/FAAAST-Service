@@ -14,7 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 
 

@@ -14,11 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.OperationResultBuilder;
-
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 
 
 /**

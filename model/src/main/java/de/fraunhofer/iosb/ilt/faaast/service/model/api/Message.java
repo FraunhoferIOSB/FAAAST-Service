@@ -14,13 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
 import java.util.Date;
-
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
-
-import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
 
 
 /**
