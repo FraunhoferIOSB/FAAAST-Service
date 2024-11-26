@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.DateStringHelper;
 import java.util.Date;
+
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.MessageBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMessage;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
 
 
 /**
@@ -29,7 +31,7 @@ public class Message extends DefaultMessage {
     // enshure variables are set to the default values as required by the implementation 
     public Message() {
         Date date = new Date();
-        this.timestamp = DateStringHelper.formateToString(date);
+        this.timestamp = FormatToISO8601.formateToISO8601(date);
         this.text = "";
         this.code = "";
         this.messageType = MessageTypeEnum.INFO;

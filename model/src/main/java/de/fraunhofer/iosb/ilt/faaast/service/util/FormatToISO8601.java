@@ -16,27 +16,28 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
- * Generic helper functions to convert Date type into String type.
+ * Converts Date type into String type according to ISO 8601 format.
  */
-public class DateStringHelper {
+public class FormatToISO8601 {
 
-    private DateStringHelper() {}
+    private FormatToISO8601() {}
 
 
     /**
-     * Convert Date object into stringr.
+     * Convert Date object into string according to ISO 8601.
      *
      * @param date the Date object to covert
-     * @return the corresponding string representation in format ("yyyy-MM-dd'T'HH:mm:ss")
+     * @return the corresponding string representation in ISO 8601 format
      * @throws IllegalArgumentException if the value is not a valid date
      */
-    public static String formateToString(Date date) {
+    public static String formateToISO8601(Date date) {
 
-        // ? Which timeformat is required - both with milisec & timzone and without are consitent with the spec
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+        formatter.setTimeZone(TimeZone.getTimeZone("CET"));
 
         return formatter.format(date);
 

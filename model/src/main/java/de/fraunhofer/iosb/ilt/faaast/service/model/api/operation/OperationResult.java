@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.OperationResultBuilderHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AbstractOperationResultBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 
 
@@ -27,13 +27,12 @@ public class OperationResult extends DefaultOperationResult {
         return new Builder();
     }
 
-    public static class Builder extends OperationResultBuilderHelper<OperationResult, Builder> {
+    public static class Builder extends AbstractOperationResultBuilder<OperationResult, Builder> {
 
         @Override
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected OperationResult newBuildingInstance() {

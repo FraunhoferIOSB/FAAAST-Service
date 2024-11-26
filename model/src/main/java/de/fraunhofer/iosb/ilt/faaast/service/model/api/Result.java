@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.ResultBuilderHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AbstractResultBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 
 
@@ -27,13 +27,12 @@ public class Result extends DefaultResult {
         return new Builder();
     }
 
-    public static class Builder extends ResultBuilderHelper<Result, Builder> {
+    public static class Builder extends AbstractResultBuilder<Result, Builder> {
 
         @Override
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected Result newBuildingInstance() {
