@@ -365,6 +365,7 @@ public class Service implements ServiceContext {
     private void addSubmodel(Submodel submodel) throws PersistenceException {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
             if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
+                LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
                 persistence.save(submodel);
             }
         }
@@ -374,6 +375,7 @@ public class Service implements ServiceContext {
     private void updateSubmodel(Submodel submodel) throws PersistenceException {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
             if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
+                LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
                 persistence.save(submodel);
             }
         }
@@ -383,7 +385,7 @@ public class Service implements ServiceContext {
     private void deleteSubmodel(Submodel submodel) throws PersistenceException {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
             if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
-                persistence.save(submodel);
+                LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
             }
         }
     }

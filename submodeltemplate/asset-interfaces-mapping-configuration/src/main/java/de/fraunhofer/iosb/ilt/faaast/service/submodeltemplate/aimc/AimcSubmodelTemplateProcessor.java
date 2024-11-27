@@ -63,7 +63,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     @Override
-    public boolean process(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+    public boolean add(Submodel submodel, AssetConnectionManager assetConnectionManager) {
         Ensure.requireNonNull(submodel);
         Ensure.requireNonNull(assetConnectionManager);
         boolean retval;
@@ -108,6 +108,24 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         catch (Exception ex) {
             LOGGER.error("error updating SMT AIMC (submodel: {})", AasUtils.asString(AasUtils.toReference(submodel)), ex);
+            retval = false;
+        }
+        return retval;
+    }
+
+
+    @Override
+    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+        Ensure.requireNonNull(submodel);
+        Ensure.requireNonNull(assetConnectionManager);
+        boolean retval;
+        try {
+            LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            retval = true;
+        }
+        catch (Exception ex) {
+            LOGGER.error("error deleting SMT AIMC (submodel: {})", AasUtils.asString(AasUtils.toReference(submodel)), ex);
             retval = false;
         }
         return retval;

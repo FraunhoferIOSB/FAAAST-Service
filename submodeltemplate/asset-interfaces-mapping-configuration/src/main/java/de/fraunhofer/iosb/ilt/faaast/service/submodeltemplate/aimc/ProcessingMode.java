@@ -19,5 +19,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
  */
 public enum ProcessingMode {
     ADD,
-    UPDATE
+    UPDATE,
+    DELETE
 }

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
@@ -98,28 +99,47 @@ public class HttpHelper {
         // contentType
         String contentType = Util.getContentType(metadata);
 
+        boolean removeAssetConnection = false;
         Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        if (mode == ProcessingMode.UPDATE) {
+        if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
             List<AssetConnection> connections = assetConnectionManager.getConnections();
             for (var c: connections) {
                 if ((c instanceof HttpAssetConnection hac) && (new URI(base).equals(hac.asConfig().getBaseUrl().toURI()))) {
-                    Set<Reference> currentValueProviders = hac.asConfig().getValueProviders().keySet();
-                    Set<Reference> currentSubscriptionProviders = hac.asConfig().getSubscriptionProviders().keySet();
+                    Set<Reference> currentValueProviders = hac.getValueProviders().keySet();
+                    Set<Reference> currentSubscriptionProviders = hac.getSubscriptionProviders().keySet();
 
                     // search for removed providers
                     for (var k: currentValueProviders) {
-                        if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
+                        if (((mode == ProcessingMode.UPDATE) && relations.stream().noneMatch(r -> r.getSecond().equals(k)))
+                                || ((mode == ProcessingMode.DELETE) && relations.stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                            LOGGER.trace("processInterfaceHttp: unregisterValueProvider: {}", AasUtils.asString(k));
                             hac.unregisterValueProvider(k);
                         }
+                        //else if ((mode == ProcessingMode.DELETE) && relations.stream().anyMatch(r -> r.getSecond().equals(k))) {
+                        //    hac.unregisterValueProvider(k);
+                        //    LOGGER.trace("processInterfaceHttp: unregisterValueProvider: {}", AasUtils.asString(k));
+                        //}
                     }
                     for (var k: currentSubscriptionProviders) {
-                        if (relations.stream().noneMatch(r -> r.getSecond().equals(k))) {
+                        if (((mode == ProcessingMode.UPDATE) && relations.stream().noneMatch(r -> r.getSecond().equals(k)))
+                                || ((mode == ProcessingMode.DELETE) && relations.stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                            LOGGER.trace("processInterfaceHttp: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
                             hac.unregisterSubscriptionProvider(k);
                         }
+                        //else if ((mode == ProcessingMode.DELETE) && relations.stream().anyMatch(r -> r.getSecond().equals(k))) {
+                        //    LOGGER.trace("processInterfaceHttp: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                        //    hac.unregisterSubscriptionProvider(k);
+                        //}
                     }
-                    updateRelationsHttp(new RelationData(serviceContext, relations, contentType), subscriptionProviders, valueProviders, base, currentSubscriptionProviders,
-                            currentValueProviders);
+                    if (mode != ProcessingMode.DELETE) {
+                        updateRelationsHttp(new RelationData(serviceContext, relations, contentType), subscriptionProviders, valueProviders, base, currentSubscriptionProviders,
+                                currentValueProviders);
+                    }
+                    else if (hac.getValueProviders().isEmpty() && hac.getSubscriptionProviders().isEmpty()
+                            && hac.getOperationProviders().isEmpty()) {
+                        removeAssetConnection = true;
+                    }
                     break;
                 }
             }
@@ -135,6 +155,10 @@ public class HttpHelper {
                     .subscriptionProviders(subscriptionProviders)
                     .build();
             assetConnectionManager.add(assetConfig);
+        }
+        else if (removeAssetConnection) {
+            // TODO: remove asset connection if mode DELETE and no more providers are available
+            LOGGER.debug("processInterfaceHttp: remove AssetConnection");
         }
     }
 
