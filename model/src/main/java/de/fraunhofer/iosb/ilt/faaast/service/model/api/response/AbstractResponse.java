@@ -44,7 +44,7 @@ public abstract class AbstractResponse implements Response {
 
     protected AbstractResponse() {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        this.result = Result.builder().build();
+        this.result = new Result.Builder().build();
     }
 
 
@@ -68,7 +68,7 @@ public abstract class AbstractResponse implements Response {
      */
     public void setError(StatusCode statusCode, String message) {
         setStatusCode(statusCode);
-        setResult(Result.builder()
+        setResult(new Result.Builder()
                 .messages(MessageTypeEnum.ERROR, message)
                 .build());
     }
@@ -122,7 +122,7 @@ public abstract class AbstractResponse implements Response {
         public B error(StatusCode statusCode, String message) {
             getBuildingInstance().setStatusCode(statusCode);
             getBuildingInstance().setResult(
-                    Result.builder()
+                    new Result.Builder()
                             .messages(MessageTypeEnum.ERROR, message)
                             .build());
             return getSelf();

@@ -37,7 +37,7 @@ public class FormatToISO8601 {
     public static String formateToISO8601(Date date) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
-        formatter.setTimeZone(TimeZone.getTimeZone("CET"));
+        formatter.setTimeZone(TimeZone.getDefault());
 
         return formatter.format(date);
 

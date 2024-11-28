@@ -1535,7 +1535,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
         GetSubmodelByIdResponse actual = manager.execute(request);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
-                .result(Result.builder()
+                .result(new Result.Builder()
                         .messages(MessageTypeEnum.ERROR, "Resource not found with id")
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
@@ -1551,7 +1551,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request);
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.builder()
+                .result(new Result.Builder()
                         .messages(MessageTypeEnum.ERROR, "Resource not found with id")
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)

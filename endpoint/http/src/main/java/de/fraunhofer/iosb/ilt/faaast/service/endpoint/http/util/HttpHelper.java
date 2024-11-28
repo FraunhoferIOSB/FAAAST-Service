@@ -136,7 +136,7 @@ public class HttpHelper {
     public static void send(HttpServletResponse response, StatusCode statusCode) throws InvalidRequestException {
         send(response,
                 statusCode,
-                Result.builder()
+                new Result.Builder()
                         .messages(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
                         .build());
     }
@@ -248,7 +248,7 @@ public class HttpHelper {
         try {
             send(response,
                     StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
+                    new Result.Builder()
                             .messages(MessageTypeEnum.EXCEPTION, exception.getMessage())
                             .build());
         }

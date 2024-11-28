@@ -25,7 +25,7 @@ public class InternalErrorResponse extends AbstractResponse {
 
     public InternalErrorResponse(String message) {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        this.result = Result.builder()
+        this.result = new Result.Builder()
                 .messages(MessageTypeEnum.EXCEPTION, message)
                 .build();
     }

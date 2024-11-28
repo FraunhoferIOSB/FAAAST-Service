@@ -45,7 +45,7 @@ public class HttpJsonSerializerTest {
     public void testResult() throws SerializationException, ParseException, JSONException, UnsupportedModifierException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Result result = Result.builder()
+        Result result = new Result.Builder()
                 .messages(Message.builder()
                         .text(HttpStatus.getMessage(404))
                         .messageType(MessageTypeEnum.ERROR)

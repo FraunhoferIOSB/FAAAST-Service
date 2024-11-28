@@ -111,7 +111,7 @@ public class HttpErrorHandler extends ErrorHandler {
 
 
     private void send(Response response, StatusCode statusCode, Throwable cause, Callback callback) {
-        Result result = Result.builder()
+        Result result = new Result.Builder()
                 .messages(
                         HttpHelper.messageTypeFromstatusCode(statusCode),
                         Objects.nonNull(cause) && !StringHelper.isEmpty(cause.getMessage())
