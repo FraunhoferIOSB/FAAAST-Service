@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
@@ -38,7 +37,7 @@ public class HttpJsonSerializerTest {
 
     @Test
     public void testEnumsWithCustomNaming() throws SerializationException, UnsupportedModifierException {
-        Assert.assertEquals("\"Error\"", serializer.write(MessageType.ERROR));
+        Assert.assertEquals("\"Error\"", serializer.write(MessageTypeEnum.ERROR));
     }
 
 

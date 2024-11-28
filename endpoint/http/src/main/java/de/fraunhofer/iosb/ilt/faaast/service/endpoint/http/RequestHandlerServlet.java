@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.jetty.server.Response;
 
 
@@ -126,7 +126,7 @@ public class RequestHandlerServlet extends HttpServlet {
                         .orElse(List.of())
                         .stream()
                         .map(message -> message.getMessageType())
-                        .noneMatch(x -> Objects.equals(x, MessageType.ERROR) || Objects.equals(x, MessageType.EXCEPTION));
+                        .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
     }
 
 }
