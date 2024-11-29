@@ -65,6 +65,12 @@ public class LambdaSubscriptionProvider implements AssetSubscriptionProvider, Ne
         return new Builder();
     }
 
+
+    @Override
+    public void unsubscribe() throws AssetConnectionException {
+        listeners.clear();
+    }
+
     public static class Builder extends ExtendableBuilder<LambdaSubscriptionProvider, Builder> {
 
         public Builder generate(Consumer<NewDataListener> value) {

@@ -68,7 +68,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
 
     @Override
-    protected void unsubscribe() throws AssetConnectionException {
+    public void unsubscribe() throws AssetConnectionException {
         multiplexer.removeListener(config.getTopic(), this::fireNewDataReceived);
     }
 

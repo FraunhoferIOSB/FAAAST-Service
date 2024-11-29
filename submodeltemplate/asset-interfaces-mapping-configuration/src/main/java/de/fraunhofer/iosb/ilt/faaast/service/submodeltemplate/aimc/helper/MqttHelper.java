@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelT
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,31 +94,10 @@ public class MqttHelper {
         // contentType
         String contentType = Util.getContentType(metadata);
 
-        boolean removeAssetConnection = false;
+        List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
         if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-            List<AssetConnection> connections = assetConnectionManager.getConnections();
-            for (var c: connections) {
-                if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
-                    Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
-
-                    // search for removed providers
-                    for (var k: currentSubscriptionProviders) {
-                        if (((mode == ProcessingMode.UPDATE) && relations.stream().noneMatch(r -> r.getSecond().equals(k)))
-                                || ((mode == ProcessingMode.DELETE) && relations.stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                            LOGGER.trace("processInterfaceMqtt: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
-                            mac.unregisterSubscriptionProvider(k);
-                        }
-                    }
-                    if (mode != ProcessingMode.DELETE) {
-                        updateRelationsMqtt(new RelationData(serviceContext, relations, contentType), subscriptionProviders, currentSubscriptionProviders);
-                    }
-                    else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
-                            && mac.getOperationProviders().isEmpty()) {
-                        removeAssetConnection = true;
-                    }
-                }
-            }
+            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType), subscriptionProviders, assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
             processRelationsMqtt(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
@@ -130,9 +110,41 @@ public class MqttHelper {
                     .build();
             assetConnectionManager.add(assetConfig);
         }
-        else if (removeAssetConnection) {
-            // TODO: remove asset connection if mode DELETE and no more providers are available
-            LOGGER.debug("processInterfaceMqtt: remove AssetConnection");
+        else if (!assetConnectionsRemove.isEmpty()) {
+            // remove asset connection if mode DELETE and no more providers are available
+            LOGGER.debug("processInterfaceHttp: remove unused AssetConnections");
+            for (var connection: assetConnectionsRemove) {
+                assetConnectionManager.remove(connection);
+            }
+            assetConnectionsRemove.clear();
+        }
+    }
+
+
+    private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
+                                               Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
+            throws ResourceNotFoundException, PersistenceException {
+        List<AssetConnection> connections = assetConnectionManager.getConnections();
+        for (var c: connections) {
+            if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
+                Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
+
+                // search for removed providers
+                for (var k: currentSubscriptionProviders) {
+                    if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
+                            || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                        LOGGER.atTrace().log("processInterfaceMqtt: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                        mac.unregisterSubscriptionProvider(k);
+                    }
+                }
+                if (mode != ProcessingMode.DELETE) {
+                    updateRelationsMqtt(data, subscriptionProviders, currentSubscriptionProviders);
+                }
+                else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
+                        && mac.getOperationProviders().isEmpty()) {
+                    assetConnectionsRemove.add(c);
+                }
+            }
         }
     }
 

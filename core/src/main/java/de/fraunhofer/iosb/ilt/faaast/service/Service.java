@@ -382,7 +382,7 @@ public class Service implements ServiceContext {
     }
 
 
-    private void deleteSubmodel(Submodel submodel) throws PersistenceException {
+    private void deleteSubmodel(Submodel submodel) {
         for (var submodelTemplateProcessor: submodelTemplateProcessors) {
             if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
                 LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
@@ -449,7 +449,7 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementDeleted(Referable value) throws PersistenceException, ResourceNotFoundException {
+    private void elementDeleted(Referable value) {
         Ensure.requireNonNull(value, ELEMENT_NULL);
 
         if (value instanceof Submodel submodel) {

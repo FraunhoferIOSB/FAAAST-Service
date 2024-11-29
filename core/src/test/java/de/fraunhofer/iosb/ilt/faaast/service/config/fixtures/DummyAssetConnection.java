@@ -157,4 +157,16 @@ public class DummyAssetConnection
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
+    @Override
+    public void stop() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public boolean isActive() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

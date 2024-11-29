@@ -191,4 +191,16 @@ public class TestAssetConnection implements
             registerSubscriptionProvider(provider.getKey(), provider.getValue());
         }
     }
+
+
+    @Override
+    public void stop() {
+        // nothing to do here
+    }
+
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
 }

@@ -111,7 +111,8 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
      *
      * @throws AssetConnectionException if unsubscribe fails
      */
-    protected abstract void unsubscribe() throws AssetConnectionException;
+    @Override
+    public abstract void unsubscribe() throws AssetConnectionException;
 
 
     @Override

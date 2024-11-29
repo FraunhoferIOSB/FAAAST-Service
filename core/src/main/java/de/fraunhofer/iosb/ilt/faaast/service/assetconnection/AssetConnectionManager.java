@@ -196,7 +196,7 @@ public class AssetConnectionManager {
                     coreConfig.getAssetConnectionRetryInterval(),
                     e);
         }
-        while (active && !connection.isConnected()) {
+        while (active && connection.isActive() && !connection.isConnected()) {
             try {
                 tryConnecting(connection);
             }
@@ -276,11 +276,11 @@ public class AssetConnectionManager {
         Optional<AssetConnection> connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst();
         if (connection.isPresent()) {
             connectionConfig.getValueProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerValueProvider(k, (AssetValueProviderConfig) v)));
+                    (k, v) -> connection.get().registerValueProvider(k, v)));
             connectionConfig.getSubscriptionProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v)));
+                    (k, v) -> connection.get().registerSubscriptionProvider(k, v)));
             connectionConfig.getOperationProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerOperationProvider(k, (AssetOperationProviderConfig) v)));
+                    (k, v) -> connection.get().registerOperationProvider(k, v)));
         }
         else {
             connections.add(newConnection);
@@ -502,6 +502,23 @@ public class AssetConnectionManager {
             throw new InvalidConfigurationException(String.format("found %d subscription providers for reference %s but maximum 1 allowed",
                     subscriptionProviders.get().getValue().size(),
                     ReferenceHelper.toString(subscriptionProviders.get().getKey())));
+        }
+    }
+
+
+    /**
+     * Remove the given AssetConnection.
+     *
+     * @param connection The AssetConnection to remove.
+     */
+    public void remove(AssetConnection connection) {
+        if (connections.contains(connection)) {
+            connection.stop();
+
+            connections.remove(connection);
+        }
+        else {
+            throw new IllegalArgumentException("AssetConnection not found");
         }
     }
 }
