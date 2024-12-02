@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.submodeltemplate.Cardinality;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementListValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -24,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.SubmodelTemplateHelper;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,24 +66,44 @@ public class SubmodelElementListValueMapper implements DataValueMapper<SubmodelE
         int valueSize = Objects.nonNull(value.getValues())
                 ? value.getValues().size()
                 : 0;
-        if (elementSize == 1
-                && valueSize > 1
-                && SubmodelTemplateHelper.getCardinality(submodelElement.getValue().get(0)).getAllowsMultipleValues()) {
-            // we have a template that supports multiple elements
-            submodelElement.setValue(Stream.generate(() -> DeepCopyHelper.deepCopy(submodelElement.getValue().get(0)))
-                    .limit(valueSize)
-                    .collect(Collectors.toList()));
-            elementSize = valueSize;
+        if (valueSize == 0) {
+            if (Objects.nonNull(submodelElement.getValue())) {
+                submodelElement.getValue().clear();
+            }
+            return submodelElement;
         }
-        else if (elementSize < valueSize) {
-            LOGGER.warn("Loss of information - setting a value with size {} to a SubmodelElementList of size {} results in loss of information (id: {})",
+        if (elementSize == 0) {
+            throw new ValueMappingException(
+                    "unable to set value for empty SubmodelElementList - SubmodelElementList should contain required number of elements or a single element with cardinality > 1");
+        }
+        Cardinality cardinality = SubmodelTemplateHelper.getCardinality(submodelElement.getValue().get(0));
+        if (cardinality != Cardinality.UNDEFINED) {
+            if (elementSize > 1) {
+                throw new ValueMappingException(String.format(
+                        "when using cardinality constraints inside SubmodelElementList, the list may only contain a single element (found: %d)",
+                        elementSize));
+            }
+            if (cardinality.getAllowsMultipleValues()) {
+                submodelElement.setValue(Stream.generate(() -> {
+                    SubmodelElement temp = DeepCopyHelper.deepCopy(submodelElement.getValue().get(0));
+                    SubmodelTemplateHelper.removeCardinalities(temp);
+                    return temp;
+                })
+                        .limit(valueSize)
+                        .collect(Collectors.toList()));
+                elementSize = valueSize;
+            }
+        }
+        if (elementSize < valueSize) {
+            throw new ValueMappingException(String.format(
+                    "unable to set value for SubmodelElementList - list must contain required number of elements or a single element with cardinality > 1 (required: %d, actual: %d)",
                     valueSize,
-                    elementSize,
-                    submodelElement.getIdShort());
+                    elementSize));
         }
         for (int i = 0; i < Math.min(elementSize, valueSize); i++) {
             ElementValueMapper.setValue(submodelElement.getValue().get(i), value.getValues().get(i));
         }
+        submodelElement.setValue(submodelElement.getValue().subList(elementSize - valueSize, elementSize));
         return submodelElement;
     }
 }

@@ -315,13 +315,15 @@ public class Service implements ServiceContext {
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
-        if (config.getAssetConnections() != null) {
-            List<AssetConnection> assetConnections = new ArrayList<>();
+        requestExecutionContext = new DynamicRequestExecutionContext(this);
+        requestHandler = new RequestHandlerManager(config.getCore());
+        List<AssetConnection> assetConnections = new ArrayList<>();
+        if (Objects.nonNull(config.getAssetConnections())) {
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
                 assetConnections.add((AssetConnection) assetConnectionConfig.newInstance(config.getCore(), this));
             }
-            assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
@@ -333,9 +335,7 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(config.getCore());
-        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
-        this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
+        registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 
 

@@ -21,13 +21,14 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.E
  * Describes the cardinality of relationships used with submodel templates.
  */
 public enum Cardinality {
+    UNDEFINED(false),
     ONE(false),
     ZERO_TO_ONE(false),
     ZERO_TO_MANY(true),
     ONE_TO_MANY(true);
 
     public static final String SEMANTIC_ID = "https://admin-shell.io/SubmodelTemplates/Cardinality/1/0";
-    public static final Cardinality DEFAULT = Cardinality.ONE;
+    public static final Cardinality DEFAULT = Cardinality.UNDEFINED;
     private final boolean allowsMultipleValues;
 
     private Cardinality(boolean allowsMultipleValues) {

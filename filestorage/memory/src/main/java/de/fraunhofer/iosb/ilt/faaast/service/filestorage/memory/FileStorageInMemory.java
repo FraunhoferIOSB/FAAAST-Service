@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -42,6 +43,9 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
 
     @Override
     public void init(CoreConfig coreConfig, FileStorageInMemoryConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+        if (Objects.nonNull(config.getFiles())) {
+            files.putAll(config.getFiles());
+        }
         this.config = config;
         EnvironmentContext environmentContext = null;
         try {

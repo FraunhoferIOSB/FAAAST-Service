@@ -66,4 +66,23 @@ public class SubmodelTemplateHelper {
             return Cardinality.DEFAULT;
         }
     }
+
+
+    /**
+     * Removes the cardinality information from the qualifiable.
+     *
+     * @param element the element to check
+     */
+    public static void removeCardinalities(Qualifiable element) {
+        if (Objects.isNull(element)
+                || Objects.isNull(element.getQualifiers())
+                || element.getQualifiers().isEmpty()) {
+            return;
+        }
+        element.getQualifiers().removeIf(x -> Objects.nonNull(x)
+                && x.getKind() == QualifierKind.TEMPLATE_QUALIFIER
+                && x.getValueType() == DataTypeDefXsd.STRING
+                && Objects.equals(x.getType(), Cardinality.class.getSimpleName()));
+
+    }
 }
