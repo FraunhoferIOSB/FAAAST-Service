@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -30,7 +29,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
-    protected List<ServiceSpecificationProfile> profiles = new ArrayList<>();
+    protected List<ServiceSpecificationProfile> profiles = ServiceSpecificationProfile.ALL;
 
     public List<ServiceSpecificationProfile> getProfiles() {
         return profiles;
