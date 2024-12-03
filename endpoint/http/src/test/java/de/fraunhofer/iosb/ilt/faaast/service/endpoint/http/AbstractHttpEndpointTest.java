@@ -722,7 +722,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultServerError() throws Exception {
-        Result expected = new Result.Builder()
+        Result expected = Result.builder()
                 .messages(MessageTypeEnum.ERROR, HttpStatus.getMessage(500))
                 .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
@@ -738,7 +738,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Result expected = new Result.Builder()
+        Result expected = Result.builder()
                 .messages(MessageTypeEnum.ERROR, "no matching request mapper found for URL 'shellsX'")
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
@@ -749,7 +749,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        Result expected = new Result.Builder()
+        Result expected = Result.builder()
                 .messages(MessageTypeEnum.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
                 .build();
         ContentResponse response = execute(HttpMethod.PUT, "/shells");
@@ -760,7 +760,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultNotFound() throws Exception {
-        Result expected = new Result.Builder()
+        Result expected = Result.builder()
                 .messages(MessageTypeEnum.ERROR, HttpStatus.getMessage(404))
                 .build();
         when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()

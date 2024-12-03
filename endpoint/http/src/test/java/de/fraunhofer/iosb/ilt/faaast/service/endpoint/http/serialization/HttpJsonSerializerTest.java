@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.FormatToISO8601;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -50,7 +49,7 @@ public class HttpJsonSerializerTest {
                         .text(HttpStatus.getMessage(404))
                         .messageType(MessageTypeEnum.ERROR)
                         .code(HttpStatus.getMessage(404))
-                        .timestamp(FormatToISO8601.formateToISO8601(dateFormat.parse("01-01-2022 00:00:00")))
+                        .timestamp("2022-01-01T00:00:00.000+00:00")
                         .build())
                 .build();
         String actual = serializer.write(result);
