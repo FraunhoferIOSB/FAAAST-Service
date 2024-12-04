@@ -76,7 +76,7 @@
         <aas4j.version>1.0.3</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.79</bouncycastle.version>
-        <checkstyle.version>10.20.1</checkstyle.version>
+        <checkstyle.version>10.20.2</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -87,7 +87,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.18.1</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.17.3</equalsverifier.version>
+        <equalsverifier.version>3.17.4</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.3.1-jre</guava.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
