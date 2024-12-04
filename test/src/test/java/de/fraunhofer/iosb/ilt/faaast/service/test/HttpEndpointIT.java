@@ -61,6 +61,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
@@ -78,7 +79,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
-import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
@@ -92,10 +93,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
@@ -143,6 +144,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
@@ -251,17 +253,17 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     private void injectSpyAssetConnectionManager(ServiceConfig serviceConfig) throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
         assetConnectionManager = spy(service.getAssetConnectionManager());
-        setField(service, "assetConnectionManager", assetConnectionManager);
-        requestHandlerManager = new RequestHandlerManager(new RequestExecutionContext(
+        ReflectionHelper.setField(service, "assetConnectionManager", assetConnectionManager);
+        StaticRequestExecutionContext requestExecutionContext = new StaticRequestExecutionContext(
                 serviceConfig.getCore(),
-                getField(service, "persistence", Persistence.class),
-                getField(service, "fileStorage", FileStorage.class),
+                ReflectionHelper.getField(service, "persistence", Persistence.class),
+                ReflectionHelper.getField(service, "fileStorage", FileStorage.class),
                 messageBus,
-                assetConnectionManager));
-        setField(service, "requestHandler", requestHandlerManager);
-        List<Endpoint> endpoints = (List<Endpoint>) getField(service, "endpoints", List.class);
+                assetConnectionManager);
+        ReflectionHelper.setField(service, "requestExecutionContext", requestExecutionContext);
+        List<Endpoint> endpoints = (List<Endpoint>) ReflectionHelper.getField(service, "endpoints", List.class);
         for (var endpoint: endpoints) {
-            setField(endpoint, "serviceContext", service);
+            ReflectionHelper.setField(endpoint, "serviceContext", service);
         }
     }
 
@@ -2719,6 +2721,128 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
+    @Test
+    public void testProprietaryReset()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        HttpResponse response = HttpHelper.execute(
+                httpClient,
+                HttpMethod.GET,
+                apiPaths.proprietaryInterface().reset());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), response.statusCode());
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.aasRepository().assetAdministrationShells(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                AssetAdministrationShell.class);
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.submodelRepository().submodels(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                Submodel.class);
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                ConceptDescription.class);
+    }
+
+
+    @Test
+    public void testProprietaryImport()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        ImportResult expected = ImportResult.builder().build();
+        byte[] fileContent = new byte[10];
+        new Random().nextBytes(fileContent);
+
+        for (var dataFormat: DataFormat.values()) {
+            // TODO remove once RDF support is implemented
+            if (dataFormat == DataFormat.RDF || dataFormat == DataFormat.JSONLD) {
+                continue;
+            }
+            String filename = String.format("/dummy-file-%s.bin", dataFormat);
+            String fileIdShort = String.format("dummy-file-%s", dataFormat);
+            DefaultAssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
+                    .id(String.format("http://example.org/imported-aas-%s", dataFormat))
+                    .build();
+            DefaultSubmodel submodel = new DefaultSubmodel.Builder()
+                    .id(String.format("http://example.org/imported-submodel-%s", dataFormat))
+                    .submodelElements(new DefaultFile.Builder()
+                            .idShort(fileIdShort)
+                            .contentType("application/octet-stream")
+                            .value(filename)
+                            .build())
+                    .build();
+            DefaultConceptDescription cd = new DefaultConceptDescription.Builder()
+                    .id(String.format("http://example.org/imported-cd-%s", dataFormat))
+                    .build();
+            HttpResponse<String> response = httpClient.send(HttpRequest.newBuilder()
+                    .uri(new URI(apiPaths.proprietaryInterface().importFile()))
+                    .header(HttpConstants.HEADER_CONTENT_TYPE, dataFormat.getContentType().toString())
+                    .POST(BodyPublishers.ofByteArray(
+                            EnvironmentSerializationManager
+                                    .serializerFor(dataFormat)
+                                    .write(EnvironmentContext.builder()
+                                            .environment(new DefaultEnvironment.Builder()
+                                                    .assetAdministrationShells(aas)
+                                                    .submodels(submodel)
+                                                    .conceptDescriptions(cd)
+                                                    .build())
+                                            .file(fileContent, filename)
+                                            .build())))
+                    .build(),
+                    HttpResponse.BodyHandlers.ofString());
+            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+            ImportResult actual = HttpHelper.readResponse(response, ImportResult.class);
+            Assert.assertEquals(expected, actual);
+
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.aasRepository().assetAdministrationShell(aas),
+                    StatusCode.SUCCESS,
+                    null,
+                    aas,
+                    AssetAdministrationShell.class);
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.submodelRepository().submodel(submodel),
+                    StatusCode.SUCCESS,
+                    null,
+                    submodel,
+                    Submodel.class);
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.conceptDescriptionRepository().conceptDescription(cd),
+                    StatusCode.SUCCESS,
+                    null,
+                    cd,
+                    ConceptDescription.class);
+            if (dataFormat.getCanStoreFiles()) {
+                HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
+                        .uri(new URI(apiPaths.submodelRepository()
+                                .submodelInterface(submodel)
+                                .submodelElement(fileIdShort)
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .GET()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+                Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), getFileResponse.statusCode());
+                Assert.assertArrayEquals(fileContent, getFileResponse.body());
+            }
+
+        }
+
+    }
+
+
     private void assertExecute(HttpMethod method, String url, StatusCode statusCode)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
             UnsupportedModifierException {
@@ -2831,20 +2955,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 ((SubmodelElementCollection) x).getValue().clear();
             }
         });
-    }
-
-
-    private static <T> T getField(Object obj, String fieldName, Class<T> type) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return type.cast(field.get(obj));
-    }
-
-
-    private static void setField(Object obj, String fieldName, Object value) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, value);
     }
 
 

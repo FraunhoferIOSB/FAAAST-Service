@@ -52,12 +52,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
-    public InvokeOperationAsyncRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
-    private void handleOperationSuccess(Reference reference, OperationHandle operationHandle, OperationVariable[] inoutput, OperationVariable[] output) {
+    private void handleOperationSuccess(Reference reference, OperationHandle operationHandle, OperationVariable[] inoutput, OperationVariable[] output,
+                                        RequestExecutionContext context) {
         handleOperationResult(
                 reference,
                 operationHandle,
@@ -66,11 +62,12 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                         .inoutputArguments(Arrays.asList(inoutput))
                         .outputArguments(Arrays.asList(output))
                         .success(true)
-                        .build());
+                        .build(),
+                context);
     }
 
 
-    private void handleOperationFailure(Reference reference, List<OperationVariable> inoutput, OperationHandle operationHandle, Throwable error) {
+    private void handleOperationFailure(Reference reference, List<OperationVariable> inoutput, OperationHandle operationHandle, Throwable error, RequestExecutionContext context) {
         handleOperationResult(
                 reference,
                 operationHandle,
@@ -82,13 +79,15 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                 "operation failed to execute (reason: %s)",
                                 error.getMessage()))
                         .success(false)
-                        .build());
+                        .build(),
+                context);
     }
 
 
     private void handleOperationResult(Reference reference,
                                        OperationHandle operationHandle,
-                                       OperationResult operationResult) {
+                                       OperationResult operationResult,
+                                       RequestExecutionContext context) {
         try {
             Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
             AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
@@ -102,7 +101,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             }
         }
         catch (ResourceNotFoundException | InvalidRequestException | PersistenceException e) {
-            handleOperationFailure(reference, operationResult.getInoutputArguments(), operationHandle, e);
+            handleOperationFailure(reference, operationResult.getInoutputArguments(), operationHandle, e, context);
         }
 
         try {
@@ -121,7 +120,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
 
     private void handleOperationInvoke(Reference reference,
                                        OperationHandle operationHandle,
-                                       InvokeOperationAsyncRequest request) {
+                                       InvokeOperationAsyncRequest request,
+                                       RequestExecutionContext context) {
 
         try {
             context.getPersistence().save(
@@ -143,20 +143,20 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
 
 
     @Override
-    protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request) {
+    protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request, RequestExecutionContext context) {
         OperationHandle operationHandle = new OperationHandle();
-        handleOperationInvoke(reference, operationHandle, request);
+        handleOperationInvoke(reference, operationHandle, request, context);
 
         // The timeout is ignored, as the server may choose to take it into account or ignore it.
         try {
             context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output),
-                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error));
+                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output, context),
+                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error, context));
         }
         catch (Exception e) {
-            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e);
+            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
         }
         return InvokeOperationAsyncResponse.builder()
                 .payload(operationHandle)

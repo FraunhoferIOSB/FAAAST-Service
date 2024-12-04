@@ -43,15 +43,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 public class GetSubmodelElementByPathReferenceRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelElementByPathReferenceRequest, GetSubmodelElementByPathReferenceResponse> {
 
-    public GetSubmodelElementByPathReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request)
+    public GetSubmodelElementByPathReferenceResponse doProcess(GetSubmodelElementByPathReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
-        Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath());
+        Reference reference = resolveReferenceWithTypes(request.getSubmodelId(), request.getPath(), context);
         SubmodelElement submodelElement = context.getPersistence().getSubmodelElement(reference, request.getOutputModifier());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
@@ -66,7 +61,7 @@ public class GetSubmodelElementByPathReferenceRequestHandler
     }
 
 
-    private Reference resolveReferenceWithTypes(String submodelId, String idShortPath) throws ResourceNotFoundException, PersistenceException {
+    private Reference resolveReferenceWithTypes(String submodelId, String idShortPath, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         ReferenceBuilder builder = new ReferenceBuilder();
         builder.submodel(submodelId);
         IdShortPath.Builder pathBuilder = IdShortPath.builder();

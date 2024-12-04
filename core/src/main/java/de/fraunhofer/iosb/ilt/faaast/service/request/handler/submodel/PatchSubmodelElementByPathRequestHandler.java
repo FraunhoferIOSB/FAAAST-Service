@@ -48,13 +48,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PatchSubmodelElementByPathRequest, PatchSubmodelElementByPathResponse> {
 
-    public PatchSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request)
+    public PatchSubmodelElementByPathResponse doProcess(PatchSubmodelElementByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
             InvalidRequestException, PersistenceException {
         Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
@@ -68,7 +63,7 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
         ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);
-        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
+        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence(), context);
         if (!request.isInternal() && Objects.isNull(oldSubmodelElement)) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)

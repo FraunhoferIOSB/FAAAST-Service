@@ -36,13 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class DeleteConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<DeleteConceptDescriptionByIdRequest, DeleteConceptDescriptionByIdResponse> {
 
-    public DeleteConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException, PersistenceException {
+    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteConceptDescription(request.getId());

@@ -70,6 +70,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
@@ -187,6 +188,13 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (!deleted.get()) {
             throw new ResourceNotFoundException(reference);
         }
+    }
+
+
+    @Override
+    public void deleteAll() throws PersistenceException {
+        operationStates.clear();
+        environment = new DefaultEnvironment();
     }
 
 

@@ -67,13 +67,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
  */
 public abstract class AbstractRequestHandler<I extends Request<O>, O extends Response> {
 
-    protected final RequestExecutionContext context;
-
-    protected AbstractRequestHandler(RequestExecutionContext context) {
-        this.context = context;
-    }
-
-
     /**
      * Creates a empty response object.
      *
@@ -95,10 +88,11 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * Processes a request and returns the resulting response.
      *
      * @param request the request
+     * @param context the execution context
      * @return the response
      * @throws Exception if processing the request fails
      */
-    public abstract O process(I request) throws Exception;
+    public abstract O process(I request, RequestExecutionContext context) throws Exception;
 
 
     /**
@@ -108,6 +102,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * @param parent of the SubmodelElement List
      * @param submodelElements List of SubmodelElements which should be considered and updated
      * @param publishOnMessageBus if ValueChangeEventMessages should be sent on message bus
+     * @param context the execution context
      * @throws ResourceNotFoundException if reference does not point to valid element
      * @throws ResourceNotAContainerElementException if reference does not point to valid element
      * @throws AssetConnectionException if reading value from asset connection fails
@@ -115,7 +110,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      *             asset connection fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
-    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus)
+    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements, boolean publishOnMessageBus, RequestExecutionContext context)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, AssetConnectionException, ValueMappingException, MessageBusException, PersistenceException {
         if (parent == null || submodelElements == null) {
             return;
@@ -131,7 +126,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 }
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
-                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValue(), publishOnMessageBus);
+                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValue(), publishOnMessageBus, context);
             }
         }
 
@@ -160,9 +155,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      *
      * @param parent reference to the parent element, e.g. a submodel
      * @param persistence persistence implementation needed to check if submodel elements still exist
+     * @param context the execution context
      * @throws AssetConnectionException if disconnection fails
      */
-    protected void cleanupDanglingAssetConnectionsForParent(Reference parent, Persistence persistence) throws AssetConnectionException {
+    protected void cleanupDanglingAssetConnectionsForParent(Reference parent, Persistence persistence, RequestExecutionContext context) throws AssetConnectionException {
         Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, parent) && !persistence.submodelElementExists(x);
         context.getAssetConnectionManager().getConnections().stream()
                 .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {

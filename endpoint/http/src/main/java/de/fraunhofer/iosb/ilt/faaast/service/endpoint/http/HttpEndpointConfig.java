@@ -212,7 +212,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             return false;
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
-        return Objects.equals(certificate, that.certificate)
+        return super.equals(o)
+                && Objects.equals(certificate, that.certificate)
                 && Objects.equals(corsEnabled, that.corsEnabled)
                 && Objects.equals(corsAllowCredentials, that.corsAllowCredentials)
                 && Objects.equals(corsAllowedHeaders, that.corsAllowedHeaders)
@@ -224,13 +225,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
-                && Objects.equals(sslEnabled, that.sslEnabled);
+                && Objects.equals(sslEnabled, that.sslEnabled)
+                && Objects.equals(profiles, that.profiles);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(certificate,
+        return Objects.hash(
+                super.hashCode(),
+                certificate,
                 corsEnabled,
                 corsAllowCredentials,
                 corsAllowedHeaders,
@@ -242,7 +246,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 includeErrorDetails,
                 port,
                 sniEnabled,
-                sslEnabled);
+                sslEnabled,
+                profiles);
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
@@ -353,7 +358,6 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             getBuildingInstance().setSslEnabled(value);
             return getSelf();
         }
-
     }
 
     public static class Builder extends AbstractBuilder<HttpEndpointConfig, Builder> {

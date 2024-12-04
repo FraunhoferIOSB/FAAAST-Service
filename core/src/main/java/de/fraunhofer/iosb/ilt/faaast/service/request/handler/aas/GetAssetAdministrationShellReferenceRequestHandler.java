@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class GetAssetAdministrationShellReferenceRequestHandler
         extends AbstractRequestHandler<GetAssetAdministrationShellReferenceRequest, GetAssetAdministrationShellReferenceResponse> {
 
-    public GetAssetAdministrationShellReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAssetAdministrationShellReferenceResponse process(GetAssetAdministrationShellReferenceRequest request)
+    public GetAssetAdministrationShellReferenceResponse process(GetAssetAdministrationShellReferenceRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         Reference reference = ReferenceBuilder.forAas(shell);

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ImportResultMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.metadata.AnnotatedRelationshipElementMixin;
@@ -37,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.metadata.Sub
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.PagingMetadataSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import java.util.List;
 import java.util.Objects;
@@ -89,6 +91,7 @@ public class MetadataJsonSerializer {
         mapper.addMixIn(File.class, FileMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
         mapper.addMixIn(Message.class, MessageMixin.class);
+        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
         SimpleModule module = new SimpleModule();
         module.addSerializer(PagingMetadata.class, new PagingMetadataSerializer());
         mapper.registerModule(module);

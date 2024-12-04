@@ -58,14 +58,10 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
 
-    public InvokeOperationSyncRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
-        InvokeOperationSyncResponse result = super.doProcess(request);
+    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
+        InvokeOperationSyncResponse result = super.doProcess(request, context);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
@@ -85,14 +81,15 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
 
 
     @Override
-    protected InvokeOperationSyncResponse executeOperation(Reference reference, InvokeOperationSyncRequest request) {
+    protected InvokeOperationSyncResponse executeOperation(Reference reference, InvokeOperationSyncRequest request, RequestExecutionContext context) {
         if (!request.isInternal()) {
             try {
                 publishSafe(OperationInvokeEventMessage.builder()
                         .element(reference)
                         .input(ElementValueHelper.toValueMap(request.getInputArguments()))
                         .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
-                        .build());
+                        .build(),
+                        context);
             }
             catch (ValueMappingException e) {
                 String message = String.format("Publishing OperationInvokeEvent on message bus failed (reason: %s)", e.getMessage());
@@ -101,7 +98,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .level(ErrorLevel.WARN)
                         .message(message)
-                        .build());
+                        .build(),
+                        context);
             }
         }
         AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
@@ -150,7 +148,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .inoutput(ElementValueHelper.toValueMap(result.getInoutputArguments()))
                         .output(ElementValueHelper.toValueMap(result.getOutputArguments()))
-                        .build());
+                        .build(),
+                        context);
             }
             catch (ValueMappingException e) {
                 String message = String.format("Publishing OperationFinishEvent on message bus failed (reason: %s)", e.getMessage());
@@ -159,7 +158,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .level(ErrorLevel.WARN)
                         .message(message)
-                        .build());
+                        .build(),
+                        context);
             }
         }
         return InvokeOperationSyncResponse.builder()

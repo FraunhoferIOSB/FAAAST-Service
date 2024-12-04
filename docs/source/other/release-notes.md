@@ -6,9 +6,11 @@
 - Persistence
 	- Added Mongo persistence for storing AAS model in MongoDB
 - Endpoint
+	- Supported AAS Profiles can now be configured per Endpoint
 	- HTTP
 		- Improved CORS support by introducing additional config properties `corsAllowCredentials`, `corsAllowedHeaders`, `corsAllowedMethods`, `corsAllowedOrigin`, `corsExposedHeaders`, and `corsMaxAge`
 		- Improved error messages; stack trace may now be returned in HTTP responses via config property `includeErrorDetails`
+		- New API calls: PUT on /upload will now accept JSON/AASX model files. DELETE on /reset will erase everything including AAS, Submodels and ConceptDescriptions.
 	- OPC UA
 		- Added support for all datatypes of the AAS specification
 
@@ -39,6 +41,8 @@
 - Asset Connection
 	- General
 		- Fixed bug that caused FA³ST Service to crash when an Asset Connection threw an exception on startup
+	- HTTP
+		- Remove method and payload from Subscription Provider
 
 ## 1.1.0
 
