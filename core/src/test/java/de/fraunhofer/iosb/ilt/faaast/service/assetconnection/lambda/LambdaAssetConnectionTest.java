@@ -72,11 +72,11 @@ public class LambdaAssetConnectionTest {
     private Persistence persistence;
 
     @Before
-    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
         MessageBus messageBus = mock(MessageBus.class);
-        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of());
+        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of(), List.of());
     }
 
 
