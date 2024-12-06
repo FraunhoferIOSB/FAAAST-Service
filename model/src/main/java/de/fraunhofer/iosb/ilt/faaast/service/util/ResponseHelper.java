@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 
 
 /**

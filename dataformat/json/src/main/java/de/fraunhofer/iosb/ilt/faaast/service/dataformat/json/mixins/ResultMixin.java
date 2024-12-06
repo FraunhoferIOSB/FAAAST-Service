@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 
 
 /**

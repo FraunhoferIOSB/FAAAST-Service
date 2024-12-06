@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.OperationVariableCollectionValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 

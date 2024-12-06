@@ -18,8 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAl
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -36,6 +34,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes.Type;
@@ -111,16 +112,17 @@ public class HttpErrorHandler extends ErrorHandler {
 
 
     private void send(Response response, StatusCode statusCode, Throwable cause, Callback callback) {
-        Result result = Result.builder()
-                .message(
-                        HttpHelper.messageTypeFromstatusCode(statusCode),
-                        Objects.nonNull(cause) && !StringHelper.isEmpty(cause.getMessage())
+        Result result = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(HttpHelper.messageTypeFromstatusCode(statusCode))
+                        .text(Objects.nonNull(cause) && !StringHelper.isEmpty(cause.getMessage())
                                 ? cause.getMessage()
                                 : HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                        .build())
                 .build();
         if (config.isIncludeErrorDetails() && Objects.nonNull(cause)) {
             result.getMessages().add(Message.builder()
-                    .messageType(MessageType.EXCEPTION)
+                    .messageType(MessageTypeEnum.EXCEPTION)
                     .text(getStacktrace(
                             cause))
                     .build());
