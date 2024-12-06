@@ -20,11 +20,11 @@ import java.util.TimeZone;
 
 
 /**
- * Converts Date type into String type according to ISO 8601 format.
+ * Helper class for converting between string and dates.
  */
-public class FormatToISO8601 {
+public class TimeFormatHelper {
 
-    private FormatToISO8601() {}
+    private TimeFormatHelper() {}
 
 
     /**
@@ -34,7 +34,7 @@ public class FormatToISO8601 {
      * @return the corresponding string representation in ISO 8601 format
      * @throws IllegalArgumentException if the value is not a valid date
      */
-    public static String formateToISO8601(Date date) {
+    public static String asISO8601(Date date) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
         formatter.setTimeZone(TimeZone.getDefault());

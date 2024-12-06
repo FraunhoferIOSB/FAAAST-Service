@@ -50,13 +50,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
@@ -127,12 +125,14 @@ import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.BaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -142,11 +142,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
@@ -1696,7 +1698,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
                         }));
         // assert operation is still running
-        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        BaseOperationResult expectedStatusRunning = new DefaultBaseOperationResult();
 
         expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
 
@@ -1749,7 +1751,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     public static OperationResult getOperationSqaureExpectedResult(ExecutionState executionState, int inputValue, String inoutputValue) {
-        OperationResult.Builder builder = new OperationResult.Builder()
+        DefaultOperationResult.Builder builder = new DefaultOperationResult.Builder()
                 .executionState(executionState)
                 .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
@@ -1852,7 +1854,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
                         }));
         // assert operation is still running
-        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        BaseOperationResult expectedStatusRunning = new DefaultBaseOperationResult();
         expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
         assertExecuteSingle(
                 HttpMethod.GET,
@@ -1977,7 +1979,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         });
         // assert OperationStarted on messagebus
         InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), -1);
-        OperationResult expectedResult = new OperationResult.Builder()
+        OperationResult expectedResult = new DefaultOperationResult.Builder()
                 .executionState(ExecutionState.FAILED)
                 .inoutputArguments(request.getInoutputArguments())
                 .build();
@@ -2993,20 +2995,4 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         };
 
     }
-
-    // ? Wieso ist die hier??
-    private static class BaseOperationResult extends Result {
-
-        private ExecutionState executionState;
-
-        public ExecutionState getExecutionState() {
-            return executionState;
-        }
-
-
-        public void setExecutionState(ExecutionState executionState) {
-            this.executionState = executionState;
-        }
-    }
-
 }

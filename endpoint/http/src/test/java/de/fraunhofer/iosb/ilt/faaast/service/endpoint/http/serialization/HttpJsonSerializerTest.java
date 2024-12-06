@@ -16,12 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONException;
 import org.junit.Assert;
@@ -44,7 +45,7 @@ public class HttpJsonSerializerTest {
     public void testResult() throws SerializationException, ParseException, JSONException, UnsupportedModifierException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Result result = new Result.Builder()
+        Result result = new DefaultResult.Builder()
                 .messages(Message.builder()
                         .text(HttpStatus.getMessage(404))
                         .messageType(MessageTypeEnum.ERROR)

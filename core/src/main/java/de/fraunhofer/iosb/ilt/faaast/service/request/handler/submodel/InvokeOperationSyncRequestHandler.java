@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -42,8 +41,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +116,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
         OperationResult result;
         try {
             OperationVariable[] outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
@@ -124,7 +125,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
         }
         catch (TimeoutException e) {
             future.cancel(true);
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
                     .success(false)
@@ -132,7 +133,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
                     .success(false)

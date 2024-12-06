@@ -30,14 +30,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.BaseOperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
@@ -80,12 +78,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
@@ -665,7 +667,7 @@ public abstract class AbstractHttpEndpointTest {
         URI urlStatus = urlInvoke.resolve(responseInvoke.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(new BaseOperationResult.Builder()
+                        .payload(new DefaultBaseOperationResult.Builder()
                                 .executionState(ExecutionState.RUNNING)
                                 .build())
                         .success()
@@ -686,7 +688,7 @@ public abstract class AbstractHttpEndpointTest {
         // check COMPLETED = 302
         when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(new BaseOperationResult.Builder()
+                        .payload(new DefaultBaseOperationResult.Builder()
                                 .executionState(ExecutionState.COMPLETED)
                                 .build())
                         .success()
@@ -700,7 +702,7 @@ public abstract class AbstractHttpEndpointTest {
         URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
         when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncResultResponse.builder()
-                        .payload(new OperationResult.Builder()
+                        .payload(new DefaultOperationResult.Builder()
                                 .executionState(ExecutionState.COMPLETED)
                                 .build())
                         .success()
@@ -724,8 +726,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultServerError() throws Exception {
-        Result expected = Result.builder()
-                .messages(MessageTypeEnum.ERROR, HttpStatus.getMessage(500))
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text(HttpStatus.getMessage(500))
+                        .build())
                 .build();
         when(service.execute(any(), any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
@@ -740,8 +745,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Result expected = Result.builder()
-                .messages(MessageTypeEnum.ERROR, "no matching request mapper found for URL 'shellsX'")
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text("no matching request mapper found for URL 'shellsX'")
+                        .build())
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
@@ -751,8 +759,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        Result expected = Result.builder()
-                .messages(MessageTypeEnum.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+                        .build())
                 .build();
         ContentResponse response = execute(HttpMethod.PUT, "/shells");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
@@ -762,8 +773,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultNotFound() throws Exception {
-        Result expected = Result.builder()
-                .messages(MessageTypeEnum.ERROR, HttpStatus.getMessage(404))
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text(HttpStatus.getMessage(404))
+                        .build())
                 .build();
         when(service.execute(any(), any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)

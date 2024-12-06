@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -54,12 +52,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
@@ -163,7 +163,7 @@ public class ValueOnlyExamples {
 
     public static final GetOperationAsyncResultResponse GET_OPERATION_ASYNC_RESULT_RESPONSE = GetOperationAsyncResultResponse.builder()
             .success()
-            .payload(new OperationResult.Builder()
+            .payload(new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
@@ -208,8 +208,8 @@ public class ValueOnlyExamples {
                                     .build())
                             .build())
                     .build())
-            .result(new Result.Builder()
-                    .messages(new Message.Builder()
+            .result(new DefaultResult.Builder()
+                    .messages(Message.builder()
                             .messageType(MessageTypeEnum.INFO)
                             .text("some message text")
                             .timestamp("2024-01-01T00:00:00.000+00:00")

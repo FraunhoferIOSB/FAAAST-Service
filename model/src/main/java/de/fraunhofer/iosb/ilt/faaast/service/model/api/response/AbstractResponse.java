@@ -14,12 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 
 
 /**
@@ -44,7 +46,7 @@ public abstract class AbstractResponse implements Response {
 
     protected AbstractResponse() {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
-        this.result = new Result.Builder().build();
+        this.result = new DefaultResult.Builder().build();
     }
 
 
@@ -68,8 +70,11 @@ public abstract class AbstractResponse implements Response {
      */
     public void setError(StatusCode statusCode, String message) {
         setStatusCode(statusCode);
-        setResult(new Result.Builder()
-                .messages(MessageTypeEnum.ERROR, message)
+        setResult(new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text(message)
+                        .build())
                 .build());
     }
 
@@ -122,8 +127,11 @@ public abstract class AbstractResponse implements Response {
         public B error(StatusCode statusCode, String message) {
             getBuildingInstance().setStatusCode(statusCode);
             getBuildingInstance().setResult(
-                    new Result.Builder()
-                            .messages(MessageTypeEnum.ERROR, message)
+                    new DefaultResult.Builder()
+                            .messages(Message.builder()
+                                    .messageType(MessageTypeEnum.ERROR)
+                                    .text(message)
+                                    .build())
                             .build());
             return getSelf();
         }

@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -35,8 +35,10 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
         handleOperationResult(
                 reference,
                 operationHandle,
-                new OperationResult.Builder()
+                new DefaultOperationResult.Builder()
                         .executionState(ExecutionState.COMPLETED)
                         .inoutputArguments(Arrays.asList(inoutput))
                         .outputArguments(Arrays.asList(output))
@@ -71,13 +73,16 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
         handleOperationResult(
                 reference,
                 operationHandle,
-                new OperationResult.Builder()
+                new DefaultOperationResult.Builder()
                         .executionState(ExecutionState.FAILED)
                         .inoutputArguments(inoutput)
                         .outputArguments(List.of())
-                        .messages(MessageTypeEnum.ERROR, String.format(
-                                "operation failed to execute (reason: %s)",
-                                error.getMessage()))
+                        .messages(Message.builder()
+                                .messageType(MessageTypeEnum.ERROR)
+                                .text(String.format(
+                                        "operation failed to execute (reason: %s)",
+                                        error.getMessage()))
+                                .build())
                         .success(false)
                         .build(),
                 context);
@@ -126,7 +131,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
         try {
             context.getPersistence().save(
                     operationHandle,
-                    new OperationResult.Builder()
+                    new DefaultOperationResult.Builder()
                             .inoutputArguments(request.getInoutputArguments())
                             .executionState(ExecutionState.RUNNING)
                             .build());
