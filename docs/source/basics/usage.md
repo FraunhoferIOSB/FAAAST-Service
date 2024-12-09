@@ -16,7 +16,7 @@ To manually pass a model file `my-model.aasx` and a configuration file `my-confi
 > java -jar starter-{version}.jar --model my-model.aasx --config my-config.json
 ```
 
-An example model file can be found in the [FA³ST Github-Repository](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/docs/source/aas-examples/example-aas.aasx).
+An example model file can be found in the [FA³ST Github-Repository](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/misc/examples/model.aasx).
 Regarding AAS examples from other sources it is important to note that the AAS specification is not backwards compatible. Therefore, it is necessary to make sure that the model file conforms to the latest AAS specification (V3).
 Passing an outdated model file will lead to an error. If a model file conforms to V3 of the Asset Administration Shell specification but has duplicate identifiers, FA³ST will not load the file.
 Starting FA³ST with the `--no-validation` flag loads the file in any case but will lead to problems during runtime if there are duplicate identifiers present.
