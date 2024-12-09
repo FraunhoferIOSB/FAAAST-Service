@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.DeleteConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -35,13 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class DeleteConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<DeleteConceptDescriptionByIdRequest, DeleteConceptDescriptionByIdResponse> {
 
-    public DeleteConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
+    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteConceptDescription(request.getId());

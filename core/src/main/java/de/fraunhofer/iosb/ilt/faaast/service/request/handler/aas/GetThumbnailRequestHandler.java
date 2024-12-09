@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetThumbnailResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -32,13 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class GetThumbnailRequestHandler extends AbstractRequestHandler<GetThumbnailRequest, GetThumbnailResponse> {
 
-    public GetThumbnailRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetThumbnailResponse process(GetThumbnailRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetThumbnailResponse process(GetThumbnailRequest request, RequestExecutionContext context) throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         if (Objects.isNull(aas.getAssetInformation())
                 || Objects.isNull(aas.getAssetInformation().getDefaultThumbnail())

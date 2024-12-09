@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -34,13 +35,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class GetConceptDescriptionByIdRequestHandler extends AbstractRequestHandler<GetConceptDescriptionByIdRequest, GetConceptDescriptionByIdResponse> {
 
-    public GetConceptDescriptionByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         ConceptDescription conceptDescription = context.getPersistence().getConceptDescription(request.getId(), request.getOutputModifier());
         if (!request.isInternal() && Objects.nonNull(conceptDescription)) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

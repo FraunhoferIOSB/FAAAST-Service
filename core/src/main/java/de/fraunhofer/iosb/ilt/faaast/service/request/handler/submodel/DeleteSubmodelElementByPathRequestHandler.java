@@ -37,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
-    public DeleteSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
+    protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request, RequestExecutionContext context) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
         SubmodelElementIdentifier.builder()
                 .submodelId(request.getSubmodelId())

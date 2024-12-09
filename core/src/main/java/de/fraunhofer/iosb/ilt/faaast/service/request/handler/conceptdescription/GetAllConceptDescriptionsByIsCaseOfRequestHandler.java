@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIsCaseOfResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -37,13 +38,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 public class GetAllConceptDescriptionsByIsCaseOfRequestHandler
         extends AbstractRequestHandler<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
-    public GetAllConceptDescriptionsByIsCaseOfRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) throws MessageBusException {
+    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request, RequestExecutionContext context)
+            throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.builder()
                         .isCaseOf(request.getIsCaseOf())

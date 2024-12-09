@@ -26,8 +26,6 @@ import java.util.Objects;
 public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscriptionProviderConfig {
 
     private String path;
-    private String method;
-    private String payload;
     private long interval;
     private Map<String, String> headers;
 
@@ -46,16 +44,6 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
     }
 
 
-    public String getMethod() {
-        return method;
-    }
-
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-
     public long getInterval() {
         return interval;
     }
@@ -63,16 +51,6 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
 
     public void setInterval(long interval) {
         this.interval = interval;
-    }
-
-
-    public String getPayload() {
-        return payload;
-    }
-
-
-    public void setPayload(String payload) {
-        this.payload = payload;
     }
 
 
@@ -97,8 +75,6 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
         HttpSubscriptionProviderConfig that = (HttpSubscriptionProviderConfig) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
-                && Objects.equals(method, that.method)
-                && Objects.equals(payload, that.payload)
                 && Objects.equals(interval, that.interval)
                 && Objects.equals(headers, that.headers);
     }
@@ -106,7 +82,7 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, method, payload, interval, headers);
+        return Objects.hash(super.hashCode(), path, interval, headers);
     }
 
 
@@ -123,20 +99,8 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
         }
 
 
-        public B method(String value) {
-            getBuildingInstance().setMethod(value);
-            return getSelf();
-        }
-
-
         public B interval(long value) {
             getBuildingInstance().setInterval(value);
-            return getSelf();
-        }
-
-
-        public B payload(String value) {
-            getBuildingInstance().setPayload(value);
             return getSelf();
         }
 

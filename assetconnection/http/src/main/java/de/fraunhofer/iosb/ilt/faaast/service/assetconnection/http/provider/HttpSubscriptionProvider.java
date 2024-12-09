@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFo
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -38,7 +39,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,9 +87,8 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     config.getPath(),
                     config.getFormat(),
                     DEFAULT_METHOD,
-                    StringUtils.isBlank(config.getPayload())
-                            ? BodyPublishers.noBody()
-                            : BodyPublishers.ofString(config.getPayload()),
+
+                    BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
                     HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
@@ -153,9 +152,9 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
         try {
             return serviceContext.getTypeInfo(reference);
         }
-        catch (ResourceNotFoundException e) {
+        catch (ResourceNotFoundException | PersistenceException e) {
             throw new IllegalStateException(String.format(
-                    "HTTP subscription provider could not get typ info as resource does not exist - this should not be able to occur (reference: %s)",
+                    "HTTP subscription provider could not get type info as resource does not exist or storage failed - this should not be able to occur (reference: %s)",
                     ReferenceHelper.toString(reference)),
                     e);
         }

@@ -39,13 +39,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 public class SetSubmodelElementValueByPathRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
-    public SetSubmodelElementValueByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request) throws Exception {
+    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request, RequestExecutionContext context) throws Exception {
         if (request == null || request.getValueParser() == null) {
             throw new IllegalArgumentException("value parser of request must be non-null");
         }

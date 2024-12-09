@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -37,13 +38,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
         extends AbstractRequestHandler<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
-    public GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsByDataSpecificationReferenceResponse process(GetAllConceptDescriptionsByDataSpecificationReferenceRequest request) throws MessageBusException {
+    public GetAllConceptDescriptionsByDataSpecificationReferenceResponse process(GetAllConceptDescriptionsByDataSpecificationReferenceRequest request,
+                                                                                 RequestExecutionContext context)
+            throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.builder()
                         .dataSpecification(request.getDataSpecificationReference())

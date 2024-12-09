@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -36,13 +37,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
  */
 public class GetAllConceptDescriptionsRequestHandler extends AbstractRequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
-    public GetAllConceptDescriptionsRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request) throws MessageBusException {
+    public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request, RequestExecutionContext context) throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.NONE,
                 request.getOutputModifier(),

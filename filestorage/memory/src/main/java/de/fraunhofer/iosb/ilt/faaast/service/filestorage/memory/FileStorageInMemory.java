@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +81,12 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
             throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
         }
         files.remove(path);
+    }
+
+
+    @Override
+    public void deleteAll() throws PersistenceException {
+        files.clear();
     }
 
 

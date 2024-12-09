@@ -20,13 +20,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,6 +100,9 @@ public class HttpHelper {
      * @return the parsed list
      */
     public static List<String> parseCommaSeparatedList(String input) {
+        if (StringHelper.isBlank(input)) {
+            return new ArrayList<>();
+        }
         return Stream.of(input.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
@@ -127,7 +133,7 @@ public class HttpHelper {
      * @param response HTTP response object
      * @param statusCode the statusCode to send
      */
-    public static void send(HttpServletResponse response, StatusCode statusCode) {
+    public static void send(HttpServletResponse response, StatusCode statusCode) throws InvalidRequestException {
         send(response,
                 statusCode,
                 Result.builder()
@@ -142,17 +148,14 @@ public class HttpHelper {
      * @param response HTTP response object
      * @param statusCode statusCode to send
      * @param result the result to send
+     * @throws UnsupportedModifierException when modifier used for serialization is not supported
      */
-    public static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
+    public static void send(HttpServletResponse response, StatusCode statusCode, Result result) throws UnsupportedModifierException {
         try {
             sendJson(response, statusCode, new HttpJsonApiSerializer().write(result));
         }
         catch (SerializationException e) {
-            LOGGER.warn("error serializing response", e);
-            sendContent(response, StatusCode.SERVER_INTERNAL_ERROR, null, null);
-        }
-        catch (UnsupportedModifierException e) {
-            sendException(response, e);
+            throw new RuntimeException("error serializing response", e);
         }
     }
 

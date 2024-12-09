@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
@@ -40,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DynamicRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -72,6 +74,7 @@ public class Service implements ServiceContext {
     private MessageBus messageBus;
     private Persistence persistence;
     private FileStorage fileStorage;
+    private RequestExecutionContext requestExecutionContext;
 
     private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
@@ -117,12 +120,8 @@ public class Service implements ServiceContext {
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                coreConfig,
-                persistence,
-                fileStorage,
-                messageBus,
-                assetConnectionManager));
+        this.requestHandler = new RequestHandlerManager(config.getCore());
+        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 
@@ -145,9 +144,9 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Response execute(Request request) {
+    public Response execute(Endpoint source, Request request) {
         try {
-            return requestHandler.execute(request);
+            return requestHandler.execute(request, requestExecutionContext.withEndpoint(source));
         }
         catch (Exception e) {
             LOGGER.trace("Error executing request", e);
@@ -157,7 +156,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
         if (reference == null) {
             throw new IllegalArgumentException("reference must be non-null");
         }
@@ -175,7 +174,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
@@ -187,7 +186,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Environment getAASEnvironment() {
+    public Environment getAASEnvironment() throws PersistenceException {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(
@@ -223,7 +222,7 @@ public class Service implements ServiceContext {
     public void executeAsync(Request request, Consumer<Response> callback) {
         Ensure.requireNonNull(request, "request must be non-null");
         Ensure.requireNonNull(callback, "callback must be non-null");
-        this.requestHandler.executeAsync(request, callback);
+        this.requestHandler.executeAsync(request, callback, requestExecutionContext);
     }
 
 
@@ -238,6 +237,21 @@ public class Service implements ServiceContext {
     }
 
 
+    public FileStorage getFileStorage() {
+        return fileStorage;
+    }
+
+
+    public ServiceConfig getConfig() {
+        return config;
+    }
+
+
+    public Persistence getPersistence() {
+        return persistence;
+    }
+
+
     /**
      * Starts the service.This includes starting the message bus and endpoints.
      *
@@ -245,8 +259,9 @@ public class Service implements ServiceContext {
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
-    public void start() throws MessageBusException, EndpointException {
+    public void start() throws MessageBusException, EndpointException, PersistenceException {
         LOGGER.debug("Get command for starting FA³ST Service");
+        persistence.start();
         messageBus.start();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
@@ -270,6 +285,7 @@ public class Service implements ServiceContext {
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
+        persistence.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
@@ -298,12 +314,8 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                this.config.getCore(),
-                this.persistence,
-                this.fileStorage,
-                this.messageBus,
-                this.assetConnectionManager));
+        this.requestHandler = new RequestHandlerManager(config.getCore());
+        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 }

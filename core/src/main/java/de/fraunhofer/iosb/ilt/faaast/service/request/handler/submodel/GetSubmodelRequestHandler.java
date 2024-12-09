@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -37,17 +38,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class GetSubmodelRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelRequest, GetSubmodelResponse> {
 
-    public GetSubmodelRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetSubmodelResponse doProcess(GetSubmodelRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
+    public GetSubmodelResponse doProcess(GetSubmodelRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), request.getOutputModifier());
         Reference reference = AasUtils.toReference(submodel);
-        syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()
                     .element(reference)

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetAllSubmodelsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -42,14 +43,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandler<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
 
-    public GetAllSubmodelsByIdShortRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelsByIdShortResponse process(GetAllSubmodelsByIdShortRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
+    public GetAllSubmodelsByIdShortResponse process(GetAllSubmodelsByIdShortRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Page<Submodel> page = context.getPersistence().findSubmodels(
                 SubmodelSearchCriteria.builder()
                         .idShort(request.getIdShort())
@@ -59,7 +55,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
         if (Objects.nonNull(page.getContent())) {
             for (Submodel submodel: page.getContent()) {
                 Reference reference = AasUtils.toReference(submodel);
-                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal());
+                syncWithAsset(reference, submodel.getSubmodelElements(), !request.isInternal(), context);
                 if (!request.isInternal()) {
                     context.getMessageBus().publish(ElementReadEventMessage.builder()
                             .element(reference)

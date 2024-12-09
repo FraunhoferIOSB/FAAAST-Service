@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PatchSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PatchSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -39,21 +40,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PatchSubmodelRequestHandler extends AbstractRequestHandler<PatchSubmodelRequest, PatchSubmodelResponse> {
 
-    public PatchSubmodelRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PatchSubmodelResponse process(PatchSubmodelRequest request)
+    public PatchSubmodelResponse process(PatchSubmodelRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
-            InvalidRequestException {
+            InvalidRequestException, PersistenceException {
         Submodel current = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
-        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

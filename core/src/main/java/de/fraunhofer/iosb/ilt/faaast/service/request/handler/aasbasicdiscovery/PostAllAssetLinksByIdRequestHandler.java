@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasbasicdiscovery.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasbasicdiscovery.PostAllAssetLinksByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
@@ -40,13 +41,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
  */
 public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<PostAllAssetLinksByIdRequest, PostAllAssetLinksByIdResponse> {
 
-    public PostAllAssetLinksByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
+    public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         List<SpecificAssetId> globalKeys = request.getAssetLinks().stream()
                 .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getName()))

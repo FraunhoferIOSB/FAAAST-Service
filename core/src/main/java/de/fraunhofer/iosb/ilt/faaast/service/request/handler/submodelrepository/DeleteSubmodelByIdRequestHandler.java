@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -37,18 +38,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
-    public DeleteSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException, MessageBusException, AssetConnectionException {
+    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, AssetConnectionException, PersistenceException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteSubmodel(request.getSubmodelId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence());
+        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                     .element(submodel)

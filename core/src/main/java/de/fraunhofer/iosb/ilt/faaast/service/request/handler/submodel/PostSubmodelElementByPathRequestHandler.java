@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -46,15 +47,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
  */
 public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
-    public PostSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request)
+    public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, AssetConnectionException, MessageBusException,
-            ResourceAlreadyExistsException {
+            ResourceAlreadyExistsException, PersistenceException {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnCreate());
         IdShortPath idShortPath = IdShortPath.parse(request.getPath());
         Reference parentReference = new ReferenceBuilder()

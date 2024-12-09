@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PutSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -41,20 +42,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSubmodelByIdRequest, PutSubmodelByIdResponse> {
 
-    public PutSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request)
-            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
+    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
+            PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
         context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

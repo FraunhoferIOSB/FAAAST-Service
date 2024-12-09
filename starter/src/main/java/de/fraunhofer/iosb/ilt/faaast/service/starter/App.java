@@ -351,7 +351,7 @@ public class App implements Runnable {
             config = getConfig();
         }
         catch (IOException e) {
-            throw new InitializationException("Error loading config file", e);
+            throw new InitializationException("Error loading config file: " + e.getMessage(), e);
         }
         config = ServiceConfigHelper.autoComplete(config);
         config = withModel(config);

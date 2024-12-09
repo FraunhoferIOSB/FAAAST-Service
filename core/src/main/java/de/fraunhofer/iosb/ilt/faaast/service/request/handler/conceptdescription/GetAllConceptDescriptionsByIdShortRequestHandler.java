@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetAllConceptDescriptionsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -37,13 +38,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 public class GetAllConceptDescriptionsByIdShortRequestHandler
         extends AbstractRequestHandler<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
 
-    public GetAllConceptDescriptionsByIdShortRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllConceptDescriptionsByIdShortResponse process(GetAllConceptDescriptionsByIdShortRequest request) throws MessageBusException {
+    public GetAllConceptDescriptionsByIdShortResponse process(GetAllConceptDescriptionsByIdShortRequest request, RequestExecutionContext context)
+            throws MessageBusException, PersistenceException {
         Page<ConceptDescription> page = context.getPersistence().findConceptDescriptions(
                 ConceptDescriptionSearchCriteria.builder()
                         .idShort(request.getIdShort())
