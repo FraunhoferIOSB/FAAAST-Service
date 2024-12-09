@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 /**
- * Mixing for {@link Result}.
+ * Mixing for {@link org.eclipse.digitaltwin.aas4j.v3.model.Result}.
  */
 public interface ResultMixin {
 

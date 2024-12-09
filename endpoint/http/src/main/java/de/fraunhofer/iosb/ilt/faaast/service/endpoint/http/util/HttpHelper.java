@@ -113,10 +113,10 @@ public class HttpHelper {
 
     /**
      * Converts a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}.
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}.
      *
      * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
-     * @return the resulting {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}
+     * @return the resulting {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}
      */
     public static MessageTypeEnum messageTypeFromstatusCode(StatusCode statusCode) {
         if (statusCode.isError()) {

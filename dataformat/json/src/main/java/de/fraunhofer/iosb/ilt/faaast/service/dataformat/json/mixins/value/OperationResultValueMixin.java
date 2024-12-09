@@ -23,7 +23,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
 /**
- * Mixing for {@link OperationResult}.
+ * Mixing for {@link org.eclipse.digitaltwin.aas4j.v3.model.OperationResult}.
  */
 public interface OperationResultValueMixin {
 
