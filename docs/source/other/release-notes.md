@@ -3,6 +3,8 @@
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+- General
+	- Replaced custom classes with AAS4J classes that are now available as part of AAS4J
 - Persistence
 	- Added Mongo persistence for storing AAS model in MongoDB
 - Endpoint

@@ -15,16 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
-import java.sql.Date;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import javax.xml.datatype.DatatypeFactory;
@@ -36,7 +30,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Direction;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -56,12 +52,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList;
@@ -165,44 +163,44 @@ public class ValueOnlyExamples {
 
     public static final GetOperationAsyncResultResponse GET_OPERATION_ASYNC_RESULT_RESPONSE = GetOperationAsyncResultResponse.builder()
             .success()
-            .payload(new OperationResult.Builder()
+            .payload(new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
-                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .inoutputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("inoutString")
                                     .valueType(DataTypeDefXsd.STRING)
                                     .value("bar")
                                     .build())
                             .build())
-                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .inoutputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("inoutInt")
                                     .valueType(DataTypeDefXsd.INT)
                                     .value("-42")
                                     .build())
                             .build())
-                    .inoutputArgument(new DefaultOperationVariable.Builder()
+                    .inoutputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("inoutDouble")
                                     .valueType(DataTypeDefXsd.DOUBLE)
                                     .value("17.42")
                                     .build())
                             .build())
-                    .outputArgument(new DefaultOperationVariable.Builder()
+                    .outputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("outString")
                                     .valueType(DataTypeDefXsd.STRING)
                                     .value("foo-bar")
                                     .build())
                             .build())
-                    .outputArgument(new DefaultOperationVariable.Builder()
+                    .outputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("outInt")
                                     .valueType(DataTypeDefXsd.INT)
                                     .value("-24")
                                     .build())
                             .build())
-                    .outputArgument(new DefaultOperationVariable.Builder()
+                    .outputArguments(new DefaultOperationVariable.Builder()
                             .value(new DefaultProperty.Builder()
                                     .idShort("outDouble")
                                     .valueType(DataTypeDefXsd.DOUBLE)
@@ -210,11 +208,11 @@ public class ValueOnlyExamples {
                                     .build())
                             .build())
                     .build())
-            .result(Result.builder()
-                    .message(Message.builder()
-                            .messageType(MessageType.INFO)
+            .result(new DefaultResult.Builder()
+                    .messages(Message.builder()
+                            .messageType(MessageTypeEnum.INFO)
                             .text("some message text")
-                            .timestamp(Date.from(LocalDateTime.parse("2024-01-01T00:00:00").atOffset(ZoneOffset.UTC).toInstant()))
+                            .timestamp("2024-01-01T00:00:00.000+00:00")
                             .build())
                     .build())
             .build();

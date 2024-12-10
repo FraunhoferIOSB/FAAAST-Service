@@ -15,11 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 
 
 /**
- * Mixing for {@link Result}.
+ * Mixing for {@link org.eclipse.digitaltwin.aas4j.v3.model.Result}.
  */
 public interface ResultMixin {
 
