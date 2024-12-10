@@ -17,8 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
@@ -35,6 +34,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,19 +113,19 @@ public class HttpHelper {
 
     /**
      * Converts a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}.
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}.
      *
      * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
-     * @return the resulting {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}
+     * @return the resulting {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}
      */
-    public static MessageType messageTypeFromstatusCode(StatusCode statusCode) {
+    public static MessageTypeEnum messageTypeFromstatusCode(StatusCode statusCode) {
         if (statusCode.isError()) {
-            return MessageType.ERROR;
+            return MessageTypeEnum.ERROR;
         }
         if (statusCode.isException()) {
-            return MessageType.EXCEPTION;
+            return MessageTypeEnum.EXCEPTION;
         }
-        return MessageType.INFO;
+        return MessageTypeEnum.INFO;
     }
 
 
@@ -136,8 +138,11 @@ public class HttpHelper {
     public static void send(HttpServletResponse response, StatusCode statusCode) throws InvalidRequestException {
         send(response,
                 statusCode,
-                Result.builder()
-                        .message(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(messageTypeFromstatusCode(statusCode))
+                                .text(HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                                .build())
                         .build());
     }
 
@@ -248,8 +253,11 @@ public class HttpHelper {
         try {
             send(response,
                     StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, exception.getMessage())
+                    new DefaultResult.Builder()
+                            .messages(Message.builder()
+                                    .messageType(MessageTypeEnum.EXCEPTION)
+                                    .text(exception.getMessage())
+                                    .build())
                             .build());
         }
         catch (Exception e) {

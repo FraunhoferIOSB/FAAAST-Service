@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 
 
 /**
@@ -42,7 +42,7 @@ public class ResponseHelper {
 
 
     /**
-     * Compares if two {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.Result} objects are equal when ignoring
+     * Compares if two {@link org.eclipse.digitaltwin.aas4j.v3.model.Result} objects are equal when ignoring
      * the timestamps of the included messages.
      *
      * @param r1 the first result

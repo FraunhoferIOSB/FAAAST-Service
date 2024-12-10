@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+
+
 /**
  * A protocol-agnostic response to a {@link Request} as defined in the AAS specification Part 2.
  */
