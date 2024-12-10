@@ -68,11 +68,14 @@ function replaceVersion()
 # argument: newVersion
 function updateServiceProfileUrls()
 {
-	local new_version =$1
+	echo "VERSION=$VERSION"
+	echo "NEXTVERSION=$NEXTVERSION"
+	echo "ARGUMENT=$1"
+	local new_version=$1
 	local major=$(echo "$new_version" | sed -E 's/^([0-9]+)\..*/\1/')
 	local minor=$(echo "$new_version" | sed -E 's/^[0-9]+\.([0-9]+)\..*/\1/')
 	local file="./model/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/model/ServiceSpecificationProfile.java"
-	sed -i "s|https://github.com/FraunhoferIOSB/FAAAST-Service/API/[0-9]*/[0-9]*/|\0|https://github.com/FraunhoferIOSB/FAAAST-Service/API/$major/$minor/|g" "$file"	
+	sed -i "s|https://github.com/FraunhoferIOSB/FAAAST-Service/API/[0-9]*\/[0-9]*\/|https://github.com/FraunhoferIOSB/FAAAST-Service/API/$major/$minor/|g" "$file"
 }
 
 
@@ -84,9 +87,6 @@ echo "Press enter to go"
 read -s
 
 echo "Replacing version numbers"
-updateServiceProfileUrls $NEXTVERSION
-echo "foo"
-read -s
 mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
 replaceVersion "$README_FILE" "$VERSION"
