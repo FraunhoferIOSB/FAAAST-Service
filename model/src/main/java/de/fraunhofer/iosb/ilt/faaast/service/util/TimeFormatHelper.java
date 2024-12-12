@@ -35,12 +35,9 @@ public class TimeFormatHelper {
      * @throws IllegalArgumentException if the value is not a valid date
      */
     public static String asISO8601(Date date) {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         formatter.setTimeZone(TimeZone.getDefault());
-
         return formatter.format(date);
-
     }
 
 }
