@@ -140,7 +140,7 @@
         <picocli.version>4.7.6</picocli.version>
         <poi.ooxml.version>5.3.0</poi.ooxml.version>
         <proguard.core.version>9.1.7</proguard.core.version>
-        <proguard.version>7.6.0</proguard.version>
+        <proguard.version>7.6.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.8-159</prosys.sdk.version>
         <protobuf.version>4.29.1</protobuf.version>
