@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
@@ -55,7 +55,7 @@
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
         <developerConnection>scm:git:ssh://github.com:FraunhoferIOSB/FAAAST-Service.git</developerConnection>
-        <tag>v1.2.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main</url>
     </scm>
     <issueManagement>
