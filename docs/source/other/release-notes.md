@@ -1,6 +1,7 @@
 # Release Notes
 <!--start:changelog-header-->
-## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.3.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.2.0
 
 **New Features & Major Changes**
 - General
