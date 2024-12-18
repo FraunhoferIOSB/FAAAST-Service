@@ -193,11 +193,21 @@ public class HttpHelper {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
                 if (isObservable(property)) {
-                    if (!currentSubscriptions.contains(r.getSecond())) {
+                    if (currentSubscriptions.contains(r.getSecond())) {
+                        // compare provider data
+                        HttpSubscriptionProviderConfig config = subscriptionProviders.get(r.getSecond());
+                        updateSubscriptionProviderHttp(config, property, base, data.getContentType());
+                    }
+                    else {
                         subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProviderHttp(property, base, data.getContentType()));
                     }
                 }
-                else if (!currentValues.contains(r.getSecond())) {
+                else if (currentValues.contains(r.getSecond())) {
+                    // compare provider data
+                    HttpValueProviderConfig config = valueProviders.get(r.getSecond());
+                    updateValueProviderHttp(config, property, base, data.getContentType());
+                }
+                else {
                     valueProviders.put(r.getSecond(), createValueProviderHttp(property, base, data.getContentType()));
                 }
             }
@@ -209,11 +219,7 @@ public class HttpHelper {
         HttpSubscriptionProviderConfig retval = null;
 
         SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String contentType = baseContentType;
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            contentType = prop.getValue();
-        }
+        String contentType = getContentType(baseContentType, forms);
 
         String href = getUrl(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
@@ -228,32 +234,61 @@ public class HttpHelper {
     }
 
 
+    private static void updateSubscriptionProviderHttp(HttpSubscriptionProviderConfig config, SubmodelElementCollection property, String baseUrl, String baseContentType) {
+
+        SubmodelElementCollection forms = Util.getPropertyForms(property);
+        String format = Util.getFormatFromContentType(getContentType(baseContentType, forms));
+        if (!config.getFormat().equals(format)) {
+            config.setFormat(format);
+        }
+
+        String href = getUrl(baseUrl, forms);
+        if (!config.getPath().equals(href)) {
+            config.setPath(href);
+        }
+
+        Map<String, String> headers = getHeaders(forms);
+        if (!config.getHeaders().equals(headers)) {
+            config.setHeaders(headers);
+        }
+    }
+
+
     private static HttpValueProviderConfig createValueProviderHttp(SubmodelElementCollection property, String baseUrl, String baseContentType) {
         HttpValueProviderConfig retval = null;
 
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (HTTP) invalid: Property forms not found.");
-        }
+        SubmodelElementCollection forms = Util.getPropertyForms(property);
+        String contentType = getContentType(baseContentType, forms);
 
-        if (element.get() instanceof SubmodelElementCollection forms) {
-            String contentType = baseContentType;
-            element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-            if (element.isPresent() && (element.get() instanceof Property prop)) {
-                contentType = prop.getValue();
-            }
-
-            String href = getUrl(baseUrl, forms);
-            Map<String, String> headers = getHeaders(forms);
-            LOGGER.debug("createValueProviderHttp: href: {}; contentType: {}", href, contentType);
-            retval = HttpValueProviderConfig.builder()
-                    .format(Util.getFormatFromContentType(contentType))
-                    .path(href)
-                    .headers(headers)
-                    .build();
-        }
+        String href = getUrl(baseUrl, forms);
+        Map<String, String> headers = getHeaders(forms);
+        LOGGER.debug("createValueProviderHttp: href: {}; contentType: {}", href, contentType);
+        retval = HttpValueProviderConfig.builder()
+                .format(Util.getFormatFromContentType(contentType))
+                .path(href)
+                .headers(headers)
+                .build();
 
         return retval;
+    }
+
+
+    private static void updateValueProviderHttp(HttpValueProviderConfig config, SubmodelElementCollection property, String baseUrl, String baseContentType) {
+        SubmodelElementCollection forms = Util.getPropertyForms(property);
+        String format = Util.getFormatFromContentType(getContentType(baseContentType, forms));
+        if (!config.getFormat().equals(format)) {
+            config.setFormat(format);
+        }
+
+        String href = getUrl(baseUrl, forms);
+        if (!config.getPath().equals(href)) {
+            config.setPath(href);
+        }
+
+        Map<String, String> headers = getHeaders(forms);
+        if (!config.getHeaders().equals(headers)) {
+            config.setHeaders(headers);
+        }
     }
 
 
@@ -323,5 +358,15 @@ public class HttpHelper {
             retval = Boolean.parseBoolean(obsText);
         }
         return retval;
+    }
+
+
+    private static String getContentType(String baseContentType, SubmodelElementCollection forms) {
+        String contentType = baseContentType;
+        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            contentType = prop.getValue();
+        }
+        return contentType;
     }
 }

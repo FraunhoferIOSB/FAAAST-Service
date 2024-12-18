@@ -18,6 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
  * Constants related to SMT Asset Interfaces Mapping Configuration.
  */
 public class Constants {
+    public static final String AID_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Submodel";
     public static final String AIMC_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/Submodel";
     public static final String AIMC_MAPPING_CONFIGURATIONS = "MappingConfigurations";
     public static final String AIMC_INTERFACE_REFERENCE = "InterfaceReference";

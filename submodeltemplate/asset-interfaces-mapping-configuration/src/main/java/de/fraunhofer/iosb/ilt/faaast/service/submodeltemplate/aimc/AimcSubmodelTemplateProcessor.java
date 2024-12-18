@@ -54,7 +54,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
     private AimcSubmodelTemplateProcessorConfig config;
     private ServiceContext serviceContext;
-
+    private Submodel aimcSubmodel;
+    
     @Override
     public boolean accept(Submodel submodel) {
         return submodel != null
@@ -70,7 +71,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         try {
             LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
             processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
-
+            aimcSubmodel = submodel;
+            
             retval = true;
         }
         catch (Exception ex) {
