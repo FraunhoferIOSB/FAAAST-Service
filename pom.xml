@@ -76,7 +76,7 @@
         <aas4j.version>1.0.3</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.79</bouncycastle.version>
-        <checkstyle.version>10.20.2</checkstyle.version>
+        <checkstyle.version>10.21.0</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -89,7 +89,7 @@
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.17.5</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.3.1-jre</guava.version>
+        <guava.version>33.4.0-jre</guava.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
         <jackson.version>2.18.2</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
@@ -132,9 +132,9 @@
         <mockito.version>5.14.2</mockito.version>
         <mongodb.version>5.2.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.115.Final</netty.version>
+        <netty.version>4.1.116.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4.1</org.apache.httpcomponents.client5.version>
-        <org.apache.log4j-to-slf4j>2.24.2</org.apache.log4j-to-slf4j>
+        <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.6</picocli.version>
