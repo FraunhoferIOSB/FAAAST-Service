@@ -174,4 +174,21 @@ public class Util {
 
         return supportedSecurity;
     }
+
+
+    /**
+     * Gets the content for the desired element.
+     *
+     * @param baseContentType The base content type.
+     * @param forms The forms attribute of the desired element.
+     * @return The contentr type of the element.
+     */
+    public static String getContentType(String baseContentType, SubmodelElementCollection forms) {
+        String contentType = baseContentType;
+        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            contentType = prop.getValue();
+        }
+        return contentType;
+    }
 }

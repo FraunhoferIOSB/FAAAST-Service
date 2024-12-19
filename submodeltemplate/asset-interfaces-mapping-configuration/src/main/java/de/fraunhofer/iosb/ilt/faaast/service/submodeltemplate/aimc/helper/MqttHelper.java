@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
-import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -69,8 +68,8 @@ public class MqttHelper {
      * @throws ConfigurationException if invalid configuration is provided.
      * @throws AssetConnectionException if there is an error in the Asset Connection.
      */
-    public static void processInterfaceMqtt(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
-                                            List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+    public static void processInterface(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
+                                        List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
             throws ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
@@ -88,7 +87,7 @@ public class MqttHelper {
             throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
         }
         else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurityMqtt(serviceContext, config, securityList, assetConfigBuilder);
+            assetConfigBuilder = configureSecurity(serviceContext, config, securityList, assetConfigBuilder);
         }
 
         // contentType
@@ -100,7 +99,7 @@ public class MqttHelper {
             updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType), subscriptionProviders, assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelationsMqtt(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+            processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
         }
 
         if (!subscriptionProviders.isEmpty()) {
@@ -138,7 +137,7 @@ public class MqttHelper {
                     }
                 }
                 if (mode != ProcessingMode.DELETE) {
-                    updateRelationsMqtt(data, subscriptionProviders, currentSubscriptionProviders);
+                    updateRelations(data, subscriptionProviders, mac);
                 }
                 else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
                         && mac.getOperationProviders().isEmpty()) {
@@ -149,15 +148,11 @@ public class MqttHelper {
     }
 
 
-    private static MqttSubscriptionProviderConfig createSubscriptionProviderMqtt(SubmodelElementCollection property, String baseContentType) {
+    private static MqttSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseContentType) {
         MqttSubscriptionProviderConfig retval = null;
 
         SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String contentType = baseContentType;
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_CONTENT_TYPE.equals(e.getIdShort())).findFirst();
-        if (element.isPresent() && (element.get() instanceof Property prop)) {
-            contentType = prop.getValue();
-        }
+        String contentType = Util.getContentType(baseContentType, forms);
 
         String href = Util.getFormsHref(forms);
         LOGGER.debug("createSubscriptionProviderMqtt: href: {}; contentType: {}", href, contentType);
@@ -170,29 +165,51 @@ public class MqttHelper {
     }
 
 
-    private static void processRelationsMqtt(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
+    private static boolean subscriptionProviderChanged(MqttSubscriptionProviderConfig config, SubmodelElementCollection property, String baseContentType) {
+        SubmodelElementCollection forms = Util.getPropertyForms(property);
+        String format = Util.getFormatFromContentType(Util.getContentType(baseContentType, forms));
+        if (!config.getFormat().equals(format)) {
+            return true;
+        }
+
+        String href = Util.getFormsHref(forms);
+        return !config.getTopic().equals(href);
+    }
+
+
+    private static void processRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, data.getContentType()));
+                subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
             }
         }
     }
 
 
-    private static void updateRelationsMqtt(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, Set<Reference> currentSubscriptions)
+    private static void updateRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, MqttAssetConnection mac)
             throws PersistenceException, ResourceNotFoundException {
+        Map<Reference, MqttSubscriptionProviderConfig> currentSubscriptions = mac.asConfig().getSubscriptionProviders();
         for (var r: data.getRelations()) {
-            if ((EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property)
-                    && (!currentSubscriptions.contains(r.getSecond()))) {
-                subscriptionProviders.put(r.getSecond(), createSubscriptionProviderMqtt(property, data.getContentType()));
+            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
+                if (currentSubscriptions.containsKey(r.getSecond())) {
+                    // compare provider data
+                    MqttSubscriptionProviderConfig config = currentSubscriptions.get(r.getSecond());
+                    if (subscriptionProviderChanged(config, property, data.getContentType())) {
+                        mac.unregisterSubscriptionProvider(r.getSecond());
+                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
+                    }
+                }
+                else {
+                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
+                }
             }
         }
     }
 
 
-    private static MqttAssetConnectionConfig.Builder configureSecurityMqtt(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config,
-                                                                           SubmodelElementList securityList, MqttAssetConnectionConfig.Builder assetConfigBuilder)
+    private static MqttAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config,
+                                                                       SubmodelElementList securityList, MqttAssetConnectionConfig.Builder assetConfigBuilder)
             throws ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig.Builder retval = assetConfigBuilder;
         List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);

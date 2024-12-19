@@ -55,11 +55,12 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private AimcSubmodelTemplateProcessorConfig config;
     private ServiceContext serviceContext;
     private Submodel aimcSubmodel;
-    
+
     @Override
     public boolean accept(Submodel submodel) {
         return submodel != null
-                && Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId());
+                && (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())
+                        || Objects.equals(ReferenceBuilder.global(Constants.AID_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId()));
     }
 
 
@@ -69,10 +70,13 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         Ensure.requireNonNull(assetConnectionManager);
         boolean retval;
         try {
-            LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
-            aimcSubmodel = submodel;
-            
+            // in add we only process AIMC submodel
+            if (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+                LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
+                processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
+                aimcSubmodel = submodel;
+            }
+
             retval = true;
         }
         catch (Exception ex) {
@@ -105,7 +109,12 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
         try {
             LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            Submodel updateSubmodel = submodel;
+            // we always use AIMC submodel for processSubmodel
+            if (Objects.equals(ReferenceBuilder.global(Constants.AID_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+                updateSubmodel = aimcSubmodel;
+            }
+            processSubmodel(updateSubmodel, assetConnectionManager, ProcessingMode.UPDATE);
             retval = true;
         }
         catch (Exception ex) {
@@ -122,8 +131,11 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         Ensure.requireNonNull(assetConnectionManager);
         boolean retval;
         try {
-            LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            // in delete we only process AIMC submodel
+            if (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+                LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
+                processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            }
             retval = true;
         }
         catch (Exception ex) {
@@ -166,11 +178,11 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                     && (assetInterface.getSupplementalSemanticIds() != null)) {
                 if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                     // HTTP Interface
-                    HttpHelper.processInterfaceHttp(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
+                    HttpHelper.processInterface(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
                 }
                 else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
                     // MQTT Interface
-                    MqttHelper.processInterfaceMqtt(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
+                    MqttHelper.processInterface(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
                 }
             }
         }
