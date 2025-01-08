@@ -78,7 +78,7 @@
         <bouncycastle.version>1.79</bouncycastle.version>
         <checkstyle.version>10.21.1</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
-        <commons.codec.version>1.17.1</commons.codec.version>
+        <commons.codec.version>1.17.2</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.18.0</commons.io.version>
@@ -103,7 +103,7 @@
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.13</logback.version>
+        <logback.version>1.5.16</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -126,7 +126,7 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.44.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.15</milo.version>
         <mockito.version>5.15.2</mockito.version>
