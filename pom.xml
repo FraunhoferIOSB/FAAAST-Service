@@ -77,9 +77,9 @@
         <aas4j.version>1.0.3</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.79</bouncycastle.version>
-        <checkstyle.version>10.21.0</checkstyle.version>
+        <checkstyle.version>10.21.1</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
-        <commons.codec.version>1.17.1</commons.codec.version>
+        <commons.codec.version>1.17.2</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.18.0</commons.io.version>
@@ -88,7 +88,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.18.1</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.17.5</equalsverifier.version>
+        <equalsverifier.version>3.18</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.4.0-jre</guava.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
@@ -104,7 +104,7 @@
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.12</logback.version>
+        <logback.version>1.5.16</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -127,10 +127,10 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.44.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.15</milo.version>
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.15.2</mockito.version>
         <mongodb.version>5.2.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.116.Final</netty.version>
@@ -144,7 +144,7 @@
         <proguard.version>7.6.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.8-159</prosys.sdk.version>
-        <protobuf.version>4.29.1</protobuf.version>
+        <protobuf.version>4.29.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
