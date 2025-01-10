@@ -96,10 +96,11 @@ public class MqttHelper {
         List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
         if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType), subscriptionProviders, assetConnectionsRemove);
+            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, config), subscriptionProviders,
+                    assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+            processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders);
         }
 
         if (!subscriptionProviders.isEmpty()) {
@@ -155,7 +156,7 @@ public class MqttHelper {
         String contentType = Util.getContentType(baseContentType, forms);
 
         String href = Util.getFormsHref(forms);
-        LOGGER.debug("createSubscriptionProviderMqtt: href: {}; contentType: {}", href, contentType);
+        LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
         retval = MqttSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .topic(href)

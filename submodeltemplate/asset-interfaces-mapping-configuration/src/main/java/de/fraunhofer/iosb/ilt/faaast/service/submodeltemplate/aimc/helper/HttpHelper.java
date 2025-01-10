@@ -54,6 +54,8 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpHelper {
 
+    public static final long DEFAULT_INTERVAL = 1000;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
     private HttpHelper() {}
@@ -104,11 +106,11 @@ public class HttpHelper {
         Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
         Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
         if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType), subscriptionProviders, valueProviders,
+            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, config), subscriptionProviders, valueProviders,
                     assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders, base, valueProviders);
+            processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders, base, valueProviders);
         }
 
         if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
@@ -175,7 +177,7 @@ public class HttpHelper {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
                 if (isObservable(property)) {
-                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType()));
+                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getConfig()));
                 }
                 else {
                     valueProviders.put(r.getSecond(), createValueProvider(property, base, data.getContentType()));
@@ -199,11 +201,11 @@ public class HttpHelper {
                         HttpSubscriptionProviderConfig config = currentSubscriptions.get(r.getSecond());
                         if (subscriptionProviderChanged(config, property, base, data.getContentType())) {
                             hac.unregisterSubscriptionProvider(r.getSecond());
-                            subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType()));
+                            subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getConfig()));
                         }
                     }
                     else {
-                        subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType()));
+                        subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getConfig()));
                     }
                 }
                 else if (currentValues.containsKey(r.getSecond())) {
@@ -222,7 +224,8 @@ public class HttpHelper {
     }
 
 
-    private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType,
+                                                                             AimcSubmodelTemplateProcessorConfig config) {
         HttpSubscriptionProviderConfig retval = null;
 
         SubmodelElementCollection forms = Util.getPropertyForms(property);
@@ -230,11 +233,12 @@ public class HttpHelper {
 
         String href = getUrl(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
-        LOGGER.debug("createSubscriptionProviderHttp: href: {}; contentType: {}", href, contentType);
+        LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
         retval = HttpSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(href)
                 .headers(headers)
+                .interval(config.getSubscriptionInterval() <= 0 ? DEFAULT_INTERVAL : config.getSubscriptionInterval())
                 .build();
 
         return retval;
@@ -266,7 +270,7 @@ public class HttpHelper {
 
         String href = getUrl(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
-        LOGGER.debug("createValueProviderHttp: href: {}; contentType: {}", href, contentType);
+        LOGGER.debug("createValueProvider: href: {}; contentType: {}", href, contentType);
         retval = HttpValueProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(href)

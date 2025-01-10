@@ -26,6 +26,7 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
 
     private String username;
     private String password;
+    private long subscriptionInterval;
 
     public String getUsername() {
         return username;
@@ -47,9 +48,19 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
     }
 
 
+    public long getSubscriptionInterval() {
+        return subscriptionInterval;
+    }
+
+
+    public void setSubscriptionInterval(long subscriptionInterval) {
+        this.subscriptionInterval = subscriptionInterval;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(username, password);
+        return Objects.hash(username, password, subscriptionInterval);
     }
 
 
@@ -66,10 +77,9 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
         }
         final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
         return super.equals(other)
-                && Objects.equals(this.username, other.username)
-                && Objects.equals(this.password, other.password)
-        //&& Objects.equals(this.trustedCertificates, other.trustedCertificates)
-        ;
+                && Objects.equals(username, other.username)
+                && Objects.equals(password, other.password)
+                && Objects.equals(subscriptionInterval, other.getSubscriptionInterval());
     }
 
     protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
@@ -83,6 +93,12 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
 
         public B password(String value) {
             getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+
+
+        public B subscriptionInterval(long value) {
+            getBuildingInstance().setSubscriptionInterval(value);
             return getSelf();
         }
     }
