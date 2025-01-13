@@ -119,7 +119,7 @@
         <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>11.1.1</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.0.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.4-127</maven.plugin.prosys.codegen.version>
