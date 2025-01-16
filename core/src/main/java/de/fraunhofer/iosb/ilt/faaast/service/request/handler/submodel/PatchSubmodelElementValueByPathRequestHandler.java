@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -31,20 +31,20 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest} in the service
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest} in the service
  * and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse}. Is
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse}. Is
  * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class SetSubmodelElementValueByPathRequestHandler
-        extends AbstractSubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
+public class PatchSubmodelElementValueByPathRequestHandler
+        extends AbstractSubmodelInterfaceRequestHandler<PatchSubmodelElementValueByPathRequest<?>, PatchSubmodelElementValueByPathResponse> {
 
     @Override
-    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request, RequestExecutionContext context) throws Exception {
+    public PatchSubmodelElementValueByPathResponse doProcess(PatchSubmodelElementValueByPathRequest request, RequestExecutionContext context) throws Exception {
         if (request == null || request.getValueParser() == null) {
             throw new IllegalArgumentException("value parser of request must be non-null");
         }
-        SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
+        PatchSubmodelElementValueByPathResponse response = new PatchSubmodelElementValueByPathResponse();
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())

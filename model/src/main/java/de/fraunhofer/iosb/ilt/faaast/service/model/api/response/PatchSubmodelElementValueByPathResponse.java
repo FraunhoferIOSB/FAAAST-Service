@@ -15,15 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 /**
- * Response class for SetSubmodelElementValueByPath requests.
+ * Response class for PatchSubmodelElementValueByPath requests.
  */
-public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
+public class PatchSubmodelElementValueByPathResponse extends AbstractResponse {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<SetSubmodelElementValueByPathResponse, Builder> {
+    public static class Builder extends AbstractBuilder<PatchSubmodelElementValueByPathResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -32,8 +32,8 @@ public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
 
 
         @Override
-        protected SetSubmodelElementValueByPathResponse newBuildingInstance() {
-            return new SetSubmodelElementValueByPathResponse();
+        protected PatchSubmodelElementValueByPathResponse newBuildingInstance() {
+            return new PatchSubmodelElementValueByPathResponse();
         }
     }
 }

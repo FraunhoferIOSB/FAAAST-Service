@@ -14,22 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import java.util.Objects;
 
 
 /**
- * Request class for SetSubmodelElementValueByPath requests.
+ * Request class for PatchSubmodelElementValueByPath requests.
  */
-public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInterfaceRequest<SetSubmodelElementValueByPathResponse> {
+public class PatchSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInterfaceRequest<PatchSubmodelElementValueByPathResponse> {
 
     private String path;
     private T rawValue;
     private ElementValueParser valueParser;
     private boolean syncWithAsset;
 
-    public SetSubmodelElementValueByPathRequest() {
+    public PatchSubmodelElementValueByPathRequest() {
         this.syncWithAsset = true;
         this.path = "";
         this.valueParser = ElementValueParser.DEFAULT;
@@ -84,7 +84,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SetSubmodelElementValueByPathRequest<T> that = (SetSubmodelElementValueByPathRequest<T>) o;
+        PatchSubmodelElementValueByPathRequest<T> that = (PatchSubmodelElementValueByPathRequest<T>) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(rawValue, that.rawValue);
@@ -101,7 +101,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
         return new Builder<>();
     }
 
-    public abstract static class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>>
+    public abstract static class AbstractBuilder<U, T extends PatchSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>>
             extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(String value) {
@@ -128,7 +128,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
         }
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, SetSubmodelElementValueByPathRequest<T>, Builder<T>> {
+    public static class Builder<T> extends AbstractBuilder<T, PatchSubmodelElementValueByPathRequest<T>, Builder<T>> {
 
         @Override
         protected Builder getSelf() {
@@ -137,8 +137,8 @@ public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInt
 
 
         @Override
-        protected SetSubmodelElementValueByPathRequest<T> newBuildingInstance() {
-            return new SetSubmodelElementValueByPathRequest<>();
+        protected PatchSubmodelElementValueByPathRequest<T> newBuildingInstance() {
+            return new PatchSubmodelElementValueByPathRequest<>();
         }
     }
 }
