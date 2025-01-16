@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
@@ -130,6 +131,7 @@ public enum ServiceSpecificationProfile {
                     InvokeOperationRequest.class,
                     InvokeOperationSyncRequest.class,
                     PatchSubmodelElementByPathRequest.class,
+                    PatchSubmodelElementValueByPathRequest.class,
                     PatchSubmodelRequest.class,
                     PostSubmodelElementByPathRequest.class,
                     PostSubmodelElementRequest.class,
@@ -184,6 +186,7 @@ public enum ServiceSpecificationProfile {
                     InvokeOperationRequest.class,
                     InvokeOperationSyncRequest.class,
                     PatchSubmodelElementByPathRequest.class,
+                    PatchSubmodelElementValueByPathRequest.class,
                     PatchSubmodelRequest.class,
                     PostSubmodelElementByPathRequest.class,
                     PostSubmodelElementRequest.class,
@@ -312,6 +315,7 @@ public enum ServiceSpecificationProfile {
                     InvokeOperationRequest.class,
                     InvokeOperationSyncRequest.class,
                     PatchSubmodelElementByPathRequest.class,
+                    PatchSubmodelElementValueByPathRequest.class,
                     PatchSubmodelRequest.class,
                     PostSubmodelElementByPathRequest.class,
                     PostSubmodelElementRequest.class,
@@ -395,6 +399,7 @@ public enum ServiceSpecificationProfile {
                     InvokeOperationRequest.class,
                     InvokeOperationSyncRequest.class,
                     PatchSubmodelElementByPathRequest.class,
+                    PatchSubmodelElementValueByPathRequest.class,
                     PatchSubmodelRequest.class,
                     PostSubmodelElementByPathRequest.class,
                     PostSubmodelElementRequest.class,
