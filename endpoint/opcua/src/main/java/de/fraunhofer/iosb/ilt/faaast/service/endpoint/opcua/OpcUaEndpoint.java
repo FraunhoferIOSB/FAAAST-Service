@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
@@ -135,7 +135,7 @@ public class OpcUaEndpoint extends AbstractEndpoint<OpcUaEndpointConfig> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("writeValue: Reference {}; Path {}", ReferenceHelper.toString(refElement), path);
             }
-            SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
+            PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest();
 
             request.setSubmodelId(submodel.getId());
             request.setPath(path);
