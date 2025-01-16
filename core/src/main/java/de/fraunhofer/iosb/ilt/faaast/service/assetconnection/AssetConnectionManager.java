@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
@@ -221,7 +221,7 @@ public class AssetConnectionManager {
         }
         try {
             provider.addNewDataListener((DataElementValue data) -> {
-                Response response = service.execute(SetSubmodelElementValueByPathRequest.builder()
+                Response response = service.execute(PatchSubmodelElementValueByPathRequest.builder()
                         .submodelId(ReferenceHelper.findFirstKeyType(reference, KeyTypes.SUBMODEL))
                         .path(ReferenceHelper.toPath(reference))
                         .disableSyncWithAsset()

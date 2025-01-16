@@ -35,7 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
@@ -1109,8 +1109,8 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentNormal() throws Exception {
-        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
+    public void testPatchSubmodelElementValueByPathContentNormal() throws Exception {
+        PatchSubmodelElementValueByPathRequest expected = PatchSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
@@ -1122,7 +1122,7 @@ public class RequestMappingManagerTest {
                         + "/$value")
                 .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
-        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        PatchSubmodelElementValueByPathRequest actual = (PatchSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
         Assert.assertEquals(expected.getPath(), actual.getPath());
         Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), ElementValue.class));
@@ -1130,8 +1130,8 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentValue() throws Exception {
-        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
+    public void testPatchSubmodelElementValueByPathContentValue() throws Exception {
+        PatchSubmodelElementValueByPathRequest expected = PatchSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
@@ -1143,7 +1143,7 @@ public class RequestMappingManagerTest {
                         + "/$value")
                 .body(serializer.write(ElementValueMapper.toValue(SUBMODEL_ELEMENT)).getBytes())
                 .build());
-        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        PatchSubmodelElementValueByPathRequest actual = (PatchSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
         Assert.assertEquals(expected.getPath(), actual.getPath());
         Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), ElementValue.class));

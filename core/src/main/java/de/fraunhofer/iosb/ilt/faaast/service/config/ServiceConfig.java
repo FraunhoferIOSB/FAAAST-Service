@@ -200,11 +200,13 @@ public class ServiceConfig {
         private PersistenceConfig persistence;
         private FileStorageConfig fileStorage;
         private MessageBusConfig messageBus;
+        private List<SubmodelTemplateProcessorConfig> submodelTemplateProcessors;
 
         public Builder() {
             this.core = new CoreConfig();
             this.assetConnections = new ArrayList<>();
             this.endpoints = new ArrayList<>();
+            this.submodelTemplateProcessors = new ArrayList<>();
         }
 
 
@@ -305,6 +307,30 @@ public class ServiceConfig {
 
 
         /**
+         * Sets the SubmodelTemplateProcessors.
+         *
+         * @param value The SubmodelTemplateProcessors.
+         * @return The builder.
+         */
+        public Builder submodelTemplateProcessors(List<SubmodelTemplateProcessorConfig> value) {
+            this.submodelTemplateProcessors = value;
+            return this;
+        }
+
+
+        /**
+         * Adds a SubmodelTemplateProcessor to the list of SubmodelTemplateProcessors.
+         *
+         * @param value The SubmodelTemplateProcessor to add.
+         * @return The builder.
+         */
+        public Builder submodelTemplateProcessor(SubmodelTemplateProcessorConfig value) {
+            this.submodelTemplateProcessors.add(value);
+            return this;
+        }
+
+
+        /**
          * Builds a new instance of ServiceConfig as defined by the builder.
          *
          * @return a new instance of ServiceConfig as defined by the builder
@@ -317,6 +343,7 @@ public class ServiceConfig {
             result.setPersistence(persistence);
             result.setFileStorage(fileStorage);
             result.setMessageBus(messageBus);
+            result.setSubmodelTemplateProcessors(submodelTemplateProcessors);
             return result;
         }
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -170,9 +171,10 @@ public class HttpRequest extends HttpMessage {
     public void setQueryParametersFromQueryString(String queryString) {
         this.queryParameters = queryString != null && queryString.contains("=")
                 ? Arrays.asList(queryString.split("&")).stream()
-                        .map(x -> splitKeyValue(x, "=")).collect(Collectors.toMap(
+                        .map(x -> splitKeyValue(x, "="))
+                        .collect(Collectors.toMap(
                                 x -> x[0],
-                                x -> x[1],
+                                x -> EncodingHelper.urlDecode(x[1]),
                                 (oldValue, newValue) -> newValue))
                 : new HashMap<>();
     }
