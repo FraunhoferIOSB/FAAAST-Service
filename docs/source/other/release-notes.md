@@ -1,6 +1,13 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.3.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**Internal changes & bugfixes**
+- Endpoint
+	- HTTP
+		- URL query parameters are now correctly URL-decoded
+		- Enabled `level` query parameter for calls to /submodels/{submodelIdentifier}/$reference as this is not explicitely forbidden in the specification although the parameter does not have any actual effect
+
 ## 1.2.0
 
 **New Features & Major Changes**
