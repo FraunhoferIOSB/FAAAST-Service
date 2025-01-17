@@ -59,9 +59,8 @@ public class ProcessorTest {
                 .persistence(new PersistenceInMemoryConfig())
                 .fileStorage(new FileStorageInMemoryConfig())
                 .messageBus(new MessageBusInternalConfig())
-                //.submodelTemplateProcessors(new AimcSubmodelTemplateProcessorConfig.Builder().username("user1").password("pw1").build())
+                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder().username("user1").password("pw1").build()))
                 .build();
-        config.setSubmodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder().username("user1").password("pw1").build()));
     }
 
 
