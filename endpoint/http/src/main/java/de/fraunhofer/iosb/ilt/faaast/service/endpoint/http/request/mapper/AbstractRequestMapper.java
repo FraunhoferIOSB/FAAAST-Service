@@ -181,6 +181,7 @@ public abstract class AbstractRequestMapper {
      */
     protected Map<String, TypedInMemoryFile> parseMultiPartBody(HttpRequest httpRequest, MediaType contentType) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
+        Ensure.require(contentType.subtype().equals("form-data"), "contentType must be form-data");
         Map<String, TypedInMemoryFile> map = new HashMap<>();
         try {
             MultipartStream multipartStream = new MultipartStream(
