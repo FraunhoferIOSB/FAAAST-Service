@@ -210,6 +210,8 @@ public abstract class AbstractRequestMapper {
         catch (IOException e) {
             throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
+        Ensure.requireNonNull(map.get("file"));
+        Ensure.requireNonNull(map.get("fileName"));
         return map;
     }
 
