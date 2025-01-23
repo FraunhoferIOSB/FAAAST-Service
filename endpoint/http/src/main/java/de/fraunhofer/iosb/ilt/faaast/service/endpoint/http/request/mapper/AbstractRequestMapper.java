@@ -51,6 +51,8 @@ public abstract class AbstractRequestMapper {
     protected static final String BOUNDARY = "boundary";
     protected static final Pattern PATTERN_NAME = Pattern.compile("name=\"([^\"]+)\"");
     protected static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile(HttpConstants.HEADER_CONTENT_TYPE + ": ([^\n^\r]+)");
+    protected static final String FILENAME = "fileName";
+    protected static final String FILE = "file";
 
     protected final ServiceContext serviceContext;
     protected final HttpJsonApiDeserializer deserializer;
@@ -192,14 +194,14 @@ public abstract class AbstractRequestMapper {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 String multipartHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
-                if (Objects.equals(headerMatcher(PATTERN_NAME, multipartHeaders), "fileName")) {
-                    map.put("fileName", new TypedInMemoryFile.Builder()
+                if (Objects.equals(headerMatcher(PATTERN_NAME, multipartHeaders), FILENAME)) {
+                    map.put(FILENAME, new TypedInMemoryFile.Builder()
                             .content(output.toByteArray())
                             .contentType(MediaType.PLAIN_TEXT_UTF_8.toString())
                             .build());
                 }
                 else {
-                    map.put("file", new TypedInMemoryFile.Builder()
+                    map.put(FILE, new TypedInMemoryFile.Builder()
                             .content(output.toByteArray())
                             .contentType(headerMatcher(PATTERN_CONTENT_TYPE, multipartHeaders))
                             .build());
@@ -210,8 +212,8 @@ public abstract class AbstractRequestMapper {
         catch (IOException e) {
             throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
-        Ensure.requireNonNull(map.get("file"));
-        Ensure.requireNonNull(map.get("fileName"));
+        Ensure.requireNonNull(map.get(FILE));
+        Ensure.requireNonNull(map.get(FILENAME));
         return map;
     }
 
