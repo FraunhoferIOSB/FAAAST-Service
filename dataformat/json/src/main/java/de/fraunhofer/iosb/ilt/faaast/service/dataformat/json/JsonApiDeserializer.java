@@ -170,7 +170,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         }
         try {
             return (T) wrapper.getMapper().reader()
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .readValue(json, typeInfo.getType());
         }
         catch (IOException e) {
@@ -214,7 +214,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         try {
             return (ElementValue[]) wrapper.getMapper()
                     .readerForArrayOf(containerTypeInfo.getContentType())
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()))
                     .readValue(json);
         }
@@ -248,7 +248,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         }
         try {
             return (List<T>) wrapper.getMapper().reader()
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, containerTypeInfo.getContentType()))
                     .readValue(json);
         }
@@ -281,7 +281,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         }
         try {
             return (Page<T>) wrapper.getMapper().reader()
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructParametricType(Page.class, ElementValue.class))
                     .readValue(json);
         }
@@ -315,7 +315,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         }
         try {
             return (Map<K, V>) wrapper.getMapper().reader()
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructMapType(Map.class, Object.class, Object.class))
                     .readValue(json);
         }
@@ -349,7 +349,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
         }
         try {
             return (Map<K, V>) wrapper.getMapper().reader()
-                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructMapType(Map.class, Object.class, Object.class))
                     .readValue(json);
         }

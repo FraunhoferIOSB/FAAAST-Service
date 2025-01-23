@@ -316,7 +316,7 @@ public class HttpAssetConnectionTest {
             throws AssetConnectionException, ConfigurationInitializationException, ValueFormatException, ResourceNotFoundException, PersistenceException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
-                "{ \"parameters\": { \"in1\": ${in1} }}",
+                "{ \"parameters\": { \"in1\": \"${in1}\" }}",
                 "{ \"parameters\": { \"in1\": \"foo\" }}",
                 null,
                 null,

@@ -76,7 +76,7 @@ public class ValueMapDeserializer extends MapDeserializer {
                         "found element '%s' during valueOnly deserialization that is not defined by type information",
                         element.getKey()));
             }
-            context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(element.getKey()));
+            context.setAttribute(ContextAwareElementValueDeserializer.CONTEXT_TYPE_INFO, typeInfo.getElements().get(element.getKey()));
             Class<?> type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
             result.put(element.getKey(), context.readTreeAsValue(element.getValue(), type));
         }

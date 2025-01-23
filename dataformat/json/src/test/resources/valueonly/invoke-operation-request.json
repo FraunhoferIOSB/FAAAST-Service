@@ -1,8 +1,49 @@
 {
     "inputArguments": {
-        "inString": "foo",
-        "inInt": 42,
-        "inDouble": 42.17
+        "propertyString11": "foo",
+        "propertyInt11": 42,
+        "propertyDouble11": 42.17,
+        "collection11": {
+            "propertyString21": "foo",
+            "propertyInt21": 42,
+            "propertyDouble21": 42.17,
+            "collection21": {
+                "propertyString31": "foo",
+                "propertyInt31": 42,
+                "propertyDouble31": 42.17
+            },
+            "list21": [
+                1,
+                2,
+                3
+            ]
+        },
+        "list11": [
+            "foo",
+            "bar"
+        ],
+        "list12": [
+            [
+                "foo1",
+                "foo2"
+            ],
+            [
+                "bar1",
+                "bar2"
+            ]
+        ],
+        "list13": [
+            {
+                "propertyString31": "foo",
+                "propertyInt31": 42,
+                "propertyDouble31": 42.17
+            },
+            {
+                "propertyString31": "foo",
+                "propertyInt31": 42,
+                "propertyDouble31": 42.17
+            }
+        ]
     },
     "inoutputArguments": {
         "inoutString": "bar",

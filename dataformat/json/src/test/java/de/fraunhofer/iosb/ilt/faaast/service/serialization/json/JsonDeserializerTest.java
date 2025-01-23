@@ -47,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -180,11 +181,13 @@ public class JsonDeserializerTest {
         ServiceContext serviceContext = mock(ServiceContext.class);
         when(serviceContext.execute(any(), any()))
                 .thenReturn(GetSubmodelElementByPathResponse.builder()
-                        .payload(ValueOnlyExamples.CONTEXT_OPERATION_INVOKE)
+                        .payload(new DefaultOperation.Builder()
+                                .inputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST.getInputArguments())
+                                .inoutputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST.getInoutputArguments())
+                                .build())
                         .success()
                         .build());
         InvokeOperationRequest expected = ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST;
-
         InvokeOperationSyncRequest actual = deserializer.readValueOperationRequest(
                 ValueOnlyExamples.INVOKE_OPERATION_REQUEST_FILE,
                 InvokeOperationSyncRequest.class,
@@ -192,6 +195,30 @@ public class JsonDeserializerTest {
                 SubmodelElementIdentifier.builder()
                         .submodelId("http://example.org/submodels/1")
                         .idShortPath(IdShortPath.parse("my.test.operation"))
+                        .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testInvokeOperationRequestSync2() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        when(serviceContext.execute(any(), any()))
+                .thenReturn(GetSubmodelElementByPathResponse.builder()
+                        .payload(new DefaultOperation.Builder()
+                                .inputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2.getInputArguments())
+                                .inoutputVariables(ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2.getInoutputArguments())
+                                .build())
+                        .success()
+                        .build());
+        InvokeOperationRequest expected = ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2;
+        InvokeOperationSyncRequest actual = deserializer.readValueOperationRequest(
+                ValueOnlyExamples.INVOKE_OPERATION_REQUEST_2_FILE,
+                InvokeOperationSyncRequest.class,
+                serviceContext,
+                SubmodelElementIdentifier.builder()
+                        .submodelId("http://example.org/submodels/1")
+                        .idShortPath(IdShortPath.parse("my.test.operation2"))
                         .build());
         Assert.assertEquals(expected, actual);
     }

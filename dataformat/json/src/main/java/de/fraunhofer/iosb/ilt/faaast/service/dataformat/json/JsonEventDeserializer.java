@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.BasicEventElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EntityValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EnumDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.MultiLanguagePropertyValueDeserializer;
@@ -42,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
+import java.io.IOException;
 
 
 /**
@@ -90,9 +91,11 @@ public class JsonEventDeserializer {
      */
     public <T extends EventMessage> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, type);
+            return wrapper.getMapper().reader()
+                    .withAttribute(ContextAwareElementValueDeserializer.CONTEXT_IS_EVENT, true)
+                    .readValue(json, type);
         }
-        catch (JsonProcessingException e) {
+        catch (IOException e) {
             throw new DeserializationException(
                     String.format("Deserializing event message failed (reason: %s)",
                             e.getMessage()),

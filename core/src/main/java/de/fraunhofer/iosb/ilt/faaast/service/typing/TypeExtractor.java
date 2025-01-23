@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements;
 import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -70,9 +69,9 @@ public class TypeExtractor {
         }
         else if (SubmodelElementList.class.isAssignableFrom(type)) {
             SubmodelElementList submodelElementList = (SubmodelElementList) submodelElement;
-            if (Objects.nonNull(submodelElementList.getTypeValueListElement())
-                    && (submodelElementList.getTypeValueListElement() == AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION
-                            || submodelElementList.getTypeValueListElement() == AasSubmodelElements.SUBMODEL_ELEMENT_LIST)) {
+
+            Class<? extends SubmodelElement> elementType = SubmodelElementListHelper.getElementType(submodelElementList);
+            if (Objects.equals(SubmodelElementCollection.class, elementType) || Objects.equals(SubmodelElementList.class, elementType)) {
                 if (submodelElementList.getValue().size() == 1) {
                     builder.element(null, extractTypeInfoForSubmodelElement(submodelElementList.getValue().get(0)));
                 }
@@ -88,7 +87,6 @@ public class TypeExtractor {
                         .datatype(SubmodelElementListHelper.getDatatype(submodelElementList))
                         .build());
             }
-
         }
         else if (Entity.class.isAssignableFrom(type)) {
             Entity entity = (Entity) submodelElement;

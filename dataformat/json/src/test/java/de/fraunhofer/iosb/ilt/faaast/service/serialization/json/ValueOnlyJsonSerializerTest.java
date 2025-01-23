@@ -98,6 +98,7 @@ public class ValueOnlyJsonSerializerTest {
     @Test
     public void testInvokeOperationRequest() throws SerializationException, JSONException, IOException, ValueMappingException, UnsupportedContentModifierException {
         assertEquals(ValueOnlyExamples.INVOKE_OPERATION_REQUEST_FILE, ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST);
+        assertEquals(ValueOnlyExamples.INVOKE_OPERATION_REQUEST_2_FILE, ValueOnlyExamples.INVOKE_OPERATION_SYNC_REQUEST_2);
     }
 
 

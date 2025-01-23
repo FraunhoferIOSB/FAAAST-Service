@@ -20,11 +20,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -34,7 +37,8 @@ import java.util.Map;
  */
 public abstract class ContextAwareElementValueDeserializer<T extends ElementValue> extends StdDeserializer<T> {
 
-    public static final String VALUE_TYPE_CONTEXT = "typeInfoContext";
+    public static final String CONTEXT_TYPE_INFO = "typeInfoContext";
+    public static final String CONTEXT_IS_EVENT = "isEvent";
 
     /**
      * Fetches type information from {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
@@ -44,8 +48,8 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * @return type information if present, else null
      */
     protected static TypeInfo getTypeInfo(DeserializationContext context) {
-        return context.getAttribute(VALUE_TYPE_CONTEXT) != null && TypeInfo.class.isAssignableFrom(context.getAttribute(VALUE_TYPE_CONTEXT).getClass())
-                ? (TypeInfo) context.getAttribute(VALUE_TYPE_CONTEXT)
+        return context.getAttribute(CONTEXT_TYPE_INFO) != null && TypeInfo.class.isAssignableFrom(context.getAttribute(CONTEXT_TYPE_INFO).getClass())
+                ? (TypeInfo) context.getAttribute(CONTEXT_TYPE_INFO)
                 : null;
     }
 
@@ -60,10 +64,22 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     }
 
 
+    private boolean isSubmodelElementCollection(DeserializationContext context) {
+        return getTypeInfo(context) instanceof ElementValueTypeInfo x
+                && SubmodelElementCollectionValue.class.isAssignableFrom(x.getType());
+    }
+
+
+    private boolean isEvent(DeserializationContext context) {
+        return Boolean.parseBoolean(Objects.toString(context.getAttribute(CONTEXT_IS_EVENT)));
+    }
+
+
     @Override
     public T deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
         JsonNode node = context.readTree(parser);
-        if (isWrapped(node)) {
+        boolean mayUnwrap = !isSubmodelElementCollection(context) || isEvent(context);
+        if (mayUnwrap && isWrapped(node)) {
             return deserializeValue(unwrap(node), context);
         }
         return deserializeValue(node, context);
@@ -142,7 +158,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
             if (childTypeInfo == null || childTypeInfo.getType() == null) {
                 throw new IllegalArgumentException(String.format("no type information found for element (idShort: %s)", childNode.getKey()));
             }
-            result.put(childNode.getKey(), (T) context.setAttribute(VALUE_TYPE_CONTEXT, childTypeInfo)
+            result.put(childNode.getKey(), (T) context.setAttribute(CONTEXT_TYPE_INFO, childTypeInfo)
                     .readTreeAsValue(childNode.getValue(), childTypeInfo.getType()));
 
         }
