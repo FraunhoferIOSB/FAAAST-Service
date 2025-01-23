@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -65,7 +64,7 @@ public class ProcessorTest {
 
 
     @Test
-    public void testAimc() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException, MalformedURLException, JsonProcessingException {
+    public void testAimc() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException, MalformedURLException {
         File initialModelFile = new File("src/test/resources/Test-Example.json");
         config.getPersistence().setInitialModelFile(initialModelFile);
         Service service = new Service(config);
