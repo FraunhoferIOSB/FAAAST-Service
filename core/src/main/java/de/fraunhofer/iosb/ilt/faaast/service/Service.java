@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -397,7 +398,7 @@ public class Service implements ServiceContext {
         }
         SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
             try {
-                elementCreated(x.getValue());
+                elementCreated(x.getValue(), x.getElement());
             }
             catch (Exception e) {
                 LOGGER.error("elementCreated Exception", e);
@@ -407,7 +408,7 @@ public class Service implements ServiceContext {
 
         info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
             try {
-                elementDeleted(x.getValue());
+                elementDeleted(x.getValue(), x.getElement());
             }
             catch (Exception e) {
                 LOGGER.error("elementDeleted Exception", e);
@@ -417,7 +418,7 @@ public class Service implements ServiceContext {
 
         info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
             try {
-                elementUpdated(x.getValue());
+                elementUpdated(x.getValue(), x.getElement());
             }
             catch (Exception e) {
                 LOGGER.error("elementUpdated Exception", e);
@@ -440,29 +441,44 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementCreated(Referable value) throws PersistenceException {
+    private void elementCreated(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         if (value instanceof Submodel submodel) {
             addSubmodel(submodel);
         }
+        else if (value instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+        }
     }
 
 
-    private void elementDeleted(Referable value) {
+    private void elementDeleted(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
         Ensure.requireNonNull(value, ELEMENT_NULL);
 
         if (value instanceof Submodel submodel) {
             deleteSubmodel(submodel);
         }
+        else if (value instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+        }
     }
 
 
-    private void elementUpdated(Referable value) throws PersistenceException {
+    private void elementUpdated(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         if (value instanceof Submodel submodel) {
             updateSubmodel(submodel);
+        }
+        else if (value instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
         }
     }
 }
