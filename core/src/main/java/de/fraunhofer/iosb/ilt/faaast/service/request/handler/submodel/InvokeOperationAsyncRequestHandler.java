@@ -97,7 +97,8 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                 operation.getOutputVariables(),
                                 operationResult.getOutputArguments(),
                                 config.getOutputValidationMode(),
-                                ArgumentType.OUTPUT));
+                                ArgumentType.OUTPUT,
+                                context));
             }
         }
         catch (ResourceNotFoundException | InvalidRequestException | PersistenceException e) {

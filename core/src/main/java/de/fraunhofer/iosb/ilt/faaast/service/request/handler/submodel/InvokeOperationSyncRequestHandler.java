@@ -74,7 +74,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                             operation.getOutputVariables(),
                             result.getPayload().getOutputArguments(),
                             config.getOutputValidationMode(),
-                            ArgumentType.OUTPUT));
+                            ArgumentType.OUTPUT,
+                            context));
         }
         return result;
     }

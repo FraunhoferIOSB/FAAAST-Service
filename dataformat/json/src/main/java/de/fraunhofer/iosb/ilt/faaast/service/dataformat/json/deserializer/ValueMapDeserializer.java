@@ -64,10 +64,6 @@ public class ValueMapDeserializer extends MapDeserializer {
         if (!node.isObject()) {
             return context.reportBadDefinition(Collection.class, "expected array");
         }
-        if (node.size() != typeInfo.getElements().size()) {
-            return context.reportBadDefinition(Collection.class,
-                    String.format("number of elements mismatch (expected: %d, actual: %d)", typeInfo.getElements().size(), node.size()));
-        }
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> element = iterator.next();
