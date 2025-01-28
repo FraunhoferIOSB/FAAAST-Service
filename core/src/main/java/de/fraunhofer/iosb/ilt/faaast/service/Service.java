@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -46,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -292,10 +294,11 @@ public class Service implements ServiceContext {
 
     private void init() throws ConfigurationException {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
-        persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
-        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
+        ensureInitialModelFilesAreLoaded();
+        persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
+        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
@@ -317,5 +320,14 @@ public class Service implements ServiceContext {
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
+    }
+
+
+    private void ensureInitialModelFilesAreLoaded() {
+        if (Objects.nonNull(config.getPersistence().getInitialModelFile())
+                && DataFormat.forFileExtension(FileHelper.getFileExtensionWithoutSeparator(config.getPersistence().getInitialModelFile())).stream()
+                        .anyMatch(DataFormat::getCanStoreFiles)) {
+            config.getFileStorage().setInitialModelFile(config.getPersistence().getInitialModelFile());
+        }
     }
 }
