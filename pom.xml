@@ -78,7 +78,7 @@
         <bouncycastle.version>1.80</bouncycastle.version>
         <checkstyle.version>10.21.2</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
-        <commons.codec.version>1.17.2</commons.codec.version>
+        <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.18.0</commons.io.version>
