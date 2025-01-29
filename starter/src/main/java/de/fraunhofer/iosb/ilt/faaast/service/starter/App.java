@@ -462,7 +462,7 @@ public class App implements Runnable {
     }
 
 
-    private void withModelFromCommandLine(ServiceConfig config, String fileExtension) {
+    private void withModelFromCommandLine(ServiceConfig config) {
         try {
             LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
             if (config.getPersistence().getInitialModelFile() != null) {
@@ -478,7 +478,7 @@ public class App implements Runnable {
     }
 
 
-    private void withModelFromEnvironmentVariable(ServiceConfig config, String fileExtension) {
+    private void withModelFromEnvironmentVariable(ServiceConfig config) {
         LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Overriding model path {} set in Config File with {}",
@@ -492,11 +492,11 @@ public class App implements Runnable {
 
     private ServiceConfig withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            withModelFromCommandLine(config, FileHelper.getFileExtensionWithoutSeparator(modelFile));
+            withModelFromCommandLine(config);
             return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(getEnvValue(ENV_PATH_MODEL_FILE)));
+            withModelFromEnvironmentVariable(config);
             return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
