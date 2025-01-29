@@ -462,7 +462,7 @@ public class App implements Runnable {
     }
 
 
-    private void withModelFromCommandLine(ServiceConfig config, String fileExtension) {
+    private void withModelFromCommandLine(ServiceConfig config) {
         try {
             LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
             if (config.getPersistence().getInitialModelFile() != null) {
@@ -475,13 +475,10 @@ public class App implements Runnable {
             LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
         }
         config.getPersistence().setInitialModelFile(modelFile);
-        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-            config.getFileStorage().setInitialModelFile(modelFile);
-        }
     }
 
 
-    private void withModelFromEnvironmentVariable(ServiceConfig config, String fileExtension) {
+    private void withModelFromEnvironmentVariable(ServiceConfig config) {
         LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Overriding model path {} set in Config File with {}",
@@ -489,20 +486,17 @@ public class App implements Runnable {
                     getEnvValue(ENV_PATH_MODEL_FILE));
         }
         config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-            config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-        }
         modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
     }
 
 
     private ServiceConfig withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            withModelFromCommandLine(config, FileHelper.getFileExtensionWithoutSeparator(modelFile));
+            withModelFromCommandLine(config);
             return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(getEnvValue(ENV_PATH_MODEL_FILE)));
+            withModelFromEnvironmentVariable(config);
             return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
@@ -514,9 +508,6 @@ public class App implements Runnable {
             if (defaultModel.isPresent()) {
                 LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
                 config.getPersistence().setInitialModelFile(defaultModel.get());
-                if (DataFormat.AASX.getFileExtensions().contains(FileHelper.getFileExtensionWithoutSeparator(defaultModel.get()))) {
-                    config.getFileStorage().setInitialModelFile(defaultModel.get());
-                }
                 modelFile = new File(defaultModel.get().getAbsolutePath());
                 return config;
             }

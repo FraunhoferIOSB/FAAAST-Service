@@ -3,6 +3,8 @@
 ## 1.3.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **Internal changes & bugfixes**
+- General
+	- Fix bug that auxiliary files were not loaded when starting from code with an initial model file
 - Endpoint
 	- HTTP
 		- URL query parameters are now correctly URL-decoded
