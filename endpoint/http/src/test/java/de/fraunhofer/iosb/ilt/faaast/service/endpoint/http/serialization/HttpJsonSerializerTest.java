@@ -16,12 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONException;
 import org.junit.Assert;
@@ -36,7 +37,7 @@ public class HttpJsonSerializerTest {
 
     @Test
     public void testEnumsWithCustomNaming() throws SerializationException, UnsupportedModifierException {
-        Assert.assertEquals("\"Error\"", serializer.write(MessageType.ERROR));
+        Assert.assertEquals("\"Error\"", serializer.write(MessageTypeEnum.ERROR));
     }
 
 
@@ -44,12 +45,12 @@ public class HttpJsonSerializerTest {
     public void testResult() throws SerializationException, ParseException, JSONException, UnsupportedModifierException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Result result = Result.builder()
-                .message(Message.builder()
+        Result result = new DefaultResult.Builder()
+                .messages(Message.builder()
                         .text(HttpStatus.getMessage(404))
-                        .messageType(MessageType.ERROR)
+                        .messageType(MessageTypeEnum.ERROR)
                         .code(HttpStatus.getMessage(404))
-                        .timestamp(dateFormat.parse("01-01-2022 00:00:00"))
+                        .timestamp("2022-01-01T00:00:00.000+00:00")
                         .build())
                 .build();
         String actual = serializer.write(result);

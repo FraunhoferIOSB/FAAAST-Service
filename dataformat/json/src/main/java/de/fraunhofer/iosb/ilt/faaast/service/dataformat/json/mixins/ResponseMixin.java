@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 
 
 /**

@@ -67,4 +67,5 @@ public class HttpEndpointWithSslDisabledTest extends AbstractHttpEndpointTest {
         client = new HttpClient(new HttpClientTransportDynamic(new ClientConnector()));
         client.start();
     }
+
 }

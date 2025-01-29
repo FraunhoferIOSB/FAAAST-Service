@@ -40,15 +40,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
@@ -178,6 +175,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -192,11 +191,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
@@ -1141,7 +1142,7 @@ public class RequestHandlerManagerTest {
         StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         Operation operation = getTestOperation();
 
-        when(persistence.getOperationResult(any())).thenReturn(new OperationResult.Builder().build());
+        when(persistence.getOperationResult(any())).thenReturn(new DefaultOperationResult.Builder().build());
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenReturn(assetOperationProvider);
 
@@ -1191,7 +1192,7 @@ public class RequestHandlerManagerTest {
         InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest, context);
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(new OperationResult.Builder()
+                .payload(new DefaultOperationResult.Builder()
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                                 .value(new DefaultProperty.Builder()
                                         .idShort("TestProp")
@@ -1267,7 +1268,7 @@ public class RequestHandlerManagerTest {
         InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest, context);
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(new OperationResult.Builder()
+                .payload(new DefaultOperationResult.Builder()
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                                 .value(new DefaultProperty.Builder()
                                         .idShort("TestProp")
@@ -1534,8 +1535,11 @@ public class RequestHandlerManagerTest {
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
         GetSubmodelByIdResponse actual = manager.execute(request, context);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
-                .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                .result(new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(MessageTypeEnum.ERROR)
+                                .text("Resource not found with id")
+                                .build())
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
@@ -1550,8 +1554,11 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         GetSubmodelElementByPathResponse actual = manager.execute(request, context);
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                .result(new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(MessageTypeEnum.ERROR)
+                                .text("Resource not found with id")
+                                .build())
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();

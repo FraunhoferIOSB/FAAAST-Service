@@ -65,6 +65,19 @@ function replaceVersion()
 	sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${new_version}"'\x27/g' -i "$file"
 }
 
+# argument: newVersion
+function updateServiceProfileUrls()
+{
+	echo "VERSION=$VERSION"
+	echo "NEXTVERSION=$NEXTVERSION"
+	echo "ARGUMENT=$1"
+	local new_version=$1
+	local major=$(echo "$new_version" | sed -E 's/^([0-9]+)\..*/\1/')
+	local minor=$(echo "$new_version" | sed -E 's/^[0-9]+\.([0-9]+)\..*/\1/')
+	local file="./model/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/model/ServiceSpecificationProfile.java"
+	sed -i "s|https://github.com/FraunhoferIOSB/FAAAST-Service/API/[0-9]*\/[0-9]*\/|https://github.com/FraunhoferIOSB/FAAAST-Service/API/$major/$minor/|g" "$file"
+}
+
 
 echo "Releasing:  ${VERSION},
 tagged:    v${VERSION},
@@ -106,6 +119,7 @@ replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$README_LATEST_SNAPSHOT_VE
 replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT"
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}-->\\n<!--end:${TAG_CHANGELOG_HEADER}-->" "$CHANGELOG_FILE"
 replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## ${NEXTVERSION}-SNAPSHOT (current development version)"
+updateServiceProfileUrls $NEXTVERSION
 mvn -B spotless:apply
 
 echo "Git add ."

@@ -1,9 +1,9 @@
 # Release Notes
-<!--start:changelog-header-->
-## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.2.0
 
 **New Features & Major Changes**
 - General
+	- Replaced custom classes with AAS4J classes that are now available as part of AAS4J
 	- Added support for reading/writing operation arguments from/to referenced other AAS elements (by using Qualifiers)
 - Persistence
 	- Added Mongo persistence for storing AAS model in MongoDB
