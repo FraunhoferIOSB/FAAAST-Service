@@ -41,4 +41,6 @@ public abstract class InvokeOperationRequestMixin {
     protected List<OperationVariable> inoutputArguments;
     @JsonProperty("clientTimeoutDuration")
     protected Duration timeout;
+    @JsonIgnore
+    protected String invocationId;
 }

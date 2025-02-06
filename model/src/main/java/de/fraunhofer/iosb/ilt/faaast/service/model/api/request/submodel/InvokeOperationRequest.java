@@ -40,6 +40,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
     protected Duration timeout;
+    protected String invocationId;
 
     protected InvokeOperationRequest() {
         super(OutputModifierConstraints.builder()
@@ -51,6 +52,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
         this.timeout = DEFAULT_TIMEOUT;
+        this.invocationId = null;
     }
 
 
@@ -84,6 +86,26 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     }
 
 
+    public Duration getTimeout() {
+        return timeout;
+    }
+
+
+    public void setTimeout(Duration timeout) {
+        this.timeout = timeout;
+    }
+
+
+    public String getInvocationId() {
+        return invocationId;
+    }
+
+
+    public void setInvocationId(String invocationId) {
+        this.invocationId = invocationId;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -97,23 +119,14 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
                 && Objects.equals(path, that.path)
                 && ObjectHelper.equalsIgnoreOrder(inputArguments, that.inputArguments)
                 && ObjectHelper.equalsIgnoreOrder(inoutputArguments, that.inoutputArguments)
-                && Objects.equals(timeout, that.timeout);
+                && Objects.equals(timeout, that.timeout)
+                && Objects.equals(invocationId, that.invocationId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, inputArguments, inoutputArguments, timeout);
-    }
-
-
-    public Duration getTimeout() {
-        return timeout;
-    }
-
-
-    public void setTimeout(Duration timeout) {
-        this.timeout = timeout;
+        return Objects.hash(super.hashCode(), path, inputArguments, inoutputArguments, timeout, invocationId);
     }
 
     public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
@@ -162,6 +175,12 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
 
         public B path(String value) {
             getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B invocationId(String value) {
+            getBuildingInstance().setInvocationId(value);
             return getSelf();
         }
     }

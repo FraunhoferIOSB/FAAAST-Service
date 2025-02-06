@@ -25,12 +25,23 @@ import java.util.Objects;
  */
 public class OperationFinishEventMessage extends ExecuteEventMessage {
 
+    private boolean success;
     private Map<String, ElementValue> output;
     private Map<String, ElementValue> inoutput;
 
     public OperationFinishEventMessage() {
         this.output = new HashMap<>();
         this.inoutput = new HashMap<>();
+    }
+
+
+    public boolean getSuccess() {
+        return success;
+    }
+
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
 
@@ -64,6 +75,7 @@ public class OperationFinishEventMessage extends ExecuteEventMessage {
         }
         OperationFinishEventMessage that = (OperationFinishEventMessage) o;
         return super.equals(o)
+                && Objects.equals(success, that.success)
                 && Objects.equals(output, that.output)
                 && Objects.equals(inoutput, that.inoutput);
     }
@@ -71,7 +83,7 @@ public class OperationFinishEventMessage extends ExecuteEventMessage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), output, inoutput);
+        return Objects.hash(super.hashCode(), success, output, inoutput);
     }
 
 
@@ -80,6 +92,18 @@ public class OperationFinishEventMessage extends ExecuteEventMessage {
     }
 
     public abstract static class AbstractBuilder<T extends OperationFinishEventMessage, B extends AbstractBuilder<T, B>> extends ExecuteEventMessage.AbstractBuilder<T, B> {
+
+        public B success(boolean value) {
+            getBuildingInstance().setSuccess(value);
+            return getSelf();
+        }
+
+
+        public B success() {
+            getBuildingInstance().setSuccess(true);
+            return getSelf();
+        }
+
 
         public B output(Map<String, ElementValue> value) {
             getBuildingInstance().setOutput(value);

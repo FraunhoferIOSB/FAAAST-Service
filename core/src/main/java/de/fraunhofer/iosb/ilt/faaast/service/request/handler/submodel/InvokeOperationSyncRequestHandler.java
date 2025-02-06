@@ -90,6 +90,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .input(ElementValueHelper.toValueMap(request.getInputArguments()))
                         .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                        .invocationId(request.getInvocationId())
                         .build(),
                         context);
             }
@@ -148,8 +149,10 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             try {
                 publishSafe(OperationFinishEventMessage.builder()
                         .element(reference)
+                        .success(result.getSuccess())
                         .inoutput(ElementValueHelper.toValueMap(result.getInoutputArguments()))
                         .output(ElementValueHelper.toValueMap(result.getOutputArguments()))
+                        .invocationId(request.getInvocationId())
                         .build(),
                         context);
             }

@@ -281,6 +281,7 @@ public class Service implements ServiceContext {
         LOGGER.debug("Get command for starting FA³ST Service");
         persistence.start();
         messageBus.start();
+        subscribeMessageBus();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
         }
@@ -357,8 +358,6 @@ public class Service implements ServiceContext {
         for (var submodel: submodels) {
             processSubmodel(submodel);
         }
-
-        subscribeMessageBus();
     }
 
 

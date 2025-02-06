@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractSubmodelInterfaceRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -68,6 +69,9 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
         }
         result.setSubmodelId(identifier.getSubmodelId());
         result.setPath(identifier.getIdShortPath().toString());
+        if (httpRequest.hasHeader(HttpConstants.HEADER_MODAPTO_INVOCATION_ID)) {
+            result.setInvocationId(httpRequest.getHeader(HttpConstants.HEADER_MODAPTO_INVOCATION_ID));
+        }
         return result;
     }
 }

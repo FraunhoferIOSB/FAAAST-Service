@@ -24,6 +24,7 @@ public class HttpConstants {
     public static final String HEADER_ACCEPT = "Accept";
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HEADER_LOCATION = "Location";
+    public static final String HEADER_MODAPTO_INVOCATION_ID = "X-MODAPTO-Invocation-Id";
 
     private HttpConstants() {}
 }

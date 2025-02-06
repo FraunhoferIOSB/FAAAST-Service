@@ -25,6 +25,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class OperationHandle {
 
     private String handleId;
+    private String invocationId;
 
     public OperationHandle() {
         this.handleId = UUID.randomUUID().toString();
@@ -41,6 +42,16 @@ public class OperationHandle {
     }
 
 
+    public String getInvocationId() {
+        return invocationId;
+    }
+
+
+    public void setInvocationId(String invocationId) {
+        this.invocationId = invocationId;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -50,13 +61,14 @@ public class OperationHandle {
             return false;
         }
         OperationHandle that = (OperationHandle) o;
-        return Objects.equals(handleId, that.handleId);
+        return Objects.equals(handleId, that.handleId)
+                && Objects.equals(invocationId, that.invocationId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(handleId);
+        return Objects.hash(handleId, invocationId);
     }
 
 
@@ -68,6 +80,12 @@ public class OperationHandle {
 
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);
+            return getSelf();
+        }
+
+
+        public B invocationId(String value) {
+            getBuildingInstance().setInvocationId(value);
             return getSelf();
         }
     }
@@ -85,4 +103,5 @@ public class OperationHandle {
             return new OperationHandle();
         }
     }
+
 }

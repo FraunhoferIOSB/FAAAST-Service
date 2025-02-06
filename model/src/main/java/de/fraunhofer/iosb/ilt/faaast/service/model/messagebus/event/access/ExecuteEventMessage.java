@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+import java.util.Objects;
 
 
 /**
@@ -22,7 +23,41 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
  */
 public abstract class ExecuteEventMessage extends AccessEventMessage {
 
-    public abstract static class AbstractBuilder<T extends ExecuteEventMessage, B extends AbstractBuilder<T, B>> extends EventMessage.AbstractBuilder<T, B> {
+    private String invocationId;
 
+    public String getInvocationId() {
+        return invocationId;
     }
+
+
+    public void setInvocationId(String invocationId) {
+        this.invocationId = invocationId;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ExecuteEventMessage that = (ExecuteEventMessage) o;
+        return Objects.equals(invocationId, that.invocationId);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), invocationId);
+    }
+
+    public abstract static class AbstractBuilder<T extends ExecuteEventMessage, B extends AbstractBuilder<T, B>> extends EventMessage.AbstractBuilder<T, B> {
+        public B invocationId(String value) {
+            getBuildingInstance().setInvocationId(value);
+            return getSelf();
+        }
+    }
+
 }

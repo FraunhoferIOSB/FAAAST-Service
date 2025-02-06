@@ -114,8 +114,10 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
             context.getPersistence().save(operationHandle, operationResult);
             context.getMessageBus().publish(OperationFinishEventMessage.builder()
                     .element(reference)
+                    .success(operationResult.getSuccess())
                     .inoutput(ElementValueHelper.toValueMap(operationResult.getInoutputArguments()))
                     .output(ElementValueHelper.toValueMap(operationResult.getOutputArguments()))
+                    .invocationId(operationHandle.getInvocationId())
                     .build());
         }
         catch (ValueMappingException | MessageBusException | PersistenceException e) {
@@ -140,6 +142,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                     .element(reference)
                     .input(ElementValueHelper.toValueMap(request.getInputArguments()))
                     .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
+                    .invocationId(request.getInvocationId())
                     .build());
         }
         catch (ValueMappingException | MessageBusException | PersistenceException e) {
