@@ -74,12 +74,12 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas4j.version>1.0.3</aas4j.version>
+        <aas4j.version>1.0.4</aas4j.version>
         <awaitility.version>4.2.2</awaitility.version>
         <bouncycastle.version>1.80</bouncycastle.version>
-        <checkstyle.version>10.21.1</checkstyle.version>
+        <checkstyle.version>10.21.2</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
-        <commons.codec.version>1.17.2</commons.codec.version>
+        <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
         <commons.io.version>2.18.0</commons.io.version>
@@ -88,7 +88,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.18.1</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.18.1</equalsverifier.version>
+        <equalsverifier.version>3.18.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.4.0-jre</guava.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
@@ -97,7 +97,7 @@
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
-        <jena.version>5.2.0</jena.version>
+        <jena.version>5.3.0</jena.version>
         <jetty.version>12.0.16</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.1</json-smart.version>
@@ -120,7 +120,7 @@
         <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>12.0.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.0.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.1</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.2.4-127</maven.plugin.prosys.codegen.version>
@@ -131,10 +131,10 @@
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.15</milo.version>
         <mockito.version>5.15.2</mockito.version>
-        <mongodb.version>5.3.0</mongodb.version>
+        <mongodb.version>5.3.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.117.Final</netty.version>
-        <org.apache.httpcomponents.client5.version>5.4.1</org.apache.httpcomponents.client5.version>
+        <org.apache.httpcomponents.client5.version>5.4.2</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
