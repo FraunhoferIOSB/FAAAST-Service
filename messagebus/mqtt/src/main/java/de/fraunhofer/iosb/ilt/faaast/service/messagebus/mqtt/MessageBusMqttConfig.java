@@ -29,7 +29,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private static final String DEFAULT_CLIENT_ID = "FAST MQTT MessageBus";
     private static final String DEFAULT_CLIENT_KEYSTORE_PASSWORD = "";
     private static final String DEFAULT_CLIENT_KEYSTORE_PATH = "";
-    private static final String DEFAULT_HOST = "localhost";
+    private static final String DEFAULT_HOST = "0.0.0.0";
     private static final int DEFAULT_PORT = 1883;
     private static final String DEFAULT_SERVER_KEYSTORE_PASSWORD = "";
     private static final String DEFAULT_SERVER_KEYSTORE_PATH = "";

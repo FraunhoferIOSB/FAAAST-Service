@@ -18,6 +18,14 @@ import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
+import io.moquette.interception.AbstractInterceptHandler;
+import io.moquette.interception.messages.InterceptAcknowledgedMessage;
+import io.moquette.interception.messages.InterceptConnectMessage;
+import io.moquette.interception.messages.InterceptConnectionLostMessage;
+import io.moquette.interception.messages.InterceptDisconnectMessage;
+import io.moquette.interception.messages.InterceptPublishMessage;
+import io.moquette.interception.messages.InterceptSubscribeMessage;
+import io.moquette.interception.messages.InterceptUnsubscribeMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.UnpooledByteBufAllocator;
@@ -27,6 +35,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
@@ -107,7 +116,8 @@ public class MoquetteServer {
             }
         }
         MoquetteAuthenticator authenticator = new MoquetteAuthenticator(config);
-        server.startServer(serverConfig, null, null, authenticator, authenticator);
+        LOGGER.debug("starting broker (host: {}, port: {})", config.getHost(), config.getPort());
+        server.startServer(serverConfig, List.of(new AbstractInterceptHandlerImpl()), null, authenticator, authenticator);
     }
 
 
@@ -117,6 +127,55 @@ public class MoquetteServer {
     public void stop() {
         if (Objects.nonNull(server)) {
             server.stopServer();
+        }
+    }
+
+    private class AbstractInterceptHandlerImpl extends AbstractInterceptHandler {
+        @Override
+        public void onPublish(InterceptPublishMessage msg) {
+            LOGGER.trace("publish (topic: {})", msg.getTopicName());
+        }
+
+
+        @Override
+        public void onConnect(InterceptConnectMessage msg) {
+            LOGGER.trace("client connected (clientId: {})", msg.getClientID());
+        }
+
+
+        @Override
+        public void onDisconnect(InterceptDisconnectMessage msg) {
+            LOGGER.trace("client disconnected: (clientId: {})", msg.getClientID());
+        }
+
+
+        @Override
+        public void onConnectionLost(InterceptConnectionLostMessage msg) {
+            LOGGER.trace("connection lost: (clientId: {})", msg.getClientID());
+        }
+
+
+        @Override
+        public void onSubscribe(InterceptSubscribeMessage msg) {
+            LOGGER.trace("subscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilter());
+        }
+
+
+        @Override
+        public void onUnsubscribe(InterceptUnsubscribeMessage msg) {
+            LOGGER.trace("unsubscribe (clientId: {}, topic: {})", msg.getClientID(), msg.getTopicFilter());
+        }
+
+
+        @Override
+        public void onMessageAcknowledged(InterceptAcknowledgedMessage msg) {
+            LOGGER.trace("message acknowledged (topic: {}, packetId: {})", msg.getTopic(), msg.getPacketID());
+        }
+
+
+        @Override
+        public String getID() {
+            return clientId;
         }
     }
 }
