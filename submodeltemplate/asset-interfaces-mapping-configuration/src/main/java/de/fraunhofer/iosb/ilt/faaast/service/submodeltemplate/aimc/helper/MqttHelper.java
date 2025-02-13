@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelT
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,16 +80,6 @@ public class MqttHelper {
 
         // base
         String base = Util.getBaseUrl(metadata);
-        MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
-
-        // security
-        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
-        }
-        else if (element.get() instanceof SubmodelElementList securityList) {
-            assetConfigBuilder = configureSecurity(serviceContext, config, securityList, assetConfigBuilder);
-        }
 
         // contentType
         String contentType = Util.getContentType(metadata);
@@ -101,18 +92,38 @@ public class MqttHelper {
         }
         else if (mode == ProcessingMode.ADD) {
             processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders);
+            subscriptionProviders.entrySet().removeIf(e -> Util.hasSubscriptionProvider(e.getKey(), assetConnectionManager));
         }
 
         if (!subscriptionProviders.isEmpty()) {
-            LOGGER.debug("processInterfaceMqtt: add {} subscriptionProviders", subscriptionProviders.size());
-            MqttAssetConnectionConfig assetConfig = assetConfigBuilder
-                    .subscriptionProviders(subscriptionProviders)
-                    .build();
-            assetConnectionManager.add(assetConfig);
+            MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
+            if (mac == null) {
+                MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
+
+                // security
+                Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
+                if (element.isEmpty()) {
+                    throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
+                }
+                else if (element.get() instanceof SubmodelElementList securityList) {
+                    assetConfigBuilder = configureSecurity(serviceContext, config, securityList, assetConfigBuilder);
+                }
+
+                LOGGER.debug("processInterface: add {} subscriptionProviders", subscriptionProviders.size());
+                MqttAssetConnectionConfig assetConfig = assetConfigBuilder
+                        .subscriptionProviders(subscriptionProviders)
+                        .build();
+                assetConnectionManager.add(assetConfig);
+            }
+            else {
+                for (var s: subscriptionProviders.entrySet()) {
+                    mac.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
+                }
+            }
         }
         else if (!assetConnectionsRemove.isEmpty()) {
             // remove asset connection if mode DELETE and no more providers are available
-            LOGGER.debug("processInterfaceHttp: remove unused AssetConnections");
+            LOGGER.debug("processInterface: remove unused AssetConnections");
             for (var connection: assetConnectionsRemove) {
                 assetConnectionManager.remove(connection);
             }
@@ -124,28 +135,29 @@ public class MqttHelper {
     private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
                                                Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
             throws ResourceNotFoundException, PersistenceException {
-        List<AssetConnection> connections = assetConnectionManager.getConnections();
-        for (var c: connections) {
-            if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
-                Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
+        MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
+        //List<AssetConnection> connections = assetConnectionManager.getConnections();
+        //for (var c: connections) {
+        //    if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
+        Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
 
-                // search for removed providers
-                for (var k: currentSubscriptionProviders) {
-                    if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
-                            || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                        LOGGER.atTrace().log("processInterfaceMqtt: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
-                        mac.unregisterSubscriptionProvider(k);
-                    }
-                }
-                if (mode != ProcessingMode.DELETE) {
-                    updateRelations(data, subscriptionProviders, mac);
-                }
-                else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
-                        && mac.getOperationProviders().isEmpty()) {
-                    assetConnectionsRemove.add(c);
-                }
+        // search for removed providers
+        for (var k: currentSubscriptionProviders) {
+            if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
+                    || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                mac.unregisterSubscriptionProvider(k);
             }
         }
+        if (mode != ProcessingMode.DELETE) {
+            updateRelations(data, subscriptionProviders, mac);
+        }
+        else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
+                && mac.getOperationProviders().isEmpty()) {
+            assetConnectionsRemove.add(mac);
+        }
+        //    }
+        //}
     }
 
 
@@ -182,6 +194,7 @@ public class MqttHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
+                LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
                 subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
             }
         }
@@ -233,4 +246,16 @@ public class MqttHelper {
         return retval;
     }
 
+
+    private static MqttAssetConnection getAssetConnection(AssetConnectionManager assetConnectionManager, String base) {
+        MqttAssetConnection retval = null;
+        for (var c: assetConnectionManager.getConnections()) {
+            if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
+                retval = mac;
+                break;
+            }
+        }
+
+        return retval;
+    }
 }

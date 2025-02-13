@@ -15,16 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
@@ -190,5 +194,39 @@ public class Util {
             contentType = prop.getValue();
         }
         return contentType;
+    }
+
+
+    /**
+     * Checks if a ValueProvider exists for the given Reference.
+     *
+     * @param reference The desired Reference.
+     * @param assetConnectionManager The AssetConnection manager.
+     * @return True, if a ValueProvider exists, false if not.
+     */
+    public static boolean hasValueProvider(Reference reference, AssetConnectionManager assetConnectionManager) {
+        boolean retval = assetConnectionManager.getConnections().stream()
+                .filter(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getValueProviders(), reference)).findAny().isPresent();
+        //for (var ac : assetConnectionManager.getConnections()) {
+        //    if (ReferenceHelper.containsSameReference(((AssetConnectionConfig)ac.asConfig()).getValueProviders(), reference)) {
+        //        retval = true;
+        //        break;
+        //    }
+        //}
+        return retval;
+    }
+
+
+    /**
+     * Checks if a SubscriptionProvider exists for the given Reference.
+     *
+     * @param reference The desired Reference.
+     * @param assetConnectionManager The AssetConnection manager.
+     * @return True, if a SubscriptionProvider exists, false if not.
+     */
+    public static boolean hasSubscriptionProvider(Reference reference, AssetConnectionManager assetConnectionManager) {
+        boolean retval = assetConnectionManager.getConnections().stream()
+                .filter(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getSubscriptionProviders(), reference)).findAny().isPresent();
+        return retval;
     }
 }
