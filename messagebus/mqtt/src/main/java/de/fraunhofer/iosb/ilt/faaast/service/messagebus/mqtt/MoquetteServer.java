@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
@@ -100,7 +101,7 @@ public class MoquetteServer {
         }
         if (Objects.nonNull(config.getServerCertificate())
                 && Objects.nonNull(config.getServerCertificate().getKeyStorePath())
-                && !config.getServerCertificate().getKeyStorePath().isEmpty()) {
+                && !StringHelper.isEmpty(config.getServerCertificate().getKeyStorePath())) {
             LOGGER.debug("Configuring keystore for ssl");
             serverConfig.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
             serverConfig.setProperty(BrokerConstants.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());

@@ -126,6 +126,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .build();
         }
         catch (TimeoutException e) {
+            LOGGER.warn("executing operation timed out (reference: {}, duration: {})", reference, request.getTimeout(), e);
             future.cancel(true);
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
@@ -135,6 +136,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
+            LOGGER.warn("executing operation failed (reference: {}, reason: {})", reference, e.getMessage(), e);
             result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)

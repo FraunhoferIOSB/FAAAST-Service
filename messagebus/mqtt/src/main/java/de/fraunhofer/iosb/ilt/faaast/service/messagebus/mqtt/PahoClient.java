@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,15 +61,15 @@ public class PahoClient {
     private String buildEndpoint() {
         int port = config.getPort();
         String protocolPrefix = PROTOCOL_PREFIX;
-        if (config.getClientCertificate().getKeyStorePath().isEmpty() && config.getUseWebsocket()) {
+        if (StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && config.getUseWebsocket()) {
             port = config.getWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET;
         }
-        else if (!config.getClientCertificate().getKeyStorePath().isEmpty() && config.getUseWebsocket()) {
+        else if (!StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && config.getUseWebsocket()) {
             port = config.getSslWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET_SSL;
         }
-        else if (!config.getClientCertificate().getKeyStorePath().isEmpty() && !config.getUseWebsocket()) {
+        else if (!StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && !config.getUseWebsocket()) {
             port = config.getSslPort();
             protocolPrefix = PROTOCOL_PREFIX_SSL;
         }
@@ -87,7 +88,7 @@ public class PahoClient {
         try {
             if (Objects.nonNull(config.getClientCertificate())
                     && Objects.nonNull(config.getClientCertificate().getKeyStorePath())
-                    && !config.getClientCertificate().getKeyStorePath().isEmpty()) {
+                    && !StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath())) {
                 options.setSocketFactory(getSSLSocketFactory(config.getClientCertificate()));
             }
         }
