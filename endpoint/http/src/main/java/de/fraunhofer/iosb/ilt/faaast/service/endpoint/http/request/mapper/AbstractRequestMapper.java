@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
+import static org.apache.commons.fileupload.FileUploadBase.CONTENT_DISPOSITION;
+import static org.apache.commons.fileupload.FileUploadBase.CONTENT_TYPE;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
@@ -40,9 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.ParameterParser;
-
-import static org.apache.commons.fileupload.FileUploadBase.CONTENT_DISPOSITION;
-import static org.apache.commons.fileupload.FileUploadBase.CONTENT_TYPE;
 
 
 /**
@@ -229,6 +229,7 @@ public abstract class AbstractRequestMapper {
         return map;
     }
 
+
     private String extractContentType(String header) {
         if (header == null || header.isEmpty()) {
             return MediaType.OCTET_STREAM.type();
@@ -248,6 +249,7 @@ public abstract class AbstractRequestMapper {
 
         return contentTypeLine.split(":", 2)[1].trim().split(";", 2)[0].trim();
     }
+
 
     private String extractName(String header) {
         if (header == null || header.isEmpty()) {
