@@ -45,6 +45,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ConceptDescriptionCreator {
 
+    private static final String DEFAULT_NAME = "ConceptDescription";
+
     /**
      * Maps AAS references to dictionary entry types
      */
@@ -72,6 +74,7 @@ public class ConceptDescriptionCreator {
 
         nodeManager.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
 
+        int counter = 1;
         for (ConceptDescription c: descriptions) {
             String name = c.getIdShort();
             DictionaryEntryType dictNode;
@@ -85,6 +88,7 @@ public class ConceptDescriptionCreator {
             }
             else {
                 nid = nodeManager.getDefaultNodeId();
+                name = String.format("%s %s", DEFAULT_NAME, counter++);
             }
 
             AASConceptDescriptionType desriptionNode = nodeManager.createInstance(AASConceptDescriptionType.class, name, nid);
