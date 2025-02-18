@@ -116,7 +116,7 @@ public class FileStorageFilesystem implements FileStorage<FileStorageFilesystemC
             try (Stream<Path> files = Files.walk(existingDataPath)) {
                 existingFiles = files.filter(file -> !Files.isDirectory(file))
                         .collect(Collectors.toMap(
-                                x -> encodeFilePath(existingDataPath.relativize(x).toString()),
+                                x -> encodeFilePath("/" + existingDataPath.relativize(x)),
                                 x -> x));
             }
 
