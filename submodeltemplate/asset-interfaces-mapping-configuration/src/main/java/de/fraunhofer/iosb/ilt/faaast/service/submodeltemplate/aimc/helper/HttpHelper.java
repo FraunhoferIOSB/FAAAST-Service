@@ -151,37 +151,36 @@ public class HttpHelper {
                                                Map<Reference, HttpValueProviderConfig> valueProviders, List<AssetConnection> assetConnectionsRemove)
             throws PersistenceException, ResourceNotFoundException, URISyntaxException {
         HttpAssetConnection hac = getAssetConnection(assetConnectionManager, base);
-        //List<AssetConnection> connections = assetConnectionManager.getConnections();
-        //for (var c: connections) {
-        //    if ((c instanceof HttpAssetConnection hac) && (new URI(base).equals(hac.asConfig().getBaseUrl().toURI()))) {
-        Set<Reference> currentValueProviders = hac.getValueProviders().keySet();
-        Set<Reference> currentSubscriptionProviders = hac.getSubscriptionProviders().keySet();
+        if (hac != null) {
+            Set<Reference> currentValueProviders = hac.getValueProviders().keySet();
+            Set<Reference> currentSubscriptionProviders = hac.getSubscriptionProviders().keySet();
 
-        // search for removed providers
-        for (var k: currentValueProviders) {
-            if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
-                    || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                LOGGER.atTrace().log("processInterfaceHttp: unregisterValueProvider: {}", AasUtils.asString(k));
-                hac.unregisterValueProvider(k);
+            // search for removed providers
+            for (var k: currentValueProviders) {
+                if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
+                        || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                    LOGGER.atTrace().log("processInterfaceHttp: unregisterValueProvider: {}", AasUtils.asString(k));
+                    hac.unregisterValueProvider(k);
+                }
+            }
+            for (var k: currentSubscriptionProviders) {
+                if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
+                        || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                    LOGGER.atTrace().log("processInterfaceHttp: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                    hac.unregisterSubscriptionProvider(k);
+                }
+            }
+            if (mode != ProcessingMode.DELETE) {
+                updateRelations(data, subscriptionProviders, valueProviders, base, hac);
+            }
+            else if (hac.getValueProviders().isEmpty() && hac.getSubscriptionProviders().isEmpty()
+                    && hac.getOperationProviders().isEmpty()) {
+                assetConnectionsRemove.add(hac);
             }
         }
-        for (var k: currentSubscriptionProviders) {
-            if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
-                    || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                LOGGER.atTrace().log("processInterfaceHttp: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
-                hac.unregisterSubscriptionProvider(k);
-            }
+        else {
+            LOGGER.debug("updateAssetConnections: AssetConnection for URL '{}' not found", base);
         }
-        if (mode != ProcessingMode.DELETE) {
-            updateRelations(data, subscriptionProviders, valueProviders, base, hac);
-        }
-        else if (hac.getValueProviders().isEmpty() && hac.getSubscriptionProviders().isEmpty()
-                && hac.getOperationProviders().isEmpty()) {
-            assetConnectionsRemove.add(hac);
-        }
-        //        break;
-        //    }
-        //}
     }
 
 

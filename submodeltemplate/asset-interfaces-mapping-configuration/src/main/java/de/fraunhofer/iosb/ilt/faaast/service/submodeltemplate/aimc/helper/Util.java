@@ -205,15 +205,8 @@ public class Util {
      * @return True, if a ValueProvider exists, false if not.
      */
     public static boolean hasValueProvider(Reference reference, AssetConnectionManager assetConnectionManager) {
-        boolean retval = assetConnectionManager.getConnections().stream()
-                .filter(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getValueProviders(), reference)).findAny().isPresent();
-        //for (var ac : assetConnectionManager.getConnections()) {
-        //    if (ReferenceHelper.containsSameReference(((AssetConnectionConfig)ac.asConfig()).getValueProviders(), reference)) {
-        //        retval = true;
-        //        break;
-        //    }
-        //}
-        return retval;
+        return assetConnectionManager.getConnections().stream()
+                .anyMatch(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getValueProviders(), reference));
     }
 
 
@@ -225,8 +218,7 @@ public class Util {
      * @return True, if a SubscriptionProvider exists, false if not.
      */
     public static boolean hasSubscriptionProvider(Reference reference, AssetConnectionManager assetConnectionManager) {
-        boolean retval = assetConnectionManager.getConnections().stream()
-                .filter(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getSubscriptionProviders(), reference)).findAny().isPresent();
-        return retval;
+        return assetConnectionManager.getConnections().stream()
+                .anyMatch(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getSubscriptionProviders(), reference));
     }
 }

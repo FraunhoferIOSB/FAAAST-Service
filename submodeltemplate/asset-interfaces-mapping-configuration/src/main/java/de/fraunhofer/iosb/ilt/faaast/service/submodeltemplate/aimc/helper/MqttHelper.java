@@ -136,28 +136,28 @@ public class MqttHelper {
                                                Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
             throws ResourceNotFoundException, PersistenceException {
         MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
-        //List<AssetConnection> connections = assetConnectionManager.getConnections();
-        //for (var c: connections) {
-        //    if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
-        Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
+        if (mac != null) {
+            Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
 
-        // search for removed providers
-        for (var k: currentSubscriptionProviders) {
-            if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
-                    || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
-                mac.unregisterSubscriptionProvider(k);
+            // search for removed providers
+            for (var k: currentSubscriptionProviders) {
+                if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
+                        || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
+                    LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                    mac.unregisterSubscriptionProvider(k);
+                }
+            }
+            if (mode != ProcessingMode.DELETE) {
+                updateRelations(data, subscriptionProviders, mac);
+            }
+            else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
+                    && mac.getOperationProviders().isEmpty()) {
+                assetConnectionsRemove.add(mac);
             }
         }
-        if (mode != ProcessingMode.DELETE) {
-            updateRelations(data, subscriptionProviders, mac);
+        else {
+            LOGGER.debug("updateAssetConnections: AssetConnection for URL '{}' not found", base);
         }
-        else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
-                && mac.getOperationProviders().isEmpty()) {
-            assetConnectionsRemove.add(mac);
-        }
-        //    }
-        //}
     }
 
 
