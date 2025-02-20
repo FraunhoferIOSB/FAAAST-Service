@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfigData;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
@@ -78,7 +78,7 @@ public class HttpHelper {
      * @throws AssetConnectionException if there is an error in the Asset Connection.
      * @throws java.net.URISyntaxException
      */
-    public static void processInterface(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config, SubmodelElementCollection assetInterface,
+    public static void processInterface(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfigData config, SubmodelElementCollection assetInterface,
                                         List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
             throws MalformedURLException, PersistenceException, ResourceNotFoundException, ConfigurationException, AssetConnectionException, URISyntaxException {
         String title = Util.getInterfaceTitle(assetInterface);
@@ -241,7 +241,7 @@ public class HttpHelper {
 
 
     private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType,
-                                                                             AimcSubmodelTemplateProcessorConfig config) {
+                                                                             AimcSubmodelTemplateProcessorConfigData config) {
         HttpSubscriptionProviderConfig retval = null;
 
         SubmodelElementCollection forms = Util.getPropertyForms(property);
@@ -347,7 +347,7 @@ public class HttpHelper {
     }
 
 
-    private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfig config,
+    private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfigData config,
                                                                        SubmodelElementList securityList, HttpAssetConnectionConfig.Builder assetConfigBuilder)
             throws ResourceNotFoundException, PersistenceException {
         HttpAssetConnectionConfig.Builder retval = assetConfigBuilder;

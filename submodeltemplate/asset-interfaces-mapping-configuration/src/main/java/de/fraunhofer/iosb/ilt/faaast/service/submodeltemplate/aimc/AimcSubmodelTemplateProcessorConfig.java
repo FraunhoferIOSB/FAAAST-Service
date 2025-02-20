@@ -14,8 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -24,43 +31,28 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<AimcSubmodelTemplateProcessor> {
 
-    private String username;
-    private String password;
-    private long subscriptionInterval;
+    @JsonSerialize(keyUsing = ReferenceSerializer.class)
+    @JsonDeserialize(keyUsing = ReferenceDeserializer.class)
+    private Map<Reference, AimcSubmodelTemplateProcessorConfigData> interfaceConfigurations;
 
-    public String getUsername() {
-        return username;
+    public AimcSubmodelTemplateProcessorConfig() {
+        interfaceConfigurations = new HashMap<>();
     }
 
 
-    public void setUsername(String username) {
-        this.username = username;
+    public Map<Reference, AimcSubmodelTemplateProcessorConfigData> getInterfaceConfigurations() {
+        return interfaceConfigurations;
     }
 
 
-    public String getPassword() {
-        return password;
-    }
-
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-
-    public long getSubscriptionInterval() {
-        return subscriptionInterval;
-    }
-
-
-    public void setSubscriptionInterval(long subscriptionInterval) {
-        this.subscriptionInterval = subscriptionInterval;
+    public void setInterfaceConfigurations(Map<Reference, AimcSubmodelTemplateProcessorConfigData> value) {
+        interfaceConfigurations = value;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, password, subscriptionInterval);
+        return Objects.hash(interfaceConfigurations);
     }
 
 
@@ -77,28 +69,20 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
         }
         final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
         return super.equals(other)
-                && Objects.equals(username, other.username)
-                && Objects.equals(password, other.password)
-                && Objects.equals(subscriptionInterval, other.getSubscriptionInterval());
+                && Objects.equals(interfaceConfigurations, other.interfaceConfigurations);
     }
 
     protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
             extends ExtendableBuilder<C, B> {
 
-        public B username(String value) {
-            getBuildingInstance().setUsername(value);
+        public B interfaceConfigurations(Map<Reference, AimcSubmodelTemplateProcessorConfigData> value) {
+            getBuildingInstance().setInterfaceConfigurations(value);
             return getSelf();
         }
 
 
-        public B password(String value) {
-            getBuildingInstance().setPassword(value);
-            return getSelf();
-        }
-
-
-        public B subscriptionInterval(long value) {
-            getBuildingInstance().setSubscriptionInterval(value);
+        public B interfaceConfiguration(Reference key, AimcSubmodelTemplateProcessorConfigData value) {
+            getBuildingInstance().getInterfaceConfigurations().put(key, value);
             return getSelf();
         }
     }

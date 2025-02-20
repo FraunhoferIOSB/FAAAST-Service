@@ -33,11 +33,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
@@ -53,12 +55,14 @@ public class ProcessorTest {
     @Before
     public void init() {
 
+        Reference submodelRef = ReferenceBuilder.forSubmodel("https://example.com/ids/sm/AssetInterfacesDescription", "InterfaceHTTP");
         config = new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
                 .persistence(new PersistenceInMemoryConfig())
                 .fileStorage(new FileStorageInMemoryConfig())
                 .messageBus(new MessageBusInternalConfig())
-                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder().username("user1").password("pw1").build()))
+                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
+                        .interfaceConfiguration(submodelRef, new AimcSubmodelTemplateProcessorConfigData.Builder().username("user1").password("pw1").build()).build()))
                 .build();
     }
 

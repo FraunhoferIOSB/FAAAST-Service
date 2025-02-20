@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.MqttHe
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -174,15 +175,23 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         ReferenceElement interfaceReference = getInterfaceReference(configuration);
         Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
         if (referenceElement instanceof SubmodelElementCollection assetInterface) {
+            AimcSubmodelTemplateProcessorConfigData configData;
+            if (ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReference.getValue())) {
+                configData = ReferenceHelper.getValueBySameReference(config.getInterfaceConfigurations(), interfaceReference.getValue());
+            }
+            else {
+                // if no configuration data is given, we create a new one with default values.
+                configData = new AimcSubmodelTemplateProcessorConfigData();
+            }
             if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
                     && (assetInterface.getSupplementalSemanticIds() != null)) {
                 if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                     // HTTP Interface
-                    HttpHelper.processInterface(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
+                    HttpHelper.processInterface(serviceContext, configData, assetInterface, relations, assetConnectionManager, mode);
                 }
                 else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
                     // MQTT Interface
-                    MqttHelper.processInterface(serviceContext, config, assetInterface, relations, assetConnectionManager, mode);
+                    MqttHelper.processInterface(serviceContext, configData, assetInterface, relations, assetConnectionManager, mode);
                 }
             }
         }
