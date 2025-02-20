@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
@@ -172,19 +173,20 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                                            ProcessingMode mode)
             throws ResourceNotFoundException, ConfigurationException, PersistenceException, MalformedURLException, AssetConnectionException, IllegalArgumentException,
             URISyntaxException {
-        ReferenceElement interfaceReference = getInterfaceReference(configuration);
-        Referable referenceElement = EnvironmentHelper.resolve(interfaceReference.getValue(), serviceContext.getAASEnvironment());
+        Reference interfaceReferenceValue = getInterfaceReference(configuration).getValue();
+        Referable referenceElement = EnvironmentHelper.resolve(interfaceReferenceValue, serviceContext.getAASEnvironment());
         if (referenceElement instanceof SubmodelElementCollection assetInterface) {
-            AimcSubmodelTemplateProcessorConfigData configData;
-            if (ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReference.getValue())) {
-                configData = ReferenceHelper.getValueBySameReference(config.getInterfaceConfigurations(), interfaceReference.getValue());
-            }
-            else {
-                // if no configuration data is given, we create a new one with default values.
-                configData = new AimcSubmodelTemplateProcessorConfigData();
-            }
             if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
                     && (assetInterface.getSupplementalSemanticIds() != null)) {
+                AimcSubmodelTemplateProcessorConfigData configData;
+                if (ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)) {
+                    configData = ReferenceHelper.getValueBySameReference(config.getInterfaceConfigurations(), interfaceReferenceValue);
+                }
+                else {
+                    // if no configuration data is given, we create a new one with default values.
+                    LOGGER.atDebug().log("processInterfaceReference: no config section found for Interface {}", ReferenceHelper.asString(interfaceReferenceValue));
+                    configData = new AimcSubmodelTemplateProcessorConfigData();
+                }
                 if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                     // HTTP Interface
                     HttpHelper.processInterface(serviceContext, configData, assetInterface, relations, assetConnectionManager, mode);
