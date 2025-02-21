@@ -11,6 +11,8 @@ The SubmodelTemplate "Asset Interfaces Mapping Configuration" (AIMC) specifies a
 
 This SubmodelTemplate Processor uses these SubmodelTemplates to create AssetConnections from the given data and links the asset data to the corresponding SubmodelElements, as defined in AIMC.
 
+The Processor looks for the SubmodelTemplate AIMC and maps all relations in the supported Asset Interfaces.
+
 ### Configuration
 
 The processor uses the following configuration structure:
@@ -50,7 +52,6 @@ The format for serializing references has changed with AAS v3.0 resp. FA³ST Ser
 | username<br>*(optional)*            | String                                                      | Username for connecting to the Asset server.                                                    |               |
 | subscriptionInterval<br>*(optional)*| long               | Interval to poll the server for changes (in ms).                                                                                                | 100           |
 :::
-
 
 ```{code-block} json
 :caption: Example configuration section for AID + AIMC SubmodelTemplate Processor.

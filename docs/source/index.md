@@ -48,6 +48,12 @@ basics/faq.md
 
 ```{toctree} 
 :hidden:
+:caption: SubmodelTemplate Processors
+submodeltemplateprocessors/submodeltemplateprocessors.md
+```
+
+```{toctree} 
+:hidden:
 :caption: Interfaces
 interfaces/endpoint.md
 interfaces/asset-connection.md
