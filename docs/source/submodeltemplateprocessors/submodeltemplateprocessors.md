@@ -53,6 +53,30 @@ The format for serializing references has changed with AAS v3.0 resp. FA³ST Ser
 | subscriptionInterval<br>*(optional)*| long               | Interval to poll the server for changes (in ms).                                                                                                | 100           |
 :::
 
+In the EndpointMetadata of AID the following attributes are currently evaluated:
+
+- base
+- contentType
+- security
+
+Currently, the only supported Security Schemes are:
+
+- NoSecurityScheme (nosec_sc)
+- BasicSecurityScheme (basic_sc)
+
+In the Property of AID the following attributes are currently evaluated:
+
+- observable (only HTTP)
+
+For HTTP: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
+In case of MQTT, a SubscriptionProvider is created always.
+
+In the Property Forms of AID the following attributes are currently evaluated:
+
+- href
+- contentType
+- htv_headers (for HTTP)
+
 ```{code-block} json
 :caption: Example configuration section for AID + AIMC SubmodelTemplate Processor.
 :lineno-start: 1
