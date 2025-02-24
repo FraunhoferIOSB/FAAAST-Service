@@ -4,16 +4,16 @@ Specific SubmodelTemplates require special handling. SubmodelTemplate Processors
 
 ## Asset Interfaces Description and Asset Interfaces Mapping Configuration
 
-The SubmodelTemplate "Asset Interfaces Description" (AID) specifies an information model and a common representation for describing the interfaces of an asset service or asset related service. Based on this information, it is possible to initiate a connection to such a service and request or subscribe to served datapoints.
+The SubmodelTemplate [Asset Interfaces Description](https://industrialdigitaltwin.org/wp-content/uploads/2024/01/IDTA-02017-1-0_Submodel_Asset-Interfaces-Description.pdf) (AID) specifies an information model and a common representation for describing the interfaces of an asset service or asset related service. Based on this information, it is possible to initiate a connection to such a service and request or subscribe to served datapoints.
 The Asset Interfaces Description (AID) in version 1.0 supports the description of interfaces based on three specific protocols: Modbus, HTTP and MQTT. Fa³st currently supports HTTP and MQTT, Modbus is currently not supported.
 
-The SubmodelTemplate "Asset Interfaces Mapping Configuration" (AIMC) specifies an information model and a common representation for describing the mapping of interface(s) of an asset service or asset-related service already described in an Asset Interfaces Description (AID) Submodel. It can be understood as a configuration Submodel for south-bound communication between AAS and asset. Based on this information, it's possible to create an [AssetConnection](#assetconnection) and map the payloads to the intended locations in an AAS automatically.
+The SubmodelTemplate [Asset Interfaces Mapping Configuration](https://industrialdigitaltwin.org/wp-content/uploads/2024/06/IDTA-02027-1-0_Submodel_AssetInterfacesMappingConfiguration.pdf) (AIMC) specifies an information model and a common representation for describing the mapping of interface(s) of an asset service or asset-related service already described in an Asset Interfaces Description (AID) Submodel. It can be understood as a configuration Submodel for south-bound communication between AAS and asset. Based on this information, it's possible to create an [AssetConnection](#assetconnection) and map the payloads to the intended locations in an AAS automatically.
 
 This SubmodelTemplate Processor uses these SubmodelTemplates to create AssetConnections from the given data and links the asset data to the corresponding SubmodelElements, as defined in AIMC.
 
 The Processor looks for the SubmodelTemplate AIMC and maps all relations in the supported Asset Interfaces.
 
-### Configuration
+### Generic Configuration
 
 The processor uses the following configuration structure:
 
@@ -43,7 +43,7 @@ Add an Interface configuration section for each Asset Interface where additional
 The format for serializing references has changed with AAS v3.0 resp. FA³ST Service v1.0. For example, the id type is now no longer part of the serialization and path elements are now separated by `, ` (comma followed by space) instead of `,` (comma).
 :::
 
-#### Interface configuration
+### Interface configuration
 
 :::{table} Configuration properties of Interface configuration.
 | Name                                | Allowed Value                                               | Description                                                                                    | Default Value |
