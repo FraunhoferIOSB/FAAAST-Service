@@ -22,6 +22,8 @@ The features of FA³ST Service include
 
 - AAS Part 1: Metamodel v3.0 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf)
 - AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
+- AAS Part 3a: Data Specification – IEC 61360 v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/07/IDTA-01003-a-3-0-2_SpecificationAssetAdministrationShell_Part3a_DataSpecification_IEC613601.pdf)
+- AAS Part 5: Package File Format (AASX) v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/06/IDTA-01005-3-0-1_SpecificationAssetAdministrationShell_Part5_AASXPackageFileFormat.pdf)
 
 
 ## Usage
