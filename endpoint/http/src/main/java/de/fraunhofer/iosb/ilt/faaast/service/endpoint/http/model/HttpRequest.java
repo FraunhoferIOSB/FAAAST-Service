@@ -67,7 +67,7 @@ public class HttpRequest extends HttpMessage {
      * @return the content type header value
      */
     public Optional<String> getContentType() {
-        return Optional.ofNullable(headers.get(HttpConstants.HEADER_CONTENT_TYPE));
+        return Optional.ofNullable(getHeader(HttpConstants.HEADER_CONTENT_TYPE));
     }
 
 
@@ -116,7 +116,7 @@ public class HttpRequest extends HttpMessage {
      * @return true if header with given {@code name} is present, false otherwise
      */
     public boolean hasHeader(String name) {
-        return headers.containsKey(name);
+        return headers.keySet().stream().anyMatch(x -> x.equalsIgnoreCase(name));
     }
 
 
@@ -127,7 +127,11 @@ public class HttpRequest extends HttpMessage {
      * @return the value of the header if present, otherwise null
      */
     public String getHeader(String name) {
-        return headers.get(name);
+        return headers.entrySet().stream()
+                .filter(x -> x.getKey().equalsIgnoreCase(name))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 
