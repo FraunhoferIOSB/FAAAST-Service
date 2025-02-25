@@ -61,15 +61,16 @@ public class PahoClient {
     private String buildEndpoint() {
         int port = config.getPort();
         String protocolPrefix = PROTOCOL_PREFIX;
-        if (StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && config.getUseWebsocket()) {
+        boolean hasKeyStore = Objects.nonNull(config.getClientCertificate()) && !StringHelper.isBlank(config.getClientCertificate().getKeyStorePath());
+        if (!hasKeyStore && config.getUseWebsocket()) {
             port = config.getWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET;
         }
-        else if (!StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && config.getUseWebsocket()) {
+        else if (hasKeyStore && config.getUseWebsocket()) {
             port = config.getSslWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET_SSL;
         }
-        else if (!StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath()) && !config.getUseWebsocket()) {
+        else if (hasKeyStore && !config.getUseWebsocket()) {
             port = config.getSslPort();
             protocolPrefix = PROTOCOL_PREFIX_SSL;
         }
@@ -88,7 +89,7 @@ public class PahoClient {
         try {
             if (Objects.nonNull(config.getClientCertificate())
                     && Objects.nonNull(config.getClientCertificate().getKeyStorePath())
-                    && !StringHelper.isEmpty(config.getClientCertificate().getKeyStorePath())) {
+                    && !config.getClientCertificate().getKeyStorePath().isEmpty()) {
                 options.setSocketFactory(getSSLSocketFactory(config.getClientCertificate()));
             }
         }
