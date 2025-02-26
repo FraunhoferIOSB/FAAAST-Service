@@ -115,6 +115,7 @@ public class App implements Runnable {
     protected static final String ENV_PATH_LOGLEVEL_EXTERNAL = envPath(ENV_KEY_PREFIX, "loglevel_external");
     protected static final String ENV_PATH_LOGLEVEL_FAAAAST = envPath(ENV_KEY_PREFIX, "loglevel_faaast");
     protected static final String ENV_PATH_NO_VALIDATION = envPath(ENV_KEY_PREFIX, "no_validation");
+    protected static final String ENV_PATH_SHOW_STACKTRACE = envPath(ENV_KEY_PREFIX, "show_stacktrace");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION = envPath(ENV_KEY_PREFIX, "config", "extension", "");
     protected static final String ENV_PREFIX_CONFIG_EXTENSION_ALTERNATIVE = envPathWithAlternativeSeparator(ENV_PREFIX_CONFIG_EXTENSION);
     // model
@@ -345,7 +346,7 @@ public class App implements Runnable {
         if (getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL) != null && !getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL).isBlank()) {
             FaaastFilter.setLevelExternal(Level.toLevel(getEnvValue(ENV_PATH_LOGLEVEL_EXTERNAL), FaaastFilter.getLevelExternal()));
         }
-        if (showStacktrace) {
+        if (showStacktrace || Boolean.parseBoolean(getEnvValue(ENV_PATH_SHOW_STACKTRACE))) {
             enableShowStacktraceInSdtOut();
         }
         LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
