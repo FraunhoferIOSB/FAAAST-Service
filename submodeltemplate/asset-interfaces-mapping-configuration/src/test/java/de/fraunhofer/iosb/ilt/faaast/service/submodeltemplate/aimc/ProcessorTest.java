@@ -90,7 +90,7 @@ public class ProcessorTest {
                         .build(),
                         HttpSubscriptionProviderConfig.builder()
                                 .format("JSON")
-                                .path("http://plugfest.thingweb.io:8083/sampleDevice/properties/voltage")
+                                .path("/sampleDevice/properties/voltage")
                                 .interval(1000)
                                 .build())
                 .valueProvider(new DefaultReference.Builder()
@@ -101,7 +101,7 @@ public class ProcessorTest {
                         .build(),
                         HttpValueProviderConfig.builder()
                                 .format("JSON")
-                                .path("http://plugfest.thingweb.io:8083/sampleDevice/properties/status")
+                                .path("/sampleDevice/properties/status")
                                 .build())
                 .build();
 

@@ -106,7 +106,7 @@ public class HttpHelper {
         }
 
         if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
-            LOGGER.debug("processInterfaceHttp: add {} valueProviders; {} subscriptionProviders", valueProviders.size(), subscriptionProviders.size());
+            LOGGER.debug("processInterface: add {} valueProviders; {} subscriptionProviders", valueProviders.size(), subscriptionProviders.size());
             HttpAssetConnection assetConn = getAssetConnection(assetConnectionManager, base);
             if (assetConn == null) {
                 HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
@@ -137,7 +137,7 @@ public class HttpHelper {
         }
         else if (!assetConnectionsRemove.isEmpty()) {
             // remove asset connection if mode DELETE and no more providers are available
-            LOGGER.debug("processInterfaceHttp: remove unused AssetConnections");
+            LOGGER.debug("processInterface: remove unused AssetConnections");
             for (var connection: assetConnectionsRemove) {
                 assetConnectionManager.remove(connection);
             }
@@ -159,14 +159,14 @@ public class HttpHelper {
             for (var k: currentValueProviders) {
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                    LOGGER.atTrace().log("processInterfaceHttp: unregisterValueProvider: {}", AasUtils.asString(k));
+                    LOGGER.atTrace().log("updateAssetConnections: unregisterValueProvider: {}", AasUtils.asString(k));
                     hac.unregisterValueProvider(k);
                 }
             }
             for (var k: currentSubscriptionProviders) {
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
-                    LOGGER.atTrace().log("processInterfaceHttp: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
+                    LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
                     hac.unregisterSubscriptionProvider(k);
                 }
             }
@@ -247,12 +247,12 @@ public class HttpHelper {
         SubmodelElementCollection forms = Util.getPropertyForms(property);
         String contentType = Util.getContentType(baseContentType, forms);
 
-        String href = getUrl(baseUrl, forms);
+        String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
-        LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
+        LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", path, contentType);
         retval = HttpSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
-                .path(href)
+                .path(path)
                 .headers(headers)
                 .interval(config.getSubscriptionInterval() <= 0 ? DEFAULT_INTERVAL : config.getSubscriptionInterval())
                 .build();
@@ -269,8 +269,8 @@ public class HttpHelper {
             return true;
         }
 
-        String href = getUrl(baseUrl, forms);
-        if (!config.getPath().equals(href)) {
+        String path = getPath(baseUrl, forms);
+        if (!config.getPath().equals(path)) {
             return true;
         }
 
@@ -284,12 +284,12 @@ public class HttpHelper {
         SubmodelElementCollection forms = Util.getPropertyForms(property);
         String contentType = Util.getContentType(baseContentType, forms);
 
-        String href = getUrl(baseUrl, forms);
+        String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
-        LOGGER.debug("createValueProvider: href: {}; contentType: {}", href, contentType);
+        LOGGER.debug("createValueProvider: href: {}; contentType: {}", path, contentType);
         retval = HttpValueProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
-                .path(href)
+                .path(path)
                 .headers(headers)
                 .build();
 
@@ -305,8 +305,8 @@ public class HttpHelper {
             return true;
         }
 
-        String href = getUrl(baseUrl, forms);
-        if (!config.getPath().equals(href)) {
+        String path = getPath(baseUrl, forms);
+        if (!config.getPath().equals(path)) {
             return true;
         }
 
@@ -337,13 +337,13 @@ public class HttpHelper {
     }
 
 
-    private static String getUrl(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
-        String href = Util.getFormsHref(forms);
-        if (!href.toLowerCase().startsWith("http")) {
-            // create absolute URL from base URL
-            href = URI.create(baseUrl).resolve(href).toString();
+    private static String getPath(String baseUrl, SubmodelElementCollection forms) throws IllegalArgumentException {
+        String retval = Util.getFormsHref(forms);
+        // make path relative to baseUrl
+        if (retval.startsWith(baseUrl)) {
+            retval = retval.substring(0, baseUrl.length());
         }
-        return href;
+        return retval;
     }
 
 
