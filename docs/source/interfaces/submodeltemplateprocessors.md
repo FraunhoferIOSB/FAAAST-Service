@@ -59,10 +59,12 @@ In the EndpointMetadata of AID the following attributes are currently evaluated:
 - contentType
 - security
 
-Currently, the only supported Security Schemes are:
+Currently, the supported Security Schemes are:
 
 - NoSecurityScheme (nosec_sc)
 - BasicSecurityScheme (basic_sc)
+
+If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that valid username and password is configured.
 
 In the Property of AID the following attributes are currently evaluated:
 
@@ -71,11 +73,22 @@ In the Property of AID the following attributes are currently evaluated:
 For HTTP: If observable is true, a SubscriptionProvider, otherwise a ValueProvider is created.
 In case of MQTT, a SubscriptionProvider is created always.
 
-In the Property Forms of AID the following attributes are currently evaluated:
+The subscriptionInterval for a SubscriptionProvider is taken from the corresponding configuration section of the Processor (if available). If no value is provided, the default value will be used.
+
+In the Property Forms of AID, the following attributes are currently evaluated:
 
 - href
 - contentType
 - htv_headers (for HTTP)
+
+:::{table} Overview of the mappings of the used AID attributes.
+| AID Attribute                       | Value in Asset Connection HTTP            | Value in Asset Connection MQTT                              |
+| ----------------------------------- | ----------------------------------------- |------------------------------------------------------------ |
+| base (EndpointMetadata)             | baseUrl                                   | serverUri                                                   |
+| contentType                         | format                                    | format                                                      |
+| href                                | path                                      | topic                                                       |
+| htv_headers                         | headers                                   | -                                                           |
+:::
 
 ```{code-block} json
 :caption: Example configuration section for AID + AIMC SubmodelTemplate Processor.
