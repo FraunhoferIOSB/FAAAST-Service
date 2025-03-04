@@ -10,6 +10,8 @@
 		- URL query parameters are now correctly URL-decoded
 		- Enabled `level` query parameter for calls to /submodels/{submodelIdentifier}/$reference as this is not explicitely forbidden in the specification although the parameter does not have any actual effect
 		- fixed bug that disabled any HTTP PATCH request to /$value
+	- OPC UA
+		- Fixed error if ConceptDescription doesn't have an IdShort
 
 ## 1.2.0
 
