@@ -43,7 +43,7 @@ public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandle
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         Reference submodelRefToDelete = aas.getSubmodels().stream()
-                .filter(x -> ReferenceHelper.equals(request.getSubmodelRef(), x))
+                .filter(x -> ReferenceHelper.equals(request.getSubmodelRef(), x, false))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(
                         "SubmodelReference '%s' not found in AAS with id '%s'",
