@@ -4,7 +4,8 @@
 
 **Internal changes & bugfixes**
 - General
-	- Fix bug that auxiliary files were not loaded when starting from code with an initial model file
+	- Fixed bug that auxiliary files were not loaded when starting from code with an initial model file
+	- Fixed bug that caused deleting submodel-refs from AAS to fail when the submodel-ref had referredSemanticId set
 - Endpoint
 	- HTTP
 		- URL query parameters are now correctly URL-decoded
