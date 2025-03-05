@@ -101,8 +101,16 @@ public class HttpHelper {
         else if (mode == ProcessingMode.ADD) {
             processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders, base, valueProviders);
             // check if provider already exist and remove them if necessary
-            valueProviders.entrySet().removeIf(e -> Util.hasValueProvider(e.getKey(), assetConnectionManager));
-            subscriptionProviders.entrySet().removeIf(e -> Util.hasSubscriptionProvider(e.getKey(), assetConnectionManager));
+            List<Reference> doubleList = valueProviders.keySet().stream().filter(k -> Util.hasValueProvider(k, assetConnectionManager)).toList();
+            for (Reference r: doubleList) {
+                LOGGER.atWarn().log("processInterface: ValueProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+                valueProviders.remove(r);
+            }
+            doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
+            for (Reference r: doubleList) {
+                LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+                subscriptionProviders.remove(r);
+            }
         }
 
         if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {

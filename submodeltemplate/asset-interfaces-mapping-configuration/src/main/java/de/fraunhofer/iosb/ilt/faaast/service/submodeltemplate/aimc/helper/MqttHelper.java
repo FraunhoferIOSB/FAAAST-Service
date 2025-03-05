@@ -92,7 +92,11 @@ public class MqttHelper {
         }
         else if (mode == ProcessingMode.ADD) {
             processRelations(new RelationData(serviceContext, relations, contentType, config), subscriptionProviders);
-            subscriptionProviders.entrySet().removeIf(e -> Util.hasSubscriptionProvider(e.getKey(), assetConnectionManager));
+            List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
+            for (Reference r: doubleList) {
+                LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+                subscriptionProviders.remove(r);
+            }
         }
 
         if (!subscriptionProviders.isEmpty()) {
