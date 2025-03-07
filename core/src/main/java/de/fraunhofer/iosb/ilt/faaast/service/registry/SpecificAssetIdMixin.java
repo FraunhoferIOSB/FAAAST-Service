@@ -15,25 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.registry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
-import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 
 
 /**
- * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.Endpoint}.
+ * Mixin for {@link org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId}.
  */
-public interface EndpointMixin {
-    /**
-     * Changes "_interface" to "interface".
-     *
-     * @return "interface"
-     */
-    @JsonProperty("interface")
+public interface SpecificAssetIdMixin {
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    public Endpoint get_interface();
+    public String getName();
 
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    public ProtocolInformation getProtocolInformation();
+    public String getValue();
+
 }

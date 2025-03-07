@@ -32,5 +32,6 @@ public abstract class PageMixin<T> {
     protected PagingMetadata metadata;
 
     @JsonProperty("result")
+    @JsonInclude(Include.ALWAYS)
     protected List<T> content;
 }
