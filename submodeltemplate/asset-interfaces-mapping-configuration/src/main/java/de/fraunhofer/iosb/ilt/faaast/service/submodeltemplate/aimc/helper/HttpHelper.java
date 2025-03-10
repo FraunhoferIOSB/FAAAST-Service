@@ -137,9 +137,11 @@ public class HttpHelper {
             else {
                 for (var p: valueProviders.entrySet()) {
                     assetConn.asConfig().getValueProviders().put(p.getKey(), p.getValue());
+                    assetConn.registerValueProvider(p.getKey(), p.getValue());
                 }
                 for (var s: subscriptionProviders.entrySet()) {
                     assetConn.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
+                    assetConn.registerSubscriptionProvider(s.getKey(), s.getValue());
                 }
             }
         }
