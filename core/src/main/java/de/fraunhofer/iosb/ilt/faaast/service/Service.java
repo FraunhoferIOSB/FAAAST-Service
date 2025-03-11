@@ -407,34 +407,13 @@ public class Service implements ServiceContext {
         if (subscriptions == null) {
             subscriptions = new ArrayList<>();
         }
-        SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
-            try {
-                elementCreated(x.getValue());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementCreated Exception", e);
-            }
-        });
+        SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent);
         subscriptions.add(messageBus.subscribe(info));
 
-        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
-            try {
-                elementDeleted(x.getValue());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementDeleted Exception", e);
-            }
-        });
+        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent);
         subscriptions.add(messageBus.subscribe(info));
 
-        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
-            try {
-                elementUpdated(x.getValue());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementUpdated Exception", e);
-            }
-        });
+        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent);
         subscriptions.add(messageBus.subscribe(info));
     }
 
@@ -452,11 +431,16 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementCreated(Referable value) throws PersistenceException {
+    private void elementCreated(Referable value) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (value instanceof Submodel submodel) {
-            addSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                addSubmodel(submodel);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error("elementCreated Exception", e);
         }
     }
 
@@ -464,17 +448,57 @@ public class Service implements ServiceContext {
     private void elementDeleted(Referable value) {
         Ensure.requireNonNull(value, ELEMENT_NULL);
 
-        if (value instanceof Submodel submodel) {
-            deleteSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                deleteSubmodel(submodel);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error("elementDeleted Exception", e);
         }
     }
 
 
-    private void elementUpdated(Referable value) throws PersistenceException {
+    private void elementUpdated(Referable value) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (value instanceof Submodel submodel) {
-            updateSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                updateSubmodel(submodel);
+            }
         }
+        catch (Exception e) {
+            LOGGER.error("elementUpdated Exception", e);
+        }
+    }
+
+
+    /**
+     * Callback message for Create event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleCreateEvent(ElementCreateEventMessage event) {
+        elementCreated(event.getValue());
+    }
+
+
+    /**
+     * Callback message for Update event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleUpdateEvent(ElementUpdateEventMessage event) {
+        elementUpdated(event.getValue());
+    }
+
+
+    /**
+     * Callback message for Delete event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleDeleteEvent(ElementDeleteEventMessage event) {
+        elementDeleted(event.getValue());
     }
 }
