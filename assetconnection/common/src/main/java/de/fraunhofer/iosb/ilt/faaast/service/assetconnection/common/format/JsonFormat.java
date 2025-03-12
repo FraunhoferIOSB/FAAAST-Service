@@ -27,6 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -136,7 +140,13 @@ public class JsonFormat implements Format {
     @Override
     public String write(DataElementValue value) throws AssetConnectionException {
         try {
-            return serializer.write(value);
+            return serializer.write(
+                    value,
+                    new OutputModifier.Builder()
+                            .content(Content.VALUE)
+                            .level(Level.DEEP)
+                            .extend(Extent.WITH_BLOB_VALUE)
+                            .build());
         }
         catch (SerializationException | UnsupportedModifierException e) {
             throw new AssetConnectionException("serializing value to JSON failed", e);
