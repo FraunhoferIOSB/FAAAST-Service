@@ -407,14 +407,9 @@ public class Service implements ServiceContext {
         if (subscriptions == null) {
             subscriptions = new ArrayList<>();
         }
-        SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent);
-        subscriptions.add(messageBus.subscribe(info));
-
-        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent);
-        subscriptions.add(messageBus.subscribe(info));
-
-        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent);
-        subscriptions.add(messageBus.subscribe(info));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
     }
 
 

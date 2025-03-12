@@ -48,7 +48,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
 
@@ -63,7 +62,7 @@ public class SubmodelTemplateProcessorTest {
 
     @Before
     public void init() throws MessageBusException {
-        processor = Mockito.mock(SubmodelTemplateProcessor.class);
+        processor = mock(SubmodelTemplateProcessor.class);
         mockMessageBus();
         environment = AASFull.createEnvironment();
         submodel0 = environment.getSubmodels().get(0);
@@ -148,7 +147,7 @@ public class SubmodelTemplateProcessorTest {
 
 
     private void mockMessageBus() throws MessageBusException {
-        messageBus = Mockito.mock(MessageBus.class);
+        messageBus = mock(MessageBus.class);
 
         doAnswer((InvocationOnMock invocation) -> {
             ElementCreateEventMessage eventMessage = invocation.getArgument(0);
