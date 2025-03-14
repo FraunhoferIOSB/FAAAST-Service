@@ -453,7 +453,6 @@ public class Service implements ServiceContext {
             if (value instanceof Submodel submodel) {
                 deleteSubmodel(submodel);
             }
-
             else if (value instanceof SubmodelElement) {
                 // if a SubmodelElement changed, we use updateSubodel
                 SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
@@ -473,7 +472,6 @@ public class Service implements ServiceContext {
             if (value instanceof Submodel submodel) {
                 updateSubmodel(submodel);
             }
-
             else if (value instanceof SubmodelElement) {
                 // if a SubmodelElement changed, we use updateSubodel
                 SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
