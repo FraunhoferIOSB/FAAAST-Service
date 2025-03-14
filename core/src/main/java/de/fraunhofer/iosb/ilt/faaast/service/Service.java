@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -426,12 +427,17 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementCreated(Referable value) {
+    private void elementCreated(Referable value, Reference reference) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         try {
             if (value instanceof Submodel submodel) {
                 addSubmodel(submodel);
+            }
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
         }
         catch (Exception e) {
@@ -440,12 +446,17 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementDeleted(Referable value) {
+    private void elementDeleted(Referable value, Reference reference) {
         Ensure.requireNonNull(value, ELEMENT_NULL);
 
         try {
             if (value instanceof Submodel submodel) {
                 deleteSubmodel(submodel);
+            }
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
         }
         catch (Exception e) {
@@ -454,12 +465,17 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementUpdated(Referable value) {
+    private void elementUpdated(Referable value, Reference reference) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
         try {
             if (value instanceof Submodel submodel) {
                 updateSubmodel(submodel);
+            }
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
             }
         }
         catch (Exception e) {
@@ -474,7 +490,7 @@ public class Service implements ServiceContext {
      * @param event The event from the MessageBus.
      */
     public void handleCreateEvent(ElementCreateEventMessage event) {
-        elementCreated(event.getValue());
+        elementCreated(event.getValue(), event.getElement());
     }
 
 
@@ -484,7 +500,7 @@ public class Service implements ServiceContext {
      * @param event The event from the MessageBus.
      */
     public void handleUpdateEvent(ElementUpdateEventMessage event) {
-        elementUpdated(event.getValue());
+        elementUpdated(event.getValue(), event.getElement());
     }
 
 
@@ -494,6 +510,6 @@ public class Service implements ServiceContext {
      * @param event The event from the MessageBus.
      */
     public void handleDeleteEvent(ElementDeleteEventMessage event) {
-        elementDeleted(event.getValue());
+        elementDeleted(event.getValue(), event.getElement());
     }
 }
