@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
@@ -31,14 +30,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-/**
- *
- * @author jab
- */
 public class SemanticIdPathTest {
 
     @Test
-    public void resolveSematicIdPathInSubmodelUnique() throws ResourceNotFoundException {
+    public void resolveSematicIdPathInSubmodelUnique() {
         final String idShortCollection1 = "idShortCollection1";
         final String idShortCollection2 = "idShortCollection2";
         final String idShortProperty1 = "idShortProperty1";
@@ -78,7 +73,7 @@ public class SemanticIdPathTest {
 
 
     @Test
-    public void resolveSematicIdPathInCollection() throws ResourceNotFoundException {
+    public void resolveSematicIdPathInCollection() {
         final String idShortCollection = "idShortCollection";
         final String idShortProperty = "idShortProperty";
         Reference semanticIdCollection = ReferenceBuilder.global("collection");
@@ -106,7 +101,7 @@ public class SemanticIdPathTest {
 
 
     @Test
-    public void resolveSematicIdPathInList() throws ResourceNotFoundException {
+    public void resolveSematicIdPathInList() {
         final String idShortList1 = "idShortList1";
         final String idShortList2 = "idShortList2";
         final String idShortProperty1 = "idShortProperty1";
@@ -154,7 +149,7 @@ public class SemanticIdPathTest {
 
 
     @Test
-    public void resolveSematicIdPathInSubmodelNonUnique() throws ResourceNotFoundException {
+    public void resolveSematicIdPathInSubmodelNonUnique() {
         final String idShortCollection1 = "idShortCollection1";
         final String idShortCollection2 = "idShortCollection2";
         final String idShortProperty1 = "idShortProperty1";
@@ -200,7 +195,7 @@ public class SemanticIdPathTest {
                 .semanticId(semanticIdProperty)
                 .build()
                 .resolve(submodel);
-        Assert.assertTrue(expected.size() == actual.size());
+        Assert.assertEquals(expected, actual);
         for (int i = 0; i < expected.size(); i++) {
             Assert.assertTrue(ReferenceHelper.equals(expected.get(i), actual.get(i)));
         }

@@ -408,35 +408,9 @@ public class Service implements ServiceContext {
         if (subscriptions == null) {
             subscriptions = new ArrayList<>();
         }
-        SubscriptionInfo info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
-            try {
-                elementCreated(x.getValue(), x.getElement());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementCreated Exception", e);
-            }
-        });
-        subscriptions.add(messageBus.subscribe(info));
-
-        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
-            try {
-                elementDeleted(x.getValue(), x.getElement());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementDeleted Exception", e);
-            }
-        });
-        subscriptions.add(messageBus.subscribe(info));
-
-        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
-            try {
-                elementUpdated(x.getValue(), x.getElement());
-            }
-            catch (Exception e) {
-                LOGGER.error("elementUpdated Exception", e);
-            }
-        });
-        subscriptions.add(messageBus.subscribe(info));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
     }
 
 
@@ -453,44 +427,91 @@ public class Service implements ServiceContext {
     }
 
 
-    private void elementCreated(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
+    private void elementCreated(Referable value, Reference reference) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (value instanceof Submodel submodel) {
-            addSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                addSubmodel(submodel);
+            }
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
         }
-        else if (value instanceof SubmodelElement) {
-            // if a SubmodelElement changed, we use updateSubodel
-            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+        catch (Exception e) {
+            LOGGER.error("elementCreated Exception", e);
         }
     }
 
 
-    private void elementDeleted(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
+    private void elementDeleted(Referable value, Reference reference) {
         Ensure.requireNonNull(value, ELEMENT_NULL);
 
-        if (value instanceof Submodel submodel) {
-            deleteSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                deleteSubmodel(submodel);
+            }
+
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
         }
-        else if (value instanceof SubmodelElement) {
-            // if a SubmodelElement changed, we use updateSubodel
-            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+        catch (Exception e) {
+            LOGGER.error("elementDeleted Exception", e);
         }
     }
 
 
-    private void elementUpdated(Referable value, Reference reference) throws PersistenceException, ResourceNotFoundException {
+    private void elementUpdated(Referable value, Reference reference) {
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        if (value instanceof Submodel submodel) {
-            updateSubmodel(submodel);
+        try {
+            if (value instanceof Submodel submodel) {
+                updateSubmodel(submodel);
+            }
+
+            else if (value instanceof SubmodelElement) {
+                // if a SubmodelElement changed, we use updateSubodel
+                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
+                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
         }
-        else if (value instanceof SubmodelElement) {
-            // if a SubmodelElement changed, we use updateSubodel
-            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-            updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+        catch (Exception e) {
+            LOGGER.error("elementUpdated Exception", e);
         }
+    }
+
+
+    /**
+     * Callback message for Create event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleCreateEvent(ElementCreateEventMessage event) {
+        elementCreated(event.getValue(), event.getElement());
+    }
+
+
+    /**
+     * Callback message for Update event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleUpdateEvent(ElementUpdateEventMessage event) {
+        elementUpdated(event.getValue(), event.getElement());
+    }
+
+
+    /**
+     * Callback message for Delete event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleDeleteEvent(ElementDeleteEventMessage event) {
+        elementDeleted(event.getValue(), event.getElement());
     }
 }
