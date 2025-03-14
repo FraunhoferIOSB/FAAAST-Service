@@ -122,6 +122,9 @@ public class MqttHelper {
             else {
                 for (var s: subscriptionProviders.entrySet()) {
                     mac.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
+                    if (mac.isConnected()) {
+                        mac.registerSubscriptionProvider(s.getKey(), s.getValue());
+                    }
                 }
             }
         }

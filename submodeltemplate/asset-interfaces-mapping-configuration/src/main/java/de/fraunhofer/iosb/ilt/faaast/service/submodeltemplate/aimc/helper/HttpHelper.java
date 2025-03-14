@@ -75,7 +75,8 @@ public class HttpHelper {
      * @throws PersistenceException if storage error occurs
      * @throws ResourceNotFoundException if the resource dcesn't exist.
      * @throws ConfigurationException if invalid configuration is provided.
-     * @throws AssetConnectionException if there is an error in the Asset Connection.
+     * @throws AssetConnectionException if there is an error in the Asset
+     *             Connection.
      * @throws java.net.URISyntaxException
      */
     public static void processInterface(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfigData config, SubmodelElementCollection assetInterface,
@@ -137,11 +138,15 @@ public class HttpHelper {
             else {
                 for (var p: valueProviders.entrySet()) {
                     assetConn.asConfig().getValueProviders().put(p.getKey(), p.getValue());
-                    assetConn.registerValueProvider(p.getKey(), p.getValue());
+                    if (assetConn.isConnected()) {
+                        assetConn.registerValueProvider(p.getKey(), p.getValue());
+                    }
                 }
                 for (var s: subscriptionProviders.entrySet()) {
                     assetConn.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
-                    assetConn.registerSubscriptionProvider(s.getKey(), s.getValue());
+                    if (assetConn.isConnected()) {
+                        assetConn.registerSubscriptionProvider(s.getKey(), s.getValue());
+                    }
                 }
             }
         }
@@ -166,6 +171,7 @@ public class HttpHelper {
             Set<Reference> currentSubscriptionProviders = hac.getSubscriptionProviders().keySet();
 
             // search for removed providers
+            // TODO: distinguish between deleted providers and providers from the Fa³st config
             for (var k: currentValueProviders) {
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(k)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
