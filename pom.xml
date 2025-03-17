@@ -129,7 +129,7 @@
         <maven.plugin.spotless.version>2.44.3</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.15</milo.version>
-        <mockito.version>5.16.0</mockito.version>
+        <mockito.version>5.16.1</mockito.version>
         <mongodb.version>5.3.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.119.Final</netty.version>
