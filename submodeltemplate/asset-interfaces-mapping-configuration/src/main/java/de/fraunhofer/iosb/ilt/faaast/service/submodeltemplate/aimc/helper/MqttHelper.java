@@ -152,6 +152,7 @@ public class MqttHelper {
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
                     mac.unregisterSubscriptionProvider(k);
+                    mac.asConfig().getSubscriptionProviders().remove(k);
                 }
             }
             if (mode != ProcessingMode.DELETE) {

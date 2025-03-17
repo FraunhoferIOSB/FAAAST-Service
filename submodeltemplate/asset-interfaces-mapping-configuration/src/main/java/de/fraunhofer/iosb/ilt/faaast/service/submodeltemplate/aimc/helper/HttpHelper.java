@@ -177,6 +177,7 @@ public class HttpHelper {
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterValueProvider: {}", AasUtils.asString(k));
                     hac.unregisterValueProvider(k);
+                    hac.asConfig().getValueProviders().remove(k);
                 }
             }
             for (var k: currentSubscriptionProviders) {
@@ -184,6 +185,7 @@ public class HttpHelper {
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(k)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(k));
                     hac.unregisterSubscriptionProvider(k);
+                    hac.asConfig().getSubscriptionProviders().remove(k);
                 }
             }
             if (mode != ProcessingMode.DELETE) {
