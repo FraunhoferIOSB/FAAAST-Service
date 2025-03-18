@@ -97,7 +97,7 @@
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.3.0</jena.version>
-        <jetty.version>12.0.17</jetty.version>
+        <jetty.version>12.0.18</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.2</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
