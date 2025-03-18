@@ -24,6 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.InterfaceData;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.InterfaceDataHttp;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.InterfaceDataMqtt;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.MqttHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
@@ -32,7 +35,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
@@ -57,6 +62,12 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private AimcSubmodelTemplateProcessorConfig config;
     private ServiceContext serviceContext;
     private Submodel aimcSubmodel;
+    private Map<Reference, InterfaceData> providerData;
+
+    public AimcSubmodelTemplateProcessor() {
+        providerData = new HashMap<>();
+    }
+
 
     @Override
     public boolean accept(Submodel submodel) {
@@ -187,13 +198,44 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                     LOGGER.atDebug().log("processInterfaceReference: no config section found for Interface {}", ReferenceHelper.asString(interfaceReferenceValue));
                     configData = new AimcSubmodelTemplateProcessorConfigData();
                 }
+                InterfaceData interfaceData = null;
+                if (ReferenceHelper.containsSameReference(providerData, interfaceReferenceValue)) {
+                    interfaceData = ReferenceHelper.getValueBySameReference(providerData, interfaceReferenceValue);
+                }
+
                 if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
                     // HTTP Interface
-                    HttpHelper.processInterface(serviceContext, configData, assetInterface, relations, assetConnectionManager, mode);
+                    InterfaceDataHttp http;
+                    if (interfaceData != null) {
+                        if (interfaceData instanceof InterfaceDataHttp httpInterface) {
+                            http = httpInterface;
+                        }
+                        else {
+                            throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
+                        }
+                    }
+                    else {
+                        http = new InterfaceDataHttp(configData);
+                    }
+                    HttpHelper.processInterface(serviceContext, http, assetInterface, relations, assetConnectionManager, mode);
+                    providerData.put(interfaceReferenceValue, http);
                 }
                 else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
                     // MQTT Interface
-                    MqttHelper.processInterface(serviceContext, configData, assetInterface, relations, assetConnectionManager, mode);
+                    InterfaceDataMqtt mqtt;
+                    if (interfaceData != null) {
+                        if (interfaceData instanceof InterfaceDataMqtt mqttInterface) {
+                            mqtt = mqttInterface;
+                        }
+                        else {
+                            throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
+                        }
+                    }
+                    else {
+                        mqtt = new InterfaceDataMqtt(configData);
+                    }
+                    MqttHelper.processInterface(serviceContext, mqtt, assetInterface, relations, assetConnectionManager, mode);
+                    providerData.put(interfaceReferenceValue, mqtt);
                 }
             }
         }

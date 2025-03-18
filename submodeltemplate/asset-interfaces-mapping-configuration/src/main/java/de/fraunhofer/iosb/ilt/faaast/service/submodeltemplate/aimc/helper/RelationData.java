@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfigData;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 
@@ -28,13 +27,13 @@ public class RelationData {
     private final ServiceContext serviceContext;
     private final List<RelationshipElement> relations;
     private final String contentType;
-    private final AimcSubmodelTemplateProcessorConfigData config;
+    private final InterfaceData interfaceData;
 
-    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType, AimcSubmodelTemplateProcessorConfigData config) {
+    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType, InterfaceData interfaceData) {
         this.serviceContext = serviceContext;
         this.relations = relations;
         this.contentType = contentType;
-        this.config = config;
+        this.interfaceData = interfaceData;
     }
 
 
@@ -69,11 +68,41 @@ public class RelationData {
 
 
     /**
-     * Gets the configuration.
+     * Gets the interface data.
      *
-     * @return The configuration.
+     * @return The interface data.
      */
-    public AimcSubmodelTemplateProcessorConfigData getConfig() {
-        return config;
+    public InterfaceData getInterfaceData() {
+        return interfaceData;
+    }
+
+
+    /**
+     * Gets the HTTP interface data.
+     *
+     * @return The interface data.
+     */
+    public InterfaceDataHttp getInterfaceDataHttp() {
+        if (interfaceData instanceof InterfaceDataHttp http) {
+            return http;
+        }
+        else {
+            throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
+        }
+    }
+
+
+    /**
+     * Gets the MQTT interface data.
+     *
+     * @return The interface data.
+     */
+    public InterfaceDataMqtt getInterfaceDataMqtt() {
+        if (interfaceData instanceof InterfaceDataMqtt mqtt) {
+            return mqtt;
+        }
+        else {
+            throw new IllegalArgumentException("wrong type: no InterfaceDataMqtt");
+        }
     }
 }
