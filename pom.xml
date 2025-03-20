@@ -88,7 +88,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.18.1</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.19.1</equalsverifier.version>
+        <equalsverifier.version>3.19.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.4.0-jre</guava.version>
         <jackson.databind.version>2.18.3</jackson.databind.version>
@@ -98,13 +98,13 @@
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.3.0</jena.version>
-        <jetty.version>12.0.17</jetty.version>
+        <jetty.version>12.0.18</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.2</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.9.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.17</logback.version>
+        <logback.version>1.5.18</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -130,7 +130,7 @@
         <maven.plugin.spotless.version>2.44.3</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <milo.version>0.6.15</milo.version>
-        <mockito.version>5.16.0</mockito.version>
+        <mockito.version>5.16.1</mockito.version>
         <mongodb.version>5.3.1</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
         <netty.version>4.1.119.Final</netty.version>
@@ -144,7 +144,7 @@
         <proguard.version>7.6.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.2.8-159</prosys.sdk.version>
-        <protobuf.version>4.30.0</protobuf.version>
+        <protobuf.version>4.30.1</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
