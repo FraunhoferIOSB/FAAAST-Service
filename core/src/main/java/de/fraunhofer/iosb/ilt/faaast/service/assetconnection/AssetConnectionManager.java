@@ -60,9 +60,11 @@ public class AssetConnectionManager {
     private ScheduledExecutorService scheduledExecutorService;
     private LambdaAssetConnection lambdaAssetConnection;
     private volatile boolean active;
+    private boolean started;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, Service service) throws ConfigurationException {
         this.active = true;
+        this.started = false;
         this.coreConfig = coreConfig;
         this.connections = connections != null ? new ArrayList<>(connections) : new ArrayList<>();
         this.service = service;
@@ -97,6 +99,7 @@ public class AssetConnectionManager {
             setupConnectionAsync(connection);
         }
         lambdaAssetConnection.start();
+        started = true;
     }
 
 
@@ -285,6 +288,9 @@ public class AssetConnectionManager {
         else {
             connections.add(newConnection);
             validateConnections();
+            if (started) {
+                setupConnectionAsync(newConnection);
+            }
         }
         validateConnections();
     }
