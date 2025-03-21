@@ -89,8 +89,6 @@ public class HttpHelper {
         SubmodelElementCollection metadata = Util.getEndpointMetadata(assetInterface);
         String base = Util.getBaseUrl(metadata);
 
-        // TODO: when the Base URL changes, the whole AssetConnection must be changed
-
         // contentType
         String contentType = Util.getContentType(metadata);
 
@@ -103,18 +101,7 @@ public class HttpHelper {
                     assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelations(new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders, base, valueProviders);
-            // check if provider already exist and remove them if necessary
-            List<Reference> doubleList = valueProviders.keySet().stream().filter(k -> Util.hasValueProvider(k, assetConnectionManager)).toList();
-            for (Reference r: doubleList) {
-                LOGGER.atWarn().log("processInterface: ValueProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
-                valueProviders.remove(r);
-            }
-            doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
-            for (Reference r: doubleList) {
-                LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
-                subscriptionProviders.remove(r);
-            }
+            addProvider(new RelationData(serviceContext, relations, contentType, interfaceData), base, subscriptionProviders, valueProviders, assetConnectionManager);
         }
 
         if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
@@ -159,8 +146,8 @@ public class HttpHelper {
                 interfaceData.addSubscriptionProviders(subscriptionProviders);
             }
         }
-        else if (!assetConnectionsRemove.isEmpty()) {
-            // remove asset connection if mode DELETE and no more providers are available
+        if (!assetConnectionsRemove.isEmpty()) {
+            // remove asset connection if no more providers are available
             LOGGER.debug("processInterface: remove unused AssetConnections");
             for (var connection: assetConnectionsRemove) {
                 assetConnectionManager.remove(connection);
@@ -170,40 +157,76 @@ public class HttpHelper {
     }
 
 
+    private static void addProvider(RelationData data, String base, Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders,
+                                    Map<Reference, HttpValueProviderConfig> valueProviders, AssetConnectionManager assetConnectionManager)
+            throws ResourceNotFoundException, PersistenceException {
+        // save baseUrl
+        data.getInterfaceData().setBaseUrl(base);
+        processRelations(data, subscriptionProviders, base, valueProviders);
+        // check if provider already exist and remove them if necessary
+        List<Reference> doubleList = valueProviders.keySet().stream().filter(k -> Util.hasValueProvider(k, assetConnectionManager)).toList();
+        for (Reference r: doubleList) {
+            LOGGER.atWarn().log("processInterface: ValueProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            valueProviders.remove(r);
+        }
+        doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
+        for (Reference r: doubleList) {
+            LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            subscriptionProviders.remove(r);
+        }
+    }
+
+
     private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
                                                Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders,
                                                Map<Reference, HttpValueProviderConfig> valueProviders, List<AssetConnection> assetConnectionsRemove)
             throws PersistenceException, ResourceNotFoundException, URISyntaxException {
+        if (!base.equals(data.getInterfaceData().getBaseUrl())) {
+            // delete providers in the old Asset Connection
+            HttpAssetConnection hacOld = getAssetConnection(assetConnectionManager, data.getInterfaceData().getBaseUrl());
+            if (hacOld != null) {
+                for (Reference ref: data.getInterfaceDataHttp().getValueProvider().keySet()) {
+                    hacOld.unregisterValueProvider(ref);
+                    hacOld.asConfig().getValueProviders().remove(ref);
+                }
+                data.getInterfaceDataHttp().getValueProvider().clear();
+                for (Reference ref: data.getInterfaceDataHttp().getSubscriptionProvider().keySet()) {
+                    hacOld.unregisterSubscriptionProvider(ref);
+                    hacOld.asConfig().getSubscriptionProviders().remove(ref);
+                }
+                data.getInterfaceDataHttp().getSubscriptionProvider().clear();
+                if (hacOld.getValueProviders().isEmpty() && hacOld.getSubscriptionProviders().isEmpty()
+                        && hacOld.getOperationProviders().isEmpty()) {
+                    assetConnectionsRemove.add(hacOld);
+                }
+            }
+            else {
+                LOGGER.debug("updateAssetConnections: AssetConnection for old URL '{}' not found", data.getInterfaceData().getBaseUrl());
+            }
+        }
         HttpAssetConnection hac = getAssetConnection(assetConnectionManager, base);
         if (hac != null) {
             Iterator<Reference> valueIter = data.getInterfaceDataHttp().getValueProvider().keySet().iterator();
             Iterator<Reference> subscriptionIter = data.getInterfaceDataHttp().getSubscriptionProvider().keySet().iterator();
-            //Set<Reference> currentValueProviders = hac.getValueProviders().keySet();
-            //Set<Reference> currentSubscriptionProviders = hac.getSubscriptionProviders().keySet();
 
             // search for removed providers
-            // TODO: distinguish between deleted providers and providers from the Fa³st config
             while (valueIter.hasNext()) {
-                //for (var k: currentValueProviders) {
                 Reference ref = valueIter.next();
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterValueProvider: {}", AasUtils.asString(ref));
                     hac.unregisterValueProvider(ref);
                     hac.asConfig().getValueProviders().remove(ref);
-                    //data.getInterfaceData().getValueProvider().remove(k);
                     valueIter.remove();
                 }
             }
             while (subscriptionIter.hasNext()) {
-                //for (var k: currentSubscriptionProviders) {
                 Reference ref = subscriptionIter.next();
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
                     hac.unregisterSubscriptionProvider(ref);
                     hac.asConfig().getSubscriptionProviders().remove(ref);
-                    //data.getInterfaceData().getSubscriptionProvider().remove(ref);
                     subscriptionIter.remove();
                 }
             }
@@ -216,7 +239,8 @@ public class HttpHelper {
             }
         }
         else {
-            LOGGER.debug("updateAssetConnections: AssetConnection for URL '{}' not found", base);
+            // create new Asset Connection
+            addProvider(data, base, subscriptionProviders, valueProviders, assetConnectionManager);
         }
     }
 
@@ -246,8 +270,6 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         var currentValues = data.getInterfaceDataHttp().getValueProvider();
         var currentSubscriptions = data.getInterfaceDataHttp().getSubscriptionProvider();
-        //Map<Reference, HttpValueProviderConfig> currentValues = hac.asConfig().getValueProviders();
-        //Map<Reference, HttpSubscriptionProviderConfig> currentSubscriptions = hac.asConfig().getSubscriptionProviders();
         for (var r: data.getRelations()) {
 
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
@@ -255,7 +277,6 @@ public class HttpHelper {
                     if (currentSubscriptions.containsKey(r.getSecond())) {
                         // compare provider data
                         HttpSubscriptionProviderConfig config = ReferenceHelper.getValueBySameReference(currentSubscriptions, r.getSecond());
-                        //HttpSubscriptionProviderConfig config = hac.asConfig().getSubscriptionProviders().get(r.getSecond());
                         if (subscriptionProviderChanged(config, property, base, data.getContentType())) {
                             hac.unregisterSubscriptionProvider(r.getSecond());
                             subscriptionProviders.put(r.getSecond(),
@@ -438,4 +459,5 @@ public class HttpHelper {
 
         return retval;
     }
+
 }

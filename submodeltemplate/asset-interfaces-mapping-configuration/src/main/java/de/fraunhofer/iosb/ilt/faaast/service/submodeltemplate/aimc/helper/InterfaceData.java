@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelT
 public class InterfaceData {
 
     private final AimcSubmodelTemplateProcessorConfigData configData;
+    private String baseUrl;
 
     public InterfaceData(AimcSubmodelTemplateProcessorConfigData configData) {
         this.configData = configData;
@@ -38,4 +39,13 @@ public class InterfaceData {
         return configData;
     }
 
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+
+    public void setBaseUrl(String value) {
+        baseUrl = value;
+    }
 }

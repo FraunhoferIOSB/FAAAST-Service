@@ -81,8 +81,6 @@ public class MqttHelper {
         // base
         String base = Util.getBaseUrl(metadata);
 
-        // TODO: when the Base changes, the whole AssetConnection must be changed
-
         // contentType
         String contentType = Util.getContentType(metadata);
 
@@ -93,12 +91,7 @@ public class MqttHelper {
                     assetConnectionsRemove);
         }
         else if (mode == ProcessingMode.ADD) {
-            processRelations(new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders);
-            List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
-            for (Reference r: doubleList) {
-                LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
-                subscriptionProviders.remove(r);
-            }
+            addProvider(new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders, assetConnectionManager);
         }
 
         if (!subscriptionProviders.isEmpty()) {
@@ -131,8 +124,8 @@ public class MqttHelper {
             }
             interfaceData.addSubscriptionProviders(subscriptionProviders);
         }
-        else if (!assetConnectionsRemove.isEmpty()) {
-            // remove asset connection if mode DELETE and no more providers are available
+        if (!assetConnectionsRemove.isEmpty()) {
+            // remove asset connection if no more providers are available
             LOGGER.debug("processInterface: remove unused AssetConnections");
             for (var connection: assetConnectionsRemove) {
                 assetConnectionManager.remove(connection);
@@ -142,24 +135,46 @@ public class MqttHelper {
     }
 
 
+    private static void addProvider(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, AssetConnectionManager assetConnectionManager)
+            throws PersistenceException, ResourceNotFoundException {
+        processRelations(data, subscriptionProviders);
+        List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
+        for (Reference r: doubleList) {
+            LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            subscriptionProviders.remove(r);
+        }
+    }
+
+
     private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
                                                Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
             throws ResourceNotFoundException, PersistenceException {
+        if (!base.equals(data.getInterfaceData().getBaseUrl())) {
+            // delete providers in the old Asset Connection
+            MqttAssetConnection macOld = getAssetConnection(assetConnectionManager, base);
+            if (macOld != null) {
+                for (Reference ref: data.getInterfaceDataMqtt().getSubscriptionProvider().keySet()) {
+                    macOld.unregisterSubscriptionProvider(ref);
+                    macOld.asConfig().getSubscriptionProviders().remove(ref);
+                }
+                data.getInterfaceDataMqtt().getSubscriptionProvider().clear();
+            }
+            else {
+                LOGGER.debug("updateAssetConnections: old AssetConnection for URL '{}' not found", base);
+            }
+        }
         MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
         if (mac != null) {
-            //Set<Reference> currentSubscriptionProviders = mac.getSubscriptionProviders().keySet();
             Iterator<Reference> subscriptionIter = data.getInterfaceDataMqtt().getSubscriptionProvider().keySet().iterator();
 
             // search for removed providers
             while (subscriptionIter.hasNext()) {
-                //for (var k: currentSubscriptionProviders) {
                 Reference ref = subscriptionIter.next();
                 if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
                         || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
                     LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
                     mac.unregisterSubscriptionProvider(ref);
                     mac.asConfig().getSubscriptionProviders().remove(ref);
-                    //data.getInterfaceData().getSubscriptionProvider().remove(ref);
                     subscriptionIter.remove();
                 }
             }
@@ -172,7 +187,8 @@ public class MqttHelper {
             }
         }
         else {
-            LOGGER.debug("updateAssetConnections: AssetConnection for URL '{}' not found", base);
+            // create new Asset Connection
+            addProvider(data, subscriptionProviders, assetConnectionManager);
         }
     }
 
