@@ -1,5 +1,6 @@
 # AssetConnection
 
+(assetconnection)=
 The AssetConnection interface is responsible for synchronizing values of the model with assets.
 Although asset synchronization is not part of the AAS specification, we believe this functionality is essential for digital twins, at least when located on edge-level, i.e., close to an actual machine/asset.
 
