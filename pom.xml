@@ -89,7 +89,7 @@
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.19.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.4.5-jre</guava.version>
+        <guava.version>33.4.6-jre</guava.version>
         <jackson.databind.version>2.18.3</jackson.databind.version>
         <jackson.version>2.18.3</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
