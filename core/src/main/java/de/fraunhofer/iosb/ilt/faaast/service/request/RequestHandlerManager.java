@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,19 +52,14 @@ public class RequestHandlerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerManager.class);
     private Map<Class<? extends Request>, ? extends AbstractRequestHandler> handlers;
     private ExecutorService requestHandlerExecutorService;
-    private final RequestExecutionContext context;
 
-    public RequestHandlerManager(RequestExecutionContext context) {
-        this.context = context;
-        init();
+    public RequestHandlerManager(CoreConfig config) {
+        init(config);
     }
 
 
-    private void init() {
+    private void init(CoreConfig config) {
         // TODO implement build-time scan to improve performance (see https://github.com/classgraph/classgraph/wiki/Build-Time-Scanning)
-        final Object[] constructorArgs = new Object[] {
-                context
-        };
         final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getDeclaredConstructors()[0].getParameterTypes();
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo()
@@ -76,7 +72,7 @@ public class RequestHandlerManager {
                             x -> (Class<? extends Request>) TypeToken.of(x).resolveType(AbstractRequestHandler.class.getTypeParameters()[0]).getRawType(),
                             x -> {
                                 try {
-                                    return ConstructorUtils.invokeConstructor(x, constructorArgs);
+                                    return ConstructorUtils.invokeConstructor(x);
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
                                     LOGGER.warn("request handler implementation could not be loaded, "
@@ -87,16 +83,15 @@ public class RequestHandlerManager {
                                 }
                                 catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                                     LOGGER.warn("request handler implementation could not be loaded, "
-                                            + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
+                                            + "reason: calling constructor failed (implementation class: {})",
                                             x.getName(),
-                                            constructorArgs,
                                             e);
                                 }
                                 return null;
                             }));
         }
         requestHandlerExecutorService = Executors.newFixedThreadPool(
-                context.getCoreConfig().getRequestHandlerThreadPoolSize(),
+                config.getRequestHandlerThreadPoolSize(),
                 new BasicThreadFactory.Builder()
                         .namingPattern("RequestHandler" + "-%d")
                         .build());
@@ -129,41 +124,41 @@ public class RequestHandlerManager {
      * @param <I> type of request/input
      * @param <O> type of response/output
      * @param request the request to execute
+     * @param context the execution context
      * @return the reponse to this request
      * @throws java.lang.Exception if executing the request fails
      * @throws TypeInstantiationException if response class could not be instantiated
      * @throws IllegalArgumentException if request is null
      */
-    public <I extends Request<O>, O extends Response> O execute(I request) throws Exception {
+    public <I extends Request<O>, O extends Response> O execute(I request, RequestExecutionContext context) throws Exception {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
         }
         if (!handlers.containsKey(request.getClass())) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, "no handler defined for this request");
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageTypeEnum.EXCEPTION, "no handler defined for this request");
         }
         try {
-            return (O) handlers.get(request.getClass()).process(request);
+            return (O) handlers.get(request.getClass()).process(request, context);
         }
         catch (ResourceNotFoundException e) {
-            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageTypeEnum.ERROR, e);
         }
         catch (ResourceAlreadyExistsException e) {
-            return createResponse(request, StatusCode.CLIENT_RESOURCE_CONFLICT, MessageType.ERROR, e);
+            return createResponse(request, StatusCode.CLIENT_RESOURCE_CONFLICT, MessageTypeEnum.ERROR, e);
         }
         catch (ValidationException e) {
-            return createResponse(request, StatusCode.CLIENT_ERROR_BAD_REQUEST, MessageType.ERROR, e);
+            return createResponse(request, StatusCode.CLIENT_ERROR_BAD_REQUEST, MessageTypeEnum.ERROR, e);
         }
     }
 
 
-    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, Exception e) {
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageTypeEnum messageType, Exception e) {
         return createResponse(request, statusCode, messageType, e.getMessage());
     }
 
 
-    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, String message) {
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageTypeEnum messageType, String message) {
         try {
-
             O response = (O) ConstructorUtils.invokeConstructor(TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType());
             response.setStatusCode(statusCode);
             response.getResult().setMessages(List.of(
@@ -185,9 +180,10 @@ public class RequestHandlerManager {
      * @param <I> type of request/input
      * @param <O> type of response/output
      * @param request the request to execute
+     * @param context the execution context
      * @param callback callback handler which is called with the response once the request has been executed
      */
-    public <I extends Request<O>, O extends Response> void executeAsync(I request, Consumer<O> callback) {
+    public <I extends Request<O>, O extends Response> void executeAsync(I request, Consumer<O> callback, RequestExecutionContext context) {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
         }
@@ -196,11 +192,11 @@ public class RequestHandlerManager {
         }
         requestHandlerExecutorService.submit(() -> {
             try {
-                callback.accept(execute(request));
+                callback.accept(execute(request, context));
             }
             catch (Exception e) {
                 LOGGER.trace("Error while executing request", e);
-                callback.accept(createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, e));
+                callback.accept(createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageTypeEnum.EXCEPTION, e));
             }
         });
     }

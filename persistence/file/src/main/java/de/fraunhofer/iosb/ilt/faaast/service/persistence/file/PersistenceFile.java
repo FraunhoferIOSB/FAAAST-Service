@@ -32,9 +32,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
@@ -52,6 +52,7 @@ import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -120,6 +121,18 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         catch (ConfigurationException | DeserializationException e) {
             throw new ConfigurationInitializationException("initializing file persistence failed", e);
         }
+    }
+
+
+    @Override
+    public void start() throws PersistenceException {
+        //intentionally left empty
+    }
+
+
+    @Override
+    public void stop() {
+        //intentionally left empty
     }
 
 
@@ -249,6 +262,13 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     @Override
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
         persistence.deleteSubmodelElement(identifier);
+        saveEnvironment();
+    }
+
+
+    @Override
+    public void deleteAll() throws PersistenceException {
+        persistence.deleteAll();
         saveEnvironment();
     }
 

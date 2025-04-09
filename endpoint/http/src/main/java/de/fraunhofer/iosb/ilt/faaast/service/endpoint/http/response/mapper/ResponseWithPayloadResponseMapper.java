@@ -15,19 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.AbstractResponseWithPayload;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,32 +32,20 @@ import org.slf4j.LoggerFactory;
  */
 public class ResponseWithPayloadResponseMapper<T extends AbstractResponseWithPayload, U extends Request<T>> extends AbstractResponseMapper<T, U> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResponseWithPayloadResponseMapper.class);
-
     public ResponseWithPayloadResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
     }
 
 
     @Override
-    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) {
-        try {
-            HttpHelper.sendJson(httpResponse,
-                    apiResponse.getStatusCode(),
-                    new HttpJsonApiSerializer().write(
-                            apiResponse.getPayload(),
-                            AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
-                                    ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
-                                    : OutputModifier.DEFAULT));
-        }
-        catch (SerializationException e) {
-            LOGGER.warn("error serializing response", e);
-            HttpHelper.send(
-                    httpResponse,
-                    StatusCode.SERVER_INTERNAL_ERROR,
-                    Result.builder()
-                            .message(MessageType.EXCEPTION, e.getMessage())
-                            .build());
-        }
+    public void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws Exception {
+        HttpHelper.sendJson(httpResponse,
+                apiResponse.getStatusCode(),
+                new HttpJsonApiSerializer().write(
+                        apiResponse.getPayload(),
+                        AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
+                                ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()
+                                : OutputModifier.DEFAULT));
+
     }
 }

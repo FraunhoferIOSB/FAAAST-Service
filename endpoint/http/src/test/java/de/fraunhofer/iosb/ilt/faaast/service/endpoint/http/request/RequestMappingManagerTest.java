@@ -35,7 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
@@ -66,6 +66,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsReferenceRequest;
@@ -738,7 +740,7 @@ public class RequestMappingManagerTest {
                 .content(Content.VALUE)
                 .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H"))
                 .build();
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -766,7 +768,7 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -805,7 +807,7 @@ public class RequestMappingManagerTest {
                 .content(Content.VALUE)
                 .timeout(DatatypeFactory.newDefaultInstance().newDuration("PT1H2M3S"))
                 .build();
-        when(serviceContext.execute(any())).thenReturn(
+        when(serviceContext.execute(any(), any())).thenReturn(
                 GetSubmodelElementByPathResponse.builder()
                         .payload(OPERATION)
                         .success()
@@ -1107,8 +1109,8 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentNormal() throws Exception {
-        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
+    public void testPatchSubmodelElementValueByPathContentNormal() throws Exception {
+        PatchSubmodelElementValueByPathRequest expected = PatchSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
@@ -1120,7 +1122,7 @@ public class RequestMappingManagerTest {
                         + "/$value")
                 .body(serializer.write(SUBMODEL_ELEMENT).getBytes())
                 .build());
-        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        PatchSubmodelElementValueByPathRequest actual = (PatchSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
         Assert.assertEquals(expected.getPath(), actual.getPath());
         Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), ElementValue.class));
@@ -1128,8 +1130,8 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentValue() throws Exception {
-        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
+    public void testPatchSubmodelElementValueByPathContentValue() throws Exception {
+        PatchSubmodelElementValueByPathRequest expected = PatchSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
@@ -1141,7 +1143,7 @@ public class RequestMappingManagerTest {
                         + "/$value")
                 .body(serializer.write(ElementValueMapper.toValue(SUBMODEL_ELEMENT)).getBytes())
                 .build());
-        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        PatchSubmodelElementValueByPathRequest actual = (PatchSubmodelElementValueByPathRequest) temp;
         Assert.assertEquals(expected.getSubmodelId(), actual.getSubmodelId());
         Assert.assertEquals(expected.getPath(), actual.getPath());
         Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), ElementValue.class));
@@ -1165,4 +1167,45 @@ public class RequestMappingManagerTest {
                 .build()));
     }
 
+
+    @Test
+    public void testImportMissingContentType() {
+        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("import")
+                .body("{}".getBytes())
+                .build()));
+    }
+
+
+    @Test
+    public void testImport() throws InvalidRequestException {
+        String json = "{}";
+        Request expected = ImportRequest.builder()
+                .contentType("application/json")
+                .content(json.getBytes())
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .path("import")
+                .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
+                .body(json.getBytes())
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReset() throws InvalidRequestException {
+        String json = "{}";
+        Request expected = ResetRequest.builder()
+                .build();
+        Request actual = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("reset")
+                .header(HttpConstants.HEADER_CONTENT_TYPE, "application/json")
+                .body(json.getBytes())
+                .build());
+        Assert.assertEquals(expected, actual);
+    }
 }

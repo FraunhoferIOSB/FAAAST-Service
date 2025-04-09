@@ -33,17 +33,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DynamicRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +62,9 @@ import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
@@ -60,21 +72,25 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class of the FA³ST Service accumulating and connecting all different
- * components.
+ * Central class of the FA³ST Service accumulating and connecting all different components.
  */
 public class Service implements ServiceContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private static final String VALUE_NULL = "value must not be null";
+    private static final String ELEMENT_NULL = "element must not be null";
     private final ServiceConfig config;
     private AssetConnectionManager assetConnectionManager;
     private List<Endpoint> endpoints;
     private MessageBus messageBus;
     private Persistence persistence;
     private FileStorage fileStorage;
+    private RequestExecutionContext requestExecutionContext;
 
     private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
+    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
+    private List<SubscriptionId> subscriptions;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -85,21 +101,23 @@ public class Service implements ServiceContext {
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
+     * @param submodelTemplateProcessors submodel template processor to use
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if persistence is null
+     * @throws PersistenceException if storage error occurs
+     * @throws MessageBusException if message bus error occurs
      * @throws IllegalArgumentException if messageBus is null
      * @throws RuntimeException if creating a deep copy of aasEnvironment fails
-     * @throws ConfigurationException the configuration the
-     *             {@link AssetConnectionManager} fails
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws ConfigurationException the configuration the {@link AssetConnectionManager} fails
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
             FileStorage fileStorage,
             MessageBus messageBus,
             List<Endpoint> endpoints,
-            List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
+            List<AssetConnection> assetConnections,
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
@@ -110,6 +128,8 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
+        this.subscriptions = new ArrayList<>();
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -117,13 +137,10 @@ public class Service implements ServiceContext {
         this.fileStorage = fileStorage;
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                coreConfig,
-                persistence,
-                fileStorage,
-                messageBus,
-                assetConnectionManager));
+        this.requestHandler = new RequestHandlerManager(config.getCore());
+        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
+        initSubmodelTemplateProcessors();
     }
 
 
@@ -133,21 +150,23 @@ public class Service implements ServiceContext {
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws PersistenceException if storage error occurs
+     * @throws MessageBusException if message bus error occurs
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(ServiceConfig config)
-            throws ConfigurationException, AssetConnectionException {
+            throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
+        this.subscriptions = new ArrayList<>();
         init();
     }
 
 
     @Override
-    public Response execute(Request request) {
+    public Response execute(Endpoint source, Request request) {
         try {
-            return requestHandler.execute(request);
+            return requestHandler.execute(request, requestExecutionContext.withEndpoint(source));
         }
         catch (Exception e) {
             LOGGER.trace("Error executing request", e);
@@ -157,7 +176,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException {
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException {
         if (reference == null) {
             throw new IllegalArgumentException("reference must be non-null");
         }
@@ -175,7 +194,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException {
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException {
         return TypeExtractor.extractTypeInfo(persistence.getSubmodelElement(reference, QueryModifier.DEFAULT));
     }
 
@@ -187,7 +206,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Environment getAASEnvironment() {
+    public Environment getAASEnvironment() throws PersistenceException {
         return new DefaultEnvironment.Builder()
                 .assetAdministrationShells(
                         persistence.findAssetAdministrationShells(
@@ -215,15 +234,14 @@ public class Service implements ServiceContext {
      * Executes a request asynchroniously.
      *
      * @param request request to execute
-     * @param callback callback handler that is called when execution if
-     *            finished
+     * @param callback callback handler that is called when execution if finished
      * @throws IllegalArgumentException if request is null
      * @throws IllegalArgumentException if callback is null
      */
     public void executeAsync(Request request, Consumer<Response> callback) {
         Ensure.requireNonNull(request, "request must be non-null");
         Ensure.requireNonNull(callback, "callback must be non-null");
-        this.requestHandler.executeAsync(request, callback);
+        this.requestHandler.executeAsync(request, callback, requestExecutionContext);
     }
 
 
@@ -238,15 +256,32 @@ public class Service implements ServiceContext {
     }
 
 
+    public FileStorage getFileStorage() {
+        return fileStorage;
+    }
+
+
+    public ServiceConfig getConfig() {
+        return config;
+    }
+
+
+    public Persistence getPersistence() {
+        return persistence;
+    }
+
+
     /**
      * Starts the service.This includes starting the message bus and endpoints.
      *
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
+     * @throws PersistenceException if storage error occurs
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
-    public void start() throws MessageBusException, EndpointException {
+    public void start() throws MessageBusException, EndpointException, PersistenceException {
         LOGGER.debug("Get command for starting FA³ST Service");
+        persistence.start();
         messageBus.start();
         if (!endpoints.isEmpty()) {
             LOGGER.info("Starting endpoints...");
@@ -262,24 +297,26 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Stop the service. This includes stopping the message bus and all
-     * endpoints.
+     * Stop the service. This includes stopping the message bus and all endpoints.
      */
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");
+        unsubscribeMessageBus();
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
+        persistence.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
 
-    private void init() throws ConfigurationException {
+    private void init() throws ConfigurationException, PersistenceException, MessageBusException {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
-        persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
-        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
+        ensureInitialModelFilesAreLoaded();
+        persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
+        fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
@@ -288,6 +325,7 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
@@ -298,12 +336,164 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        this.requestHandler = new RequestHandlerManager(new RequestExecutionContext(
-                this.config.getCore(),
-                this.persistence,
-                this.fileStorage,
-                this.messageBus,
-                this.assetConnectionManager));
+        this.requestHandler = new RequestHandlerManager(config.getCore());
+        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
+    }
+
+
+    private void ensureInitialModelFilesAreLoaded() {
+        if (Objects.nonNull(config.getPersistence().getInitialModelFile())
+                && DataFormat.forFileExtension(FileHelper.getFileExtensionWithoutSeparator(config.getPersistence().getInitialModelFile())).stream()
+                        .anyMatch(DataFormat::getCanStoreFiles)) {
+            config.getFileStorage().setInitialModelFile(config.getPersistence().getInitialModelFile());
+        }
+    }
+
+
+    private void initSubmodelTemplateProcessors() throws ConfigurationException, PersistenceException, MessageBusException {
+        if (submodelTemplateProcessors == null) {
+            submodelTemplateProcessors = new ArrayList<>();
+        }
+        if (config.getSubmodelTemplateProcessors() != null) {
+            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
+                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this);
+                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, this);
+                submodelTemplateProcessors.add(submodelTemplateProcessor);
+            }
+        }
+        if (submodelTemplateProcessors.isEmpty()) {
+            return;
+        }
+        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        for (var submodel: submodels) {
+            addSubmodel(submodel);
+        }
+
+        subscribeMessageBus();
+    }
+
+
+    private void addSubmodel(Submodel submodel) throws PersistenceException {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
+                LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
+                persistence.save(submodel);
+            }
+        }
+    }
+
+
+    private void updateSubmodel(Submodel submodel) throws PersistenceException {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
+                LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
+                persistence.save(submodel);
+            }
+        }
+    }
+
+
+    private void deleteSubmodel(Submodel submodel) {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
+                LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
+            }
+        }
+    }
+
+
+    private void subscribeMessageBus() throws MessageBusException {
+        if (subscriptions == null) {
+            subscriptions = new ArrayList<>();
+        }
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
+    }
+
+
+    private void unsubscribeMessageBus() {
+        for (var subscription: subscriptions) {
+            try {
+                messageBus.unsubscribe(subscription);
+            }
+            catch (Exception ex) {
+                LOGGER.error("unsubscribeMessageBus Exception", ex);
+            }
+        }
+        subscriptions.clear();
+    }
+
+
+    private void elementCreated(Referable value) {
+        Ensure.requireNonNull(value, VALUE_NULL);
+
+        try {
+            if (value instanceof Submodel submodel) {
+                addSubmodel(submodel);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error("elementCreated Exception", e);
+        }
+    }
+
+
+    private void elementDeleted(Referable value) {
+        Ensure.requireNonNull(value, ELEMENT_NULL);
+
+        try {
+            if (value instanceof Submodel submodel) {
+                deleteSubmodel(submodel);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error("elementDeleted Exception", e);
+        }
+    }
+
+
+    private void elementUpdated(Referable value) {
+        Ensure.requireNonNull(value, VALUE_NULL);
+
+        try {
+            if (value instanceof Submodel submodel) {
+                updateSubmodel(submodel);
+            }
+        }
+        catch (Exception e) {
+            LOGGER.error("elementUpdated Exception", e);
+        }
+    }
+
+
+    /**
+     * Callback message for Create event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleCreateEvent(ElementCreateEventMessage event) {
+        elementCreated(event.getValue());
+    }
+
+
+    /**
+     * Callback message for Update event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleUpdateEvent(ElementUpdateEventMessage event) {
+        elementUpdated(event.getValue());
+    }
+
+
+    /**
+     * Callback message for Delete event from the MessageBus.
+     *
+     * @param event The event from the MessageBus.
+     */
+    public void handleDeleteEvent(ElementDeleteEventMessage event) {
+        elementDeleted(event.getValue());
     }
 }

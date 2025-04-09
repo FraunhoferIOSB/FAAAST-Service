@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -36,13 +37,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public class GetAssetAdministrationShellReferenceRequestHandler
         extends AbstractRequestHandler<GetAssetAdministrationShellReferenceRequest, GetAssetAdministrationShellReferenceResponse> {
 
-    public GetAssetAdministrationShellReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAssetAdministrationShellReferenceResponse process(GetAssetAdministrationShellReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetAssetAdministrationShellReferenceResponse process(GetAssetAdministrationShellReferenceRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         Reference reference = ReferenceBuilder.forAas(shell);
         if (!request.isInternal()) {

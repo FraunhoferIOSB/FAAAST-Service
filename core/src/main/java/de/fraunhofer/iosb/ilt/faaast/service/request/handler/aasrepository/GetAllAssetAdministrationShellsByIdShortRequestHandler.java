@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -37,13 +38,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 public class GetAllAssetAdministrationShellsByIdShortRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
 
-    public GetAllAssetAdministrationShellsByIdShortRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request) throws MessageBusException {
+    public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request, RequestExecutionContext context)
+            throws MessageBusException, PersistenceException {
         Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShells(
                 AssetAdministrationShellSearchCriteria.builder()
                         .idShort(request.getIdShort())

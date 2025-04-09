@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.io.ByteArrayInputStream;
@@ -212,13 +213,35 @@ public abstract class AbstractRequestMapper {
     }
 
 
-    private String headerMatcher(Pattern pattern, String header) {
-        Matcher matcher = pattern.matcher(header);
-        String result = matcher.find() ? matcher.group(1) : null;
-        if (!Objects.isNull(result) && result.contains("charset")) {
-            result = result.split(";")[0];
+    /**
+     * Reads and decodes a base64Url-encoded query parameter.
+     *
+     * @param urlParameters the map of known query parameters and their original values
+     * @param parameterName the name of the parameter to read
+     * @return the decoded value of the query parameter.
+     * @throws InvalidRequestException if the query parameter is unkown or is not valid base64
+     */
+    protected String getParameterBase64UrlEncoded(Map<String, String> urlParameters, String parameterName) throws InvalidRequestException {
+        Ensure.requireNonNull(urlParameters, "urlParameter must be non-null");
+        Ensure.requireNonNull(parameterName, "parameterName must be non-null");
+        String value = urlParameters.get(parameterName);
+        if (Objects.isNull(value)) {
+            return null;
         }
-        return result;
+        try {
+            return EncodingHelper.base64UrlDecode(value);
+        }
+        catch (IllegalArgumentException e) {
+            if (RegExHelper.isGroupName(parameterName)) {
+                throw new InvalidRequestException(String.format(
+                        "invalid URL path segment, must be base64Url-encoded (value: %s)",
+                        urlParameters.get(parameterName)));
+            }
+            throw new InvalidRequestException(String.format(
+                    "invalid query parameter, must be base64Url-encoded (name: %s, value: %s)",
+                    parameterName,
+                    urlParameters.get(parameterName)));
+        }
     }
 
 
@@ -290,4 +313,13 @@ public abstract class AbstractRequestMapper {
                 && Objects.equals(this.method, other.method);
     }
 
+
+    private String headerMatcher(Pattern pattern, String header) {
+        Matcher matcher = pattern.matcher(header);
+        String result = matcher.find() ? matcher.group(1) : null;
+        if (!Objects.isNull(result) && result.contains("charset")) {
+            result = result.split(";")[0];
+        }
+        return result;
+    }
 }

@@ -20,8 +20,10 @@ The features of FA³ST Service include
 
 ## Implemented AAS Specifications
 
-- AAS Part 1: Metamodel v3.0 [Specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0)
-- AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002-3-0), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
+- AAS Part 1: Metamodel v3.0 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf)
+- AAS Part 2: API v3.0.1 [Specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf), [OpenAPI](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)
+- AAS Part 3a: Data Specification – IEC 61360 v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/07/IDTA-01003-a-3-0-2_SpecificationAssetAdministrationShell_Part3a_DataSpecification_IEC613601.pdf)
+- AAS Part 5: Package File Format (AASX) v3.0 [Specification](https://industrialdigitaltwin.org/en/wp-content/uploads/sites/2/2024/06/IDTA-01005-3-0-1_SpecificationAssetAdministrationShell_Part5_AASXPackageFileFormat.pdf)
 
 
 ## Usage
@@ -35,23 +37,23 @@ The features of FA³ST Service include
 ### Download pre-compiled JAR
 
 <!--start:download-release-->
-[Download latest RELEASE version (1.1.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/1.1.0/starter-1.1.0.jar)<!--end:download-release-->
+[Download latest RELEASE version (1.2.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/1.2.0/starter-1.2.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (1.2.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=1.2.0-SNAPSHOT)<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (1.3.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=1.3.0-SNAPSHOT)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 ```xml
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
 	<artifactId>starter</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 </dependency>
 ```
 
 ### As Gradle Dependency
 ```kotlin
-implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.1.0'
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.2.0'
 ```
 
 ## Building from Source

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -40,17 +40,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.InMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAllSubmodelReferencesRequest;
@@ -76,6 +73,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetFileByPathRequest;
@@ -95,7 +94,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PatchSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteSubmodelReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAllSubmodelReferencesResponse;
@@ -121,6 +120,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescripti
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ResetResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFileByPathResponse;
@@ -143,6 +144,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelreposito
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -173,6 +175,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -187,11 +191,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
@@ -221,8 +227,8 @@ public class RequestHandlerManagerTest {
     private static FileStorage fileStorage;
     private static RequestHandlerManager manager;
     private static AssetValueProvider assetValueProvider;
-    private static ServiceContext serviceContext;
-    private static RequestExecutionContext context;
+    private static Service service;
+    private static StaticRequestExecutionContext context;
 
     @Before
     public void createRequestHandlerManager() throws ConfigurationException, AssetConnectionException {
@@ -230,16 +236,16 @@ public class RequestHandlerManagerTest {
         coreConfig = CoreConfig.DEFAULT;
         messageBus = mock(MessageBus.class);
         persistence = spy(Persistence.class);
-        serviceContext = mock(ServiceContext.class);
-        assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), serviceContext));
+        service = mock(Service.class);
+        assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), service));
         fileStorage = mock(FileStorage.class);
-        context = new RequestExecutionContext(
+        context = new StaticRequestExecutionContext(
                 coreConfig,
                 persistence,
                 fileStorage,
                 messageBus,
                 assetConnectionManager);
-        manager = new RequestHandlerManager(context);
+        manager = new RequestHandlerManager(coreConfig);
         assetValueProvider = mock(AssetValueProvider.class);
         when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
     }
@@ -250,7 +256,7 @@ public class RequestHandlerManagerTest {
         when(persistence.findAssetAdministrationShells(any(), any(), any()))
                 .thenReturn(Page.of(environment.getAssetAdministrationShells()));
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
-        GetAllAssetAdministrationShellsResponse actual = manager.execute(request);
+        GetAllAssetAdministrationShellsResponse actual = manager.execute(request, context);
         GetAllAssetAdministrationShellsResponse expected = new GetAllAssetAdministrationShellsResponse.Builder()
                 .payload(Page.of(environment.getAssetAdministrationShells()))
                 .statusCode(StatusCode.SUCCESS)
@@ -292,7 +298,7 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByAssetIdRequest request = new GetAllAssetAdministrationShellsByAssetIdRequest.Builder()
                 .assetIds(assetIds)
                 .build();
-        GetAllAssetAdministrationShellsByAssetIdResponse actual = manager.execute(request);
+        GetAllAssetAdministrationShellsByAssetIdResponse actual = manager.execute(request, context);
         GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
                 .payload(Page.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
                 .statusCode(StatusCode.SUCCESS)
@@ -314,7 +320,7 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
                 .build();
-        GetAllAssetAdministrationShellsByIdShortResponse actual = manager.execute(request);
+        GetAllAssetAdministrationShellsByIdShortResponse actual = manager.execute(request, context);
         GetAllAssetAdministrationShellsByIdShortResponse expected = new GetAllAssetAdministrationShellsByIdShortResponse.Builder()
                 .payload(Page.of(environment.getAssetAdministrationShells()))
                 .statusCode(StatusCode.SUCCESS)
@@ -328,7 +334,7 @@ public class RequestHandlerManagerTest {
         PostAssetAdministrationShellRequest request = new PostAssetAdministrationShellRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
-        PostAssetAdministrationShellResponse actual = manager.execute(request);
+        PostAssetAdministrationShellResponse actual = manager.execute(request, context);
         PostAssetAdministrationShellResponse expected = new PostAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
@@ -341,12 +347,12 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostAssetAdministrationShellRequestEmptyAas() throws Exception {
-        PostAssetAdministrationShellResponse actual = new RequestHandlerManager(
-                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                .execute(new PostAssetAdministrationShellRequest.Builder()
+        PostAssetAdministrationShellResponse actual = manager.execute(
+                new PostAssetAdministrationShellRequest.Builder()
                         .aas(new DefaultAssetAdministrationShell.Builder()
                                 .build())
-                        .build());
+                        .build(),
+                new StaticRequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager));
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -359,7 +365,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAssetAdministrationShellByIdResponse actual = manager.execute(request);
+        GetAssetAdministrationShellByIdResponse actual = manager.execute(request, context);
         GetAssetAdministrationShellByIdResponse expected = new GetAssetAdministrationShellByIdResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
@@ -373,7 +379,7 @@ public class RequestHandlerManagerTest {
         PutAssetAdministrationShellByIdRequest request = new PutAssetAdministrationShellByIdRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
-        PutAssetAdministrationShellByIdResponse actual = manager.execute(request);
+        PutAssetAdministrationShellByIdResponse actual = manager.execute(request, context);
         PutAssetAdministrationShellByIdResponse expected = new PutAssetAdministrationShellByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -389,7 +395,7 @@ public class RequestHandlerManagerTest {
         DeleteAssetAdministrationShellByIdRequest request = DeleteAssetAdministrationShellByIdRequest.builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .build();
-        DeleteAssetAdministrationShellByIdResponse actual = manager.execute(request);
+        DeleteAssetAdministrationShellByIdResponse actual = manager.execute(request, context);
         DeleteAssetAdministrationShellByIdResponse expected = DeleteAssetAdministrationShellByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -405,7 +411,7 @@ public class RequestHandlerManagerTest {
         GetAssetAdministrationShellRequest request = new GetAssetAdministrationShellRequest.Builder()
                 .id(AAS.getId())
                 .build();
-        GetAssetAdministrationShellResponse actual = manager.execute(request);
+        GetAssetAdministrationShellResponse actual = manager.execute(request, context);
         GetAssetAdministrationShellResponse expected = new GetAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
@@ -422,7 +428,7 @@ public class RequestHandlerManagerTest {
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .id(AAS.getId())
                 .build();
-        PutAssetAdministrationShellResponse actual = manager.execute(request);
+        PutAssetAdministrationShellResponse actual = manager.execute(request, context);
         PutAssetAdministrationShellResponse expected = new PutAssetAdministrationShellResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -434,11 +440,11 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPutAssetAdministrationShellRequestEmptyAas() throws ResourceNotFoundException, Exception {
-        PutAssetAdministrationShellResponse actual = new RequestHandlerManager(
-                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                .execute(new PutAssetAdministrationShellRequest.Builder()
+        PutAssetAdministrationShellResponse actual = manager.execute(
+                new PutAssetAdministrationShellRequest.Builder()
                         .aas(new DefaultAssetAdministrationShell.Builder().build())
-                        .build());
+                        .build(),
+                new StaticRequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager));
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -450,7 +456,7 @@ public class RequestHandlerManagerTest {
         GetAssetInformationRequest request = new GetAssetInformationRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .build();
-        GetAssetInformationResponse actual = manager.execute(request);
+        GetAssetInformationResponse actual = manager.execute(request, context);
         GetAssetInformationResponse expected = new GetAssetInformationResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0).getAssetInformation())
                 .statusCode(StatusCode.SUCCESS)
@@ -480,7 +486,7 @@ public class RequestHandlerManagerTest {
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
                 .build();
-        GetThumbnailResponse actual = manager.execute(request);
+        GetThumbnailResponse actual = manager.execute(request, context);
         GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
                 .payload(file)
                 .statusCode(StatusCode.SUCCESS)
@@ -514,9 +520,9 @@ public class RequestHandlerManagerTest {
         GetThumbnailRequest request = new GetThumbnailRequest.Builder()
                 .id(aasId)
                 .build();
-        PutThumbnailResponse send = manager.execute(putThumbnailRequestRequest);
+        PutThumbnailResponse send = manager.execute(putThumbnailRequestRequest, context);
         Assert.assertTrue(send.getResult().getMessages().isEmpty());
-        GetThumbnailResponse actual = manager.execute(request);
+        GetThumbnailResponse actual = manager.execute(request, context);
         GetThumbnailResponse expected = new GetThumbnailResponse.Builder()
                 .payload(new TypedInMemoryFile.Builder()
                         .content(file.getContent())
@@ -529,9 +535,9 @@ public class RequestHandlerManagerTest {
         DeleteThumbnailRequest deleteThumbnailRequest = new DeleteThumbnailRequest.Builder()
                 .id(aasId)
                 .build();
-        DeleteThumbnailResponse deleted = manager.execute(deleteThumbnailRequest);
+        DeleteThumbnailResponse deleted = manager.execute(deleteThumbnailRequest, context);
         Assert.assertTrue(deleted.getResult().getMessages().isEmpty());
-        GetThumbnailResponse fail = manager.execute(request);
+        GetThumbnailResponse fail = manager.execute(request, context);
         Assert.assertFalse(fail.getResult().getMessages().isEmpty());
     }
 
@@ -554,7 +560,7 @@ public class RequestHandlerManagerTest {
                 .path(file.getIdShort())
                 .content(expectedFile)
                 .build();
-        PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest);
+        PutFileByPathResponse putFileByPathResponse = manager.execute(putFileByPathRequest, context);
         PutFileByPathResponse putFileByPathResponseExpected = PutFileByPathResponse.builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -566,7 +572,7 @@ public class RequestHandlerManagerTest {
                 .build();
         when(fileStorage.get(expectedFile.getPath()))
                 .thenReturn(expectedFile.getContent());
-        GetFileByPathResponse actual = manager.execute(request);
+        GetFileByPathResponse actual = manager.execute(request, context);
         GetFileByPathResponse expected = new GetFileByPathResponse.Builder()
                 .payload(expectedFile)
                 .statusCode(StatusCode.SUCCESS)
@@ -583,7 +589,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .assetInformation(environment.getAssetAdministrationShells().get(0).getAssetInformation())
                 .build();
-        PutAssetInformationResponse actual = manager.execute(request);
+        PutAssetInformationResponse actual = manager.execute(request, context);
         PutAssetInformationResponse expected = new PutAssetInformationResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -601,7 +607,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelReferencesRequest request = new GetAllSubmodelReferencesRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .build();
-        GetAllSubmodelReferencesResponse actual = manager.execute(request);
+        GetAllSubmodelReferencesResponse actual = manager.execute(request, context);
         GetAllSubmodelReferencesResponse expected = new GetAllSubmodelReferencesResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(Page.of(environment.getAssetAdministrationShells().get(0).getSubmodels()))
@@ -618,7 +624,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .submodelRef(SUBMODEL_ELEMENT_REF)
                 .build();
-        PostSubmodelReferenceResponse actual = manager.execute(request);
+        PostSubmodelReferenceResponse actual = manager.execute(request, context);
         PostSubmodelReferenceResponse expected = new PostSubmodelReferenceResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(SUBMODEL_ELEMENT_REF)
@@ -637,7 +643,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getId())
                 .submodelRef(environment.getAssetAdministrationShells().get(0).getSubmodels().get(0))
                 .build();
-        DeleteSubmodelReferenceResponse actual = manager.execute(request);
+        DeleteSubmodelReferenceResponse actual = manager.execute(request, context);
         DeleteSubmodelReferenceResponse expected = new DeleteSubmodelReferenceResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -656,7 +662,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAllSubmodelsResponse actual = manager.execute(request);
+        GetAllSubmodelsResponse actual = manager.execute(request, context);
         GetAllSubmodelsResponse expected = new GetAllSubmodelsResponse.Builder()
                 .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
@@ -678,7 +684,7 @@ public class RequestHandlerManagerTest {
                 .semanticId(SUBMODEL_ELEMENT_REF)
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAllSubmodelsBySemanticIdResponse actual = manager.execute(request);
+        GetAllSubmodelsBySemanticIdResponse actual = manager.execute(request, context);
         GetAllSubmodelsBySemanticIdResponse expected = new GetAllSubmodelsBySemanticIdResponse.Builder()
                 .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
@@ -700,7 +706,7 @@ public class RequestHandlerManagerTest {
                 .idShort("Test")
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAllSubmodelsByIdShortResponse actual = manager.execute(request);
+        GetAllSubmodelsByIdShortResponse actual = manager.execute(request, context);
         GetAllSubmodelsByIdShortResponse expected = new GetAllSubmodelsByIdShortResponse.Builder()
                 .payload(Page.of(environment.getSubmodels()))
                 .statusCode(StatusCode.SUCCESS)
@@ -715,7 +721,7 @@ public class RequestHandlerManagerTest {
         PostSubmodelRequest request = new PostSubmodelRequest.Builder()
                 .submodel(submodel)
                 .build();
-        PostSubmodelResponse actual = manager.execute(request);
+        PostSubmodelResponse actual = manager.execute(request, context);
         PostSubmodelResponse expected = new PostSubmodelResponse.Builder()
                 .payload(submodel)
                 .statusCode(StatusCode.SUCCESS_CREATED)
@@ -733,23 +739,25 @@ public class RequestHandlerManagerTest {
                 .build();
         when(persistence.submodelExists(submodel.getId()))
                 .thenReturn(true);
-        PostSubmodelResponse actual = manager.execute(request);
+        PostSubmodelResponse actual = manager.execute(request, context);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
         verify(persistence, times(0)).save((Submodel) any());
     }
 
 
     public void testPostSubmodelRequestDuplicateIdShort() throws ResourceNotFoundException, Exception {
-        PostSubmodelResponse actual = manager.execute(new PostSubmodelRequest.Builder()
-                .submodel(new DefaultSubmodel.Builder()
-                        .submodelElements(new DefaultProperty.Builder()
-                                .idShort("foo")
+        PostSubmodelResponse actual = manager.execute(
+                new PostSubmodelRequest.Builder()
+                        .submodel(new DefaultSubmodel.Builder()
+                                .submodelElements(new DefaultProperty.Builder()
+                                        .idShort("foo")
+                                        .build())
+                                .submodelElements(new DefaultProperty.Builder()
+                                        .idShort("foo")
+                                        .build())
                                 .build())
-                        .submodelElements(new DefaultProperty.Builder()
-                                .idShort("foo")
-                                .build())
-                        .build())
-                .build());
+                        .build(),
+                context);
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -762,7 +770,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getId())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetSubmodelByIdResponse actual = manager.execute(request);
+        GetSubmodelByIdResponse actual = manager.execute(request, context);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
@@ -777,7 +785,7 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getId())
                 .submodel(environment.getSubmodels().get(0))
                 .build();
-        PutSubmodelByIdResponse actual = manager.execute(request);
+        PutSubmodelByIdResponse actual = manager.execute(request, context);
         PutSubmodelByIdResponse expected = new PutSubmodelByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -793,7 +801,7 @@ public class RequestHandlerManagerTest {
         DeleteSubmodelByIdRequest request = new DeleteSubmodelByIdRequest.Builder()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .build();
-        DeleteSubmodelByIdResponse actual = manager.execute(request);
+        DeleteSubmodelByIdResponse actual = manager.execute(request, context);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -810,7 +818,7 @@ public class RequestHandlerManagerTest {
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetSubmodelResponse actual = manager.execute(request);
+        GetSubmodelResponse actual = manager.execute(request, context);
         GetSubmodelResponse expected = new GetSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
@@ -827,7 +835,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .submodel(environment.getSubmodels().get(0))
                 .build();
-        PutSubmodelResponse actual = manager.execute(request);
+        PutSubmodelResponse actual = manager.execute(request, context);
         PutSubmodelResponse expected = new PutSubmodelResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -845,7 +853,7 @@ public class RequestHandlerManagerTest {
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAllSubmodelElementsResponse actual = manager.execute(request);
+        GetAllSubmodelElementsResponse actual = manager.execute(request, context);
         GetAllSubmodelElementsResponse expected = new GetAllSubmodelElementsResponse.Builder()
                 .payload(Page.of(environment.getSubmodels().get(0).getSubmodelElements()))
                 .statusCode(StatusCode.SUCCESS)
@@ -861,7 +869,7 @@ public class RequestHandlerManagerTest {
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
-        PostSubmodelElementResponse actual = manager.execute(request);
+        PostSubmodelElementResponse actual = manager.execute(request, context);
         PostSubmodelElementResponse expected = new PostSubmodelElementResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
@@ -885,7 +893,7 @@ public class RequestHandlerManagerTest {
                 .build();
         when(persistence.submodelElementExists(referenceToNewElement))
                 .thenReturn(true);
-        PostSubmodelElementResponse actual = manager.execute(request);
+        PostSubmodelElementResponse actual = manager.execute(request, context);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
     }
 
@@ -908,7 +916,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        GetSubmodelElementByPathResponse actual = manager.execute(request);
+        GetSubmodelElementByPathResponse actual = manager.execute(request, context);
 
         SubmodelElement expected_submodelElement = new DefaultProperty.Builder()
                 .idShort("testIdShort")
@@ -963,7 +971,7 @@ public class RequestHandlerManagerTest {
                 .submodelElement(newProperty)
                 .path(listPath.toString())
                 .build();
-        PostSubmodelElementByPathResponse actual = manager.execute(request);
+        PostSubmodelElementByPathResponse actual = manager.execute(request, context);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
                 .payload(newProperty)
                 .statusCode(StatusCode.SUCCESS_CREATED)
@@ -1009,7 +1017,7 @@ public class RequestHandlerManagerTest {
                 .submodelElement(newProperty)
                 .path(listPath.toString())
                 .build();
-        PostSubmodelElementByPathResponse actual = manager.execute(request);
+        PostSubmodelElementByPathResponse actual = manager.execute(request, context);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
     }
 
@@ -1035,7 +1043,7 @@ public class RequestHandlerManagerTest {
                 .path(currentSubmodelElement.getIdShort())
                 .submodelElement(newSubmodelElement)
                 .build();
-        PutSubmodelElementByPathResponse actual = manager.execute(request);
+        PutSubmodelElementByPathResponse actual = manager.execute(request, context);
         PutSubmodelElementByPathResponse expected = new PutSubmodelElementByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -1046,14 +1054,14 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
+    public void testPatchSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
         PropertyValue propertyValue = new PropertyValue.Builder()
                 .value(new StringValue("Test"))
                 .build();
-        SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest.Builder<ElementValue>()
+        PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest.Builder<ElementValue>()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .value(propertyValue)
                 .valueParser(new ElementValueParser<ElementValue>() {
@@ -1065,8 +1073,8 @@ public class RequestHandlerManagerTest {
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
 
-        Response actual = manager.execute(request);
-        SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
+        Response actual = manager.execute(request, context);
+        PatchSubmodelElementValueByPathResponse expected = new PatchSubmodelElementValueByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
@@ -1087,7 +1095,7 @@ public class RequestHandlerManagerTest {
                 .submodelId(submodel.getId())
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        DeleteSubmodelElementByPathResponse actual = manager.execute(request);
+        DeleteSubmodelElementByPathResponse actual = manager.execute(request, context);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -1131,12 +1139,10 @@ public class RequestHandlerManagerTest {
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         AssetOperationProvider assetOperationProvider = mock(AssetOperationProvider.class);
         FileStorage fileStorage = mock(FileStorage.class);
-        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
-        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
-
+        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         Operation operation = getTestOperation();
 
-        when(persistence.getOperationResult(any())).thenReturn(new OperationResult.Builder().build());
+        when(persistence.getOperationResult(any())).thenReturn(new DefaultOperationResult.Builder().build());
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenReturn(assetOperationProvider);
 
@@ -1151,7 +1157,7 @@ public class RequestHandlerManagerTest {
                 .inputArguments(operation.getInputVariables())
                 .build();
 
-        InvokeOperationAsyncResponse response = manager.execute(invokeOperationAsyncRequest);
+        InvokeOperationAsyncResponse response = manager.execute(invokeOperationAsyncRequest, context);
         OperationHandle handle = response.getPayload();
         verify(persistence).save(
                 eq(handle),
@@ -1167,11 +1173,10 @@ public class RequestHandlerManagerTest {
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         FileStorage fileStorage = mock(FileStorage.class);
-        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
+        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider());
 
-        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
         Operation operation = getTestOperation();
 
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
@@ -1184,10 +1189,10 @@ public class RequestHandlerManagerTest {
                 .path(operation.getIdShort())
                 .build();
 
-        InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest);
+        InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest, context);
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(new OperationResult.Builder()
+                .payload(new DefaultOperationResult.Builder()
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                                 .value(new DefaultProperty.Builder()
                                         .idShort("TestProp")
@@ -1211,14 +1216,13 @@ public class RequestHandlerManagerTest {
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         FileStorage fileStorage = mock(FileStorage.class);
-        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
+        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
                 CustomAssetOperationProviderConfig.builder()
                         .inputValidationMode(ArgumentValidationMode.REQUIRE_PRESENT)
                         .build()));
 
-        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
         Operation operation = getTestOperation();
 
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
@@ -1231,8 +1235,7 @@ public class RequestHandlerManagerTest {
                 .path(operation.getIdShort())
                 .build();
 
-        manager.execute(invokeOperationSyncRequest);
-
+        manager.execute(invokeOperationSyncRequest, context);
     }
 
 
@@ -1244,14 +1247,12 @@ public class RequestHandlerManagerTest {
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         FileStorage fileStorage = mock(FileStorage.class);
-        RequestExecutionContext requestExecutionContext = new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
+        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
         when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
                 CustomAssetOperationProviderConfig.builder()
                         .inputValidationMode(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)
                         .build()));
-
-        RequestHandlerManager manager = new RequestHandlerManager(requestExecutionContext);
         Operation operation = getTestOperation();
 
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
@@ -1264,10 +1265,10 @@ public class RequestHandlerManagerTest {
                 .path(operation.getIdShort())
                 .build();
 
-        InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest);
+        InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest, context);
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
-                .payload(new OperationResult.Builder()
+                .payload(new DefaultOperationResult.Builder()
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                                 .value(new DefaultProperty.Builder()
                                         .idShort("TestProp")
@@ -1362,7 +1363,7 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest.Builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
-        GetAllConceptDescriptionsResponse actual = manager.execute(request);
+        GetAllConceptDescriptionsResponse actual = manager.execute(request, context);
         GetAllConceptDescriptionsResponse expected = new GetAllConceptDescriptionsResponse.Builder()
                 .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
@@ -1384,7 +1385,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .idShort(environment.getConceptDescriptions().get(0).getIdShort())
                 .build();
-        GetAllConceptDescriptionsByIdShortResponse actual = manager.execute(request);
+        GetAllConceptDescriptionsByIdShortResponse actual = manager.execute(request, context);
         GetAllConceptDescriptionsByIdShortResponse expected = new GetAllConceptDescriptionsByIdShortResponse.Builder()
                 .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
@@ -1407,7 +1408,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .isCaseOf(reference)
                 .build();
-        GetAllConceptDescriptionsByIsCaseOfResponse actual = manager.execute(request);
+        GetAllConceptDescriptionsByIsCaseOfResponse actual = manager.execute(request, context);
         GetAllConceptDescriptionsByIsCaseOfResponse expected = new GetAllConceptDescriptionsByIsCaseOfResponse.Builder()
                 .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
@@ -1430,7 +1431,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .dataSpecification(reference)
                 .build();
-        GetAllConceptDescriptionsByDataSpecificationReferenceResponse actual = manager.execute(request);
+        GetAllConceptDescriptionsByDataSpecificationReferenceResponse actual = manager.execute(request, context);
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse expected = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder()
                 .payload(Page.of(environment.getConceptDescriptions()))
                 .statusCode(StatusCode.SUCCESS)
@@ -1444,7 +1445,7 @@ public class RequestHandlerManagerTest {
         PostConceptDescriptionRequest request = new PostConceptDescriptionRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
-        PostConceptDescriptionResponse actual = manager.execute(request);
+        PostConceptDescriptionResponse actual = manager.execute(request, context);
         PostConceptDescriptionResponse expected = new PostConceptDescriptionResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
@@ -1462,7 +1463,7 @@ public class RequestHandlerManagerTest {
         PostConceptDescriptionRequest request = new PostConceptDescriptionRequest.Builder()
                 .conceptDescription(conceptDescription)
                 .build();
-        PostConceptDescriptionResponse actual = manager.execute(request);
+        PostConceptDescriptionResponse actual = manager.execute(request, context);
         Assert.assertEquals(StatusCode.CLIENT_RESOURCE_CONFLICT, actual.getStatusCode());
         verify(persistence, times(0)).save((ConceptDescription) any());
     }
@@ -1471,11 +1472,11 @@ public class RequestHandlerManagerTest {
     @Test
     @Ignore("Currently not working because AAS4j does not provide validation which is required to produce the expected error")
     public void testPostConceptDescriptionRequestEmptyConceptDescription() throws ResourceNotFoundException, Exception {
-        PostConceptDescriptionResponse actual = new RequestHandlerManager(
-                new RequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager))
-                .execute(new PostConceptDescriptionRequest.Builder()
+        PostConceptDescriptionResponse actual = manager.execute(
+                new PostConceptDescriptionRequest.Builder()
                         .conceptDescription(new DefaultConceptDescription.Builder().build())
-                        .build());
+                        .build(),
+                new StaticRequestExecutionContext(coreConfigWithConstraintValidation, persistence, fileStorage, messageBus, assetConnectionManager));
         Assert.assertEquals(StatusCode.CLIENT_ERROR_BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -1488,7 +1489,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(OutputModifier.DEFAULT)
                 .id(environment.getConceptDescriptions().get(0).getId())
                 .build();
-        GetConceptDescriptionByIdResponse actual = manager.execute(request);
+        GetConceptDescriptionByIdResponse actual = manager.execute(request, context);
         GetConceptDescriptionByIdResponse expected = new GetConceptDescriptionByIdResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS)
@@ -1502,7 +1503,7 @@ public class RequestHandlerManagerTest {
         PutConceptDescriptionByIdRequest request = new PutConceptDescriptionByIdRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
-        PutConceptDescriptionByIdResponse actual = manager.execute(request);
+        PutConceptDescriptionByIdResponse actual = manager.execute(request, context);
         PutConceptDescriptionByIdResponse expected = new PutConceptDescriptionByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -1518,7 +1519,7 @@ public class RequestHandlerManagerTest {
         DeleteConceptDescriptionByIdRequest request = new DeleteConceptDescriptionByIdRequest.Builder()
                 .id(environment.getConceptDescriptions().get(0).getId())
                 .build();
-        DeleteConceptDescriptionByIdResponse actual = manager.execute(request);
+        DeleteConceptDescriptionByIdResponse actual = manager.execute(request, context);
         DeleteConceptDescriptionByIdResponse expected = new DeleteConceptDescriptionByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
@@ -1532,10 +1533,13 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodel(any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
-        GetSubmodelByIdResponse actual = manager.execute(request);
+        GetSubmodelByIdResponse actual = manager.execute(request, context);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
-                .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                .result(new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(MessageTypeEnum.ERROR)
+                                .text("Resource not found with id")
+                                .build())
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
@@ -1548,10 +1552,13 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenThrow(new ResourceNotFoundException("Resource not found with id"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
-        GetSubmodelElementByPathResponse actual = manager.execute(request);
+        GetSubmodelElementByPathResponse actual = manager.execute(request, context);
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.builder()
-                        .message(MessageType.ERROR, "Resource not found with id")
+                .result(new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(MessageTypeEnum.ERROR)
+                                .text("Resource not found with id")
+                                .build())
                         .build())
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .build();
@@ -1565,7 +1572,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(new DefaultProperty());
         doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
-        MessageBusException exception = Assert.assertThrows(MessageBusException.class, () -> manager.execute(request));
+        MessageBusException exception = Assert.assertThrows(MessageBusException.class, () -> manager.execute(request, context));
         Assert.assertEquals("Invalid Messagbus Call", exception.getMessage());
     }
 
@@ -1579,7 +1586,7 @@ public class RequestHandlerManagerTest {
         when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
         when(assetValueProvider.getValue()).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
-        AssetConnectionException exception = Assert.assertThrows(AssetConnectionException.class, () -> manager.execute(request));
+        AssetConnectionException exception = Assert.assertThrows(AssetConnectionException.class, () -> manager.execute(request, context));
         Assert.assertEquals("Invalid Assetconnection", exception.getMessage());
     }
 
@@ -1593,13 +1600,13 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
+    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException, PersistenceException {
         when(persistence.findAssetAdministrationShells(eq(AssetAdministrationShellSearchCriteria.NONE), any(), any()))
                 .thenReturn(Page.of(environment.getAssetAdministrationShells()));
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
         CountDownLatch condition = new CountDownLatch(1);
-        manager.executeAsync(request, x -> response.set(x));
+        manager.executeAsync(request, x -> response.set(x), context);
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload().getContent());
     }
@@ -1607,9 +1614,8 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence()
-            throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException {
-        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(
-                new RequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager));
+            throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler();
         Reference parentRef = ReferenceBuilder.forSubmodel("sub");
         SubmodelElement propertyUpdated = new DefaultProperty.Builder()
                 .idShort("propertyUpdated")
@@ -1668,7 +1674,11 @@ public class RequestHandlerManagerTest {
         //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
         //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
         //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
-        requestHandler.syncWithAsset(parentRef, submodelElements, true);
+        requestHandler.syncWithAsset(
+                parentRef,
+                submodelElements,
+                true,
+                new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager));
         verify(persistence).update(propertyUpdatedRef, propertyExpected);
         verify(persistence).update(rangeUpdatedRef, rangeExpected);
         verify(persistence, times(0)).update(parentRef, propertyStatic);
@@ -1676,5 +1686,28 @@ public class RequestHandlerManagerTest {
         Assert.assertTrue(expectedSubmodelElements.size() == submodelElements.size()
                 && expectedSubmodelElements.containsAll(submodelElements)
                 && submodelElements.containsAll(expectedSubmodelElements));
+    }
+
+
+    public void testImport() throws Exception {
+        ImportRequest request = new ImportRequest.Builder()
+                .content("{}".getBytes())
+                .contentType("application/json")
+                .build();
+        ImportResponse actual = manager.execute(request, context);
+        ImportResponse expected = new ImportResponse.Builder()
+                .statusCode(StatusCode.SUCCESS)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    public void testReset() throws Exception {
+        ResetRequest request = new ResetRequest.Builder().build();
+        ResetResponse actual = manager.execute(request, context);
+        ResetResponse expected = new ResetResponse.Builder()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 }

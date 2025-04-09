@@ -16,81 +16,49 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import java.util.Objects;
 
 
 /**
  * Immutable wrapper class containing access to all relevant information of a Service to execute a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.Request}.
  */
-public class RequestExecutionContext {
+public interface RequestExecutionContext {
 
-    private final CoreConfig coreConfig;
-    private final Persistence persistence;
-    private final MessageBus messageBus;
-    private final AssetConnectionManager assetConnectionManager;
-    private final FileStorage fileStorage;
-
-    public RequestExecutionContext(CoreConfig coreConfig,
-            Persistence persistence,
-            FileStorage fileStorage,
-            MessageBus messageBus,
-            AssetConnectionManager assetConnectionManager) {
-        this.coreConfig = coreConfig;
-        this.persistence = persistence;
-        this.fileStorage = fileStorage;
-        this.messageBus = messageBus;
-        this.assetConnectionManager = assetConnectionManager;
-    }
+    public AssetConnectionManager getAssetConnectionManager();
 
 
-    public CoreConfig getCoreConfig() {
-        return coreConfig;
-    }
+    public CoreConfig getCoreConfig();
 
 
-    public Persistence<?> getPersistence() {
-        return persistence;
-    }
+    public Endpoint getEndpoint();
 
 
-    public MessageBus getMessageBus() {
-        return messageBus;
-    }
+    public FileStorage getFileStorage();
 
 
-    public AssetConnectionManager getAssetConnectionManager() {
-        return assetConnectionManager;
-    }
+    public MessageBus getMessageBus();
 
 
-    public FileStorage getFileStorage() {
-        return fileStorage;
-    }
+    public Persistence<?> getPersistence();
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RequestExecutionContext that = (RequestExecutionContext) o;
-        return Objects.equals(coreConfig, that.coreConfig)
-                && Objects.equals(persistence, that.persistence)
-                && Objects.equals(messageBus, that.messageBus)
-                && Objects.equals(assetConnectionManager, that.assetConnectionManager)
-                && Objects.equals(fileStorage, that.fileStorage);
-    }
+    /**
+     * Returns is an endpoint is present in the context, i.e., if a request has been made via and endpoint or not.
+     *
+     * @return true if the request has been made via and endpoint, false otherwise
+     */
+    public boolean hasEndpoint();
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(coreConfig, persistence, messageBus, assetConnectionManager, fileStorage);
-    }
+    /**
+     * Creates a new copy of this execution context with the provided endpoint.
+     *
+     * @param endpoint the endpoint to use
+     * @return new instance of the execution context with endpoint set
+     */
+    public RequestExecutionContext withEndpoint(Endpoint endpoint);
 }

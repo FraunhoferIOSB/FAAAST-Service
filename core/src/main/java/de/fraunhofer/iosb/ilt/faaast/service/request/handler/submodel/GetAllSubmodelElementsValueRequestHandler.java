@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsValueRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsValueResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -42,17 +43,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class GetAllSubmodelElementsValueRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsValueRequest, GetAllSubmodelElementsValueResponse> {
 
-    public GetAllSubmodelElementsValueRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelElementsValueResponse doProcess(GetAllSubmodelElementsValueRequest request)
-            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
+    public GetAllSubmodelElementsValueResponse doProcess(GetAllSubmodelElementsValueRequest request, RequestExecutionContext context)
+            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> page = context.getPersistence().getSubmodelElementsValueOnly(reference, request.getOutputModifier(), request.getPagingInfo());
-        syncWithAsset(reference, page.getContent(), !request.isInternal());
+        syncWithAsset(reference, page.getContent(), !request.isInternal(), context);
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {
             page.getContent().forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> context.getMessageBus().publish(ElementReadEventMessage.builder()

@@ -17,11 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
@@ -40,9 +39,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,14 +59,10 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
 
-    public InvokeOperationSyncRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ResourceNotFoundException, InvalidRequestException {
-        InvokeOperationSyncResponse result = super.doProcess(request);
+    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
+        InvokeOperationSyncResponse result = super.doProcess(request, context);
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
@@ -84,14 +82,15 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
 
 
     @Override
-    protected InvokeOperationSyncResponse executeOperation(Reference reference, InvokeOperationSyncRequest request) {
+    protected InvokeOperationSyncResponse executeOperation(Reference reference, InvokeOperationSyncRequest request, RequestExecutionContext context) {
         if (!request.isInternal()) {
             try {
                 publishSafe(OperationInvokeEventMessage.builder()
                         .element(reference)
                         .input(ElementValueHelper.toValueMap(request.getInputArguments()))
                         .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
-                        .build());
+                        .build(),
+                        context);
             }
             catch (ValueMappingException e) {
                 String message = String.format("Publishing OperationInvokeEvent on message bus failed (reason: %s)", e.getMessage());
@@ -100,7 +99,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .level(ErrorLevel.WARN)
                         .message(message)
-                        .build());
+                        .build(),
+                        context);
             }
         }
         AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
@@ -116,7 +116,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
         OperationResult result;
         try {
             OperationVariable[] outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
@@ -125,7 +125,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
         }
         catch (TimeoutException e) {
             future.cancel(true);
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.TIMEOUT)
                     .success(false)
@@ -133,7 +133,7 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
             Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
-            result = new OperationResult.Builder()
+            result = new DefaultOperationResult.Builder()
                     .inoutputArguments(request.getInoutputArguments())
                     .executionState(ExecutionState.FAILED)
                     .success(false)
@@ -149,7 +149,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .inoutput(ElementValueHelper.toValueMap(result.getInoutputArguments()))
                         .output(ElementValueHelper.toValueMap(result.getOutputArguments()))
-                        .build());
+                        .build(),
+                        context);
             }
             catch (ValueMappingException e) {
                 String message = String.format("Publishing OperationFinishEvent on message bus failed (reason: %s)", e.getMessage());
@@ -158,7 +159,8 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         .element(reference)
                         .level(ErrorLevel.WARN)
                         .message(message)
-                        .build());
+                        .build(),
+                        context);
             }
         }
         return InvokeOperationSyncResponse.builder()

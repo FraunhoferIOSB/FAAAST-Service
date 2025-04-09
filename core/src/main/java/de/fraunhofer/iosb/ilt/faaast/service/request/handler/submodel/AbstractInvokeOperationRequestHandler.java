@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractSubmodelInterfaceRequestHandler;
@@ -51,13 +52,8 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInvokeOperationRequestHandler.class);
 
-    protected AbstractInvokeOperationRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public U doProcess(T request) throws ResourceNotFoundException, InvalidRequestException {
+    public U doProcess(T request, RequestExecutionContext context) throws ResourceNotFoundException, InvalidRequestException, PersistenceException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())
@@ -79,7 +75,7 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                 request.getInoutputArguments(),
                 config.getInoutputValidationMode(),
                 ArgumentType.INOUTPUT));
-        return executeOperation(reference, request);
+        return executeOperation(reference, request, context);
     }
 
 
@@ -88,9 +84,10 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
      *
      * @param reference reference to the operation element
      * @param request the request
+     * @param context the execution context
      * @return the execution result
      */
-    protected abstract U executeOperation(Reference reference, T request);
+    protected abstract U executeOperation(Reference reference, T request, RequestExecutionContext context);
 
 
     /**
@@ -176,8 +173,9 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
      * Publishes an event message on the message bus. Instead of throwing an exception when this fails the error is logged.
      *
      * @param message the event message to publish
+     * @param context the execution context
      */
-    protected void publishSafe(EventMessage message) {
+    protected void publishSafe(EventMessage message, RequestExecutionContext context) {
         try {
             context.getMessageBus().publish(message);
         }

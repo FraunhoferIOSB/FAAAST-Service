@@ -73,8 +73,13 @@ public class TypeExtractor {
             if (Objects.nonNull(submodelElementList.getTypeValueListElement())
                     && (submodelElementList.getTypeValueListElement() == AasSubmodelElements.SUBMODEL_ELEMENT_COLLECTION
                             || submodelElementList.getTypeValueListElement() == AasSubmodelElements.SUBMODEL_ELEMENT_LIST)) {
-                for (int i = 0; i < submodelElementList.getValue().size(); i++) {
-                    builder.element(Integer.toString(i), extractTypeInfoForSubmodelElement(submodelElementList.getValue().get(i)));
+                if (submodelElementList.getValue().size() == 1) {
+                    builder.element(null, extractTypeInfoForSubmodelElement(submodelElementList.getValue().get(0)));
+                }
+                else {
+                    for (int i = 0; i < submodelElementList.getValue().size(); i++) {
+                        builder.element(Integer.toString(i), extractTypeInfoForSubmodelElement(submodelElementList.getValue().get(i)));
+                    }
                 }
             }
             else {

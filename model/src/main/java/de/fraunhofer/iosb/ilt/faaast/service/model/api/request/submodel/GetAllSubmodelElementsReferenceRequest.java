@@ -31,7 +31,7 @@ public class GetAllSubmodelElementsReferenceRequest extends AbstractSubmodelInte
         super(OutputModifierConstraints.builder()
                 .supportedContentModifiers(Content.REFERENCE)
                 .supportsExtent(false)
-                .supportsLevel(false)
+                .supportsLevel(true)
                 .build());
     }
 

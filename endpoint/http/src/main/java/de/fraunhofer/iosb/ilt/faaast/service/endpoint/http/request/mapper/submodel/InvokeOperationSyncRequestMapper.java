@@ -49,13 +49,12 @@ public class InvokeOperationSyncRequestMapper extends AbstractSubmodelInterfaceR
     public InvokeOperationSyncRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         InvokeOperationSyncRequest result;
         SubmodelElementIdentifier identifier = SubmodelElementIdentifier.builder()
-                .submodelId(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)))
+                .submodelId(getParameterBase64UrlEncoded(urlParameters, SUBMODEL_ID))
                 .idShortPath(IdShortPath.parse(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
                 .build();
         if (outputModifier.getContent() == Content.VALUE) {
             try {
-                result = deserializer.readValueOperationRequest(
-                        httpRequest.getBodyAsString(),
+                result = deserializer.readValueOperationRequest(httpRequest.getBodyAsString(),
                         InvokeOperationSyncRequest.class,
                         serviceContext,
                         identifier);

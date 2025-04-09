@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutFileByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -36,14 +37,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class PutFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PutFileByPathRequest, PutFileByPathResponse> {
 
-    public PutFileByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutFileByPathResponse doProcess(PutFileByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException {
+    public PutFileByPathResponse doProcess(PutFileByPathRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException,
+            PersistenceException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())

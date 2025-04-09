@@ -30,16 +30,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.BaseOperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
@@ -49,6 +45,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.Ge
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
@@ -58,6 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeO
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -68,33 +67,37 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.StringRequestContent;
+import org.eclipse.jetty.client.Request;
+import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -175,15 +178,6 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testCORSEnabled() throws Exception {
-        ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
-        Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
-        Assert.assertEquals("true", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
-        Assert.assertEquals("Content-Type", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER));
-    }
-
-
-    @Test
     public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
         HttpFields headers = client.newRequest(HOST, port)
                 .method(HttpMethod.GET)
@@ -197,52 +191,9 @@ public abstract class AbstractHttpEndpointTest {
 
 
     @Test
-    public void testPreflightedCORSRequestSupported() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "GET,POST"));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestUnsupported() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "PUT"));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS);
-        Assert.assertEquals(400, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestInvalidRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "FOO"));
-        Assert.assertEquals(400, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestNoRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/", null, null, null, null, null);
-        assertAccessControllAllowMessageHeader(response, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
-    }
-
-
-    @Test
-    public void testPreflightedCORSRequestEmptyRequestMethodHeader() throws Exception {
-        ContentResponse response = execute(HttpMethod.OPTIONS, "/", null, null, null, null,
-                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, ""));
-        assertAccessControllAllowMessageHeader(response, HttpMethod.OPTIONS);
-        Assert.assertEquals(204, response.getStatus());
-    }
-
-
-    @Test
     public void testParamContentReference() throws Exception {
         String id = "foo";
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$reference");
@@ -253,7 +204,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testParamContentAndLevelInvalid() throws Exception {
         String id = "foo";
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id) + "/$foo?level=foo");
@@ -263,7 +214,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testInvalidAASIdentifier() throws Exception {
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/bogus");
@@ -273,7 +224,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testInvalidAASIdentifierAndAdditionalPathElement() throws Exception {
-        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.DELETE, "/shells/bogus/test");
@@ -291,7 +242,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testNonExistentId() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
@@ -303,7 +254,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testDoubleQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -316,7 +267,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -329,7 +280,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testBogusAndMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -341,7 +292,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testWrongResponse() throws Exception {
-        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -353,7 +304,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testPostSubmodelNoData() throws Exception {
-        when(service.execute(any())).thenReturn(PostSubmodelResponse.builder()
+        when(service.execute(any(), any())).thenReturn(PostSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -365,7 +316,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testGetAllAssetAdministrationShellsWithSinglePage() throws Exception {
         Page<AssetAdministrationShell> expected = Page.of(AASFull.AAS_1);
-        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -387,7 +338,7 @@ public abstract class AbstractHttpEndpointTest {
                         .cursor("foo")
                         .build())
                 .build();
-        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -408,7 +359,7 @@ public abstract class AbstractHttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
-        when(service.execute(any())).thenReturn(GenerateSerializationByIdsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GenerateSerializationByIdsResponse.builder()
                 .dataformat(DataFormat.JSON)
                 .payload(EnvironmentContext.builder()
                         .environment(expected)
@@ -446,7 +397,7 @@ public abstract class AbstractHttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
-        when(service.execute(argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
+        when(service.execute(any(), argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
                 .thenReturn(GenerateSerializationByIdsResponse.builder()
                         .dataformat(DataFormat.JSON)
                         .payload(EnvironmentContext.builder()
@@ -482,7 +433,7 @@ public abstract class AbstractHttpEndpointTest {
     @Ignore("value only serialization not defined for AssetAdministrationShells")
     public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
         Page<AssetAdministrationShell> expectedPayload = Page.of(AASFull.AAS_1);
-        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expectedPayload)
                 .build());
@@ -509,7 +460,7 @@ public abstract class AbstractHttpEndpointTest {
                         .max("2.0")
                         .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
-        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(Page.of(submodelElements))
                 .build());
@@ -536,7 +487,7 @@ public abstract class AbstractHttpEndpointTest {
                         .idShort("range1")
                         .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
-        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -554,7 +505,7 @@ public abstract class AbstractHttpEndpointTest {
         Page<Reference> expected = Page.of(
                 ReferenceBuilder.forSubmodel("submodelId", "property1"),
                 ReferenceBuilder.forSubmodel("submodelId", "range1"));
-        when(service.execute(any())).thenReturn(GetAllSubmodelElementsReferenceResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllSubmodelElementsReferenceResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -579,7 +530,7 @@ public abstract class AbstractHttpEndpointTest {
                         .max("2.0")
                         .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
-        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -616,7 +567,7 @@ public abstract class AbstractHttpEndpointTest {
                         .max("2.0")
                         .valueType(DataTypeDefXsd.DOUBLE)
                         .build());
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 GetAllSubmodelElementsResponse.builder()
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
@@ -644,7 +595,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testAASAlreadyExists() throws Exception {
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 PostAssetAdministrationShellResponse.builder()
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
@@ -658,7 +609,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testSubmodelAlreadyExists() throws Exception {
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 PostSubmodelResponse.builder()
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
@@ -673,7 +624,7 @@ public abstract class AbstractHttpEndpointTest {
     @Test
     public void testSubmodelElementAlreadyExists() throws Exception {
         String id = "foo";
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 PostSubmodelElementResponse.builder()
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
@@ -686,7 +637,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testConceptDescriptionAlreadyExists() throws Exception {
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 PostConceptDescriptionResponse.builder()
                         .statusCode(StatusCode.CLIENT_RESOURCE_CONFLICT)
                         .build());
@@ -701,7 +652,7 @@ public abstract class AbstractHttpEndpointTest {
     public void testOperationAsync() throws Exception {
         OperationHandle handle = OperationHandle.builder().build();
         String handleId = EncodingHelper.base64UrlEncode(handle.getHandleId());
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 InvokeOperationAsyncResponse.builder()
                         .payload(handle)
                         .statusCode(StatusCode.SUCCESS_ACCEPTED)
@@ -714,9 +665,9 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertTrue(responseInvoke.getHeaders().contains(HttpHeader.LOCATION));
 
         URI urlStatus = urlInvoke.resolve(responseInvoke.getHeaders().getField(HttpHeader.LOCATION).getValue());
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(new BaseOperationResult.Builder()
+                        .payload(new DefaultBaseOperationResult.Builder()
                                 .executionState(ExecutionState.RUNNING)
                                 .build())
                         .success()
@@ -726,7 +677,7 @@ public abstract class AbstractHttpEndpointTest {
         // check content for state == RUNNING
 
         // check result = 404
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
                         .payload(null)
                         .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
@@ -735,9 +686,9 @@ public abstract class AbstractHttpEndpointTest {
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, responseStatusNotFound.getStatus());
 
         // check COMPLETED = 302
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncStatusResponse.builder()
-                        .payload(new BaseOperationResult.Builder()
+                        .payload(new DefaultBaseOperationResult.Builder()
                                 .executionState(ExecutionState.COMPLETED)
                                 .build())
                         .success()
@@ -749,9 +700,9 @@ public abstract class AbstractHttpEndpointTest {
         // check content for state == COMPLETED
 
         URI urlResult = urlStatus.resolve(responseStatusCompleted.getHeaders().getField(HttpHeader.LOCATION).getValue());
-        when(service.execute(any())).thenReturn(
+        when(service.execute(any(), any())).thenReturn(
                 GetOperationAsyncResultResponse.builder()
-                        .payload(new OperationResult.Builder()
+                        .payload(new DefaultOperationResult.Builder()
                                 .executionState(ExecutionState.COMPLETED)
                                 .build())
                         .success()
@@ -762,7 +713,7 @@ public abstract class AbstractHttpEndpointTest {
     }
 
 
-    private void mockAasContext(ServiceContext serviceContext, String aasId) {
+    private void mockAasContext(ServiceContext serviceContext, String aasId) throws PersistenceException {
         doReturn(new DefaultEnvironment.Builder()
                 .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
                         .id(aasId)
@@ -775,10 +726,13 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultServerError() throws Exception {
-        Result expected = Result.builder()
-                .message(MessageType.ERROR, HttpStatus.getMessage(500))
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text(HttpStatus.getMessage(500))
+                        .build())
                 .build();
-        when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
                 .result(expected)
                 .payload(null)
@@ -791,8 +745,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Result expected = Result.builder()
-                .message(MessageType.ERROR, "no matching request mapper found for URL 'shellsX'")
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text("no matching request mapper found for URL 'shellsX'")
+                        .build())
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
@@ -802,8 +759,11 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testMethodNotAllowed() throws Exception {
-        Result expected = Result.builder()
-                .message(MessageType.ERROR, "method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)")
+                        .build())
                 .build();
         ContentResponse response = execute(HttpMethod.PUT, "/shells");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
@@ -813,10 +773,13 @@ public abstract class AbstractHttpEndpointTest {
 
     @Test
     public void testResultNotFound() throws Exception {
-        Result expected = Result.builder()
-                .message(MessageType.ERROR, HttpStatus.getMessage(404))
+        Result expected = new DefaultResult.Builder()
+                .messages(Message.builder()
+                        .messageType(MessageTypeEnum.ERROR)
+                        .text(HttpStatus.getMessage(404))
+                        .build())
                 .build();
-        when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
+        when(service.execute(any(), any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .result(expected)
@@ -824,7 +787,25 @@ public abstract class AbstractHttpEndpointTest {
         String id = "foo";
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id) + "/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        Assert.assertEquals(MessageType.ERROR, actual.getMessages().get(0).getMessageType());
+        Assert.assertEquals(MessageTypeEnum.ERROR, actual.getMessages().get(0).getMessageType());
+    }
+
+
+    @Test
+    public void testImportSuccess() throws Exception {
+        ImportResult expected = ImportResult.builder()
+                .fileError("/foo/bar", "some error")
+                .modelError(ReferenceBuilder.forAas("my-aas"), "not present")
+                .build();
+        when(service.execute(any(), any())).thenReturn(
+                ImportResponse.builder()
+                        .statusCode(StatusCode.SUCCESS)
+                        .payload(expected)
+                        .build());
+        ContentResponse response = execute(HttpMethod.POST, "/import", null, null, "{}", "application/json", null);
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        ImportResult actual = deserializer.read(new String(response.getContent()), ImportResult.class);
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -890,7 +871,7 @@ public abstract class AbstractHttpEndpointTest {
             actualPath = String.format("%s/$%s", path, content.name().toLowerCase());
         }
         actualPath = API_PREFIX + actualPath;
-        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
+        Request request = client.newRequest(HOST, port)
                 // TODO remove
                 .timeout(1, TimeUnit.HOURS)
                 .idleTimeout(1, TimeUnit.HOURS)
@@ -910,21 +891,13 @@ public abstract class AbstractHttpEndpointTest {
                 request = request.body(new StringRequestContent(body));
             }
         }
+
         if (headers != null) {
             for (Map.Entry<String, String> header: headers.entrySet()) {
-                request = request.header(header.getKey(), header.getValue());
+                request = request.headers(x -> x.add(header.getKey(), header.getValue()));
             }
         }
         return request.send();
-    }
-
-
-    private void assertAccessControllAllowMessageHeader(ContentResponse response, HttpMethod... expected) {
-        List<String> actual = Arrays.asList(response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER).split(HttpConstants.HEADER_VALUE_SEPARATOR));
-        List<String> expectedAsString = Stream.of(expected).map(Enum::name).collect(Collectors.toList());
-        Assert.assertTrue(actual.size() == expectedAsString.size()
-                && actual.containsAll(expectedAsString)
-                && expectedAsString.containsAll(actual));
     }
 
 

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteFileByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteFileByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -37,14 +38,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class DeleteFileByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<DeleteFileByPathRequest, DeleteFileByPathResponse> {
 
-    public DeleteFileByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException {
+    public DeleteFileByPathResponse doProcess(DeleteFileByPathRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ResourceNotAContainerElementException, IOException,
+            PersistenceException {
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())
                 .idShortPath(request.getPath())

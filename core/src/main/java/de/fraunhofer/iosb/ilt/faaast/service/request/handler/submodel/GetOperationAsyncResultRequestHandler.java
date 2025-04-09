@@ -14,12 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetOperationAsyncResultResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 
 
 /**
@@ -31,13 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionCon
  */
 public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
-    public GetOperationAsyncResultRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) throws ResourceNotFoundException {
+    public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         OperationResult operationResult = context.getPersistence().getOperationResult(request.getHandle());
         return GetOperationAsyncResultResponse.builder()
                 .payload(operationResult)

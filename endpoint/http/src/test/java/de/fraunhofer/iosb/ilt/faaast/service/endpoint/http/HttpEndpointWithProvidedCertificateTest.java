@@ -30,7 +30,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
+import org.eclipse.jetty.client.transport.HttpClientTransportDynamic;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
@@ -80,7 +80,7 @@ public class HttpEndpointWithProvidedCertificateTest extends AbstractHttpEndpoin
         scheme = HttpScheme.HTTPS.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()

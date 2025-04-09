@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DurationValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.netty.buffer.ByteBufUtil;
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -32,6 +33,7 @@ import javax.xml.datatype.DatatypeFactory;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
+import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -61,6 +63,7 @@ public class ValueConverter {
             }
         });
         register(Datatype.DURATION, Identifiers.Double, new OpcUaToAasValueConverter() {
+            @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 if (Objects.isNull(value) || value.isNull()) {
                     return null;
@@ -73,6 +76,18 @@ public class ValueConverter {
                 catch (NumberFormatException e) {
                     throw new ValueConversionException(e);
                 }
+            }
+        });
+        register(Datatype.HEX_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            @Override
+            public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+                return convertByteString(value, targetType);
+            }
+        });
+        register(Datatype.BASE64_BINARY, Identifiers.ByteString, new OpcUaToAasValueConverter() {
+            @Override
+            public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+                return convertByteString(value, targetType);
             }
         });
     }
@@ -144,6 +159,26 @@ public class ValueConverter {
                 new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());
         return converter.convert(value, targetType);
+    }
+
+
+    private TypedValue<?> convertByteString(Variant value, Datatype targetType) throws ValueConversionException {
+        if (Objects.isNull(value) || value.isNull()) {
+            return null;
+        }
+        try {
+            String txt;
+            if (value.getValue() instanceof ByteString bs) {
+                txt = ByteBufUtil.hexDump(bs.bytesOrEmpty());
+            }
+            else {
+                txt = value.getValue().toString();
+            }
+            return TypedValueFactory.create(targetType, txt);
+        }
+        catch (NumberFormatException | ValueFormatException e) {
+            throw new ValueConversionException(e);
+        }
     }
 
     private static class DefaultConverter implements AasToOpcUaValueConverter, OpcUaToAasValueConverter {

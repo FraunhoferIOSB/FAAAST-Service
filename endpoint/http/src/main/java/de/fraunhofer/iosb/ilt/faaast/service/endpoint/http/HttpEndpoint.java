@@ -16,17 +16,18 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -36,19 +37,23 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
-import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of HTTP endpoint. Accepts http request and maps them to Request objects passes them to the service and
  * expects a response object which is streamed as json response to the http client
  */
-public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
+public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
     public static final Version API_VERSION = Version.V3_0;
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
@@ -72,8 +77,6 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             .build();
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
-    private HttpEndpointConfig config;
-    private ServiceContext serviceContext;
     private Server server;
     private Handler handler;
     private ApiGateway apiGateway;
@@ -82,6 +85,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     public HttpEndpointConfig asConfig() {
         return config;
     }
+
+    private ServletContextHandler context;
 
 
     /**
@@ -94,20 +99,6 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException is config is null
-     */
-    @Override
-    public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        this.config = config;
-        this.serviceContext = serviceContext;
-    }
-
-
     @Override
     public void start() throws EndpointException {
         if (server != null && server.isStarted()) {
@@ -115,9 +106,16 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         }
         server = new Server();
         configureHttpServer();
-        handler = new RequestHandler(serviceContext, config);
-        server.setHandler(handler);
-        server.setErrorHandler(new HttpErrorHandler());
+        CrossOriginHandler crossOriginHandler = buildCorsHandler();
+        server.setHandler(crossOriginHandler);
+
+        context = new ServletContextHandler();
+        context.setContextPath("/");
+        crossOriginHandler.setHandler(context);
+
+        RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
+        context.addServlet(handler, "/*");
+        server.setErrorHandler(new HttpErrorHandler(config));
         try {
             server.start();
         }
@@ -146,6 +144,18 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         }
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
+    }
+
+
+    private CrossOriginHandler buildCorsHandler() {
+        CrossOriginHandler result = new CrossOriginHandler();
+        result.setAllowCredentials(config.isCorsAllowCredentials());
+        result.setAllowedHeaders(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedHeaders())));
+        result.setAllowedMethods(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedMethods())));
+        result.setAllowedOriginPatterns(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsAllowedOrigin())));
+        result.setExposedHeaders(Set.copyOf(HttpHelper.parseCommaSeparatedList(config.getCorsExposedHeaders())));
+        result.setPreflightMaxAge(Duration.ofMillis(config.getCorsMaxAge()));
+        return result;
     }
 
 
@@ -195,9 +205,9 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     @Override
     public void stop() {
-        if (handler != null) {
+        if (context != null) {
             try {
-                handler.stop();
+                context.stop();
             }
             catch (Exception e) {
                 LOGGER.debug("stopping HTTP handler failed", e);
@@ -219,9 +229,18 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (Objects.isNull(server)) {
             return List.of();
         }
-        return List.of(
-                endpointFor("AAS-REPOSITORY-3.0", "/shells"),
-                endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+        List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> result = new ArrayList<>();
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
+            result.add(endpointFor("AAS-REPOSITORY-3.0", "/shells"));
+        }
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
+            result.add(endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+        }
+        return result;
     }
 
 
@@ -230,9 +249,19 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (Objects.isNull(server)) {
             return List.of();
         }
-        return List.of(
-                endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"),
-                endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+        List<org.eclipse.digitaltwin.aas4j.v3.model.Endpoint> result = new ArrayList<>();
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
+            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"));
+        }
+        if (config.getProfiles().stream()
+                .flatMap(x -> x.getInterfaces().stream())
+                .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
+            result.add(endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+        }
+
+        return result;
     }
 
 
@@ -268,4 +297,24 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         return server.getURI();
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpEndpoint that = (HttpEndpoint) o;
+        return super.equals(o)
+                && Objects.equals(server, that.server)
+                && Objects.equals(context, that.context);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), server, context);
+    }
 }

@@ -34,12 +34,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
@@ -54,6 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -71,16 +72,16 @@ public class LambdaAssetConnectionTest {
     private Persistence persistence;
 
     @Before
-    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
+    public void init() throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, PersistenceException {
         persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
         MessageBus messageBus = mock(MessageBus.class);
-        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of());
+        service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of(), List.of());
     }
 
 
     @Test
-    public void testValueProvider() throws MessageBusException, EndpointException, ResourceNotFoundException {
+    public void testValueProvider() throws MessageBusException, EndpointException, ResourceNotFoundException, PersistenceException {
         final String submodelId = "submodel";
         final String propertyId = "property";
         final int initialValueAAS = 0;
@@ -147,7 +148,7 @@ public class LambdaAssetConnectionTest {
     @Test
     public void testSubscriptionProvider()
             throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException,
-            InterruptedException {
+            InterruptedException, PersistenceException {
         final String submodelId = "submodel";
         final String propertyId = "property";
         final int initialValueAAS = 0;
@@ -216,7 +217,7 @@ public class LambdaAssetConnectionTest {
 
     @Test
     public void testOperationProvider()
-            throws ConfigurationInitializationException, ConfigurationException, AssetConnectionException, MessageBusException, EndpointException, ResourceNotFoundException {
+            throws MessageBusException, EndpointException, ResourceNotFoundException, PersistenceException {
         final String submodelId = "submodel";
         final String operationId = "property";
         final String input1Id = "in1";

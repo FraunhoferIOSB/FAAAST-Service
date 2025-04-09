@@ -285,9 +285,9 @@ public class Server {
             case Anonymous:
                 return UserTokenPolicies.ANONYMOUS;
             case UserName:
-                return UserTokenPolicies.SECURE_USERNAME_PASSWORD;
+                return UserTokenPolicies.SECURE_USERNAME_PASSWORD_BASIC256SHA256;
             case Certificate:
-                return UserTokenPolicies.SECURE_CERTIFICATE;
+                return UserTokenPolicies.SECURE_CERTIFICATE_BASIC256SHA256;
             default:
                 throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
         }

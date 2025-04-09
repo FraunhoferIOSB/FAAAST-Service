@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -41,22 +42,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmodelRequest, PostSubmodelResponse> {
 
-    public PostSubmodelRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostSubmodelResponse process(PostSubmodelRequest request)
+    public PostSubmodelResponse process(PostSubmodelRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, ValidationException, ResourceNotAContainerElementException, MessageBusException,
-            ResourceAlreadyExistsException {
+            ResourceAlreadyExistsException, PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnCreate());
         if (context.getPersistence().submodelExists(request.getSubmodel().getId())) {
             throw new ResourceAlreadyExistsException(request.getSubmodel().getId(), Submodel.class);
         }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
-        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal());
+        syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)

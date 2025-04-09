@@ -33,13 +33,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class PostAssetAdministrationShellRequestHandler extends AbstractRequestHandler<PostAssetAdministrationShellRequest, PostAssetAdministrationShellResponse> {
 
-    public PostAssetAdministrationShellRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
+    public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request, RequestExecutionContext context) throws Exception {
         ModelValidator.validate(request.getAas(), context.getCoreConfig().getValidationOnCreate());
         if (context.getPersistence().assetAdministrationShellExists(request.getAas().getId())) {
             throw new ResourceAlreadyExistsException(request.getAas().getId(), AssetAdministrationShell.class);

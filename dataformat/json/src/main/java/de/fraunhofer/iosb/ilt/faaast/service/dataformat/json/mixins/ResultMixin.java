@@ -14,17 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 /**
- * Mixing for {@link Result}.
+ * Mixing for {@link org.eclipse.digitaltwin.aas4j.v3.model.Result}.
  */
 public interface ResultMixin {
 
-    @JsonUnwrapped
-    public List<Message> getMessages();
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getCode();
 }

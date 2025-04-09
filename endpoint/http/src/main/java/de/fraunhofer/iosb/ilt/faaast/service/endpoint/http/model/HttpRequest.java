@@ -14,11 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -56,6 +59,16 @@ public class HttpRequest extends HttpMessage {
 
     public String getPath() {
         return path;
+    }
+
+
+    /**
+     * Gets the content type header value if present.
+     *
+     * @return the content type header value
+     */
+    public Optional<String> getContentType() {
+        return Optional.ofNullable(headers.get(HttpConstants.HEADER_CONTENT_TYPE));
     }
 
 
@@ -158,9 +171,10 @@ public class HttpRequest extends HttpMessage {
     public void setQueryParametersFromQueryString(String queryString) {
         this.queryParameters = queryString != null && queryString.contains("=")
                 ? Arrays.asList(queryString.split("&")).stream()
-                        .map(x -> splitKeyValue(x, "=")).collect(Collectors.toMap(
+                        .map(x -> splitKeyValue(x, "="))
+                        .collect(Collectors.toMap(
                                 x -> x[0],
-                                x -> x[1],
+                                x -> EncodingHelper.urlDecode(x[1]),
                                 (oldValue, newValue) -> newValue))
                 : new HashMap<>();
     }

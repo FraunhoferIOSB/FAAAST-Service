@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
@@ -35,17 +36,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public abstract class AbstractSubmodelInterfaceRequestHandler<T extends AbstractSubmodelInterfaceRequest<U>, U extends Response> extends AbstractRequestHandler<T, U> {
 
-    protected AbstractSubmodelInterfaceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public U process(T request) throws Exception {
+    public U process(T request, RequestExecutionContext context) throws Exception {
         Ensure.requireNonNull(request, "request must be non-null");
         Ensure.requireNonNull(request.getSubmodelId(), "request.submodelId must be non-null");
-        validateSubmodelWithinAAS(request);
-        return doProcess(request);
+        validateSubmodelWithinAAS(request, context);
+        return doProcess(request, context);
     }
 
 
@@ -54,9 +50,10 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
      * AAS.
      *
      * @param request the request
+     * @param context the execution context
      * @throws ResourceNotFoundException if AAS does not exist or submodel does not belong to AAS
      */
-    protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
+    protected void validateSubmodelWithinAAS(T request, RequestExecutionContext context) throws ResourceNotFoundException, PersistenceException {
         if (request.getAasId() != null) {
             Reference submodelRef = ReferenceBuilder.forSubmodel(request.getSubmodelId());
             AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(
@@ -78,8 +75,9 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
      * Processes a request and returns the resulting response.
      *
      * @param request the request
+     * @param context the execution context
      * @return the response
      * @throws Exception if processing the request fails
      */
-    protected abstract U doProcess(T request) throws Exception;
+    protected abstract U doProcess(T request, RequestExecutionContext context) throws Exception;
 }

@@ -108,6 +108,22 @@ public class ReferenceHelper {
      * @return true if the two reference are considered equals, false otherwise
      */
     public static boolean equals(Reference ref1, Reference ref2) {
+        return equals(ref1, ref2, true);
+    }
+
+
+    /**
+     * Compares if two {@link org.eclipse.digitaltwin.aas4j.v3.model.Reference} are equal. This also works when keys
+     * have different but compatibale {@link org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes}, e.g.
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes#SUBMODEL_ELEMENT} and
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes#PROPERTY}.
+     *
+     * @param ref1 the first reference
+     * @param ref2 the second reference
+     * @param checkReferredSemanticId whether or not to also check referredSemanticId for equality
+     * @return true if the two reference are considered equals, false otherwise
+     */
+    public static boolean equals(Reference ref1, Reference ref2, boolean checkReferredSemanticId) {
         boolean ref1Empty = Objects.isNull(ref1) || Objects.isNull(ref1.getKeys()) || ref1.getKeys().isEmpty();
         boolean ref2Empty = Objects.isNull(ref2) || Objects.isNull(ref2.getKeys()) || ref2.getKeys().isEmpty();
         if (ref1Empty && ref2Empty) {
@@ -116,7 +132,7 @@ public class ReferenceHelper {
         if (ref1Empty != ref2Empty) {
             return false;
         }
-        if (!equals(ref1.getReferredSemanticId(), ref2.getReferredSemanticId())) {
+        if (checkReferredSemanticId && !equals(ref1.getReferredSemanticId(), ref2.getReferredSemanticId())) {
             return false;
         }
         if (ref1.getKeys().size() != ref2.getKeys().size()) {
@@ -456,7 +472,7 @@ public class ReferenceHelper {
         if (reference == null) {
             return null;
         }
-        return String.format("[%s]%s", reference.getType(),
+        return String.format("[%s]%s", toString(reference.getType()),
                 reference.getKeys().stream().map(x -> String.format("(%s)%s", EnumSerializer.serializeEnumName(x.getType().name()), x.getValue()))
                         .collect(Collectors.joining(KEY_SEPARATOR)));
     }
@@ -690,7 +706,7 @@ public class ReferenceHelper {
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
-            LOGGER.warn(String.format(
+            LOGGER.debug(String.format(
                     "encountered reference keys with same value but incompatible types (key value: %s, key type 1: %s, key type 2: %s)",
                     key1.getValue(),
                     type1,

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aas;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.GetAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -33,13 +34,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
  */
 public class GetAssetAdministrationShellRequestHandler extends AbstractRequestHandler<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
-    public GetAssetAdministrationShellRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException {
+    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         AssetAdministrationShell shell = context.getPersistence().getAssetAdministrationShell(request.getId(), request.getOutputModifier());
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementReadEventMessage.builder()

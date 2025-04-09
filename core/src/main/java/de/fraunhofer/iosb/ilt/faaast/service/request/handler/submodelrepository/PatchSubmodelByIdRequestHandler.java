@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.PatchSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -40,22 +41,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
  */
 public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<PatchSubmodelByIdRequest, PatchSubmodelByIdResponse> {
 
-    public PatchSubmodelByIdRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request)
+    public PatchSubmodelByIdResponse process(PatchSubmodelByIdRequest request, RequestExecutionContext context)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
-            InvalidRequestException {
+            InvalidRequestException, PersistenceException {
         Submodel current = context.getPersistence().getSubmodel(request.getId(), QueryModifier.DEFAULT);
         Submodel updated = applyMergePatch(request.getChanges(), current, Submodel.class);
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
-        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence());
-        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal());
+        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence(), context);
+        syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()
                     .element(reference)

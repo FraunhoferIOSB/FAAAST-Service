@@ -351,7 +351,7 @@ public class App implements Runnable {
             config = getConfig();
         }
         catch (IOException e) {
-            throw new InitializationException("Error loading config file", e);
+            throw new InitializationException("Error loading config file: " + e.getMessage(), e);
         }
         config = ServiceConfigHelper.autoComplete(config);
         config = withModel(config);
@@ -387,12 +387,16 @@ public class App implements Runnable {
     private Optional<File> findDefaultModel() {
         try {
             List<File> modelFiles;
+            List<String> fileExtensions = new ArrayList<>(DataFormat.AASX.getFileExtensions());
+            fileExtensions.addAll(DataFormat.JSON.getFileExtensions());
             try (Stream<File> stream = Files.find(Paths.get(""), 1,
                     (file, attributes) -> file.toFile()
                             .getName()
                             .matches(MODEL_FILENAME_PATTERN))
                     .map(Path::toFile)) {
-                modelFiles = stream.collect(Collectors.toList());
+                modelFiles = stream.filter(f -> fileExtensions.stream()
+                        .anyMatch(FileHelper.getFileExtensionWithoutSeparator(f.getName())::equalsIgnoreCase))
+                        .toList();
             }
             if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
@@ -458,7 +462,7 @@ public class App implements Runnable {
     }
 
 
-    private void withModelFromCommandLine(ServiceConfig config, String fileExtension) {
+    private void withModelFromCommandLine(ServiceConfig config) {
         try {
             LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
             if (config.getPersistence().getInitialModelFile() != null) {
@@ -471,13 +475,10 @@ public class App implements Runnable {
             LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
         }
         config.getPersistence().setInitialModelFile(modelFile);
-        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-            config.getFileStorage().setInitialModelFile(modelFile);
-        }
     }
 
 
-    private void withModelFromEnvironmentVariable(ServiceConfig config, String fileExtension) {
+    private void withModelFromEnvironmentVariable(ServiceConfig config) {
         LOGGER.info("Model: {} (ENV)", getEnvValue(ENV_PATH_MODEL_FILE));
         if (config.getPersistence().getInitialModelFile() != null) {
             LOGGER.info("Overriding model path {} set in Config File with {}",
@@ -485,20 +486,17 @@ public class App implements Runnable {
                     getEnvValue(ENV_PATH_MODEL_FILE));
         }
         config.getPersistence().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-        if (DataFormat.AASX.getFileExtensions().contains(fileExtension)) {
-            config.getFileStorage().setInitialModelFile(new File(getEnvValue(ENV_PATH_MODEL_FILE)));
-        }
         modelFile = new File(getEnvValue(ENV_PATH_MODEL_FILE));
     }
 
 
     private ServiceConfig withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            withModelFromCommandLine(config, FileHelper.getFileExtensionWithoutSeparator(modelFile));
+            withModelFromCommandLine(config);
             return config;
         }
         if (getEnvValue(ENV_PATH_MODEL_FILE) != null && !getEnvValue(ENV_PATH_MODEL_FILE).isBlank()) {
-            withModelFromEnvironmentVariable(config, FileHelper.getFileExtensionWithoutSeparator(getEnvValue(ENV_PATH_MODEL_FILE)));
+            withModelFromEnvironmentVariable(config);
             return config;
         }
         if (config.getPersistence().getInitialModelFile() != null) {
@@ -510,9 +508,6 @@ public class App implements Runnable {
             if (defaultModel.isPresent()) {
                 LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
                 config.getPersistence().setInitialModelFile(defaultModel.get());
-                if (DataFormat.AASX.getFileExtensions().contains(FileHelper.getFileExtensionWithoutSeparator(defaultModel.get()))) {
-                    config.getFileStorage().setInitialModelFile(defaultModel.get());
-                }
                 modelFile = new File(defaultModel.get().getAbsolutePath());
                 return config;
             }

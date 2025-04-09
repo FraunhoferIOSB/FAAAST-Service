@@ -50,19 +50,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -77,7 +77,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
-import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
@@ -91,10 +91,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
@@ -125,11 +125,14 @@ import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.BaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -139,10 +142,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
@@ -249,17 +255,17 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     private void injectSpyAssetConnectionManager(ServiceConfig serviceConfig) throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
         assetConnectionManager = spy(service.getAssetConnectionManager());
-        setField(service, "assetConnectionManager", assetConnectionManager);
-        requestHandlerManager = new RequestHandlerManager(new RequestExecutionContext(
+        ReflectionHelper.setField(service, "assetConnectionManager", assetConnectionManager);
+        StaticRequestExecutionContext requestExecutionContext = new StaticRequestExecutionContext(
                 serviceConfig.getCore(),
-                getField(service, "persistence", Persistence.class),
-                getField(service, "fileStorage", FileStorage.class),
+                ReflectionHelper.getField(service, "persistence", Persistence.class),
+                ReflectionHelper.getField(service, "fileStorage", FileStorage.class),
                 messageBus,
-                assetConnectionManager));
-        setField(service, "requestHandler", requestHandlerManager);
-        List<Endpoint> endpoints = (List<Endpoint>) getField(service, "endpoints", List.class);
+                assetConnectionManager);
+        ReflectionHelper.setField(service, "requestExecutionContext", requestExecutionContext);
+        List<Endpoint> endpoints = (List<Endpoint>) ReflectionHelper.getField(service, "endpoints", List.class);
         for (var endpoint: endpoints) {
-            setField(endpoint, "serviceContext", service);
+            ReflectionHelper.setField(endpoint, "serviceContext", service);
         }
     }
 
@@ -290,7 +296,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASBasicDiscoveryCreate()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         SpecificAssetId newIdentifier = new DefaultSpecificAssetId.Builder()
                 .name("foo")
@@ -315,7 +322,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASBasicDiscoveryDelete()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.getAssetInformation().getSpecificAssetIds().clear();
         aas.getAssetInformation().setGlobalAssetId(null);
@@ -335,7 +343,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASBasicDiscoveryGetAssetAdministrationShells()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<String> expected = environment.getAssetAdministrationShells().stream()
                 .map(x -> x.getId())
                 .collect(Collectors.toList());
@@ -351,7 +360,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASBasicDiscoveryGetAssetAdministrationShellsByGlobalAssetId()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         String assetIdValue = "https://acplt.org/Test_Asset";
         List<String> expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getAssetInformation().getGlobalAssetId().equalsIgnoreCase(assetIdValue))
@@ -369,7 +379,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASBasicDiscoveryGetAssetLinks()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         List<SpecificAssetId> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         expected.add(new DefaultSpecificAssetId.Builder()
@@ -503,7 +514,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testAASRepositoryGetAssetAdministrationShellByIdUsingSubmodelIdReturnsResourceNotFound()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         String submodelId = environment.getSubmodels().get(1).getId();
         assertExecuteSingle(HttpMethod.GET,
                 apiPaths.aasRepository().assetAdministrationShell(submodelId),
@@ -527,7 +538,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShells()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
@@ -541,7 +553,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<Reference> expected = environment.getAssetAdministrationShells().stream()
                 .map(ReferenceBuilder::forAas)
                 .collect(Collectors.toList());
@@ -557,7 +570,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASRepositoryGetAssetAdministrationShellsWithPaging()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         // 4 elements in total are available, query data with increasing page size 1, 2, 3.
         String cursor = null;
         List<AssetAdministrationShell> allExpectedShells = environment.getAssetAdministrationShells();
@@ -796,7 +810,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testAssetAdministrationShellInterfaceCreateSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         String name = "test";
         Reference newReference = new DefaultReference.Builder()
                 .keys(new DefaultKey.Builder()
@@ -836,7 +850,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testAssetAdministrationShellInterfaceDeleteSubmodelRef()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Reference submodelToDelete = aas.getSubmodels().get(0);
         aas.getSubmodels().remove(submodelToDelete);
@@ -912,7 +926,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAssetAdministrationShellInterfaceGetAssetInformation()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         // TODO does this trigger any message bus event?
@@ -928,7 +943,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAssetAdministrationShellInterfaceGetSubmodelRefs()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         List<Reference> expected = aas.getSubmodels();
         assertExecutePage(
@@ -964,7 +980,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testAssetAdministrationShellInterfaceUpdateAssetInformation()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         expected.getSpecificAssetIds().add(new DefaultSpecificAssetId.Builder()
@@ -1087,7 +1103,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testConceptDescriptionRepositoryGetConceptDescriptions()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<ConceptDescription> expected = environment.getConceptDescriptions();
         assertExecutePage(
                 HttpMethod.GET,
@@ -1407,7 +1424,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElements()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         Submodel submodel = environment.getSubmodels().get(0);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
         assertExecutePage(
@@ -1422,7 +1440,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelElementsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         Submodel submodel = environment.getSubmodels().get(0);
         List<Reference> expected = submodel
                 .getSubmodelElements()
@@ -1441,7 +1460,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelContentValue()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, UnsupportedModifierException {
         Submodel submodel = environment.getSubmodels().get(3);
         String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.VALUE)
@@ -1477,7 +1496,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testAASThumbnail()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         String imageName = "file:///image.png";
@@ -1525,7 +1545,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelContentMetadata()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, UnsupportedModifierException {
         Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(3));
         String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.METADATA)
@@ -1641,7 +1661,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testSubmodelInterfaceInvokeOperationAsync()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         CountDownLatch condition = new CountDownLatch(1);
@@ -1678,7 +1698,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
                         }));
         // assert operation is still running
-        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        BaseOperationResult expectedStatusRunning = new DefaultBaseOperationResult();
 
         expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
 
@@ -1731,7 +1751,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     public static OperationResult getOperationSqaureExpectedResult(ExecutionState executionState, int inputValue, String inoutputValue) {
-        OperationResult.Builder builder = new OperationResult.Builder()
+        DefaultOperationResult.Builder builder = new DefaultOperationResult.Builder()
                 .executionState(executionState)
                 .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
                         .value(new DefaultProperty.Builder()
@@ -1792,7 +1812,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testSubmodelInterfaceInvokeOperationAsyncValueOnly()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, JSONException {
+            KeyManagementException, JSONException, UnsupportedContentModifierException, UnsupportedModifierException {
         int inputValue = 4;
 
         Reference reference = operationSquareIdentifier.toReference();
@@ -1834,7 +1854,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                             operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
                         }));
         // assert operation is still running
-        BaseOperationResult expectedStatusRunning = new BaseOperationResult();
+        BaseOperationResult expectedStatusRunning = new DefaultBaseOperationResult();
         expectedStatusRunning.setExecutionState(ExecutionState.RUNNING);
         assertExecuteSingle(
                 HttpMethod.GET,
@@ -1959,7 +1979,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         });
         // assert OperationStarted on messagebus
         InvokeOperationSyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationSyncRequest.builder(), -1);
-        OperationResult expectedResult = new OperationResult.Builder()
+        OperationResult expectedResult = new DefaultOperationResult.Builder()
                 .executionState(ExecutionState.FAILED)
                 .inoutputArguments(request.getInoutputArguments())
                 .build();
@@ -1985,76 +2005,9 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationAsyncWithTimeout()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueMappingException {
-        Reference reference = operationSquareIdentifier.toReference();
-        mockOperation(reference, (input, inoutput) -> {
-            try {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException ex) {
-                throw new RuntimeException();
-            }
-            return null;
-        });
-        AtomicReference<String> operationStatusUrl = new AtomicReference<>();
-        InvokeOperationAsyncRequest request = getOperationSqaureInvokeRequest(InvokeOperationAsyncRequest.builder(), -1, "", "PT0.1S");
-        assertEvents(
-                messageBus,
-                List.of(
-                        OperationInvokeEventMessage.builder()
-                                .element(reference)
-                                .input(ElementValueHelper.toValueMap(request.getInputArguments()))
-                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
-                                .build(),
-                        OperationFinishEventMessage.builder()
-                                .element(reference)
-                                .inoutput(ElementValueHelper.toValueMap(request.getInoutputArguments()))
-                                .build()),
-                LambdaExceptionHelper.wrap(
-                        x -> {
-                            HttpResponse response = assertExecuteSingle(
-                                    HttpMethod.POST,
-                                    apiPaths.submodelRepository().submodelInterface(operationSquareIdentifier.getSubmodelId())
-                                            .invokeAsync(operationSquareIdentifier.getIdShortPath()),
-                                    StatusCode.SUCCESS_ACCEPTED,
-                                    request,
-                                    null,
-                                    null);
-                            Optional<String> locationHeader = response.headers().firstValue(HttpConstants.HEADER_LOCATION);
-                            Assert.assertTrue(locationHeader.isPresent());
-                            Assert.assertTrue(locationHeader.get().contains("operation-status/"));
-                            operationStatusUrl.set(response.uri().resolve(locationHeader.get()).toString());
-                        }));
-        // assert status is finished and returns 302 with correct Location header
-        AtomicReference<String> operationResultUrl = new AtomicReference<>();
-        HttpResponse responseStatusFinished = assertExecuteSingle(
-                HttpMethod.GET,
-                operationStatusUrl.get(),
-                StatusCode.SUCCESS_FOUND,
-                null,
-                null,
-                null);
-        Optional<String> locationHeader = responseStatusFinished.headers().firstValue(HttpConstants.HEADER_LOCATION);
-        Assert.assertTrue(locationHeader.isPresent());
-        Assert.assertTrue(locationHeader.get().contains("operation-results/"));
-        operationResultUrl.set(responseStatusFinished.uri().resolve(locationHeader.get()).toString());
-        // assert operation result
-        HttpResponse responseResult = HttpHelper.execute(
-                httpClient,
-                HttpMethod.GET,
-                operationResultUrl.get());
-        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), responseResult.statusCode());
-        OperationResult actualResult = HttpHelper.readResponse(responseResult, OperationResult.class);
-        Assert.assertEquals(ExecutionState.TIMEOUT, actualResult.getExecutionState());
-    }
-
-
-    @Test
     public void testSubmodelInterfaceInvokeOperationAsyncWithExceptionInOperation()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueMappingException {
+            KeyManagementException, ValueMappingException, UnsupportedModifierException {
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, (input, inoutput) -> {
             throw new UnsupportedOperationException("not implemented");
@@ -2356,7 +2309,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     @Test
     public void testSubmodelInterfaceGetSubmodelElementsInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, ResourceNotFoundException, NoSuchAlgorithmException,
-            KeyManagementException {
+            KeyManagementException, UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
@@ -2372,7 +2325,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelInterfaceGetSubmodelContentValueInAasContext()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, ResourceNotFoundException,
+            UnsupportedModifierException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = EnvironmentHelper.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
         String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
@@ -2677,7 +2631,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelRepositoryGetSubmodels()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<Submodel> expected = environment.getSubmodels();
         ExtendHelper.withoutBlobValue(expected);
         assertExecutePage(
@@ -2692,7 +2647,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelRepositoryGetSubmodelsContentReference()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<Reference> expected = environment.getSubmodels().stream()
                 .map(ReferenceBuilder::forSubmodel)
                 .collect(Collectors.toList());
@@ -2708,7 +2664,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelRepositoryGetSubmodelsByIdShort()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(
                 HttpMethod.GET,
@@ -2722,7 +2679,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
     @Test
     public void testSubmodelRepositoryGetSubmodelsBySemanticId()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         Submodel expected = environment.getSubmodels().get(1);
         assertExecutePage(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
@@ -2765,14 +2723,138 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
+    @Test
+    public void testProprietaryReset()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        HttpResponse response = HttpHelper.execute(
+                httpClient,
+                HttpMethod.GET,
+                apiPaths.proprietaryInterface().reset());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS_NO_CONTENT), response.statusCode());
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.aasRepository().assetAdministrationShells(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                AssetAdministrationShell.class);
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.submodelRepository().submodels(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                Submodel.class);
+        assertExecutePage(
+                HttpMethod.GET,
+                apiPaths.conceptDescriptionRepository().conceptDescriptions(),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                ConceptDescription.class);
+    }
+
+
+    @Test
+    public void testProprietaryImport()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedModifierException {
+        ImportResult expected = ImportResult.builder().build();
+        byte[] fileContent = new byte[10];
+        new Random().nextBytes(fileContent);
+
+        for (var dataFormat: DataFormat.values()) {
+            // TODO remove once RDF support is implemented
+            if (dataFormat == DataFormat.RDF || dataFormat == DataFormat.JSONLD) {
+                continue;
+            }
+            String filename = String.format("/dummy-file-%s.bin", dataFormat);
+            String fileIdShort = String.format("dummy-file-%s", dataFormat);
+            DefaultAssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
+                    .id(String.format("http://example.org/imported-aas-%s", dataFormat))
+                    .build();
+            DefaultSubmodel submodel = new DefaultSubmodel.Builder()
+                    .id(String.format("http://example.org/imported-submodel-%s", dataFormat))
+                    .submodelElements(new DefaultFile.Builder()
+                            .idShort(fileIdShort)
+                            .contentType("application/octet-stream")
+                            .value(filename)
+                            .build())
+                    .build();
+            DefaultConceptDescription cd = new DefaultConceptDescription.Builder()
+                    .id(String.format("http://example.org/imported-cd-%s", dataFormat))
+                    .build();
+            HttpResponse<String> response = httpClient.send(HttpRequest.newBuilder()
+                    .uri(new URI(apiPaths.proprietaryInterface().importFile()))
+                    .header(HttpConstants.HEADER_CONTENT_TYPE, dataFormat.getContentType().toString())
+                    .POST(BodyPublishers.ofByteArray(
+                            EnvironmentSerializationManager
+                                    .serializerFor(dataFormat)
+                                    .write(EnvironmentContext.builder()
+                                            .environment(new DefaultEnvironment.Builder()
+                                                    .assetAdministrationShells(aas)
+                                                    .submodels(submodel)
+                                                    .conceptDescriptions(cd)
+                                                    .build())
+                                            .file(fileContent, filename)
+                                            .build())))
+                    .build(),
+                    HttpResponse.BodyHandlers.ofString());
+            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+            ImportResult actual = HttpHelper.readResponse(response, ImportResult.class);
+            Assert.assertEquals(expected, actual);
+
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.aasRepository().assetAdministrationShell(aas),
+                    StatusCode.SUCCESS,
+                    null,
+                    aas,
+                    AssetAdministrationShell.class);
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.submodelRepository().submodel(submodel),
+                    StatusCode.SUCCESS,
+                    null,
+                    submodel,
+                    Submodel.class);
+            assertExecuteSingle(
+                    HttpMethod.GET,
+                    apiPaths.conceptDescriptionRepository().conceptDescription(cd),
+                    StatusCode.SUCCESS,
+                    null,
+                    cd,
+                    ConceptDescription.class);
+            if (dataFormat.getCanStoreFiles()) {
+                HttpResponse<byte[]> getFileResponse = httpClient.send(HttpRequest.newBuilder()
+                        .uri(new URI(apiPaths.submodelRepository()
+                                .submodelInterface(submodel)
+                                .submodelElement(fileIdShort)
+                                + "/attachment"))
+                        .header(HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().toString())
+                        .GET()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+                Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), getFileResponse.statusCode());
+                Assert.assertArrayEquals(fileContent, getFileResponse.body());
+            }
+
+        }
+
+    }
+
+
     private void assertExecute(HttpMethod method, String url, StatusCode statusCode)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         assertExecuteSingle(method, url, statusCode, null, null, null);
     }
 
 
     private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
@@ -2783,7 +2865,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);
@@ -2795,7 +2878,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     private HttpResponse assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         if (expected != null) {
@@ -2876,20 +2960,6 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private static <T> T getField(Object obj, String fieldName, Class<T> type) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return type.cast(field.get(obj));
-    }
-
-
-    private static void setField(Object obj, String fieldName, Object value) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, value);
-    }
-
-
     private static OperationVariable[] operationSqaureDefaultImplementation(OperationVariable[] input, OperationVariable[] inoutput) {
         Ensure.requireNonNull(input, "input must be non-null");
         Ensure.require(input.length == 1 && Objects.nonNull(input[0].getValue()), "operation must have exactly one input parameter");
@@ -2925,19 +2995,4 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
         };
 
     }
-
-    private static class BaseOperationResult extends Result {
-
-        private ExecutionState executionState;
-
-        public ExecutionState getExecutionState() {
-            return executionState;
-        }
-
-
-        public void setExecutionState(ExecutionState executionState) {
-            this.executionState = executionState;
-        }
-    }
-
 }

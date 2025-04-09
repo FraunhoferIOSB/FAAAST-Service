@@ -17,20 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +102,9 @@ public class HttpHelper {
      * @return the parsed list
      */
     public static List<String> parseCommaSeparatedList(String input) {
+        if (StringHelper.isBlank(input)) {
+            return new ArrayList<>();
+        }
         return Stream.of(input.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
@@ -104,19 +113,19 @@ public class HttpHelper {
 
     /**
      * Converts a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}.
+     * {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}.
      *
      * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
-     * @return the resulting {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}
+     * @return the resulting {@link org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum}
      */
-    public static MessageType messageTypeFromstatusCode(StatusCode statusCode) {
+    public static MessageTypeEnum messageTypeFromstatusCode(StatusCode statusCode) {
         if (statusCode.isError()) {
-            return MessageType.ERROR;
+            return MessageTypeEnum.ERROR;
         }
         if (statusCode.isException()) {
-            return MessageType.EXCEPTION;
+            return MessageTypeEnum.EXCEPTION;
         }
-        return MessageType.INFO;
+        return MessageTypeEnum.INFO;
     }
 
 
@@ -126,11 +135,14 @@ public class HttpHelper {
      * @param response HTTP response object
      * @param statusCode the statusCode to send
      */
-    public static void send(HttpServletResponse response, StatusCode statusCode) {
+    public static void send(HttpServletResponse response, StatusCode statusCode) throws InvalidRequestException {
         send(response,
                 statusCode,
-                Result.builder()
-                        .message(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                new DefaultResult.Builder()
+                        .messages(Message.builder()
+                                .messageType(messageTypeFromstatusCode(statusCode))
+                                .text(HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)))
+                                .build())
                         .build());
     }
 
@@ -141,14 +153,14 @@ public class HttpHelper {
      * @param response HTTP response object
      * @param statusCode statusCode to send
      * @param result the result to send
+     * @throws UnsupportedModifierException when modifier used for serialization is not supported
      */
-    public static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
+    public static void send(HttpServletResponse response, StatusCode statusCode, Result result) throws UnsupportedModifierException {
         try {
             sendJson(response, statusCode, new HttpJsonApiSerializer().write(result));
         }
         catch (SerializationException e) {
-            LOGGER.warn("error serializing response", e);
-            sendContent(response, StatusCode.SERVER_INTERNAL_ERROR, null, null);
+            throw new RuntimeException("error serializing response", e);
         }
     }
 
@@ -222,13 +234,34 @@ public class HttpHelper {
                     response.setContentLengthLong(content.length);
                 }
                 catch (IOException e) {
-                    send(response,
-                            StatusCode.SERVER_INTERNAL_ERROR,
-                            Result.builder()
-                                    .message(MessageType.EXCEPTION, e.getMessage())
-                                    .build());
+                    sendException(response, e);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode, payload and contentType.
+     *
+     * @param response HTTP response object
+     * @param exception exception occured
+     * @throws IllegalArgumentException if response is null
+     * @throws IllegalArgumentException if statusCode is null
+     */
+    public static void sendException(HttpServletResponse response, Exception exception) {
+        try {
+            send(response,
+                    StatusCode.SERVER_INTERNAL_ERROR,
+                    new DefaultResult.Builder()
+                            .messages(Message.builder()
+                                    .messageType(MessageTypeEnum.EXCEPTION)
+                                    .text(exception.getMessage())
+                                    .build())
+                            .build());
+        }
+        catch (Exception e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 

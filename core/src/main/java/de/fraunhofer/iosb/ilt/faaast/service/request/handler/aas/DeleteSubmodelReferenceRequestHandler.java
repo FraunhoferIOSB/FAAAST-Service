@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.DeleteSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
@@ -36,17 +37,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandler<DeleteSubmodelReferenceRequest, DeleteSubmodelReferenceResponse> {
 
-    public DeleteSubmodelReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
+    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, MessageBusException, PersistenceException {
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
         AssetAdministrationShell aas = context.getPersistence().getAssetAdministrationShell(request.getId(), QueryModifier.DEFAULT);
         Reference submodelRefToDelete = aas.getSubmodels().stream()
-                .filter(x -> ReferenceHelper.equals(request.getSubmodelRef(), x))
+                .filter(x -> ReferenceHelper.equals(request.getSubmodelRef(), x, false))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(
                         "SubmodelReference '%s' not found in AAS with id '%s'",

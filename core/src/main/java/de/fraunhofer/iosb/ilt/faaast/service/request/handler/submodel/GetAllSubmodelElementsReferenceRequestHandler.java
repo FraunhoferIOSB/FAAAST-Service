@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -44,14 +45,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 public class GetAllSubmodelElementsReferenceRequestHandler
         extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsReferenceRequest, GetAllSubmodelElementsReferenceResponse> {
 
-    public GetAllSubmodelElementsReferenceRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GetAllSubmodelElementsReferenceResponse doProcess(GetAllSubmodelElementsReferenceRequest request)
-            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException {
+    public GetAllSubmodelElementsReferenceResponse doProcess(GetAllSubmodelElementsReferenceRequest request, RequestExecutionContext context)
+            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException, ResourceNotAContainerElementException, PersistenceException {
         Reference reference = ReferenceBuilder.forSubmodel(request.getSubmodelId());
         Page<SubmodelElement> page = context.getPersistence().getSubmodelElements(reference, request.getOutputModifier(), request.getPagingInfo());
         if (!request.isInternal() && Objects.nonNull(page.getContent())) {

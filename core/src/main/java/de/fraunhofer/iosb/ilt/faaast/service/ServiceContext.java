@@ -14,9 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -37,18 +39,32 @@ public interface ServiceContext {
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
      *         reference is null
      * @throws ResourceNotFoundException if reference can not be resolved on AAS environment of the service
+     * @throws PersistenceException if storage error occurs
      */
-    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException;
+    public TypeInfo getTypeInfo(Reference reference) throws ResourceNotFoundException, PersistenceException;
 
 
     /**
      * Executes a request.
      *
      * @param <T> type of expected response
+     * @param source the endpoint via which the request has been triggered
      * @param request request to execute
      * @return result of executing the request
      */
-    public <T extends Response> T execute(Request<T> request);
+    public <T extends Response> T execute(Endpoint source, Request<T> request);
+
+
+    /**
+     * Execute a request without context of an endpoint. This is typically used when executed for custom code.
+     *
+     * @param <T> type of expected response
+     * @param request The request to execute.
+     * @return the corresponding response
+     */
+    public default <T extends Response> T execute(Request<T> request) {
+        return execute(null, request);
+    }
 
 
     /**
@@ -56,7 +72,7 @@ public interface ServiceContext {
      *
      * @return a deep copied Environment instance of the service
      */
-    public Environment getAASEnvironment();
+    public Environment getAASEnvironment() throws PersistenceException;
 
 
     /**
@@ -77,7 +93,7 @@ public interface ServiceContext {
      * @throws IllegalArgumentException if reference cannot be resolved
      * @throws IllegalArgumentException if reference does not point to an operation
      */
-    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException;
+    public OperationVariable[] getOperationOutputVariables(Reference reference) throws ResourceNotFoundException, PersistenceException;
 
 
     /**

@@ -42,8 +42,9 @@ public abstract class AbstractResponseMapper<T extends Response, U extends Reque
      * @param apiRequest the API request received
      * @param apiResponse the API response that shall be sent as a response to the apiRequest
      * @param httpResponse the HTTP response object to write to
+     * @throws Exception if mapping fails
      */
-    public abstract void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse);
+    public abstract void map(U apiRequest, T apiResponse, HttpServletResponse httpResponse) throws Exception;
 
 
     @Override

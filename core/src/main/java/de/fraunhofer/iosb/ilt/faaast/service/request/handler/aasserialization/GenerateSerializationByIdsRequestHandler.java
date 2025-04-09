@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
@@ -55,13 +56,9 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
             .level(Level.DEEP)
             .build();
 
-    public GenerateSerializationByIdsRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException, SerializationException, IOException {
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, SerializationException, IOException, PersistenceException {
         DefaultEnvironment environment;
         if (request.getAasIds().isEmpty() && request.getSubmodelIds().isEmpty()) {
             environment = new DefaultEnvironment.Builder()
@@ -72,12 +69,15 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
         }
         else {
             environment = new DefaultEnvironment.Builder()
-                    .assetAdministrationShells(
-                            request.getAasIds().stream()
-                                    .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER)))
-                                    .collect(Collectors.toList()))
+                    .assetAdministrationShells(request.getAasIds().stream()
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getAssetAdministrationShell(x, OUTPUT_MODIFIER),
+                                    ResourceNotFoundException.class,
+                                    PersistenceException.class))
+                            .collect(Collectors.toList()))
                     .submodels(request.getSubmodelIds().stream()
-                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER)))
+                            .map(LambdaExceptionHelper.rethrowFunction(x -> context.getPersistence().getSubmodel(x, OUTPUT_MODIFIER),
+                                    ResourceNotFoundException.class,
+                                    PersistenceException.class))
                             .collect(Collectors.toList()))
                     .conceptDescriptions(request.getIncludeConceptDescriptions()
                             ? context.getPersistence().findConceptDescriptions(
@@ -98,7 +98,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                                 files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), file.getValue()));
                             }
                         }
-                        catch (ResourceNotFoundException e) {
+                        catch (ResourceNotFoundException | PersistenceException e) {
                             //intentionally empty
                         }
                     }
@@ -112,7 +112,9 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .filter(x -> Objects.nonNull(x.getAssetInformation().getDefaultThumbnail().getPath()))
                 .distinct()
                 .map(x -> x.getAssetInformation().getDefaultThumbnail().getPath())
-                .map(LambdaExceptionHelper.rethrowFunction(x -> new InMemoryFile(context.getFileStorage().get(x), x)))
+                .map(LambdaExceptionHelper.rethrowFunction(x -> new InMemoryFile(context.getFileStorage().get(x), x),
+                        ResourceNotFoundException.class,
+                        PersistenceException.class))
                 .collect(Collectors.toList()));
         return GenerateSerializationByIdsResponse.builder()
                 .dataformat(request.getSerializationFormat())

@@ -36,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInter
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
@@ -217,7 +218,8 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private void assertServiceAvailabilityHttp(int port)
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         assertExecutePage(
                 HttpMethod.GET,
@@ -255,7 +257,8 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private <T> Page<T> assertExecutePage(HttpMethod method, String url, StatusCode statusCode, Object input, List<T> expected, Class<T> type)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException {
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException, NoSuchAlgorithmException, KeyManagementException,
+            UnsupportedModifierException {
         HttpResponse response = HttpHelper.execute(httpClient, method, url, input);
         assertEquals(toHttpStatusCode(statusCode), response.statusCode());
         Page<T> actual = HttpHelper.readResponsePage(response, type);

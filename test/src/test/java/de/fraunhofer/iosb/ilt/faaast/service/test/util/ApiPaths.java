@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.IdShortPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.net.URLEncoder;
@@ -111,6 +112,11 @@ public class ApiPaths {
 
     public AASInterface aasInterface(AssetAdministrationShell aas) {
         return new AASInterface(aas.getId());
+    }
+
+
+    public ProprietaryInterface proprietaryInterface() {
+        return new ProprietaryInterface();
     }
 
     public class AASRespositoryInterface {
@@ -256,7 +262,7 @@ public class ApiPaths {
         }
 
 
-        public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException {
+        public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException, UnsupportedModifierException {
             return String.format("%s?assetIds=%s",
                     assetAdministrationShells(),
                     EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
@@ -269,7 +275,7 @@ public class ApiPaths {
         }
 
 
-        public String assetAdministrationShells(Map<String, String> assetIds, String cursor, long limit) throws SerializationException {
+        public String assetAdministrationShells(Map<String, String> assetIds, String cursor, long limit) throws SerializationException, UnsupportedModifierException {
             return paging(assetAdministrationShells(assetIds), cursor, limit);
         }
 
@@ -659,6 +665,18 @@ public class ApiPaths {
             return String.format("%s/operation-status/%s",
                     submodelElement(idShortPath),
                     handleId);
+        }
+    }
+
+    public class ProprietaryInterface {
+
+        public String reset() {
+            return String.format("%s/reset", ApiPaths.this.root());
+        }
+
+
+        public String importFile() {
+            return String.format("%s/import", ApiPaths.this.root());
         }
     }
 

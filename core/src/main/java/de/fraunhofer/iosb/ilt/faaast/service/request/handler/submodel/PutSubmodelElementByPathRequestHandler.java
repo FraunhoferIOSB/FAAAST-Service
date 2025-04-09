@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
@@ -48,14 +49,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
  */
 public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
-    public PutSubmodelElementByPathRequestHandler(RequestExecutionContext context) {
-        super(context);
-    }
-
-
     @Override
-    public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request)
-            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException {
+    public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request, RequestExecutionContext context)
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException, ValidationException, ResourceNotAContainerElementException,
+            PersistenceException {
         ModelValidator.validate(request.getSubmodelElement(), context.getCoreConfig().getValidationOnUpdate());
         Reference reference = new ReferenceBuilder()
                 .submodel(request.getSubmodelId())

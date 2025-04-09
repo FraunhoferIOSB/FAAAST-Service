@@ -22,7 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ImportResultMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.InvokeOperationRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.MessageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ResultMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ServiceSpecificationProfileMixin;
@@ -31,13 +33,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSeri
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.PagingMetadataSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
@@ -45,6 +48,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Message;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 
 
 /**
@@ -79,6 +84,8 @@ public class JsonApiSerializer implements ApiSerializer {
         mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         mapper.addMixIn(ReferenceElementValue.class, ReferenceElementValueMixin.class);
         mapper.addMixIn(Page.class, PageMixin.class);
+        mapper.addMixIn(Message.class, MessageMixin.class);
+        mapper.addMixIn(ImportResult.class, ImportResultMixin.class);
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
         mapper.addMixIn(Result.class, ResultMixin.class);
         mapper.addMixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class);
@@ -86,7 +93,7 @@ public class JsonApiSerializer implements ApiSerializer {
 
 
     @Override
-    public String write(Object obj, OutputModifier modifier) throws SerializationException {
+    public String write(Object obj, OutputModifier modifier) throws SerializationException, UnsupportedModifierException {
         Ensure.requireNonNull(modifier, "modifier must be non-null");
         switch (modifier.getContent()) {
             case VALUE:
@@ -103,7 +110,7 @@ public class JsonApiSerializer implements ApiSerializer {
     }
 
 
-    private String serializeNormal(Object obj, OutputModifier modifier) throws SerializationException {
+    private String serializeNormal(Object obj, OutputModifier modifier) throws SerializationException, UnsupportedModifierException {
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }

@@ -15,7 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Spliterator;
+import java.util.Spliterators.AbstractSpliterator;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -35,5 +41,58 @@ public class StreamHelper {
      */
     public static <T> Stream<T> toStream(T... values) {
         return Arrays.asList(values).stream();
+    }
+
+
+    /**
+     * Creates a stream of a given enumeration.
+     *
+     * @param <T> type of the elements
+     * @param enumeration the enumeration to convert to stream
+     * @return a stream of the given elements
+     */
+    public static <T> Stream<T> toStream(Enumeration<T> enumeration) {
+        return StreamSupport.stream(new EnumerationSpliterator<>(Long.MAX_VALUE, Spliterator.ORDERED, enumeration), false);
+    }
+
+
+    /**
+     * Concacts a number of streams.
+     *
+     * @param <T> the type of the concatted stream
+     * @param streams the stream to concat
+     * @return A stream containing all elements of all streams
+     */
+    public static <T> Stream<T> concat(Stream<? extends T>... streams) {
+        return Stream.of(streams)
+                .reduce(Stream.empty(), Stream::concat)
+                .map(Function.identity());
+    }
+
+    private static class EnumerationSpliterator<T> extends AbstractSpliterator<T> {
+
+        private final Enumeration<T> enumeration;
+
+        public EnumerationSpliterator(long est, int additionalCharacteristics, Enumeration<T> enumeration) {
+            super(est, additionalCharacteristics);
+            this.enumeration = enumeration;
+        }
+
+
+        @Override
+        public boolean tryAdvance(Consumer<? super T> action) {
+            if (enumeration.hasMoreElements()) {
+                action.accept(enumeration.nextElement());
+                return true;
+            }
+            return false;
+        }
+
+
+        @Override
+        public void forEachRemaining(Consumer<? super T> action) {
+            while (enumeration.hasMoreElements())
+                action.accept(enumeration.nextElement());
+        }
     }
 }
