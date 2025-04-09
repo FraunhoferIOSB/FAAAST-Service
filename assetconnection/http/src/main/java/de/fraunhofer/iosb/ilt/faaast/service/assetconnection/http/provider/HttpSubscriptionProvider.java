@@ -137,7 +137,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
 
 
     @Override
-    protected void unsubscribe() throws AssetConnectionException {
+    public void unsubscribe() throws AssetConnectionException {
         if (executorHandler != null) {
             executorHandler.cancel(true);
         }
