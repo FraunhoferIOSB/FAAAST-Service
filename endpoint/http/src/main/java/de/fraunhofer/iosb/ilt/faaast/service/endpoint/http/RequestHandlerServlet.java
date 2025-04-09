@@ -16,12 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.UnauthorizedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -51,6 +54,7 @@ public class RequestHandlerServlet extends HttpServlet {
     private final RequestMappingManager requestMappingManager;
     private final ResponseMappingManager responseMappingManager;
     private final HttpJsonApiSerializer serializer;
+    private final ApiGateway apiGateway;
 
     public RequestHandlerServlet(HttpEndpoint endpoint, HttpEndpointConfig config, ServiceContext serviceContext) {
         Ensure.requireNonNull(endpoint, "endpoint must be non-null");
@@ -62,6 +66,7 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
+        this.apiGateway = Objects.nonNull(config.getJwkProvider()) ? new ApiGateway(config.getJwkProvider()) : null;
     }
 
 
@@ -72,6 +77,12 @@ public class RequestHandlerServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (Objects.nonNull(apiGateway)) {
+            if (!apiGateway.isAuthorized(request.getHeader("Authorization"), request.toString())) {
+                doThrow(new UnauthorizedException(
+                        String.format("User not authorized '%s'", request.getRequestURI())));
+            }
+        }
         if (!request.getRequestURI().startsWith(HttpEndpoint.getVersionPrefix())) {
             doThrow(new ResourceNotFoundException(String.format("Resource not found '%s'", request.getRequestURI())));
         }

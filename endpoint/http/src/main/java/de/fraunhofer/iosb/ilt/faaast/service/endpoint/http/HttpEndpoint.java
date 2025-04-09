@@ -78,7 +78,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private Server server;
-    private Handler handler;
     private ApiGateway apiGateway;
 
     @Override
