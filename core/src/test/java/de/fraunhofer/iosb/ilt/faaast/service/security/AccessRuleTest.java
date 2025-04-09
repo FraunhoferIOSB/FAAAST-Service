@@ -14,27 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security;
 
-
-
 import de.fraunhofer.iosb.ilt.faaast.service.security.attributes.ClaimAttribute;
 import de.fraunhofer.iosb.ilt.faaast.service.security.expressions.ComparisonExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.security.expressions.ComparisonOperator;
 import de.fraunhofer.iosb.ilt.faaast.service.security.objects.IdentifiableObject;
 import de.fraunhofer.iosb.ilt.faaast.service.security.operands.StringOperand;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class AccessRuleTest {
 
-
     @Before
-    public void init() {
-    }
+    public void init() {}
 
 
     @Test
@@ -53,8 +47,7 @@ public class AccessRuleTest {
         ComparisonExpression conditionExpression = new ComparisonExpression(
                 new StringOperand("$subject#role"),
                 ComparisonOperator.EQ,
-                new StringOperand("admin")
-        );
+                new StringOperand("admin"));
 
         Condition condition = new Condition();
         condition.setExpression(conditionExpression);

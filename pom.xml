@@ -51,6 +51,7 @@
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
+        <module>submodeltemplate/security</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>

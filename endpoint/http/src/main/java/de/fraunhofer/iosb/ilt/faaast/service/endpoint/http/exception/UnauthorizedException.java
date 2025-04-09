@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 
 
-
 /**
  * Exception to indicate user is not authorized for the URL.
  */

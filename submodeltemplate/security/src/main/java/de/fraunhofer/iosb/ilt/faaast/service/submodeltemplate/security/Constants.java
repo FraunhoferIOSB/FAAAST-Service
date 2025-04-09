@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.attributes;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.security;
 
 /**
- * Enum for global attributes.
+ * Constants related to SMT Asset Interfaces Mapping Configuration.
  */
-public enum GlobalAttributeType {
-    LOCALNOW,
-    UTCNOW,
-    CLIENTNOW,
-    ANONYMOUS
+public class Constants {
+    public static final String SECURITY_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Submodel";
+
+    private Constants() {}
 }

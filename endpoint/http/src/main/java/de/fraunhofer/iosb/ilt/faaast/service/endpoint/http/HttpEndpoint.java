@@ -19,10 +19,8 @@ import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHel
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
@@ -86,7 +84,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
     private ServletContextHandler context;
-
 
     /**
      * Gets the API version prefix.

@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.attributes;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.security;
 
 /**
- * Enum for global attributes.
+ * Enumeration for the processing mode.
  */
-public enum GlobalAttributeType {
-    LOCALNOW,
-    UTCNOW,
-    CLIENTNOW,
-    ANONYMOUS
+public enum ProcessingMode {
+    ADD,
+    UPDATE,
+    DELETE
 }

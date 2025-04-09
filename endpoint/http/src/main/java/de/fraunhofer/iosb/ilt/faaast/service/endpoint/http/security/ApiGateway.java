@@ -40,9 +40,10 @@ public class ApiGateway {
 
 
     /**
-     * Verifies the token by decoding it
-     * 
+     * Verifies the token by decoding it.
+     *
      * @param token the JWT token
+     * @param path the path
      * @return true if the token is valid
      */
     public boolean isAuthorized(String token, String path) {

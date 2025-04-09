@@ -331,10 +331,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             return getSelf();
         }
 
+
         public B jwkProvider(String value) {
             getBuildingInstance().setJwkProvider(value);
             return getSelf();
         }
+
 
         public B includeErrorDetails() {
             getBuildingInstance().setIncludeErrorDetails(true);
