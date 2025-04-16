@@ -67,30 +67,38 @@ public class ImplementationManager {
         }
         File temp;
         try {
+            LOGGER.debug("trying to find JAR path from main class...");
             temp = new File(JarFilePathHelper.getJarFilePath(getMainClass()));
         }
         catch (Exception e) {
+            LOGGER.debug("trying to find JAR path from ImplementationManager.class...");
             temp = new File(JarFilePathHelper.getJarFilePath(ImplementationManager.class));
         }
+        LOGGER.debug("found jar file: {}", temp);
         final File jar = temp;
-        File dir = jar.getParentFile();
-        LOGGER.info("Scanning directory '{}' for jar files...", dir);
-        try {
-            File[] files = dir.listFiles((File dir1, String name) -> name.toLowerCase().endsWith(".jar")
-                    && (!jar.isFile() || !name.equals(jar.getName())));
-            if (files != null) {
-                classLoader = new URLClassLoader(
-                        Stream.of(files)
-                                .map(ImplementationManager::fileToUrl)
-                                .filter(Objects::nonNull)
-                                .toArray(URL[]::new),
-                        ImplementationManager.class.getClassLoader());
+        if (!Objects.isNull(jar) && !Objects.isNull(jar.getParentFile())) {
+            File dir = jar.getParentFile();
+            LOGGER.info("Scanning directory '{}' for jar files...", dir);
+            try {
+                File[] files = dir.listFiles((File dir1, String name) -> name.toLowerCase().endsWith(".jar")
+                        && (!jar.isFile() || !name.equals(jar.getName())));
+                if (files != null) {
+                    classLoader = new URLClassLoader(
+                            Stream.of(files)
+                                    .map(ImplementationManager::fileToUrl)
+                                    .filter(Objects::nonNull)
+                                    .toArray(URL[]::new),
+                            ImplementationManager.class.getClassLoader());
+                }
             }
+            catch (SecurityException e) {
+                LOGGER.error("Scanning directory '{}' for jar files failed", dir, e);
+            }
+            Thread.currentThread().setContextClassLoader(classLoader);
         }
-        catch (SecurityException e) {
-            LOGGER.error("Scanning directory '{}' for jar files failed", dir, e);
+        else {
+            LOGGER.warn("Unable to determine location of jar file - run-time loading of additional jar files is disabled");
         }
-        Thread.currentThread().setContextClassLoader(classLoader);
         isInitialized = true;
     }
 
