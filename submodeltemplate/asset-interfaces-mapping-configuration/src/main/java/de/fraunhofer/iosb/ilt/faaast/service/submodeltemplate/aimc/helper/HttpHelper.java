@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -272,13 +273,22 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                if (isObservable(property)) {
+                if (isType(property)) {
+                    // the second element must be a SubmodelElementCollection
+                    if (EnvironmentHelper.resolve(r.getSecond(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection propertySecond) {
+                        // TODO
+                    }
+                    else {
+                        LOGGER.atWarn().log("processRelations: invalid configuration: {} must be a SubmodelElementCollection", ReferenceHelper.asString(r.getSecond()));
+                    }
+                }
+                else if (isObservable(property)) {
                     LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
-                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getInterfaceData().getConfigData()));
+                    subscriptionProviders.put(r.getSecond(), HttpHelper.createSubscriptionProvider(property, base, data, r.getFirst()));
                 }
                 else {
                     LOGGER.atDebug().log("processRelations: createValueProvider for: {}", ReferenceHelper.asString(r.getSecond()));
-                    valueProviders.put(r.getSecond(), createValueProvider(property, base, data.getContentType()));
+                    valueProviders.put(r.getSecond(), createValueProvider(property, base, data, r.getFirst()));
                 }
             }
         }
@@ -298,59 +308,66 @@ public class HttpHelper {
                     if (currentSubscriptions.containsKey(r.getSecond())) {
                         // compare provider data
                         HttpSubscriptionProviderConfig config = ReferenceHelper.getValueBySameReference(currentSubscriptions, r.getSecond());
-                        if (subscriptionProviderChanged(config, property, base, data.getContentType())) {
+                        if (subscriptionProviderChanged(config, property, base, data, r.getFirst())) {
                             hac.unregisterSubscriptionProvider(r.getSecond());
                             subscriptionProviders.put(r.getSecond(),
-                                    HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getInterfaceData().getConfigData()));
+                                    HttpHelper.createSubscriptionProvider(property, base, data, r.getFirst()));
                         }
                     }
                     // skip items already available in the config
                     else if (!Util.hasSubscriptionProvider(r.getSecond(), assetConnectionManager)) {
                         subscriptionProviders.put(r.getSecond(),
-                                HttpHelper.createSubscriptionProvider(property, base, data.getContentType(), data.getInterfaceData().getConfigData()));
+                                HttpHelper.createSubscriptionProvider(property, base, data, r.getFirst()));
                     }
                 }
                 else if (currentValues.containsKey(r.getSecond())) {
                     // compare provider data
                     HttpValueProviderConfig config = ReferenceHelper.getValueBySameReference(currentValues, r.getSecond());
-                    if (valueProviderChanged(config, property, base, data.getContentType())) {
+                    if (valueProviderChanged(config, property, base, data, r.getFirst())) {
                         hac.unregisterValueProvider(r.getSecond());
-                        valueProviders.put(r.getSecond(), createValueProvider(property, base, data.getContentType()));
+                        valueProviders.put(r.getSecond(), createValueProvider(property, base, data, r.getFirst()));
                     }
                 }
                 else if (!Util.hasValueProvider(r.getSecond(), assetConnectionManager)) {
-                    valueProviders.put(r.getSecond(), createValueProvider(property, base, data.getContentType()));
+                    valueProviders.put(r.getSecond(), createValueProvider(property, base, data, r.getFirst()));
                 }
             }
         }
     }
 
 
-    private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl, String baseContentType,
-                                                                             AimcSubmodelTemplateProcessorConfigData config) {
+    private static HttpSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseUrl,
+                                                                             RelationData data, Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
         HttpSubscriptionProviderConfig retval = null;
 
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String contentType = Util.getContentType(baseContentType, forms);
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String contentType = Util.getContentType(data.getContentType(), forms);
 
         String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
         LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", path, contentType);
-        retval = HttpSubscriptionProviderConfig.builder()
+        String jsonPath = getJsonPath(property, propertyReference, data);
+        HttpSubscriptionProviderConfig.Builder configBuilder = HttpSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(path)
                 .headers(headers)
-                .interval(config.getSubscriptionInterval() <= 0 ? DEFAULT_INTERVAL : config.getSubscriptionInterval())
-                .build();
-
+                .interval(data.getInterfaceData().getConfigData().getSubscriptionInterval() <= 0 ? DEFAULT_INTERVAL
+                        : data.getInterfaceData().getConfigData().getSubscriptionInterval());
+        if (!jsonPath.isEmpty()) {
+            configBuilder.query(jsonPath);
+        }
+        retval = configBuilder.build();
         return retval;
     }
 
 
-    private static boolean subscriptionProviderChanged(HttpSubscriptionProviderConfig config, SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static boolean subscriptionProviderChanged(HttpSubscriptionProviderConfig config, SubmodelElementCollection property, String baseUrl, RelationData data,
+                                                       Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
 
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String format = Util.getFormatFromContentType(Util.getContentType(baseContentType, forms));
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
         if (!config.getFormat().equals(format)) {
             return true;
         }
@@ -364,29 +381,35 @@ public class HttpHelper {
     }
 
 
-    private static HttpValueProviderConfig createValueProvider(SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static HttpValueProviderConfig createValueProvider(SubmodelElementCollection property, String baseUrl, RelationData data, Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
         HttpValueProviderConfig retval = null;
 
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String contentType = Util.getContentType(baseContentType, forms);
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String contentType = Util.getContentType(data.getContentType(), forms);
 
         String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
         LOGGER.debug("createValueProvider: href: {}; contentType: {}", path, contentType);
-        retval = HttpValueProviderConfig.builder()
+        String jsonPath = getJsonPath(property, propertyReference, data);
+        HttpValueProviderConfig.Builder configBuilder = HttpValueProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(path)
-                .headers(headers)
-                .build();
+                .headers(headers);
+        if (!jsonPath.isEmpty()) {
+            configBuilder.query(jsonPath);
+        }
+        retval = configBuilder.build();
 
         return retval;
     }
 
 
-    private static boolean valueProviderChanged(HttpValueProviderConfig config, SubmodelElementCollection property, String baseUrl, String baseContentType) {
+    private static boolean valueProviderChanged(HttpValueProviderConfig config, SubmodelElementCollection property, String baseUrl, RelationData data, Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
 
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String format = Util.getFormatFromContentType(Util.getContentType(baseContentType, forms));
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
         if (!config.getFormat().equals(format)) {
             return true;
         }
@@ -460,6 +483,8 @@ public class HttpHelper {
 
     private static boolean isObservable(SubmodelElementCollection property) {
         boolean retval = false;
+        // only available in the root object
+        // TODO: check semanticIds
         Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
         if (element.isPresent() && (element.get() instanceof Property prop)) {
             String obsText = prop.getValue();
@@ -481,4 +506,44 @@ public class HttpHelper {
         return retval;
     }
 
+
+    private static boolean isType(SubmodelElementCollection property) {
+        boolean retval = false;
+        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_TYPE.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            String typeText = prop.getValue();
+            retval = Constants.AID_TYPE_OBJECT.equalsIgnoreCase(typeText);
+        }
+        return retval;
+    }
+
+
+    private static String getJsonPath(SubmodelElementCollection property, Reference propertyReference, RelationData data) throws PersistenceException, ResourceNotFoundException {
+        List<String> pathList = new ArrayList<>();
+        boolean ende = false;
+        pathList.add(Util.getKey(property));
+        Reference current = propertyReference;
+        while (!ende) {
+            ende = true;
+            Reference parent = ReferenceHelper.getParent(current);
+            if (parent != null) {
+                Reference grandParent = ReferenceHelper.getParent(parent);
+                if (grandParent != null) {
+                    if (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject) {
+                        if (!Util.isInteractionMetadata(grandParentObject)) {
+                            pathList.add(Util.getKey(grandParentObject));
+                            current = grandParent;
+                            ende = false;
+                        }
+                    }
+                }
+            }
+        }
+        // reverse the order and remove the top level object
+        if (!pathList.isEmpty()) {
+            Collections.reverse(pathList);
+            pathList.remove(0);
+        }
+        return Util.createJsonPath(pathList);
+    }
 }

@@ -22,10 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -47,12 +50,38 @@ public class Util {
      * Extracts the Forms property from the given SubmodelElementCollection.
      *
      * @param property The list of properties.
+     * @param propertyReference The refence to the property.
+     * @param data The relation data.
      * @return The Forms property.
+     * @throws PersistenceException if storage error occurs
+     * @throws ResourceNotFoundException if the resource dcesn't exist.
      */
-    public static SubmodelElementCollection getPropertyForms(SubmodelElementCollection property) {
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
+    public static SubmodelElementCollection getPropertyForms(SubmodelElementCollection property, Reference propertyReference, RelationData data)
+            throws PersistenceException, ResourceNotFoundException {
+        // search root object
+        SubmodelElementCollection current = property;
+        Reference currentReference = propertyReference;
+        while (semanticIdEquals(current, Constants.AID_PROPERTY_NESTED_SEMANTIC_ID)) {
+            Reference grandParent = getGrandParent(currentReference);
+            if ((grandParent != null)
+                    && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)) {
+                current = grandParentObject;
+                currentReference = grandParent;
+            }
+            else {
+                throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
+            }
+        }
+
+        Optional<SubmodelElement> element;
+        if (semanticIdEquals(current, Constants.AID_PROPERTY_ROOT_SEMANTIC_ID)) {
+            element = current.getValue().stream().filter(e -> Constants.AID_PROPERTY_FORMS.equals(e.getIdShort())).findFirst();
+            if (element.isEmpty()) {
+                throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
+            }
+        }
+        else {
+            throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
         }
         return (SubmodelElementCollection) element.get();
     }
@@ -220,5 +249,87 @@ public class Util {
     public static boolean hasSubscriptionProvider(Reference reference, AssetConnectionManager assetConnectionManager) {
         return assetConnectionManager.getConnections().stream()
                 .anyMatch(x -> ReferenceHelper.containsSameReference(((AssetConnectionConfig) x.asConfig()).getSubscriptionProviders(), reference));
+    }
+
+
+    /**
+     * Creates the JsonPath from the given list of keys.
+     *
+     * @param pathList The list of keys.
+     * @return The Jsonpath.
+     */
+    public static String createJsonPath(List<String> pathList) {
+        if ((pathList == null) || pathList.isEmpty()) {
+            return "";
+        }
+        else {
+            StringBuilder path = new StringBuilder("$");
+            for (String s: pathList) {
+                path.append(".");
+                path.append(s);
+            }
+            return path.toString();
+        }
+    }
+
+
+    /**
+     * Checks if the given object is the InteractionMetadata or not.
+     *
+     * @param object The object to check.
+     * @return True if it's the InteractionMetadata object, false if not.
+     */
+    public static boolean isInteractionMetadata(SubmodelElementCollection object) {
+        //if (object.getSemanticId() != null) {
+        return Objects.equals(ReferenceBuilder.global(Constants.AID_INTERACTION_METADATA_SEMANTIC_ID), object.getSemanticId());
+        //}
+    }
+
+
+    /**
+     * Gets the Key for the given object.
+     *
+     * @param object The desired object.
+     * @return The key for the object.
+     */
+    public static String getKey(SubmodelElementCollection object) {
+        String retval = object.getIdShort();
+        Optional<SubmodelElement> element = object.getValue().stream().filter(e -> Constants.AID_PROPERTY_KEY.equals(e.getIdShort())).findFirst();
+        if (element.isPresent() && (element.get() instanceof Property prop)) {
+            retval = prop.getValue();
+        }
+        return retval;
+    }
+
+
+    /**
+     * Gets the grandparent of the given object.
+     *
+     * @param reference The reference of the desired object.
+     * @return The refence to the grandparent, null if not available.
+     */
+    public static Reference getGrandParent(Reference reference) {
+        Reference parent = ReferenceHelper.getParent(reference);
+        if (parent != null) {
+            return ReferenceHelper.getParent(parent);
+        }
+        return null;
+    }
+
+
+    /**
+     * Checks if the SemanticId of the given object is the same as the given SemanticId.
+     *
+     * @param object The object whose reference is to be compared.
+     * @param semanticId The SemanticId to compare.
+     * @return True if it's equal, false if not.
+     */
+    public static boolean semanticIdEquals(HasSemantics object, Reference semanticId) {
+        if (object != null) {
+            return Objects.equals(semanticId, object.getSemanticId());
+        }
+        else {
+            return false;
+        }
     }
 }

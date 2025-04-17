@@ -193,11 +193,12 @@ public class MqttHelper {
     }
 
 
-    private static MqttSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, String baseContentType) {
+    private static MqttSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, RelationData data, Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
         MqttSubscriptionProviderConfig retval = null;
 
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String contentType = Util.getContentType(baseContentType, forms);
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String contentType = Util.getContentType(data.getContentType(), forms);
 
         String href = Util.getFormsHref(forms);
         LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
@@ -210,9 +211,10 @@ public class MqttHelper {
     }
 
 
-    private static boolean subscriptionProviderChanged(MqttSubscriptionProviderConfig config, SubmodelElementCollection property, String baseContentType) {
-        SubmodelElementCollection forms = Util.getPropertyForms(property);
-        String format = Util.getFormatFromContentType(Util.getContentType(baseContentType, forms));
+    private static boolean subscriptionProviderChanged(MqttSubscriptionProviderConfig config, SubmodelElementCollection property, RelationData data, Reference propertyReference)
+            throws PersistenceException, ResourceNotFoundException {
+        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+        String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
         if (!config.getFormat().equals(format)) {
             return true;
         }
@@ -227,7 +229,7 @@ public class MqttHelper {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
                 LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
-                subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
+                subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
             }
         }
     }
@@ -242,13 +244,13 @@ public class MqttHelper {
                 if (currentSubscriptions.containsKey(r.getSecond())) {
                     // compare provider data
                     MqttSubscriptionProviderConfig config = currentSubscriptions.get(r.getSecond());
-                    if (subscriptionProviderChanged(config, property, data.getContentType())) {
+                    if (subscriptionProviderChanged(config, property, data, r.getFirst())) {
                         mac.unregisterSubscriptionProvider(r.getSecond());
-                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
+                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
                     }
                 }
                 else if (!Util.hasSubscriptionProvider(r.getSecond(), assetConnectionManager)) {
-                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data.getContentType()));
+                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
                 }
             }
         }
