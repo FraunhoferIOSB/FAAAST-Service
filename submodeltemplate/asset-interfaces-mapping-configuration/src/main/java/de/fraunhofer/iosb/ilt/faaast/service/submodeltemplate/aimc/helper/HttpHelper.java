@@ -528,14 +528,12 @@ public class HttpHelper {
             Reference parent = ReferenceHelper.getParent(current);
             if (parent != null) {
                 Reference grandParent = ReferenceHelper.getParent(parent);
-                if (grandParent != null) {
-                    if (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject) {
-                        if (!Util.isInteractionMetadata(grandParentObject)) {
-                            pathList.add(Util.getKey(grandParentObject));
-                            current = grandParent;
-                            ende = false;
-                        }
-                    }
+                if ((grandParent != null)
+                        && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)
+                        && (!Util.isInteractionMetadata(grandParentObject))) {
+                    pathList.add(Util.getKey(grandParentObject));
+                    current = grandParent;
+                    ende = false;
                 }
             }
         }
