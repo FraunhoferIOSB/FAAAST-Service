@@ -82,7 +82,7 @@
         <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.fileupload.version>1.5</commons.fileupload.version>
-        <commons.io.version>2.18.0</commons.io.version>
+        <commons.io.version>2.19.0</commons.io.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
@@ -90,7 +90,7 @@
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>3.19.3</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
-        <guava.version>33.4.7-jre</guava.version>
+        <guava.version>33.4.8-jre</guava.version>
         <jackson.databind.version>2.18.3</jackson.databind.version>
         <jackson.version>2.18.3</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
@@ -121,15 +121,15 @@
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>12.1.1</maven.plugin.owasp.version>
-        <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
+        <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>5.2.4-127</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>5.3.0-155</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.44.4</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.3</maven.plugin.surefire.version>
-        <milo.version>0.6.15</milo.version>
+        <milo.version>0.6.16</milo.version>
         <mockito.version>5.17.0</mockito.version>
         <mongodb.version>5.4.0</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
@@ -138,12 +138,12 @@
         <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
-        <picocli.version>4.7.6</picocli.version>
+        <picocli.version>4.7.7</picocli.version>
         <poi.ooxml.version>5.4.1</poi.ooxml.version>
         <proguard.core.version>9.1.10</proguard.core.version>
         <proguard.version>7.7.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.2.8-159</prosys.sdk.version>
+        <prosys.sdk.version>5.3.0-181</prosys.sdk.version>
         <protobuf.version>4.30.2</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
