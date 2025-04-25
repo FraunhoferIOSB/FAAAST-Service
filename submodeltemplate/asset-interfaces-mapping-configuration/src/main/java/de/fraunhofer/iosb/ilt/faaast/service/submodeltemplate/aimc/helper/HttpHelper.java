@@ -34,7 +34,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -346,7 +345,7 @@ public class HttpHelper {
         String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
         LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", path, contentType);
-        String jsonPath = getJsonPath(property, propertyReference, data);
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
         HttpSubscriptionProviderConfig.Builder configBuilder = HttpSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(path)
@@ -376,7 +375,7 @@ public class HttpHelper {
             return true;
         }
 
-        String jsonPath = getJsonPath(property, propertyReference, data);
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
         if (!jsonPath.equals(config.getQuery())) {
             return true;
         }
@@ -395,7 +394,7 @@ public class HttpHelper {
         String path = getPath(baseUrl, forms);
         Map<String, String> headers = getHeaders(forms);
         LOGGER.debug("createValueProvider: href: {}; contentType: {}", path, contentType);
-        String jsonPath = getJsonPath(property, propertyReference, data);
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
         HttpValueProviderConfig.Builder configBuilder = HttpValueProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
                 .path(path)
@@ -423,7 +422,7 @@ public class HttpHelper {
             return true;
         }
 
-        String jsonPath = getJsonPath(property, propertyReference, data);
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
         if (!jsonPath.equals(config.getQuery())) {
             return true;
         }
@@ -525,31 +524,4 @@ public class HttpHelper {
     //    return retval;
     //}
 
-
-    private static String getJsonPath(SubmodelElementCollection property, Reference propertyReference, RelationData data) throws PersistenceException, ResourceNotFoundException {
-        List<String> pathList = new ArrayList<>();
-        boolean ende = false;
-        pathList.add(Util.getKey(property));
-        Reference current = propertyReference;
-        while (!ende) {
-            ende = true;
-            Reference parent = ReferenceHelper.getParent(current);
-            if (parent != null) {
-                Reference grandParent = ReferenceHelper.getParent(parent);
-                if ((grandParent != null)
-                        && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)
-                        && (!Util.isInteractionMetadata(grandParentObject))) {
-                    pathList.add(Util.getKey(grandParentObject));
-                    current = grandParent;
-                    ende = false;
-                }
-            }
-        }
-        // reverse the order and remove the top level object
-        if (!pathList.isEmpty()) {
-            Collections.reverse(pathList);
-            pathList.remove(0);
-        }
-        return Util.createJsonPath(pathList);
-    }
 }

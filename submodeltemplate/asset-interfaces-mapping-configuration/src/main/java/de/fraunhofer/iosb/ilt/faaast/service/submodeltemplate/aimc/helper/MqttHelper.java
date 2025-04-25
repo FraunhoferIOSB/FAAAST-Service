@@ -195,19 +195,23 @@ public class MqttHelper {
 
     private static MqttSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, RelationData data, Reference propertyReference)
             throws PersistenceException, ResourceNotFoundException {
-        MqttSubscriptionProviderConfig retval = null;
+        MqttSubscriptionProviderConfig retval;
 
         SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
         String contentType = Util.getContentType(data.getContentType(), forms);
 
         String href = Util.getFormsHref(forms);
         LOGGER.debug("createSubscriptionProvider: href: {}; contentType: {}", href, contentType);
-        retval = MqttSubscriptionProviderConfig.builder()
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
+        MqttSubscriptionProviderConfig.Builder configBuilder = MqttSubscriptionProviderConfig.builder()
                 .format(Util.getFormatFromContentType(contentType))
-                .topic(href)
-                .build();
-
+                .topic(href);
+        if (!jsonPath.isEmpty()) {
+            configBuilder.query(jsonPath);
+        }
+        retval = configBuilder.build();
         return retval;
+
     }
 
 
@@ -216,6 +220,11 @@ public class MqttHelper {
         SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
         String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
         if (!config.getFormat().equals(format)) {
+            return true;
+        }
+
+        String jsonPath = Util.getJsonPath(property, propertyReference, data);
+        if (!jsonPath.equals(config.getQuery())) {
             return true;
         }
 

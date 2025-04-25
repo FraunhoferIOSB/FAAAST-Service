@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -331,5 +332,43 @@ public class Util {
         else {
             return false;
         }
+    }
+
+
+    /**
+     * Gets the JSON query path for the specified property.
+     *
+     * @param property The desired property.
+     * @param propertyReference The reference for the given property.
+     * @param data The relation data.
+     * @return The JSON query path.
+     * @throws PersistenceException if storage error occurs
+     * @throws ResourceNotFoundException if the resource dcesn't exist.
+     */
+    public static String getJsonPath(SubmodelElementCollection property, Reference propertyReference, RelationData data) throws PersistenceException, ResourceNotFoundException {
+        List<String> pathList = new ArrayList<>();
+        boolean ende = false;
+        pathList.add(Util.getKey(property));
+        Reference current = propertyReference;
+        while (!ende) {
+            ende = true;
+            Reference parent = ReferenceHelper.getParent(current);
+            if (parent != null) {
+                Reference grandParent = ReferenceHelper.getParent(parent);
+                if ((grandParent != null)
+                        && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)
+                        && (!Util.isInteractionMetadata(grandParentObject))) {
+                    pathList.add(Util.getKey(grandParentObject));
+                    current = grandParent;
+                    ende = false;
+                }
+            }
+        }
+        // reverse the order and remove the top level object
+        if (!pathList.isEmpty()) {
+            Collections.reverse(pathList);
+            pathList.remove(0);
+        }
+        return Util.createJsonPath(pathList);
     }
 }
