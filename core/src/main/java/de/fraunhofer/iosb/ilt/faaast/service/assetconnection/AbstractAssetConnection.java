@@ -18,10 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractAssetConnection.class);
+
     protected volatile boolean connected;
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
@@ -49,9 +53,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected ServiceContext serviceContext;
     protected final Map<Reference, S> subscriptionProviders;
     protected final Map<Reference, V> valueProviders;
+    protected volatile boolean active;
 
     protected AbstractAssetConnection() {
         connected = false;
+        active = false;
         valueProviders = new HashMap<>();
         operationProviders = new HashMap<>();
         subscriptionProviders = new HashMap<>();
@@ -244,7 +250,36 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     @Override
     public void unregisterSubscriptionProvider(Reference reference) {
+        if (ReferenceHelper.containsSameReference(subscriptionProviders, reference)) {
+            var s = ReferenceHelper.getValueBySameReference(subscriptionProviders, reference);
+            try {
+                if (s != null) {
+                    s.unsubscribe();
+                }
+            }
+            catch (AssetConnectionException ex) {
+                LOGGER.error("unregisterSubscriptionProvider error in unsubscribe");
+            }
+        }
         this.subscriptionProviders.remove(reference);
     }
 
+
+    @Override
+    public void stop() {
+        try {
+            disconnect();
+            active = false;
+        }
+        catch (AssetConnectionException ex) {
+            LOGGER.error("stop: error in disconnect", ex);
+        }
+        active = false;
+    }
+
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
 }
