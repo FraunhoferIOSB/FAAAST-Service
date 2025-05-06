@@ -140,7 +140,7 @@ public class MqttHelper {
         processRelations(data, subscriptionProviders);
         List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
         for (Reference r: doubleList) {
-            LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            LOGGER.atWarn().log("addProvider: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
             subscriptionProviders.remove(r);
         }
     }

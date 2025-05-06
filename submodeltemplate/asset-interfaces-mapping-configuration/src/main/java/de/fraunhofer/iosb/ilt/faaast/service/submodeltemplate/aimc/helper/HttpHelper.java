@@ -123,7 +123,7 @@ public class HttpHelper {
                                           InterfaceDataHttp interfaceData)
             throws IllegalArgumentException, ResourceNotFoundException, MalformedURLException, AssetConnectionException, ConfigurationException, URISyntaxException,
             PersistenceException {
-        LOGGER.debug("processInterface: add {} valueProviders; {} subscriptionProviders", valueProviders.size(), subscriptionProviders.size());
+        LOGGER.debug("registerProviders: add {} valueProviders; {} subscriptionProviders", valueProviders.size(), subscriptionProviders.size());
         HttpAssetConnection assetConn = getAssetConnection(assetConnectionManager, base);
         if (assetConn == null) {
             HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
@@ -175,12 +175,12 @@ public class HttpHelper {
         // check if provider already exist and remove them if necessary
         List<Reference> doubleList = valueProviders.keySet().stream().filter(k -> Util.hasValueProvider(k, assetConnectionManager)).toList();
         for (Reference r: doubleList) {
-            LOGGER.atWarn().log("processInterface: ValueProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            LOGGER.atWarn().log("addProvider: ValueProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
             valueProviders.remove(r);
         }
         doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
         for (Reference r: doubleList) {
-            LOGGER.atWarn().log("processInterface: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+            LOGGER.atWarn().log("addProvider: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
             subscriptionProviders.remove(r);
         }
     }
@@ -221,7 +221,7 @@ public class HttpHelper {
             Reference ref = valueIter.next();
             if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
                     || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
-                LOGGER.atTrace().log("updateAssetConnections: unregisterValueProvider: {}", AasUtils.asString(ref));
+                LOGGER.atTrace().log("checkRemovedProviders: unregisterValueProvider: {}", AasUtils.asString(ref));
                 hac.unregisterValueProvider(ref);
                 hac.asConfig().getValueProviders().remove(ref);
                 valueIter.remove();
@@ -231,7 +231,7 @@ public class HttpHelper {
             Reference ref = subscriptionIter.next();
             if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
                     || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
-                LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
+                LOGGER.atTrace().log("checkRemovedProviders: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
                 hac.unregisterSubscriptionProvider(ref);
                 hac.asConfig().getSubscriptionProviders().remove(ref);
                 subscriptionIter.remove();
@@ -261,7 +261,7 @@ public class HttpHelper {
             }
         }
         else {
-            LOGGER.debug("updateAssetConnections: AssetConnection for old URL '{}' not found", data.getInterfaceData().getBaseUrl());
+            LOGGER.debug("deleteOldProviders: AssetConnection for old URL '{}' not found", data.getInterfaceData().getBaseUrl());
         }
     }
 
@@ -272,15 +272,6 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                //if (isType(property)) {
-                //    // the second element must be a SubmodelElementCollection
-                //    if (EnvironmentHelper.resolve(r.getSecond(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection propertySecond) {
-                //        // TODO
-                //    }
-                //    else {
-                //        LOGGER.atWarn().log("processRelations: invalid configuration: {} must be a SubmodelElementCollection", ReferenceHelper.asString(r.getSecond()));
-                //    }
-                //}
                 if (isObservable(property)) {
                     LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
                     subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, base, data, r.getFirst()));
@@ -492,8 +483,7 @@ public class HttpHelper {
     private static boolean isObservable(SubmodelElementCollection property) {
         boolean retval = false;
         // only available in the root object
-        // TODO: check semanticIds
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_OBSERVABLE.equals(e.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
         if (element.isPresent() && (element.get() instanceof Property prop)) {
             String obsText = prop.getValue();
             retval = Boolean.parseBoolean(obsText);

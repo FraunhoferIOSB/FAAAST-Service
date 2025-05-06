@@ -62,7 +62,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private AimcSubmodelTemplateProcessorConfig config;
     private ServiceContext serviceContext;
     private Submodel aimcSubmodel;
-    private Map<Reference, InterfaceData> providerData;
+    private final Map<Reference, InterfaceData> providerData;
 
     public AimcSubmodelTemplateProcessor() {
         providerData = new HashMap<>();

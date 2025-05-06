@@ -14,10 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-
-
 /**
  * Constants related to SMT Asset Interfaces Mapping Configuration.
  */
@@ -49,8 +45,9 @@ public class Constants {
     public static final String AID_SECURITY_NOSEC = "nosec_sc";
     public static final String AID_SECURITY_BASIC = "basic_sc";
     public static final String AID_TYPE_OBJECT = "object";
-    public static final Reference AID_PROPERTY_ROOT_SEMANTIC_ID = ReferenceBuilder.global("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition");
-    public static final Reference AID_PROPERTY_NESTED_SEMANTIC_ID = ReferenceBuilder.global("https://www.w3.org/2019/wot/json-schema#propertyName");
+    public static final String AID_PROPERTY_ROOT_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition";
+    public static final String AID_PROPERTY_NESTED_SEMANTIC_ID = "https://www.w3.org/2019/wot/json-schema#propertyName";
+    public static final String AID_PROPERTY_OBSERVABLE_SEMANTIC_ID = "https://www.w3.org/2019/wot/td#isObservable";
 
     private Constants() {}
 }

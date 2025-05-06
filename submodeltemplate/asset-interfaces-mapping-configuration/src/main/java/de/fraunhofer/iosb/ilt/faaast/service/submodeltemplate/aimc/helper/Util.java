@@ -281,9 +281,7 @@ public class Util {
      * @return True if it's the InteractionMetadata object, false if not.
      */
     public static boolean isInteractionMetadata(SubmodelElementCollection object) {
-        //if (object.getSemanticId() != null) {
         return Objects.equals(ReferenceBuilder.global(Constants.AID_INTERACTION_METADATA_SEMANTIC_ID), object.getSemanticId());
-        //}
     }
 
 
@@ -320,14 +318,16 @@ public class Util {
 
     /**
      * Checks if the SemanticId of the given object is the same as the given SemanticId.
+     * As GlobalReference and ConceptDescription is possible, we only compare the key value.
      *
      * @param object The object whose reference is to be compared.
-     * @param semanticId The SemanticId to compare.
+     * @param semanticId The SemanticId String to compare. Must not be null.
      * @return True if it's equal, false if not.
      */
-    public static boolean semanticIdEquals(HasSemantics object, Reference semanticId) {
-        if (object != null) {
-            return Objects.equals(semanticId, object.getSemanticId());
+    public static boolean semanticIdEquals(HasSemantics object, String semanticId) {
+        if ((object != null) && (object.getSemanticId() != null)) {
+            Reference ref = object.getSemanticId();
+            return (ref.getKeys().size() == 1) && semanticId.equals(ref.getKeys().get(0).getValue());
         }
         else {
             return false;
