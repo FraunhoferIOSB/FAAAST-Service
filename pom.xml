@@ -132,7 +132,7 @@
         <mockito.version>5.17.0</mockito.version>
         <mongodb.version>5.4.0</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.2.0.Final</netty.version>
+        <netty.version>4.2.1.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4.4</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
