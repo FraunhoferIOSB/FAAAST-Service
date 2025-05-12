@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.attributes;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
 /**
- * Enum for global attributes.
+ * Enum for access types.
  */
-public enum GlobalAttributeType {
-    LOCALNOW,
-    UTCNOW,
-    CLIENTNOW,
-    ANONYMOUS
+public enum AccessType {
+    ALLOW,
+    DISABLED
 }

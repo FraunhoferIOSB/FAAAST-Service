@@ -12,11 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.objects;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
-/**
- * Interface for access objects.
- */
-public interface AccessObject {
-    // Common methods or marker interface
+public class DefACL {
+    private String name;
+    private ACL acl;
+
+    public void setName(String acl1) {}
+
+
+    public void setAcl(ACL acl) {}
+    // getters/setters
 }

@@ -12,13 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.objects;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
 /**
- * Object for referables.
+ * Enum for rights.
  */
-public class ReferableObject implements AccessObject {
-    private String referableLiteral;
-
-    // Constructors, getters, and setters
+public enum Right {
+    CREATE,
+    READ,
+    UPDATE,
+    DELETE,
+    EXECUTE,
+    VIEW,
+    ALL,
+    TREE
 }

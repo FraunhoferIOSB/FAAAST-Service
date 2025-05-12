@@ -12,17 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.utils;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+public class AllAccessPermissionRulesRoot {
+    @JsonProperty("AllAccessPermissionRules")
+    private AllAccessPermissionRules allAccessPermissionRules;
 
-/**
- * Context for the evaluation.
- */
-public class EvaluationContext {
-    private Map<String, Object> variables;
-    private Map<String, Object> attributes;
+    public AllAccessPermissionRules getAllAccessPermissionRules() {
+        return allAccessPermissionRules;
+    }
 
-    // Methods to get and set variables and attributes
+    public void setAllAccessPermissionRules(AllAccessPermissionRules allAccessPermissionRules) {
+        this.allAccessPermissionRules = allAccessPermissionRules;
+    }
 }

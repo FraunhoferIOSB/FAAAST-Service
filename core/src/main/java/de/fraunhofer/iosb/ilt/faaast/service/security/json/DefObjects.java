@@ -12,17 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.objects;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
 import java.util.List;
 
 
-/**
- * Group of objects.
- */
-public class ObjectGroup implements AccessObject {
+public class DefObjects {
     private String name;
-    private List<AccessObject> objects;
+    private List<Objects> objects;
 
-    // Constructors, getters, and setters
+    public void setName(String properties) {}
+
+
+    public void setObjects(List<Objects> list) {}
+    // getters/setters
 }

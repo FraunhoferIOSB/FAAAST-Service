@@ -12,27 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.operands;
+package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
-import de.fraunhofer.iosb.ilt.faaast.service.security.utils.EvaluationContext;
-
-
-/**
- * Operand for strings.
- */
-public class StringOperand implements Operand {
-    private String value;
-
-    public StringOperand(String value) {
-        this.value = value;
-    }
+import java.util.Map;
 
 
-    @Override
-    public Object getValue(EvaluationContext context) {
-        // TODO Retrieve value based on context
-        return value;
-    }
+public class DefFormula {
+    private String name;
+    private Map<String, Object> formula;
 
-    // Constructors, getters, and setters
+    public void setName(String allowSubjectGroup1) {}
+
+
+    public void setFormula(Map<String, Object> formulaExpression) {}
+    // getters/setters
 }
