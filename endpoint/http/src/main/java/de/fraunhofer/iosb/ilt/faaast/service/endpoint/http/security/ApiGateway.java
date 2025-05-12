@@ -25,6 +25,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRulesRoot;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,8 +39,10 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 
@@ -47,12 +50,14 @@ import org.slf4j.LoggerFactory;
  * An ApiGateway that verifies JWT tokens against the provided jwkProvider.
  * Initially all ACL rules from the folder are read and stored. After that,
  * the folder is monitored for deletion or addition of new rules.
+ * Contains simple Auth rule checks.
  */
 public class ApiGateway {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
     private String jwkProvider;
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
+    private final String apiPrefix = "/api/v3.0/";
 
     public ApiGateway(String jwkProvider, String aclFolder) {
         this.jwkProvider = jwkProvider;
@@ -65,10 +70,10 @@ public class ApiGateway {
      * Verifies the token by decoding it.
      *
      * @param token the JWT token
-     * @param path the path
+     * @param request the request parameters
      * @return true if the token is valid
      */
-    public boolean isAuthorized(String token, String path) {
+    public boolean isAuthorized(String token, HttpServletRequest request) {
         if (Objects.isNull(token)) {
             return false;
         }
@@ -87,16 +92,66 @@ public class ApiGateway {
         catch (JwkException e) {
             return false;
         }
-        if (!verifiedClaims(jwt.getClaims(), path)) {
+        if (!verifiedClaims(jwt.getClaims(), request)) {
             return false;
         }
         return true;
     }
 
 
-    private boolean verifiedClaims(Map<String, Claim> claims, String path) {
-        //@TODO send to AuthServer to compare with acl
-        return true;
+    private boolean verifiedClaims(Map<String, Claim> claims, HttpServletRequest request) {
+        Claim client = claims.get("client_id");
+        String clientId = client.isNull() ? "" : client.asString();
+        String requestPath = request.getRequestURI();
+        String path = requestPath.contains(apiPrefix) ? requestPath.substring(10) : requestPath;
+        String method = request.getMethod();
+        List<AllAccessPermissionRulesRoot> relevantRules = this.aclList.values().stream()
+                .filter(a -> a.getAllAccessPermissionRules()
+                        .getRules().stream()
+                        .anyMatch(r -> r.getACL() != null
+                                && r.getACL().getATTRIBUTES() != null
+                                && r.getACL().getRIGHTS() != null
+                                && r.getOBJECTS() != null
+                                && r.getOBJECTS().stream().anyMatch(attr -> {
+                                    if (attr.getROUTE() != null) {
+                                        return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
+                                    }
+                                    else if (attr.getIDENTIFIABLE() != null) {
+                                        return checkIdentifiable(path, attr.getIDENTIFIABLE());
+                                    }
+                                    else {
+                                        return false;
+                                    }
+                                })
+                                && "ALLOW".equals(r.getACL().getACCESS())
+                                && r.getACL().getRIGHTS().contains(getRequiredRight(method))
+                                && r.getACL().getATTRIBUTES().stream()
+                                        .anyMatch(attr -> (attr.getCLAIM() != null && attr.getCLAIM().equals(clientId))
+                                                || (attr.getGLOBAL() != null && attr.getGLOBAL().equals("ANONYMOUS")))))
+                .collect(Collectors.toList());
+        return !relevantRules.isEmpty();
+    }
+
+
+    private String getRequiredRight(String method) {
+        switch (method) {
+            case "GET":
+                return "READ";
+            case "POST":
+                return "WRITE";
+            case "PUT":
+                return "UPDATE";
+            case "DELETE":
+                return "DELETE";
+            default:
+                throw new IllegalArgumentException("Unsupported method: " + method);
+        }
+    }
+
+
+    private boolean checkIdentifiable(String path, String identifiable) {
+        //TODO
+        return false;
     }
 
 

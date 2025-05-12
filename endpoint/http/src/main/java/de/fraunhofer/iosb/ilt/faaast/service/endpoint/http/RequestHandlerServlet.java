@@ -77,7 +77,7 @@ public class RequestHandlerServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (Objects.nonNull(apiGateway)) {
-            if (!apiGateway.isAuthorized(request.getHeader("Authorization"), request.toString())) {
+            if (!apiGateway.isAuthorized(request.getHeader("Authorization"), request)) {
                 doThrow(new UnauthorizedException(
                         String.format("User not authorized '%s'", request.getRequestURI())));
             }

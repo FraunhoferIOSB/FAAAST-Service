@@ -33,7 +33,6 @@ public class Rule {
     @JsonProperty("FILTER")
     private Filter FILTER;
 
-    // The missing field that often appears in your JSON:
     @JsonProperty("FRAGMENT")
     private String FRAGMENT;
 
