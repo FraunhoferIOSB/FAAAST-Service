@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 
@@ -40,29 +39,36 @@ public class AllAccessPermissionRules {
         return DEFACLS;
     }
 
+
     public void setDEFACLS(List<DefACL> DEFACLS) {
         this.DEFACLS = DEFACLS;
     }
+
 
     public List<DefObjects> getDEFOBJECTS() {
         return DEFOBJECTS;
     }
 
+
     public void setDEFOBJECTS(List<DefObjects> DEFOBJECTS) {
         this.DEFOBJECTS = DEFOBJECTS;
     }
+
 
     public List<DefFormula> getDEFFORMULAS() {
         return DEFFORMULAS;
     }
 
+
     public void setDEFFORMULAS(List<DefFormula> DEFFORMULAS) {
         this.DEFFORMULAS = DEFFORMULAS;
     }
 
+
     public List<Rule> getRules() {
         return rules;
     }
+
 
     public void setRules(List<Rule> rules) {
         this.rules = rules;

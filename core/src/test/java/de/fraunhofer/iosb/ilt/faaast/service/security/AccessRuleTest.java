@@ -22,10 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRu
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Rule;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +38,7 @@ public class AccessRuleTest {
     private String rule2 = "{\"AllAccessPermissionRules\":{\"rules\":[{\"ACL\":{\"ATTRIBUTES\":[{\"GLOBAL\":\"ANONYMOUS\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"ROUTE\":\"*\"}],\"FORMULA\":{\"$or\":[{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"Nameplate\"}]},{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"TechnicalData\"}]}]}}]}}";
 
     private String ruleWithFilter = "{\"AllAccessPermissionRules\":{\"rules\":[{\"ACL\":{\"ATTRIBUTES\":[{\"CLAIM\":\"BusinessPartnerNumber\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"DESCRIPTOR\":\"(aasdesc)*\"}],\"FORMULA\":{\"$and\":[{\"$eq\":[{\"$attribute\":{\"CLAIM\":\"BusinessPartnerNumber\"}},{\"$strVal\":\"BPNL00000000000A\"}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"manufacturerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"99991\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$strVal\":\"PUBLIC_READABLE\"}]}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"customerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"ACME001\"}]}]}]},\"FILTER\":{\"FRAGMENT\":\"$aasdesc#assetInformation.specificAssetIds[]\",\"CONDITION\":{\"$or\":[{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"manufacturerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"99991\"}]}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"customerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"ACME001\"}]}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"partInstanceId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$attribute\":{\"CLAIM\":\"BusinessPartnerNumber\"}}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$strVal\":\"PUBLIC_READABLE\"}]}]}}}]}}";
+
     @Test
     public void testAllowAnonymousRead() {
         // Create ACL
@@ -85,6 +84,7 @@ public class AccessRuleTest {
         AllAccessPermissionRulesRoot allRules = mapper.readValue(rule2, AllAccessPermissionRulesRoot.class);
 
     }
+
 
     @Test
     public void testParse3() throws JsonProcessingException {

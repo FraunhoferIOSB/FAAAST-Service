@@ -14,12 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -39,13 +35,16 @@ public class Filter {
         return FRAGMENT;
     }
 
+
     public void setFRAGMENT(String FRAGMENT) {
         this.FRAGMENT = FRAGMENT;
     }
 
+
     public Condition getCONDITION() {
         return CONDITION;
     }
+
 
     public void setCONDITION(Condition CONDITION) {
         this.CONDITION = CONDITION;

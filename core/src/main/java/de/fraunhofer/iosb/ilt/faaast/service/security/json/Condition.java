@@ -14,12 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
-
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * Represents a flexible condition structure that can contain
@@ -37,9 +36,11 @@ public class Condition {
         expression.put(key, value);
     }
 
+
     public Map<String, Object> getExpression() {
         return expression;
     }
+
 
     public void setExpression(Map<String, Object> expression) {
         this.expression = expression;
