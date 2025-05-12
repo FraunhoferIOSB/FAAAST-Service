@@ -23,19 +23,41 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRulesRoot;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * A simple ApiGateway that verifies JWT tokens against the provided jwkProvider.
+ * An ApiGateway that verifies JWT tokens against the provided jwkProvider.
+ * Initially all ACL rules from the folder are read and stored. After that,
+ * the folder is monitored for deletion or addition of new rules.
  */
 public class ApiGateway {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
     private String jwkProvider;
+    private Map<Path, AllAccessPermissionRulesRoot> aclList;
+    private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
-    public ApiGateway(String jwkProvider) {
+    public ApiGateway(String jwkProvider, String aclFolder) {
         this.jwkProvider = jwkProvider;
+        initializeAclList(aclFolder);
+        monitorAclRules(aclFolder);
     }
 
 
@@ -67,13 +89,103 @@ public class ApiGateway {
         }
         if (!verifiedClaims(jwt.getClaims(), path)) {
             return false;
-        } ;
+        }
         return true;
     }
 
 
     private boolean verifiedClaims(Map<String, Claim> claims, String path) {
-        //@TODO send to AuthServer to compare with SMT Security Processor
+        //@TODO send to AuthServer to compare with acl
         return true;
+    }
+
+
+    private void initializeAclList(String aclFolder) {
+        this.aclList = new HashMap<>();
+        File folder = new File(aclFolder);
+        if (!folder.isDirectory()) {
+            LOGGER.error(abortMessage);
+            return;
+        }
+        File[] jsonFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+        ObjectMapper mapper = new ObjectMapper();
+        if (jsonFiles != null) {
+            for (File file: jsonFiles) {
+                Path filePath = file.toPath();
+                String content = null;
+                try {
+                    content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    aclList.put(filePath, mapper.readValue(
+                            content, AllAccessPermissionRulesRoot.class));
+                }
+                catch (IOException e) {
+                    LOGGER.error(abortMessage);
+                }
+            }
+        }
+    }
+
+
+    private void monitorAclRules(String aclFolder) {
+        Path folderToWatch = Paths.get(aclFolder);
+        WatchService watchService = null;
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+            // Register the folder with the WatchService for CREATE and DELETE events
+            folderToWatch.register(
+                    watchService,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE);
+            monitorLoop(watchService, folderToWatch);
+        }
+        catch (IOException e) {
+            LOGGER.error(abortMessage);
+        }
+
+    }
+
+
+    private void monitorLoop(WatchService watchService, Path folderToWatch) {
+        ObjectMapper mapper = new ObjectMapper();
+        Thread monitoringThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                WatchKey watchKey = null;
+                try {
+                    watchKey = watchService.take();
+                }
+                catch (InterruptedException e) {
+                    LOGGER.error(abortMessage);
+                }
+                for (WatchEvent<?> event: watchKey.pollEvents()) {
+                    WatchEvent.Kind<?> kind = event.kind();
+                    Path filePath = (Path) event.context();
+                    Path absolutePath = folderToWatch.resolve(filePath).toAbsolutePath();
+                    // Check if the file is a JSON file
+                    if (filePath.toString().toLowerCase().endsWith(".json")) {
+                        if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                            try {
+                                aclList.put(absolutePath, mapper.readValue(
+                                        new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class));
+                            }
+                            catch (IOException e) {
+                                LOGGER.error(abortMessage);
+                            }
+                            LOGGER.info("Added new ACL rule.");
+                        }
+                        else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                            aclList.remove(absolutePath);
+                            LOGGER.info("Removed ACL rule.");
+                        }
+                    }
+                }
+                // Reset the key to receive further watch events
+                boolean valid = watchKey.reset();
+                if (!valid) {
+                    System.out.println("WatchKey no longer valid; exiting.");
+                    break;
+                }
+            }
+        });
+        monitoringThread.start();
     }
 }

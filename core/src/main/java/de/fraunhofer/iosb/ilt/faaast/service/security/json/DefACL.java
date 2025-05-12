@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 
+/**
+ * Optional DefACL field.
+ */
 public class DefACL {
     private String name;
     private ACL acl;

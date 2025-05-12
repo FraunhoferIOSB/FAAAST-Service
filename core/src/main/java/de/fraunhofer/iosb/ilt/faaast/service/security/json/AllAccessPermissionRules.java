@@ -19,7 +19,7 @@ import java.util.List;
 
 
 /**
- * Describes an access permissiom rule.
+ * Describes all access permissiom rules.
  */
 public class AllAccessPermissionRules {
 

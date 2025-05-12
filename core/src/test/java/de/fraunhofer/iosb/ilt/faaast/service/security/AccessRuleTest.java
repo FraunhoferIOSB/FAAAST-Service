@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.ACL;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRules;
@@ -22,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRu
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Rule;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,13 +36,9 @@ public class AccessRuleTest {
     @Before
     public void init() {}
 
-    private String rule1 = "{\"AllAccessPermissionRules\":{\"rules\":[{\"ACL\":{\"ATTRIBUTES\":[{\"CLAIM\":\"__Albert__Alb\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"ROUTE\":\"*\"}],\"FORMULA\":{\"$boolean\":true}},{\"ACL\":{\"ATTRIBUTES\":[{\"CLAIM\":\"isNotAuthenticated\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"ROUTE\":\"/submodels/*\"},{\"ROUTE\":\"/shells/aHR0cHM6Ly96dmVpLm9yZy9kZW1vL2Fhcy9Db250cm9sQ2FiaW5ldA\"}],\"FORMULA\":{\"$or\":[{\"$and\":[{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"Nameplate\"}]},{\"$starts_with\":[{\"$field\":\"$sme#idShort\"},{\"$strVal\":\"Manufacturer\"}]}]},{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"TechnicalData\"}]}]},\"FRAGMENT\":\"sme#\",\"FILTER\":{\"$or\":[{\"$starts_with\":[{\"$field\":\"$sme#idShort\"},{\"$strVal\":\"Manufacturer\"}]},{\"$starts_with\":[{\"$field\":\"$sme#idShort\"},{\"$strVal\":\"General\"}]}]}}]}}";
-    private String rule2 = "{\"AllAccessPermissionRules\":{\"rules\":[{\"ACL\":{\"ATTRIBUTES\":[{\"GLOBAL\":\"ANONYMOUS\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"ROUTE\":\"*\"}],\"FORMULA\":{\"$or\":[{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"Nameplate\"}]},{\"$eq\":[{\"$field\":\"$sm#idShort\"},{\"$strVal\":\"TechnicalData\"}]}]}}]}}";
-
-    private String ruleWithFilter = "{\"AllAccessPermissionRules\":{\"rules\":[{\"ACL\":{\"ATTRIBUTES\":[{\"CLAIM\":\"BusinessPartnerNumber\"}],\"RIGHTS\":[\"READ\"],\"ACCESS\":\"ALLOW\"},\"OBJECTS\":[{\"DESCRIPTOR\":\"(aasdesc)*\"}],\"FORMULA\":{\"$and\":[{\"$eq\":[{\"$attribute\":{\"CLAIM\":\"BusinessPartnerNumber\"}},{\"$strVal\":\"BPNL00000000000A\"}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"manufacturerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"99991\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$strVal\":\"PUBLIC_READABLE\"}]}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"customerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"ACME001\"}]}]}]},\"FILTER\":{\"FRAGMENT\":\"$aasdesc#assetInformation.specificAssetIds[]\",\"CONDITION\":{\"$or\":[{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"manufacturerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"99991\"}]}]},{\"$match\":[{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"customerPartId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].value\"},{\"$strVal\":\"ACME001\"}]}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].name\"},{\"$strVal\":\"partInstanceId\"}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$attribute\":{\"CLAIM\":\"BusinessPartnerNumber\"}}]},{\"$eq\":[{\"$field\":\"$aasdesc#specificAssetIds[].externalSubjectId\"},{\"$strVal\":\"PUBLIC_READABLE\"}]}]}}}]}}";
 
     @Test
-    public void testAllowAnonymousRead() {
+    public void testAllowAnonymousReadConstruction() {
         // Create ACL
         ACL acl = new ACL();
         Attribute attr = new Attribute();
@@ -72,23 +70,14 @@ public class AccessRuleTest {
 
 
     @Test
-    public void testParse1() throws JsonProcessingException {
+    public void testParse() throws IOException {
+        InputStream inputStream = AccessRuleTest.class.getResourceAsStream("/" + "ACLReadAccessAnonymous.json");
+        if (inputStream == null) {
+            System.out.println("ACL not found in resources!");
+            return;
+        }
         ObjectMapper mapper = new ObjectMapper();
-        AllAccessPermissionRulesRoot allRules = mapper.readValue(rule1, AllAccessPermissionRulesRoot.class);
-    }
-
-
-    @Test
-    public void testParse2() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        AllAccessPermissionRulesRoot allRules = mapper.readValue(rule2, AllAccessPermissionRulesRoot.class);
-
-    }
-
-
-    @Test
-    public void testParse3() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        AllAccessPermissionRulesRoot allRules = mapper.readValue(ruleWithFilter, AllAccessPermissionRulesRoot.class);
+        AllAccessPermissionRulesRoot allRules = mapper.readValue(
+                new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class);
     }
 }

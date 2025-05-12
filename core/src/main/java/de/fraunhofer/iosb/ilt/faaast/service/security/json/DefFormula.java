@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 import java.util.Map;
 
 
+/**
+ * Optional DefFormula field.
+ */
 public class DefFormula {
     private String name;
     private Map<String, Object> formula;
@@ -25,5 +28,4 @@ public class DefFormula {
 
 
     public void setFormula(Map<String, Object> formulaExpression) {}
-    // getters/setters
 }

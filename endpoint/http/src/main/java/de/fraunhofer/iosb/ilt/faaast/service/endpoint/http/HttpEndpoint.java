@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.ApiGateway;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
@@ -76,7 +75,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private Server server;
-    private ApiGateway apiGateway;
 
     @Override
     public HttpEndpointConfig asConfig() {

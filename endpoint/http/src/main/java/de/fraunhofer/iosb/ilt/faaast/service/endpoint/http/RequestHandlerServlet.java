@@ -65,7 +65,7 @@ public class RequestHandlerServlet extends HttpServlet {
         this.requestMappingManager = new RequestMappingManager(serviceContext);
         this.responseMappingManager = new ResponseMappingManager(serviceContext);
         this.serializer = new HttpJsonApiSerializer();
-        this.apiGateway = Objects.nonNull(config.getJwkProvider()) ? new ApiGateway(config.getJwkProvider()) : null;
+        this.apiGateway = Objects.nonNull(config.getJwkProvider()) ? new ApiGateway(config.getJwkProvider(), config.getAclFolder()) : null;
     }
 
 

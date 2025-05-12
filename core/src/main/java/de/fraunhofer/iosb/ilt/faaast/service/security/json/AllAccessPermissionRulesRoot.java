@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+/**
+ * Root collection for all rules.
+ */
 public class AllAccessPermissionRulesRoot {
     @JsonProperty("AllAccessPermissionRules")
     private AllAccessPermissionRules allAccessPermissionRules;
