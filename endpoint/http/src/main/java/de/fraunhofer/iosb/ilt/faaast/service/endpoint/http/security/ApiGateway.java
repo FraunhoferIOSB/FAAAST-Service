@@ -208,11 +208,13 @@ public class ApiGateway {
 
     private void initializeAclList(String aclFolder) {
         this.aclList = new HashMap<>();
-        File folder = new File(aclFolder);
-        if (!folder.isDirectory()) {
+        if (aclFolder == null
+                || aclFolder.trim().isEmpty()
+                || !new File(aclFolder.trim()).isDirectory()) {
             LOGGER.error(abortMessage);
             return;
         }
+        File folder = new File(aclFolder.trim());
         File[] jsonFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
         ObjectMapper mapper = new ObjectMapper();
         if (jsonFiles != null) {
@@ -233,6 +235,12 @@ public class ApiGateway {
 
 
     private void monitorAclRules(String aclFolder) {
+        if (aclFolder == null
+                || aclFolder.trim().isEmpty()
+                || !new File(aclFolder.trim()).isDirectory()) {
+            LOGGER.error(abortMessage);
+            return;
+        }
         Path folderToWatch = Paths.get(aclFolder);
         WatchService watchService = null;
         try {
