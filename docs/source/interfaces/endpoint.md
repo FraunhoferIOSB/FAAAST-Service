@@ -186,6 +186,37 @@ To grant READ access to this client_id, the following Access rule can be used:
 }
 ```
 
+To grant access to specific submodels, FA³ST Service supports Identifiables like `"IDENTIFIABLE": "(Submodel)https://example.com/ids/sm/5120_2111_9032_9005"` or `"IDENTIFIABLE": "(Submodel)*"`.
+Example:
+```
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "GLOBAL": "ANONYMOUS"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "IDENTIFIABLE": "(Submodel)https://example.com/ids/sm/5120_2111_9032_9005"
+          }
+        ],
+        "FORMULA": {        
+            "$boolean": true
+        }
+      }
+    ]
+  }
+}
+```
 
 ### API
 

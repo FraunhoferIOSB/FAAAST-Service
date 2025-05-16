@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+/**
+ * Attributes contain a CLAIM or GLOBAL.
+ */
 public class Attribute {
 
     @JsonProperty("CLAIM")

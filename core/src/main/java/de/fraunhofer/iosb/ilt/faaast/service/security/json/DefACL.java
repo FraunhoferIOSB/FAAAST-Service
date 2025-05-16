@@ -21,9 +21,18 @@ public class DefACL {
     private String name;
     private ACL acl;
 
+    /**
+     * Set the name.
+     *
+     * @param acl1
+     */
     public void setName(String acl1) {}
 
 
+    /**
+     * Set ACL.
+     *
+     * @param acl
+     */
     public void setAcl(ACL acl) {}
-    // getters/setters
 }

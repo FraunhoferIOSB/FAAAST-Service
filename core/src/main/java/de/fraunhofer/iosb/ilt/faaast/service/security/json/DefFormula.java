@@ -24,8 +24,18 @@ public class DefFormula {
     private String name;
     private Map<String, Object> formula;
 
+    /**
+     * Set name.
+     *
+     * @param allowSubjectGroup1
+     */
     public void setName(String allowSubjectGroup1) {}
 
 
+    /**
+     * Set formula.
+     *
+     * @param formulaExpression
+     */
     public void setFormula(Map<String, Object> formulaExpression) {}
 }

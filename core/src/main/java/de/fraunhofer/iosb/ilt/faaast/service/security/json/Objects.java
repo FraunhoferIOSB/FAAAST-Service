@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+/**
+ * Objects can the routes and identifiables.
+ */
 public class Objects {
 
     @JsonProperty("ROUTE")

@@ -31,17 +31,33 @@ public class Condition {
     // (e.g., "$or", "$match", "$eq", "$regex", etc.)
     private Map<String, Object> expression = new HashMap<>();
 
+    /**
+     * Set the expression.
+     *
+     * @param key key like eq
+     * @param value value of claim
+     */
     @JsonAnySetter
     public void setExpression(String key, Object value) {
         expression.put(key, value);
     }
 
 
+    /**
+     * Get the expression.
+     *
+     * @return expression
+     */
     public Map<String, Object> getExpression() {
         return expression;
     }
 
 
+    /**
+     * Set the expression.
+     *
+     * @param expression full expression
+     */
     public void setExpression(Map<String, Object> expression) {
         this.expression = expression;
     }

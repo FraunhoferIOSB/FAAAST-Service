@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.security.json.Rule;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
@@ -110,14 +111,14 @@ public class ApiGateway {
         /**
          * Check all rules that explicitly allows the request.
          * If a rule exists after all filters, true is returned
-         * 
+         *
          * @param claims
          * @param request
          * @return
          */
         private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Claim> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
-            String path = requestPath.contains(apiPrefix) ? requestPath.substring(10) : requestPath;
+            String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(9) : requestPath;
             String method = request.getMethod();
             List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                     .filter(a -> a.getAllAccessPermissionRules()
@@ -201,7 +202,17 @@ public class ApiGateway {
 
 
         private static boolean checkIdentifiable(String path, String identifiable) {
-            //TODO
+            //check submodel path
+            if (!path.startsWith("/submodels")) {
+                return false;
+            }
+            if (identifiable.equals("(Submodel)*")) {
+                return true;
+            }
+            else if (identifiable.startsWith("(Submodel)")) {
+                String id = identifiable.substring(10);
+                return path.contains(EncodingHelper.base64Encode(id));
+            }
             return false;
         }
     }

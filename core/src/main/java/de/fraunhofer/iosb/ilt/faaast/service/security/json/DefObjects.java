@@ -17,13 +17,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.security.json;
 import java.util.List;
 
 
+/**
+ * Reusable DefObjects.
+ */
 public class DefObjects {
     private String name;
     private List<Objects> objects;
 
+    /**
+     * Set name.
+     *
+     * @param properties
+     */
     public void setName(String properties) {}
 
 
+    /**
+     * Set objects.
+     *
+     * @param list
+     */
     public void setObjects(List<Objects> list) {}
-    // getters/setters
 }

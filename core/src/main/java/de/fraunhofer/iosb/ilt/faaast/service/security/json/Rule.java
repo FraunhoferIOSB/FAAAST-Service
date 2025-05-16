@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * Rules contain all other definitions.
+ */
 public class Rule {
 
     @JsonProperty("ACL")
