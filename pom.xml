@@ -62,16 +62,6 @@
         <system>GitHub</system>
         <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
     </issueManagement>
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
     <properties>
         <aas4j.version>1.0.4</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
@@ -108,6 +98,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
+        <maven.plugin.central-publishing.version>0.7.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.14.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.1</maven.plugin.dependency.version>
@@ -118,7 +109,6 @@
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>12.1.1</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
@@ -546,14 +536,12 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${maven.plugin.nexus-staging.version}</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${maven.plugin.central-publishing.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
                         </configuration>
                     </plugin>
                 </plugins>
