@@ -88,7 +88,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.20.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>3.19.4</equalsverifier.version>
+        <equalsverifier.version>4.0</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.4.8-jre</guava.version>
         <jackson.databind.version>2.19.0</jackson.databind.version>
@@ -98,7 +98,7 @@
         <janino.version>3.1.11</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.4.0</jena.version>
-        <jetty.version>12.0.20</jetty.version>
+        <jetty.version>12.0.21</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.2</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -131,9 +131,9 @@
         <maven.plugin.surefire.version>3.5.3</maven.plugin.surefire.version>
         <milo.version>0.6.16</milo.version>
         <mockito.version>5.17.0</mockito.version>
-        <mongodb.version>5.4.0</mongodb.version>
+        <mongodb.version>5.5.0</mongodb.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.2.0.Final</netty.version>
+        <netty.version>4.2.1.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.4.4</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
@@ -144,7 +144,7 @@
         <proguard.version>7.7.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.3.0-181</prosys.sdk.version>
-        <protobuf.version>4.30.2</protobuf.version>
+        <protobuf.version>4.31.0</protobuf.version>
         <rgxgen.version>2.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
