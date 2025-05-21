@@ -28,9 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.Interf
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.InterfaceDataHttp;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.InterfaceDataMqtt;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.MqttHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
@@ -72,8 +71,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     @Override
     public boolean accept(Submodel submodel) {
         return submodel != null
-                && (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())
-                        || Objects.equals(ReferenceBuilder.global(Constants.AID_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId()));
+                && (Util.semanticIdEquals(submodel, Constants.AIMC_SUBMODEL_SEMANTIC_ID))
+                || Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID);
     }
 
 
@@ -84,7 +83,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         boolean retval;
         try {
             // in add we only process AIMC submodel
-            if (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+            if (Util.semanticIdEquals(submodel, Constants.AIMC_SUBMODEL_SEMANTIC_ID)) {
                 LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
                 processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
                 aimcSubmodel = submodel;
@@ -124,7 +123,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
             Submodel updateSubmodel = submodel;
             // we always use AIMC submodel for processSubmodel
-            if (Objects.equals(ReferenceBuilder.global(Constants.AID_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+            if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
                 updateSubmodel = aimcSubmodel;
             }
             processSubmodel(updateSubmodel, assetConnectionManager, ProcessingMode.UPDATE);
@@ -145,7 +144,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         boolean retval;
         try {
             // in delete we only process AIMC submodel
-            if (Objects.equals(ReferenceBuilder.global(Constants.AIMC_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId())) {
+            if (Util.semanticIdEquals(submodel, Constants.AIMC_SUBMODEL_SEMANTIC_ID)) {
                 LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), AasUtils.asString(AasUtils.toReference(submodel)));
                 processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
             }
@@ -187,7 +186,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         Reference interfaceReferenceValue = getInterfaceReference(configuration).getValue();
         Referable referenceElement = EnvironmentHelper.resolve(interfaceReferenceValue, serviceContext.getAASEnvironment());
         if (referenceElement instanceof SubmodelElementCollection assetInterface) {
-            if ((ReferenceBuilder.global(Constants.AID_INTERFACE_SEMANTIC_ID).equals(assetInterface.getSemanticId()))
+            if ((Util.semanticIdEquals(assetInterface, Constants.AID_INTERFACE_SEMANTIC_ID))
                     && (assetInterface.getSupplementalSemanticIds() != null)) {
                 AimcSubmodelTemplateProcessorConfigData configData;
                 if (ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)) {
@@ -203,7 +202,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                     interfaceData = ReferenceHelper.getValueBySameReference(providerData, interfaceReferenceValue);
                 }
 
-                if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP))) {
+                if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)) {
                     // HTTP Interface
                     InterfaceDataHttp http;
                     if (interfaceData != null) {
@@ -220,7 +219,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                     HttpHelper.processInterface(serviceContext, http, assetInterface, relations, assetConnectionManager, mode);
                     providerData.put(interfaceReferenceValue, http);
                 }
-                else if (assetInterface.getSupplementalSemanticIds().contains(ReferenceBuilder.global(Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT))) {
+                else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
                     // MQTT Interface
                     InterfaceDataMqtt mqtt;
                     if (interfaceData != null) {

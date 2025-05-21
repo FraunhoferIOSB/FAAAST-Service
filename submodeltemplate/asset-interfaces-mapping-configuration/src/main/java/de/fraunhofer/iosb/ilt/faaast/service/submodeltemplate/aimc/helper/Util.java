@@ -327,11 +327,31 @@ public class Util {
     public static boolean semanticIdEquals(HasSemantics object, String semanticId) {
         if ((object != null) && (object.getSemanticId() != null)) {
             Reference ref = object.getSemanticId();
-            return (ref.getKeys().size() == 1) && semanticId.equals(ref.getKeys().get(0).getValue());
+            return semanticReferenceEquals(ref, semanticId);
         }
         else {
             return false;
         }
+    }
+
+
+    /**
+     * Checks if the given SemanticId is contained in the SupplementalSemanticIds.
+     * As GlobalReference and ConceptDescription is possible, we only compare the key value.
+     *
+     * @param object The object whose reference is to be compared.
+     * @param semanticId The SemanticId String to compare. Must not be null.
+     * @return True if it's cinatined, false if not.
+     */
+    public static boolean containsSupplementalSemanticId(HasSemantics object, String semanticId) {
+        if ((object != null) && (object.getSupplementalSemanticIds() != null)) {
+            for (Reference ref: object.getSupplementalSemanticIds()) {
+                if (semanticReferenceEquals(ref, semanticId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -370,5 +390,10 @@ public class Util {
             pathList.remove(0);
         }
         return Util.createJsonPath(pathList);
+    }
+
+
+    private static boolean semanticReferenceEquals(Reference ref, String semanticId) {
+        return (ref.getKeys().size() == 1) && semanticId.equals(ref.getKeys().get(0).getValue());
     }
 }
