@@ -31,7 +31,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Opera
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
@@ -89,6 +94,20 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     }
 
 
+    private void handleOperationTimeout(Reference reference, List<OperationVariable> inoutput, OperationHandle operationHandle, RequestExecutionContext context) {
+        handleOperationResult(
+                reference,
+                operationHandle,
+                new DefaultOperationResult.Builder()
+                        .executionState(ExecutionState.TIMEOUT)
+                        .inoutputArguments(inoutput)
+                        .outputArguments(List.of())
+                        .success(false)
+                        .build(),
+                context);
+    }
+
+
     private void handleOperationResult(Reference reference,
                                        OperationHandle operationHandle,
                                        OperationResult operationResult,
@@ -130,7 +149,6 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                        OperationHandle operationHandle,
                                        InvokeOperationAsyncRequest request,
                                        RequestExecutionContext context) {
-
         try {
             context.getPersistence().save(
                     operationHandle,
@@ -155,18 +173,36 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
     protected InvokeOperationAsyncResponse executeOperation(Reference reference, InvokeOperationAsyncRequest request, RequestExecutionContext context) {
         OperationHandle operationHandle = new OperationHandle();
         handleOperationInvoke(reference, operationHandle, request, context);
-
-        // The timeout is ignored, as the server may choose to take it into account or ignore it.
+        CompletableFuture<Void> future = new CompletableFuture<>();
         try {
             context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output, context),
-                    error -> handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error, context));
+                    (output, inoutput) -> {
+                        handleOperationSuccess(reference, operationHandle, inoutput, output, context);
+                        future.complete(null);
+                    },
+                    error -> {
+                        handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, error, context);
+                        future.completeExceptionally(error);
+                    });
         }
         catch (Exception e) {
             handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
         }
+        if (Objects.nonNull(request.getTimeout())) {
+            future.orTimeout(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS)
+                    .exceptionally(e -> {
+                        if (e instanceof TimeoutException) {
+                            handleOperationTimeout(reference, request.getInoutputArguments(), operationHandle, context);
+                        }
+                        else {
+                            handleOperationFailure(reference, request.getInoutputArguments(), operationHandle, e, context);
+                        }
+                        return null;
+                    });
+        }
+
         return InvokeOperationAsyncResponse.builder()
                 .payload(operationHandle)
                 .statusCode(StatusCode.SUCCESS_ACCEPTED)

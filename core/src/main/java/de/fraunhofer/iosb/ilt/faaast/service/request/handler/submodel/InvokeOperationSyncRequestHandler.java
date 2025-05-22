@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -117,7 +118,13 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
         });
         OperationResult result;
         try {
-            OperationVariable[] outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
+            OperationVariable[] outputVariables;
+            if (Objects.nonNull(request.getTimeout())) {
+                outputVariables = future.get(request.getTimeout().getTimeInMillis(Calendar.getInstance()), TimeUnit.MILLISECONDS);
+            }
+            else {
+                outputVariables = future.get();
+            }
             result = new DefaultOperationResult.Builder()
                     .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())

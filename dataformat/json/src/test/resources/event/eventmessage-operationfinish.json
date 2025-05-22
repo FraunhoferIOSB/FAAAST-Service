@@ -15,6 +15,7 @@
                 ],
                 "type": "ModelReference"
             },
+    "success": false,
     "output":
             {
                 "propertyInt":

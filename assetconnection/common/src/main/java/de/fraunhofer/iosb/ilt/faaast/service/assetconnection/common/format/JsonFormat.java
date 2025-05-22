@@ -80,25 +80,31 @@ public class JsonFormat implements Format {
                 LambdaExceptionHelper.rethrowFunction(x -> {
                     String query = x.getValue().getQuery();
                     String actualValue = value;
-                    boolean shouldThrowException = true;
-                    if (StringHelper.isBlank(query)) {
-                        shouldThrowException = false;
-                        query = elements.size() == 1 ? "$" : String.format("$.%s", x.getKey());
+                    if (!StringHelper.isBlank(query)) {
+                        try {
+                            List<Object> jsonPathResult = JsonPath
+                                    .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
+                                    .parse(value)
+                                    .read(query);
+                            if (jsonPathResult.isEmpty()) {
+                                throw new AssetConnectionException(String.format("JSONPath expression did not return any value (JSON path: %s, JSON: %s)", query, value));
+                            }
+                            if (jsonPathResult.size() > 1) {
+                                throw new AssetConnectionException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value));
+                            }
+                            actualValue = jsonPathResult.get(0).toString();
+                        }
+                        catch (PathNotFoundException e) {
+                            throw new AssetConnectionException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e);
+                        }
+                        catch (InvalidPathException e) {
+                            throw new AssetConnectionException(String.format("invalid JSONPath (JSON path: %s)", query), e);
+                        }
+                        catch (JsonPathException e) {
+                            throw new AssetConnectionException(String.format("error resolving JSONPath (JSON path: %s, JSON: %s)", query, value), e);
+                        }
                     }
                     try {
-                        List<Object> jsonPathResult = JsonPath
-                                .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
-                                .parse(value)
-                                .read(query);
-                        if (jsonPathResult.isEmpty()) {
-                            return handleException(String.format("JSONPath expression did not return any value (JSON path: %s, JSON: %s)", query, value), null,
-                                    shouldThrowException);
-                        }
-                        if (jsonPathResult.size() > 1) {
-                            return handleException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value), null,
-                                    shouldThrowException);
-                        }
-                        actualValue = jsonPathResult.get(0).toString();
                         TypeInfo<?> typeInfo = x.getValue().getTypeInfo();
                         // if datatype is string, we need to escape and wrap it with additional quotes
                         if (typeInfo != null
@@ -110,20 +116,8 @@ public class JsonFormat implements Format {
                         }
                         return deserializer.readValue(actualValue, x.getValue().getTypeInfo());
                     }
-                    catch (PathNotFoundException e) {
-                        return handleException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e, shouldThrowException);
-                    }
-                    catch (InvalidPathException e) {
-                        return handleException(String.format("invalid JSONPath (JSON path: %s)", query), e, shouldThrowException);
-                    }
-                    catch (JsonPathException e) {
-                        return handleException(String.format("error resolving JSONPath (JSON path: %s, JSON: %s)", query, value), e, shouldThrowException);
-                    }
                     catch (DeserializationException e) {
-                        return handleException(String.format("JSON deserialization failed (json: %S)", actualValue), e, shouldThrowException);
-                    }
-                    catch (Exception e) {
-                        return handleException("unhandled exception", e, shouldThrowException);
+                        throw new AssetConnectionException(String.format("JSON deserialization failed (json: %S)", actualValue), e);
                     }
                 })));
     }

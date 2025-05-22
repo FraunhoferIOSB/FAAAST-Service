@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ObjectHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
@@ -35,7 +34,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
  */
 public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
-    private static final Duration DEFAULT_TIMEOUT = DatatypeFactory.newDefaultInstance().newDuration(3000);
     protected String path;
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
@@ -51,7 +49,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         this.path = "";
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
-        this.timeout = DEFAULT_TIMEOUT;
         this.invocationId = null;
     }
 
