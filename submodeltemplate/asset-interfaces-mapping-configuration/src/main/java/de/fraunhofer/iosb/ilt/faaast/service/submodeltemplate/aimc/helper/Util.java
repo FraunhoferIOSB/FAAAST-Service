@@ -22,12 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -281,7 +279,7 @@ public class Util {
      * @return True if it's the InteractionMetadata object, false if not.
      */
     public static boolean isInteractionMetadata(SubmodelElementCollection object) {
-        return Objects.equals(ReferenceBuilder.global(Constants.AID_INTERACTION_METADATA_SEMANTIC_ID), object.getSemanticId());
+        return semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID);
     }
 
 
