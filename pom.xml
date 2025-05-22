@@ -66,7 +66,7 @@
         <aas4j.version>1.0.4</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.80</bouncycastle.version>
-        <checkstyle.version>10.23.1</checkstyle.version>
+        <checkstyle.version>10.24.0</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
