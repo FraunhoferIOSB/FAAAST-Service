@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import net.thisptr.jackson.jq.BuiltinFunctionLoader;
 import net.thisptr.jackson.jq.JsonQuery;
 import net.thisptr.jackson.jq.Scope;
 import net.thisptr.jackson.jq.Versions;
@@ -88,10 +89,10 @@ public class JsonFormat implements Format {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode inputNode = mapper.readTree(value);
-
+            Scope scope = Scope.newEmptyScope();
+            BuiltinFunctionLoader.getInstance().loadFunctions(Versions.JQ_1_7, scope);
             JsonQuery q = JsonQuery.compile(query, Versions.JQ_1_7);
 
-            Scope scope = Scope.newEmptyScope();
             final List<JsonNode> results = new ArrayList<>();
             q.apply(scope, inputNode, results::add);
             return results.stream()
