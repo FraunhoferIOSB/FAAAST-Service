@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.internal.AASXUtils;
 
 
 /**
@@ -56,31 +57,33 @@ public class FileStorageInMemory implements FileStorage<FileStorageInMemoryConfi
 
     @Override
     public byte[] get(String path) throws ResourceNotFoundException {
-        if (!files.containsKey(path)) {
-            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
+        String key = AASXUtils.removeFilePartOfURI(path);
+        if (!files.containsKey(key)) {
+            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", key));
         }
-        return files.get(path);
+        return files.get(key);
     }
 
 
     @Override
     public boolean contains(String path) {
-        return this.files.containsKey(path);
+        return this.files.containsKey(AASXUtils.removeFilePartOfURI(path));
     }
 
 
     @Override
     public void save(String path, byte[] content) {
-        files.put(path, content);
+        files.put(AASXUtils.removeFilePartOfURI(path), content);
     }
 
 
     @Override
     public void delete(String path) throws ResourceNotFoundException {
-        if (!files.containsKey(path)) {
-            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", path));
+        String key = AASXUtils.removeFilePartOfURI(path);
+        if (!files.containsKey(key)) {
+            throw new ResourceNotFoundException(String.format("could not find file for path '%s'", key));
         }
-        files.remove(path);
+        files.remove(key);
     }
 
 

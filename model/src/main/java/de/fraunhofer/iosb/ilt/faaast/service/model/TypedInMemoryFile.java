@@ -29,6 +29,13 @@ public class TypedInMemoryFile extends InMemoryFile {
     }
 
 
+    public String getContentTypeSimple() {
+        return Objects.nonNull(contentType)
+                ? contentType.split(";")[0]
+                : null;
+    }
+
+
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }

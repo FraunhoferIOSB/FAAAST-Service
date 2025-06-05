@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.internal.AASXUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.File;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 
@@ -95,7 +96,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                     public void visit(File file) {
                         try {
                             if (context.getFileStorage().contains(file.getValue())) {
-                                files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), file.getValue()));
+                                files.add(new InMemoryFile(context.getFileStorage().get(file.getValue()), AASXUtils.removeFilePartOfURI(file.getValue())));
                             }
                         }
                         catch (ResourceNotFoundException | PersistenceException e) {
