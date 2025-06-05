@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
-import static org.apache.commons.fileupload.FileUploadBase.CONTENT_DISPOSITION;
-import static org.apache.commons.fileupload.FileUploadBase.CONTENT_TYPE;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
@@ -42,7 +39,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.fileupload.ParameterParser;
 
 
 /**
@@ -56,6 +52,8 @@ public abstract class AbstractRequestMapper {
     private static final String FILE = "file";
     private static final String NAME = "name";
     private static final int BUFFER_SIZE = 8192;
+    private static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile("^Content-Type: (.+)$", Pattern.MULTILINE);
+    private static final String DEFAULT_CONTENT_TYPE = MediaType.OCTET_STREAM.type();
 
     protected final ServiceContext serviceContext;
     protected final HttpJsonApiDeserializer deserializer;
@@ -205,7 +203,7 @@ public abstract class AbstractRequestMapper {
                 String multipartHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
 
-                if (Objects.equals(extractName(multipartHeaders), FILENAME)) {
+                if (isNamePart(multipartHeaders)) {
                     map.put(FILENAME, new TypedInMemoryFile.Builder()
                             .content(output.toByteArray())
                             .contentType(MediaType.PLAIN_TEXT_UTF_8.toString())
@@ -231,47 +229,16 @@ public abstract class AbstractRequestMapper {
 
 
     private String extractContentType(String header) {
-        if (header == null || header.isEmpty()) {
-            return MediaType.OCTET_STREAM.type();
+        Matcher matcher = PATTERN_CONTENT_TYPE.matcher(header);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
-
-        String contentTypeLine = null;
-        for (String line: header.split("\r\n")) {
-            if (line.toLowerCase().startsWith(CONTENT_TYPE.toLowerCase())) {
-                contentTypeLine = line;
-                break;
-            }
-        }
-
-        if (contentTypeLine == null) {
-            return MediaType.OCTET_STREAM.type();
-        }
-
-        return contentTypeLine.split(":", 2)[1].trim().split(";", 2)[0].trim();
+        return DEFAULT_CONTENT_TYPE;
     }
 
 
-    private String extractName(String header) {
-        if (header == null || header.isEmpty()) {
-            return null;
-        }
-
-        String contentDispositionLine = null;
-        for (String line: header.split("\r\n")) {
-            if (line.toLowerCase().startsWith(CONTENT_DISPOSITION.toLowerCase())) {
-                contentDispositionLine = line;
-                break;
-            }
-        }
-
-        if (contentDispositionLine == null) {
-            return null;
-        }
-
-        ParameterParser parser = new ParameterParser();
-        Map<String, String> params = parser.parse(contentDispositionLine.split(":", 2)[1].trim(), ';');
-
-        return params.get(NAME) != null ? params.get(NAME).replace("\"", "") : null;
+    private boolean isNamePart(String header) {
+        return header.contains(String.format("%s=\"%s\"", NAME, FILENAME));
     }
 
 
