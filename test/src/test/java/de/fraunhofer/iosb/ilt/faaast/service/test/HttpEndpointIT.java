@@ -101,6 +101,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -703,11 +705,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .file(new InMemoryFile(content, fileName))
                 .build();
         HttpEntity httpEntity = MultipartEntityBuilder.create()
-                .addPart("fileName",
-                        new StringBody(fileName,
-                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
-                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
-                        fileName)
+                .addPart("fileName", new StringBody(fileName, ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.APPLICATION_PDF, fileName)
                 .build();
         HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.submodelRepository()
