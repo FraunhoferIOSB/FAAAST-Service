@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
+import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -38,9 +40,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aas.PutThumbnailRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aas.PutThumbnailResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasserialization.GenerateSerializationByIdsResponse;
@@ -70,8 +74,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.hc.core5.http.ContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
@@ -89,14 +95,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
+import org.eclipse.jetty.client.BytesRequestContent;
 import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.MultiPartRequestContent;
 import org.eclipse.jetty.client.Request;
 import org.eclipse.jetty.client.StringRequestContent;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -310,6 +319,49 @@ public abstract class AbstractHttpEndpointTest {
                 .build());
         ContentResponse response = execute(HttpMethod.POST, "/submodels");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testPutThumbnail() throws Exception {
+        String aasId = "http://example.com/aas/1";
+        String imageName = "file:///image.png";
+        byte[] content = new byte[20];
+        new Random().nextBytes(content);
+        ContentType contentType = ContentType.IMAGE_PNG;
+        PutThumbnailRequest expectedRequest = PutThumbnailRequest.builder()
+                .id(aasId)
+                .content(new TypedInMemoryFile.Builder()
+                        .content(content)
+                        .contentType(contentType.toString())
+                        .path(imageName)
+                        .build())
+                .build();
+        when(service.execute(any(), eq(expectedRequest))).thenReturn(PutThumbnailResponse.builder()
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
+                .build());
+        MultiPartRequestContent multiPart = new MultiPartRequestContent();
+        multiPart.addPart(new MultiPart.ContentSourcePart(
+                "fileName",
+                null,
+                HttpFields.build().add(HttpHeader.CONTENT_TYPE, "text/plain"),
+                new StringRequestContent(imageName)));
+        multiPart.addPart(new MultiPart.ContentSourcePart(
+                "file",
+                imageName,
+                HttpFields.build().add(HttpHeader.CONTENT_TYPE, contentType.toString()),
+                new BytesRequestContent(content)));
+        multiPart.close();
+        ContentResponse response = client
+                .newRequest(HOST, port)
+                .timeout(1, TimeUnit.HOURS)
+                .idleTimeout(1, TimeUnit.HOURS)
+                .method(HttpMethod.PUT)
+                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX, EncodingHelper.base64UrlEncode(aasId)))
+                .body(multiPart)
+                .scheme(scheme)
+                .send();
+        Assert.assertEquals(HttpStatus.NO_CONTENT_204, response.getStatus());
     }
 
 

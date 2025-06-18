@@ -703,11 +703,8 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 .file(new InMemoryFile(content, fileName))
                 .build();
         HttpEntity httpEntity = MultipartEntityBuilder.create()
-                .addPart("fileName",
-                        new StringBody(fileName,
-                                ContentType.create("text/plain", StandardCharsets.UTF_8)))
-                .addBinaryBody("file", content, ContentType.APPLICATION_PDF,
-                        fileName)
+                .addPart("fileName", new StringBody(fileName, ContentType.create("text/plain", StandardCharsets.UTF_8)))
+                .addBinaryBody("file", content, ContentType.APPLICATION_PDF, fileName)
                 .build();
         HttpResponse<byte[]> putFileResponse = httpClient.send(HttpRequest.newBuilder()
                 .uri(new URI(apiPaths.submodelRepository()

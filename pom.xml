@@ -62,42 +62,33 @@
         <system>GitHub</system>
         <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
     </issueManagement>
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
     <properties>
         <aas4j.version>1.0.4</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <bouncycastle.version>1.80</bouncycastle.version>
-        <checkstyle.version>10.23.1</checkstyle.version>
+        <bouncycastle.version>1.81</bouncycastle.version>
+        <checkstyle.version>10.25.0</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
-        <commons.fileupload.version>1.5</commons.fileupload.version>
+        <commons.fileupload.version>1.6.0</commons.fileupload.version>
         <commons.io.version>2.19.0</commons.io.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <de.flapdoodle.embed.version>4.20.0</de.flapdoodle.embed.version>
+        <de.flapdoodle.embed.version>4.20.1</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.0</equalsverifier.version>
+        <equalsverifier.version>4.0.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.4.8-jre</guava.version>
-        <jackson.databind.version>2.19.0</jackson.databind.version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson-jq.version>1.3.0</jackson-jq.version>
+        <jackson.databind.version>2.19.1</jackson.databind.version>
+        <jackson.version>2.19.1</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
-        <janino.version>3.1.11</janino.version>
+        <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.4.0</jena.version>
-        <jetty.version>12.0.21</jetty.version>
+        <jetty.version>12.0.22</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.5.2</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -107,34 +98,34 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
-        <maven.plugin.buildhelper.version>3.6.0</maven.plugin.buildhelper.version>
+        <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
+        <maven.plugin.central-publishing.version>0.7.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.14.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.5.3</maven.plugin.failsafe.version>
-        <maven.plugin.git.commit.id.version>9.0.1</maven.plugin.git.commit.id.version>
+        <maven.plugin.git.commit.id.version>9.0.2</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.7</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.13</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>12.1.1</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.1.3</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.3.0-155</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.44.4</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.44.5</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.3</maven.plugin.surefire.version>
         <milo.version>0.6.16</milo.version>
-        <mockito.version>5.17.0</mockito.version>
-        <mongodb.version>5.5.0</mongodb.version>
-        <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.2.1.Final</netty.version>
-        <org.apache.httpcomponents.client5.version>5.4.4</org.apache.httpcomponents.client5.version>
-        <org.apache.log4j-to-slf4j>2.24.3</org.apache.log4j-to-slf4j>
+        <mockito.version>5.18.0</mockito.version>
+        <mongodb.version>5.5.1</mongodb.version>
+        <moquette.version>0.18.2</moquette.version>
+        <netty.version>4.2.2.Final</netty.version>
+        <org.apache.httpcomponents.client5.version>5.5</org.apache.httpcomponents.client5.version>
+        <org.apache.log4j-to-slf4j>2.25.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.7</picocli.version>
@@ -143,8 +134,8 @@
         <proguard.version>7.7.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.3.0-181</prosys.sdk.version>
-        <protobuf.version>4.31.0</protobuf.version>
-        <rgxgen.version>2.0</rgxgen.version>
+        <protobuf.version>4.31.1</protobuf.version>
+        <rgxgen.version>3.0</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>
@@ -157,7 +148,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.1.8</systemstubs.version>
         <wiremock.version>2.35.2</wiremock.version>
-        <woodstox.version>7.1.0</woodstox.version>
+        <woodstox.version>7.1.1</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -546,14 +537,12 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${maven.plugin.nexus-staging.version}</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${maven.plugin.central-publishing.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
                         </configuration>
                     </plugin>
                 </plugins>

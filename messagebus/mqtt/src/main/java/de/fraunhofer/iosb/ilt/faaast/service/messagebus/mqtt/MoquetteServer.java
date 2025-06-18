@@ -81,29 +81,29 @@ public class MoquetteServer {
     public void start() throws IOException {
         server = new Server();
         IConfig serverConfig = new MemoryConfig(new Properties());
-        // Ensure the immediate_flush property has a default of true.
-        serverConfig.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, String.valueOf(true));
-        serverConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
-        serverConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, config.getHost());
-        serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
+        serverConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.toString(false));
+        serverConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(BrokerConstants.IMMEDIATE_BUFFER_FLUSH));
+        serverConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
+        serverConfig.setProperty(IConfig.HOST_PROPERTY_NAME, config.getHost());
+        serverConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
         if (config.getUseWebsocket()) {
-            serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
+            serverConfig.setProperty(IConfig.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
         if (Objects.nonNull(config.getServerCertificate())
                 && Objects.nonNull(config.getServerCertificate().getKeyStorePath())
                 && !config.getServerCertificate().getKeyStorePath().isEmpty()) {
             LOGGER.debug("Configuring keystore for ssl");
-            serverConfig.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
-            serverConfig.setProperty(BrokerConstants.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
+            serverConfig.setProperty(IConfig.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
+            serverConfig.setProperty(IConfig.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
             if (Objects.nonNull(config.getServerCertificate().getKeyStorePassword())) {
-                serverConfig.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
+                serverConfig.setProperty(IConfig.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
             }
             if (Objects.nonNull(config.getServerCertificate().getKeyPassword())) {
-                serverConfig.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
+                serverConfig.setProperty(IConfig.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
             }
-            serverConfig.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
+            serverConfig.setProperty(IConfig.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
             if (config.getUseWebsocket()) {
-                serverConfig.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
+                serverConfig.setProperty(IConfig.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
             }
         }
         MoquetteAuthenticator authenticator = new MoquetteAuthenticator(config);
