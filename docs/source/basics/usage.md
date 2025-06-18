@@ -55,10 +55,11 @@ To run FA³ST Service via docker with an empty model and default configuration e
 > docker run fraunhoferiosb/faaast-service
 ```
 
-To make you of the full power of docker and FA³ST Service, you can also mount files to the container and pass arguments via CLI or environment variables like this
+To make you of the full power of docker and FA³ST Service, you can also mount files to the container and pass arguments via CLI or environment variables like this.
+If the model is not loaded, validation can be turned off by attaching '--no-validation'.
 
 ```sh
-> docker run -v {path to your model file}:/model.json -e faaast.model=model.json fraunhoferiosb/faaast-service '--no-validation'
+> docker run -v {path to your model file}:/app/model.json fraunhoferiosb/faaast-service
 ```
 
 FA³ST Service also comes with a docker compose file located at `/misc/docker/docker-compose.yml` which can be executed by navigation to the directory `/misc/docker` and execute `docker-compose up`.

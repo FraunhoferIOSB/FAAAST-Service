@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
-import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
@@ -53,29 +52,29 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
 
     private static IConfig getMqttServerConfig(MessageBusMqttConfig config) {
         MemoryConfig result = new MemoryConfig(new Properties());
-        result.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
-        result.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
-        result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
+        result.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.toString(false));
+        result.setProperty(IConfig.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
+        result.setProperty(IConfig.HOST_PROPERTY_NAME, LOCALHOST);
+        result.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
         if (config.getUseWebsocket()) {
-            result.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
+            result.setProperty(IConfig.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
         if (Objects.nonNull(config.getServerCertificate())
                 && Objects.nonNull(config.getServerCertificate().getKeyStorePath())) {
-            result.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
-            result.setProperty(BrokerConstants.SSL_PROVIDER, "JDK");
-            result.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
-            result.setProperty(BrokerConstants.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
+            result.setProperty(IConfig.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
+            result.setProperty(IConfig.SSL_PROVIDER, "JDK");
+            result.setProperty(IConfig.JKS_PATH_PROPERTY_NAME, config.getServerCertificate().getKeyStorePath());
+            result.setProperty(IConfig.KEY_STORE_TYPE, config.getServerCertificate().getKeyStoreType());
             if (Objects.nonNull(config.getServerCertificate().getKeyStorePassword())) {
-                result.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
+                result.setProperty(IConfig.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyStorePassword());
             }
             if (Objects.nonNull(config.getServerCertificate().getKeyPassword())) {
-                result.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
+                result.setProperty(IConfig.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerCertificate().getKeyPassword());
             }
             if (config.getUseWebsocket()) {
-                result.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
+                result.setProperty(IConfig.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
             }
         }
-
         return result;
     }
 }
