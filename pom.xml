@@ -67,7 +67,7 @@
         <aas4j.version>1.0.4</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.81</bouncycastle.version>
-        <checkstyle.version>10.25.0</checkstyle.version>
+        <checkstyle.version>10.25.1</checkstyle.version>
         <classgraph.version>4.8.179</classgraph.version>
         <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
@@ -100,7 +100,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
-        <maven.plugin.central-publishing.version>0.7.0</maven.plugin.central-publishing.version>
+        <maven.plugin.central-publishing.version>0.8.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.14.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.1</maven.plugin.dependency.version>
@@ -301,7 +301,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.5.0</version>
+                    <version>2.6.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
