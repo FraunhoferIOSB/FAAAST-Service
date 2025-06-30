@@ -277,18 +277,25 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
 
     private URI getEndpointUri() {
+        URI result = server.getURI();
         if (Objects.nonNull(config.getHostname())) {
             try {
-                return new URI(String.format("https://%s:%d", config.getHostname(), config.getPort()));
+                result = new URI(
+                        result.getScheme(),
+                        result.getUserInfo(),
+                        config.getHostname(),
+                        result.getPort(),
+                        result.getPath(),
+                        result.getQuery(),
+                        result.getFragment());
             }
             catch (URISyntaxException e) {
-                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuratoin (hostname: {}, port: {})",
+                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuratoin (hostname: {})",
                         config.getHostname(),
-                        config.getPort(),
                         e);
             }
         }
-        return server.getURI();
+        return result;
     }
 
 

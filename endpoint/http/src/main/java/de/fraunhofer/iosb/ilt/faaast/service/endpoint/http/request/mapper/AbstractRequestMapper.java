@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.TypedInMemoryFile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
@@ -48,9 +47,13 @@ import org.apache.commons.fileupload.MultipartStream;
 public abstract class AbstractRequestMapper {
 
     private static final String MSG_ERROR_PARSING_BODY = "error parsing body";
-    protected static final String BOUNDARY = "boundary";
-    protected static final Pattern PATTERN_NAME = Pattern.compile("name=\"([^\"]+)\"");
-    protected static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile(HttpConstants.HEADER_CONTENT_TYPE + ": ([^\n^\r]+)");
+    private static final String BOUNDARY = "boundary";
+    private static final String FILENAME = "fileName";
+    private static final String FILE = "file";
+    private static final String NAME = "name";
+    private static final int BUFFER_SIZE = 8192;
+    private static final Pattern PATTERN_CONTENT_TYPE = Pattern.compile("^Content-Type: (.+)$", Pattern.MULTILINE);
+    private static final String DEFAULT_CONTENT_TYPE = MediaType.OCTET_STREAM.type();
 
     protected final ServiceContext serviceContext;
     protected final HttpJsonApiDeserializer deserializer;
@@ -181,26 +184,35 @@ public abstract class AbstractRequestMapper {
      */
     protected Map<String, TypedInMemoryFile> parseMultiPartBody(HttpRequest httpRequest, MediaType contentType) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
+        Ensure.require(contentType.subtype().equals("form-data"), "contentType must be form-data");
+
+        String boundary = contentType.parameters().get(BOUNDARY).get(0);
+        Ensure.requireNonNull(boundary, "Boundary parameter is missing in Content-Type header");
+
         Map<String, TypedInMemoryFile> map = new HashMap<>();
         try {
             MultipartStream multipartStream = new MultipartStream(
                     new ByteArrayInputStream(httpRequest.getBody()),
-                    contentType.parameters().get(BOUNDARY).get(0).getBytes(), 4096, null);
+                    boundary.getBytes(),
+                    BUFFER_SIZE,
+                    null);
             boolean nextPart = multipartStream.skipPreamble();
+
             while (nextPart) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 String multipartHeaders = multipartStream.readHeaders();
                 multipartStream.readBodyData(output);
-                if (Objects.equals(headerMatcher(PATTERN_NAME, multipartHeaders), "fileName")) {
-                    map.put("fileName", new TypedInMemoryFile.Builder()
+
+                if (isNamePart(multipartHeaders)) {
+                    map.put(FILENAME, new TypedInMemoryFile.Builder()
                             .content(output.toByteArray())
                             .contentType(MediaType.PLAIN_TEXT_UTF_8.toString())
                             .build());
                 }
                 else {
-                    map.put("file", new TypedInMemoryFile.Builder()
+                    map.put(FILE, new TypedInMemoryFile.Builder()
                             .content(output.toByteArray())
-                            .contentType(headerMatcher(PATTERN_CONTENT_TYPE, multipartHeaders))
+                            .contentType(extractContentType(multipartHeaders))
                             .build());
                 }
                 nextPart = multipartStream.readBoundary();
@@ -209,7 +221,24 @@ public abstract class AbstractRequestMapper {
         catch (IOException e) {
             throw new InvalidRequestException(MSG_ERROR_PARSING_BODY, e);
         }
+        if (!map.containsKey(FILE) || !map.containsKey(FILENAME)) {
+            throw new InvalidRequestException("Missing required multipart fields: 'file' and 'fileName'");
+        }
         return map;
+    }
+
+
+    private String extractContentType(String header) {
+        Matcher matcher = PATTERN_CONTENT_TYPE.matcher(header);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return DEFAULT_CONTENT_TYPE;
+    }
+
+
+    private boolean isNamePart(String header) {
+        return header.contains(String.format("%s=\"%s\"", NAME, FILENAME));
     }
 
 
@@ -311,15 +340,5 @@ public abstract class AbstractRequestMapper {
                 && Objects.equals(this.serviceContext, other.serviceContext)
                 && Objects.equals(this.deserializer, other.deserializer)
                 && Objects.equals(this.method, other.method);
-    }
-
-
-    private String headerMatcher(Pattern pattern, String header) {
-        Matcher matcher = pattern.matcher(header);
-        String result = matcher.find() ? matcher.group(1) : null;
-        if (!Objects.isNull(result) && result.contains("charset")) {
-            result = result.split(";")[0];
-        }
-        return result;
     }
 }

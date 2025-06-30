@@ -102,6 +102,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -1038,7 +1039,7 @@ public class RequestMappingManagerTest {
                 .content(new TypedInMemoryFile.Builder()
                         .path("test.pdf")
                         .content(content)
-                        .contentType(ContentType.APPLICATION_PDF.getMimeType())
+                        .contentType(ContentType.APPLICATION_PDF.withCharset(StandardCharsets.UTF_8).toString())
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()

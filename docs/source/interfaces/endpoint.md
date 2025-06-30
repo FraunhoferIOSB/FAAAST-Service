@@ -233,10 +233,10 @@ FA³ST Service supports the following APIs as defined by the [OpenAPI documentat
 
 Additionally, FA³ST Service offers the following proprietary API calls:
 
-| HTTP Method | URL Path | Description                                                                                                                             | Payload             | Response                                                                 |
-| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
-| GET         | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.  | -                   | `204 No Content`                                                         |
-| POST        | /import  | Imports an AAS files in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
+| HTTP Method | URL Path | Description                                                                                                                                                                                                 | Payload             | Response                                                                 |
+| ----------- | -------- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------- | ------------------------------------------------------------------------ |
+| GET         | /reset   | Resets the server which includes deleting all AASs, submodels, concept descriptions, files, asset connections, and pending operations.                                                                      | -                   | `204 No Content`                                                         |
+| POST        | /import  | Imports an AAS files in any supported data format. Set the `Content-Type` header accordingly so that the server can parse the document. For AASX, it is application/asset-administration-shell-package+xml. | The file to upload. | `200 Ok` with body containing list of errors that happend during import. |
 
 
 #### Using HTTP PATCH
