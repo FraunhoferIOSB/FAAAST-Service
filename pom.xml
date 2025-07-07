@@ -85,8 +85,8 @@
         <jackson.version>2.19.1</jackson.version>
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
-        <java.jwt.version>4.4.0</java.jwt.version>
         <janino.version>3.1.12</janino.version>
+        <java.jwt.version>4.4.0</java.jwt.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.4.0</jena.version>
         <jetty.version>12.0.22</jetty.version>
