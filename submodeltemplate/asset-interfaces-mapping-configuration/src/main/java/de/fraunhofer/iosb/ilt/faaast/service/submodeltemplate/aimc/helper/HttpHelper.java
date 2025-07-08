@@ -504,14 +504,4 @@ public class HttpHelper {
         return retval;
     }
 
-    //private static boolean isType(SubmodelElementCollection property) {
-    //    boolean retval = false;
-    //    Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Constants.AID_PROPERTY_TYPE.equals(e.getIdShort())).findFirst();
-    //    if (element.isPresent() && (element.get() instanceof Property prop)) {
-    //        String typeText = prop.getValue();
-    //        retval = Constants.AID_TYPE_OBJECT.equalsIgnoreCase(typeText);
-    //    }
-    //    return retval;
-    //}
-
 }

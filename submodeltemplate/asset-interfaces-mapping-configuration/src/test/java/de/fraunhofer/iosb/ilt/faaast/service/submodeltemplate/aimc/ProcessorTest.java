@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection;
@@ -75,7 +74,7 @@ public class ProcessorTest {
         Assert.assertNotNull(service);
         AssetConnectionManager manager = service.getAssetConnectionManager();
         Assert.assertNotNull(manager);
-        List<AssetConnection> assetConns = manager.getConnections();
+        var assetConns = manager.getConnections();
         Assert.assertEquals(2, assetConns.size());
         Assert.assertTrue(assetConns.get(0) instanceof HttpAssetConnection);
         Assert.assertTrue(assetConns.get(1) instanceof MqttAssetConnection);

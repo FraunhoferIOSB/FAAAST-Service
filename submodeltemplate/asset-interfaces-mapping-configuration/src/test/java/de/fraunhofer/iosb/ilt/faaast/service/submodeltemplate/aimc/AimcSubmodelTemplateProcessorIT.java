@@ -30,21 +30,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInter
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqttConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MoquetteServer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.PahoClient;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.HttpModel;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.MqttModel;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.security.GeneralSecurityException;
+import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
+import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -58,42 +61,25 @@ import org.junit.Test;
 public class AimcSubmodelTemplateProcessorIT {
 
     @ClassRule
-    public static WireMockClassRule wireMockRule = new WireMockClassRule(options().port(PortHelper.findFreePort()));
+    public static final WireMockClassRule wireMockRule = new WireMockClassRule(options().port(PortHelper.findFreePort()));
 
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    //private static final String KEY_PASSWORD = "changeit";
-    //private static final String KEY_STORE_PASSWORD = "changeit";
-    //private static final String KEYSTORE_TYPE = "PKCS12";
-    //private static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
-    //        .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:aimc:test")
-    //        .commonName("FA³ST Service AIMC Test")
-    //        .countryCode("DE")
-    //        .localityName("Karlsruhe")
-    //        .organization("Fraunhofer IOSB")
-    //        .organizationUnit("ILT")
-    //        .ipAddress("127.0.0.1")
-    //        .dnsName("localhost")
-    //        .build();
+    private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
 
-    //private static File keyStoreFile;
     private static MessageBusMqttConfig messageBusConfig;
     private static MoquetteServer server;
     private static PahoClient client;
     private static int httpServerPort;
     private static int mqttPort;
     private Service service;
-    //private static URL httpUrl;
-    //private static URL httpsUrl;
-
-    //private WireMockServer wireMockServer;
 
     @BeforeClass
-    public static void initClass() throws IOException, GeneralSecurityException, MessageBusException {
-        //httpServerPort = PortHelper.findFreePort();
+    public static void initClass() throws IOException, MessageBusException {
         httpServerPort = wireMockRule.port();
         mqttPort = PortHelper.findFreePort();
         messageBusConfig = MessageBusMqttConfig.builder()
@@ -103,17 +89,6 @@ public class AimcSubmodelTemplateProcessorIT {
         server.start();
         client = new PahoClient(messageBusConfig);
         client.start();
-        //wireMockRule = new WireMockClassRule(options().port(PortHelper.findFreePort()));
-        //generateSelfSignedServerCertificate();
-        //server = new WireMockClassRule(options()
-        //        .dynamicHttpsPort()
-        //        .dynamicPort()
-        //        .httpDisabled(false)
-        //        .keystoreType(KEYSTORE_TYPE)
-        //        .keystorePath(keyStoreFile.getAbsolutePath())
-        //        .keystorePassword(KEY_PASSWORD)
-        //        .keyManagerPassword(KEY_STORE_PASSWORD));
-        //server.start();
     }
 
 
@@ -129,18 +104,9 @@ public class AimcSubmodelTemplateProcessorIT {
 
 
     @Before
-    public void initUrls() throws MalformedURLException {
+    public void init() {
         instanceRule = wireMockRule;
-        //initWireMock();
     }
-
-    //private static void initWireMock(WireMockServer wireMockServer) {
-    //    //wireMockServer = new WireMockServer(WireMockConfiguration.options().port(httpServerPort));
-    //    wireMockServer.start();
-    //    WireMock.configureFor("localhost", httpServerPort);
-    //    //httpUrl = new URL("http", "localhost", server.port(), "");
-    //    //httpsUrl = new URL("https", "localhost", server.httpsPort(), "");
-    //}
 
 
     @After
@@ -157,12 +123,20 @@ public class AimcSubmodelTemplateProcessorIT {
         service = new Service(serviceConfig(http, HttpModel.create(httpServerPort)));
         service.start();
         // it takes some time to establish the AssetConnection
-        Thread.sleep(1000);
+        Awaitility.await()
+                .alias("check number of Asset Connections")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    var connections = service.getAssetConnectionManager().getConnections();
+                    return connections != null && connections.size() == 1 && connections.get(0).getSubscriptionProviders() != null
+                            && connections.get(0).getSubscriptionProviders().size() == 1;
+                });
+
+        // also check value provider
         var connections = service.getAssetConnectionManager().getConnections();
-        Assert.assertNotNull(connections);
-        Assert.assertEquals(1, connections.size());
-        Assert.assertNotNull(connections.get(0).getSubscriptionProviders());
-        Assert.assertEquals(1, connections.get(0).getSubscriptionProviders().size());
+        Assert.assertNotNull(connections.get(0).getValueProviders());
+        Assert.assertEquals(1, connections.get(0).getValueProviders().size());
 
         String path = HttpModel.P1_URL;
         String newval = Double.toString(74.68);
@@ -172,27 +146,27 @@ public class AimcSubmodelTemplateProcessorIT {
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(newval)));
 
-        //CloseableHttpClient httpClient = HttpClients.createDefault();
-        //HttpGet request = new HttpGet(String.format("http://localhost:%d%s", httpServerPort, path));
-        //CloseableHttpResponse httpResponse = httpClient.execute(request);
-        //String stringResponse = convertHttpResponseToString(httpResponse);
+        String path2 = HttpModel.P2_URL;
+        String newval2 = Integer.toString(156);
+        instanceRule.stubFor(request("GET", urlEqualTo(path2))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+                        .withBody(newval2)));
 
-        //WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo((path)))
-        //        .willReturn(WireMock.ok()
-        //                .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-        //                .withBody(newval)));
-        Thread.sleep(5000);
-        Optional<Submodel> submodel = service.getAASEnvironment().getSubmodels().stream().filter(s -> HttpModel.SUBMODEL_OPER_DATA_ID.equals(s.getId())).findFirst();
-        Assert.assertTrue(submodel.isPresent());
-        Optional<SubmodelElement> coll = submodel.get().getSubmodelElements().stream().filter(e -> HttpModel.OPER_DATA_HTTP.equals(e.getIdShort())).findFirst();
-        Assert.assertTrue(coll.isPresent());
-        Assert.assertTrue(coll.get() instanceof SubmodelElementCollection);
-        Optional<SubmodelElement> element = ((SubmodelElementCollection) coll.get()).getValue().stream().filter(e -> HttpModel.OPER_DATA_HTTP_P1.equals(e.getIdShort()))
-                .findFirst();
-        Assert.assertTrue(element.isPresent());
-        Assert.assertTrue(element.get() instanceof Property);
-        Property prop = (Property) element.get();
-        Assert.assertEquals(newval, prop.getValue());
+        Awaitility.await()
+                .alias("check Property value")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    Reference prop1Ref = ReferenceBuilder.forSubmodel(HttpModel.SUBMODEL_OPER_DATA_ID, HttpModel.OPER_DATA_HTTP, HttpModel.OPER_DATA_HTTP_P1);
+                    String prop1val = readPropertyValue(HttpModel.SUBMODEL_OPER_DATA_ID, prop1Ref);
+                    return newval.equals(prop1val);
+                });
+
+        Reference prop2Ref = ReferenceBuilder.forSubmodel(HttpModel.SUBMODEL_OPER_DATA_ID, HttpModel.OPER_DATA_HTTP, HttpModel.OPER_DATA_HTTP_P2);
+        String prop2val = readPropertyValue(HttpModel.SUBMODEL_OPER_DATA_ID, prop2Ref);
+        Assert.assertEquals(newval2, prop2val);
     }
 
 
@@ -202,47 +176,28 @@ public class AimcSubmodelTemplateProcessorIT {
         service = new Service(serviceConfig(http, MqttModel.create(mqttPort)));
         service.start();
         // it takes some time to establish the AssetConnection
-        Thread.sleep(500);
-        var connections = service.getAssetConnectionManager().getConnections();
-        Assert.assertNotNull(connections);
-        Assert.assertEquals(1, connections.size());
-        Assert.assertNotNull(connections.get(0).getSubscriptionProviders());
-        Assert.assertEquals(1, connections.get(0).getSubscriptionProviders().size());
+        Awaitility.await()
+                .alias("check number of Asset Connections")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    var connections = service.getAssetConnectionManager().getConnections();
+                    return connections != null && connections.size() == 1 && connections.get(0).getSubscriptionProviders() != null
+                            && connections.get(0).getSubscriptionProviders().size() == 1;
+                });
 
         String newval = Float.toString(12.4f);
         client.publish(MqttModel.PROP1_TOPIC, newval);
-        Thread.sleep(5000);
-        Optional<Submodel> submodel = service.getAASEnvironment().getSubmodels().stream().filter(s -> MqttModel.SUBMODEL_OPER_DATA_ID.equals(s.getId())).findFirst();
-        Assert.assertTrue(submodel.isPresent());
-        Optional<SubmodelElement> coll = submodel.get().getSubmodelElements().stream().filter(e -> MqttModel.OPER_DATA_MQTT.equals(e.getIdShort())).findFirst();
-        Assert.assertTrue(coll.isPresent());
-        Assert.assertTrue(coll.get() instanceof SubmodelElementCollection);
-        Optional<SubmodelElement> element = ((SubmodelElementCollection) coll.get()).getValue().stream().filter(e -> MqttModel.OPER_DATA_MQTT_P1.equals(e.getIdShort()))
-                .findFirst();
-        Assert.assertTrue(element.isPresent());
-        Assert.assertTrue(element.get() instanceof Property);
-        Property prop = (Property) element.get();
-        Assert.assertEquals(newval, prop.getValue());
+        Awaitility.await()
+                .alias("check property value")
+                .pollInterval(POLL_TIMEOUT)
+                .atMost(MAX_TIMEOUT)
+                .until(() -> {
+                    Reference prop1Ref = ReferenceBuilder.forSubmodel(MqttModel.SUBMODEL_OPER_DATA_ID, MqttModel.OPER_DATA_MQTT, MqttModel.OPER_DATA_MQTT_P1);
+                    String prop1val = readPropertyValue(MqttModel.SUBMODEL_OPER_DATA_ID, prop1Ref);
+                    return newval.equals(prop1val);
+                });
     }
-
-    //private static String convertHttpResponseToString(CloseableHttpResponse httpResponse) throws IOException {
-    //    InputStream inputStream = httpResponse.getEntity().getContent();
-    //    return convertInputStreamToString(inputStream);
-    //}
-
-    //private static String convertInputStreamToString(InputStream inputStream) {
-    //    Scanner scanner = new Scanner(inputStream, "UTF-8");
-    //    String string = scanner.useDelimiter("\\Z").next();
-    //    scanner.close();
-    //    return string;
-    //}
-
-    //private static void generateSelfSignedServerCertificate() throws IOException, GeneralSecurityException {
-    //    keyStoreFile = Files.createTempFile("faaast-aimc-cert", ".p12").toFile();
-    //    keyStoreFile.deleteOnExit();
-    //    CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-    //    KeyStoreHelper.save(certificateData, keyStoreFile, KEYSTORE_TYPE, null, KEY_PASSWORD, KEY_STORE_PASSWORD);
-    //}
 
 
     private static ServiceConfig serviceConfig(int portHttp, Environment initialModel) {
@@ -262,5 +217,19 @@ public class AimcSubmodelTemplateProcessorIT {
                                 new AimcSubmodelTemplateProcessorConfigData.Builder().subscriptionInterval(50).build())
                         .build()))
                 .build();
+    }
+
+
+    private String readPropertyValue(String submodelId, Reference refElement) {
+        String retval = null;
+        GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder().submodelId(submodelId).path(ReferenceHelper.toPath(refElement)).build();
+        Response response = service.execute(request);
+        if ((response.getStatusCode() == StatusCode.SUCCESS) && (GetSubmodelElementByPathResponse.class.isAssignableFrom(response.getClass()))) {
+            SubmodelElement element = ((GetSubmodelElementByPathResponse) response).getPayload();
+            Assert.assertTrue(element instanceof Property);
+            retval = ((Property) element).getValue();
+        }
+
+        return retval;
     }
 }
