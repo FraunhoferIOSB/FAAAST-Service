@@ -28,6 +28,10 @@ public class QueryModifier {
             .level(Level.CORE)
             .extend(Extent.WITHOUT_BLOB_VALUE)
             .build();
+    public static final QueryModifier MAXIMAL = new Builder()
+            .level(Level.DEEP)
+            .extend(Extent.WITH_BLOB_VALUE)
+            .build();
     protected Level level;
     protected Extent extent;
 
