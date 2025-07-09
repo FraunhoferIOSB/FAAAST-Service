@@ -42,7 +42,7 @@ public class Constants {
     public static final String SEMANTIC_ID_INTERFACE_MQTT = "http://www.w3.org/2011/mqtt";
     public static final String SEMANTIC_ID_INTERFACE_HTTP = "http://www.w3.org/2011/http";
     public static final String SEMANTIC_ID_INTERFACE_TD = "https://www.w3.org/2019/wot/td";
-    public static final String SEMANTIC_ID_BASE = "https://www.w3.org/2019/wot/td#base";
+    public static final String SEMANTIC_ID_BASE = "https://www.w3.org/2019/wot/td#baseURI";
     public static final String SEMANTIC_ID_SECURITY = "https://www.w3.org/2019/wot/td#hasSecurityConfiguration";
     public static final String SEMANTIC_ID_SECURITY_DEFINITIONS = "https://www.w3.org/2019/wot/td#definesSecurityScheme";
     public static final String SEMANTIC_ID_NO_SECURITY = "https://www.w3.org/2019/wot/security#NoSecurityScheme";
