@@ -253,8 +253,8 @@
                                     <include>*.md</include>
                                     <include>.gitignore</include>
                                 </includes>
-                                <trimTrailingWhitespace></trimTrailingWhitespace>
-                                <endWithNewline></endWithNewline>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
                                 <indent>
                                     <tabs>true</tabs>
                                     <spacesPerTab>4</spacesPerTab>
@@ -277,8 +277,8 @@
                                 <include>src/main/java/**/*.java</include>
                                 <include>src/test/java/**/*.java</include>
                             </includes>
-                            <importOrder></importOrder>
-                            <removeUnusedImports></removeUnusedImports>
+                            <importOrder/>
+                            <removeUnusedImports/>
                             <licenseHeader>
                                 <file>${root.basedir}/license-header</file>
                             </licenseHeader>
