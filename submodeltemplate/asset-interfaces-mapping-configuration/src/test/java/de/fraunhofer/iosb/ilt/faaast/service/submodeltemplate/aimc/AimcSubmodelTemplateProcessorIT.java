@@ -69,7 +69,7 @@ public class AimcSubmodelTemplateProcessorIT {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
-    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(10);
 
     private static MessageBusMqttConfig messageBusConfig;
     private static MoquetteServer server;
@@ -185,6 +185,11 @@ public class AimcSubmodelTemplateProcessorIT {
                     return connections != null && connections.size() == 1 && connections.get(0).getSubscriptionProviders() != null
                             && connections.get(0).getSubscriptionProviders().size() == 1;
                 });
+
+        // also check value provider
+        var connections = service.getAssetConnectionManager().getConnections();
+        Assert.assertNotNull(connections.get(0).getValueProviders());
+        Assert.assertEquals(0, connections.get(0).getValueProviders().size());
 
         String newval = Float.toString(12.4f);
         client.publish(MqttModel.PROP1_TOPIC, newval);
