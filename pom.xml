@@ -123,7 +123,7 @@
         <mockito.version>5.18.0</mockito.version>
         <mongodb.version>5.5.1</mongodb.version>
         <moquette.version>0.18.3</moquette.version>
-        <netty.version>4.2.2.Final</netty.version>
+        <netty.version>4.2.3.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.5</org.apache.httpcomponents.client5.version>
         <org.apache.log4j-to-slf4j>2.25.0</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
