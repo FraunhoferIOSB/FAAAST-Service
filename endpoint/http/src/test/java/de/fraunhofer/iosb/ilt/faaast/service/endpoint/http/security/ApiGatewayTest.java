@@ -14,6 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
@@ -33,12 +38,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class ApiGatewayTest {
