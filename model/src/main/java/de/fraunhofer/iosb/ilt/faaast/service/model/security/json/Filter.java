@@ -12,24 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
- * Root collection for all rules.
+ * Describes the filter object, including FRAGMENT and a CONDITION
+ * that can hold arbitrary operators.
  */
-public class AllAccessPermissionRulesRoot {
-    @JsonProperty("AllAccessPermissionRules")
-    private AllAccessPermissionRules allAccessPermissionRules;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Filter {
 
-    public AllAccessPermissionRules getAllAccessPermissionRules() {
-        return allAccessPermissionRules;
+    @JsonProperty("FRAGMENT")
+    private String FRAGMENT;
+
+    @JsonProperty("CONDITION")
+    private Condition CONDITION;
+
+    public String getFRAGMENT() {
+        return FRAGMENT;
     }
 
 
-    public void setAllAccessPermissionRules(AllAccessPermissionRules allAccessPermissionRules) {
-        this.allAccessPermissionRules = allAccessPermissionRules;
+    public void setFRAGMENT(String FRAGMENT) {
+        this.FRAGMENT = FRAGMENT;
+    }
+
+
+    public Condition getCONDITION() {
+        return CONDITION;
+    }
+
+
+    public void setCONDITION(Condition CONDITION) {
+        this.CONDITION = CONDITION;
     }
 }

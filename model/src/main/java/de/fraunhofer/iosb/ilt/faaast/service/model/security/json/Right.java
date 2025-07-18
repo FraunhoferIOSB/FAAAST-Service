@@ -12,30 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
-
-import java.util.List;
-
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
 /**
- * Reusable DefObjects.
+ * Enum for rights.
  */
-public class DefObjects {
-    private String name;
-    private List<Objects> objects;
-
-    /**
-     * Set name.
-     *
-     * @param properties
-     */
-    public void setName(String properties) {}
-
-
-    /**
-     * Set objects.
-     *
-     * @param list
-     */
-    public void setObjects(List<Objects> list) {}
+public enum Right {
+    CREATE,
+    READ,
+    UPDATE,
+    DELETE,
+    EXECUTE,
+    VIEW,
+    ALL,
+    TREE
 }

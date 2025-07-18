@@ -12,18 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
+
+import java.util.Map;
+
 
 /**
- * Enum for rights.
+ * Optional DefFormula field.
  */
-public enum Right {
-    CREATE,
-    READ,
-    UPDATE,
-    DELETE,
-    EXECUTE,
-    VIEW,
-    ALL,
-    TREE
+public class DefFormula {
+    private String name;
+    private Map<String, Object> formula;
+
+    /**
+     * Set name.
+     *
+     * @param allowSubjectGroup1
+     */
+    public void setName(String allowSubjectGroup1) {}
+
+
+    /**
+     * Set formula.
+     *
+     * @param formulaExpression
+     */
+    public void setFormula(Map<String, Object> formulaExpression) {}
 }

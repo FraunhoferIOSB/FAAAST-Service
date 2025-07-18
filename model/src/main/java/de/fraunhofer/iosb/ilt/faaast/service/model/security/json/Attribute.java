@@ -12,30 +12,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
- * Optional DefFormula field.
+ * Attributes contain a CLAIM or GLOBAL.
  */
-public class DefFormula {
-    private String name;
-    private Map<String, Object> formula;
+public class Attribute {
 
-    /**
-     * Set name.
-     *
-     * @param allowSubjectGroup1
-     */
-    public void setName(String allowSubjectGroup1) {}
+    @JsonProperty("CLAIM")
+    private String CLAIM;
+
+    @JsonProperty("GLOBAL")
+    private String GLOBAL;
+
+    public String getCLAIM() {
+        return CLAIM;
+    }
 
 
-    /**
-     * Set formula.
-     *
-     * @param formulaExpression
-     */
-    public void setFormula(Map<String, Object> formulaExpression) {}
+    public void setCLAIM(String CLAIM) {
+        this.CLAIM = CLAIM;
+    }
+
+
+    public String getGLOBAL() {
+        return GLOBAL;
+    }
+
+
+    public void setGLOBAL(String GLOBAL) {
+        this.GLOBAL = GLOBAL;
+    }
 }

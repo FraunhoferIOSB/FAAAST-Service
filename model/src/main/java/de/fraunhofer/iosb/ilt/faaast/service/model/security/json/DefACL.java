@@ -12,12 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
 /**
- * Enum for access types.
+ * Optional DefACL field.
  */
-public enum AccessType {
-    ALLOW,
-    DISABLED
+public class DefACL {
+    private String name;
+    private ACL acl;
+
+    /**
+     * Set the name.
+     *
+     * @param acl1
+     */
+    public void setName(String acl1) {}
+
+
+    /**
+     * Set ACL.
+     *
+     * @param acl
+     */
+    public void setAcl(ACL acl) {}
 }

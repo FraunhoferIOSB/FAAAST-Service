@@ -12,38 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 
 /**
- * Attributes contain a CLAIM or GLOBAL.
+ * Reusable DefObjects.
  */
-public class Attribute {
+public class DefObjects {
+    private String name;
+    private List<Objects> objects;
 
-    @JsonProperty("CLAIM")
-    private String CLAIM;
-
-    @JsonProperty("GLOBAL")
-    private String GLOBAL;
-
-    public String getCLAIM() {
-        return CLAIM;
-    }
-
-
-    public void setCLAIM(String CLAIM) {
-        this.CLAIM = CLAIM;
-    }
+    /**
+     * Set name.
+     *
+     * @param properties
+     */
+    public void setName(String properties) {}
 
 
-    public String getGLOBAL() {
-        return GLOBAL;
-    }
-
-
-    public void setGLOBAL(String GLOBAL) {
-        this.GLOBAL = GLOBAL;
-    }
+    /**
+     * Set objects.
+     *
+     * @param list
+     */
+    public void setObjects(List<Objects> list) {}
 }

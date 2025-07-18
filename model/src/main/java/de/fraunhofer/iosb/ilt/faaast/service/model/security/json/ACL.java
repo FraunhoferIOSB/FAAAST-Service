@@ -12,41 +12,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 
 /**
- * Describes the filter object, including FRAGMENT and a CONDITION
- * that can hold arbitrary operators.
+ * Describes the access control list.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Filter {
+public class ACL {
 
-    @JsonProperty("FRAGMENT")
-    private String FRAGMENT;
+    @JsonProperty("ATTRIBUTES")
+    private List<Attribute> ATTRIBUTES; // e.g., "CLAIM", "GLOBAL"
 
-    @JsonProperty("CONDITION")
-    private Condition CONDITION;
+    @JsonProperty("RIGHTS")
+    private List<String> RIGHTS;
 
-    public String getFRAGMENT() {
-        return FRAGMENT;
+    @JsonProperty("ACCESS")
+    private String ACCESS;
+
+    public List<Attribute> getATTRIBUTES() {
+        return ATTRIBUTES;
     }
 
 
-    public void setFRAGMENT(String FRAGMENT) {
-        this.FRAGMENT = FRAGMENT;
+    public void setATTRIBUTES(List<Attribute> ATTRIBUTES) {
+        this.ATTRIBUTES = ATTRIBUTES;
     }
 
 
-    public Condition getCONDITION() {
-        return CONDITION;
+    public List<String> getRIGHTS() {
+        return RIGHTS;
     }
 
 
-    public void setCONDITION(Condition CONDITION) {
-        this.CONDITION = CONDITION;
+    public void setRIGHTS(List<String> RIGHTS) {
+        this.RIGHTS = RIGHTS;
+    }
+
+
+    public String getACCESS() {
+        return ACCESS;
+    }
+
+
+    public void setACCESS(String ACCESS) {
+        this.ACCESS = ACCESS;
     }
 }

@@ -12,27 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.security.json;
+package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /**
- * Optional DefACL field.
+ * Root collection for all rules.
  */
-public class DefACL {
-    private String name;
-    private ACL acl;
+public class AllAccessPermissionRulesRoot {
+    @JsonProperty("AllAccessPermissionRules")
+    private AllAccessPermissionRules allAccessPermissionRules;
 
-    /**
-     * Set the name.
-     *
-     * @param acl1
-     */
-    public void setName(String acl1) {}
+    public AllAccessPermissionRules getAllAccessPermissionRules() {
+        return allAccessPermissionRules;
+    }
 
 
-    /**
-     * Set ACL.
-     *
-     * @param acl
-     */
-    public void setAcl(ACL acl) {}
+    public void setAllAccessPermissionRules(AllAccessPermissionRules allAccessPermissionRules) {
+        this.allAccessPermissionRules = allAccessPermissionRules;
+    }
 }

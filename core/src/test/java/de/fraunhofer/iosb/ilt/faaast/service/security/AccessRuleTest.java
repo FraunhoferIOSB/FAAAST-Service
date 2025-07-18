@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.ACL;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRules;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.AllAccessPermissionRulesRoot;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.Attribute;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.Objects;
-import de.fraunhofer.iosb.ilt.faaast.service.security.json.Rule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
