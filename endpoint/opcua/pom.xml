@@ -261,8 +261,8 @@
                         <phase>package</phase>
                         <configuration>
                             <target name="deleting un-obfuscated jar before deploying">
-                                <delete file="${project.build.directory}/${project.build.finalName}_proguard_base.jar"></delete>
-                                <delete file="${project.build.directory}/classes/original-${project.build.finalName}.jar"></delete>
+                                <delete file="${project.build.directory}/${project.build.finalName}_proguard_base.jar"/>
+                                <delete file="${project.build.directory}/classes/original-${project.build.finalName}.jar"/>
                             </target>
                         </configuration>
                     </execution>
