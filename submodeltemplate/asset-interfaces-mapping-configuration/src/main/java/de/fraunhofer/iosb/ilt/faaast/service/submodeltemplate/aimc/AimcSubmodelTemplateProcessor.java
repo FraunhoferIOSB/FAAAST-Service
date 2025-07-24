@@ -257,7 +257,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private static SubmodelElementList getMappingConfiguration(Submodel submodel) {
-        Optional<SubmodelElement> element = submodel.getSubmodelElements().stream().filter(s -> Constants.AIMC_MAPPING_CONFIGURATIONS.equals(s.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = submodel.getSubmodelElements().stream().filter(s -> Util.semanticIdEquals(s, Constants.AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID))
+                .findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel invalid: MappingConfigurations not found.");
         }
@@ -271,7 +272,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private static List<RelationshipElement> getMappingRelations(SubmodelElementCollection configuration) {
-        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_MAPPING_RELATIONS.equals(e.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AIMC_MAPPING_RELATIONS_SEMANTIC_ID)).findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel invalid: MappingSourceSinkRelations not found.");
         }
@@ -287,7 +288,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     private static ReferenceElement getInterfaceReference(SubmodelElementCollection configuration) {
-        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Constants.AIMC_INTERFACE_REFERENCE.equals(e.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AIMC_INTERFACE_REFERENCE_SEMANTIC_ID)).findFirst();
         if (element.isEmpty()) {
             throw new IllegalArgumentException("Submodel invalid: InterfaceReference not found.");
         }

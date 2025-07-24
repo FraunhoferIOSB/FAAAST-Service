@@ -129,7 +129,7 @@ public class HttpHelper {
             HttpAssetConnectionConfig.Builder assetConfigBuilder = HttpAssetConnectionConfig.builder().baseUrl(base);
 
             // security
-            Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Constants.AID_METADATA_SECURITY.equals(e.getIdShort())).findFirst();
+            Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
             if (element.isEmpty()) {
                 throw new IllegalArgumentException("Submodel AID (HTTP) invalid: EndpointMetadata security not found.");
             }
@@ -424,7 +424,7 @@ public class HttpHelper {
 
     private static Map<String, String> getHeaders(SubmodelElementCollection forms) {
         Map<String, String> retval = new HashMap<>();
-        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Constants.AID_FORMS_HEADERS.equals(e.getIdShort())).findFirst();
+        Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_FORMS_HEADERS_SEMANTIC_ID)).findFirst();
         if (element.isPresent() && (element.get() instanceof SubmodelElementList list)) {
             for (var h: list.getValue()) {
                 addHeader(retval, h);
@@ -436,8 +436,8 @@ public class HttpHelper {
 
     private static void addHeader(Map<String, String> headers, SubmodelElement headerElement) {
         if (headerElement instanceof SubmodelElementCollection header) {
-            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_NAME.equals(h.getIdShort())).findFirst();
-            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Constants.AID_HEADER_FIELD_VALUE.equals(h.getIdShort())).findFirst();
+            Optional<SubmodelElement> nameElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_NAME_SEMANTIC_ID)).findFirst();
+            Optional<SubmodelElement> valueElement = header.getValue().stream().filter(h -> Util.semanticIdEquals(h, Constants.AID_HEADER_FIELD_VALUE_SEMANTIC_ID)).findFirst();
             if (nameElement.isPresent() && valueElement.isPresent() && (nameElement.get() instanceof Property name) && (valueElement.get() instanceof Property value)) {
                 headers.put(name.getValue(), value.getValue());
             }

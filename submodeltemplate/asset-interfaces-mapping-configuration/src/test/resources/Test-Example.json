@@ -159,9 +159,13 @@
                         {
                             "idShort": "EndpointMetadata",
                             "semanticId": {
-                                "type": "ExternalReference",
-                                "keys": [
-                                ]
+                              "type": "ExternalReference",
+                              "keys": [
+                                {
+                                  "type": "GlobalReference",
+                                  "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
+                                }
+                              ]
                             },
                             "embeddedDataSpecifications": [
                             ],
@@ -207,7 +211,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration."
+                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration"
                                             }
                                         ]
                                     },
@@ -927,9 +931,13 @@
                         {
                             "idShort": "EndpointMetadata",
                             "semanticId": {
-                                "type": "ExternalReference",
-                                "keys": [
-                                ]
+                              "type": "ExternalReference",
+                              "keys": [
+                                {
+                                  "type": "GlobalReference",
+                                  "value": "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata"
+                                }
+                              ]
                             },
                             "embeddedDataSpecifications": [
                             ],
@@ -975,7 +983,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration."
+                                                "value": "https://www.w3.org/2019/wot/td#hasSecurityConfiguration"
                                             }
                                         ]
                                     },
