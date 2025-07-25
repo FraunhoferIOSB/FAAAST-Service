@@ -114,7 +114,8 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
     }
 
 
-    private void unsubscribe() throws AssetConnectionException {
+    @Override
+    public void unsubscribe() throws AssetConnectionException {
         if (executorHandler != null) {
             executorHandler.cancel(true);
         }
