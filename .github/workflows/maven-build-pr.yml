@@ -34,12 +34,6 @@ jobs:
         distribution: 'adopt'
         java-version: 17
 
-    - name: Patch aas4j with main branch
-      run: |
-        set -e
-        git clone https://github.com/eclipse-aas4j/aas4j.git aas4j
-        mvn -f aas4j/pom.xml clean spotless:apply install -DskipTests=true -Drevision=1.0.5-SNAPSHOT -Dmodel.version=1.0.5-SNAPSHOT
-
     - name: Build with Maven
       env:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
