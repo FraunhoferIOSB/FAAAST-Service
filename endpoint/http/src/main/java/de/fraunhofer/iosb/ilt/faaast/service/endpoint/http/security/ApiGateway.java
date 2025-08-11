@@ -198,11 +198,7 @@ public class ApiGateway {
 
 
         private static boolean checkIdentifiable(String path, String identifiable) {
-            //check submodel path
-            if (!path.startsWith("/submodels")) {
-                return false;
-            }
-            if (identifiable.equals("(Submodel)*")) {
+            if (identifiable.equals("(Submodel)*") && path.startsWith("/submodels")) {
                 return true;
             }
             else if (identifiable.startsWith("(Submodel)")) {
