@@ -18,7 +18,7 @@ jobs:
           repo-to-check: '${{ github.event.workflow_run.repository.url }}'
           name-of-pr: '${{ github.event.workflow_run.head_branch }}'
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
             repository: '${{ github.event.workflow_run.head_repository.full_name }}'
             ref: '${{ github.event.workflow_run.head_branch }}'
