@@ -41,8 +41,9 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Clock;
+import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -165,23 +166,18 @@ public class ApiGateway {
                             .allMatch(value -> {
                                 Claim claim = claims.get(value);
                                 return claim != null
-                                        && evaluateSimpleEQFormula(rule.getFORMULA(), value, claim.asString());
+                                        && evaluateFormula(rule.getFORMULA(), value, claim.asString());
                             });
         }
 
 
-        private static boolean evaluateSimpleEQFormula(Map<String, Object> formula, String value, String claimValue) {
-            if (formula.size() != 1 || !formula.containsKey("$eq")) {
-                LOGGER.error("Unsupported ACL formula.");
-                return false;
-            }
-            List<LinkedHashMap> eqList = (List<LinkedHashMap>) formula.get("$eq");
-            LinkedHashMap attribute = (LinkedHashMap) eqList.get(0).get("$attribute");
-            String strVal = (String) eqList.get(1).get("$strVal");
-            if (attribute.get("CLAIM").equals(value) && strVal.equals(claimValue)) {
-                return true;
-            }
-            return false;
+        public static boolean evaluateFormula(Map<String, Object> formula,
+                                              String claimName,
+                                              String claimValue) {
+            Map<String, Object> ctx = new HashMap<>();
+            ctx.put("CLAIM:" + claimName, claimValue);
+            ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
+            return FormulaEvaluator.evaluate(formula, ctx);
         }
 
 
