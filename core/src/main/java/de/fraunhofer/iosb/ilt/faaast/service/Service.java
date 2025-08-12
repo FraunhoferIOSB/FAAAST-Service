@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -36,11 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
@@ -50,7 +44,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.registry.RegistrySynchronization;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DynamicRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateManager;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -63,9 +59,7 @@ import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
@@ -78,8 +72,6 @@ import org.slf4j.LoggerFactory;
 public class Service implements ServiceContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
-    private static final String VALUE_NULL = "value must not be null";
-    private static final String ELEMENT_NULL = "element must not be null";
     private final ServiceConfig config;
     private AssetConnectionManager assetConnectionManager;
     private List<Endpoint> endpoints;
@@ -87,11 +79,10 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private FileStorage fileStorage;
     private RequestExecutionContext requestExecutionContext;
+    private SubmodelTemplateManager submodelTemplateManager;
 
     private RegistrySynchronization registrySynchronization;
     private RequestHandlerManager requestHandler;
-    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
-    private List<SubscriptionId> subscriptions;
 
     /**
      * Creates a new instance of {@link Service}.
@@ -129,8 +120,6 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
-        this.submodelTemplateProcessors = submodelTemplateProcessors;
-        this.subscriptions = new ArrayList<>();
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -141,7 +130,8 @@ public class Service implements ServiceContext {
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
-        initSubmodelTemplateProcessors();
+        this.submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
+        this.submodelTemplateManager.init();
     }
 
 
@@ -159,7 +149,6 @@ public class Service implements ServiceContext {
             throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
-        this.subscriptions = new ArrayList<>();
         init();
     }
 
@@ -272,6 +261,11 @@ public class Service implements ServiceContext {
     }
 
 
+    public SubmodelTemplateManager getSubmodelTemplateManager() {
+        return submodelTemplateManager;
+    }
+
+
     /**
      * Starts the service.This includes starting the message bus and endpoints.
      *
@@ -302,7 +296,7 @@ public class Service implements ServiceContext {
      */
     public void stop() {
         LOGGER.debug("Get command for stopping FA³ST Service");
-        unsubscribeMessageBus();
+        submodelTemplateManager.stop();
         messageBus.stop();
         assetConnectionManager.stop();
         registrySynchronization.stop();
@@ -326,7 +320,14 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
-        initSubmodelTemplateProcessors();
+        if (submodelTemplateManager == null) {
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors = new ArrayList<>();
+            for (SubmodelTemplateProcessorConfig submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
+                submodelTemplateProcessors.add((SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this));
+            }
+            submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
+        }
+        submodelTemplateManager.init();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
@@ -351,165 +352,4 @@ public class Service implements ServiceContext {
         }
     }
 
-
-    private void initSubmodelTemplateProcessors() throws ConfigurationException, PersistenceException, MessageBusException {
-        if (submodelTemplateProcessors == null) {
-            submodelTemplateProcessors = new ArrayList<>();
-        }
-        if (config.getSubmodelTemplateProcessors() != null) {
-            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
-                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this);
-                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, this);
-                submodelTemplateProcessors.add(submodelTemplateProcessor);
-            }
-        }
-        if (submodelTemplateProcessors.isEmpty()) {
-            return;
-        }
-        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
-        for (var submodel: submodels) {
-            addSubmodel(submodel);
-        }
-
-        subscribeMessageBus();
-    }
-
-
-    private void addSubmodel(Submodel submodel) throws PersistenceException {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
-                LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
-                persistence.save(submodel);
-            }
-        }
-    }
-
-
-    private void updateSubmodel(Submodel submodel) throws PersistenceException {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
-                LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
-                persistence.save(submodel);
-            }
-        }
-    }
-
-
-    private void deleteSubmodel(Submodel submodel) {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
-                LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
-            }
-        }
-    }
-
-
-    private void subscribeMessageBus() throws MessageBusException {
-        if (subscriptions == null) {
-            subscriptions = new ArrayList<>();
-        }
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
-    }
-
-
-    private void unsubscribeMessageBus() {
-        for (var subscription: subscriptions) {
-            try {
-                messageBus.unsubscribe(subscription);
-            }
-            catch (Exception ex) {
-                LOGGER.error("unsubscribeMessageBus Exception", ex);
-            }
-        }
-        subscriptions.clear();
-    }
-
-
-    private void elementCreated(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, VALUE_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                addSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementCreated Exception", e);
-        }
-    }
-
-
-    private void elementDeleted(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, ELEMENT_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                deleteSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementDeleted Exception", e);
-        }
-    }
-
-
-    private void elementUpdated(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, VALUE_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                updateSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementUpdated Exception", e);
-        }
-    }
-
-
-    /**
-     * Callback message for Create event from the MessageBus.
-     *
-     * @param event The event from the MessageBus.
-     */
-    public void handleCreateEvent(ElementCreateEventMessage event) {
-        elementCreated(event.getValue(), event.getElement());
-    }
-
-
-    /**
-     * Callback message for Update event from the MessageBus.
-     *
-     * @param event The event from the MessageBus.
-     */
-    public void handleUpdateEvent(ElementUpdateEventMessage event) {
-        elementUpdated(event.getValue(), event.getElement());
-    }
-
-
-    /**
-     * Callback message for Delete event from the MessageBus.
-     *
-     * @param event The event from the MessageBus.
-     */
-    public void handleDeleteEvent(ElementDeleteEventMessage event) {
-        elementDeleted(event.getValue(), event.getElement());
-    }
 }

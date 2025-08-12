@@ -71,7 +71,6 @@ public class AimcSubmodelTemplateProcessorIT {
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(10);
 
-    private static MessageBusMqttConfig messageBusConfig;
     private static MoquetteServer server;
     private static PahoClient client;
     private static int httpServerPort;
@@ -82,7 +81,7 @@ public class AimcSubmodelTemplateProcessorIT {
     public static void initClass() throws IOException, MessageBusException {
         httpServerPort = wireMockRule.port();
         mqttPort = PortHelper.findFreePort();
-        messageBusConfig = MessageBusMqttConfig.builder()
+        MessageBusMqttConfig messageBusConfig = MessageBusMqttConfig.builder()
                 .port(mqttPort)
                 .build();
         server = new MoquetteServer(messageBusConfig);

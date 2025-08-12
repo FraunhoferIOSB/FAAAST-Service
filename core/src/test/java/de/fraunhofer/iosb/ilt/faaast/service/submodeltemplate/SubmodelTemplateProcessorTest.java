@@ -152,7 +152,7 @@ public class SubmodelTemplateProcessorTest {
         doAnswer((InvocationOnMock invocation) -> {
             ElementCreateEventMessage eventMessage = invocation.getArgument(0);
             try {
-                service.handleCreateEvent(eventMessage);
+                service.getSubmodelTemplateManager().handleCreateEvent(eventMessage);
             }
             catch (Exception e) {
                 fail();
@@ -162,7 +162,7 @@ public class SubmodelTemplateProcessorTest {
         doAnswer((InvocationOnMock invocation) -> {
             ElementUpdateEventMessage eventMessage = invocation.getArgument(0);
             try {
-                service.handleUpdateEvent(eventMessage);
+                service.getSubmodelTemplateManager().handleUpdateEvent(eventMessage);
             }
             catch (Exception e) {
                 fail();
@@ -173,7 +173,7 @@ public class SubmodelTemplateProcessorTest {
         doAnswer((InvocationOnMock invocation) -> {
             ElementDeleteEventMessage eventMessage = invocation.getArgument(0);
             try {
-                service.handleDeleteEvent(eventMessage);
+                service.getSubmodelTemplateManager().handleDeleteEvent(eventMessage);
             }
             catch (Exception e) {
                 fail();
