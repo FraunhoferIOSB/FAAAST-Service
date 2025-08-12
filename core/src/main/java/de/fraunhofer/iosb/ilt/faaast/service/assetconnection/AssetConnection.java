@@ -140,4 +140,17 @@ public interface AssetConnection<T extends AssetConnectionConfig, VC extends Ass
      */
     public void unregisterValueProvider(Reference reference) throws AssetConnectionException;
 
+
+    /**
+     * Stops the asset connection.
+     */
+    public void stop();
+
+
+    /**
+     * Return whether the asset connection is active.
+     *
+     * @return True if active, false otherwise.
+     */
+    public boolean isActive();
 }
