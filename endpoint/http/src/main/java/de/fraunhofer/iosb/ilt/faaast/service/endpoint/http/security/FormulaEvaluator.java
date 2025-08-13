@@ -21,8 +21,18 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 
+/**
+ * Class to evaluate formulas.
+ */
 public final class FormulaEvaluator {
 
+    /**
+     * Evaluates the given formula.
+     *
+     * @param formula The formula.
+     * @param runtimeValues The runtime values.
+     * @return True if the evaluation is successful, false othetwise.
+     */
     public static boolean evaluate(Map<String, Object> formula,
                                    Map<String, Object> runtimeValues) {
         return eval(formula, runtimeValues);

@@ -171,9 +171,9 @@ public class ApiGateway {
         }
 
 
-        public static boolean evaluateFormula(Map<String, Object> formula,
-                                              String claimName,
-                                              String claimValue) {
+        private static boolean evaluateFormula(Map<String, Object> formula,
+                                               String claimName,
+                                               String claimValue) {
             Map<String, Object> ctx = new HashMap<>();
             ctx.put("CLAIM:" + claimName, claimValue);
             ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
