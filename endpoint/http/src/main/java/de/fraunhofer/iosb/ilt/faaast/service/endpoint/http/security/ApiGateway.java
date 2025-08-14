@@ -161,21 +161,30 @@ public class ApiGateway {
                     .map(Attribute::getCLAIM)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+            Map<String, String> claimList = new HashMap<>();
+            for (String val: claimValues) {
+                Object claim = claims.get(val);
+                if (claim != null) {
+                    claimList.put(val, claim.toString());
+                }
+            }
             return !claimValues.isEmpty()
                     && claimValues.stream()
                             .allMatch(value -> {
-                                Claim claim = claims.get(value);
-                                return claim != null
-                                        && evaluateFormula(rule.getFORMULA(), value, claim.asString());
+                                //Claim claim = claims.get(value);
+                                //return claim != null
+                                return evaluateFormula(rule.getFORMULA(), claimList);
                             });
         }
 
 
         private static boolean evaluateFormula(Map<String, Object> formula,
-                                               String claimName,
-                                               String claimValue) {
+                                               Map<String, String> claims) {
             Map<String, Object> ctx = new HashMap<>();
-            ctx.put("CLAIM:" + claimName, claimValue);
+            for (var c: claims.entrySet()) {
+                ctx.put("CLAIM:" + c.getKey(), c.getValue());
+            }
+            //ctx.put("CLAIM:" + claimName, claimValue);
             ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
             return FormulaEvaluator.evaluate(formula, ctx);
         }
