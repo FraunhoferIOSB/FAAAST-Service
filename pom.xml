@@ -108,7 +108,7 @@
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.13</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
-        <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
+        <maven.plugin.javadoc.version>3.11.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.owasp.version>12.1.3</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
