@@ -135,7 +135,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.3.0-181</prosys.sdk.version>
         <protobuf.version>4.32.0</protobuf.version>
-        <rgxgen.version>3.0</rgxgen.version>
+        <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>3.0.1</slf4j.test.version>
