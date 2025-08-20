@@ -15,9 +15,9 @@ CHANGELOG_FILE="./docs/source/other/release-notes.md"
 README_FILE="README.md"
 INSTALLATION_FILE="./docs/source/basics/installation.md"
 README_LATEST_RELEASE_VERSION_CONTENT="[Download latest RELEASE version \($VERSION\)]\(https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/service\/starter\/${VERSION}\/starter-${VERSION}.jar\)"
-README_LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/oss.sonatype.org\/service\/local\/artifact\/maven\/redirect?r=snapshots\&g=de\.fraunhofer\.iosb\.ilt\.faaast\.service\&a=starter\&v=${NEXTVERSION}-SNAPSHOT\)"
+README_LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/purl.archive.org\/faaast\/service\/snapshot\/latest\)"
 INSTALLATION_LATEST_RELEASE_VERSION_CONTENT="{download}\`Latest RELEASE version \($VERSION\) <https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/service\/starter\/${VERSION}\/starter-${VERSION}.jar>\`"
-INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT="{download}\`Latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) <https:\/\/oss.sonatype.org\/service\/local\/artifact\/maven\/redirect?r=snapshots\&g=de\.fraunhofer\.iosb\.ilt\.faaast\.service\&a=starter\&v=${NEXTVERSION}-SNAPSHOT>\`"
+INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT="{download}\`Latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) <https:\/\/purl.archive.org\/faaast\/service\/snapshot\/latest\`"
 
 # arguments: tag
 function startTag()
