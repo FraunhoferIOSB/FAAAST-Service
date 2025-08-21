@@ -54,9 +54,11 @@ public class SubmodelTemplateManager {
 
     public SubmodelTemplateManager(Service service, List<SubmodelTemplateProcessor> submodelTemplateProcessors) {
         this.service = service;
-        this.submodelTemplateProcessors = submodelTemplateProcessors;
         if (submodelTemplateProcessors == null) {
-            submodelTemplateProcessors = new ArrayList<>();
+            this.submodelTemplateProcessors = new ArrayList<>();
+        }
+        else {
+            this.submodelTemplateProcessors = submodelTemplateProcessors;
         }
         subscriptions = new ArrayList<>();
     }
