@@ -2,6 +2,10 @@
 <!--start:changelog-header-->
 ## 1.3.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
+**New Features & Major Changes**
+- General
+  - Support for Submodel Templates Asset Interfaces Description (AID) and Asset Interfaces Mapping Configuration (AIMC)
+
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that auxiliary files were not loaded when starting from code with an initial model file
