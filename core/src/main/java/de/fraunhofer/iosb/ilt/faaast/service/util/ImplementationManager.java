@@ -90,6 +90,7 @@ public class ImplementationManager {
         catch (SecurityException e) {
             LOGGER.error("Scanning directory '{}' for jar files failed", dir, e);
         }
+        Thread.currentThread().setContextClassLoader(classLoader);
         isInitialized = true;
     }
 
