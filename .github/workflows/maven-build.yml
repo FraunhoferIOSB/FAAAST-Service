@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
@@ -28,7 +28,7 @@ jobs:
         restore-keys: ${{ runner.os }}-maven
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'adopt'
         java-version: 17
@@ -100,7 +100,7 @@ jobs:
         echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import
         echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
 
-    - name: Deploy SNAPSHOTS
+    - name: Deploy SNAPSHOTS & update download links
       if:  ${{ endsWith(env.VERSION, '-SNAPSHOT') }}
       env:
         GPG_EXECUTABLE: gpg
@@ -109,7 +109,13 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
+        PURL_USER: ${{ secrets.PURL_USER }}
+        PURL_PASSWORD: ${{ secrets.PURL_PASSWORD }}
+        VERSION: ${{ env.VERSION }}
+      run: |
+        mvn clean deploy -P release --settings maven-ci-settings.xml -B
+        chmod +x ./update-snapshot-purl.sh
+        ./update-snapshot-purl.sh -g "de.fraunhofer.iosb.ilt.faaast.service" -a "starter" -v "${VERSION}" -d "faaast" -p "service/snapshot/latest"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3

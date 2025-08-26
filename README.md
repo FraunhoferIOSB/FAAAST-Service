@@ -40,7 +40,7 @@ The features of FA³ST Service include
 [Download latest RELEASE version (1.2.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/1.2.0/starter-1.2.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (1.3.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=1.3.0-SNAPSHOT)<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (1.3.0-SNAPSHOT)](https://purl.archive.org/faaast/service/snapshot/latest)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 ```xml

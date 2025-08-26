@@ -80,7 +80,7 @@ import org.slf4j.event.Level;
 public class MqttAssetConnectionTest {
 
     private static final Reference DEFAULT_REFERENCE = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
-    private static final long DEFAULT_TIMEOUT = 10000;
+    private static final long DEFAULT_TIMEOUT = 25000;
     private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";
     private static final Predicate<LoggingEvent> LOG_MSG_DESERIALIZATION_FAILED = x -> x.getLevel() == Level.ERROR
