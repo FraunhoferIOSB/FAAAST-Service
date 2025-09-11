@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import java.util.List;

@@ -14,25 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate;
 
-import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.slf4j.Logger;
@@ -48,44 +46,38 @@ public class SubmodelTemplateManager {
     private static final String VALUE_NULL = "value must not be null";
     private static final String ELEMENT_NULL = "element must not be null";
 
-    private final List<SubmodelTemplateProcessor> submodelTemplateProcessors;
-    private final Service service;
-    private final List<SubscriptionId> subscriptions;
+    private final Persistence persistence;
+    private final MessageBus messageBus;
+    private final AssetConnectionManager assetConnectionManager;
 
-    public SubmodelTemplateManager(Service service, List<SubmodelTemplateProcessor> submodelTemplateProcessors) {
-        this.service = service;
+    private final List<SubscriptionId> subscriptions = new ArrayList<>();
+    private List<SubmodelTemplateProcessor> submodelTemplateProcessors = new ArrayList<>();
+
+    public SubmodelTemplateManager(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager,
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) {
+        Ensure.requireNonNull(submodelTemplateProcessors, "submodelTemplateProcessors must be non-null");
+        this.persistence = persistence;
+        this.messageBus = messageBus;
+        this.assetConnectionManager = assetConnectionManager;
         this.submodelTemplateProcessors = submodelTemplateProcessors;
-        if (submodelTemplateProcessors == null) {
-            submodelTemplateProcessors = new ArrayList<>();
-        }
-        subscriptions = new ArrayList<>();
+
     }
 
 
     /**
-     * Initializes the submodel template processors.
+     * Starts the processing submodel templates.
      *
-     * @throws ConfigurationException if invalid configuration is provided
      * @throws PersistenceException if storage error occurs
      * @throws MessageBusException if message bus error occurs
      */
-    public void init() throws ConfigurationException, PersistenceException, MessageBusException {
-        ServiceConfig config = service.getConfig();
-        if (config.getSubmodelTemplateProcessors() != null) {
-            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
-                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), service);
-                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, service);
-                submodelTemplateProcessors.add(submodelTemplateProcessor);
-            }
-        }
+    public void start() throws PersistenceException, MessageBusException {
         if (submodelTemplateProcessors.isEmpty()) {
             return;
         }
-        List<Submodel> submodels = service.getPersistence().getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
+        List<Submodel> submodels = persistence.getAllSubmodels(QueryModifier.MAXIMAL, PagingInfo.ALL).getContent();
         for (var submodel: submodels) {
             addSubmodel(submodel);
         }
-
         subscribeMessageBus();
     }
 
@@ -98,120 +90,25 @@ public class SubmodelTemplateManager {
     }
 
 
-    private void addSubmodel(Submodel submodel) throws PersistenceException {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, service.getAssetConnectionManager())) {
-                LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
-                service.getPersistence().save(submodel);
-            }
-        }
-    }
-
-
-    private void updateSubmodel(Submodel submodel) throws PersistenceException {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, service.getAssetConnectionManager())) {
-                LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
-                service.getPersistence().save(submodel);
-            }
-        }
-    }
-
-
-    private void deleteSubmodel(Submodel submodel) {
-        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, service.getAssetConnectionManager())) {
-                LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
-            }
-        }
-    }
-
-
-    private void subscribeMessageBus() throws MessageBusException {
-        MessageBus messageBus = service.getMessageBus();
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
-    }
-
-
-    private void unsubscribeMessageBus() {
-        for (var subscription: subscriptions) {
-            try {
-                service.getMessageBus().unsubscribe(subscription);
-            }
-            catch (Exception ex) {
-                LOGGER.error("unsubscribeMessageBus Exception", ex);
-            }
-        }
-        subscriptions.clear();
-    }
-
-
-    private void elementCreated(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, VALUE_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                addSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(service.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementCreated Exception", e);
-        }
-    }
-
-
-    private void elementDeleted(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, ELEMENT_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                deleteSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(service.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementDeleted Exception", e);
-        }
-    }
-
-
-    private void elementUpdated(Referable value, Reference reference) {
-        Ensure.requireNonNull(value, VALUE_NULL);
-
-        try {
-            if (value instanceof Submodel submodel) {
-                updateSubmodel(submodel);
-            }
-            else if (value instanceof SubmodelElement) {
-                // if a SubmodelElement changed, we use updateSubodel
-                SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(reference);
-                updateSubmodel(service.getPersistence().getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
-            }
-        }
-        catch (Exception e) {
-            LOGGER.error("elementUpdated Exception", e);
-        }
-    }
-
-
     /**
      * Callback message for Create event from the MessageBus.
      *
      * @param event The event from the MessageBus.
      */
     public void handleCreateEvent(ElementCreateEventMessage event) {
-        elementCreated(event.getValue(), event.getElement());
+        if (event.getValue() instanceof Submodel submodel) {
+            addSubmodel(submodel);
+        }
+        else if (event.getValue() instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
+            try {
+                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
+            catch (ResourceNotFoundException | PersistenceException e) {
+                LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
+            }
+        }
     }
 
 
@@ -221,7 +118,19 @@ public class SubmodelTemplateManager {
      * @param event The event from the MessageBus.
      */
     public void handleUpdateEvent(ElementUpdateEventMessage event) {
-        elementUpdated(event.getValue(), event.getElement());
+        if (event.getValue() instanceof Submodel submodel) {
+            updateSubmodel(submodel);
+        }
+        else if (event.getValue() instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
+            try {
+                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
+            catch (ResourceNotFoundException | PersistenceException e) {
+                LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
+            }
+        }
     }
 
 
@@ -231,6 +140,84 @@ public class SubmodelTemplateManager {
      * @param event The event from the MessageBus.
      */
     public void handleDeleteEvent(ElementDeleteEventMessage event) {
-        elementDeleted(event.getValue(), event.getElement());
+        if (event.getValue() instanceof Submodel submodel) {
+            deleteSubmodel(submodel);
+        }
+        else if (event.getValue() instanceof SubmodelElement) {
+            // if a SubmodelElement changed, we use updateSubodel
+            SubmodelElementIdentifier submodelElementIdentifier = SubmodelElementIdentifier.fromReference(event.getElement());
+            try {
+                updateSubmodel(persistence.getSubmodel(submodelElementIdentifier.getSubmodelId(), QueryModifier.DEFAULT));
+            }
+            catch (ResourceNotFoundException | PersistenceException e) {
+                LOGGER.warn("Failed to read submodel (submodelId: {})", submodelElementIdentifier.getSubmodelId(), e);
+            }
+        }
+    }
+
+
+    private void addSubmodel(Submodel submodel) {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.add(submodel, assetConnectionManager)) {
+                LOGGER.debug("addSubmodel: submodelTemplate processed successfully");
+                try {
+                    persistence.save(submodel);
+                }
+                catch (PersistenceException e) {
+                    LOGGER.warn("Failed to save submodel added by SMT processor (submodelId: {}, SMT processor type: {})",
+                            submodel.getId(),
+                            submodelTemplateProcessor.getClass().getSimpleName(),
+                            e);
+                }
+            }
+        }
+    }
+
+
+    private void updateSubmodel(Submodel submodel) {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.update(submodel, assetConnectionManager)) {
+                LOGGER.debug("updateSubmodel: submodelTemplate processed successfully");
+                try {
+                    persistence.save(submodel);
+                }
+                catch (PersistenceException e) {
+                    LOGGER.warn("Failed to save submodel updated by SMT processor (submodelId: {}, SMT processor type: {})",
+                            submodel.getId(),
+                            submodelTemplateProcessor.getClass().getSimpleName(),
+                            e);
+                }
+            }
+        }
+    }
+
+
+    private void deleteSubmodel(Submodel submodel) {
+        for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+            if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.delete(submodel, assetConnectionManager)) {
+                LOGGER.debug("deleteSubmodel: submodelTemplate processed successfully");
+            }
+        }
+    }
+
+
+    private void subscribeMessageBus() throws MessageBusException {
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, this::handleCreateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, this::handleUpdateEvent)));
+        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, this::handleDeleteEvent)));
+        // ValueChangeEventMessage
+    }
+
+
+    private void unsubscribeMessageBus() {
+        for (var subscription: subscriptions) {
+            try {
+                messageBus.unsubscribe(subscription);
+            }
+            catch (MessageBusException e) {
+                LOGGER.warn("failed to unsubscribe from message bus (subscriptionId: {})", subscription.getValue(), e);
+            }
+        }
+        subscriptions.clear();
     }
 }

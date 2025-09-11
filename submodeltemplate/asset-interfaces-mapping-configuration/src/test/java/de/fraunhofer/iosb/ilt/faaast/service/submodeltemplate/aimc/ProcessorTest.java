@@ -32,6 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMem
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -61,7 +63,7 @@ public class ProcessorTest {
                 .fileStorage(new FileStorageInMemoryConfig())
                 .messageBus(new MessageBusInternalConfig())
                 .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
-                        .interfaceConfiguration(submodelRef, new AimcSubmodelTemplateProcessorConfigData.Builder().username("user1").password("pw1").build()).build()))
+                        .interfaceConfiguration(submodelRef, new InterfaceConfiguration.Builder().username("user1").password("pw1").build()).build()))
                 .build();
     }
 

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;

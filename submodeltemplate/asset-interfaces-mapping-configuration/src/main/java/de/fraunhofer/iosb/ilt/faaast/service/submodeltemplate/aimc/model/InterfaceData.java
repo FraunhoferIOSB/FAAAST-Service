@@ -12,33 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
-
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfigData;
-
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model;
 
 /**
  * Class with data for interfaces.
  */
-public class InterfaceData {
+public abstract class InterfaceData {
 
-    private final AimcSubmodelTemplateProcessorConfigData configData;
     private String baseUrl;
-
-    public InterfaceData(AimcSubmodelTemplateProcessorConfigData configData) {
-        this.configData = configData;
-    }
-
-
-    /**
-     * Gets the config data.
-     *
-     * @return The config data.
-     */
-    public AimcSubmodelTemplateProcessorConfigData getConfigData() {
-        return configData;
-    }
-
 
     public String getBaseUrl() {
         return baseUrl;

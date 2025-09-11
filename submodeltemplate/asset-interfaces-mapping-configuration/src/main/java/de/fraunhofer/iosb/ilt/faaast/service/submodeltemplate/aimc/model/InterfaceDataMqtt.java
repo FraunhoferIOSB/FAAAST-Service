@@ -12,26 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfigData;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Class with data for HTTP interfaces.
+ * Class with data for MQTT interfaces.
  */
-public class InterfaceDataHttp extends InterfaceData {
+public class InterfaceDataMqtt extends InterfaceData {
 
-    private Map<Reference, HttpValueProviderConfig> valueProvider;
-    private Map<Reference, HttpSubscriptionProviderConfig> subscriptionProvider;
+    private Map<Reference, MqttValueProviderConfig> valueProvider;
+    private Map<Reference, MqttSubscriptionProviderConfig> subscriptionProvider;
 
-    public InterfaceDataHttp(AimcSubmodelTemplateProcessorConfigData configData) {
-        super(configData);
+    public InterfaceDataMqtt() {
         valueProvider = new HashMap<>();
         subscriptionProvider = new HashMap<>();
     }
@@ -42,7 +40,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @return The value providers.
      */
-    public Map<Reference, HttpValueProviderConfig> getValueProvider() {
+    public Map<Reference, MqttValueProviderConfig> getValueProvider() {
         return valueProvider;
     }
 
@@ -52,7 +50,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @param value The value providers.
      */
-    public void setValueProvider(Map<Reference, HttpValueProviderConfig> value) {
+    public void setValueProvider(Map<Reference, MqttValueProviderConfig> value) {
         valueProvider = value;
     }
 
@@ -62,7 +60,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @param value The desired value providers.
      */
-    public void addValueProvider(Map<Reference, HttpValueProviderConfig> value) {
+    public void addValueProvider(Map<Reference, MqttValueProviderConfig> value) {
         valueProvider.putAll(value);
     }
 
@@ -72,7 +70,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @return The subscription providers.
      */
-    public Map<Reference, HttpSubscriptionProviderConfig> getSubscriptionProvider() {
+    public Map<Reference, MqttSubscriptionProviderConfig> getSubscriptionProvider() {
         return subscriptionProvider;
     }
 
@@ -82,7 +80,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @param value The subscription providers.
      */
-    public void setSubscriptionProvider(Map<Reference, HttpSubscriptionProviderConfig> value) {
+    public void setSubscriptionProvider(Map<Reference, MqttSubscriptionProviderConfig> value) {
         subscriptionProvider = value;
     }
 
@@ -92,7 +90,7 @@ public class InterfaceDataHttp extends InterfaceData {
      *
      * @param value The desired subscription providers.
      */
-    public void addSubscriptionProviders(Map<Reference, HttpSubscriptionProviderConfig> value) {
+    public void addSubscriptionProviders(Map<Reference, MqttSubscriptionProviderConfig> value) {
         subscriptionProvider.putAll(value);
     }
 }

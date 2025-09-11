@@ -35,6 +35,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.HttpModel;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.MqttModel;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -218,7 +220,7 @@ public class AimcSubmodelTemplateProcessorIT {
                 .messageBus(new MessageBusInternalConfig())
                 .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
                         .interfaceConfiguration(ReferenceBuilder.forSubmodel(HttpModel.SUBMODEL_AID_ID, HttpModel.INTERFACE_HTTP),
-                                new AimcSubmodelTemplateProcessorConfigData.Builder().subscriptionInterval(50).build())
+                                new InterfaceConfiguration.Builder().subscriptionInterval(50).build())
                         .build()))
                 .build();
     }

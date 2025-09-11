@@ -31,7 +31,9 @@ public class Constants {
     public static final String AID_SECURITY_BASIC = "basic_sc";
     public static final String AID_TYPE_OBJECT = "object";
     public static final String AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfigurations";
+    public static final String AIMC_CONFIGURATION_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingConfiguration";
     public static final String AIMC_MAPPING_RELATIONS_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingSourceSinkRelations";
+    public static final String AIMC_MAPPING_RELATION_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/MappingSourceSinkRelation";
     public static final String AIMC_INTERFACE_REFERENCE_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesMappingConfiguration/1/0/InterfaceReference";
 
     public static final String AID_PROPERTY_ROOT_SEMANTIC_ID = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition";

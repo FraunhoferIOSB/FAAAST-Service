@@ -130,8 +130,7 @@ public class Service implements ServiceContext {
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
-        this.submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
-        this.submodelTemplateManager.init();
+        this.submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);        
     }
 
 
@@ -287,6 +286,7 @@ public class Service implements ServiceContext {
         }
         registrySynchronization.start();
         assetConnectionManager.start();
+        submodelTemplateManager.start();
         LOGGER.debug("FA³ST Service is running!");
     }
 
@@ -325,9 +325,8 @@ public class Service implements ServiceContext {
             for (SubmodelTemplateProcessorConfig submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
                 submodelTemplateProcessors.add((SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this));
             }
-            submodelTemplateManager = new SubmodelTemplateManager(this, submodelTemplateProcessors);
+            submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);
         }
-        submodelTemplateManager.init();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
@@ -338,6 +337,7 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
+        // TODO maybe move up before SMT processor or change SMT processors interface to take persistence directly
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);

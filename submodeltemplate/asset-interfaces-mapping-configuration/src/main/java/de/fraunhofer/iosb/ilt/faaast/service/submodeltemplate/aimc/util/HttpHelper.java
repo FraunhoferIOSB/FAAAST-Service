@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
@@ -25,9 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessorConfigData;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.InterfaceDataHttp;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
@@ -455,7 +457,7 @@ public class HttpHelper {
     }
 
 
-    private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, AimcSubmodelTemplateProcessorConfigData config,
+    private static HttpAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, InterfaceConfiguration config,
                                                                        SubmodelElementList securityList, HttpAssetConnectionConfig.Builder assetConfigBuilder)
             throws ResourceNotFoundException, PersistenceException {
         HttpAssetConnectionConfig.Builder retval = assetConfigBuilder;
