@@ -35,7 +35,7 @@ We strongly recommend to be careful when using external AAS models or submodels.
 :::
 
 
-```{toctree} 
+```{toctree}
 :hidden:
 :titlesonly:
 :caption: Basics
@@ -46,7 +46,7 @@ basics/configuration.md
 basics/faq.md
 ```
 
-```{toctree} 
+```{toctree}
 :hidden:
 :caption: Interfaces
 interfaces/endpoint.md
@@ -54,9 +54,10 @@ interfaces/asset-connection.md
 interfaces/persistence.md
 interfaces/file-storage.md
 interfaces/message-bus.md
+interfaces/submodeltemplateprocessors.md
 ```
 
-```{toctree} 
+```{toctree}
 :hidden:
 :caption: Other
 other/release-notes.md
