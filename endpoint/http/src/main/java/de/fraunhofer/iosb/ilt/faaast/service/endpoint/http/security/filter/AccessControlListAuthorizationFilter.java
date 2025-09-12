@@ -12,25 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,7 +42,6 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -51,54 +52,72 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 
-/**
- * An ApiGateway that verifies JWT tokens against the provided jwkProvider.
- * Initially all ACL rules from the folder are read and stored. After that,
- * the folder is monitored for deletion or addition of new rules.
- */
-public class ApiGateway {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
-    private String jwkProvider;
+public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter {
+
+    private static final String AUTHORIZATION_KWD = "Authorization";
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AccessControlListAuthorizationFilter.class);
+
+    private final JwkProvider jwkProvider;
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
-    public ApiGateway(String jwkProvider, String aclFolder) {
-        this.jwkProvider = jwkProvider;
+    public AccessControlListAuthorizationFilter(URL jwkProvider, String aclFolder) {
+        this.jwkProvider = new UrlJwkProvider(jwkProvider);
         initializeAclList(aclFolder);
+        // TODO Maybe we can read the ACL rules when a request comes in?
         monitorAclRules(aclFolder);
     }
 
 
     /**
-     * Verifies the token by decoding it.
-     * Additionally, AuthServer is used to verify claims.
+     * Verify JWT claims by counterchecking with ACL
      *
-     * @param token the JWT token
-     * @param request the request parameters
-     * @return true if the token is valid
+     * @param servletRequest the <code>ServletRequest</code> object contains the client's request
+     * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
+     * @param filterChain the <code>FilterChain</code> for invoking the next filter or the resource
+     * @throws IOException doFilter of further Filter steps
+     * @throws ServletException doFilter of further Filter steps
      */
-    public boolean isAuthorized(String token, HttpServletRequest request) {
-        if (Objects.isNull(token)) {
-            return AuthServer.filterRules(this.aclList, null, request);
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+
+        String authHeader = httpRequest.getHeader(AUTHORIZATION_KWD);
+
+        // If we can serve this request with no claims, we can stop early
+        if (authHeader == null && checkClaims(httpRequest)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
         }
-        else {
-            token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
-            DecodedJWT jwt = JWT.decode(token);
-            JwkProvider provider = new UrlJwkProvider(this.jwkProvider);
-            try {
-                Jwk jwk = provider.get(jwt.getKeyId());
-                Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
-                algorithm.verify(jwt);
-                JWTVerifier verifier = JWT.require(algorithm)
-                        //.withIssuer(this.jwkProvider)
-                        .build();
-                verifier.verify(token);
-            }
-            catch (JwkException e) {
-                return false;
-            }
-            return AuthServer.filterRules(this.aclList, jwt.getClaims(), request);
+
+        // Extract JWT
+        DecodedJWT jwt = extractAndDecodeJwt(httpRequest);
+        if (jwt == null) {
+            LOGGER.info("Could not extract JWT");
+            return;
         }
+
+        if (!checkClaims(httpRequest, jwt.getClaims())) {
+            httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            return;
+        }
+
+        // Continue with the request
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+
+    private boolean checkClaims(HttpServletRequest request) {
+        return checkClaims(request, null);
+    }
+
+
+    private boolean checkClaims(HttpServletRequest request, Map<String, Claim> claims) {
+        return AuthServer.filterRules(this.aclList, claims, request);
     }
 
     /**
@@ -319,4 +338,5 @@ public class ApiGateway {
         });
         monitoringThread.start();
     }
+
 }
