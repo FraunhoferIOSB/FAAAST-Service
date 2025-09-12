@@ -310,18 +310,18 @@ public class App implements Runnable {
     private void configureLogging() {
         if (veryVeryVerbose) {
             FaaastFilter.setLevelFaaast(Level.TRACE);
-            FaaastFilter.setLevelExternal(Level.DEBUG);
+            FaaastFilter.setLevelExternal(Level.TRACE);
         }
         else if (veryVerbose) {
+            FaaastFilter.setLevelFaaast(Level.TRACE);
+            FaaastFilter.setLevelExternal(Level.DEBUG);
+        }
+        else if (verbose) {
             FaaastFilter.setLevelFaaast(Level.DEBUG);
             FaaastFilter.setLevelExternal(Level.INFO);
         }
-        else if (verbose) {
-            FaaastFilter.setLevelFaaast(Level.INFO);
-            FaaastFilter.setLevelExternal(Level.WARN);
-        }
         else if (quite) {
-            FaaastFilter.setLevelFaaast(Level.ERROR);
+            FaaastFilter.setLevelFaaast(Level.WARN);
             FaaastFilter.setLevelExternal(Level.ERROR);
         }
         if (logLevelFaaast != null) {
