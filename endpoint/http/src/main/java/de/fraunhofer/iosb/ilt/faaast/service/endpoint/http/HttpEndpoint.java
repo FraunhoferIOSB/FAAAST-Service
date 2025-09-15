@@ -118,7 +118,7 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
         context.addServlet(handler, "/*");
 
-        if (config.getJwkProvider() != null) {
+        if (Objects.nonNull(config.getJwkProvider())) {
             URL jwkProviderUrl;
             try {
                 jwkProviderUrl = new URL(config.getJwkProvider());
