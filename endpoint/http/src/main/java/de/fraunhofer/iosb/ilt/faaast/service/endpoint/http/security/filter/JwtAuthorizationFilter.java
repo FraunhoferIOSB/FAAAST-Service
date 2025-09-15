@@ -20,9 +20,20 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 
 
+/**
+ * Abstract filter for HTTP requests with JWT headers.
+ */
 public abstract class JwtAuthorizationFilter implements Filter {
     private static final String BEARER_KWD = "Bearer";
 
+    /**
+     * Extracts a JWT from an HTTP request by reading its Authorization header,
+     * checking the presence of the "Bearer" keyword and returning the decoded token.
+     *
+     * @param request An incoming HTTP request.
+     *
+     * @return The decoded JWT if present, else null
+     */
     protected DecodedJWT extractAndDecodeJwt(HttpServletRequest request) {
         var authHeaderValue = request.getHeader("Authorization");
 

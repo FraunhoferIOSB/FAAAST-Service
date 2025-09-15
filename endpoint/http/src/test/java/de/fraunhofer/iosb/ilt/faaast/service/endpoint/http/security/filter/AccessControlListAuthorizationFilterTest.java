@@ -12,36 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AccessControlListAuthorizationFilter;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 
 
-public class ApiGatewayTest {
+public class AccessControlListAuthorizationFilterTest extends JwtAuthorizationFilterTest {
 
     private static final String ACL_JSON = "{\n" +
             "  \"AllAccessPermissionRules\": {\n" +
@@ -70,18 +63,21 @@ public class ApiGatewayTest {
     }
 
 
-    @Ignore("Classes changed, need to rewrite")
     @Test
     public void anonymousAccessDependsOnAclFile() throws Exception {
 
         aclDir = tmp.newFolder("acl").toPath();
-        filter = new AccessControlListAuthorizationFilter(new URL("http://whatever-jwks"), aclDir.toString());
+        filter = new AccessControlListAuthorizationFilter(new UrlJwkProvider(new URL("http://whatever-jwks")), aclDir.toString());
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
+        HttpServletResponse response = mockResponse();
+        FilterChain filterChain = mockFilterChain();
 
         // TODO  I suggest we build a filterChain and fail/succeed if filterChain.doFilter is called (i.e. the next filter)
-        //assertFalse(filter.doFilter(null, request);
-
+        //assertFalse(filter.doFilter(null, request));
+        filter.doFilter(request, response, filterChain);
+        // Verify that request was blocked off
+        verify(filterChain, never()).doFilter(any(), any());
         Path rule = aclDir.resolve("allow.json");
         Path tmpRule = aclDir.resolve("allow.json.tmp");
         Files.writeString(tmpRule, ACL_JSON, StandardCharsets.UTF_8);
@@ -93,43 +89,5 @@ public class ApiGatewayTest {
         Files.delete(rule);
         Thread.sleep(200);
         //assertFalse(filter.isAuthorized(null, request));
-    }
-
-
-    @Ignore("Classes changed, need to rewrite")
-    @Test
-    public void jwtIsVerified() throws Exception {
-
-        aclDir = tmp.newFolder("acl").toPath();
-        Files.writeString(aclDir.resolve("allow.json"),
-                ACL_JSON, StandardCharsets.UTF_8);
-
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-        KeyPair kp = kpg.generateKeyPair();
-
-        RSAPublicKey pub = (RSAPublicKey) kp.getPublic();
-        RSAPrivateKey priv = (RSAPrivateKey) kp.getPrivate();
-
-        String kid = "unit-test-kid";
-
-        String jwt = JWT.create()
-                .withKeyId(kid)
-                .withClaim("dummy", "x")
-                .sign(Algorithm.RSA256(pub, priv));
-
-        Jwk jwk = mock(Jwk.class);
-        when(jwk.getPublicKey()).thenReturn(pub);
-        when(jwk.getId()).thenReturn(kid);
-
-        try (MockedConstruction<UrlJwkProvider> mocked = Mockito.mockConstruction(UrlJwkProvider.class,
-                (mock, ctx) -> when(mock.get(anyString())).thenReturn(jwk))) {
-
-            filter = new AccessControlListAuthorizationFilter(new URL("http://whatever-jwks"), aclDir.toString());
-
-            HttpServletRequest request = req("GET", "/api/v3.0/submodels");
-
-            //assertTrue(filter.doFilter(jwt, request));
-        }
     }
 }
