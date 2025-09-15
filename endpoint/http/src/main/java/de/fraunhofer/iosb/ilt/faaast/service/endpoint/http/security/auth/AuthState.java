@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth;
 
+/**
+ * Shows the current state of an incoming HTTP request.
+ */
 public enum AuthState {
     ANONYMOUS,
     AUTHENTICATED
