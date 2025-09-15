@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState.ANONYMOUS;
+
 import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +33,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -52,9 +52,10 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Filters any incoming request with respect to the given ACL rules.
+ */
 public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter {
-
-    private static final String AUTHORIZATION_KWD = "Authorization";
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AccessControlListAuthorizationFilter.class);
 
@@ -62,8 +63,8 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
-    public AccessControlListAuthorizationFilter(URL jwkProvider, String aclFolder) {
-        this.jwkProvider = new UrlJwkProvider(jwkProvider);
+    public AccessControlListAuthorizationFilter(JwkProvider jwkProvider, String aclFolder) {
+        this.jwkProvider = jwkProvider;
         initializeAclList(aclFolder);
         // TODO Maybe we can read the ACL rules when a request comes in?
         monitorAclRules(aclFolder);
@@ -71,7 +72,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
 
 
     /**
-     * Verify JWT claims by counterchecking with ACL
+     * Verify JWT claims by counterchecking with ACL.
      *
      * @param servletRequest the <code>ServletRequest</code> object contains the client's request
      * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
@@ -86,11 +87,11 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        String authHeader = httpRequest.getHeader(AUTHORIZATION_KWD);
-
-        // If we can serve this request with no claims, we can stop early
-        if (authHeader == null && checkClaims(httpRequest)) {
-            filterChain.doFilter(servletRequest, servletResponse);
+        if (ANONYMOUS.equals(servletRequest.getAttribute("auth.state"))) {
+            // Check request without any claims
+            if (checkClaims(httpRequest)) {
+                filterChain.doFilter(servletRequest, servletResponse);
+            }
             return;
         }
 
@@ -103,11 +104,11 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
 
         if (!checkClaims(httpRequest, jwt.getClaims())) {
             httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            return;
         }
-
-        // Continue with the request
-        filterChain.doFilter(servletRequest, servletResponse);
+        else {
+            // Continue with the request
+            filterChain.doFilter(servletRequest, servletResponse);
+        }
     }
 
 

@@ -18,13 +18,13 @@ import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -32,12 +32,15 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Filters any incoming request by verifying its JWT if available.
+ * If no Authorization: Bearer <...> header is available, assumes an anonymous request.
+ */
 public class JwtValidationFilter extends JwtAuthorizationFilter {
 
     private static final String AUTHORIZATION_KWD = "Authorization";
@@ -45,11 +48,20 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
 
     private final JwkProvider jwkProvider;
 
-    public JwtValidationFilter(URL jwkProvider) {
-        this.jwkProvider = new UrlJwkProvider(jwkProvider);
+    public JwtValidationFilter(JwkProvider jwkProvider) {
+        this.jwkProvider = jwkProvider;
     }
 
 
+    /**
+     * If a bearer token (JWT) is passed as header, validates this token and blocks the request as unauthenticated.
+     *
+     * @param servletRequest the <code>ServletRequest</code> object contains the client's request
+     * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
+     * @param filterChain the <code>FilterChain</code> for invoking the next filter or the resource
+     * @throws IOException could not write HttpResponse body OR exception in next filter steps
+     * @throws ServletException exception in next filter steps
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException,
             ServletException {
@@ -61,30 +73,34 @@ public class JwtValidationFilter extends JwtAuthorizationFilter {
         var authHeaderList = Collections.list(authHeaders);
         if (authHeaderList.size() > 1) {
             LOGGER.debug("Multiple authorization headers present! Not authorizing request.");
+            respondForbidden(httpResponse);
             return;
         }
 
         if (httpRequest.getHeader(AUTHORIZATION_KWD) == null) {
             // No JWT in request, anonymous requestor
+            servletRequest.setAttribute("auth.state", AuthState.ANONYMOUS);
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         // Extract JWT
         DecodedJWT jwt = extractAndDecodeJwt(httpRequest);
-        if (jwt == null) {
-            LOGGER.debug("Could not extract JWT");
-            return;
+        if (jwt == null || !validateJWT(jwt)) {
+            LOGGER.debug("Could not extract and validate JWT");
+            respondForbidden(httpResponse);
         }
-
-        if (!validateJWT(jwt)) {
-            httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            httpResponse.getWriter().write("Invalid token");
-            return;
+        else {
+            // Continue with the request as authenticated
+            servletRequest.setAttribute("auth.state", AuthState.AUTHENTICATED);
+            filterChain.doFilter(servletRequest, servletResponse);
         }
+    }
 
-        // Continue with the request
-        filterChain.doFilter(servletRequest, servletResponse);
+
+    private static void respondForbidden(HttpServletResponse httpResponse) throws IOException {
+        httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        httpResponse.getWriter().write("Invalid token");
     }
 
 

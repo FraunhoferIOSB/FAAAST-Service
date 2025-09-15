@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
@@ -116,21 +118,22 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
         context.addServlet(handler, "/*");
 
-        URL jwkProviderUrl;
-        try {
-            jwkProviderUrl = new URL(config.getJwkProvider());
+        if (config.getJwkProvider() != null) {
+            URL jwkProviderUrl;
+            try {
+                jwkProviderUrl = new URL(config.getJwkProvider());
+            }
+            catch (MalformedURLException malformedJwkProviderUrl) {
+                throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
+            }
+            JwkProvider jwkProvider = new UrlJwkProvider(jwkProviderUrl);
+
+            context.addFilter(new JwtValidationFilter(jwkProvider),
+                    "*", EnumSet.allOf(DispatcherType.class));
+
+            context.addFilter(new AccessControlListAuthorizationFilter(jwkProvider, config.getAclFolder()),
+                    "*", EnumSet.allOf(DispatcherType.class));
         }
-        catch (MalformedURLException malformedJwkProviderUrl) {
-            throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
-        }
-
-        context.addFilter(new JwtValidationFilter(jwkProviderUrl),
-                "*", EnumSet.allOf(DispatcherType.class));
-
-        // Adds authorization filter for all request types
-        context.addFilter(new AccessControlListAuthorizationFilter(jwkProviderUrl, config.getAclFolder()),
-                "*", EnumSet.allOf(DispatcherType.class));
-
         server.setErrorHandler(new HttpErrorHandler(config));
         try {
             server.start();
