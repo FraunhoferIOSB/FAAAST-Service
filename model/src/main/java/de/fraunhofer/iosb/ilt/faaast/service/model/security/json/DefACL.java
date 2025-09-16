@@ -14,25 +14,35 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
 /**
  * Optional DefACL field.
  */
 public class DefACL {
+    @JsonProperty("name")
     private String name;
+
+    @JsonProperty("acl")
     private ACL acl;
 
-    /**
-     * Set the name.
-     *
-     * @param acl1
-     */
-    public void setName(String acl1) {}
+    public String getName() {
+        return name;
+    }
 
 
-    /**
-     * Set ACL.
-     *
-     * @param acl
-     */
-    public void setAcl(ACL acl) {}
+    public void setName(String value) {
+        name = value;
+    }
+
+
+    public ACL getAcl() {
+        return acl;
+    }
+
+
+    public void setAcl(ACL value) {
+        acl = value;
+    }
 }
