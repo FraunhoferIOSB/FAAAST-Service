@@ -21,8 +21,11 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefACL;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.FilterChain;
@@ -48,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +63,12 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AccessControlListAuthorizationFilter.class);
 
-    private final JwkProvider jwkProvider;
+    //private final JwkProvider jwkProvider;
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
     public AccessControlListAuthorizationFilter(JwkProvider jwkProvider, String aclFolder) {
-        this.jwkProvider = jwkProvider;
+        //this.jwkProvider = jwkProvider;
         initializeAclList(aclFolder);
         // TODO Maybe we can read the ACL rules when a request comes in?
         monitorAclRules(aclFolder);
@@ -144,31 +148,15 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                     .filter(a -> a.getAllAccessPermissionRules()
                             .getRules().stream()
-                            .anyMatch(r -> r.getACL() != null
-                                    && r.getACL().getATTRIBUTES() != null
-                                    && r.getACL().getRIGHTS() != null
-                                    && r.getOBJECTS() != null
-                                    && r.getOBJECTS().stream().anyMatch(attr -> {
-                                        if (attr.getROUTE() != null) {
-                                            return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
-                                        }
-                                        else if (attr.getIDENTIFIABLE() != null) {
-                                            return checkIdentifiable(path, attr.getIDENTIFIABLE());
-                                        }
-                                        else {
-                                            return false;
-                                        }
-                                    })
-                                    && "ALLOW".equals(r.getACL().getACCESS())
-                                    && r.getACL().getRIGHTS().contains(getRequiredRight(method))
-                                    && verifyAllClaims(claims, r)))
+                            .anyMatch(r -> evalueRule(r, path, method, claims, a.getAllAccessPermissionRules())))
                     .collect(Collectors.toList());
             return !relevantRules.isEmpty();
         }
 
 
-        private static boolean verifyAllClaims(Map<String, Claim> claims, Rule rule) {
-            if (rule.getACL().getATTRIBUTES().stream()
+        private static boolean verifyAllClaims(Map<String, Claim> claims, Rule rule, AllAccessPermissionRules allAccess) {
+            ACL acl = getAcl(rule, allAccess);
+            if (acl.getATTRIBUTES().stream()
                     .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
                             && Boolean.TRUE.equals(rule.getFORMULA().get("$boolean")))) {
                 return true;
@@ -176,7 +164,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             if (claims == null) {
                 return false;
             }
-            List<String> claimValues = rule.getACL().getATTRIBUTES().stream()
+            List<String> claimValues = acl.getATTRIBUTES().stream()
                     .filter(attr -> attr.getGLOBAL() == null)
                     .map(Attribute::getCLAIM)
                     .filter(Objects::nonNull)
@@ -240,6 +228,61 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
                 return path.contains(EncodingHelper.base64Encode(id));
             }
             return false;
+        }
+
+
+        private static boolean checkDescriptor(String path, String descriptor) {
+            if (descriptor.startsWith("(aasDesc)")) {
+                if (!path.startsWith("/shell-descriptors")) {
+                    return false;
+                }
+                if (descriptor.equals("(aasDesc)*")) {
+                    return true;
+                }
+                else if (descriptor.startsWith("(aasDesc)")) {
+                    String id = descriptor.substring(9);
+                    return path.contains(EncodingHelper.base64UrlEncode(id));
+                }
+            }
+            else if (descriptor.startsWith("(smDesc)")) {
+                if (!path.startsWith("/submodel-descriptors")) {
+                    return false;
+                }
+                if (descriptor.equals("(smDesc)*")) {
+                    return true;
+                }
+                else if (descriptor.startsWith("(smDesc)")) {
+                    String id = descriptor.substring(8);
+                    return path.contains(EncodingHelper.base64UrlEncode(id));
+                }
+            }
+            return false;
+        }
+
+
+        private static boolean evalueRule(Rule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
+            ACL acl = getAcl(rule, allAccess);
+            return acl != null
+                    && acl.getATTRIBUTES() != null
+                    && acl.getRIGHTS() != null
+                    && rule.getOBJECTS() != null
+                    && rule.getOBJECTS().stream().anyMatch(attr -> {
+                        if (attr.getROUTE() != null) {
+                            return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
+                        }
+                        else if (attr.getIDENTIFIABLE() != null) {
+                            return checkIdentifiable(path, attr.getIDENTIFIABLE());
+                        }
+                        else if (attr.getDESCRIPTOR() != null) {
+                            return checkDescriptor(path, attr.getDESCRIPTOR());
+                        }
+                        else {
+                            return false;
+                        }
+                    })
+                    && "ALLOW".equals(acl.getACCESS())
+                    && acl.getRIGHTS().contains(getRequiredRight(method))
+                    && verifyAllClaims(claims, rule, allAccess);
         }
     }
 
@@ -340,4 +383,22 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         monitoringThread.start();
     }
 
+
+    private static ACL getAcl(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getACL() != null) {
+            return rule.getACL();
+        }
+        else if (rule.getUSEACL() != null) {
+            Optional<DefACL> acl = allAccess.getDEFACLS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (acl.isPresent()) {
+                return acl.get().getAcl();
+            }
+            else {
+                throw new IllegalArgumentException("DEFACL not found: " + rule.getUSEACL());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: ACL or USEACL must be specified");
+        }
+    }
 }
