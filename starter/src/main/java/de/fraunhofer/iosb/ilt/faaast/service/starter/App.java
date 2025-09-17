@@ -158,9 +158,9 @@ public class App implements Runnable {
 
     @Option(names = {
             "-q",
-            "--quite"
+            "--quiet"
     }, description = "Reduces log output (ERROR for FA³ST packages, ERROR for all other packages). Default information about the starting process will still be printed.")
-    public boolean quite = false;
+    public boolean quiet = false;
 
     @Option(names = {
             "-v",
@@ -320,7 +320,7 @@ public class App implements Runnable {
             FaaastFilter.setLevelFaaast(Level.DEBUG);
             FaaastFilter.setLevelExternal(Level.INFO);
         }
-        else if (quite) {
+        else if (quiet) {
             FaaastFilter.setLevelFaaast(Level.WARN);
             FaaastFilter.setLevelExternal(Level.ERROR);
         }
