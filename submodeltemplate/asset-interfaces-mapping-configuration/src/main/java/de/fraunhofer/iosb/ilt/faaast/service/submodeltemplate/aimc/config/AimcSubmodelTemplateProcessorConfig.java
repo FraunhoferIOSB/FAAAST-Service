@@ -35,7 +35,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<AimcSubmodelTemplateProcessor> {
 
     private Map<String, List<Credentials>> connectionLevelCredentials;
-
+    
     @JsonSerialize(keyUsing = ReferenceSerializer.class)
     @JsonDeserialize(keyUsing = ReferenceDeserializer.class)
     private Map<Reference, List<Credentials>> interfaceLevelCredentials;
