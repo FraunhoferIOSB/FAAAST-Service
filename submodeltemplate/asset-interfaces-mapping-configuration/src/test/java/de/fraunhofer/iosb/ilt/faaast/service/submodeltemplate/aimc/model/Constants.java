@@ -32,7 +32,7 @@ public class Constants {
     public static final String UNIT = "unit";
     public static final String FORMS = "forms";
     public static final String HREF = "href";
-    public static final String CONTENT_TYPE_JSON = "application/json";;
+    public static final String CONTENT_TYPE_JSON = "application/json";
 
     public static final String SEMANTIC_ID_TITLE = "https://www.w3.org/2019/wot/td#title";
     public static final String SEMANTIC_ID_CONTENT_TYPE = "https://www.w3.org/2019/wot/hypermedia#forContentType";
