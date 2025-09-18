@@ -106,14 +106,6 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
     protected abstract void subscribe() throws AssetConnectionException;
 
 
-    /**
-     * Unsubscribe via underlying protocol.
-     *
-     * @throws AssetConnectionException if unsubscribe fails
-     */
-    protected abstract void unsubscribe() throws AssetConnectionException;
-
-
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), listeners);
