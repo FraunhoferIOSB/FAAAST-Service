@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod.POST;
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState.ANONYMOUS;
 
 import com.auth0.jwk.JwkProvider;
@@ -148,7 +149,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                     .filter(a -> a.getAllAccessPermissionRules()
                             .getRules().stream()
-                            .anyMatch(r -> evalueRule(r, path, method, claims, a.getAllAccessPermissionRules())))
+                            .anyMatch(r -> evaluateRule(r, path, method, claims, a.getAllAccessPermissionRules())))
                     .collect(Collectors.toList());
             return !relevantRules.isEmpty();
         }
@@ -198,19 +199,39 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         }
 
 
-        private static String getRequiredRight(String method) {
-            switch (method) {
-                case "GET":
-                    return "READ";
-                case "POST":
-                    return "WRITE";
-                case "PUT":
-                    return "UPDATE";
-                case "DELETE":
-                    return "DELETE";
-                default:
-                    throw new IllegalArgumentException("Unsupported method: " + method);
+        private static boolean evaluateRights(List<String> aclRights, String method, String path) {
+            // We need the path to check if the request is an operation invocation (EXECUTE)
+            String requiredRight = isOperationRequest(method, path) ? "EXECUTE" : getRequiredRight(method);
+
+            return aclRights.contains("ALL") || aclRights.contains(requiredRight);
+        }
+
+
+        private static boolean isOperationRequest(String method, String path) {
+            // Requirements for an operation request according to FAAAST docs:
+            // Method: POST, URL suffix: /invoke, /invoke-async, /invoke/$value, /invoke-async/$value
+            String cleanPath;
+            String[] pathParts = path.split("/");
+
+            if (pathParts.length > 1 && "$value".equals(pathParts[pathParts.length - 1])) {
+                cleanPath = pathParts[pathParts.length - 2];
             }
+            else {
+                cleanPath = pathParts[pathParts.length - 1];
+            }
+
+            return POST.name().equals(method) && ("/invoke".equals(cleanPath) || "invoke-async".equals(path));
+        }
+
+
+        private static String getRequiredRight(String method) {
+            return switch (method) {
+                case "GET" -> "READ";
+                case "POST" -> "CREATE";
+                case "PUT" -> "UPDATE";
+                case "DELETE" -> "DELETE";
+                default -> throw new IllegalArgumentException("Unsupported method: " + method);
+            };
         }
 
 
@@ -260,7 +281,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         }
 
 
-        private static boolean evalueRule(Rule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
+        private static boolean evaluateRule(Rule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
             ACL acl = getAcl(rule, allAccess);
             return acl != null
                     && acl.getATTRIBUTES() != null
@@ -281,7 +302,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
                         }
                     })
                     && "ALLOW".equals(acl.getACCESS())
-                    && acl.getRIGHTS().contains(getRequiredRight(method))
+                    && evaluateRights(acl.getRIGHTS(), method, path)
                     && verifyAllClaims(claims, rule, allAccess);
         }
     }
