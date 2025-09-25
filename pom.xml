@@ -72,7 +72,7 @@
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
         <commons.io.version>2.20.0</commons.io.version>
-        <commons.lang3.version>3.18.0</commons.lang3.version>
+        <commons.lang3.version>3.19.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.21.0</de.flapdoodle.embed.version>
