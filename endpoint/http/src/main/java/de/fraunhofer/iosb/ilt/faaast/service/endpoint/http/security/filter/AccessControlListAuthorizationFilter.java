@@ -27,6 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermis
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefACL;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefAttributes;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefFormula;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefObjects;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.FilterChain;
@@ -51,7 +55,6 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
@@ -157,18 +160,18 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
 
         private static boolean verifyAllClaims(Map<String, Claim> claims, Rule rule, AllAccessPermissionRules allAccess) {
             ACL acl = getAcl(rule, allAccess);
-            if (acl.getATTRIBUTES().stream()
+            if (getAttributes(acl, allAccess).stream()
                     .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
-                            && Boolean.TRUE.equals(rule.getFORMULA().get("$boolean")))) {
+                            && Boolean.TRUE.equals(getFormula(rule, allAccess).get("$boolean")))) {
                 return true;
             }
             if (claims == null) {
                 return false;
             }
-            List<String> claimValues = acl.getATTRIBUTES().stream()
+            List<String> claimValues = getAttributes(acl, allAccess).stream()
                     .filter(attr -> attr.getGLOBAL() == null)
                     .map(Attribute::getCLAIM)
-                    .filter(Objects::nonNull)
+                    .filter(java.util.Objects::nonNull)
                     .collect(Collectors.toList());
             Map<String, String> claimList = new HashMap<>();
             for (String val: claimValues) {
@@ -180,9 +183,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             return !claimValues.isEmpty()
                     && claimValues.stream()
                             .allMatch(value -> {
-                                //Claim claim = claims.get(value);
-                                //return claim != null
-                                return evaluateFormula(rule.getFORMULA(), claimList);
+                                return evaluateFormula(getFormula(rule, allAccess), claimList);
                             });
         }
 
@@ -284,10 +285,10 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         private static boolean evaluateRule(Rule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
             ACL acl = getAcl(rule, allAccess);
             return acl != null
-                    && acl.getATTRIBUTES() != null
+                    && getAttributes(acl, allAccess) != null
                     && acl.getRIGHTS() != null
-                    && rule.getOBJECTS() != null
-                    && rule.getOBJECTS().stream().anyMatch(attr -> {
+                    && getObjects(rule, allAccess) != null
+                    && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                         if (attr.getROUTE() != null) {
                             return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
                         }
@@ -321,7 +322,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         if (jsonFiles != null) {
             for (File file: jsonFiles) {
                 Path filePath = file.toPath();
-                String content = null;
+                String content;
                 try {
                     content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
                     aclList.put(filePath, mapper.readValue(
@@ -343,7 +344,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             return;
         }
         Path folderToWatch = Paths.get(aclFolder);
-        WatchService watchService = null;
+        WatchService watchService;
         try {
             watchService = FileSystems.getDefault().newWatchService();
             // Register the folder with the WatchService for CREATE and DELETE events
@@ -420,6 +421,64 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
         }
         else {
             throw new IllegalArgumentException("invalid rule: ACL or USEACL must be specified");
+        }
+    }
+
+
+    private static List<Attribute> getAttributes(ACL acl, AllAccessPermissionRules allAccess) {
+        if (acl.getATTRIBUTES() != null) {
+            return acl.getATTRIBUTES();
+        }
+        else if (acl.getUSEATTRIBUTES() != null) {
+            Optional<DefAttributes> attribute = allAccess.getDEFATTRIBUTES().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName())))
+                    .findAny();
+            if (attribute.isPresent()) {
+                return attribute.get().getAttributes();
+            }
+            else {
+                throw new IllegalArgumentException("DEFATTRIBUTES not found: " + acl.getUSEATTRIBUTES());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: ATTRIBUTES or USEATTRIBUTES must be specified");
+        }
+    }
+
+
+    private static Map<String, Object> getFormula(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getFORMULA() != null) {
+            return rule.getFORMULA();
+        }
+        else if (rule.getUSEFORMULA() != null) {
+            Optional<DefFormula> formula = allAccess.getDEFFORMULAS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (formula.isPresent()) {
+                return formula.get().getFormula();
+            }
+            else {
+                throw new IllegalArgumentException("DEFFORMULA not found: " + rule.getUSEFORMULA());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: FORMULA or USEFORMULA must be specified");
+        }
+    }
+
+
+    private static List<Objects> getObjects(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getOBJECTS() != null) {
+            return rule.getOBJECTS();
+        }
+        else if (rule.getUSEOBJECTS() != null) {
+            Optional<DefObjects> objects = allAccess.getDEFOBJECTS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (objects.isPresent()) {
+                return objects.get().getObjects();
+            }
+            else {
+                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUSEFORMULA());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: OBJECTS or USEOBJECTS must be specified");
         }
     }
 }
