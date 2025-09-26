@@ -14,15 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 
 /**
- * Optional DefFormula field.
+ * Reusable Defattributes.
  */
-public class DefFormula {
+public class DefAttributes {
+    @JsonProperty("name")
     private String name;
-    private Map<String, Object> formula;
+
+    @JsonProperty("attributes")
+    private List<Attribute> attributes;
 
     public String getName() {
         return name;
@@ -34,12 +38,7 @@ public class DefFormula {
     }
 
 
-    public Map<String, Object> getFormula() {
-        return formula;
-    }
-
-
-    public void setFormula(Map<String, Object> formulaExpression) {
-        formula = formulaExpression;
+    public List<Attribute> getAttributes() {
+        return attributes;
     }
 }

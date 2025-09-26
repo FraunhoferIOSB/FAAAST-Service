@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.security.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 
@@ -21,21 +22,28 @@ import java.util.List;
  * Reusable DefObjects.
  */
 public class DefObjects {
+    @JsonProperty("name")
     private String name;
+
+    @JsonProperty("objects")
     private List<Objects> objects;
 
-    /**
-     * Set name.
-     *
-     * @param properties
-     */
-    public void setName(String properties) {}
+    public String getName() {
+        return name;
+    }
 
 
-    /**
-     * Set objects.
-     *
-     * @param list
-     */
-    public void setObjects(List<Objects> list) {}
+    public void setName(String value) {
+        name = value;
+    }
+
+
+    public List<Objects> getObjects() {
+        return objects;
+    }
+
+
+    public void setObjects(List<Objects> value) {
+        objects = value;
+    }
 }

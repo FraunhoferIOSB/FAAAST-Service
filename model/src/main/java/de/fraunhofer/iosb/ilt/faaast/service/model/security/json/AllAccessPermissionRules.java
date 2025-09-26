@@ -35,6 +35,9 @@ public class AllAccessPermissionRules {
     @JsonProperty("rules")
     private List<Rule> rules;
 
+    @JsonProperty("DEFATTRIBUTES")
+    private List<DefAttributes> DEFATTRIBUTES;
+
     public List<DefACL> getDEFACLS() {
         return DEFACLS;
     }
@@ -72,5 +75,15 @@ public class AllAccessPermissionRules {
 
     public void setRules(List<Rule> rules) {
         this.rules = rules;
+    }
+
+
+    public List<DefAttributes> getDEFATTRIBUTES() {
+        return DEFATTRIBUTES;
+    }
+
+
+    public void setDEFATTRIBUTES(List<DefAttributes> DEFATTRIBUTES) {
+        this.DEFATTRIBUTES = DEFATTRIBUTES;
     }
 }

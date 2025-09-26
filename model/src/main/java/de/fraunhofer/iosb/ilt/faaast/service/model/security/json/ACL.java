@@ -32,6 +32,9 @@ public class ACL {
     @JsonProperty("ACCESS")
     private String ACCESS;
 
+    @JsonProperty("USEATTRIBUTES")
+    private String USEATTRIBUTES;
+
     public List<Attribute> getATTRIBUTES() {
         return ATTRIBUTES;
     }
@@ -59,5 +62,15 @@ public class ACL {
 
     public void setACCESS(String ACCESS) {
         this.ACCESS = ACCESS;
+    }
+
+
+    public String getUSEATTRIBUTES() {
+        return USEATTRIBUTES;
+    }
+
+
+    public void setUSEATTRIBUTES(String USEATTRIBUTES) {
+        this.USEATTRIBUTES = USEATTRIBUTES;
     }
 }
