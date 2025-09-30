@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider.DEFAULT_READ_METHOD;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
@@ -29,10 +31,14 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,6 +46,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOperationProviderConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpOperationProvider.class);
     public static final String DEFAULT_EXECUTE_METHOD = "POST";
     private final ServiceContext serviceContext;
     private final Reference reference;
@@ -81,24 +88,36 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     @Override
     protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
         try {
+            String path = variableReplacer.apply(config.getPath());
+            String method = StringUtils.isBlank(config.getMethod())
+                    ? DEFAULT_EXECUTE_METHOD
+                    : config.getMethod();
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_READ_METHOD,
+                    headers,
+                    Objects.nonNull(input) ? new String(input) : "");
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
-                    variableReplacer.apply(config.getPath()),
+                    path,
                     config.getFormat(),
-                    StringUtils.isBlank(config.getMethod())
-                            ? DEFAULT_EXECUTE_METHOD
-                            : config.getMethod(),
+                    method,
                     HttpRequest.BodyPublishers.ofByteArray(input),
                     HttpResponse.BodyHandlers.ofByteArray(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
+                    response.statusCode(),
+                    response.headers().map(),
+                    response.body() != null ? new String(response.body()) : "[empty]");
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)));
             }
             return response.body();
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", ReferenceHelper.toString(reference)), e);
         }
     }

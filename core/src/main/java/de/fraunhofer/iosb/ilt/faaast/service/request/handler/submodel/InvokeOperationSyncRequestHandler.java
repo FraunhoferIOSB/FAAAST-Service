@@ -140,7 +140,6 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .executionState(ExecutionState.TIMEOUT)
                     .success(false)
                     .build();
-            Thread.currentThread().interrupt();
         }
         catch (InterruptedException | ExecutionException e) {
             LOGGER.warn("executing operation failed (reference: {}, reason: {})", reference, e.getMessage(), e);
@@ -149,7 +148,6 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                     .executionState(ExecutionState.FAILED)
                     .success(false)
                     .build();
-            Thread.currentThread().interrupt();
         }
         finally {
             executor.shutdown();

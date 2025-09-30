@@ -88,11 +88,10 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
                     headers);
-            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+            LOGGER.trace("Response from asset (status code: {}, headers: {}, body: {})",
                     response.statusCode(),
-                    response.body() != null ? new String(response.body()) : "[empty]",
-                    DEFAULT_READ_METHOD,
-                    headers);
+                    response.headers().map(),
+                    response.body() != null ? new String(response.body()) : "[empty]");
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, ReferenceHelper.toString(reference)));
             }
