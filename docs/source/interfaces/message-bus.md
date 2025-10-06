@@ -24,7 +24,7 @@ This is the class hierarchy of available event classes/types
 			- `ElementCreateEventMessage`:			Triggered when an element is created
 			- `ElementDeleteEventMessage`:			Triggered when an element is deleted
 			- `ElementUpdateEventMessage`:			Triggered when an element is updated
-			- `ValueChangeEventMessage`:			Triggered when the value of an element is updated, payload: old value, new value
+		- `ValueChangeEventMessage`:			Triggered when the value of an element is updated, payload: old value, new value
 	- `ErrorEventMessage`:							Triggered when an error occurred, payload: message, error level (INFO, WARN, ERROR)
 
 
