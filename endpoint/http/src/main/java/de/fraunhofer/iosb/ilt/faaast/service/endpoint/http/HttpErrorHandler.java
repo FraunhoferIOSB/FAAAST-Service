@@ -28,7 +28,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Map;
@@ -165,7 +165,7 @@ public class HttpErrorHandler extends ErrorHandler {
                           } ]
                         }
                         """,
-                DateTimeFormatter.ISO_DATE_TIME.format(LocalDate.now()));
+                DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()));
     }
 
 }
