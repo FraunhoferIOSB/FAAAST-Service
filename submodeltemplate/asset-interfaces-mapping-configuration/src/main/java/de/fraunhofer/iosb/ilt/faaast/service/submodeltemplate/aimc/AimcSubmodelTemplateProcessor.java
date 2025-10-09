@@ -53,16 +53,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,33 +74,19 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private ServiceContext serviceContext;
     // keeps track of relations between AID and AIMC submodels as changes to an AID submodel needs to trigger 
     // an update on all AIMC refering to/using that AID submodel.
-    private Map<String, Set<String>> aidToAimcRelations = new HashMap<>();
+    private Map<String, Set<String>> aidToAimcRelations;
 
-    private List<AssetConnectionConfig> connectionsConfig;
     private Map<String, List<AssetConnectionConfig>> connectionsCurrent;
 
     public AimcSubmodelTemplateProcessor() {
-        interfaceDataCache = new HashMap<>();
+        aidToAimcRelations = new HashMap<>();
+        connectionsCurrent = new HashMap<>();
     }
 
 
-    private void validate(List<AssetConnectionConfig> connections) {
-        // each reference is only allowed to have a single provider with the following exceptions
-        // - Value + Subscription of same type (i.e. HTTP, MQTT, OPCUA) where relevant values are the same (e.g. path, nodeId, topic, etc)
-        // - no references must be in a parent-child relationship
-    }
-
-
-    private List<AssetConnectionConfig> merge( // this is called once per AIMC
-                                              List<AssetConnectionConfig> staticConnections, // what has been defined in the FA³ST config
-                                              List<AssetConnectionConfig> currentConnections, // the currently active connections (for this AIMC)
-                                              List<AssetConnectionConfig> newConnections) {
-        // probably useles function, better to add update(List<AssetConnectionConfig>) to AssetConnectionManager and to 
-        // AssetConnection interface, as depending on changes connections might need to be closed or not, e.g., with HTTP
-        // no closing is needed although subscriptions must be stopped/updated/restarted, etc.
-        // We then simply compute the new set of connections and delegate to AssetConnectionManager.
-        // Inherent advantage is that we can now update connectoins on-the-fly from anywhere, e.g. by updating the config file or
-        // a proprietary endpoint
+    @Override
+    public AimcSubmodelTemplateProcessorConfig asConfig() {
+        return config;
     }
 
 
@@ -127,7 +110,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         Ensure.requireNonNull(submodel);
         Ensure.requireNonNull(assetConnectionManager);
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            hanldeAidChange(submodel, assetConnectionManager, ProcessingMode.ADD);
+            handleAidChange(submodel, assetConnectionManager, ProcessingMode.ADD);
             return false;
         }
         updateAidToAimcRelations(submodel, ProcessingMode.ADD);
@@ -143,17 +126,11 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
 
 
     @Override
-    public AimcSubmodelTemplateProcessorConfig asConfig() {
-        return config;
-    }
-
-
-    @Override
     public boolean update(Submodel submodel, AssetConnectionManager assetConnectionManager) {
         Ensure.requireNonNull(submodel);
         Ensure.requireNonNull(assetConnectionManager);
         if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            hanldeAidChange(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            handleAidChange(submodel, assetConnectionManager, ProcessingMode.UPDATE);
             return false;
         }
         updateAidToAimcRelations(submodel, ProcessingMode.UPDATE);
@@ -168,13 +145,38 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void hanldeAidChange(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode) {
+    @Override
+    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager) {
+        Ensure.requireNonNull(submodel);
+        Ensure.requireNonNull(assetConnectionManager);
+        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
+            handleAidChange(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            return false;
+        }
+        updateAidToAimcRelations(submodel, ProcessingMode.DELETE);
+        try {
+            LOGGER.info("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+        }
+        catch (Exception e) {
+            LOGGER.error("error deleting SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
+        }
+        return false;
+    }
+
+
+    private void handleAidChange(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode) {
         String aidSubmodelId = submodel.getId();
         if (!aidToAimcRelations.containsKey(aidSubmodelId)) {
+            if (mode == ProcessingMode.ADD) {
+                aidToAimcRelations.put(aidSubmodelId, new HashSet<>());
+            }
             return;
         }
         aidToAimcRelations.get(aidSubmodelId).forEach(x -> {
             try {
+                // handling too generic?
+                // e.g. when add AID, we would know to only certain things, no delete, no update
                 processSubmodel(getSubmodel(x), assetConnectionManager, mode);
             }
             catch (Exception e) {
@@ -201,35 +203,14 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 if (aidToAimcRelations.containsKey(x)) {
                     aidToAimcRelations.get(x).remove(aimcSubmodelId);
                 }
-                aidToAimcRelations.remove(x, Set.of());
             }
-            if (mode == ProcessingMode.DELETE || mode == ProcessingMode.UPDATE) {
+            if (mode == ProcessingMode.ADD || mode == ProcessingMode.UPDATE) {
                 if (!aidToAimcRelations.containsKey(x)) {
                     aidToAimcRelations.put(x, new HashSet<>());
                 }
                 aidToAimcRelations.get(x).add(aimcSubmodelId);
             }
         });
-    }
-
-
-    @Override
-    public boolean delete(Submodel submodel, AssetConnectionManager assetConnectionManager) {
-        Ensure.requireNonNull(submodel);
-        Ensure.requireNonNull(assetConnectionManager);
-        if (Util.semanticIdEquals(submodel, Constants.AID_SUBMODEL_SEMANTIC_ID)) {
-            hanldeAidChange(submodel, assetConnectionManager, ProcessingMode.DELETE);
-            return false;
-        }
-        updateAidToAimcRelations(submodel, ProcessingMode.DELETE);
-        try {
-            LOGGER.info("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
-        }
-        catch (Exception e) {
-            LOGGER.error("error deleting SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
-        }
-        return false;
     }
 
 
@@ -397,34 +378,6 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             assetConnectionsRemove.clear();
         }
         interfaceDataCache.put(interfaceReferenceValue, http);
-    }
-
-
-    private static List<RelationshipElement> getRelationshipElements(List<SubmodelElement> relations) {
-        List<RelationshipElement> result = new ArrayList<>();
-        for (var r: relations) {
-            if (r instanceof RelationshipElement relationshipElement) {
-                result.add(relationshipElement);
-            }
-        }
-
-        return result;
-    }
-
-
-    private static List<RelationshipElement> getMappingRelations(SubmodelElementCollection configuration) {
-        Optional<SubmodelElement> element = configuration.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AIMC_MAPPING_RELATIONS_SEMANTIC_ID)).findFirst();
-        if (element.isEmpty()) {
-            throw new IllegalArgumentException("Submodel invalid: MappingSourceSinkRelations not found.");
-        }
-        List<RelationshipElement> relations = null;
-        if (element.get() instanceof SubmodelElementList list) {
-            relations = getRelationshipElements(list.getValue());
-        }
-        if (relations == null) {
-            relations = new ArrayList<>();
-        }
-        return relations;
     }
 
 }

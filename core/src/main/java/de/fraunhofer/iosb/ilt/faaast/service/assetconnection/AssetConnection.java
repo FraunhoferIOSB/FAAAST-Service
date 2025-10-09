@@ -106,15 +106,6 @@ public interface AssetConnection<T extends AssetConnectionConfig, VC extends Ass
 
 
     /**
-     * Compares two instances of AssetConnection if they are referencing the same asset connection.
-     *
-     * @param other other AssetConnection to compare to this.
-     * @return true if other is the same as this.
-     */
-    public boolean sameAs(AssetConnection other);
-
-
-    /**
      * Unregisters an operation provider for this asset connection.
      *
      * @param reference Reference to the AAS element that this provider should be unregistered for

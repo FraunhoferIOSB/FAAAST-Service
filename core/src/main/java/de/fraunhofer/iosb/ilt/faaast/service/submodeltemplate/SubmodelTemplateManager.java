@@ -60,7 +60,6 @@ public class SubmodelTemplateManager {
         this.messageBus = messageBus;
         this.assetConnectionManager = assetConnectionManager;
         this.submodelTemplateProcessors = submodelTemplateProcessors;
-
     }
 
 

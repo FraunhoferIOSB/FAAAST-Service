@@ -145,6 +145,11 @@ public class Util {
      * @return The ContentType.
      */
     public static String getContentType(SubmodelElementCollection metadata) {
+        //        SemanticIdPath.builder()
+        //                .globalReference(Constants.AID_CONTENT_TYPE_SEMANTIC_ID)
+        //                .build()
+        //                .resolveUnique(metadata, Property.class)
+        //                .getValue();        
         String contentType = null;
         Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_CONTENT_TYPE_SEMANTIC_ID)).findFirst();
         if (element.isPresent() && (element.get() instanceof Property prop)) {

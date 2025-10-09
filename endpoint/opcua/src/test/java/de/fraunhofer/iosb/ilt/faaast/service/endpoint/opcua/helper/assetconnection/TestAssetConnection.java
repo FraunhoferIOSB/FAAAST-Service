@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -90,6 +91,12 @@ public class TestAssetConnection implements
                 public AssetOperationProviderConfig getConfig() {
                     return operationProvider;
                 }
+
+
+                @Override
+                public AssetProviderConfig asConfig() {
+                    return operationProvider;
+                }
             });
         }
         catch (Exception e) {
@@ -131,12 +138,6 @@ public class TestAssetConnection implements
     @Override
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
         return subscriptionProviders;
-    }
-
-
-    @Override
-    public boolean sameAs(AssetConnection other) {
-        return false;
     }
 
 

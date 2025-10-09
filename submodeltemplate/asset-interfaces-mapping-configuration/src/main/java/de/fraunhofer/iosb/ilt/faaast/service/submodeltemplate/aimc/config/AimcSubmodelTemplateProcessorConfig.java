@@ -14,18 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.AimcSubmodelTemplateProcessor;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -34,82 +28,26 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  */
 public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<AimcSubmodelTemplateProcessor> {
 
-    private Map<String, List<Credentials>> connectionLevelCredentials;
-
-    @JsonSerialize(keyUsing = ReferenceSerializer.class)
-    @JsonDeserialize(keyUsing = ReferenceDeserializer.class)
-    private Map<Reference, List<Credentials>> interfaceLevelCredentials;
-
-    private List<ExtendedConfiguration> globalExtendedConfiguration;
-    private Map<String, List<ExtendedConfiguration>> connectionLevelExtendedConfiguration;
-
-    @JsonSerialize(keyUsing = ReferenceSerializer.class)
-    @JsonDeserialize(keyUsing = ReferenceDeserializer.class)
-    private Map<Reference, List<ExtendedConfiguration>> propertyLevelExtendedConfiguration;
+    private Map<String, List<Credentials>> credentials;
 
     public AimcSubmodelTemplateProcessorConfig() {
-        connectionLevelCredentials = new HashMap<>();
-        interfaceLevelCredentials = new HashMap<>();
-        globalExtendedConfiguration = new ArrayList<>();
-        connectionLevelExtendedConfiguration = new HashMap<>();
-        propertyLevelExtendedConfiguration = new HashMap<>();
+        credentials = new HashMap<>();
     }
 
 
-    public Map<String, List<Credentials>> getConnectionLevelCredentials() {
-        return connectionLevelCredentials;
+    public Map<String, List<Credentials>> getCredentials() {
+        return credentials;
     }
 
 
-    public void setConnectionLevelCredentials(Map<String, List<Credentials>> connectionLevelCredentials) {
-        this.connectionLevelCredentials = connectionLevelCredentials;
-    }
-
-
-    public Map<Reference, List<Credentials>> getInterfaceLevelCredentials() {
-        return interfaceLevelCredentials;
-    }
-
-
-    public void setInterfaceLevelCredentials(Map<Reference, List<Credentials>> interfaceLevelCredentials) {
-        this.interfaceLevelCredentials = interfaceLevelCredentials;
-    }
-
-
-    public List<ExtendedConfiguration> getGlobalExtendedConfiguration() {
-        return globalExtendedConfiguration;
-    }
-
-
-    public void setGlobalExtendedConfiguration(List<ExtendedConfiguration> globalExtendedConfiguration) {
-        this.globalExtendedConfiguration = globalExtendedConfiguration;
-    }
-
-
-    public Map<String, List<ExtendedConfiguration>> getConnectionLevelExtendedConfiguration() {
-        return connectionLevelExtendedConfiguration;
-    }
-
-
-    public void setConnectionLevelExtendedConfiguration(Map<String, List<ExtendedConfiguration>> connectionLevelExtendedConfiguration) {
-        this.connectionLevelExtendedConfiguration = connectionLevelExtendedConfiguration;
-    }
-
-
-    public Map<Reference, List<ExtendedConfiguration>> getPropertyLevelExtendedConfiguration() {
-        return propertyLevelExtendedConfiguration;
-    }
-
-
-    public void setPropertyLevelExtendedConfiguration(Map<Reference, List<ExtendedConfiguration>> propertyLevelExtendedConfiguration) {
-        this.propertyLevelExtendedConfiguration = propertyLevelExtendedConfiguration;
+    public void setCredentials(Map<String, List<Credentials>> credentials) {
+        this.credentials = credentials;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(connectionLevelCredentials, interfaceLevelCredentials, globalExtendedConfiguration, connectionLevelExtendedConfiguration,
-                propertyLevelExtendedConfiguration);
+        return Objects.hash(credentials);
     }
 
 
@@ -126,45 +64,16 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
         }
         final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
         return super.equals(other)
-                && Objects.equals(connectionLevelCredentials, other.connectionLevelCredentials)
-                && Objects.equals(interfaceLevelCredentials, other.interfaceLevelCredentials)
-                && Objects.equals(globalExtendedConfiguration, other.globalExtendedConfiguration)
-                && Objects.equals(connectionLevelExtendedConfiguration, other.connectionLevelExtendedConfiguration)
-                && Objects.equals(propertyLevelExtendedConfiguration, other.propertyLevelExtendedConfiguration);
+                && Objects.equals(credentials, other.credentials);
     }
 
     protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
             extends ExtendableBuilder<C, B> {
 
         public B connectionLevelCredentials(Map<String, List<Credentials>> value) {
-            getBuildingInstance().setConnectionLevelCredentials(value);
+            getBuildingInstance().setCredentials(value);
             return getSelf();
         }
-
-
-        public B interfaceLevelCredentials(Map<Reference, List<Credentials>> value) {
-            getBuildingInstance().setInterfaceLevelCredentials(value);
-            return getSelf();
-        }
-
-
-        public B globalExtendedConfiguration(List<ExtendedConfiguration> value) {
-            getBuildingInstance().setGlobalExtendedConfiguration(value);
-            return getSelf();
-        }
-
-
-        public B connectionLevelExtendedConfiguration(Map<String, List<ExtendedConfiguration>> value) {
-            getBuildingInstance().setConnectionLevelExtendedConfiguration(value);
-            return getSelf();
-        }
-
-
-        public B propertyLevelExtendedConfiguration(Map<Reference, List<ExtendedConfiguration>> value) {
-            getBuildingInstance().setPropertyLevelExtendedConfiguration(value);
-            return getSelf();
-        }
-
     }
 
     public static Builder builder() {

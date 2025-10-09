@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
@@ -289,6 +290,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
                     public AssetOperationProviderConfig getConfig() {
                         return new AbstractAssetOperationProviderConfig() {};
+                    }
+
+
+                    @Override
+                    public AssetProviderConfig asConfig() {
+                        return null;
                     }
                 });
     }

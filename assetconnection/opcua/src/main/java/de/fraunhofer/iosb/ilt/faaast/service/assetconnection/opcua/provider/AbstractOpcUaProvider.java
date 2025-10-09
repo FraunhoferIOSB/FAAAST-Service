@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.AbstractOpcUaProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
@@ -33,7 +35,7 @@ import org.eclipse.milo.opcua.stack.core.UaException;
  *
  * @param <T> type of the asset provider config
  */
-public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfig> {
+public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfig> implements AssetProvider {
 
     protected final ServiceContext serviceContext;
     protected final Reference reference;
@@ -62,6 +64,12 @@ public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfi
 
 
     public T getProviderConfig() {
+        return providerConfig;
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
         return providerConfig;
     }
 

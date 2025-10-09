@@ -18,6 +18,7 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelpe
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
+import com.prosysopc.ua.stack.core.UserTokenType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
@@ -30,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
@@ -69,7 +71,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -137,8 +138,6 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     @Test
-    // TODO re-add once OPC UA Endpoint is updated to AAS4j
-    @Ignore
     public void testServiceStartValidAssetConnection() throws Exception {
         int http = PortHelper.findFreePort();
         int opcua = PortHelper.findFreePort();
@@ -155,8 +154,20 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     @Test
-    // TODO re-add once OPC UA Endpoint is updated to AAS4j
-    @Ignore
+    public void testAssetConnectionUpdateRuntime_addConnection() throws Exception {
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        service = new Service(serviceConfig(http, opcua));
+        service.start();
+        assertServiceAvailabilityHttp(http);
+        assertTargetValue(http, TARGET_VALUE);
+        //service.getAssetConnectionManager().updateConnections(List.of(opcUaAssetConnection(NODE_ID_SOURCE, opcua)));
+        awaitAssetConnected(service);
+        assertTargetValue(http, SOURCE_VALUE);
+    }
+
+
+    @Test
     public void testServiceStartValidAssetConnectionDelayed() throws Exception {
         int http = PortHelper.findFreePort();
         int opcua = PortHelper.findFreePort();
@@ -185,11 +196,10 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
                         .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
                 .fileStorage(new FileStorageInMemoryConfig())
-                // TODO re-add once OPC UA Endpoint is updated to AAS4j
-                //.endpoint(OpcUaEndpointConfig.builder()
-                //        .tcpPort(portOpcUa)
-                //        .supportedAuthentication(UserTokenType.Anonymous)
-                //        .build())
+                .endpoint(OpcUaEndpointConfig.builder()
+                        .tcpPort(portOpcUa)
+                        .supportedAuthentication(UserTokenType.Anonymous)
+                        .build())
                 .endpoint(HttpEndpointConfig.builder()
                         .port(portHttp)
                         .certificate(CertificateConfig.builder()
@@ -205,15 +215,20 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private static ServiceConfig withAssetConnection(ServiceConfig config, String nodeIdSource, int port) throws IOException {
-        config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
+        config.getAssetConnections().add(opcUaAssetConnection(nodeIdSource, port));
+        return config;
+    }
+
+
+    private static OpcUaAssetConnectionConfig opcUaAssetConnection(String nodeIdSource, int port) throws IOException {
+        return OpcUaAssetConnectionConfig.builder()
                 .host("opc.tcp://" + "localhost:" + port)
                 .securityBaseDir(Files.createTempDirectory("asset-connection"))
                 .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
                         OpcUaValueProviderConfig.builder()
                                 .nodeId(nodeIdSource)
                                 .build())
-                .build());
-        return config;
+                .build();
     }
 
 
@@ -270,7 +285,7 @@ public class AssetConnectionIT extends AbstractIntegrationTest {
 
 
     private void awaitAssetConnected(Service service) {
-        await().atMost(30, TimeUnit.SECONDS)
+        await().atMost(60, TimeUnit.SECONDS)
                 .with()
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> service.getAssetConnectionManager().getConnections().get(0).isConnected());

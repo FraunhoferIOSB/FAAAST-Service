@@ -130,7 +130,7 @@ public class Service implements ServiceContext {
         this.requestHandler = new RequestHandlerManager(config.getCore());
         this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
-        this.submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);        
+        this.submodelTemplateManager = new SubmodelTemplateManager(persistence, messageBus, assetConnectionManager, submodelTemplateProcessors);
     }
 
 

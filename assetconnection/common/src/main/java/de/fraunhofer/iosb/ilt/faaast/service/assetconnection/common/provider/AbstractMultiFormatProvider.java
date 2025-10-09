@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.MultiFormatProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Objects;
@@ -24,13 +26,19 @@ import java.util.Objects;
  *
  * @param <T> type of matching configuration
  */
-public abstract class AbstractMultiFormatProvider<T extends MultiFormatProviderConfig> {
+public abstract class AbstractMultiFormatProvider<T extends MultiFormatProviderConfig> implements AssetProvider {
 
     protected final T config;
 
     protected AbstractMultiFormatProvider(T config) {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        return config;
     }
 
 

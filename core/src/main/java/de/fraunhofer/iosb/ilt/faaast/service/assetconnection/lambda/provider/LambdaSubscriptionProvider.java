@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -69,6 +70,12 @@ public class LambdaSubscriptionProvider implements AssetSubscriptionProvider, Ne
     @Override
     public void unsubscribe() throws AssetConnectionException {
         listeners.clear();
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        throw new UnsupportedOperationException("lambda providers do not have a config as they are runtime-only");
     }
 
     public static class Builder extends ExtendableBuilder<LambdaSubscriptionProvider, Builder> {

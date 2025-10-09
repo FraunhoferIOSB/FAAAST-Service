@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationM
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -1350,6 +1351,12 @@ public class RequestHandlerManagerTest {
                                 Consumer<Throwable> callbackFailure)
                 throws AssetConnectionException {
             // intentionally left empty
+        }
+
+
+        @Override
+        public AssetProviderConfig asConfig() {
+            return config;
         }
     }
 

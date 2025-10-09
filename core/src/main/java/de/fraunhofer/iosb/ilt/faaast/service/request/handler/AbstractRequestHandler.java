@@ -162,6 +162,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, parent) && !persistence.submodelElementExists(x);
         context.getAssetConnectionManager().getConnections().stream()
                 .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {
+                    // TODO need to properly unregister provider instead of just deleting it
                     connection.getValueProviders().keySet().removeIf(condition);
                     connection.getOperationProviders().keySet().removeIf(condition);
                     connection.getSubscriptionProviders().keySet().removeIf(condition);
