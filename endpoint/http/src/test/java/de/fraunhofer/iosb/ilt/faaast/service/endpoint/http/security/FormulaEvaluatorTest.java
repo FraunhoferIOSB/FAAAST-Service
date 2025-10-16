@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalTime;
@@ -184,6 +185,79 @@ public class FormulaEvaluatorTest {
         ctx.put("REF:(Submodel)*#Id", "https://company1.com/id-0815");
         ctx.put("UTCNOW", LocalTime.of(10, 30)); // between 09:00 and 17:00
         assertTrue(FormulaEvaluator.evaluate(formula, ctx));
+    }
+
+
+    @Test
+    public void testFormula_ConditionsNotMet() throws JsonProcessingException {
+        String json = """
+                {
+                                    "$and": [
+                                        {
+                                            "$or": [
+                                                {
+                                                    "$eq": [
+                                                        {
+                                                            "$attribute": {
+                                                                "CLAIM": "organization"
+                                                            }
+                                                        },
+                                                        {
+                                                            "$strVal": "[MyCompany]"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "$eq": [
+                                                        {
+                                                            "$attribute": {
+                                                                "CLAIM": "organization"
+                                                            }
+                                                        },
+                                                        {
+                                                            "$strVal": "Company2"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "$or": [
+                                                {
+                                                    "$eq": [
+                                                        {
+                                                            "$attribute": {
+                                                                "CLAIM": "email"
+                                                            }
+                                                        },
+                                                        {
+                                                            "$strVal": "bob@example.com"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "$eq": [
+                                                        {
+                                                            "$attribute": {
+                                                                "CLAIM": "email"
+                                                            }
+                                                        },
+                                                        {
+                                                            "$strVal": "user2@company2.com"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                """;
+        Map<String, Object> formula = MAPPER.readValue(
+                json, new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("CLAIM:organization", "Company2");
+        //ctx.put("CLAIM:email", "user2@company2.com");
+        assertFalse(FormulaEvaluator.evaluate(formula, ctx));
     }
 
 }

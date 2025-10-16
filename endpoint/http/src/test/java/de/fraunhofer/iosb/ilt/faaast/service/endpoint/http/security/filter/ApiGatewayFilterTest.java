@@ -20,11 +20,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.auth0.jwk.UrlJwkProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +32,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 
-public class AccessControlListAuthorizationFilterTest extends JwtAuthorizationFilterTest {
+public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
     private static final String ACL_JSON = "{\n" +
             "  \"AllAccessPermissionRules\": {\n" +
@@ -53,7 +51,7 @@ public class AccessControlListAuthorizationFilterTest extends JwtAuthorizationFi
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
     private Path aclDir;
-    private AccessControlListAuthorizationFilter filter;
+    private ApiGateway apiGateway;
 
     private static HttpServletRequest req(String method, String uri) {
         HttpServletRequest r = mock(HttpServletRequest.class);
@@ -67,7 +65,7 @@ public class AccessControlListAuthorizationFilterTest extends JwtAuthorizationFi
     public void anonymousAccessDependsOnAclFile() throws Exception {
 
         aclDir = tmp.newFolder("acl").toPath();
-        filter = new AccessControlListAuthorizationFilter(new UrlJwkProvider(new URL("http://whatever-jwks")), aclDir.toString());
+        apiGateway = new ApiGateway(aclDir.toString());
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
         HttpServletResponse response = mockResponse();
@@ -75,7 +73,7 @@ public class AccessControlListAuthorizationFilterTest extends JwtAuthorizationFi
 
         // TODO  I suggest we build a filterChain and fail/succeed if filterChain.doFilter is called (i.e. the next filter)
         //assertFalse(filter.doFilter(null, request));
-        filter.doFilter(request, response, filterChain);
+        apiGateway.isAuthorized(request);
         // Verify that request was blocked off
         verify(filterChain, never()).doFilter(any(), any());
         Path rule = aclDir.resolve("allow.json");

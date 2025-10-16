@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.AccessControlListAuthorizationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
@@ -129,9 +128,6 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
             JwkProvider jwkProvider = new UrlJwkProvider(jwkProviderUrl);
 
             context.addFilter(new JwtValidationFilter(jwkProvider),
-                    "*", EnumSet.allOf(DispatcherType.class));
-
-            context.addFilter(new AccessControlListAuthorizationFilter(jwkProvider, config.getAclFolder()),
                     "*", EnumSet.allOf(DispatcherType.class));
         }
         server.setErrorHandler(new HttpErrorHandler(config));

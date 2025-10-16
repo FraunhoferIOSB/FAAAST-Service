@@ -15,13 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod.POST;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.auth.AuthState.ANONYMOUS;
 
-import com.auth0.jwk.JwkProvider;
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
@@ -33,12 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefObjects;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -63,70 +60,86 @@ import org.slf4j.LoggerFactory;
 /**
  * Filters any incoming request with respect to the given ACL rules.
  */
-public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter {
+public class ApiGateway {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AccessControlListAuthorizationFilter.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiGateway.class);
+    private static final String BEARER_KWD = "Bearer";
 
-    //private final JwkProvider jwkProvider;
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
-    public AccessControlListAuthorizationFilter(JwkProvider jwkProvider, String aclFolder) {
-        //this.jwkProvider = jwkProvider;
+    public ApiGateway(String aclFolder) {
         initializeAclList(aclFolder);
-        // TODO Maybe we can read the ACL rules when a request comes in?
         monitorAclRules(aclFolder);
     }
 
 
     /**
-     * Verify JWT claims by counterchecking with ACL.
+     * Checks if the user is authorized to receive the response of the request.
      *
-     * @param servletRequest the <code>ServletRequest</code> object contains the client's request
-     * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
-     * @param filterChain the <code>FilterChain</code> for invoking the next filter or the resource
-     * @throws IOException doFilter of further Filter steps
-     * @throws ServletException doFilter of further Filter steps
+     * @param request the HttpRequest
+     * @return true if authorized and ACL exists
      */
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
-
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-
-        if (ANONYMOUS.equals(servletRequest.getAttribute("auth.state"))) {
-            // Check request without any claims
-            if (checkClaims(httpRequest)) {
-                filterChain.doFilter(servletRequest, servletResponse);
-            }
-            return;
-        }
-
-        // Extract JWT
-        DecodedJWT jwt = extractAndDecodeJwt(httpRequest);
-        if (jwt == null) {
-            LOGGER.info("Could not extract JWT");
-            return;
-        }
-
-        if (!checkClaims(httpRequest, jwt.getClaims())) {
-            httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    public boolean isAuthorized(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (java.util.Objects.isNull(token)) {
+            return AuthServer.filterRules(this.aclList, null, request);
         }
         else {
-            // Continue with the request
-            filterChain.doFilter(servletRequest, servletResponse);
+            token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
+            DecodedJWT jwt = JWT.decode(token);
+            return AuthServer.filterRules(this.aclList, jwt.getClaims(), request);
         }
     }
 
 
-    private boolean checkClaims(HttpServletRequest request) {
-        return checkClaims(request, null);
+    /**
+     * Filters out AAS that the user is not authorized for.
+     *
+     * @param request the HttpRequest
+     * @param response the ApiResponse
+     * @return the ApiResponse with only allowed AAS
+     */
+    public Response filterAas(HttpServletRequest request, GetAllAssetAdministrationShellsResponse response) {
+        response.getPayload().getContent()
+                .removeIf(aas -> aclList.values().stream()
+                        .noneMatch(a -> a.getAllAccessPermissionRules().getRules().stream()
+                                .anyMatch(r -> AuthServer.evaluateRule(r, "/shells/" + EncodingHelper.base64Encode(aas.getId()),
+                                        request.getMethod(), extractClaims(request), a.getAllAccessPermissionRules()))));
+        return response;
     }
 
 
-    private boolean checkClaims(HttpServletRequest request, Map<String, Claim> claims) {
-        return AuthServer.filterRules(this.aclList, claims, request);
+    /**
+     * Filters out Submodels that the user is not authorized for.
+     *
+     * @param request the HttpRequest
+     * @param response the ApiResponse
+     * @return the ApiResponse with only allowed Submodels
+     */
+    public Response filterSubmodels(HttpServletRequest request, GetAllSubmodelsResponse response) {
+        response.getPayload().getContent()
+                .removeIf(submodel -> aclList.values().stream().noneMatch(
+                        a -> a.getAllAccessPermissionRules().getRules().stream()
+                                .anyMatch(r -> AuthServer.evaluateRule(r, "/submodels/" + EncodingHelper.base64Encode(submodel.getId()),
+                                        request.getMethod(), extractClaims(request), a.getAllAccessPermissionRules()))));
+        return response;
+    }
+
+
+    private Map<String, Claim> extractClaims(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return null;
+        }
+        token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaims();
+        }
+        catch (com.auth0.jwt.exceptions.JWTDecodeException e) {
+            return null;
+        }
     }
 
     /**
@@ -238,7 +251,7 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
 
         private static boolean checkIdentifiable(String path, String identifiable) {
             //check submodel path
-            if (!path.startsWith("/submodels")) {
+            if (!(path.startsWith("/submodels") || path.startsWith("/shells"))) {
                 return false;
             }
 
@@ -247,6 +260,13 @@ public class AccessControlListAuthorizationFilter extends JwtAuthorizationFilter
             }
             else if (identifiable.startsWith("(Submodel)")) {
                 String id = identifiable.substring(10);
+                return path.contains(EncodingHelper.base64Encode(id));
+            }
+            if (identifiable.equals("(AssetAdministrationShell)*")) {
+                return true;
+            }
+            else if (identifiable.startsWith("(AssetAdministrationShell)")) {
+                String id = identifiable.substring(26);
                 return path.contains(EncodingHelper.base64Encode(id));
             }
             return false;
