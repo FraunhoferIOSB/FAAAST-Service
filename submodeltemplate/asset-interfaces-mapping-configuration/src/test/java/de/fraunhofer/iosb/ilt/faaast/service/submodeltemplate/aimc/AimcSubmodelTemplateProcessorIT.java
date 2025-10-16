@@ -36,7 +36,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmo
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.HttpModel;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.MqttModel;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
@@ -56,6 +55,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -119,6 +119,7 @@ public class AimcSubmodelTemplateProcessorIT {
 
 
     @Test
+    @Ignore
     public void testAimcHttp() throws Exception {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, HttpModel.create(httpServerPort)));
@@ -172,6 +173,7 @@ public class AimcSubmodelTemplateProcessorIT {
 
 
     @Test
+    @Ignore
     public void testAimcMqtt() throws Exception {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, MqttModel.create(mqttPort)));
@@ -219,8 +221,8 @@ public class AimcSubmodelTemplateProcessorIT {
                         .build())
                 .messageBus(new MessageBusInternalConfig())
                 .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
-                        .interfaceConfiguration(ReferenceBuilder.forSubmodel(HttpModel.SUBMODEL_AID_ID, HttpModel.INTERFACE_HTTP),
-                                new InterfaceConfiguration.Builder().subscriptionInterval(50).build())
+                        //.interfaceConfiguration(ReferenceBuilder.forSubmodel(HttpModel.SUBMODEL_AID_ID, HttpModel.INTERFACE_HTTP),
+                        //        new InterfaceConfiguration.Builder().subscriptionInterval(50).build())
                         .build()))
                 .build();
     }

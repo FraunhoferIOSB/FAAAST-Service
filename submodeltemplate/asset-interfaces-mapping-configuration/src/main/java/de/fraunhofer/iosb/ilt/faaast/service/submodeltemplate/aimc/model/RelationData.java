@@ -27,13 +27,13 @@ public class RelationData {
     private final ServiceContext serviceContext;
     private final List<RelationshipElement> relations;
     private final String contentType;
-    private final InterfaceData interfaceData;
+    //private final InterfaceData interfaceData;
 
-    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType, InterfaceData interfaceData) {
+    public RelationData(ServiceContext serviceContext, List<RelationshipElement> relations, String contentType) {
         this.serviceContext = serviceContext;
         this.relations = relations;
         this.contentType = contentType;
-        this.interfaceData = interfaceData;
+        //this.interfaceData = interfaceData;
     }
 
 
@@ -66,43 +66,42 @@ public class RelationData {
         return contentType;
     }
 
-
-    /**
-     * Gets the interface data.
-     *
-     * @return The interface data.
-     */
-    public InterfaceData getInterfaceData() {
-        return interfaceData;
-    }
-
-
-    /**
-     * Gets the HTTP interface data.
-     *
-     * @return The interface data.
-     */
-    public InterfaceDataHttp getInterfaceDataHttp() {
-        if (interfaceData instanceof InterfaceDataHttp http) {
-            return http;
-        }
-        else {
-            throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-        }
-    }
-
-
-    /**
-     * Gets the MQTT interface data.
-     *
-     * @return The interface data.
-     */
-    public InterfaceDataMqtt getInterfaceDataMqtt() {
-        if (interfaceData instanceof InterfaceDataMqtt mqtt) {
-            return mqtt;
-        }
-        else {
-            throw new IllegalArgumentException("wrong type: no InterfaceDataMqtt");
-        }
-    }
+    //    /**
+    //     * Gets the interface data.
+    //     *
+    //     * @return The interface data.
+    //     */
+    //    public InterfaceData getInterfaceData() {
+    //        return interfaceData;
+    //    }
+    //
+    //
+    //    /**
+    //     * Gets the HTTP interface data.
+    //     *
+    //     * @return The interface data.
+    //     */
+    //    public InterfaceDataHttp getInterfaceDataHttp() {
+    //        if (interfaceData instanceof InterfaceDataHttp http) {
+    //            return http;
+    //        }
+    //        else {
+    //            throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
+    //        }
+    //    }
+    //
+    //
+    //    /**
+    //     * Gets the MQTT interface data.
+    //     *
+    //     * @return The interface data.
+    //     */
+    //    public InterfaceDataMqtt getInterfaceDataMqtt() {
+    //        if (interfaceData instanceof InterfaceDataMqtt mqtt) {
+    //            return mqtt;
+    //        }
+    //        else {
+    //            throw new IllegalArgumentException("wrong type: no InterfaceDataMqtt");
+    //        }
+    //    }
 }

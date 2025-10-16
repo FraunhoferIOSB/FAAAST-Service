@@ -15,29 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.ProcessingMode;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.InterfaceDataMqtt;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
@@ -61,18 +55,17 @@ public class MqttHelper {
      * Process a MQTT interface.
      *
      * @param serviceContext The service context.
-     * @param interfaceData The current interface configuration.
      * @param assetInterface The desired Asset Interface.
      * @param relations The list of rekations.
-     * @param assetConnectionManager The AssetConnectionManager.
-     * @param mode The desired Processing Mode.
+     * @param credentials The list of credentials.
+     * @return The Asset Connection configuration from this interface.
      * @throws PersistenceException if a storage error occurs.
      * @throws ResourceNotFoundException if the resource dcesn't exist..
      * @throws ConfigurationException if invalid configuration is provided.
      * @throws AssetConnectionException if there is an error in the Asset Connection.
      */
-    public static void processInterface(ServiceContext serviceContext, InterfaceDataMqtt interfaceData, SubmodelElementCollection assetInterface,
-                                        List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+    public static AssetConnectionConfig processInterface(ServiceContext serviceContext, SubmodelElementCollection assetInterface,
+                                                         List<RelationshipElement> relations, Map<String, List<Credentials>> credentials)
             throws ResourceNotFoundException, PersistenceException, ConfigurationException, AssetConnectionException {
         String title = Util.getInterfaceTitle(assetInterface);
         LOGGER.debug("process MQTT interface {} with {} relations", title, relations.size());
@@ -86,113 +79,118 @@ public class MqttHelper {
         // contentType
         String contentType = Util.getContentType(metadata);
 
-        List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
+        //List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
         Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders,
-                    assetConnectionsRemove);
-        }
-        else if (mode == ProcessingMode.ADD) {
-            addProvider(new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders, assetConnectionManager);
+        //        if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
+        //            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders,
+        //                    assetConnectionsRemove);
+        //        }
+        //        else if (mode == ProcessingMode.ADD) {
+        //addProvider(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+        //}
+
+        processRelations(new RelationData(serviceContext, relations, contentType), subscriptionProviders);
+
+        List<Credentials> serverCredentials = null;
+        if (credentials.containsKey(base)) {
+            serverCredentials = credentials.get(base);
         }
 
-        if (!subscriptionProviders.isEmpty()) {
-            MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
-            if (mac == null) {
-                MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
+        //        if (!subscriptionProviders.isEmpty()) {
+        //            MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
+        //            if (mac == null) {
+        MqttAssetConnectionConfig.Builder assetConfigBuilder = MqttAssetConnectionConfig.builder().serverUri(base);
 
-                // security
-                Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
-                if (element.isEmpty()) {
-                    throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
-                }
-                else if (element.get() instanceof SubmodelElementList securityList) {
-                    assetConfigBuilder = configureSecurity(serviceContext, interfaceData.getConfigData(), securityList, assetConfigBuilder);
-                }
+        // security
+        Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_METADATA_SECURITY_SEMANTIC_ID)).findFirst();
+        if (element.isEmpty()) {
+            throw new IllegalArgumentException("Submodel AID (MQTT) invalid: EndpointMetadata security not found.");
+        }
+        else if (element.get() instanceof SubmodelElementList securityList) {
+            assetConfigBuilder = configureSecurity(serviceContext, securityList, assetConfigBuilder, serverCredentials);
+        }
 
-                LOGGER.debug("processInterface: add {} subscriptionProviders", subscriptionProviders.size());
-                MqttAssetConnectionConfig assetConfig = assetConfigBuilder
-                        .subscriptionProviders(subscriptionProviders)
-                        .build();
-                assetConnectionManager.add(assetConfig);
-            }
-            else {
-                for (var s: subscriptionProviders.entrySet()) {
-                    mac.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
-                    if (mac.isConnected()) {
-                        mac.registerSubscriptionProvider(s.getKey(), s.getValue());
-                    }
-                }
-            }
-            interfaceData.addSubscriptionProviders(subscriptionProviders);
-        }
-        if (!assetConnectionsRemove.isEmpty()) {
-            // remove asset connection if no more providers are available
-            LOGGER.debug("processInterface: remove unused AssetConnections");
-            for (var connection: assetConnectionsRemove) {
-                assetConnectionManager.remove(connection);
-            }
-            assetConnectionsRemove.clear();
-        }
+        LOGGER.debug("processInterface: add {} subscriptionProviders", subscriptionProviders.size());
+        return assetConfigBuilder
+                .subscriptionProviders(subscriptionProviders)
+                .build();
+        //assetConnectionManager.add(assetConfig);
+        //            }
+        //            else {
+        //                for (var s: subscriptionProviders.entrySet()) {
+        //                    mac.asConfig().getSubscriptionProviders().put(s.getKey(), s.getValue());
+        //                    if (mac.isConnected()) {
+        //                        mac.registerSubscriptionProvider(s.getKey(), s.getValue());
+        //                    }
+        //                }
+        //            }
+        //            interfaceData.addSubscriptionProviders(subscriptionProviders);
+        //}
+        //        if (!assetConnectionsRemove.isEmpty()) {
+        //            // remove asset connection if no more providers are available
+        //            LOGGER.debug("processInterface: remove unused AssetConnections");
+        //            for (var connection: assetConnectionsRemove) {
+        //                assetConnectionManager.remove(connection);
+        //            }
+        //            assetConnectionsRemove.clear();
+        //        }
     }
 
+    //    private static void addProvider(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
+    //            throws PersistenceException, ResourceNotFoundException {
+    //        processRelations(data, subscriptionProviders);
+    //        List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
+    //        for (Reference r: doubleList) {
+    //            LOGGER.atWarn().log("addProvider: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
+    //            subscriptionProviders.remove(r);
+    //        }
+    //    }
 
-    private static void addProvider(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, AssetConnectionManager assetConnectionManager)
-            throws PersistenceException, ResourceNotFoundException {
-        processRelations(data, subscriptionProviders);
-        List<Reference> doubleList = subscriptionProviders.keySet().stream().filter(k -> Util.hasSubscriptionProvider(k, assetConnectionManager)).toList();
-        for (Reference r: doubleList) {
-            LOGGER.atWarn().log("addProvider: SubscriptionProvider for '{}' already configured - entry is ignored", ReferenceHelper.asString(r));
-            subscriptionProviders.remove(r);
-        }
-    }
-
-
-    private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
-                                               Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
-            throws ResourceNotFoundException, PersistenceException {
-        if (!base.equals(data.getInterfaceData().getBaseUrl())) {
-            // delete providers in the old Asset Connection
-            MqttAssetConnection macOld = getAssetConnection(assetConnectionManager, base);
-            if (macOld != null) {
-                for (Reference ref: data.getInterfaceDataMqtt().getSubscriptionProvider().keySet()) {
-                    macOld.unregisterSubscriptionProvider(ref);
-                    macOld.asConfig().getSubscriptionProviders().remove(ref);
-                }
-                data.getInterfaceDataMqtt().getSubscriptionProvider().clear();
-            }
-            else {
-                LOGGER.debug("updateAssetConnections: old AssetConnection for URL '{}' not found", base);
-            }
-        }
-        MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
-        if (mac != null) {
-            Iterator<Reference> subscriptionIter = data.getInterfaceDataMqtt().getSubscriptionProvider().keySet().iterator();
-
-            // search for removed providers
-            while (subscriptionIter.hasNext()) {
-                Reference ref = subscriptionIter.next();
-                if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
-                        || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
-                    LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
-                    mac.unregisterSubscriptionProvider(ref);
-                    mac.asConfig().getSubscriptionProviders().remove(ref);
-                    subscriptionIter.remove();
-                }
-            }
-            if (mode != ProcessingMode.DELETE) {
-                updateRelations(data, subscriptionProviders, mac, assetConnectionManager);
-            }
-            else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
-                    && mac.getOperationProviders().isEmpty()) {
-                assetConnectionsRemove.add(mac);
-            }
-        }
-        else {
-            // create new Asset Connection
-            addProvider(data, subscriptionProviders, assetConnectionManager);
-        }
-    }
+    //    private static void updateAssetConnections(AssetConnectionManager assetConnectionManager, String base, ProcessingMode mode, RelationData data,
+    //                                               Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, List<AssetConnection> assetConnectionsRemove)
+    //            throws ResourceNotFoundException, PersistenceException {
+    //        if (!base.equals(data.getInterfaceData().getBaseUrl())) {
+    //            // delete providers in the old Asset Connection
+    //            MqttAssetConnection macOld = getAssetConnection(assetConnectionManager, base);
+    //            if (macOld != null) {
+    //                for (Reference ref: data.getInterfaceDataMqtt().getSubscriptionProvider().keySet()) {
+    //                    macOld.unregisterSubscriptionProvider(ref);
+    //                    macOld.asConfig().getSubscriptionProviders().remove(ref);
+    //                }
+    //                data.getInterfaceDataMqtt().getSubscriptionProvider().clear();
+    //            }
+    //            else {
+    //                LOGGER.debug("updateAssetConnections: old AssetConnection for URL '{}' not found", base);
+    //            }
+    //        }
+    //        MqttAssetConnection mac = getAssetConnection(assetConnectionManager, base);
+    //        if (mac != null) {
+    //            Iterator<Reference> subscriptionIter = data.getInterfaceDataMqtt().getSubscriptionProvider().keySet().iterator();
+    //
+    //            // search for removed providers
+    //            while (subscriptionIter.hasNext()) {
+    //                Reference ref = subscriptionIter.next();
+    //                if (((mode == ProcessingMode.UPDATE) && data.getRelations().stream().noneMatch(r -> r.getSecond().equals(ref)))
+    //                        || ((mode == ProcessingMode.DELETE) && data.getRelations().stream().anyMatch(r -> r.getSecond().equals(ref)))) {
+    //                    LOGGER.atTrace().log("updateAssetConnections: unregisterSubscriptionProvider: {}", AasUtils.asString(ref));
+    //                    mac.unregisterSubscriptionProvider(ref);
+    //                    mac.asConfig().getSubscriptionProviders().remove(ref);
+    //                    subscriptionIter.remove();
+    //                }
+    //            }
+    //            if (mode != ProcessingMode.DELETE) {
+    //                updateRelations(data, subscriptionProviders, mac, assetConnectionManager);
+    //            }
+    //            else if (mac.getValueProviders().isEmpty() && mac.getSubscriptionProviders().isEmpty()
+    //                    && mac.getOperationProviders().isEmpty()) {
+    //                assetConnectionsRemove.add(mac);
+    //            }
+    //        }
+    //        else {
+    //            // create new Asset Connection
+    //            addProvider(data, subscriptionProviders, assetConnectionManager);
+    //        }
+    //    }
 
 
     private static MqttSubscriptionProviderConfig createSubscriptionProvider(SubmodelElementCollection property, RelationData data, Reference propertyReference)
@@ -216,23 +214,22 @@ public class MqttHelper {
 
     }
 
-
-    private static boolean subscriptionProviderChanged(MqttSubscriptionProviderConfig config, SubmodelElementCollection property, RelationData data, Reference propertyReference)
-            throws PersistenceException, ResourceNotFoundException {
-        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
-        String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
-        if (!config.getFormat().equals(format)) {
-            return true;
-        }
-
-        String jsonPath = Util.getJsonPath(property, propertyReference, data);
-        if (!jsonPath.equals(config.getQuery())) {
-            return true;
-        }
-
-        String href = Util.getFormsHref(forms);
-        return !config.getTopic().equals(href);
-    }
+    //    private static boolean subscriptionProviderChanged(MqttSubscriptionProviderConfig config, SubmodelElementCollection property, RelationData data, Reference propertyReference)
+    //            throws PersistenceException, ResourceNotFoundException {
+    //        SubmodelElementCollection forms = Util.getPropertyForms(property, propertyReference, data);
+    //        String format = Util.getFormatFromContentType(Util.getContentType(data.getContentType(), forms));
+    //        if (!config.getFormat().equals(format)) {
+    //            return true;
+    //        }
+    //
+    //        String jsonPath = Util.getJsonPath(property, propertyReference, data);
+    //        if (!jsonPath.equals(config.getQuery())) {
+    //            return true;
+    //        }
+    //
+    //        String href = Util.getFormsHref(forms);
+    //        return !config.getTopic().equals(href);
+    //    }
 
 
     private static void processRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders)
@@ -245,31 +242,30 @@ public class MqttHelper {
         }
     }
 
+    //    private static void updateRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, MqttAssetConnection mac,
+    //                                        AssetConnectionManager assetConnectionManager)
+    //            throws PersistenceException, ResourceNotFoundException {
+    //        Map<Reference, MqttSubscriptionProviderConfig> currentSubscriptions = mac.asConfig().getSubscriptionProviders();
+    //        for (var r: data.getRelations()) {
+    //            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
+    //                if (currentSubscriptions.containsKey(r.getSecond())) {
+    //                    // compare provider data
+    //                    MqttSubscriptionProviderConfig config = currentSubscriptions.get(r.getSecond());
+    //                    if (subscriptionProviderChanged(config, property, data, r.getFirst())) {
+    //                        mac.unregisterSubscriptionProvider(r.getSecond());
+    //                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
+    //                    }
+    //                }
+    //                else if (!Util.hasSubscriptionProvider(r.getSecond(), assetConnectionManager)) {
+    //                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
+    //                }
+    //            }
+    //        }
+    //    }
 
-    private static void updateRelations(RelationData data, Map<Reference, MqttSubscriptionProviderConfig> subscriptionProviders, MqttAssetConnection mac,
-                                        AssetConnectionManager assetConnectionManager)
-            throws PersistenceException, ResourceNotFoundException {
-        Map<Reference, MqttSubscriptionProviderConfig> currentSubscriptions = mac.asConfig().getSubscriptionProviders();
-        for (var r: data.getRelations()) {
-            if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                if (currentSubscriptions.containsKey(r.getSecond())) {
-                    // compare provider data
-                    MqttSubscriptionProviderConfig config = currentSubscriptions.get(r.getSecond());
-                    if (subscriptionProviderChanged(config, property, data, r.getFirst())) {
-                        mac.unregisterSubscriptionProvider(r.getSecond());
-                        subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
-                    }
-                }
-                else if (!Util.hasSubscriptionProvider(r.getSecond(), assetConnectionManager)) {
-                    subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, data, r.getFirst()));
-                }
-            }
-        }
-    }
 
-
-    private static MqttAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, InterfaceConfiguration config,
-                                                                       SubmodelElementList securityList, MqttAssetConnectionConfig.Builder assetConfigBuilder)
+    private static MqttAssetConnectionConfig.Builder configureSecurity(ServiceContext serviceContext, SubmodelElementList securityList,
+                                                                       MqttAssetConnectionConfig.Builder assetConfigBuilder, List<Credentials> credentials)
             throws ResourceNotFoundException, PersistenceException {
         MqttAssetConnectionConfig.Builder retval = assetConfigBuilder;
         List<String> supportedSecurity = Util.getSupportedSecurityList(serviceContext, securityList);
@@ -281,27 +277,27 @@ public class MqttHelper {
         else if (supportedSecurity.contains(Constants.AID_SECURITY_BASIC)) {
             // use basic security. Username and password are used from the configuration.
             LOGGER.trace("configureSecurity: use basic security");
-            if ((config.getUsername() == null) || config.getUsername().isEmpty()) {
+            Optional<BasicCredentials> basic = credentials.stream().filter(c -> c instanceof BasicCredentials).map(c -> (BasicCredentials) c).findFirst();
+            if (basic.isEmpty()) {
                 LOGGER.warn("configureSecurity: basic security configured, but no username given");
             }
             else {
-                retval = retval.username(config.getUsername()).password(config.getPassword());
+                retval = retval.username(basic.get().getUsername()).password(basic.get().getPassword());
             }
         }
 
         return retval;
     }
 
-
-    private static MqttAssetConnection getAssetConnection(AssetConnectionManager assetConnectionManager, String base) {
-        MqttAssetConnection retval = null;
-        for (var c: assetConnectionManager.getConnections()) {
-            if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
-                retval = mac;
-                break;
-            }
-        }
-
-        return retval;
-    }
+    //    private static MqttAssetConnection getAssetConnection(AssetConnectionManager assetConnectionManager, String base) {
+    //        MqttAssetConnection retval = null;
+    //        for (var c: assetConnectionManager.getConnections()) {
+    //            if ((c instanceof MqttAssetConnection mac) && mac.asConfig().getServerUri().equals(base)) {
+    //                retval = mac;
+    //                break;
+    //            }
+    //        }
+    //
+    //        return retval;
+    //    }
 }
