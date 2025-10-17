@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider.DEFAULT_READ_METHOD;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
@@ -96,7 +94,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
-                    DEFAULT_READ_METHOD,
+                    method,
                     headers,
                     Objects.nonNull(input) ? new String(input) : "");
             HttpResponse<byte[]> response = HttpHelper.execute(

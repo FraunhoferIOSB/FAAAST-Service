@@ -114,7 +114,9 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
             LOGGER.trace("Sending HTTP write request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
-                    DEFAULT_READ_METHOD,
+                    StringUtils.isBlank(config.getWriteMethod())
+                            ? DEFAULT_WRITE_METHOD
+                            : config.getWriteMethod(),
                     headers);
             HttpResponse<String> response = HttpHelper.execute(
                     client,

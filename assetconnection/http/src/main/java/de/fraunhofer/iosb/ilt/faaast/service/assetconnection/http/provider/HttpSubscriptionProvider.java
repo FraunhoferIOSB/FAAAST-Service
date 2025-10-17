@@ -33,6 +33,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -81,16 +82,21 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
 
     private byte[] readRawValue() throws AssetConnectionException {
         try {
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP read request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_METHOD,
+                    headers);
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
                     config.getFormat(),
                     DEFAULT_METHOD,
-
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", ReferenceHelper.toString(reference)));
             }
