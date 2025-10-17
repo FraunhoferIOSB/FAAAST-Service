@@ -79,7 +79,6 @@ public class Util {
                     .build()
                     .resolveOptional(current, SubmodelElementCollection.class);
 
-            //element = current.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_PROPERTY_FORMS_SEMANTIC_ID)).findFirst();
             if (element.isEmpty()) {
                 throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
             }
@@ -124,12 +123,6 @@ public class Util {
                 .build()
                 .resolveUnique(forms, Property.class)
                 .getValue();
-
-        //Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_FORMS_HREF_SEMANTIC_ID)).findFirst();
-        //if (element.isEmpty()) {
-        //    throw new IllegalArgumentException("Submodel AID invalid: Property href not found in forms.");
-        //}
-        //return (((Property) element.get()).getValue());
     }
 
 
@@ -145,12 +138,6 @@ public class Util {
                 .build()
                 .resolveUnique(metadata, Property.class)
                 .getValue();
-
-        //Optional<SubmodelElement> element = metadata.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_METADATA_BASE_SEMANTIC_ID)).findFirst();
-        //if (element.isEmpty()) {
-        //    throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata base not found.");
-        //}
-        //return ((Property) element.get()).getValue();
     }
 
 
@@ -181,12 +168,6 @@ public class Util {
                 .build()
                 .resolveUnique(assetInterface, Property.class)
                 .getValue();
-
-        //Optional<SubmodelElement> element = assetInterface.getValue().stream().filter(p -> semanticIdEquals(p, Constants.AID_INTERFACE_TITLE_SEMANTIC_ID)).findFirst();
-        //if (element.isEmpty()) {
-        //    throw new IllegalArgumentException("Submodel AID invalid: Interface Title not found.");
-        //}
-        //return (((Property) element.get()).getValue());
     }
 
 
@@ -201,12 +182,6 @@ public class Util {
                 .globalReference(Constants.AID_ENDPOINT_METADATA_SEMANTIC_ID)
                 .build()
                 .resolveUnique(assetInterface, SubmodelElementCollection.class);
-
-        //Optional<SubmodelElement> element = assetInterface.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_ENDPOINT_METADATA_SEMANTIC_ID)).findFirst();
-        //if (element.isEmpty()) {
-        //    throw new IllegalArgumentException("Submodel AID invalid: EndpointMetadata not found.");
-        //}
-        //return (SubmodelElementCollection) element.get();
     }
 
 
@@ -255,7 +230,6 @@ public class Util {
                 .globalReference(Constants.AID_CONTENT_TYPE_SEMANTIC_ID)
                 .build()
                 .resolveOptional(forms, Property.class);
-        //Optional<SubmodelElement> element = forms.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_CONTENT_TYPE_SEMANTIC_ID)).findFirst();
         if (prop.isPresent()) {
             contentType = prop.get().getValue();
         }
@@ -310,10 +284,6 @@ public class Util {
         if (prop.isPresent()) {
             retval = prop.get().getValue();
         }
-        //Optional<SubmodelElement> element = object.getValue().stream().filter(e -> semanticIdEquals(e, Constants.AID_PROPERTY_KEY_SEMANTIC_ID)).findFirst();
-        //if (element.isPresent() && (element.get() instanceof Property prop)) {
-        //    retval = prop.getValue();
-        //}
         return retval;
     }
 

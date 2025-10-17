@@ -272,111 +272,28 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         SubmodelElementCollection assetInterface = (SubmodelElementCollection) referenceElement;
         if (!Util.semanticIdEquals(assetInterface, Constants.AID_INTERFACE_SEMANTIC_ID)) {
-            LOGGER.warn("Invalid AIMC configuration - target of InterfaceReference does not have correct semanticId (expected: {}, actual: {})",
+            LOGGER.atWarn().log("Invalid AIMC configuration - target of InterfaceReference does not have correct semanticId (expected: {}, actual: {})",
                     Constants.AID_INTERFACE_SEMANTIC_ID,
                     ReferenceHelper.asString(assetInterface.getSemanticId()));
             return null;
         }
         if (Objects.isNull(assetInterface.getSupplementalSemanticIds()) || assetInterface.getSupplementalSemanticIds().isEmpty()) {
-            LOGGER.warn("Invalid AIMC configuration - target of InterfaceReference does not have any supplementalSemanticId, but at least one is required",
+            LOGGER.atWarn().log(
+                    "Invalid AIMC configuration - target of InterfaceReference does not have any supplementalSemanticId, but at least one is required (expected: {}, actual: {})",
                     Constants.AID_INTERFACE_SEMANTIC_ID,
                     ReferenceHelper.asString(assetInterface.getSemanticId()));
             return null;
         }
 
-        //        InterfaceConfiguration interfaceConfig = ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)
-        //                ? ReferenceHelper.getValueBySameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)
-        //                : InterfaceConfiguration.builder()
-        //                        .build();
-        //        InterfaceData interfaceData = ReferenceHelper.containsSameReference(interfaceDataCache, interfaceReferenceValue)
-        //                ? ReferenceHelper.getValueBySameReference(interfaceDataCache, interfaceReferenceValue)
-        //                : null;
-
         if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)) {
             // HTTP Interface
-            //            InterfaceDataHttp http;
-            //            if (interfaceData != null) {
-            //                if (interfaceData instanceof InterfaceDataHttp httpInterface) {
-            //                    http = httpInterface;
-            //                }
-            //                else {
-            //                    throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-            //                }
-            //            }
-            //            else {
-            //                http = new InterfaceDataHttp(interfaceConfig);
-            //            }
             return HttpHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
-            //interfaceDataCache.put(interfaceReferenceValue, http);
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
             // MQTT Interface
-            //            InterfaceDataMqtt mqtt;
-            //            if (interfaceData != null) {
-            //                if (interfaceData instanceof InterfaceDataMqtt mqttInterface) {
-            //                    mqtt = mqttInterface;
-            //                }
-            //                else {
-            //                    throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-            //                }
-            //            }
-            //            else {
-            //                mqtt = new InterfaceDataMqtt(interfaceConfig);
-            //            }
             return MqttHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
-            //interfaceDataCache.put(interfaceReferenceValue, mqtt);
         }
         return null;
     }
-
-    //    private void processHttpMaping() {
-    //        InterfaceDataHttp http;
-    //        if (interfaceData != null) {
-    //            if (interfaceData instanceof InterfaceDataHttp httpInterface) {
-    //                http = httpInterface;
-    //            }
-    //            else {
-    //                throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-    //            }
-    //        }
-    //        else {
-    //            http = new InterfaceDataHttp(configData);
-    //        }
-    //        //HttpHelper.processInterface(serviceContext, http, assetInterface, relations, assetConnectionManager, mode);
-    //        String title = Util.getInterfaceTitle(assetInterface);
-    //        LOGGER.debug("process HTTP interface {} with {} relations", title, relations.size());
-    //
-    //        // Endpoint Metadata
-    //        SubmodelElementCollection metadata = Util.getEndpointMetadata(assetInterface);
-    //        String base = Util.getBaseUrl(metadata);
-    //
-    //        // contentType
-    //        String contentType = Util.getContentType(metadata);
-    //
-    //        List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
-    //        Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
-    //        Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-    //        if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-    //            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders,
-    //                    valueProviders,
-    //                    assetConnectionsRemove);
-    //        }
-    //        else if (mode == ProcessingMode.ADD) {
-    //            addProvider(new RelationData(serviceContext, relations, contentType, interfaceData), base, subscriptionProviders, valueProviders, assetConnectionManager);
-    //        }
-    //
-    //        if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
-    //            registerProviders(valueProviders, subscriptionProviders, assetConnectionManager, base, metadata, serviceContext, interfaceData);
-    //        }
-    //        if (!assetConnectionsRemove.isEmpty()) {
-    //            // remove asset connection if no more providers are available
-    //            LOGGER.debug("processInterface: remove unused AssetConnections");
-    //            for (var connection: assetConnectionsRemove) {
-    //                assetConnectionManager.remove(connection);
-    //            }
-    //            assetConnectionsRemove.clear();
-    //        }
-    //        interfaceDataCache.put(interfaceReferenceValue, http);
-    //    }
 
 }
