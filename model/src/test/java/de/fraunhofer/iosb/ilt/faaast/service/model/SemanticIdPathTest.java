@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
@@ -33,7 +34,7 @@ import org.junit.Test;
 public class SemanticIdPathTest {
 
     @Test
-    public void resolveSematicIdPathInSubmodelUnique() {
+    public void resolveSematicIdPathInSubmodelUnique() throws ResourceNotFoundException {
         final String idShortCollection1 = "idShortCollection1";
         final String idShortCollection2 = "idShortCollection2";
         final String idShortProperty1 = "idShortProperty1";
@@ -73,7 +74,7 @@ public class SemanticIdPathTest {
 
 
     @Test
-    public void resolveSematicIdPathInCollection() {
+    public void resolveSematicIdPathInCollection() throws ResourceNotFoundException {
         final String idShortCollection = "idShortCollection";
         final String idShortProperty = "idShortProperty";
         Reference semanticIdCollection = ReferenceBuilder.global("collection");
@@ -101,7 +102,7 @@ public class SemanticIdPathTest {
 
 
     @Test
-    public void resolveSematicIdPathInList() {
+    public void resolveSematicIdPathInList() throws ResourceNotFoundException {
         final String idShortList1 = "idShortList1";
         final String idShortList2 = "idShortList2";
         final String idShortProperty1 = "idShortProperty1";

@@ -152,11 +152,15 @@ public class SemanticIdPath {
      * @param <T> the type of the root
      * @param root the root to resolve the path in
      * @return the reference to element that matches the semanticIdPath
+     * @throws ResourceNotFoundException if no matching element is found
      * @throws IllegalArgumentException if the semanticIdPath resolves to more than one element
      */
-    public <T extends Referable & HasSemantics> Reference resolveUnique(T root) {
+    public <T extends Referable & HasSemantics> Reference resolveUnique(T root) throws ResourceNotFoundException {
         Ensure.requireNonNull(root, "root must be non-null");
         List<Reference> result = resolveRecursive(root, this, null);
+        if (Objects.isNull(result) || result.isEmpty()) {
+            throw new ResourceNotFoundException("no matching element for semanticIdPath");
+        }
         if (result.size() > 1) {
             throw new IllegalArgumentException("semanticIdPath did resolve to more than one element");
         }
@@ -172,8 +176,9 @@ public class SemanticIdPath {
      * @param type the expected effective type of the reference
      * @return the reference to element that matches the semanticIdPath
      * @throws IllegalArgumentException if the semanticIdPath resolves to more than one element
+     * @throws ResourceNotFoundException if no matching element is found
      */
-    public <T extends Referable & HasSemantics> Reference resolveUnique(T root, KeyTypes type) {
+    public <T extends Referable & HasSemantics> Reference resolveUnique(T root, KeyTypes type) throws ResourceNotFoundException {
         Ensure.requireNonNull(type, "type must be non-null");
         Reference result = resolveUnique(root);
         KeyTypes actualType = ReferenceHelper.getEffectiveKeyType(result);
