@@ -31,19 +31,25 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -151,5 +157,249 @@ public class ProcessorTest {
         // ignore clientId
         mqttExpected.setClientId(mqttConfig.getClientId());
         Assert.assertEquals(mqttExpected, mqttConfig);
+    }
+
+
+    @Test
+    public void testGlobalContentType() {
+        String expectedContentType = "application/json";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("EndpointMetadata")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata")
+                                .build())
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("contentType")
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("https://www.w3.org/2019/wot/hypermedia#forContentType")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value(expectedContentType)
+                        .build())
+                .build();
+        String actualContentType = Util.getContentType(smec);
+        Assert.assertEquals(expectedContentType, actualContentType);
+    }
+
+
+    @Test
+    public void testPropertyContentType() {
+        String expectedContentType = "application/xml";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("forms")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://www.w3.org/2019/wot/td#hasForm")
+                                .build())
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("https://www.w3.org/2019/wot/hypermedia#forContentType")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value(expectedContentType)
+                        .build())
+                .build();
+        String actualContentType = Util.getContentType("application/json", smec);
+        Assert.assertEquals(expectedContentType, actualContentType);
+    }
+
+
+    @Test
+    public void testForms() throws PersistenceException, ResourceNotFoundException {
+        SubmodelElementCollection expectedForms = new DefaultSubmodelElementCollection.Builder()
+                .idShort("forms")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://www.w3.org/2019/wot/td#hasForm")
+                                .build())
+                        .build())
+                .build();
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("voltage")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/PropertyDefinition")
+                                .build())
+                        .build())
+                .value(expectedForms)
+                .build();
+        SubmodelElementCollection actualForms = Util.getPropertyForms(smec, null, null);
+        Assert.assertEquals(expectedForms, actualForms);
+    }
+
+
+    @Test
+    public void testFormsHref() {
+        String expectedHref = "/path/value";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("forms")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://www.w3.org/2019/wot/td#hasForm")
+                                .build())
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("href")
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("https://www.w3.org/2019/wot/hypermedia#hasTarget")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value(expectedHref)
+                        .build())
+                .build();
+        String actualHref = Util.getFormsHref(smec);
+        Assert.assertEquals(expectedHref, actualHref);
+    }
+
+
+    @Test
+    public void testBaseUrl() {
+        String expectedBase = "http://localhost:9000";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("EndpointMetadata")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata")
+                                .build())
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("base")
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("https://www.w3.org/2019/wot/td#baseURI")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value(expectedBase)
+                        .build())
+                .build();
+        String actualBase = Util.getBaseUrl(smec);
+        Assert.assertEquals(expectedBase, actualBase);
+    }
+
+
+    @Test
+    public void testInterfaceTitle() {
+        String expectedTitle = "DeviceSample";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("InterfaceHTTP")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Interface")
+                                .build())
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("title")
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("https://www.w3.org/2019/wot/td#title")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .value(expectedTitle)
+                        .build())
+                .build();
+        String actualTitle = Util.getInterfaceTitle(smec);
+        Assert.assertEquals(expectedTitle, actualTitle);
+    }
+
+
+    @Test
+    public void testEndpointMetadata() {
+        SubmodelElementCollection expectedMetadata = new DefaultSubmodelElementCollection.Builder()
+                .idShort("EndpointMetadata")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/EndpointMetadata")
+                                .build())
+                        .build())
+                .build();
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort("InterfaceHTTP")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/Interface")
+                                .build())
+                        .build())
+                .value(expectedMetadata)
+                .build();
+        SubmodelElementCollection actualMetadata = Util.getEndpointMetadata(smec);
+        Assert.assertEquals(expectedMetadata, actualMetadata);
+    }
+
+
+    /**
+     * Tests the key value of a Property.
+     * If a Property has a key element, the value of this is used.
+     * Otherwise the IdShort of the Property itself is used.
+     */
+    @Test
+    public void testPropertyKey() {
+        String idShort = "foo";
+        SubmodelElementCollection smec = new DefaultSubmodelElementCollection.Builder()
+                .idShort(idShort)
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://www.w3.org/2019/wot/json-schema#propertyName")
+                                .build())
+                        .build())
+                .build();
+        String actualKey = Util.getKey(smec);
+        Assert.assertEquals(idShort, actualKey);
+
+        String keyValue = "bar";
+        smec.setValue(List.of(new DefaultProperty.Builder()
+                .idShort("key")
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value("https://admin-shell.io/idta/AssetInterfacesDescription/1/0/key")
+                                .build())
+                        .build())
+                .valueType(DataTypeDefXsd.STRING)
+                .value(keyValue)
+                .build()));
+        actualKey = Util.getKey(smec);
+        Assert.assertEquals(keyValue, actualKey);
     }
 }

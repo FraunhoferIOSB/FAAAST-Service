@@ -193,9 +193,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         String aimcSubmodelId = submodel.getId();
         aidSubmodelIds.forEach(x -> {
             if ((mode == ProcessingMode.DELETE || mode == ProcessingMode.UPDATE) && aidToAimcRelations.containsKey(x)) {
-                    aidToAimcRelations.get(x).remove(aimcSubmodelId);
-                }
-            
+                aidToAimcRelations.get(x).remove(aimcSubmodelId);
+            }
+
             if (mode == ProcessingMode.ADD || mode == ProcessingMode.UPDATE) {
                 if (!aidToAimcRelations.containsKey(x)) {
                     aidToAimcRelations.put(x, new HashSet<>());
