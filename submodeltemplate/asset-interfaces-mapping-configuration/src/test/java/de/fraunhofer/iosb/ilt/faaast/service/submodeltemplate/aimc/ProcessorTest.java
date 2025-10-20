@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +58,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 
 public class ProcessorTest {
@@ -423,8 +427,16 @@ public class ProcessorTest {
 
 
     @Test
-    public void testConfig() throws JsonProcessingException, IOException {
+    public void testConfigDeserialization() throws JsonProcessingException, IOException {
         AimcSubmodelTemplateProcessorConfig actual = mapper.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
         Assert.assertEquals(aimcConfig, actual);
+    }
+
+
+    @Test
+    public void testConfigSerialization() throws IOException, JSONException {
+        String expected = Files.readString(CONFIG_FILE.toPath());
+        String actual = mapper.writeValueAsString(aimcConfig);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 }
