@@ -34,11 +34,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
@@ -146,32 +142,6 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                         .build());
             }
         }
-    }
-
-
-    /**
-     * Removes all asset connections to elements contained in this element.If there are no more providers registerd, the
-     * asset connection is disconnected.
-     *
-     * @param parent reference to the parent element, e.g. a submodel
-     * @param persistence persistence implementation needed to check if submodel elements still exist
-     * @param context the execution context
-     * @throws AssetConnectionException if disconnection fails
-     */
-    protected void cleanupDanglingAssetConnectionsForParent(Reference parent, Persistence persistence, RequestExecutionContext context) throws AssetConnectionException {
-        Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, parent) && !persistence.submodelElementExists(x);
-        context.getAssetConnectionManager().getConnections().stream()
-                .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {
-                    // TODO need to properly unregister provider instead of just deleting it
-                    connection.getValueProviders().keySet().removeIf(condition);
-                    connection.getOperationProviders().keySet().removeIf(condition);
-                    connection.getSubscriptionProviders().keySet().removeIf(condition);
-                    if (connection.getValueProviders().isEmpty()
-                            && connection.getOperationProviders().isEmpty()
-                            && connection.getSubscriptionProviders().isEmpty()) {
-                        connection.disconnect();
-                    }
-                }));
     }
 
 

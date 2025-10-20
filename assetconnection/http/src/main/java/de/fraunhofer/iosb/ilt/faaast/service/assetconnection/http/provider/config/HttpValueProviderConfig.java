@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -76,6 +78,22 @@ public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderCon
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(writeMethod, that.writeMethod)
+                && Objects.equals(headers, that.headers);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        HttpValueProviderConfig that = (HttpValueProviderConfig) other;
+        return super.sameAs(that)
+                && StringHelper.equalsNullOrEmpty(path, that.path)
+                && StringHelper.equalsNullOrEmpty(writeMethod, that.writeMethod)
                 && Objects.equals(headers, that.headers);
     }
 

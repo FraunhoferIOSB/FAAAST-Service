@@ -25,15 +25,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -76,7 +73,7 @@ public class SubmodelTemplateProcessorTest {
 
 
     @Test
-    public void testStart() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
+    public void testStart() throws Exception {
         List<Submodel> submodels = environment.getSubmodels();
         createService(submodels);
         verify(processor, times(submodels.size())).accept(any());
@@ -88,7 +85,7 @@ public class SubmodelTemplateProcessorTest {
 
 
     @Test
-    public void testUpdate() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
+    public void testUpdate() throws Exception {
         List<Submodel> submodels = new ArrayList<>();
         createService(submodels);
 
@@ -105,7 +102,7 @@ public class SubmodelTemplateProcessorTest {
 
 
     @Test
-    public void testDelete() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
+    public void testDelete() throws Exception {
         List<Submodel> submodels = new ArrayList<>();
         createService(submodels);
 
@@ -122,7 +119,7 @@ public class SubmodelTemplateProcessorTest {
 
 
     @Test
-    public void testCreate() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException {
+    public void testCreate() throws Exception {
         List<Submodel> submodels = new ArrayList<>();
         createService(submodels);
 
@@ -138,11 +135,12 @@ public class SubmodelTemplateProcessorTest {
     }
 
 
-    private void createService(List<Submodel> submodels) throws AssetConnectionException, MessageBusException, ConfigurationException, PersistenceException {
+    private void createService(List<Submodel> submodels) throws Exception {
         Persistence persistence = mock(Persistence.class);
         FileStorage fileStorage = mock(FileStorage.class);
         when(persistence.getAllSubmodels(any(), any())).thenReturn(Page.of(submodels));
         service = new Service(CoreConfig.DEFAULT, persistence, fileStorage, messageBus, List.of(), List.of(), List.of(processor));
+        service.start();
     }
 
 

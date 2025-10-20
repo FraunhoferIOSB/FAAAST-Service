@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.con
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -119,6 +121,25 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
         OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
         return super.equals(o)
                 && Objects.equals(parentNodeId, that.parentNodeId)
+                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
+                && Objects.equals(outputArgumentMapping, that.outputArgumentMapping)
+                && Objects.equals(inputValidationMode, that.inputValidationMode)
+                && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
+                && Objects.equals(outputValidationMode, that.outputValidationMode);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) other;
+        return super.sameAs(that)
+                && StringHelper.equalsNullOrEmpty(parentNodeId, that.parentNodeId)
                 && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
                 && Objects.equals(outputArgumentMapping, that.outputArgumentMapping)
                 && Objects.equals(inputValidationMode, that.inputValidationMode)

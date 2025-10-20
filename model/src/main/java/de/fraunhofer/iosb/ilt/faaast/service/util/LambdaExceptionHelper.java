@@ -65,6 +65,28 @@ public class LambdaExceptionHelper {
     }
 
     /**
+     * Wrapper for {@link java.util.function.BiConsumer} with expected exception.
+     *
+     * @param <T> type of first input argument
+     * @param <U> type of second input argument
+     * @param <V> type of third input argument
+     * @param <E> type of expected exception
+     */
+    @FunctionalInterface
+    public interface TriConsumerWithExceptions<T, U, V, E extends Exception> {
+
+        /**
+         * Wrapper for {@link java.util.function.TriConsumer#accept(java.lang.Object, java.lang.Object)}.
+         *
+         * @param t the first input argument
+         * @param u the second input argument
+         * @param v the third input argument
+         * @throws E if operation fails
+         */
+        public void accept(T t, U u, V v) throws E;
+    }
+
+    /**
      * Wrapper for {@link java.util.function.Function} with expected exception.
      *
      * @param <T> the type of the input to the function

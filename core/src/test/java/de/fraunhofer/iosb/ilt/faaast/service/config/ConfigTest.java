@@ -54,7 +54,7 @@ public class ConfigTest {
                 .assetConnection(assetConnection)
                 .build();
         mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);;
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
 

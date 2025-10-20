@@ -17,10 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +53,12 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected ServiceContext serviceContext;
     protected final Map<Reference, S> subscriptionProviders;
     protected final Map<Reference, V> valueProviders;
-    protected volatile boolean active;
 
     protected AbstractAssetConnection() {
         connected = false;
-        active = false;
-        valueProviders = new HashMap<>();
-        operationProviders = new HashMap<>();
-        subscriptionProviders = new HashMap<>();
+        valueProviders = new ConcurrentHashMap<>();
+        operationProviders = new ConcurrentHashMap<>();
+        subscriptionProviders = new ConcurrentHashMap<>();
     }
 
 
@@ -82,7 +81,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     @Override
     public C asConfig() {
-        return config;
+        return (C) DeepCopyHelper.deepCopyAny(config, AssetConnectionConfig.class);
     }
 
 
@@ -137,15 +136,9 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
 
     private void unregisterProviders() {
-        for (var providerConfig: config.getValueProviders().entrySet()) {
-            unregisterValueProvider(providerConfig.getKey());
-        }
-        for (var providerConfig: config.getOperationProviders().entrySet()) {
-            unregisterOperationProvider(providerConfig.getKey());
-        }
-        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
-            unregisterSubscriptionProvider(providerConfig.getKey());
-        }
+        valueProviders.clear();
+        subscriptionProviders.clear();
+        operationProviders.clear();
     }
 
 
@@ -176,9 +169,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerValueProvider(Reference reference, VC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        V provider = createValueProvider(reference, providerConfig);
         config.getValueProviders().put(reference, providerConfig);
-        valueProviders.put(reference, provider);
+        if (connected) {
+            V provider = createValueProvider(reference, providerConfig);
+            valueProviders.put(reference, provider);
+        }
     }
 
 
@@ -186,9 +181,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerOperationProvider(Reference reference, OC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        O provider = createOperationProvider(reference, providerConfig);
         config.getOperationProviders().put(reference, providerConfig);
-        operationProviders.put(reference, provider);
+        if (connected) {
+            O provider = createOperationProvider(reference, providerConfig);
+            operationProviders.put(reference, provider);
+        }
     }
 
 
@@ -196,9 +193,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerSubscriptionProvider(Reference reference, SC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        S provider = createSubscriptionProvider(reference, providerConfig);
         config.getSubscriptionProviders().put(reference, providerConfig);
-        subscriptionProviders.put(reference, provider);
+        if (connected) {
+            S provider = createSubscriptionProvider(reference, providerConfig);
+            subscriptionProviders.put(reference, provider);
+        }
     }
 
 
@@ -271,17 +270,9 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void stop() {
         try {
             disconnect();
-            active = false;
         }
         catch (AssetConnectionException ex) {
             LOGGER.error("stop: error in disconnect", ex);
         }
-        active = false;
-    }
-
-
-    @Override
-    public boolean isActive() {
-        return active;
     }
 }

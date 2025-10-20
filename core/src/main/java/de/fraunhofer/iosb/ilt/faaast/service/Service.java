@@ -190,7 +190,7 @@ public class Service implements ServiceContext {
 
     @Override
     public boolean hasValueProvider(Reference reference) {
-        return Objects.nonNull(assetConnectionManager.getValueProvider(reference));
+        return assetConnectionManager.hasValueProvider(reference);
     }
 
 

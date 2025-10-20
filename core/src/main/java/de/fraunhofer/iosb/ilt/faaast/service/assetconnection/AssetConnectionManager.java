@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.PatchSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -43,12 +44,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.function.TriConsumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,271 +75,84 @@ public class AssetConnectionManager {
         this.active = true;
         this.started = false;
         this.coreConfig = coreConfig;
-        this.connections = connections != null ? new ArrayList<>(connections) : new ArrayList<>();
         this.service = service;
+        this.connections = normalizeConnections(connections);
         validateConnections(this.connections);
         init();
     }
 
 
-    public List<Message> updateConnections(List<AssetConnectionConfig> oldConnectionConfigs, List<AssetConnectionConfig> newConnectionConfigs) {
-        return null;
+    /**
+     * Cleans up dangling asset connections recursively after an element has been modified.
+     *
+     * @param modifiedElement the modified element
+     */
+    public void cleanupDanglingConnectionsAfterModify(Reference modifiedElement) {
+        Predicate<Reference> condition = x -> ReferenceHelper.startsWith(x, modifiedElement) && !service.getPersistence().submodelElementExists(x);
+        connections.stream()
+                .forEach(LambdaExceptionHelper.rethrowConsumer(connection -> {
+                    for (var providerType: AssetProviderType.values()) {
+                        providerType.getProvidersFromConnectionAccessor().apply(connection).keySet().stream()
+                                .filter(condition)
+                                .forEach(x -> {
+                                    try {
+                                        providerType.getUnregisterProviderAccessor().accept(connection, x);
+                                    }
+                                    catch (Exception e) {
+                                        LOGGER.info(
+                                                "failed to unregister asset {} provider after element has been modified/deleted (modified/deleted element: {}, provider reference: {}, reason: {})",
+                                                providerType,
+                                                ReferenceHelper.asString(modifiedElement),
+                                                ReferenceHelper.asString(x),
+                                                e.getMessage(),
+                                                e);
+                                    }
+                                });
+                    }
+                    if (connection.getValueProviders().isEmpty()
+                            && connection.getOperationProviders().isEmpty()
+                            && connection.getSubscriptionProviders().isEmpty()) {
+                        try {
+                            connection.disconnect();
+                        }
+                        catch (AssetConnectionException e) {
+                            LOGGER.warn("Failed to clean up empty asset connection", e);
+                        }
+                    }
+                }));
+
     }
 
 
     /**
-     * Updates the asset connections. This method tries to not close connections if possible. Also providers might be moved
-     * between connections if there are multiple connections with same properties.
+     * Updates part of the existing asset connections by taking the delta between {@code oldConfigs} and {@code newConfigs}.
+     * Connections and providers not part of {@code oldConfigs} are not modified and will continue to work. Providers might
+     * be moved between connections during normalization step.
      *
-     * @param connectionConfigs the configs of the new connections
-     * @return A list of messages potentially containing errors, warnings, and infos. If successful, this returns an empty
-     *         list.
+     * @param oldConfigs the old connections to be updated/replaced
+     * @param newConfigs the new version of the connections
+     * @return a list of {@link Message} objects indicating issues encountered during processing. This can include infos,
+     *         warnings, and exceptions.
      */
-    private List<Message> updateConnections(List<AssetConnectionConfig> connectionConfigs) {
-        // TODO add validation
-        // TODO respect "static" connections
-        List<Message> result = new ArrayList<>();
-        Map<AssetConnection, List<AssetConnection>> oldConnections = groupConnections(connections);
-        Map<AssetConnectionConfig, List<AssetConnectionConfig>> newConnectionConfigs = groupConfigs(connectionConfigs);
-        for (var oldConnectionEntry: oldConnections.entrySet()) {
-            var newConnectionEntry = find(newConnectionConfigs, oldConnectionEntry.getKey());
-            if (!newConnectionEntry.isPresent()) {
-                // connection removed
-                // does this properly work even if connection is not started or failed to connect? 
-                // does this cancle the async connection attempt?
-                oldConnectionEntry.getValue().forEach(x -> executorService.execute(() -> x.stop()));
-                connections.removeAll(oldConnectionEntry.getValue());
-            }
-            else {
-                // connection still present but providers may have changed
-                result.addAll(updateProviders(oldConnectionEntry, newConnectionEntry.get()));
-            }
+    public List<Message> updateConnections(List<AssetConnectionConfig> oldConfigs, List<AssetConnectionConfig> newConfigs) {
+        List<AssetConnectionConfig> oldConnectionConfigs = normalizeConnectionConfigs(clone(oldConfigs));
+        List<AssetConnectionConfig> newConnectionConfigs = normalizeConnectionConfigs(clone(newConfigs));
+        ChangeSet changeSet = computeChangeSet(oldConnectionConfigs, newConnectionConfigs);
+        try {
+            List<AssetConnectionConfig> newConnections = mergeChanges(connections, changeSet);
+            validateConnectionConfigs(newConnections);
+            return apply(newConnectionConfigs);
         }
-        for (var newConnectionConfigEntry: newConnectionConfigs.entrySet()) {
-            if (!find(oldConnections, newConnectionConfigEntry.getKey()).isPresent()) {
-                // connection added
-                for (var newConnectionConfig: newConnectionConfigEntry.getValue()) {
-                    try {
-                        AssetConnection newConnection = (AssetConnection) newConnectionConfig.newInstance(coreConfig, service);
-                        connections.add(newConnection);
-                        if (started) {
-                            setupConnectionAsync(newConnection);
-                        }
-                    }
-                    catch (ConfigurationException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to instantiate new connection (reason: %s)", e.getMessage()))
-                                .build());
-                    }
-                }
-            }
+        catch (ExceptionWithDetails e) {
+            return e.getMessages();
         }
-        return result;
-    }
-
-
-    private <P extends AssetProvider, C extends AssetProviderConfig<P>> List<Message> updateProviders(Map.Entry<AssetConnection, List<AssetConnection>> oldConnectionEntry,
-                                                                                                      Map.Entry<AssetConnectionConfig, List<AssetConnectionConfig>> newConnectionEntry) {
-        List<Message> result = new ArrayList<>();
-        updateProviders(oldConnectionEntry,
-                newConnectionEntry,
-                AssetValueProvider.class,
-                AssetValueProviderConfig.class,
-                x -> x.getValueProviders(),
-                x -> x.getValueProviders(),
-                (connection, reference) -> {
-                    try {
-                        connection.unregisterValueProvider(reference);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to unregister value provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                },
-                (connection, reference, providerConfig) -> {
-                    try {
-                        connection.registerValueProvider(reference, providerConfig);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to register value provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                });
-        updateProviders(oldConnectionEntry,
-                newConnectionEntry,
-                AssetSubscriptionProvider.class,
-                AssetSubscriptionProviderConfig.class,
-                x -> x.getSubscriptionProviders(),
-                x -> x.getSubscriptionProviders(),
-                (connection, reference) -> {
-                    try {
-                        connection.unregisterSubscriptionProvider(reference);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to unregister subscription provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                },
-                (connection, reference, providerConfig) -> {
-                    try {
-                        connection.registerSubscriptionProvider(reference, providerConfig);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to register subscription provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                });
-        updateProviders(oldConnectionEntry,
-                newConnectionEntry,
-                AssetOperationProvider.class,
-                AssetOperationProviderConfig.class,
-                x -> x.getOperationProviders(),
-                x -> x.getOperationProviders(),
-                (connection, reference) -> {
-                    try {
-                        connection.unregisterOperationProvider(reference);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to unregister operation provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                },
-                (connection, reference, providerConfig) -> {
-                    try {
-                        connection.registerOperationProvider(reference, providerConfig);
-                    }
-                    catch (AssetConnectionException e) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.EXCEPTION)
-                                .text(String.format("failed to register operation provider (reference: %s, reason: %s)",
-                                        ReferenceHelper.asString(reference),
-                                        e.getMessage()))
-                                .build());
-                    }
-                });
-        return result;
-    }
-
-
-    // constraint: there is at most one type of provider for a reference
-    private <P extends AssetProvider, C extends AssetProviderConfig<P>> void updateProviders(Map.Entry<AssetConnection, List<AssetConnection>> oldConnectionEntry,
-                                                                                             Map.Entry<AssetConnectionConfig, List<AssetConnectionConfig>> newConnectionEntry,
-                                                                                             Class<P> providerType,
-                                                                                             Class<C> configType,
-                                                                                             Function<AssetConnection, Map<Reference, P>> getConnectionProviders,
-                                                                                             Function<AssetConnectionConfig, Map<Reference, C>> getConfigProviders,
-                                                                                             BiConsumer<AssetConnection, Reference> unregisterProvider,
-                                                                                             TriConsumer<AssetConnection, Reference, C> registerProvider) {
-        Map<Reference, P> oldProviders = oldConnectionEntry.getValue().stream()
-                .flatMap(x -> getConnectionProviders.apply(x).entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Map<Reference, C> newProviders = newConnectionEntry.getValue().stream()
-                .flatMap(x -> getConfigProviders.apply(x).entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        for (var oldConnection: oldConnectionEntry.getValue()) {
-            for (var oldProviderEntry: ((Map<Reference, AssetValueProvider>) oldConnection.getValueProviders()).entrySet()) {
-                if (!newProviders.containsKey(oldProviderEntry.getKey())
-                        || !Objects.equals(oldProviderEntry.getValue(), newProviders.get(oldProviderEntry.getKey()))) {
-                    // remove old provider
-                    unregisterProvider.accept(oldConnection, oldProviderEntry.getKey());
-                }
-            }
+        catch (ConfigurationException e) {
+            return List.of(Message.builder()
+                    .messageType(MessageTypeEnum.EXCEPTION)
+                    .text(e.getMessage())
+                    .build());
         }
-        for (var newProviderEntry: newProviders.entrySet()) {
-            if (!oldProviders.containsKey(newProviderEntry.getKey())) {
-                // add new provider
-                registerProvider.accept(oldConnectionEntry.getKey(), newProviderEntry.getKey(), newProviderEntry.getValue());
-            }
-            else if (!Objects.equals(newProviderEntry.getValue(), oldProviders.get(newProviderEntry.getKey()))) {
-                // ERROR - should not be possible
-            }
-        }
-    }
 
-
-    private <T> Optional<Map.Entry<AssetConnectionConfig, T>> find(Map<AssetConnectionConfig, T> map, AssetConnection connection) {
-        return map.entrySet().stream().filter(x -> x.getKey().equalsIgnoringProviders(connection.asConfig()))
-                .findFirst();
-    }
-
-
-    private <T> Optional<Map.Entry<AssetConnection, T>> find(Map<AssetConnection, T> map, AssetConnectionConfig connectionConfig) {
-        return map.entrySet().stream().filter(x -> connectionConfig.equalsIgnoringProviders(x.getKey().asConfig()))
-                .findFirst();
-    }
-
-
-    private Map<AssetConnection, List<AssetConnection>> groupConnections(List<AssetConnection> connections) {
-        Map<AssetConnection, List<AssetConnection>> result = new LinkedHashMap<>();
-        for (AssetConnection connection: connections) {
-            boolean added = false;
-            for (var entry: result.entrySet()) {
-                if (((AssetConnectionConfig) connection.asConfig()).equalsIgnoringProviders(entry.getKey())) {
-                    entry.getValue().add(connection);
-                    added = true;
-                    break;
-                }
-            }
-            if (!added) {
-                result.put(connection, new ArrayList<>(Arrays.asList(connection)));
-            }
-        }
-        return result;
-    }
-
-
-    private Map<AssetConnectionConfig, List<AssetConnectionConfig>> groupConfigs(List<AssetConnectionConfig> connectionConfigs) {
-        Map<AssetConnectionConfig, List<AssetConnectionConfig>> result = new LinkedHashMap<>();
-        for (AssetConnectionConfig config: connectionConfigs) {
-            boolean added = false;
-            for (var entry: result.entrySet()) {
-                if (config.equalsIgnoringProviders(entry.getKey())) {
-                    entry.getValue().add(config);
-                    added = true;
-                    break;
-                }
-            }
-            if (!added) {
-                result.put(config, new ArrayList<>(Arrays.asList(config)));
-            }
-        }
-        return result;
-    }
-
-
-    private void init() {
-        lambdaAssetConnection = new LambdaAssetConnection();
-        ThreadFactory threadFactory = new ThreadFactory() {
-            AtomicLong count = new AtomicLong(0);
-
-            @Override
-            public Thread newThread(Runnable target) {
-                return new Thread(target, String.format("asset connection establisher - %d", count.getAndIncrement()));
-            }
-        };
-        executorService = Executors.newCachedThreadPool(threadFactory);
     }
 
 
@@ -435,6 +250,654 @@ public class AssetConnectionManager {
     }
 
 
+    /**
+     * Stops all connection attempts and disconnects all connected assets.
+     */
+    public void stop() {
+        active = false;
+        try {
+            executorService.awaitTermination(coreConfig.getAssetConnectionRetryInterval() * 2, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException ex) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        lambdaAssetConnection.stop();
+        connections.stream()
+                .filter(AssetConnection::isConnected)
+                .forEach(x -> {
+                    try {
+                        x.disconnect();
+                    }
+                    catch (AssetConnectionException e) {
+                        LOGGER.trace("Error closing asset connection (endpoint: {})",
+                                x.getEndpointInformation(),
+                                e);
+                    }
+
+                });
+    }
+
+
+    /**
+     * Gets the operation provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return operation provider for the AAS element defined by reference or
+     *         null if there is none defined
+     */
+    protected AssetOperationProvider<? extends AssetOperationProviderConfig> getOperationProvider(Reference reference) {
+        if (lambdaAssetConnection.hasOperationProvider(reference)) {
+            return lambdaAssetConnection.getOperationProvider(reference);
+        }
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    /**
+     * Gets the subscription provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return subscription provider for the AAS element defined by reference or
+     *         null if there is none defined
+     */
+    protected AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
+        if (lambdaAssetConnection.hasSubscriptionProvider(reference)) {
+            return lambdaAssetConnection.getSubscriptionProvider(reference);
+        }
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    /**
+     * Gets the value provider for the AAS element defined by reference.
+     *
+     * @param reference AAS element
+     * @return value provider for the AAS element defined by reference or null
+     *         if there is none defined
+     */
+    protected AssetValueProvider getValueProvider(Reference reference) {
+        if (lambdaAssetConnection.hasValueProvider(reference)) {
+            return lambdaAssetConnection.getValueProvider(reference);
+        }
+        return connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
+                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    /**
+     * If a {@link AssetValueProvider} exists for given reference, the provided
+     * will be written; otherwise nothing happens.
+     *
+     * @param reference reference to element to check for asset connection
+     * @param value the value to write
+     * @throws AssetConnectionException if writing value to asset connection
+     *             fails
+     */
+    public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
+        if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
+            try {
+                getValueProvider(reference).setValue((DataElementValue) value);
+            }
+            catch (UnsupportedOperationException e) {
+                // ignored on purpose
+            }
+        }
+    }
+
+
+    /**
+     * Reads value from asset connection if available, otherwise empty optional
+     * is returned.
+     *
+     * @param reference reference to element to check for asset connection
+     * @return value read from the asset connection if available, empty optional
+     *         otherwise
+     * @throws AssetConnectionException if there is an asset connection but
+     *             reading fails
+     */
+    public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
+        if (hasValueProvider(reference)) {
+            return Optional.ofNullable(getValueProvider(reference).getValue());
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Invokes an operation provide synchronously and returns the result if one exists for this reference.
+     *
+     * @param reference the reference
+     * @param input the input
+     * @param inoutput the inoutput
+     * @return the result of the invocation or Optional.empty if none exists
+     * @throws AssetConnectionException if invocation fails
+     */
+    public Optional<OperationVariable[]> invoke(Reference reference, OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        if (hasOperationProvider(reference)) {
+            return Optional.ofNullable(getOperationProvider(reference).invoke(input, inoutput));
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Invokes an operation provide asynchronously if one exists for this reference.
+     *
+     * @param reference the reference
+     * @param input the input
+     * @param inoutput the inoutput
+     * @param callbackSuccess callback upon success
+     * @param callbackFailure callback upon failure
+     * @throws AssetConnectionException if invocation fails
+     */
+    public void invokeAsync(Reference reference,
+                            OperationVariable[] input,
+                            OperationVariable[] inoutput,
+                            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
+                            Consumer<Throwable> callbackFailure)
+            throws AssetConnectionException {
+        if (hasOperationProvider(reference)) {
+            getOperationProvider(reference).invokeAsync(input, inoutput, callbackSuccess, callbackFailure);
+        }
+    }
+
+
+    /**
+     * Returns the input validation mode for the operation provider mapped to the reference if such a provider exists.
+     *
+     * @param reference the reference
+     * @return the input validation mode if provider exists, otherwise Optional.empty
+     */
+    public Optional<ArgumentValidationMode> getOperationInputValidationMode(Reference reference) {
+        if (hasOperationProvider(reference)) {
+            return Optional.ofNullable(getOperationProvider(reference).getConfig().getInputValidationMode());
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Returns the inoutput validation mode for the operation provider mapped to the reference if such a provider exists.
+     *
+     * @param reference the reference
+     * @return the inoutput validation mode if provider exists, otherwise Optional.empty
+     */
+    public Optional<ArgumentValidationMode> getOperationInoutputValidationMode(Reference reference) {
+        if (hasOperationProvider(reference)) {
+            return Optional.ofNullable(getOperationProvider(reference).getConfig().getInoutputValidationMode());
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Returns the output validation mode for the operation provider mapped to the reference if such a provider exists.
+     *
+     * @param reference the reference
+     * @return the output validation mode if provider exists, otherwise Optional.empty
+     */
+    public Optional<ArgumentValidationMode> getOperationOutputValidationMode(Reference reference) {
+        if (hasOperationProvider(reference)) {
+            return Optional.ofNullable(getOperationProvider(reference).getConfig().getOutputValidationMode());
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Returns whether there is a operation provider defined for the provided
+     * AAS element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a operation provider defined for the provided
+     *         AAS element, otherwise false
+     */
+    public boolean hasOperationProvider(Reference reference) {
+        return Objects.nonNull(getOperationProvider(reference));
+    }
+
+
+    /**
+     * Returns whether there is a subscription provider defined for the provided
+     * AAS element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a subscription provider defined for the provided
+     *         AAS element, otherwise false
+     */
+    public boolean hasSubscriptionProvider(Reference reference) {
+        return Objects.nonNull(getSubscriptionProvider(reference));
+    }
+
+
+    /**
+     * Returns whether there is a value provider defined for the provided AAS
+     * element or not.
+     *
+     * @param reference AAS element
+     * @return true if there is a value provider defined for the provided AAS
+     *         element, otherwise false
+     */
+    public boolean hasValueProvider(Reference reference) {
+        return Objects.nonNull(getValueProvider(reference));
+    }
+
+
+    /**
+     * Returns if all connections are connected.
+     *
+     * @return true if all connections are connected, false otherwise
+     */
+    public boolean isFullyConnected() {
+        return connections.stream().allMatch(AssetConnection::isConnected);
+    }
+
+
+    private void init() {
+        lambdaAssetConnection = new LambdaAssetConnection();
+        ThreadFactory threadFactory = new ThreadFactory() {
+            AtomicLong count = new AtomicLong(0);
+
+            @Override
+            public Thread newThread(Runnable target) {
+                return new Thread(target, String.format("asset connection establisher - %d", count.getAndIncrement()));
+            }
+        };
+        executorService = Executors.newCachedThreadPool(threadFactory);
+    }
+
+
+    /**
+     * Normalizes a list of connections. Normalization means that there is only one connection with the same properties
+     * containing all providers.
+     *
+     * @param connections the connections to normalize
+     * @return normalized connections
+     */
+    private List<AssetConnection> normalizeConnections(List<AssetConnection> connections) {
+        if (Objects.isNull(connections)) {
+            return new ArrayList<>();
+        }
+        if (connections.stream().anyMatch(AssetConnection::isConnected)) {
+            LOGGER.debug("skipped asset connection normalization (reason: at least one connection is connected and only unconnected connectoins can be normalized)");
+            return connections;
+        }
+        try {
+            return groupConfigs(connections.stream()
+                    .map(AssetConnection::asConfig)
+                    .map(AssetConnectionConfig.class::cast)
+                    .toList())
+                    .entrySet().stream()
+                    .map(entry -> {
+                        var representative = entry.getKey();
+                        if (Objects.nonNull(entry.getValue())) {
+                            entry.getValue().stream()
+                                    .filter(connection -> connection != representative)
+                                    .forEach(connection -> merge(connection, representative));
+                        }
+                        return representative;
+                    })
+                    .map(LambdaExceptionHelper.rethrowFunction(x -> x.newInstance(coreConfig, service)))
+                    .map(AssetConnection.class::cast)
+                    .collect(Collectors.toList());
+        }
+        catch (ConfigurationException e) {
+            LOGGER.debug("skipped asset connection normalization (reason: re-creating asset connection from config after normalization failed)", e);
+            return connections;
+        }
+    }
+
+
+    /**
+     * Normalizes a list of connection configs. Normalization means that there is only one connection config with the same
+     * properties
+     * containing all providers.
+     *
+     * @param connections the connection configs to normalize
+     * @return normalized connection configs
+     */
+    private List<AssetConnectionConfig> normalizeConnectionConfigs(List<AssetConnectionConfig> connections) {
+        if (Objects.isNull(connections)) {
+            return new ArrayList<>();
+        }
+        return groupConfigs(connections).entrySet().stream()
+                .map(entry -> {
+                    AssetConnectionConfig representative = entry.getKey();
+                    if (Objects.nonNull(entry.getValue())) {
+                        entry.getValue().stream()
+                                .filter(connection -> connection != representative)
+                                .forEach(connection -> merge(connection, representative));
+                    }
+                    return representative;
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    private void merge(AssetConnectionConfig source, AssetConnectionConfig target) {
+        if (Objects.isNull(source)) {
+            return;
+        }
+        if (Objects.isNull(target)) {
+            target = source;
+        }
+        for (var providerType: AssetProviderType.values()) {
+            providerType.getProvidersFromConfigAccessor().apply(target).putAll(providerType.getProvidersFromConfigAccessor().apply(source));
+        }
+    }
+
+
+    private List<Message> apply(List<AssetConnectionConfig> newConnections) {
+        List<Message> result = new ArrayList<>();
+        for (var config: newConnections) {
+            var connection = connections.stream().filter(x -> config.equalsIgnoringProviders(x.asConfig())).findFirst();
+            if (connection.isPresent()) {
+                result.addAll(addProvidersToConnection(connection.get(), config));
+            }
+            else {
+                try {
+                    AssetConnection newConnection = (AssetConnection) config.newInstance(coreConfig, service);
+                    connections.add(newConnection);
+                    if (started) {
+                        setupConnectionAsync(newConnection);
+                    }
+                }
+                catch (ConfigurationException e) {
+                    result.add(Message.builder()
+                            .messageType(MessageTypeEnum.EXCEPTION)
+                            .text(String.format("Adding asset connection failed (reason: %s)",
+                                    e.getMessage()))
+                            .build());
+                }
+            }
+        }
+        connections.stream()
+                .filter(connection -> newConnections.stream().noneMatch(x -> x.equalsIgnoringProviders(connection.asConfig())))
+                .forEach(connection -> {
+                    connection.stop();
+                    connections.remove(connection);
+                });
+        return result;
+    }
+
+
+    private Map<AssetConnectionConfig, List<AssetConnectionConfig>> groupConfigs(List<AssetConnectionConfig> connectionConfigs) {
+        Map<AssetConnectionConfig, List<AssetConnectionConfig>> result = new LinkedHashMap<>();
+        for (AssetConnectionConfig config: connectionConfigs) {
+            boolean added = false;
+            for (var entry: result.entrySet()) {
+                if (config.equalsIgnoringProviders(entry.getKey())) {
+                    entry.getValue().add(config);
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                result.put(config, new ArrayList<>(Arrays.asList(config)));
+            }
+        }
+        return result;
+    }
+
+
+    private List<AssetConnectionConfig> mergeChanges(List<AssetConnection> currentConnections, ChangeSet changeSet) throws ExceptionWithDetails {
+        List<Message> messages = new ArrayList<>();
+        List<AssetConnectionConfig> result = currentConnections.stream()
+                .map(AssetConnection::asConfig)
+                .map(AssetConnectionConfig.class::cast)
+                .collect(Collectors.toList());
+        for (var toAdd: changeSet.add) {
+            var connection = result.stream().filter(x -> toAdd.equalsIgnoringProviders(x)).findFirst();
+            if (connection.isPresent()) {
+                messages.addAll(addProviders(connection.get(), toAdd));
+            }
+            else {
+                result.add(toAdd);
+            }
+        }
+        for (var toDelete: changeSet.delete) {
+            var connection = result.stream().filter(x -> toDelete.equalsIgnoringProviders(x)).findFirst();
+            if (connection.isPresent()) {
+                messages.addAll(deleteProviders(connection.get(), toDelete));
+                boolean isEmpty = Stream.of(AssetProviderType.values())
+                        .map(x -> x.getProvidersFromConfigAccessor().apply(connection.get()).isEmpty())
+                        .allMatch(Boolean::booleanValue);
+
+                if (isEmpty) {
+                    result.remove(connection.get());
+                }
+            }
+            else {
+                messages.add(Message.builder()
+                        .messageType(MessageTypeEnum.INFO)
+                        .text("Deleting asset connection skipped (reason: connection does not exist)")
+                        .build());
+            }
+        }
+        if (messages.stream().anyMatch(x -> x.getMessageType() == MessageTypeEnum.ERROR || x.getMessageType() == MessageTypeEnum.EXCEPTION)) {
+            throw new ExceptionWithDetails("failed to apply changes in asset connections", messages);
+        }
+        return result;
+    }
+
+
+    private List<Message> deleteProviders(AssetConnectionConfig target, AssetConnectionConfig source) {
+        List<Message> result = new ArrayList<>();
+        for (var providerType: AssetProviderType.values()) {
+            for (var provider: providerType.getProvidersFromConfigAccessor().apply(source).entrySet()) {
+                Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(target).keySet(), provider.getKey());
+                if (Objects.nonNull(reference)) {
+                    if (provider.getValue().sameAs(providerType.getProvidersFromConfigAccessor().apply(target).get(reference))) {
+                        providerType.getProvidersFromConfigAccessor().apply(target).remove(reference);
+                    }
+                    else {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.WARNING)
+                                .text(String.format(
+                                        "Failed to unregister %s provider (reference: %s, reason: existing provider details for reference differs from expected provider)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference)))
+                                .build());
+                    }
+                }
+                else {
+                    result.add(Message.builder()
+                            .messageType(MessageTypeEnum.INFO)
+                            .text(String.format("Failed to unregister %s provider (reference: %s, reason: provider does not exist)",
+                                    providerType.toString().toLowerCase(),
+                                    ReferenceHelper.asString(reference)))
+                            .build());
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private List<Message> addProvidersToConnection(AssetConnection target, AssetConnectionConfig source) {
+        List<Message> result = new ArrayList<>();
+        for (var providerType: AssetProviderType.values()) {
+            for (var provider: providerType.getProvidersFromConfigAccessor().apply(source).entrySet()) {
+                Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConnectionAccessor().apply(target).keySet(), provider.getKey());
+                if (Objects.nonNull(reference)) {
+                    if (provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.INFO)
+                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference)))
+                                .build());
+                    }
+                    else {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.WARNING)
+                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference)))
+                                .build());
+                    }
+                }
+                else {
+                    try {
+                        providerType.getRegisterProviderAccessor().accept(target, provider.getKey(), provider.getValue());
+                    }
+                    catch (AssetConnectionException e) {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.EXCEPTION)
+                                .text(String.format("Failed to register %s provider (reference: %s, reason: %s)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference),
+                                        e.getMessage()))
+                                .build());
+                    }
+                }
+            }
+            // iterate target and remove those not present in source
+            for (var provider: providerType.getProvidersFromConnectionAccessor().apply(target).entrySet()) {
+                Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(source).keySet(), provider.getKey());
+                if (Objects.isNull(reference)) {
+                    try {
+                        providerType.getUnregisterProviderAccessor().accept(target, provider.getKey());
+                    }
+                    catch (AssetConnectionException e) {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.EXCEPTION)
+                                .text(String.format("Failed to unregister %s provider (reference: %s, reason: %s)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference),
+                                        e.getMessage()))
+                                .build());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private List<Message> addProviders(AssetConnectionConfig target, AssetConnectionConfig source) {
+        List<Message> result = new ArrayList<>();
+        for (var providerType: AssetProviderType.values()) {
+            for (var provider: ((Map<Reference, AssetProviderConfig>) providerType.getProvidersFromConfigAccessor().apply(source)).entrySet()) {
+                Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(target).keySet(), provider.getKey());
+                if (Objects.nonNull(reference)) {
+                    if (provider.getValue().equals(providerType.getProvidersFromConfigAccessor().apply(target).get(reference))) {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.INFO)
+                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference)))
+                                .build());
+                    }
+                    else {
+                        result.add(Message.builder()
+                                .messageType(MessageTypeEnum.WARNING)
+                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
+                                        providerType.toString().toLowerCase(),
+                                        ReferenceHelper.asString(reference)))
+                                .build());
+                    }
+                }
+                else {
+                    providerType.getProvidersFromConfigAccessor().apply(target).put(provider.getKey(), provider.getValue());
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private ChangeSet computeChangeSet(List<AssetConnectionConfig> oldConnectionConfigs, List<AssetConnectionConfig> newConnectionConfigs) {
+        ChangeSet result = new ChangeSet();
+        for (var oldConnectionConfig: oldConnectionConfigs) {
+            var newConnectionConfig = newConnectionConfigs.stream()
+                    .filter(x -> oldConnectionConfig.equalsIgnoringProviders(x))
+                    .findFirst();
+            if (!newConnectionConfig.isPresent()) {
+                result.delete.add(oldConnectionConfig);
+            }
+            else {
+                computeChangeSetForProviders(oldConnectionConfig, newConnectionConfig.get(), result);
+            }
+        }
+        for (var newConnectionConfig: newConnectionConfigs) {
+            if (oldConnectionConfigs.stream().noneMatch(x -> newConnectionConfig.equalsIgnoringProviders(x))) {
+                result.add.add(newConnectionConfig);
+            }
+        }
+        return result;
+    }
+
+
+    private void computeChangeSetForProviders(AssetConnectionConfig oldConnectionConfig, AssetConnectionConfig newConnectionConfig, ChangeSet changeSet) {
+        AssetConnectionConfig connectionConfigAdd = cloneWithoutProviders(oldConnectionConfig);
+        AssetConnectionConfig connectionConfigDelete = cloneWithoutProviders(oldConnectionConfig);
+        for (var providerType: AssetProviderType.values()) {
+            for (var oldProviderEntry: providerType.getProvidersFromConfigAccessor().apply(oldConnectionConfig).entrySet()) {
+                // references might be slightly different although refering to the same element
+                Reference referenceInNew = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(newConnectionConfig).keySet(),
+                        oldProviderEntry.getKey());
+                if (Objects.isNull(referenceInNew)) {
+                    // old has been deleted
+                    providerType.getProvidersFromConfigAccessor().apply(connectionConfigDelete).put(oldProviderEntry.getKey(), oldProviderEntry.getValue());
+                }
+                else {
+                    // still present by key, but provider settings might have changed
+                    var newProviderConfig = providerType.getProvidersFromConfigAccessor().apply(newConnectionConfig).get(referenceInNew);
+                    // TODO replace by sameAs(...) to ignore null vs "" etc
+                    if (!Objects.equals(oldProviderEntry.getValue(), newProviderConfig)) {
+                        providerType.getProvidersFromConfigAccessor().apply(connectionConfigDelete).put(oldProviderEntry.getKey(), oldProviderEntry.getValue());
+                        providerType.getProvidersFromConfigAccessor().apply(connectionConfigAdd).put(referenceInNew, newProviderConfig);
+                    }
+                }
+            }
+            for (var newProviderEntry: providerType.getProvidersFromConfigAccessor().apply(newConnectionConfig).entrySet()) {
+                Reference referenceInOld = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(oldConnectionConfig).keySet(),
+                        newProviderEntry.getKey());
+                if (Objects.isNull(referenceInOld)) {
+                    providerType.getProvidersFromConfigAccessor().apply(connectionConfigAdd).put(newProviderEntry.getKey(), newProviderEntry.getValue());
+                }
+            }
+        }
+
+        changeSet.add.add(connectionConfigAdd);
+        changeSet.delete.add(connectionConfigDelete);
+    }
+
+
+    private AssetConnectionConfig cloneWithoutProviders(AssetConnectionConfig connectionConfig) {
+        AssetConnectionConfig result = DeepCopyHelper.deepCopyAny(connectionConfig, AssetConnectionConfig.class);
+        result.getValueProviders().clear();
+        result.getSubscriptionProviders().clear();
+        result.getOperationProviders().clear();
+        return result;
+    }
+
+
+    private List<AssetConnectionConfig> clone(List<AssetConnectionConfig> input) {
+        if (Objects.isNull(input)) {
+            return new ArrayList<>();
+        }
+        return input.stream().map(x -> DeepCopyHelper.deepCopyAny(x, AssetConnectionConfig.class))
+                .collect(Collectors.toList());
+    }
+
+
     private void tryConnecting(AssetConnection connection) throws AssetConnectionException {
         connection.connect();
         LOGGER.info("Asset connection established (endpoint: {})", connection.getEndpointInformation());
@@ -453,7 +916,7 @@ public class AssetConnectionManager {
                     coreConfig.getAssetConnectionRetryInterval(),
                     e);
         }
-        while (active && connection.isActive() && !connection.isConnected()) {
+        while (active && !connection.isConnected()) {
             try {
                 tryConnecting(connection);
             }
@@ -515,254 +978,56 @@ public class AssetConnectionManager {
     }
 
 
-    /**
-     * Adds a new AssetConnection created from an AssetConnectionConfig.
-     *
-     * @param connectionConfig the AssetConnectionConfig describing the AssetConnection to add
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException if provided connectionConfig is
-     *             invalid
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException if initializing asset
-     *             connection fails
-     */
-    public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
-            throws ConfigurationException, AssetConnectionException {
-        AssetConnection newConnection = connectionConfig.newInstance(coreConfig, service);
-        List<AssetConnection> temp = new ArrayList<>(connections);
-        temp.add(newConnection);
-        validateConnections(temp);
-        Optional<AssetConnection> connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst();
-        if (connection.isPresent()) {
-            connectionConfig.getValueProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerValueProvider(k, v)));
-            connectionConfig.getSubscriptionProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerSubscriptionProvider(k, v)));
-            connectionConfig.getOperationProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
-                    (k, v) -> connection.get().registerOperationProvider(k, v)));
-        }
-        else {
-            connections.add(newConnection);
-            if (started) {
-                setupConnectionAsync(newConnection);
-            }
-        }
-    }
-
-
-    /**
-     * Gets all connections managed by this AssetConnectionManager.
-     *
-     * @return all managed connections
-     */
-    public List<AssetConnection> getConnections() {
-        return connections;
-    }
-
-
-    /**
-     * Stops all connection attempts and disconnects all connected assets.
-     */
-    public void stop() {
-        active = false;
-        try {
-            executorService.awaitTermination(coreConfig.getAssetConnectionRetryInterval() * 2, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException ex) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-        lambdaAssetConnection.stop();
-        connections.stream()
-                .filter(AssetConnection::isConnected)
-                .forEach(x -> {
-                    try {
-                        x.disconnect();
-                    }
-                    catch (AssetConnectionException e) {
-                        LOGGER.trace("Error closing asset connection (endpoint: {})",
-                                x.getEndpointInformation(),
-                                e);
-                    }
-
-                });
-    }
-
-
-    /**
-     * Gets the operation provider for the AAS element defined by reference.
-     *
-     * @param reference AAS element
-     * @return operation provider for the AAS element defined by reference or
-     *         null if there is none defined
-     */
-    public AssetOperationProvider<? extends AssetOperationProviderConfig> getOperationProvider(Reference reference) {
-        if (lambdaAssetConnection.hasOperationProvider(reference)) {
-            return lambdaAssetConnection.getOperationProvider(reference);
-        }
-        return connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
-                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    /**
-     * Gets the subscription provider for the AAS element defined by reference.
-     *
-     * @param reference AAS element
-     * @return subscription provider for the AAS element defined by reference or
-     *         null if there is none defined
-     */
-    public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
-        if (lambdaAssetConnection.hasSubscriptionProvider(reference)) {
-            return lambdaAssetConnection.getSubscriptionProvider(reference);
-        }
-        return connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
-                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    /**
-     * Gets the value provider for the AAS element defined by reference.
-     *
-     * @param reference AAS element
-     * @return value provider for the AAS element defined by reference or null
-     *         if there is none defined
-     */
-    public AssetValueProvider getValueProvider(Reference reference) {
-        if (lambdaAssetConnection.hasValueProvider(reference)) {
-            return lambdaAssetConnection.getValueProvider(reference);
-        }
-        return connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
-                .filter(x -> ReferenceHelper.equals(reference, x.getKey()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    /**
-     * If a {@link AssetValueProvider} exists for given reference, the provided
-     * will be written; otherwise nothing happens.
-     *
-     * @param reference reference to element to check for asset connection
-     * @param value the value to write
-     * @throws AssetConnectionException if writing value to asset connection
-     *             fails
-     */
-    public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
-        if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
-            try {
-                getValueProvider(reference).setValue((DataElementValue) value);
-            }
-            catch (UnsupportedOperationException e) {
-                // ignored on purpose
-            }
-        }
-    }
-
-
-    /**
-     * Reads value from asset connection if available, otherwise empty optional
-     * is returned.
-     *
-     * @param reference reference to element to check for asset connection
-     * @return value read from the asset connection if available, empty optional
-     *         otherwise
-     * @throws AssetConnectionException if there is an asset connection but
-     *             reading fails
-     */
-    public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
-        if (hasValueProvider(reference)) {
-            try {
-                return Optional.ofNullable(getValueProvider(reference).getValue());
-            }
-            catch (UnsupportedOperationException e) {
-                // ignored on purpose
-            }
-        }
-        return Optional.empty();
-    }
-
-
-    /**
-     * Returns whether there is a operation provider defined for the provided
-     * AAS element or not.
-     *
-     * @param reference AAS element
-     * @return true if there is a operation provider defined for the provided
-     *         AAS element, otherwise false
-     */
-    public boolean hasOperationProvider(Reference reference) {
-        return Objects.nonNull(getOperationProvider(reference));
-    }
-
-
-    /**
-     * Returns whether there is a subscription provider defined for the provided
-     * AAS element or not.
-     *
-     * @param reference AAS element
-     * @return true if there is a subscription provider defined for the provided
-     *         AAS element, otherwise false
-     */
-    public boolean hasSubscriptionProvider(Reference reference) {
-        return Objects.nonNull(getSubscriptionProvider(reference));
-    }
-
-
-    /**
-     * Returns whether there is a value provider defined for the provided AAS
-     * element or not.
-     *
-     * @param reference AAS element
-     * @return true if there is a value provider defined for the provided AAS
-     *         element, otherwise false
-     */
-    public boolean hasValueProvider(Reference reference) {
-        return Objects.nonNull(getValueProvider(reference));
-    }
-
-
     private void validateConnectionConfigs(List<AssetConnectionConfig> connectionsConfigs) throws ConfigurationException {
-        Optional<Map.Entry<Reference, List<AssetValueProviderConfig>>> valueProviders = connectionsConfigs.stream()
+        List<String> messages = new ArrayList<>();
+        List<Reference> referencesForAllValueProviders = connectionsConfigs.stream()
                 .filter(Objects::nonNull)
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProviderConfig>>) x.getValueProviders().entrySet().stream())
-                .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
-                .filter(x -> x.getValue().size() > 1)
-                .findFirst();
-        if (valueProviders.isPresent()) {
-            throw new InvalidConfigurationException(String.format("found %d value providers for reference %s but maximum 1 allowed",
-                    valueProviders.get().getValue().size(),
-                    ReferenceHelper.toString(valueProviders.get().getKey())));
+                .flatMap(x -> x.getValueProviders().keySet().stream())
+                .toList();
+        List<Reference> referencesForAllSubscriptionProviders = connectionsConfigs.stream()
+                .filter(Objects::nonNull)
+                .flatMap(x -> x.getSubscriptionProviders().keySet().stream())
+                .toList();
+        List<Reference> referencesForAllOperationProviders = connectionsConfigs.stream()
+                .filter(Objects::nonNull)
+                .flatMap(x -> x.getOperationProviders().keySet().stream())
+                .toList();
+
+        for (var providerType: AssetProviderType.values()) {
+            List<Reference> referencesForAllProviders = connectionsConfigs.stream()
+                    .flatMap(x -> providerType.getProvidersFromConfigAccessor().apply(x).keySet().stream())
+                    .toList();
+            List<List<Reference>> duplicateProviders = ReferenceHelper.groupBySame(referencesForAllProviders).stream()
+                    .filter(x -> x.size() > 1)
+                    .toList();
+            for (var duplicates: duplicateProviders) {
+                messages.add(String.format("Duplicate %s providers found for references (%s)",
+                        providerType.toString().toLowerCase(),
+                        duplicates.stream().map(ReferenceHelper::asString).collect(Collectors.joining(", "))));
+            }
         }
-        Optional<Map.Entry<Reference, List<AssetOperationProviderConfig>>> operationProviders = connectionsConfigs.stream()
-                .filter(Objects::nonNull)
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProviderConfig>>) x.getOperationProviders().entrySet().stream())
-                .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
-                .filter(x -> x.getValue().size() > 1)
-                .findFirst();
-        if (operationProviders.isPresent()) {
-            throw new InvalidConfigurationException(String.format("found %d operation providers for reference %s but maximum 1 allowed",
-                    operationProviders.get().getValue().size(),
-                    ReferenceHelper.toString(operationProviders.get().getKey())));
-        }
-        Optional<Map.Entry<Reference, List<AssetSubscriptionProviderConfig>>> subscriptionProviders = connectionsConfigs.stream()
-                .filter(Objects::nonNull)
-                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProviderConfig>>) x.getSubscriptionProviders().entrySet().stream())
-                .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
-                .filter(x -> x.getValue().size() > 1)
-                .findFirst();
-        if (subscriptionProviders.isPresent()) {
-            throw new InvalidConfigurationException(String.format("found %d subscription providers for reference %s but maximum 1 allowed",
-                    subscriptionProviders.get().getValue().size(),
-                    ReferenceHelper.toString(subscriptionProviders.get().getKey())));
+        referencesForAllValueProviders.forEach(x -> {
+            Reference duplicate = ReferenceHelper.findSameReference(referencesForAllOperationProviders, x);
+            if (Objects.nonNull(duplicate)) {
+                messages.add(String.format("Duplicate providers found (provider1: [value]%s, provider2: [operation]%s)",
+                        ReferenceHelper.asString(x),
+                        ReferenceHelper.asString(duplicate)));
+            }
+        });
+        referencesForAllSubscriptionProviders.forEach(x -> {
+            Reference duplicate = ReferenceHelper.findSameReference(referencesForAllOperationProviders, x);
+            if (Objects.nonNull(duplicate)) {
+                messages.add(String.format("Duplicate providers found (provider1: [subscription]%s, provider2: [operation]%s)",
+                        ReferenceHelper.asString(x),
+                        ReferenceHelper.asString(duplicate)));
+            }
+        });
+
+        if (!messages.isEmpty()) {
+            throw new InvalidConfigurationException(String.format("found %d validation errors for asset connections%s%s",
+                    messages.size(),
+                    System.lineSeparator(),
+                    String.join(System.lineSeparator(), messages)));
         }
     }
 
@@ -770,24 +1035,41 @@ public class AssetConnectionManager {
     private void validateConnections(List<AssetConnection> connections) throws ConfigurationException {
         validateConnectionConfigs(connections.stream()
                 .map(AssetConnection::asConfig)
+                .filter(Objects::nonNull)
                 .map(AssetConnectionConfig.class::cast)
                 .toList());
     }
 
+    private static class ChangeSet {
+        private List<AssetConnectionConfig> add = new ArrayList<>();
+        private List<AssetConnectionConfig> delete = new ArrayList<>();
+    }
 
-    /**
-     * Remove the given AssetConnection.
-     *
-     * @param connection The AssetConnection to remove.
-     */
-    public void remove(AssetConnection connection) {
-        if (connections.contains(connection)) {
-            connection.stop();
+    private static class ExceptionWithDetails extends AssetConnectionException {
 
-            connections.remove(connection);
+        private final List<Message> messages;
+
+        public ExceptionWithDetails(String msg, List<Message> messages) {
+            super(msg);
+            this.messages = messages;
         }
-        else {
-            throw new IllegalArgumentException("AssetConnection not found");
+
+
+        public ExceptionWithDetails(Throwable err, List<Message> messages) {
+            super(err);
+            this.messages = messages;
         }
+
+
+        public ExceptionWithDetails(String msg, Throwable err, List<Message> messages) {
+            super(msg, err);
+            this.messages = messages;
+        }
+
+
+        public List<Message> getMessages() {
+            return messages;
+        }
+
     }
 }

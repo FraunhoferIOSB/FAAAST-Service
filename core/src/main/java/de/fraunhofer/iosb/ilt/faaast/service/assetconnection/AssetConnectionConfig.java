@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceSerializer;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -50,9 +50,9 @@ public abstract class AssetConnectionConfig<T extends AssetConnection, V extends
     protected Map<Reference, V> valueProviders;
 
     public AssetConnectionConfig() {
-        operationProviders = new HashMap<>();
-        subscriptionProviders = new HashMap<>();
-        valueProviders = new HashMap<>();
+        operationProviders = new ConcurrentHashMap<>();
+        subscriptionProviders = new ConcurrentHashMap<>();
+        valueProviders = new ConcurrentHashMap<>();
     }
 
 

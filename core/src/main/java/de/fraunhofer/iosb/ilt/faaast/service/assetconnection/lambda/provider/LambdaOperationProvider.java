@@ -37,7 +37,12 @@ public class LambdaOperationProvider implements AssetOperationProvider {
 
     @Override
     public AssetOperationProviderConfig getConfig() {
-        return new AbstractAssetOperationProviderConfig() {};
+        return new AbstractAssetOperationProviderConfig() {
+            @Override
+            public boolean sameAs(AssetProviderConfig other) {
+                return equals(other);
+            }
+        };
     }
 
 

@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -25,6 +28,44 @@ public class CustomValueProviderConfig implements AssetValueProviderConfig {
 
     public CustomValueProviderConfig() {
         this.note = DEFAULT_NOTE;
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        final CustomValueProviderConfig that = (CustomValueProviderConfig) other;
+        return Objects.equals(note, that.note);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        final CustomValueProviderConfig that = (CustomValueProviderConfig) other;
+        return StringHelper.equalsNullOrEmpty(note, that.note);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(note);
     }
 
     public class Builder extends ExtendableBuilder<CustomValueProviderConfig, Builder> {

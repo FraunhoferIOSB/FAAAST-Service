@@ -42,6 +42,7 @@ public class TestAssetConnection implements
     private final Map<Reference, AssetValueProvider> valueProviders;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
+    private TestAssetConnectionConfig config;
 
     public TestAssetConnection() {
         valueProviders = new HashMap<>();
@@ -143,7 +144,7 @@ public class TestAssetConnection implements
 
     @Override
     public TestAssetConnectionConfig asConfig() {
-        return null;
+        return config;
     }
 
 
@@ -182,6 +183,7 @@ public class TestAssetConnection implements
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
         LOGGER.trace("init called");
+        this.config = config;
         for (var provider: config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }
@@ -197,11 +199,5 @@ public class TestAssetConnection implements
     @Override
     public void stop() {
         // nothing to do here
-    }
-
-
-    @Override
-    public boolean isActive() {
-        return true;
     }
 }
