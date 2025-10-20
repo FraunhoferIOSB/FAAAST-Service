@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
+/**
+ * Interface for User credentials.
+ */
 public interface Credentials {
 
 }

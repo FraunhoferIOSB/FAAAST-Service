@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model;
 
+/**
+ * Enumeration of protocolls.
+ */
 public enum Protocol {
     HTTP,
     MQTT,

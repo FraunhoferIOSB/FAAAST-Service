@@ -15,12 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -34,15 +31,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.InterfaceConfiguration;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.InterfaceData;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.InterfaceDataHttp;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.InterfaceDataMqtt;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.model.RelationData;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.MqttHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
@@ -74,9 +67,9 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private ServiceContext serviceContext;
     // keeps track of relations between AID and AIMC submodels as changes to an AID submodel needs to trigger 
     // an update on all AIMC refering to/using that AID submodel.
-    private Map<String, Set<String>> aidToAimcRelations;
+    private final Map<String, Set<String>> aidToAimcRelations;
 
-    private Map<String, List<AssetConnectionConfig>> connectionsCurrent;
+    private final Map<String, List<AssetConnectionConfig>> connectionsCurrent;
 
     public AimcSubmodelTemplateProcessor() {
         aidToAimcRelations = new HashMap<>();
@@ -115,8 +108,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         updateAidToAimcRelations(submodel, ProcessingMode.ADD);
         try {
-            LOGGER.info("process submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
+            LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
+            processSubmodel(submodel, assetConnectionManager);
         }
         catch (Exception e) {
             LOGGER.error("error processing SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -135,8 +128,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         updateAidToAimcRelations(submodel, ProcessingMode.UPDATE);
         try {
-            LOGGER.info("update submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.UPDATE);
+            LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
+            processSubmodel(submodel, assetConnectionManager);
         }
         catch (Exception e) {
             LOGGER.error("error updating SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -155,8 +148,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         updateAidToAimcRelations(submodel, ProcessingMode.DELETE);
         try {
-            LOGGER.info("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
+            LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
+            processSubmodel(submodel, assetConnectionManager);
         }
         catch (Exception e) {
             LOGGER.error("error deleting SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -177,7 +170,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
             try {
                 // handling too generic?
                 // e.g. when add AID, we would know to only certain things, no delete, no update
-                processSubmodel(getSubmodel(x), assetConnectionManager, mode);
+                processSubmodel(getSubmodel(x), assetConnectionManager);
             }
             catch (Exception e) {
                 LOGGER.warn("Failed to update AIMC submodel (submodelId: {})", x);
@@ -199,11 +192,10 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 .map(SubmodelElementIdentifier::getSubmodelId).toList();
         String aimcSubmodelId = submodel.getId();
         aidSubmodelIds.forEach(x -> {
-            if (mode == ProcessingMode.DELETE || mode == ProcessingMode.UPDATE) {
-                if (aidToAimcRelations.containsKey(x)) {
-                    aidToAimcRelations.get(x).remove(aimcSubmodelId);
-                }
+            if ((mode == ProcessingMode.DELETE || mode == ProcessingMode.UPDATE) && aidToAimcRelations.containsKey(x)) {
+                aidToAimcRelations.get(x).remove(aimcSubmodelId);
             }
+
             if (mode == ProcessingMode.ADD || mode == ProcessingMode.UPDATE) {
                 if (!aidToAimcRelations.containsKey(x)) {
                     aidToAimcRelations.put(x, new HashSet<>());
@@ -214,25 +206,33 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
-            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException {
+    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager)
+            throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException, Exception {
+        List<AssetConnectionConfig> configs = new ArrayList<>();
         SemanticIdPath.builder()
                 .globalReference(Constants.AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID)
                 .globalReference(Constants.AIMC_CONFIGURATION_SEMANTIC_ID)
                 .build()
                 .resolve(submodel, SubmodelElementCollection.class)
-                .forEach(x -> processConfiguration(x, assetConnectionManager, mode));
+                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> configs.add(processConfiguration(x))));
+        // call assetConnectionManager
+        List<AssetConnectionConfig> old = null;
+        if (connectionsCurrent.containsKey(submodel.getId())) {
+            old = connectionsCurrent.get(submodel.getId());
+        }
+        assetConnectionManager.updateConnections(old, configs);
+        connectionsCurrent.put(submodel.getId(), configs);
     }
 
 
-    private void processConfiguration(SubmodelElementCollection configuration, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
+    private AssetConnectionConfig processConfiguration(SubmodelElementCollection configuration)
             throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException {
         List<RelationshipElement> relations = SemanticIdPath.builder()
                 .globalReference(Constants.AIMC_MAPPING_RELATIONS_SEMANTIC_ID)
                 .globalReference(Constants.AIMC_MAPPING_RELATION_SEMANTIC_ID)
                 .build()
                 .resolve(configuration, RelationshipElement.class);
-        processInterfaceReference(configuration, relations, assetConnectionManager, mode);
+        return processInterfaceReference(configuration, relations);
     }
 
 
@@ -257,8 +257,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void processInterfaceReference(SubmodelElementCollection configuration, List<RelationshipElement> relations, AssetConnectionManager assetConnectionManager,
-                                           ProcessingMode mode)
+    private AssetConnectionConfig processInterfaceReference(SubmodelElementCollection configuration, List<RelationshipElement> relations)
             throws ResourceNotFoundException, ConfigurationException, PersistenceException, MalformedURLException, AssetConnectionException, IllegalArgumentException,
             URISyntaxException {
         Reference interfaceReferenceValue = SemanticIdPath.builder()
@@ -269,115 +268,32 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         Referable referenceElement = getElement(interfaceReferenceValue);
         if (!(referenceElement instanceof SubmodelElementCollection)) {
             LOGGER.warn("Invalid AIMC configuration - target of InterfaceReference is not of type SubmodelElementCollection");
-            return;
+            return null;
         }
         SubmodelElementCollection assetInterface = (SubmodelElementCollection) referenceElement;
         if (!Util.semanticIdEquals(assetInterface, Constants.AID_INTERFACE_SEMANTIC_ID)) {
-            LOGGER.warn("Invalid AIMC configuration - target of InterfaceReference does not have correct semanticId (expected: {}, actual: {})",
+            LOGGER.atWarn().log("Invalid AIMC configuration - target of InterfaceReference does not have correct semanticId (expected: {}, actual: {})",
                     Constants.AID_INTERFACE_SEMANTIC_ID,
                     ReferenceHelper.asString(assetInterface.getSemanticId()));
-            return;
+            return null;
         }
         if (Objects.isNull(assetInterface.getSupplementalSemanticIds()) || assetInterface.getSupplementalSemanticIds().isEmpty()) {
-            LOGGER.warn("Invalid AIMC configuration - target of InterfaceReference does not have any supplementalSemanticId, but at least one is required",
+            LOGGER.atWarn().log(
+                    "Invalid AIMC configuration - target of InterfaceReference does not have any supplementalSemanticId, but at least one is required (expected: {}, actual: {})",
                     Constants.AID_INTERFACE_SEMANTIC_ID,
                     ReferenceHelper.asString(assetInterface.getSemanticId()));
-            return;
+            return null;
         }
-
-        InterfaceConfiguration interfaceConfig = ReferenceHelper.containsSameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)
-                ? ReferenceHelper.getValueBySameReference(config.getInterfaceConfigurations(), interfaceReferenceValue)
-                : InterfaceConfiguration.builder()
-                        .build();
-        InterfaceData interfaceData = ReferenceHelper.containsSameReference(interfaceDataCache, interfaceReferenceValue)
-                ? ReferenceHelper.getValueBySameReference(interfaceDataCache, interfaceReferenceValue)
-                : null;
 
         if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP)) {
             // HTTP Interface
-            InterfaceDataHttp http;
-            if (interfaceData != null) {
-                if (interfaceData instanceof InterfaceDataHttp httpInterface) {
-                    http = httpInterface;
-                }
-                else {
-                    throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-                }
-            }
-            else {
-                http = new InterfaceDataHttp(interfaceConfig);
-            }
-            HttpHelper.processInterface(serviceContext, http, assetInterface, relations, assetConnectionManager, mode);
-            interfaceDataCache.put(interfaceReferenceValue, http);
+            return HttpHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
         }
         else if (Util.containsSupplementalSemanticId(assetInterface, Constants.AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT)) {
             // MQTT Interface
-            InterfaceDataMqtt mqtt;
-            if (interfaceData != null) {
-                if (interfaceData instanceof InterfaceDataMqtt mqttInterface) {
-                    mqtt = mqttInterface;
-                }
-                else {
-                    throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-                }
-            }
-            else {
-                mqtt = new InterfaceDataMqtt(interfaceConfig);
-            }
-            MqttHelper.processInterface(serviceContext, mqtt, assetInterface, relations, assetConnectionManager, mode);
-            interfaceDataCache.put(interfaceReferenceValue, mqtt);
+            return MqttHelper.processInterface(serviceContext, assetInterface, relations, config.getCredentials());
         }
-    }
-
-
-    private void processHttpMaping() {
-        InterfaceDataHttp http;
-        if (interfaceData != null) {
-            if (interfaceData instanceof InterfaceDataHttp httpInterface) {
-                http = httpInterface;
-            }
-            else {
-                throw new IllegalArgumentException("wrong type: no InterfaceDataHttp");
-            }
-        }
-        else {
-            http = new InterfaceDataHttp(configData);
-        }
-        //HttpHelper.processInterface(serviceContext, http, assetInterface, relations, assetConnectionManager, mode);
-        String title = Util.getInterfaceTitle(assetInterface);
-        LOGGER.debug("process HTTP interface {} with {} relations", title, relations.size());
-
-        // Endpoint Metadata
-        SubmodelElementCollection metadata = Util.getEndpointMetadata(assetInterface);
-        String base = Util.getBaseUrl(metadata);
-
-        // contentType
-        String contentType = Util.getContentType(metadata);
-
-        List<AssetConnection> assetConnectionsRemove = new ArrayList<>();
-        Map<Reference, HttpValueProviderConfig> valueProviders = new HashMap<>();
-        Map<Reference, HttpSubscriptionProviderConfig> subscriptionProviders = new HashMap<>();
-        if ((mode == ProcessingMode.UPDATE) || (mode == ProcessingMode.DELETE)) {
-            updateAssetConnections(assetConnectionManager, base, mode, new RelationData(serviceContext, relations, contentType, interfaceData), subscriptionProviders,
-                    valueProviders,
-                    assetConnectionsRemove);
-        }
-        else if (mode == ProcessingMode.ADD) {
-            addProvider(new RelationData(serviceContext, relations, contentType, interfaceData), base, subscriptionProviders, valueProviders, assetConnectionManager);
-        }
-
-        if (!(subscriptionProviders.isEmpty() && valueProviders.isEmpty())) {
-            registerProviders(valueProviders, subscriptionProviders, assetConnectionManager, base, metadata, serviceContext, interfaceData);
-        }
-        if (!assetConnectionsRemove.isEmpty()) {
-            // remove asset connection if no more providers are available
-            LOGGER.debug("processInterface: remove unused AssetConnections");
-            for (var connection: assetConnectionsRemove) {
-                assetConnectionManager.remove(connection);
-            }
-            assetConnectionsRemove.clear();
-        }
-        interfaceDataCache.put(interfaceReferenceValue, http);
+        return null;
     }
 
 }

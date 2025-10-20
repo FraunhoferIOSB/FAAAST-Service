@@ -24,6 +24,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
+/**
+ * Class with AID Endpoint metadata.
+ */
 public class AidEndpointMetadata {
     private String base;
     private String contentType;
@@ -38,9 +41,15 @@ public class AidEndpointMetadata {
     }
 
 
+    /**
+     * Parse the AID Endpoint Metadata from the given SubmodelElement.
+     *
+     * @param element The desired SubmodelElement.
+     * @return The AID Endpoint Metadata.
+     */
     public static AidEndpointMetadata parse(SubmodelElement element) {
         Ensure.requireNonNull(element, "element must be non-null");
-        Ensure.requireNonNull(SubmodelElementCollection.class.isInstance(element), "element must be a SubmodelElementCollection");
+        Ensure.require(element instanceof SubmodelElementCollection, "element must be a SubmodelElementCollection");
         Ensure.require(
                 Util.semanticIdEquals(element, Constants.AID_ENDPOINT_METADATA_SEMANTIC_ID),
                 String.format("Failed to read EndpointMetadata from AID - invalid semanticId (expected: %s, actual: %s)",

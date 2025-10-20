@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
-public class BasicCredentials {
+/**
+ * Class for User credentials.
+ */
+public class BasicCredentials implements Credentials {
     private String username;
     private String password;
 

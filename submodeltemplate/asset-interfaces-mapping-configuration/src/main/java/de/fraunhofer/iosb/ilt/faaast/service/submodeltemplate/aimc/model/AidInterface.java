@@ -20,12 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 
 
+/**
+ * Class with AID Interface data.
+ */
 public class AidInterface {
     private String title;
     private List<AidEndpointMetadata> endpointMetadata;
@@ -40,9 +42,15 @@ public class AidInterface {
     }
 
 
+    /**
+     * Parse the AID Interface from the given SubmodelElement.
+     *
+     * @param element The desired SubmodelElement.
+     * @return The AID Interface.
+     */
     public static AidInterface parse(SubmodelElement element) {
         Ensure.requireNonNull(element, "element must be non-null");
-        Ensure.requireNonNull(SubmodelElementCollection.class.isInstance(element), "element must be a SubmodelElementCollection");
+        Ensure.require(element instanceof SubmodelElementCollection, "element must be a SubmodelElementCollection");
         Ensure.require(
                 Util.semanticIdEquals(element, Constants.AID_ENDPOINT_METADATA_SEMANTIC_ID),
                 String.format("Failed to read Interface from AID - invalid semanticId (expected: %s, actual: %s)",
@@ -59,7 +67,7 @@ public class AidInterface {
                 .build()
                 .resolve(element, SubmodelElementCollection.class).stream()
                 .map(AidEndpointMetadata::parse)
-                .collect(Collectors.toList());
+                .toList();
         return instance;
     }
 
