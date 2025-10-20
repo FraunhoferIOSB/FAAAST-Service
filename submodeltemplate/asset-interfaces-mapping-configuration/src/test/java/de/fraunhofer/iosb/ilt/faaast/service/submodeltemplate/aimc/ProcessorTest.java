@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
@@ -34,14 +37,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
@@ -52,6 +59,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -59,23 +67,33 @@ import org.junit.Test;
 public class ProcessorTest {
 
     private static final String SERVER_URL = "http://plugfest.thingweb.io:8083";
+    private static final File CONFIG_FILE = new File("src/test/resources/Example-config.json");
+    private static ObjectMapper mapper;
 
+    private AimcSubmodelTemplateProcessorConfig aimcConfig;
     private ServiceConfig config;
+
+    @BeforeClass
+    public static void initStatic() {
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    }
+
 
     @Before
     public void init() {
 
-        //Reference submodelRef = ReferenceBuilder.forSubmodel("https://example.com/ids/sm/AssetInterfacesDescription", "InterfaceHTTP");
         Map<String, List<Credentials>> credentials = new HashMap<>();
+        credentials.put(SERVER_URL, List.of(new BasicCredentials("user1", "pw1"), new BasicCredentials("user2", "pw2")));
+        aimcConfig = new AimcSubmodelTemplateProcessorConfig.Builder()
+                .connectionLevelCredentials(credentials)
+                .build();
         config = new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
                 .persistence(new PersistenceInMemoryConfig())
                 .fileStorage(new FileStorageInMemoryConfig())
                 .messageBus(new MessageBusInternalConfig())
-                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
-                        .connectionLevelCredentials(credentials)
-                        //.interfaceConfiguration(submodelRef, new InterfaceConfiguration.Builder().username("user1").password("pw1").build())
-                        .build()))
+                .submodelTemplateProcessors(List.of(aimcConfig))
                 .build();
     }
 
@@ -401,5 +419,12 @@ public class ProcessorTest {
                 .build()));
         actualKey = Util.getKey(smec);
         Assert.assertEquals(keyValue, actualKey);
+    }
+
+
+    @Test
+    public void testConfig() throws JsonProcessingException, IOException {
+        AimcSubmodelTemplateProcessorConfig actual = mapper.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
+        Assert.assertEquals(aimcConfig, actual);
     }
 }
