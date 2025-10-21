@@ -250,10 +250,13 @@ public class SemanticIdPath {
             return List.of(currentRef);
         }
         if (SubmodelElementList.class.isInstance(current)) {
-            List<SubmodelElement> children = ((SubmodelElementList) current).getValue();
+            SubmodelElementList submodelElementList = (SubmodelElementList) current;
+            List<SubmodelElement> children = submodelElementList.getValue();
             List<Reference> result = new ArrayList<>();
+            boolean matchesSemanticIdListElement = Objects.nonNull(submodelElementList.getSemanticIdListElement())
+                    && ReferenceHelper.equals(remainingPath.getElements().get(0), submodelElementList.getSemanticIdListElement());
             for (int i = 0; i < children.size(); i++) {
-                if (ReferenceHelper.equals(children.get(i).getSemanticId(), remainingPath.getElements().get(0))) {
+                if (matchesSemanticIdListElement || ReferenceHelper.equals(children.get(i).getSemanticId(), remainingPath.getElements().get(0))) {
                     final String newChildId = Integer.toString(i);
                     List<Reference> childRefs = resolveRecursive(children.get(i), remainingPath.withoutParent(), currentRef);
                     result.addAll(childRefs.stream()

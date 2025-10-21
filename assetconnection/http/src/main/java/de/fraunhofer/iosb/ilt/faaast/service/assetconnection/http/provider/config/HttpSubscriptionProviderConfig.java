@@ -28,7 +28,7 @@ import java.util.Objects;
 public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscriptionProviderConfig {
 
     private String path;
-    private long interval;
+    private long interval = 1000;
     private Map<String, String> headers;
 
     public HttpSubscriptionProviderConfig() {

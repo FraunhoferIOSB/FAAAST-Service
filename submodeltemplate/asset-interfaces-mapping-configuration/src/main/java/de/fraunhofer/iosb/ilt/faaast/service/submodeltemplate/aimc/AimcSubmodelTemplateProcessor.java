@@ -25,8 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
@@ -168,8 +166,6 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         aidToAimcRelations.get(aidSubmodelId).forEach(x -> {
             try {
-                // handling too generic?
-                // e.g. when add AID, we would know to only certain things, no delete, no update
                 processSubmodel(getSubmodel(x), assetConnectionManager);
             }
             catch (Exception e) {
@@ -239,21 +235,20 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     private Referable getElement(Reference reference) {
         SubmodelElementIdentifier identifier = SubmodelElementIdentifier.fromReference(reference);
         // need to make sure serviceContext.execute already ready to receive requests!
-        return ((GetSubmodelElementByPathResponse) serviceContext.execute(GetSubmodelElementByPathRequest.builder()
+        return serviceContext.execute(GetSubmodelElementByPathRequest.builder()
                 .internal()
                 .submodelId(identifier.getSubmodelId())
                 .path(identifier.getIdShortPath().toString())
                 .build())
-                .getResult()).getPayload();
+                .getPayload();
     }
 
 
     private Submodel getSubmodel(String submodelId) {
-        return ((GetSubmodelByIdResponse) serviceContext.execute(GetSubmodelByIdRequest.builder()
+        return serviceContext.execute(GetSubmodelByIdRequest.builder()
                 .internal()
                 .id(submodelId)
-                .build())
-                .getResult()).getPayload();
+                .build()).getPayload();
     }
 
 

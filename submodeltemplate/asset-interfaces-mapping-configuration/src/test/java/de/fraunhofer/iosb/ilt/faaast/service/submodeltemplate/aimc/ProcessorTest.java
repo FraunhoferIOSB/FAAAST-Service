@@ -14,37 +14,47 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
@@ -52,47 +62,69 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
 public class ProcessorTest {
 
     private static final String SERVER_URL = "http://plugfest.thingweb.io:8083";
-
-    private ServiceConfig config;
+    private Service service;
+    private Persistence persistence;
+    private AimcSubmodelTemplateProcessor smtProcessor;
+    private static AssetConnectionManager assetConnectionManager;
 
     @Before
-    public void init() {
+    public void init() throws Exception {
 
-        //Reference submodelRef = ReferenceBuilder.forSubmodel("https://example.com/ids/sm/AssetInterfacesDescription", "InterfaceHTTP");
-        Map<String, List<Credentials>> credentials = new HashMap<>();
-        config = new ServiceConfig.Builder()
-                .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
-                .persistence(new PersistenceInMemoryConfig())
-                .fileStorage(new FileStorageInMemoryConfig())
-                .messageBus(new MessageBusInternalConfig())
-                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
-                        .connectionLevelCredentials(credentials)
-                        //.interfaceConfiguration(submodelRef, new InterfaceConfiguration.Builder().username("user1").password("pw1").build())
-                        .build()))
-                .build();
     }
 
 
+    private void injectSpyAssetConnectionManager(Service service) throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
+
+    }
+
+
+    private void initMocks(Environment model) throws Exception {
+        persistence = PersistenceInMemoryConfig.builder()
+                .initialModel(DeepCopyHelper.deepCopy(model))
+                .build()
+                .newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
+        smtProcessor = AimcSubmodelTemplateProcessorConfig.builder()
+                .connectionLevelCredentials(Map.of())
+                .build()
+                .newInstance(CoreConfig.DEFAULT, null);
+        service = spy(new Service(
+                CoreConfig.DEFAULT,
+                persistence,
+                mock(FileStorage.class),
+                mock(MessageBus.class),
+                null,
+                null,
+                List.of(smtProcessor)));
+        assetConnectionManager = spy(service.getAssetConnectionManager());
+        ReflectionHelper.setField(service, "assetConnectionManager", assetConnectionManager);
+        StaticRequestExecutionContext requestExecutionContext = new StaticRequestExecutionContext(
+                CoreConfig.DEFAULT,
+                service.getPersistence(),
+                service.getFileStorage(),
+                service.getMessageBus(),
+                assetConnectionManager);
+        ReflectionHelper.setField(service, "requestExecutionContext", requestExecutionContext);
+        ReflectionHelper.setField(smtProcessor, "serviceContext", service);
+    }
+
+    private static final String SUBMODEL_ID_AID = "https://example.com/ids/sm/AssetInterfacesDescription";
+    private static final String SUBMODEL_ID_AIMC = "https://example.com/ids/sm/AssetInterfacesMappingConfiguration";
+
     @Test
-    @Ignore
-    public void testAimc() throws ConfigurationException, AssetConnectionException, PersistenceException, MessageBusException, MalformedURLException {
-        File initialModelFile = new File("src/test/resources/Test-Example.json");
-        config.getPersistence().setInitialModelFile(initialModelFile);
-        Service service = new Service(config);
-        Assert.assertNotNull(service);
-        AssetConnectionManager manager = service.getAssetConnectionManager();
-        Assert.assertNotNull(manager);
-        var assetConns = manager.getConnections();
-        Assert.assertEquals(2, assetConns.size());
-        Assert.assertTrue(assetConns.get(0) instanceof HttpAssetConnection);
-        Assert.assertTrue(assetConns.get(1) instanceof MqttAssetConnection);
+    public void testAimc() throws Exception {
+        Environment model = EnvironmentSerializationManager.deserialize(new File("src/test/resources/Test-Example.json")).getEnvironment();
+        initMocks(model);
+        Optional<Submodel> submodel = model.getSubmodels().stream()
+                .filter(x -> x.getId().equals(SUBMODEL_ID_AIMC))
+                .findFirst();
+        assertTrue(submodel.isPresent());
+        smtProcessor.add(submodel.get(), assetConnectionManager);
 
         HttpAssetConnectionConfig httpExpected = new HttpAssetConnectionConfig.Builder()
                 .baseUrl(SERVER_URL)
@@ -119,13 +151,6 @@ public class ProcessorTest {
                                 .build())
                 .build();
 
-        HttpAssetConnection httpAssetConn = (HttpAssetConnection) assetConns.get(0);
-        HttpAssetConnectionConfig httpConfig = httpAssetConn.asConfig();
-        Assert.assertEquals(new URL(SERVER_URL), httpConfig.getBaseUrl());
-        Assert.assertEquals(1, httpConfig.getSubscriptionProviders().size());
-        Assert.assertEquals(1, httpConfig.getValueProviders().size());
-        Assert.assertEquals(httpExpected, httpConfig);
-
         MqttAssetConnectionConfig mqttExpected = new MqttAssetConnectionConfig.Builder()
                 .serverUri("mqtt://iot.platform.com:8088")
                 .subscriptionProvider(new DefaultReference.Builder()
@@ -149,14 +174,21 @@ public class ProcessorTest {
                                 .topic("/sampleDevice/properties/status")
                                 .build())
                 .build();
-
-        MqttAssetConnection mqttAssetConn = (MqttAssetConnection) assetConns.get(1);
-        MqttAssetConnectionConfig mqttConfig = mqttAssetConn.asConfig();
-        Assert.assertEquals(2, mqttConfig.getSubscriptionProviders().size());
-
-        // ignore clientId
-        mqttExpected.setClientId(mqttConfig.getClientId());
-        Assert.assertEquals(mqttExpected, mqttConfig);
+        verify(assetConnectionManager).updateConnections(isNull(), argThat((List<AssetConnectionConfig> actual) -> {
+            if (actual.size() != 2) {
+                return false;
+            }
+            Optional<MqttAssetConnectionConfig> mqttConfig = actual.stream()
+                    .filter(MqttAssetConnectionConfig.class::isInstance)
+                    .map(MqttAssetConnectionConfig.class::cast)
+                    .findFirst();
+            if (mqttConfig.isEmpty()) {
+                return false;
+            }
+            mqttExpected.setClientId(mqttConfig.get().getClientId());
+            return Objects.equals(Set.of(mqttExpected, httpExpected), new HashSet<>(actual));
+        }));
+        // TODO httpsubscription interval is 0 instead of 1000 as expected
     }
 
 

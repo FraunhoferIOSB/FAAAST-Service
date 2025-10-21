@@ -150,6 +150,58 @@ public class SemanticIdPathTest {
 
 
     @Test
+    public void resolveSematicIdPathInList_semanticIdListElement() throws ResourceNotFoundException {
+        final String idShortList1 = "idShortList1";
+        final String idShortList2 = "idShortList2";
+        final String idShortProperty1 = "idShortProperty1";
+        final String idShortProperty2 = "idShortProperty2";
+        Reference semanticIdList1 = ReferenceBuilder.global("list1");
+        Reference semanticIdList2 = ReferenceBuilder.global("list2");
+        Reference semanticIdListElement = ReferenceBuilder.global("listElement");
+
+        SubmodelElementList submodel = new DefaultSubmodelElementList.Builder()
+                .idShort(idShortList1)
+                .semanticId(semanticIdList1)
+                .value(new DefaultProperty.Builder()
+                        .idShort("dummy1")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("dummy2")
+                        .build())
+                .value(new DefaultSubmodelElementList.Builder()
+                        .idShort(idShortList2)
+                        .semanticId(semanticIdList2)
+                        .semanticIdListElement(semanticIdListElement)
+                        .value(new DefaultProperty.Builder()
+                                .idShort(idShortProperty1)
+                                .build())
+                        .value(new DefaultProperty.Builder()
+                                .idShort(idShortProperty2)
+                                .build())
+                        .build())
+                .build();
+        List<Reference> expected = List.of(
+                new ReferenceBuilder()
+                        .element(idShortList1)
+                        .index(2)
+                        .index(0)
+                        .build(),
+                new ReferenceBuilder()
+                        .element(idShortList1)
+                        .index(2)
+                        .index(1)
+                        .build());
+        List<Reference> actual = SemanticIdPath.builder()
+                .semanticId(semanticIdList2)
+                .semanticId(semanticIdListElement)
+                .build()
+                .resolve(submodel);
+        Assert.assertEquals(expected.size(), actual.size());
+        Assert.assertTrue(expected.stream().allMatch(exp -> actual.stream().anyMatch(act -> ReferenceHelper.equals(exp, act))));
+    }
+
+
+    @Test
     public void resolveSematicIdPathInSubmodelNonUnique() {
         final String idShortCollection1 = "idShortCollection1";
         final String idShortCollection2 = "idShortCollection2";

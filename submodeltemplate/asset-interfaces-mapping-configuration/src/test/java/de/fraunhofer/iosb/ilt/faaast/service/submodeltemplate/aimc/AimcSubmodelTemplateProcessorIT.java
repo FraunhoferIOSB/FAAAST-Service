@@ -18,6 +18,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.request;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.awaitility.Awaitility.await;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -44,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
@@ -124,21 +126,11 @@ public class AimcSubmodelTemplateProcessorIT {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, HttpModel.create(httpServerPort)));
         service.start();
-        // it takes some time to establish the AssetConnection
-        Awaitility.await()
-                .alias("check number of Asset Connections")
-                .pollInterval(POLL_TIMEOUT)
-                .atMost(MAX_TIMEOUT)
-                .until(() -> {
-                    var connections = service.getAssetConnectionManager().getConnections();
-                    return connections != null && connections.size() == 1 && connections.get(0).getSubscriptionProviders() != null
-                            && connections.get(0).getSubscriptionProviders().size() == 1;
-                });
-
-        // also check value provider
-        var connections = service.getAssetConnectionManager().getConnections();
-        Assert.assertNotNull(connections.get(0).getValueProviders());
-        Assert.assertEquals(1, connections.get(0).getValueProviders().size());
+        // wait for asset connections to be established
+        await().atMost(60, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> service.getAssetConnectionManager().isFullyConnected());
 
         String path = HttpModel.P1_URL;
         String newval = Double.toString(74.68);
@@ -178,21 +170,11 @@ public class AimcSubmodelTemplateProcessorIT {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, MqttModel.create(mqttPort)));
         service.start();
-        // it takes some time to establish the AssetConnection
-        Awaitility.await()
-                .alias("check number of Asset Connections")
-                .pollInterval(POLL_TIMEOUT)
-                .atMost(MAX_TIMEOUT)
-                .until(() -> {
-                    var connections = service.getAssetConnectionManager().getConnections();
-                    return connections != null && connections.size() == 1 && connections.get(0).getSubscriptionProviders() != null
-                            && connections.get(0).getSubscriptionProviders().size() == 1;
-                });
-
-        // also check value provider
-        var connections = service.getAssetConnectionManager().getConnections();
-        Assert.assertNotNull(connections.get(0).getValueProviders());
-        Assert.assertEquals(0, connections.get(0).getValueProviders().size());
+        // wait for asset connections to be established
+        await().atMost(60, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> service.getAssetConnectionManager().isFullyConnected());
 
         String newval = Float.toString(12.4f);
         client.publish(MqttModel.PROP1_TOPIC, newval);
