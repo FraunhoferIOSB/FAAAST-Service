@@ -14,12 +14,24 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config;
 
+import java.util.Objects;
+
+
 /**
  * Class for User credentials.
  */
 public class BasicCredentials implements Credentials {
     private String username;
     private String password;
+
+    public BasicCredentials() {}
+
+
+    public BasicCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
 
     public String getUsername() {
         return username;
@@ -38,5 +50,28 @@ public class BasicCredentials implements Credentials {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, password);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BasicCredentials other = (BasicCredentials) obj;
+        return Objects.equals(username, other.username)
+                && Objects.equals(password, other.password);
     }
 }

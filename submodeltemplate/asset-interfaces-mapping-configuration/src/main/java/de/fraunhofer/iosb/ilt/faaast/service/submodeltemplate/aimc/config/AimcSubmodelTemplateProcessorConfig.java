@@ -63,8 +63,7 @@ public class AimcSubmodelTemplateProcessorConfig extends SubmodelTemplateProcess
             return false;
         }
         final AimcSubmodelTemplateProcessorConfig other = (AimcSubmodelTemplateProcessorConfig) obj;
-        return super.equals(other)
-                && Objects.equals(credentials, other.credentials);
+        return Objects.equals(credentials, other.credentials);
     }
 
     protected abstract static class AbstractBuilder<C extends AimcSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>

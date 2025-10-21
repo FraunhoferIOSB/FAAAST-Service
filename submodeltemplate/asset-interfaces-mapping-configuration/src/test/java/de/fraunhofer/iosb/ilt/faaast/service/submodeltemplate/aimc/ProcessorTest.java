@@ -40,6 +40,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.BasicCredentials;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.Credentials;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.util.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
@@ -60,14 +63,20 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 
 public class ProcessorTest {
 
     private static final String SERVER_URL = "http://plugfest.thingweb.io:8083";
+    private static final File CONFIG_FILE = new File("src/test/resources/Example-config.json");
+    private static ObjectMapper mapper;
     private Service service;
     private Persistence persistence;
     private AimcSubmodelTemplateProcessor smtProcessor;
@@ -79,11 +88,50 @@ public class ProcessorTest {
     }
 
 
+    private ServiceConfig config;
+    private AimcSubmodelTemplateProcessorConfig aimcConfig;
+    private ServiceConfig config;
     private void injectSpyAssetConnectionManager(Service service) throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 
     }
 
+    
+    @BeforeClass
+    public static void initStatic() {
+        mapper = new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create())
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    }
 
+
+    @Before
+    public void init() {
+
+        //Reference submodelRef = ReferenceBuilder.forSubmodel("https://example.com/ids/sm/AssetInterfacesDescription", "InterfaceHTTP");
+        Map<String, List<Credentials>> credentials = new HashMap<>();
+        config = new ServiceConfig.Builder()
+                .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
+                .persistence(new PersistenceInMemoryConfig())
+                .fileStorage(new FileStorageInMemoryConfig())
+                .messageBus(new MessageBusInternalConfig())
+                .submodelTemplateProcessors(List.of(new AimcSubmodelTemplateProcessorConfig.Builder()
+                        .connectionLevelCredentials(credentials)
+                        //.interfaceConfiguration(submodelRef, new InterfaceConfiguration.Builder().username("user1").password("pw1").build())
+                        .build()))
+                .build();
+        Map<String, List<Credentials>> credentials = new HashMap<>();
+        credentials.put(SERVER_URL, List.of(new BasicCredentials("user1", "pw1"), new BasicCredentials("user2", "pw2")));
+        aimcConfig = new AimcSubmodelTemplateProcessorConfig.Builder()
+                .connectionLevelCredentials(credentials)
+                .build();
+        config = new ServiceConfig.Builder()
+                .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
+                .persistence(new PersistenceInMemoryConfig())
+                .fileStorage(new FileStorageInMemoryConfig())
+                .messageBus(new MessageBusInternalConfig())
+                .submodelTemplateProcessors(List.of(aimcConfig))
+                .build();
+        
+    }
     private void initMocks(Environment model) throws Exception {
         persistence = PersistenceInMemoryConfig.builder()
                 .initialModel(DeepCopyHelper.deepCopy(model))
@@ -433,5 +481,20 @@ public class ProcessorTest {
                 .build()));
         actualKey = Util.getKey(smec);
         Assert.assertEquals(keyValue, actualKey);
+    }
+
+
+    @Test
+    public void testConfigDeserialization() throws JsonProcessingException, IOException {
+        AimcSubmodelTemplateProcessorConfig actual = mapper.readValue(CONFIG_FILE, AimcSubmodelTemplateProcessorConfig.class);
+        Assert.assertEquals(aimcConfig, actual);
+    }
+
+
+    @Test
+    public void testConfigSerialization() throws IOException, JSONException {
+        String expected = Files.readString(CONFIG_FILE.toPath());
+        String actual = mapper.writeValueAsString(aimcConfig);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 }
