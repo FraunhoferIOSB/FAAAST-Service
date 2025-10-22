@@ -57,7 +57,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -121,7 +120,6 @@ public class AimcSubmodelTemplateProcessorIT {
 
 
     @Test
-    @Ignore
     public void testAimcHttp() throws Exception {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, HttpModel.create(httpServerPort)));
@@ -165,7 +163,6 @@ public class AimcSubmodelTemplateProcessorIT {
 
 
     @Test
-    @Ignore
     public void testAimcMqtt() throws Exception {
         int http = PortHelper.findFreePort();
         service = new Service(serviceConfig(http, MqttModel.create(mqttPort)));

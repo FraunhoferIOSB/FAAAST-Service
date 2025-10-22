@@ -211,7 +211,6 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 .build()
                 .resolve(submodel, SubmodelElementCollection.class)
                 .forEach(LambdaExceptionHelper.rethrowConsumer(x -> configs.add(processConfiguration(x))));
-        // call assetConnectionManager
         List<AssetConnectionConfig> old = null;
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
