@@ -36,7 +36,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.filestorage.FileStorage;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.StaticRequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc.config.AimcSubmodelTemplateProcessorConfig;
@@ -69,23 +68,20 @@ public class ProcessorTest {
     private static final String SERVER_URL = "http://plugfest.thingweb.io:8083";
     private static final String SUBMODEL_ID_AIMC = "https://example.com/ids/sm/AssetInterfacesMappingConfiguration";
 
-    private Service service;
-    private Persistence persistence;
     private AimcSubmodelTemplateProcessor smtProcessor;
     private static AssetConnectionManager assetConnectionManager;
 
     private void initMocks(Environment model) throws Exception {
-        persistence = PersistenceInMemoryConfig.builder()
-                .initialModel(DeepCopyHelper.deepCopy(model))
-                .build()
-                .newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
         smtProcessor = AimcSubmodelTemplateProcessorConfig.builder()
                 .connectionLevelCredentials(Map.of())
                 .build()
                 .newInstance(CoreConfig.DEFAULT, null);
-        service = spy(new Service(
+        Service service = spy(new Service(
                 CoreConfig.DEFAULT,
-                persistence,
+                PersistenceInMemoryConfig.builder()
+                        .initialModel(DeepCopyHelper.deepCopy(model))
+                        .build()
+                        .newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class)),
                 mock(FileStorage.class),
                 mock(MessageBus.class),
                 null,
@@ -176,7 +172,6 @@ public class ProcessorTest {
             mqttExpected.setClientId(mqttConfig.get().getClientId());
             return Objects.equals(Set.of(mqttExpected, httpExpected), new HashSet<>(actual));
         }));
-        // TODO httpsubscription interval is 0 instead of 1000 as expected
     }
 
 

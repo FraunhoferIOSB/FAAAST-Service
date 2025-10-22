@@ -146,7 +146,7 @@ public class AimcSubmodelTemplateProcessorIT {
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody(newval2)));
 
-        Awaitility.await()
+        await()
                 .alias("check Property value")
                 .pollInterval(POLL_TIMEOUT)
                 .atMost(MAX_TIMEOUT)
