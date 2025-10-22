@@ -31,7 +31,6 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConf
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
         return super.equals(o);
     }
 

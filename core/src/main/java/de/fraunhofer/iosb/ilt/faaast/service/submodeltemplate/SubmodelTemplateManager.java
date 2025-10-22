@@ -43,13 +43,10 @@ import org.slf4j.LoggerFactory;
 public class SubmodelTemplateManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelTemplateManager.class);
-    private static final String VALUE_NULL = "value must not be null";
-    private static final String ELEMENT_NULL = "element must not be null";
 
     private final Persistence persistence;
     private final MessageBus messageBus;
     private final AssetConnectionManager assetConnectionManager;
-
     private final List<SubscriptionId> subscriptions = new ArrayList<>();
     private List<SubmodelTemplateProcessor> submodelTemplateProcessors = new ArrayList<>();
 
