@@ -29,6 +29,13 @@ This SubmodelTemplate Processor uses these SubmodelTemplates to create AssetConn
 
 The Processor looks for the SubmodelTemplate AIMC and maps all relations in the supported Asset Interfaces.
 
+:::{caution}
+Besides AID / AIMC you also have the possibility to configure Asset Interfaces with our Asset Connections in the Fa³st Configuration.
+As AID / AIMC currently has some limitations, for several use cases you must use Asset Connections, e.g. if you need write access or if you want to call operations in the Asset.
+
+Just be aware, that you can change AID during Runtime, but changes of the Asset Connections in the Configuration require a restart of the Serice.
+:::
+
 ### Generic Configuration
 
 The processor uses the following configuration structure:
@@ -70,10 +77,12 @@ In the EndpointMetadata of AID the following attributes are currently evaluated:
 - contentType
 - security
 
-Currently, the supported Security Schemes are:
+:::{caution}
+Currently, we only support the following Security Schemes:
 
 - NoSecurityScheme (nosec_sc)
 - BasicSecurityScheme (basic_sc)
+:::
 
 If BasicSecurityScheme is configured, username and password from the SMT configuration is used. In that case, make sure, that valid username and password is configured.
 
