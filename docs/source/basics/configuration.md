@@ -46,6 +46,7 @@ The `core` configuration block contains properties not related to the implementa
 | validationOnLoad<br>*(optional)*             | Object         | Validation rules to use when loading the AAS model at startup                                                                                   | all enabled                     |
 | validationOnCreate<br>*(optional)*           | Object         | Validation rules to use when creating new elements via API                                                                                      | constraints validation disabled |
 | validationOnUpdate<br>*(optional)*           | Object         | Validation rules to use when updating elements via API                                                                                          | constraints validation disabled |
+| minInflateRatio<br>*(optional)*              | Double         | Ratio between de- and inflated bytes to detect zipbomb when loading AASX files                                                                  | 0.001                           |
 :::
 
 ```{code-block} json
@@ -75,7 +76,8 @@ The `core` configuration block contains properties not related to the implementa
 			"validateConstraints": false,        // currently ignored because AAS4J does not yet implement validation for AAS v3.0
 			"idShortUniqueness": true,
 			"identifierUniqueness": true
-		}		
+		},
+		"minInflateRatio": 0.01		
 	},
 	// ...
 }
