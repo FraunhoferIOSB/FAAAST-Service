@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -211,6 +212,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 .build()
                 .resolve(submodel, SubmodelElementCollection.class)
                 .forEach(LambdaExceptionHelper.rethrowConsumer(x -> configs.add(processConfiguration(x))));
+        configs.removeAll(Collections.singleton(null));
         List<AssetConnectionConfig> old = null;
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
