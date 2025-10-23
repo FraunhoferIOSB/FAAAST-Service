@@ -7,6 +7,7 @@
 	- Fixed bug that auxiliary files were not loaded when starting from code with an initial model file
 	- Fixed bug that caused deleting submodel-refs from AAS to fail when the submodel-ref had referredSemanticId set
 	- Minor corrections in Logging
+	- Make minInflateRatio configurable to be able to prevent zip bomb error when loading AASX files.
 - Endpoint
 	- HTTP
 		- URL query parameters are now correctly URL-decoded

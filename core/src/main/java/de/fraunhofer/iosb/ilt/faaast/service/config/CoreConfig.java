@@ -31,6 +31,7 @@ public class CoreConfig {
 
     private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
     private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
+    private static final double DEFAULT_MIN_INFLATE_RATIO = 0.001;
 
     private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
@@ -39,6 +40,7 @@ public class CoreConfig {
     private ModelValidatorConfig validationOnUpdate;
     private List<String> aasRegistries;
     private List<String> submodelRegistries;
+    private double minInflateRatio;
 
     public CoreConfig() {
         this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
@@ -60,6 +62,7 @@ public class CoreConfig {
                 .build();
         this.aasRegistries = new ArrayList<>();
         this.submodelRegistries = new ArrayList<>();
+        this.minInflateRatio = DEFAULT_MIN_INFLATE_RATIO;
     }
 
 
@@ -138,6 +141,16 @@ public class CoreConfig {
     }
 
 
+    public double getMinInflateRatio() {
+        return minInflateRatio;
+    }
+
+
+    public void setMinInflateRatio(double minInflateRatio) {
+        this.minInflateRatio = minInflateRatio;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(assetConnectionRetryInterval,
@@ -146,7 +159,8 @@ public class CoreConfig {
                 validationOnCreate,
                 validationOnUpdate,
                 aasRegistries,
-                submodelRegistries);
+                submodelRegistries,
+                minInflateRatio);
     }
 
 
@@ -168,7 +182,8 @@ public class CoreConfig {
                 && Objects.equals(this.validationOnCreate, other.validationOnCreate)
                 && Objects.equals(this.validationOnUpdate, other.validationOnUpdate)
                 && Objects.equals(this.aasRegistries, other.aasRegistries)
-                && Objects.equals(this.submodelRegistries, other.submodelRegistries);
+                && Objects.equals(this.submodelRegistries, other.submodelRegistries)
+                && Objects.equals(this.minInflateRatio, other.minInflateRatio);
     }
 
     public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
@@ -247,6 +262,12 @@ public class CoreConfig {
             getBuildingInstance().getValidationOnLoad().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnCreate().setValidateIdentifierUniqueness(value);
             getBuildingInstance().getValidationOnUpdate().setValidateIdentifierUniqueness(value);
+            return getSelf();
+        }
+
+
+        public Builder minInflateRatio(double value) {
+            getBuildingInstance().setMinInflateRatio(value);
             return getSelf();
         }
 

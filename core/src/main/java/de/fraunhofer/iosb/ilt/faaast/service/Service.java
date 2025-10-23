@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -257,8 +258,9 @@ public class Service implements ServiceContext {
     /**
      * Starts the service.This includes starting the message bus and endpoints.
      *
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
+     * @throws MessageBusException if starting message bus fails
+     * @throws EndpointException if starting endpoints fails
+     * @throws PersistenceException if storage error occurs
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
     public void start() throws MessageBusException, EndpointException, PersistenceException {
@@ -296,6 +298,7 @@ public class Service implements ServiceContext {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
+        ZipSecureFile.setMinInflateRatio(config.getCore().getMinInflateRatio());
         ensureInitialModelFilesAreLoaded();
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
