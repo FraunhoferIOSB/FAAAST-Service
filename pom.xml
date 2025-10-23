@@ -40,6 +40,7 @@
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
         <module>messagebus/mqtt</module>
+        <module>messagebus/internal-mqtt-forward</module>
         <module>persistence/memory</module>
         <module>persistence/file</module>
         <module>persistence/mongo</module>
