@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetC
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -626,12 +627,15 @@ public class AssetConnectionManager {
                 }
             }
         }
-        connections.stream()
-                .filter(connection -> newConnections.stream().noneMatch(x -> x.equalsIgnoringProviders(connection.asConfig())))
-                .forEach(connection -> {
-                    connection.stop();
-                    connections.remove(connection);
-                });
+        var iterator = connections.iterator();
+        while (iterator.hasNext()) {
+            AssetConnection connection = iterator.next();
+            Config connectionConfig = connection.asConfig();
+            if (newConnections.stream().noneMatch(x -> x.equalsIgnoringProviders(connectionConfig))) {
+                connection.stop();
+                iterator.remove();
+            }
+        }
         return result;
     }
 

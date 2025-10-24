@@ -135,7 +135,7 @@ public class SemanticIdPath {
                     try {
                         return EnvironmentHelper.resolve(x, root);
                     }
-                    catch (ResourceNotFoundException ex) {
+                    catch (ResourceNotFoundException e) {
                         return null;
                     }
                 })
@@ -162,7 +162,10 @@ public class SemanticIdPath {
             throw new ResourceNotFoundException("no matching element for semanticIdPath");
         }
         if (result.size() > 1) {
-            throw new IllegalArgumentException("semanticIdPath did resolve to more than one element");
+            throw new IllegalArgumentException(
+                    String.format("semanticIdPath did resolve to more than one element (path: %s, elements: %s)",
+                            toString(),
+                            result.stream().map(ReferenceHelper::asString).collect(Collectors.joining(", "))));
         }
         return result.get(0);
     }
@@ -208,7 +211,9 @@ public class SemanticIdPath {
             return EnvironmentHelper.resolve(resolveUnique(root), root, type);
         }
         catch (ResourceNotFoundException e) {
-            throw new IllegalArgumentException("semanticIdPath did not match any element");
+            throw new IllegalArgumentException(
+                    String.format("semanticIdPath did not match any element (path: %s)", toString()),
+                    e);
         }
     }
 
