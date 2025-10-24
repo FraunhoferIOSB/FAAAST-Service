@@ -94,7 +94,6 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
         }
         final MqttAssetConnectionConfig other = (MqttAssetConnectionConfig) obj;
         return StringHelper.equalsNullOrEmpty(this.serverUri, other.serverUri)
-                && StringHelper.equalsNullOrEmpty(this.clientId, other.clientId)
                 && StringHelper.equalsNullOrEmpty(this.username, other.username)
                 && StringHelper.equalsNullOrEmpty(this.password, other.password);
     }
