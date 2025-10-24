@@ -45,7 +45,7 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
         Submodel submodel = context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
         context.getPersistence().deleteSubmodel(request.getSubmodelId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        cleanupDanglingAssetConnectionsForParent(ReferenceBuilder.forSubmodel(submodel), context.getPersistence(), context);
+        context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(ReferenceBuilder.forSubmodel(submodel));
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementDeleteEventMessage.builder()
                     .element(submodel)

@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -103,6 +104,26 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
 
     @Override
+    public boolean equalsIgnoringProviders(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final HttpAssetConnectionConfig other = (HttpAssetConnectionConfig) obj;
+        return Objects.equals(this.baseUrl, other.baseUrl)
+                && StringHelper.equalsNullOrEmpty(this.username, other.username)
+                && StringHelper.equalsNullOrEmpty(this.password, other.password)
+                && Objects.equals(this.headers, other.headers)
+                && Objects.equals(this.trustedCertificates, other.trustedCertificates);
+    }
+
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -114,7 +135,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             return false;
         }
         final HttpAssetConnectionConfig other = (HttpAssetConnectionConfig) obj;
-        return super.equals(other)
+        return super.equals(obj)
                 && Objects.equals(this.baseUrl, other.baseUrl)
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password)

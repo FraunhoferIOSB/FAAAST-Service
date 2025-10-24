@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.pro
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.util.RandomValueGenerator;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -90,6 +91,12 @@ public class CustomOperationProvider implements AssetOperationProvider<CustomOpe
             }
         }
         return result;
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        return config;
     }
 
 }

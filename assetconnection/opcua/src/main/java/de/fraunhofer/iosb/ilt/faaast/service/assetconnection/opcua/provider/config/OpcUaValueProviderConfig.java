@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 
 
@@ -21,6 +22,30 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderC
  * * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConfig implements AssetValueProviderConfig {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        return super.sameAs(other);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 
     public static Builder builder() {
         return new Builder();

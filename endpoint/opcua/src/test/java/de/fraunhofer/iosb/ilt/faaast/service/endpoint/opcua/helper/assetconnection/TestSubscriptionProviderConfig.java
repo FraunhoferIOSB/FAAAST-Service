@@ -14,9 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 
 
 public class TestSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        return equals(other);
+    }
 
 }

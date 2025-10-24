@@ -17,4 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 /**
  * Parent-type for all asset provider implementations.
  */
-public interface AssetProvider {}
+public interface AssetProvider {
+
+    /**
+     * Returns the provider configuration.
+     *
+     * @return the provider config
+     */
+    public AssetProviderConfig asConfig();
+}

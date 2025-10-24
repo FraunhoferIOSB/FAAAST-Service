@@ -20,4 +20,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
  *
  * @param <T> corresponding type of AssetProvider
  */
-public interface AssetProviderConfig<T extends AssetProvider> {}
+public interface AssetProviderConfig<T extends AssetProvider> {
+
+    /**
+     * Checks if the given provider is the same as this, meaning all properties are equal or the same. This is different
+     * from {@code equals()} as properties can be considered to be the same without being equal like null and empty string.
+     *
+     * @param other the other config
+     * @return true is other is same as this, false otherwise
+     */
+    public boolean sameAs(AssetProviderConfig other);
+}

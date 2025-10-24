@@ -59,4 +59,19 @@ public class StringHelper {
         }
         return Character.toLowerCase(value.charAt(0)) + value.substring(1);
     }
+
+
+    /**
+     * Checks if two strings are equal while treating null and and empty string as the same, i.e.
+     * {@code equalsNullOrEmpty(null, "")} returns true.
+     *
+     * @param s1 first string to compare
+     * @param s2 second string to compare
+     * @return true if the strings are equal treating null and empty string as the same, false otherwise
+     */
+    public static boolean equalsNullOrEmpty(String s1, String s2) {
+        return isEmpty(s1)
+                ? isEmpty(s2)
+                : s1.equals(s2);
+    }
 }

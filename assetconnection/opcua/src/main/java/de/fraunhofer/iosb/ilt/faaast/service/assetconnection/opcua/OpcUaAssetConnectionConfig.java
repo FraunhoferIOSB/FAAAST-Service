@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
@@ -80,15 +81,40 @@ public class OpcUaAssetConnectionConfig
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equalsIgnoringProviders(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        OpcUaAssetConnectionConfig that = (OpcUaAssetConnectionConfig) o;
-        return super.equals(that)
+        OpcUaAssetConnectionConfig that = (OpcUaAssetConnectionConfig) obj;
+        return StringHelper.equalsNullOrEmpty(host, that.host)
+                && StringHelper.equalsNullOrEmpty(username, that.username)
+                && StringHelper.equalsNullOrEmpty(password, that.password)
+                && Objects.equals(requestTimeout, that.requestTimeout)
+                && Objects.equals(acknowledgeTimeout, that.acknowledgeTimeout)
+                && Objects.equals(retries, that.retries)
+                && Objects.equals(securityBaseDir, that.securityBaseDir)
+                && Objects.equals(securityPolicy, that.securityPolicy)
+                && Objects.equals(securityMode, that.securityMode)
+                && Objects.equals(applicationCertificate, that.applicationCertificate)
+                && Objects.equals(authenticationCertificate, that.authenticationCertificate)
+                && Objects.equals(transportProfile, that.transportProfile)
+                && Objects.equals(userTokenType, that.userTokenType);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        OpcUaAssetConnectionConfig that = (OpcUaAssetConnectionConfig) obj;
+        return super.equals(obj)
                 && Objects.equals(host, that.host)
                 && Objects.equals(username, that.username)
                 && Objects.equals(password, that.password)

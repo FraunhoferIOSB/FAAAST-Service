@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 
 
@@ -52,6 +54,23 @@ public class DummyNodeBasedProviderConfig extends AbstractAssetOperationProvider
         }
         final DummyNodeBasedProviderConfig other = (DummyNodeBasedProviderConfig) obj;
         return Objects.equals(this.nodeId, other.nodeId);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        final DummyNodeBasedProviderConfig that = (DummyNodeBasedProviderConfig) other;
+        return super.sameAs(that)
+                && StringHelper.equalsNullOrEmpty(nodeId, that.nodeId);
     }
 
 }

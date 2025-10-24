@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -95,13 +94,12 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
                                        RequestExecutionContext context) {
         try {
             Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
-            AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
             if (operationResult.getSuccess()) {
                 operationResult.setOutputArguments(
                         validateAndPrepare(
                                 operation.getOutputVariables(),
                                 operationResult.getOutputArguments(),
-                                config.getOutputValidationMode(),
+                                context.getAssetConnectionManager().getOperationOutputValidationMode(reference).get(),
                                 ArgumentType.OUTPUT));
             }
         }
@@ -154,7 +152,7 @@ public class InvokeOperationAsyncRequestHandler extends AbstractInvokeOperationR
 
         // The timeout is ignored, as the server may choose to take it into account or ignore it.
         try {
-            context.getAssetConnectionManager().getOperationProvider(reference).invokeAsync(
+            context.getAssetConnectionManager().invokeAsync(reference,
                     request.getInputArguments().toArray(new OperationVariable[0]),
                     request.getInoutputArguments().toArray(new OperationVariable[0]),
                     (output, inoutput) -> handleOperationSuccess(reference, operationHandle, inoutput, output, context),

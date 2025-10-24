@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import java.util.Objects;
@@ -78,6 +79,12 @@ public class LambdaValueProvider implements AssetValueProvider {
                 throw new AssetConnectionException(e);
             }
         }
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        throw new UnsupportedOperationException("lambda providers do not have a config as they are runtime-only");
     }
 
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import java.util.Objects;
 
 
 public class DummyAssetConnectionConfig
@@ -40,6 +41,20 @@ public class DummyAssetConnectionConfig
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+
+    @Override
+    public boolean equalsIgnoringProviders(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        DummyAssetConnectionConfig that = (DummyAssetConnectionConfig) obj;
+        return Objects.equals(host, that.host)
+                && Objects.equals(port, that.port);
     }
 
 }

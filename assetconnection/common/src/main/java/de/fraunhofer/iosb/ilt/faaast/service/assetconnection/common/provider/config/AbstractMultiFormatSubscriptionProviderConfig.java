@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -61,6 +63,20 @@ public abstract class AbstractMultiFormatSubscriptionProviderConfig implements M
         AbstractMultiFormatSubscriptionProviderConfig that = (AbstractMultiFormatSubscriptionProviderConfig) o;
         return Objects.equals(format, that.format)
                 && Objects.equals(query, that.query);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractMultiFormatSubscriptionProviderConfig that = (AbstractMultiFormatSubscriptionProviderConfig) other;
+        return StringHelper.equalsNullOrEmpty(format, that.format)
+                && StringHelper.equalsNullOrEmpty(query, that.query);
     }
 
 

@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperat
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
@@ -36,7 +37,12 @@ public class LambdaOperationProvider implements AssetOperationProvider {
 
     @Override
     public AssetOperationProviderConfig getConfig() {
-        return new AbstractAssetOperationProviderConfig() {};
+        return new AbstractAssetOperationProviderConfig() {
+            @Override
+            public boolean sameAs(AssetProviderConfig other) {
+                return equals(other);
+            }
+        };
     }
 
 
@@ -51,6 +57,12 @@ public class LambdaOperationProvider implements AssetOperationProvider {
             }
         }
         return null;
+    }
+
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        throw new UnsupportedOperationException("lambda provider do not have a config as they are runtime-only");
     }
 
 

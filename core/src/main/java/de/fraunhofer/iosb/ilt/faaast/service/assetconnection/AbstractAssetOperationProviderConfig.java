@@ -86,6 +86,21 @@ public abstract class AbstractAssetOperationProviderConfig implements AssetOpera
 
 
     @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractAssetOperationProviderConfig that = (AbstractAssetOperationProviderConfig) other;
+        return Objects.equals(inputValidationMode, that.inputValidationMode)
+                && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
+                && Objects.equals(outputValidationMode, that.outputValidationMode);
+    }
+
+
+    @Override
     public int hashCode() {
         return Objects.hash(inputValidationMode, inoutputValidationMode, outputValidationMode);
     }

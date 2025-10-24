@@ -14,10 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+
+
 /**
  * Base interface each config used for reading/writing multiple data formats must implement.
  */
-public interface MultiFormatProviderConfig {
+public interface MultiFormatProviderConfig extends AssetProviderConfig {
 
     public String getFormat();
 

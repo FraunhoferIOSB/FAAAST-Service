@@ -55,7 +55,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import opc.i4aas.VariableIds;
 import opc.i4aas.datatypes.AASDataTypeDefXsd;
@@ -140,12 +139,8 @@ public class OpcUaEndpointFullModelTest {
                 .keys(keys)
                 .build();
 
-        assetConnectionConfig.setOperationProviders(new HashMap<Reference, TestOperationProviderConfig>() {
-            {
-                put(ref, new TestOperationProviderConfig(outputArgs));
-                put(ref2, new TestOperationProviderConfig(null));
-            }
-        });
+        assetConnectionConfig.getOperationProviders().put(ref, new TestOperationProviderConfig(outputArgs));
+        assetConnectionConfig.getOperationProviders().put(ref2, new TestOperationProviderConfig(null));
 
         service = new TestService(config, assetConnectionConfig, true);
         service.start();

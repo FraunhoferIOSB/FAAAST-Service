@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
@@ -35,6 +37,44 @@ public class CustomSubscriptionProviderConfig implements AssetSubscriptionProvid
 
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        final CustomSubscriptionProviderConfig that = (CustomSubscriptionProviderConfig) other;
+        return Objects.equals(interval, that.interval);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        final CustomSubscriptionProviderConfig that = (CustomSubscriptionProviderConfig) other;
+        return Objects.equals(interval, that.interval);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(interval);
     }
 
     public class Builder extends ExtendableBuilder<CustomSubscriptionProviderConfig, Builder> {

@@ -19,4 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
 
 public class TestAssetConnectionConfig extends AssetConnectionConfig<TestAssetConnection, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
 
+    @Override
+    public boolean equalsIgnoringProviders(Object obj) {
+        return true;
+    }
+
 }

@@ -19,11 +19,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -677,6 +679,31 @@ public class ReferenceHelper {
     }
 
 
+    /**
+     * Groups references by {@code ReferenceHelper.equals(...)}.
+     *
+     * @param references the references to group
+     * @return list of groups of references where all elements of each group are equal according to
+     *         {@code ReferenceHelper.equals(...)}
+     */
+    public static List<List<Reference>> groupBySame(Collection<Reference> references) {
+        List<List<Reference>> groups = new ArrayList<>();
+        Set<Reference> visited = new HashSet<>();
+
+        for (Reference reference: references) {
+            if (visited.contains(reference))
+                continue;
+            List<Reference> group = references.stream()
+                    .filter(x -> x != reference && ReferenceHelper.equals(reference, x))
+                    .collect(Collectors.toList());
+            group.add(reference);
+            groups.add(group);
+            visited.addAll(group);
+        }
+        return groups;
+    }
+
+
     private static ReferenceTypes determineReferenceType(Key key) {
         switch (key.getType()) {
             case FRAGMENT_REFERENCE:
@@ -706,7 +733,7 @@ public class ReferenceHelper {
         if (Objects.isNull(type1) != Objects.isNull(type2)
                 || Objects.isNull(type1)
                 || (!(type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)))) {
-            LOGGER.warn(String.format(
+            LOGGER.debug(String.format(
                     "encountered reference keys with same value but incompatible types (key value: %s, key type 1: %s, key type 2: %s)",
                     key1.getValue(),
                     type1,

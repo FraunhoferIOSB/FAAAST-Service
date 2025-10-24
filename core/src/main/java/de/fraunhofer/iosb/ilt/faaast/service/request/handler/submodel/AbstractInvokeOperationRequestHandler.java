@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -64,16 +63,15 @@ public abstract class AbstractInvokeOperationRequestHandler<T extends InvokeOper
                     ReferenceHelper.toString(reference)));
         }
         Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
-        AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
         request.setInputArguments(validateAndPrepare(
                 operation.getInputVariables(),
                 request.getInputArguments(),
-                config.getInputValidationMode(),
+                context.getAssetConnectionManager().getOperationInputValidationMode(reference).get(),
                 ArgumentType.INPUT));
         request.setInoutputArguments(validateAndPrepare(
                 operation.getInoutputVariables(),
                 request.getInoutputArguments(),
-                config.getInoutputValidationMode(),
+                context.getAssetConnectionManager().getOperationInoutputValidationMode(reference).get(),
                 ArgumentType.INOUTPUT));
         return executeOperation(reference, request, context);
     }

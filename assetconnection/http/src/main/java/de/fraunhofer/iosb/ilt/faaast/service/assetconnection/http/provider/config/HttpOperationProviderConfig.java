@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -76,6 +78,22 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
         return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(method, that.method)
+                && Objects.equals(headers, that.headers);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        HttpOperationProviderConfig that = (HttpOperationProviderConfig) other;
+        return super.sameAs(that)
+                && StringHelper.equalsNullOrEmpty(path, that.path)
+                && StringHelper.equalsNullOrEmpty(method, that.method)
                 && Objects.equals(headers, that.headers);
     }
 

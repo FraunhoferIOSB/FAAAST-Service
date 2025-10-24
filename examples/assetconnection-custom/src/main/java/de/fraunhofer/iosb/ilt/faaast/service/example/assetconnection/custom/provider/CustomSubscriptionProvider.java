@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.pro
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config.CustomSubscriptionProviderConfig;
@@ -114,7 +115,8 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
     }
 
 
-    private void unsubscribe() throws AssetConnectionException {
+    @Override
+    public void unsubscribe() throws AssetConnectionException {
         if (executorHandler != null) {
             executorHandler.cancel(true);
         }
@@ -123,4 +125,9 @@ public class CustomSubscriptionProvider implements AssetSubscriptionProvider {
         }
     }
 
+
+    @Override
+    public AssetProviderConfig asConfig() {
+        return config;
+    }
 }

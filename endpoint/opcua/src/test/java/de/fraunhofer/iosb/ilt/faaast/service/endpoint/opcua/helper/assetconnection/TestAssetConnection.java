@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -41,6 +42,7 @@ public class TestAssetConnection implements
     private final Map<Reference, AssetValueProvider> valueProviders;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
+    private TestAssetConnectionConfig config;
 
     public TestAssetConnection() {
         valueProviders = new HashMap<>();
@@ -90,6 +92,12 @@ public class TestAssetConnection implements
                 public AssetOperationProviderConfig getConfig() {
                     return operationProvider;
                 }
+
+
+                @Override
+                public AssetProviderConfig asConfig() {
+                    return operationProvider;
+                }
             });
         }
         catch (Exception e) {
@@ -135,14 +143,8 @@ public class TestAssetConnection implements
 
 
     @Override
-    public boolean sameAs(AssetConnection other) {
-        return false;
-    }
-
-
-    @Override
     public TestAssetConnectionConfig asConfig() {
-        return null;
+        return config;
     }
 
 
@@ -181,6 +183,7 @@ public class TestAssetConnection implements
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
         LOGGER.trace("init called");
+        this.config = config;
         for (var provider: config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }
@@ -190,5 +193,11 @@ public class TestAssetConnection implements
         for (var provider: config.getSubscriptionProviders().entrySet()) {
             registerSubscriptionProvider(provider.getKey(), provider.getValue());
         }
+    }
+
+
+    @Override
+    public void stop() {
+        // nothing to do here
     }
 }
