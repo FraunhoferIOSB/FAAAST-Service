@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.awaitility.Awaitility;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -175,7 +174,7 @@ public class AimcSubmodelTemplateProcessorIT {
 
         String newval = Float.toString(12.4f);
         client.publish(MqttModel.PROP1_TOPIC, newval);
-        Awaitility.await()
+        await()
                 .alias("check property value")
                 .pollInterval(POLL_TIMEOUT)
                 .atMost(MAX_TIMEOUT)

@@ -305,7 +305,7 @@ public class Service implements ServiceContext {
     }
 
 
-    private void init() throws ConfigurationException, PersistenceException, MessageBusException {
+    private void init() throws ConfigurationException {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
@@ -313,6 +313,8 @@ public class Service implements ServiceContext {
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
+        this.requestHandler = new RequestHandlerManager(config.getCore());
+        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
@@ -337,9 +339,6 @@ public class Service implements ServiceContext {
                 endpoints.add(endpoint);
             }
         }
-        // TODO maybe move up before SMT processor or change SMT processors interface to take persistence directly
-        this.requestHandler = new RequestHandlerManager(config.getCore());
-        this.requestExecutionContext = new DynamicRequestExecutionContext(this);
         this.registrySynchronization = new RegistrySynchronization(config.getCore(), persistence, messageBus, endpoints);
     }
 

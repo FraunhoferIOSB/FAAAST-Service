@@ -236,6 +236,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
                 case EXCEPTION -> LOGGER.error(message.getText());
                 case INFO -> LOGGER.info(message.getText());
                 case WARNING -> LOGGER.warn(message.getText());
+                default -> LOGGER.debug(message.getText());
             }
         }
     }
