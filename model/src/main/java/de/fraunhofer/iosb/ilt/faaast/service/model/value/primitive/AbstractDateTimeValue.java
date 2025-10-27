@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -145,10 +146,12 @@ public abstract class AbstractDateTimeValue<T extends Temporal> extends TypedVal
 
     @Override
     public String asString() {
-        return new DateTimeFormatterBuilder().append(isLocal
-                ? getFormatLocal()
-                : getFormatOffset())
-                .toFormatter().format(value);
+        return Objects.nonNull(value)
+                ? new DateTimeFormatterBuilder().append(isLocal
+                        ? getFormatLocal()
+                        : getFormatOffset())
+                        .toFormatter().format(value)
+                : null;
     }
 
 

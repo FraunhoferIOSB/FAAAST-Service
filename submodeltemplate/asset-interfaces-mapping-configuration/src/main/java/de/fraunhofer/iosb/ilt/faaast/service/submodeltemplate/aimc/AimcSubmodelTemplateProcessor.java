@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.aimc;
 
+import static org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum.ERROR;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -23,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SemanticIdPath;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -217,8 +220,21 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
         }
-        assetConnectionManager.updateConnections(old, configs);
+        log(assetConnectionManager.updateConnections(old, configs));
+
         connectionsCurrent.put(submodel.getId(), configs);
+    }
+
+
+    private void log(List<Message> messages) {
+        for (var message: messages) {
+            switch (message.getMessageType()) {
+                case ERROR -> LOGGER.error(message.getText());
+                case EXCEPTION -> LOGGER.error(message.getText());
+                case INFO -> LOGGER.info(message.getText());
+                case WARNING -> LOGGER.warn(message.getText());
+            }
+        }
     }
 
 

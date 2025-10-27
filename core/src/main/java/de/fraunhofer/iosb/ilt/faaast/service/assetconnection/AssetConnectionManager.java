@@ -598,7 +598,17 @@ public class AssetConnectionManager {
             target = source;
         }
         for (var providerType: AssetProviderType.values()) {
-            providerType.getProvidersFromConfigAccessor().apply(target).putAll(providerType.getProvidersFromConfigAccessor().apply(source));
+            Map<Reference, AssetProviderConfig> targetProviders = providerType.getProvidersFromConfigAccessor().apply(target);
+            for (var sourceProvider: providerType.getProvidersFromConfigAccessor().apply(source).entrySet()) {
+                if (targetProviders.containsKey(sourceProvider.getKey())) {
+                    LOGGER.warn("Found multiple {} providers for element - all but one will be ignored (reference: {})",
+                            providerType.name().toLowerCase(),
+                            ReferenceHelper.asString(sourceProvider.getKey()));
+                }
+                else {
+                    targetProviders.put(sourceProvider.getKey(), sourceProvider.getValue());
+                }
+            }
         }
     }
 
@@ -740,25 +750,22 @@ public class AssetConnectionManager {
                 Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConnectionAccessor().apply(target).keySet(), provider.getKey());
                 if (Objects.nonNull(reference)) {
                     if (provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.INFO)
-                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
-                                        providerType.toString().toLowerCase(),
-                                        ReferenceHelper.asString(reference)))
-                                .build());
+                        LOGGER.debug("Skipped adding {} provider (reference: %s, reason: already exists)",
+                                providerType.toString().toLowerCase(),
+                                ReferenceHelper.asString(reference));
                     }
                     else {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.WARNING)
-                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
-                                        providerType.toString().toLowerCase(),
-                                        ReferenceHelper.asString(reference)))
-                                .build());
+                        LOGGER.debug("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
+                                providerType.toString().toLowerCase(),
+                                ReferenceHelper.asString(reference));
                     }
                 }
                 else {
                     try {
                         providerType.getRegisterProviderAccessor().accept(target, provider.getKey(), provider.getValue());
+                        if (providerType == AssetProviderType.SUBSCRIPTION && target.isConnected()) {
+                            setupSubscription(provider.getKey(), (AssetSubscriptionProvider) target.getSubscriptionProviders().get(provider.getKey()));
+                        }
                     }
                     catch (AssetConnectionException e) {
                         result.add(Message.builder()
@@ -863,8 +870,7 @@ public class AssetConnectionManager {
                 else {
                     // still present by key, but provider settings might have changed
                     var newProviderConfig = providerType.getProvidersFromConfigAccessor().apply(newConnectionConfig).get(referenceInNew);
-                    // TODO replace by sameAs(...) to ignore null vs "" etc
-                    if (!Objects.equals(oldProviderEntry.getValue(), newProviderConfig)) {
+                    if (!oldProviderEntry.getValue().sameAs(newProviderConfig)) {
                         providerType.getProvidersFromConfigAccessor().apply(connectionConfigDelete).put(oldProviderEntry.getKey(), oldProviderEntry.getValue());
                         providerType.getProvidersFromConfigAccessor().apply(connectionConfigAdd).put(referenceInNew, newProviderConfig);
                     }
@@ -878,9 +884,18 @@ public class AssetConnectionManager {
                 }
             }
         }
+        if (hasProviders(connectionConfigAdd)) {
+            changeSet.add.add(connectionConfigAdd);
+        }
+        if (hasProviders(connectionConfigDelete)) {
+            changeSet.delete.add(connectionConfigDelete);
+        }
+    }
 
-        changeSet.add.add(connectionConfigAdd);
-        changeSet.delete.add(connectionConfigDelete);
+
+    private boolean hasProviders(AssetConnectionConfig connectionConfig) {
+        return Objects.nonNull(connectionConfig)
+                && Stream.of(AssetProviderType.values()).anyMatch(x -> !x.getProvidersFromConfigAccessor().apply(connectionConfig).isEmpty());
     }
 
 
