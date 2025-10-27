@@ -2,6 +2,13 @@
 <!--start:changelog-header-->
 ## 1.3.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
+**New Features & Major Changes**
+- General
+	- New interface `SubmodelTemplateProcessor` that enables handling of SMTs
+- SubmodelTemplateProcessors
+	- Added processor for SMT Asset Interfaces Description (AID) and Asset Interfaces Mapping Configuration (AIMC), allowing to create/update/delete asset connections on-the-fly
+
+
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that auxiliary files were not loaded when starting from code with an initial model file
