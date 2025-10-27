@@ -18,17 +18,17 @@ import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelpe
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.DEFAULT_TIMEOUT;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvents;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
@@ -61,10 +61,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOp
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedContentModifierException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
@@ -91,6 +88,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -110,10 +108,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
@@ -155,13 +156,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel;
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 
@@ -276,21 +278,38 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
     }
 
 
-    private void mockOperation(Reference reference, BiFunction<OperationVariable[], OperationVariable[], OperationVariable[]> logic) {
-        when(assetConnectionManager.hasOperationProvider(reference))
-                .thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(reference))
-                .thenReturn(new AssetOperationProvider() {
-                    @Override
-                    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                        return logic.apply(input, inoutput);
-                    }
+    private void mockOperation(Reference reference, BiFunction<OperationVariable[], OperationVariable[], OperationVariable[]> logic) throws AssetConnectionException {
+        doReturn(true).when(assetConnectionManager).hasOperationProvider(reference);
+        doReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)).when(assetConnectionManager).getOperationInputValidationMode(reference);
+        doReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)).when(assetConnectionManager).getOperationInoutputValidationMode(reference);
+        doReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)).when(assetConnectionManager).getOperationOutputValidationMode(reference);
+        doAnswer(call -> {
+            Reference actualReference = call.getArgument(0);
+            if (!ReferenceHelper.equals(reference, actualReference)) {
+                return Optional.empty();
+            }
+            OperationVariable[] input = call.getArgument(1);
+            OperationVariable[] inoutput = call.getArgument(2);
+            return Optional.of(logic.apply(input, inoutput));
+        }).when(assetConnectionManager).invoke(any(), any(), any());
 
-
-                    public AssetOperationProviderConfig getConfig() {
-                        return new AbstractAssetOperationProviderConfig() {};
-                    }
-                });
+        doAnswer((Answer<Void>) (InvocationOnMock invocation) -> {
+            Reference actualReference = invocation.getArgument(0);
+            OperationVariable[] input = invocation.getArgument(1);
+            OperationVariable[] inoutput = invocation.getArgument(2);
+            BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess = invocation.getArgument(3);
+            Consumer<Throwable> callbackFailure = invocation.getArgument(4);
+            if (ReferenceHelper.equals(reference, actualReference)) {
+                CompletableFuture
+                        .supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> logic.apply(input, inoutput)))
+                        .thenAccept(x -> callbackSuccess.accept(x, inoutput))
+                        .exceptionally(e -> {
+                            callbackFailure.accept(e);
+                            return null;
+                        });
+            }
+            return null;
+        }).when(assetConnectionManager).invokeAsync(any(), any(), any(), any(), any());
     }
 
 
@@ -1656,9 +1675,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationAsync()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, UnsupportedModifierException {
+    public void testSubmodelInterfaceInvokeOperationAsync() throws Exception {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         CountDownLatch condition = new CountDownLatch(1);
@@ -1667,13 +1684,12 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
                 condition.await();
                 return operationSqaureDefaultImplementation(input, inoutput);
             }
-            catch (InterruptedException ex) {
-                throw new RuntimeException();
+            catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
         AtomicReference<String> operationStatusUrl = new AtomicReference<>();
         // assert OperationStarted on messagebus
-
         assertEvent(
                 messageBus,
                 OperationInvokeEventMessage.class,
@@ -1807,9 +1823,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationAsyncValueOnly()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, JSONException, UnsupportedContentModifierException, UnsupportedModifierException {
+    public void testSubmodelInterfaceInvokeOperationAsyncValueOnly() throws Exception {
         int inputValue = 4;
 
         Reference reference = operationSquareIdentifier.toReference();
@@ -1897,9 +1911,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationSync()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueFormatException, ValueMappingException {
+    public void testSubmodelInterfaceInvokeOperationSync() throws Exception {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
@@ -1930,9 +1942,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationSyncValueOnly()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueFormatException, ValueMappingException {
+    public void testSubmodelInterfaceInvokeOperationSyncValueOnly() throws Exception {
         int inputValue = 4;
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, HttpEndpointIT::operationSqaureDefaultImplementation);
@@ -1967,9 +1977,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationSyncWithExceptionInOperation()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueFormatException, ValueMappingException {
+    public void testSubmodelInterfaceInvokeOperationSyncWithExceptionInOperation() throws Exception {
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, (input, inoutput) -> {
             throw new IllegalArgumentException();
@@ -2002,9 +2010,7 @@ public class HttpEndpointIT extends AbstractIntegrationTest {
 
 
     @Test
-    public void testSubmodelInterfaceInvokeOperationAsyncWithExceptionInOperation()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException, NoSuchAlgorithmException,
-            KeyManagementException, ValueMappingException, UnsupportedModifierException {
+    public void testSubmodelInterfaceInvokeOperationAsyncWithExceptionInOperation() throws Exception {
         Reference reference = operationSquareIdentifier.toReference();
         mockOperation(reference, (input, inoutput) -> {
             throw new UnsupportedOperationException("not implemented");

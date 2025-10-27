@@ -77,7 +77,7 @@ The `core` configuration block contains properties not related to the implementa
 			"idShortUniqueness": true,
 			"identifierUniqueness": true
 		},
-		"minInflateRatio": 0.01		
+		"minInflateRatio": 0.01
 	},
 	// ...
 }

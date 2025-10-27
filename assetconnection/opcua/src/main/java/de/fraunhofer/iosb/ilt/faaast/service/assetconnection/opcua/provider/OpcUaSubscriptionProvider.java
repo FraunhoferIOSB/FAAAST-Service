@@ -145,4 +145,10 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
                 && Objects.equals(multiplexer, that.multiplexer);
     }
 
+
+    @Override
+    public void unsubscribe() throws AssetConnectionException {
+        close();
+    }
+
 }
