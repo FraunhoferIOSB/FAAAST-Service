@@ -14,19 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AttributeItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.ObjectItem;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,44 +39,42 @@ public class AccessRuleTest {
     @Test
     public void testAllowAnonymousReadConstruction() {
         // Create ACL
-        ACL acl = new ACL();
-        Attribute attr = new Attribute();
-        attr.setGLOBAL("ANONYMOUS");
-        acl.setATTRIBUTES(Arrays.asList(attr));
-        acl.setRIGHTS(Arrays.asList("READ"));
-        acl.setACCESS("ALLOW");
+        Acl acl = new Acl();
+        AttributeItem attr = new AttributeItem();
+        attr.setGlobal(AttributeItem.Global.valueOf("ANONYMOUS"));
+        acl.setAttributes(Arrays.asList(attr));
+        acl.setRights(Arrays.asList(RightsEnum.valueOf("READ")));
+        acl.setAccess(Acl.Access.valueOf("ALLOW"));
 
         // Create OBJECTS
-        Objects obj = new Objects();
-        obj.setROUTE("*");
+        ObjectItem obj = new ObjectItem();
+        obj.setRoute("*");
 
         // Create FORMULA with a simple (boolean) expression
-        Map<String, Object> formula = new HashMap<>();
-        formula.put("$boolean", true);
+        LogicalExpression formula = new LogicalExpression();
+        formula.set$boolean(true);
 
         // Create a Rule
-        Rule rule = new Rule();
-        rule.setACL(acl);
-        rule.setOBJECTS(Arrays.asList(obj));
-        rule.setFORMULA(formula);
+        AccessPermissionRule rule = new AccessPermissionRule();
+        rule.setAcl(acl);
+        rule.setObjects(Arrays.asList(obj));
+        rule.setFormula(formula);
 
         // Wrap in AllAccessPermissionRules and the root
         AllAccessPermissionRules allRules = new AllAccessPermissionRules();
         allRules.setRules(Arrays.asList(rule));
-        AllAccessPermissionRulesRoot root = new AllAccessPermissionRulesRoot();
-        root.setAllAccessPermissionRules(allRules);
     }
 
 
     @Test
     public void testParse() throws IOException {
-        InputStream inputStream = AccessRuleTest.class.getResourceAsStream("/" + "ACLReadAccessAnonymous.json");
+        InputStream inputStream = AccessRuleTest.class.getResourceAsStream("/ACLReadAccessAnonymous.json");
         if (inputStream == null) {
             System.out.println("ACL not found in resources!");
             return;
         }
         ObjectMapper mapper = new ObjectMapper();
-        AllAccessPermissionRulesRoot allRules = mapper.readValue(
-                new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class);
+        JsonNode rootNode = mapper.readTree(inputStream);
+        AllAccessPermissionRules allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
     }
 }
