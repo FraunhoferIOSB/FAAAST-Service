@@ -111,7 +111,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         updateAidToAimcRelations(submodel, ProcessingMode.ADD);
         try {
             LOGGER.atInfo().log("process submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager);
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.ADD);
         }
         catch (Exception e) {
             LOGGER.error("error processing SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -131,7 +131,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         updateAidToAimcRelations(submodel, ProcessingMode.UPDATE);
         try {
             LOGGER.atInfo().log("update submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager);
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.UPDATE);
         }
         catch (Exception e) {
             LOGGER.error("error updating SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -151,7 +151,7 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         updateAidToAimcRelations(submodel, ProcessingMode.DELETE);
         try {
             LOGGER.atInfo().log("delete submodel {} ({})", submodel.getIdShort(), ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)));
-            processSubmodel(submodel, assetConnectionManager);
+            processSubmodel(submodel, assetConnectionManager, ProcessingMode.DELETE);
         }
         catch (Exception e) {
             LOGGER.error("error deleting SMT AIMC (submodel: {})", ReferenceHelper.asString(ReferenceBuilder.forSubmodel(submodel)), e);
@@ -170,7 +170,8 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
         }
         aidToAimcRelations.get(aidSubmodelId).forEach(x -> {
             try {
-                processSubmodel(getSubmodel(x), assetConnectionManager);
+                // if an AID Submodel is deleted, we process this like an update
+                processSubmodel(getSubmodel(x), assetConnectionManager, mode == ProcessingMode.DELETE ? ProcessingMode.UPDATE : mode);
             }
             catch (Exception e) {
                 LOGGER.warn("Failed to update AIMC submodel (submodelId: {})", x);
@@ -206,16 +207,18 @@ public class AimcSubmodelTemplateProcessor implements SubmodelTemplateProcessor<
     }
 
 
-    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager)
+    private void processSubmodel(Submodel submodel, AssetConnectionManager assetConnectionManager, ProcessingMode mode)
             throws PersistenceException, ResourceNotFoundException, MalformedURLException, ConfigurationException, AssetConnectionException, URISyntaxException, Exception {
         List<AssetConnectionConfig> configs = new ArrayList<>();
-        SemanticIdPath.builder()
-                .globalReference(Constants.AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID)
-                .globalReference(Constants.AIMC_CONFIGURATION_SEMANTIC_ID)
-                .build()
-                .resolve(submodel, SubmodelElementCollection.class)
-                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> configs.add(processConfiguration(x))));
-        configs.removeAll(Collections.singleton(null));
+        if (mode != ProcessingMode.DELETE) {
+            SemanticIdPath.builder()
+                    .globalReference(Constants.AIMC_MAPPING_CONFIGURATIONS_SEMANTIC_ID)
+                    .globalReference(Constants.AIMC_CONFIGURATION_SEMANTIC_ID)
+                    .build()
+                    .resolve(submodel, SubmodelElementCollection.class)
+                    .forEach(LambdaExceptionHelper.rethrowConsumer(x -> configs.add(processConfiguration(x))));
+            configs.removeAll(Collections.singleton(null));
+        }
         List<AssetConnectionConfig> old = null;
         if (connectionsCurrent.containsKey(submodel.getId())) {
             old = connectionsCurrent.get(submodel.getId());
