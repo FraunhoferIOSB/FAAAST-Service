@@ -21,7 +21,8 @@
                             "validateConstraints": false,
                             "idShortUniqueness": true,
                             "identifierUniqueness": true
-                        }
+                        },
+                "minInflateRatio": 0.001
             },
     "assetConnections": [
         {
