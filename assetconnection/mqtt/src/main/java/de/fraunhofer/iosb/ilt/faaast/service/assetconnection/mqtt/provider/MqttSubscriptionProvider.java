@@ -94,7 +94,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), serviceContext, reference, multiplexer);
+        return Objects.hash(super.hashCode(), serviceContext, reference, handlers, multiplexer);
     }
 
 
@@ -113,6 +113,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         return super.equals(obj)
                 && Objects.equals(serviceContext, that.serviceContext)
                 && Objects.equals(reference, that.reference)
+                && Objects.equals(handlers, that.handlers)
                 && Objects.equals(multiplexer, that.multiplexer);
     }
 }
