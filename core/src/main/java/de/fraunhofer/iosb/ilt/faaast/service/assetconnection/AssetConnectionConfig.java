@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ReferenceSerializer;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -34,7 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
  * @param <O> type of the operation providers of the corresponding asset connection
  * @param <S> type of the subscription providers of the corresponding asset connection
  */
-public class AssetConnectionConfig<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
+public abstract class AssetConnectionConfig<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
         extends Config<T> {
 
     @JsonSerialize(keyUsing = ReferenceSerializer.class)
@@ -50,9 +50,9 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     protected Map<Reference, V> valueProviders;
 
     public AssetConnectionConfig() {
-        operationProviders = new HashMap<>();
-        subscriptionProviders = new HashMap<>();
-        valueProviders = new HashMap<>();
+        operationProviders = new ConcurrentHashMap<>();
+        subscriptionProviders = new ConcurrentHashMap<>();
+        valueProviders = new ConcurrentHashMap<>();
     }
 
 
@@ -114,6 +114,15 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     public void setValueProviders(Map<Reference, V> valueProviders) {
         this.valueProviders = valueProviders;
     }
+
+
+    /**
+     * Compares two instances of AssetConnectionConfig if they are the same on connection-level, ignoring the providers.
+     *
+     * @param obj other AssetConnectionConfig to compare to this
+     * @return true if other is the same as this (ignoring providers)
+     */
+    public abstract boolean equalsIgnoringProviders(Object obj);
 
 
     @Override
@@ -195,32 +204,4 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
             return getSelf();
         }
     }
-
-    /**
-     * Builder for AssetConnectionConfig class.
-     *
-     * @param <C> type of the asset connection of the config to build
-     * @param <VC> type of the value provider config of the corresponding asset connection
-     * @param <V> type of the value provider of the corresponding asset connection
-     * @param <OC> type of the operation provider config of the corresponding asset connection
-     * @param <O> type of the operation provider of the corresponding asset connection
-     * @param <SC> type of the subscription provider config of the corresponding asset connection
-     * @param <S> type of the subscription provider of the corresponding asset connection
-     */
-    public static class Builder<VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider, C extends AssetConnection<AssetConnectionConfig, VC, V, OC, O, SC, S>>
-            extends AbstractBuilder<AssetConnectionConfig, VC, V, OC, O, SC, S, C, Builder<VC, V, OC, O, SC, S, C>> {
-
-        @Override
-        protected Builder<VC, V, OC, O, SC, S, C> getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected AssetConnectionConfig<AssetConnection, VC, OC, SC> newBuildingInstance() {
-            return new AssetConnectionConfig<>();
-        }
-
-    }
-
 }

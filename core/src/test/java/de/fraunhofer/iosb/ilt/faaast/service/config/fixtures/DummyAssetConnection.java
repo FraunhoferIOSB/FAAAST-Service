@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -135,26 +134,13 @@ public class DummyAssetConnection
 
 
     @Override
-    public boolean sameAs(AssetConnection obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final DummyAssetConnection other = (DummyAssetConnection) obj;
-        return Objects.equals(port, other.port)
-                && Objects.equals(this.host, other.host)
-                && Objects.equals(this.coreConfig, other.coreConfig);
-    }
-
-
-    @Override
     public void unregisterValueProvider(Reference reference) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
+    @Override
+    public void stop() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

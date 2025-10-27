@@ -80,7 +80,7 @@ public class HttpEndpointWithProvidedCertificateTest extends AbstractHttpEndpoin
         scheme = HttpScheme.HTTPS.toString();
         endpoint = new HttpEndpoint();
         server = new Server();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, fileStorage, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()

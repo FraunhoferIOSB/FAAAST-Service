@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 import java.util.Objects;
 
@@ -41,6 +42,20 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderWithAr
         }
         OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
         return super.equals(o)
+                && Objects.equals(interval, that.interval);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) other;
+        return super.sameAs(that)
                 && Objects.equals(interval, that.interval);
     }
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
@@ -36,6 +37,19 @@ public abstract class AbstractOpcUaProviderConfig implements AssetProviderConfig
         }
         AbstractOpcUaProviderConfig that = (AbstractOpcUaProviderConfig) o;
         return Objects.equals(nodeId, that.nodeId);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractOpcUaProviderConfig that = (AbstractOpcUaProviderConfig) other;
+        return StringHelper.equalsNullOrEmpty(nodeId, that.nodeId);
     }
 
 

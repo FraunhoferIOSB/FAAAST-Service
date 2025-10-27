@@ -50,7 +50,7 @@ public class PatchSubmodelByIdRequestHandler extends AbstractRequestHandler<Patc
         ModelValidator.validate(updated, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().save(updated);
         Reference reference = ReferenceBuilder.forSubmodel(updated);
-        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence(), context);
+        context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(reference);
         syncWithAsset(reference, updated.getSubmodelElements(), !request.isInternal(), context);
         if (!request.isInternal()) {
             context.getMessageBus().publish(ElementUpdateEventMessage.builder()

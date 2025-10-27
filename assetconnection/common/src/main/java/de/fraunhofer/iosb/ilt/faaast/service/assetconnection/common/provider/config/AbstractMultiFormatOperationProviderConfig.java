@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -96,6 +97,23 @@ public abstract class AbstractMultiFormatOperationProviderConfig extends Abstrac
         }
         AbstractMultiFormatOperationProviderConfig that = (AbstractMultiFormatOperationProviderConfig) o;
         return super.equals(that)
+                && Objects.equals(inputValidationMode, that.inputValidationMode)
+                && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
+                && Objects.equals(outputValidationMode, that.outputValidationMode)
+                && Objects.equals(queries, that.queries);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractMultiFormatOperationProviderConfig that = (AbstractMultiFormatOperationProviderConfig) other;
+        return super.sameAs(that)
                 && Objects.equals(inputValidationMode, that.inputValidationMode)
                 && Objects.equals(inoutputValidationMode, that.inoutputValidationMode)
                 && Objects.equals(outputValidationMode, that.outputValidationMode)

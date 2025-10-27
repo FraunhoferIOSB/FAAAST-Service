@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.filestorage.memory.FileStorageInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
@@ -40,7 +41,7 @@ public class ServiceIT {
 
     @Test
     public void testLoadingAuxiliaryFilesFromInitialModel()
-            throws ConfigurationException, AssetConnectionException, IOException, SerializationException, ResourceNotFoundException, PersistenceException {
+            throws ConfigurationException, AssetConnectionException, IOException, SerializationException, ResourceNotFoundException, PersistenceException, MessageBusException {
         final String submodelId = "http://example.com/submodel/1";
         final String submodelIdShort = "submodel1";
         final String fileIdShort = "file1";
