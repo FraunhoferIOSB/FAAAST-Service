@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.Service;
 public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
 
     private static final String PACKAGE_FAAAST = Service.class.getPackageName();
-    private static Level levelFaaast = Level.WARN;
+    private static Level levelFaaast = Level.INFO;
     private static Level levelExternal = Level.WARN;
 
     public static Level getLevelFaaast() {

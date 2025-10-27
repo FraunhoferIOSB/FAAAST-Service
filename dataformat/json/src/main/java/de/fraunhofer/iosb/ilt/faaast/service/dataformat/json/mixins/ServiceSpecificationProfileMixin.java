@@ -23,5 +23,5 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public interface ServiceSpecificationProfileMixin {
 
     @JsonValue
-    public String getName();
+    public String getId();
 }
