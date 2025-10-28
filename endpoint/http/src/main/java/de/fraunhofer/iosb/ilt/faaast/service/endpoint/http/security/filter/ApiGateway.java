@@ -69,6 +69,7 @@ public class ApiGateway {
 
     private Map<Path, AllAccessPermissionRules> aclList;
     private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
+    private final String errorMessage = "Invalid ACL rule, skipping.";
 
     public ApiGateway(String aclFolder) {
         initializeAclList(aclFolder);
@@ -356,7 +357,7 @@ public class ApiGateway {
                     aclList.put(filePath, allRules);
                 }
                 catch (IOException e) {
-                    LOGGER.error(abortMessage);
+                    LOGGER.error(errorMessage);
                 }
             }
         }
@@ -382,7 +383,7 @@ public class ApiGateway {
             monitorLoop(watchService, folderToWatch);
         }
         catch (IOException e) {
-            LOGGER.error(abortMessage);
+            LOGGER.error(errorMessage);
         }
 
     }
@@ -419,7 +420,7 @@ public class ApiGateway {
                                 aclList.put(absolutePath, allRules);
                             }
                             catch (IOException e) {
-                                LOGGER.error(abortMessage);
+                                LOGGER.error(errorMessage);
                             }
                             LOGGER.info("Added new ACL rule.");
                         }

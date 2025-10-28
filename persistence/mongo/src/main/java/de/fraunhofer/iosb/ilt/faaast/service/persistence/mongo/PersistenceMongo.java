@@ -54,6 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -253,6 +254,15 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isAssetIdsSet())
             filter = Filters.and(filter, getAssetIdsFilter(criteria.getAssetIds()));
         return preparePagedResult(aasCollection, filter, paging, modifier, AssetAdministrationShell.class);
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                                 Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported in mongoDB.");
+
     }
 
 

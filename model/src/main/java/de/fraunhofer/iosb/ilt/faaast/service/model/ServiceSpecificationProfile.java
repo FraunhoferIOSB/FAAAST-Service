@@ -42,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.Get
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.PutAssetAdministrationShellByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.QueryAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasserialization.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
@@ -108,6 +109,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelReferencesRequest.class,
                     GetAssetAdministrationShellReferenceRequest.class,
                     GetAssetAdministrationShellRequest.class,
+                    QueryAssetAdministrationShellsRequest.class,
                     GetAssetInformationRequest.class,
                     GetThumbnailRequest.class,
                     PostSubmodelReferenceRequest.class,
@@ -150,6 +152,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelReferencesRequest.class,
                     GetAssetAdministrationShellReferenceRequest.class,
                     GetAssetAdministrationShellRequest.class,
+                    QueryAssetAdministrationShellsRequest.class,
                     GetAssetInformationRequest.class,
                     GetThumbnailRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
@@ -273,6 +276,7 @@ public enum ServiceSpecificationProfile {
                     GetAllAssetAdministrationShellsByIdShortRequest.class,
                     GetAllAssetAdministrationShellsReferenceRequest.class,
                     GetAllAssetAdministrationShellsRequest.class,
+                    QueryAssetAdministrationShellsRequest.class,
                     GetAssetAdministrationShellByIdReferenceRequest.class,
                     GetAssetAdministrationShellByIdRequest.class,
                     PostAssetAdministrationShellRequest.class,
@@ -340,6 +344,7 @@ public enum ServiceSpecificationProfile {
                     GetAllAssetAdministrationShellsByIdShortRequest.class,
                     GetAllAssetAdministrationShellsReferenceRequest.class,
                     GetAllAssetAdministrationShellsRequest.class,
+                    QueryAssetAdministrationShellsRequest.class,
                     GetAssetAdministrationShellByIdReferenceRequest.class,
                     GetAssetAdministrationShellByIdRequest.class,
                     GetAllSubmodelReferencesRequest.class,
