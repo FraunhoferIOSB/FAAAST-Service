@@ -181,15 +181,19 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
     @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
-                                                                                 Query query)
-            throws PersistenceException {
-        throw new PersistenceException("Query not supported.");
+                                                                                 Query query) {
+        return persistence.findAssetAdministrationShellsWithQuery(criteria, modifier, paging, query);
     }
 
 
     @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         return persistence.findSubmodels(criteria, modifier, paging);
+    }
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        return persistence.findSubmodelsWithQuery(criteria, modifier, paging, query);
     }
 
 
@@ -202,6 +206,11 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
     @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         return persistence.findConceptDescriptions(criteria, modifier, paging);
+    }
+
+    @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        return persistence.findConceptDescriptionsWithQuery(criteria, modifier, paging, query);
     }
 
 

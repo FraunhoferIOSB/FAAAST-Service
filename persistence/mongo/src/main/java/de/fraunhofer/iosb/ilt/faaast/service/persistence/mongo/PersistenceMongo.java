@@ -261,8 +261,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
                                                                                  Query query)
             throws PersistenceException {
-        throw new PersistenceException("Query not supported in mongoDB.");
-
+        throw new PersistenceException("Query not supported with mongoDB.");
     }
 
 
@@ -281,6 +280,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return preparePagedResult(cdCollection, filter, paging, modifier, ConceptDescription.class);
     }
 
+    @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
+    }
+
 
     @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
@@ -293,6 +297,11 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet())
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
         return preparePagedResult(submodelCollection, filter, paging, modifier, Submodel.class);
+    }
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
     }
 
 

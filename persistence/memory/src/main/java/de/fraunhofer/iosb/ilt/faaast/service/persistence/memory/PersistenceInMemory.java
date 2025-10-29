@@ -257,6 +257,28 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         return preparePagedResult(result, modifier, paging);
     }
 
+    @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+        Stream<ConceptDescription> result = environment.getConceptDescriptions().stream();
+        if (criteria.isIdShortSet()) {
+            result = filterByIdShort(result, criteria.getIdShort());
+        }
+        if (criteria.isIsCaseOfSet()) {
+            result = filterByIsCaseOf(result, criteria.getIsCaseOf());
+        }
+        if (criteria.isDataSpecificationSet()) {
+            result = filterByDataSpecification(result, criteria.getDataSpecification());
+        }
+        QueryEvaluator evaluator = new QueryEvaluator(environment);
+        if (query != null) {
+            result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
+        }
+        return preparePagedResult(result, modifier, paging);
+    }
+
 
     @Override
     public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws ResourceNotFoundException {
@@ -309,6 +331,25 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
+        }
+        return preparePagedResult(result, modifier, paging);
+    }
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+        Stream<Submodel> result = environment.getSubmodels().stream();
+        if (criteria.isIdShortSet()) {
+            result = filterByIdShort(result, criteria.getIdShort());
+        }
+        if (criteria.isSemanticIdSet()) {
+            result = filterBySemanticId(result, criteria.getSemanticId());
+        }
+        QueryEvaluator evaluator = new QueryEvaluator(environment);
+        if (query != null) {
+            result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }
         return preparePagedResult(result, modifier, paging);
     }

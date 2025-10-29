@@ -260,6 +260,18 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
 
+    /**
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s by search criteria and query.
+     *
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @param query query to execute
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s
+     * @throws PersistenceException if there was an error with the storage.
+     */
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException;
+
 
     /**
      * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement}s by search criteria.
@@ -285,6 +297,18 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws PersistenceException if there was an error with the storage.
      */
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
+
+    /**
+     * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s by search criteria and query.
+     *
+     * @param criteria the search criteria
+     * @param modifier the modifier
+     * @param paging paging information
+     * @param query query to execute
+     * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
+     * @throws PersistenceException if there was an error with the storage.
+     */
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException;
 
 
     /**
