@@ -537,6 +537,11 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(IdShortPath idShortPath, Content content) {
+            return submodelElement(idShortPath.toString(), content);
+        }
+
+
         public String submodelElement(String idShortPath, Content content, Extent extent) {
             return String.format("%s%s?%s",
                     submodelElement(idShortPath),

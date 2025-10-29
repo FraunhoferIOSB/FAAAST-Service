@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler.submodel;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.InvokeOperationSyncResponse;
@@ -68,13 +66,12 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                 .idShortPath(request.getPath())
                 .build();
         Operation operation = context.getPersistence().getSubmodelElement(reference, QueryModifier.MINIMAL, Operation.class);
-        AssetOperationProviderConfig config = context.getAssetConnectionManager().getOperationProvider(reference).getConfig();
         if (result.getPayload().getSuccess()) {
             result.getPayload().setOutputArguments(
                     validateAndPrepare(
                             operation.getOutputVariables(),
                             result.getPayload().getOutputArguments(),
-                            config.getOutputValidationMode(),
+                            context.getAssetConnectionManager().getOperationOutputValidationMode(reference).get(),
                             ArgumentType.OUTPUT));
         }
         return result;
@@ -103,14 +100,15 @@ public class InvokeOperationSyncRequestHandler extends AbstractInvokeOperationRe
                         context);
             }
         }
-        AssetOperationProvider assetOperationProvider = context.getAssetConnectionManager().getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<OperationVariable[]> future = executor.submit(new Callable<OperationVariable[]>() {
             @Override
             public OperationVariable[] call() throws Exception {
-                return assetOperationProvider.invoke(
+                return context.getAssetConnectionManager().invoke(
+                        reference,
                         request.getInputArguments().toArray(new OperationVariable[0]),
-                        request.getInoutputArguments().toArray(new OperationVariable[0]));
+                        request.getInoutputArguments().toArray(new OperationVariable[0]))
+                        .get();
             }
         });
         OperationResult result;

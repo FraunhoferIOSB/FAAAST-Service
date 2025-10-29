@@ -35,4 +35,12 @@ public interface AssetSubscriptionProvider extends AssetProvider {
      * @throws AssetConnectionException if removinglistener fails
      */
     public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException;
+
+
+    /**
+     * Unsubscribe via underlying protocol.
+     *
+     * @throws AssetConnectionException if unsubscribe fails
+     */
+    public void unsubscribe() throws AssetConnectionException;
 }

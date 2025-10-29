@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +41,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable;
  * </ul>
  */
 public class DeepCopyHelper {
+
+    private static final ObjectMapper mapper;
+
+    static {
+        mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+    }
 
     private DeepCopyHelper() {}
 
@@ -139,5 +153,25 @@ public class DeepCopyHelper {
                 .value(deepCopy(x.getValue()))
                 .build())
                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Create a deep copy of any object by serializing and deserializing it using Jackson.
+     *
+     * @param <T> type of the object
+     * @param original the original object
+     * @param type type of the object
+     * @return a deep copy of the object
+     * @throws RuntimeException when deep copy fails
+     */
+    public static <T> T deepCopyAny(T original, Class<T> type) {
+        try {
+            String json = mapper.writeValueAsString(original);
+            return mapper.readValue(json, type);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Deep copy failed", e);
+        }
     }
 }

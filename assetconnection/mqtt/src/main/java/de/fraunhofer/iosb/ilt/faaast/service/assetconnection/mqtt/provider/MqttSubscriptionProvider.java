@@ -23,8 +23,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,9 +37,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<MqttSubscriptionProviderConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttSubscriptionProvider.class);
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final MqttSubscriptionMultiplexer multiplexer;
+    private final Map<String, Consumer<byte[]>> handlers;
 
     public MqttSubscriptionProvider(ServiceContext serviceContext, Reference reference, MqttSubscriptionProviderConfig config, MqttSubscriptionMultiplexer multiplexer) {
         super(config);
@@ -44,6 +51,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.multiplexer = multiplexer;
+        this.handlers = new HashMap<>();
     }
 
 
@@ -63,19 +71,30 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
     @Override
     public void subscribe() throws AssetConnectionException {
-        multiplexer.addListener(config.getTopic(), this::fireNewDataReceived);
+        if (handlers.containsKey(config.getTopic())) {
+            LOGGER.debug("trying to subscribe but subscription already exists (topic: {})", config.getTopic());
+            return;
+        }
+        Consumer<byte[]> handler = this::fireNewDataReceived;
+        handlers.put(config.getTopic(), handler);
+        multiplexer.addListener(config.getTopic(), handler);
     }
 
 
     @Override
-    protected void unsubscribe() throws AssetConnectionException {
-        multiplexer.removeListener(config.getTopic(), this::fireNewDataReceived);
+    public void unsubscribe() throws AssetConnectionException {
+        if (!handlers.containsKey(config.getTopic())) {
+            LOGGER.debug("trying to unsubscribe but subscription does not exist (topic: {})", config.getTopic());
+            return;
+        }
+        Consumer<byte[]> handler = handlers.remove(config.getTopic());
+        multiplexer.removeListener(config.getTopic(), handler);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), serviceContext, reference, multiplexer);
+        return Objects.hash(super.hashCode(), serviceContext, reference, handlers, multiplexer);
     }
 
 
@@ -94,6 +113,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         return super.equals(obj)
                 && Objects.equals(serviceContext, that.serviceContext)
                 && Objects.equals(reference, that.reference)
+                && Objects.equals(handlers, that.handlers)
                 && Objects.equals(multiplexer, that.multiplexer);
     }
 }

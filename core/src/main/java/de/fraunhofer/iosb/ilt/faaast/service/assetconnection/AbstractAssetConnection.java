@@ -17,11 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.HashMap;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractAssetConnection.class);
+
     protected volatile boolean connected;
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
@@ -52,9 +56,9 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     protected AbstractAssetConnection() {
         connected = false;
-        valueProviders = new HashMap<>();
-        operationProviders = new HashMap<>();
-        subscriptionProviders = new HashMap<>();
+        valueProviders = new ConcurrentHashMap<>();
+        operationProviders = new ConcurrentHashMap<>();
+        subscriptionProviders = new ConcurrentHashMap<>();
     }
 
 
@@ -77,25 +81,25 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     @Override
     public C asConfig() {
-        return config;
+        return (C) DeepCopyHelper.deepCopyAny(config, AssetConnectionConfig.class);
     }
 
 
     @Override
     public Map<Reference, V> getValueProviders() {
-        return this.valueProviders;
+        return valueProviders;
     }
 
 
     @Override
     public Map<Reference, O> getOperationProviders() {
-        return this.operationProviders;
+        return operationProviders;
     }
 
 
     @Override
     public Map<Reference, S> getSubscriptionProviders() {
-        return this.subscriptionProviders;
+        return subscriptionProviders;
     }
 
 
@@ -132,15 +136,9 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
 
     private void unregisterProviders() {
-        for (var providerConfig: config.getValueProviders().entrySet()) {
-            unregisterValueProvider(providerConfig.getKey());
-        }
-        for (var providerConfig: config.getOperationProviders().entrySet()) {
-            unregisterOperationProvider(providerConfig.getKey());
-        }
-        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
-            unregisterSubscriptionProvider(providerConfig.getKey());
-        }
+        valueProviders.clear();
+        subscriptionProviders.clear();
+        operationProviders.clear();
     }
 
 
@@ -171,7 +169,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerValueProvider(Reference reference, VC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        this.valueProviders.put(reference, createValueProvider(reference, providerConfig));
+        config.getValueProviders().put(reference, providerConfig);
+        if (connected) {
+            V provider = createValueProvider(reference, providerConfig);
+            valueProviders.put(reference, provider);
+        }
     }
 
 
@@ -179,7 +181,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerOperationProvider(Reference reference, OC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        this.operationProviders.put(reference, createOperationProvider(reference, providerConfig));
+        config.getOperationProviders().put(reference, providerConfig);
+        if (connected) {
+            O provider = createOperationProvider(reference, providerConfig);
+            operationProviders.put(reference, provider);
+        }
     }
 
 
@@ -187,7 +193,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     public void registerSubscriptionProvider(Reference reference, SC providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
         Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
-        this.subscriptionProviders.put(reference, createSubscriptionProvider(reference, providerConfig));
+        config.getSubscriptionProviders().put(reference, providerConfig);
+        if (connected) {
+            S provider = createSubscriptionProvider(reference, providerConfig);
+            subscriptionProviders.put(reference, provider);
+        }
     }
 
 
@@ -225,26 +235,44 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
 
     @Override
-    public boolean sameAs(AssetConnection other) {
-        return Objects.equals(this, other);
-    }
-
-
-    @Override
     public void unregisterValueProvider(Reference reference) {
-        this.valueProviders.remove(reference);
+        config.getValueProviders().remove(reference);
+        valueProviders.remove(reference);
     }
 
 
     @Override
     public void unregisterOperationProvider(Reference reference) {
-        this.operationProviders.remove(reference);
+        config.getOperationProviders().remove(reference);
+        operationProviders.remove(reference);
     }
 
 
     @Override
     public void unregisterSubscriptionProvider(Reference reference) {
-        this.subscriptionProviders.remove(reference);
+        if (ReferenceHelper.containsSameReference(subscriptionProviders, reference)) {
+            var s = ReferenceHelper.getValueBySameReference(subscriptionProviders, reference);
+            try {
+                if (s != null) {
+                    s.unsubscribe();
+                }
+            }
+            catch (AssetConnectionException ex) {
+                LOGGER.error("unregisterSubscriptionProvider error in unsubscribe");
+            }
+        }
+        config.getSubscriptionProviders().remove(reference);
+        subscriptionProviders.remove(reference);
     }
 
+
+    @Override
+    public void stop() {
+        try {
+            disconnect();
+        }
+        catch (AssetConnectionException ex) {
+            LOGGER.error("stop: error in disconnect", ex);
+        }
+    }
 }

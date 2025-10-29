@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -81,8 +82,20 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
 
 
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), serverUri, clientId, username, password);
+    public boolean equalsIgnoringProviders(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MqttAssetConnectionConfig other = (MqttAssetConnectionConfig) obj;
+        return StringHelper.equalsNullOrEmpty(this.serverUri, other.serverUri)
+                && StringHelper.equalsNullOrEmpty(this.username, other.username)
+                && StringHelper.equalsNullOrEmpty(this.password, other.password);
     }
 
 
@@ -98,11 +111,17 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
             return false;
         }
         final MqttAssetConnectionConfig other = (MqttAssetConnectionConfig) obj;
-        return super.equals(other)
+        return super.equals(obj)
                 && Objects.equals(this.serverUri, other.serverUri)
                 && Objects.equals(this.clientId, other.clientId)
                 && Objects.equals(this.username, other.username)
                 && Objects.equals(this.password, other.password);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), serverUri, clientId, username, password);
     }
 
 

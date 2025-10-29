@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -24,12 +25,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -73,8 +71,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.GetFileByPathRequest;
@@ -120,8 +116,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescripti
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.GetConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.PutConceptDescriptionByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ImportResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.proprietary.ResetResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.DeleteSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetFileByPathResponse;
@@ -150,7 +144,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
@@ -165,11 +158,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
@@ -226,7 +218,6 @@ public class RequestHandlerManagerTest {
     private static AssetConnectionManager assetConnectionManager;
     private static FileStorage fileStorage;
     private static RequestHandlerManager manager;
-    private static AssetValueProvider assetValueProvider;
     private static Service service;
     private static StaticRequestExecutionContext context;
 
@@ -237,7 +228,7 @@ public class RequestHandlerManagerTest {
         messageBus = mock(MessageBus.class);
         persistence = spy(Persistence.class);
         service = mock(Service.class);
-        assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), service));
+        assetConnectionManager = mock(AssetConnectionManager.class);
         fileStorage = mock(FileStorage.class);
         context = new StaticRequestExecutionContext(
                 coreConfig,
@@ -246,8 +237,15 @@ public class RequestHandlerManagerTest {
                 messageBus,
                 assetConnectionManager);
         manager = new RequestHandlerManager(coreConfig);
-        assetValueProvider = mock(AssetValueProvider.class);
-        when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
+        when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
+        when(assetConnectionManager.getOperationInputValidationMode(any())).thenReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT));
+        when(assetConnectionManager.getOperationInoutputValidationMode(any())).thenReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT));
+        when(assetConnectionManager.getOperationOutputValidationMode(any())).thenReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT));
+        doAnswer(call -> {
+            OperationVariable[] input = call.getArgument(1);
+            OperationVariable[] inoutput = call.getArgument(2);
+            return Optional.of(invokeMockOperation(input, inoutput));
+        }).when(assetConnectionManager).invoke(any(), any(), any());
     }
 
 
@@ -422,8 +420,6 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPutAssetAdministrationShellRequest() throws ResourceNotFoundException, Exception {
-        // @TODO: open/unclear
-        // expected Identifiable
         PutAssetAdministrationShellRequest request = new PutAssetAdministrationShellRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .id(AAS.getId())
@@ -909,7 +905,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), eq(OutputModifier.DEFAULT)))
                 .thenReturn(cur_submodelElement);
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
-        when(assetValueProvider.getValue()).thenReturn(propertyValue);
+        when(assetConnectionManager.readValue(any())).thenReturn(Optional.of(propertyValue));
 
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
                 .submodelId(submodel.getId())
@@ -1048,7 +1044,10 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement, DataElementValue.class));
+
+        verify(assetConnectionManager).setValue(
+                ReferenceBuilder.forSubmodel(environment.getSubmodels().get(0), currentSubmodelElement.getIdShort()),
+                ElementValueMapper.toValue(newSubmodelElement, DataElementValue.class));
         verify(persistence).update(ReferenceBuilder.forSubmodel(request.getSubmodelId(), request.getSubmodelElement().getIdShort()), newSubmodelElement);
     }
 
@@ -1064,12 +1063,6 @@ public class RequestHandlerManagerTest {
         PatchSubmodelElementValueByPathRequest request = new PatchSubmodelElementValueByPathRequest.Builder<ElementValue>()
                 .submodelId(environment.getSubmodels().get(0).getId())
                 .value(propertyValue)
-                .valueParser(new ElementValueParser<ElementValue>() {
-                    @Override
-                    public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
-                        return (U) raw;
-                    }
-                })
                 .path(ReferenceHelper.toPath(SUBMODEL_ELEMENT_REF))
                 .build();
 
@@ -1078,7 +1071,9 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
-        verify(assetValueProvider).setValue(propertyValue);
+        verify(assetConnectionManager).setValue(
+                any(),
+                eq(propertyValue));
     }
 
 
@@ -1133,22 +1128,11 @@ public class RequestHandlerManagerTest {
     @Test
     public void testInvokeOperationAsyncRequest() throws Exception {
         String submodelId = "http://example.org";
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        AssetOperationProvider assetOperationProvider = mock(AssetOperationProvider.class);
-        FileStorage fileStorage = mock(FileStorage.class);
-        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
         Operation operation = getTestOperation();
 
         when(persistence.getOperationResult(any())).thenReturn(new DefaultOperationResult.Builder().build());
-        when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenReturn(assetOperationProvider);
-
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
                 .thenReturn(operation);
-        when(assetOperationProvider.getConfig()).thenReturn(new AbstractAssetOperationProviderConfig() {});
 
         InvokeOperationAsyncRequest invokeOperationAsyncRequest = new InvokeOperationAsyncRequest.Builder()
                 .submodelId(submodelId)
@@ -1168,15 +1152,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testInvokeOperationSyncRequest() throws Exception {
         String submodelId = "http://example.org";
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        FileStorage fileStorage = mock(FileStorage.class);
-        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
-        when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider());
-
         Operation operation = getTestOperation();
 
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
@@ -1211,20 +1186,9 @@ public class RequestHandlerManagerTest {
     @Test(expected = InvalidRequestException.class)
     public void testInvokeOperationSyncRequestMissingInputArgument() throws Exception {
         String submodelId = "http://example.org";
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        FileStorage fileStorage = mock(FileStorage.class);
-        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
-        when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
-                CustomAssetOperationProviderConfig.builder()
-                        .inputValidationMode(ArgumentValidationMode.REQUIRE_PRESENT)
-                        .build()));
-
         Operation operation = getTestOperation();
 
+        when(assetConnectionManager.getOperationInputValidationMode(any())).thenReturn(Optional.of(ArgumentValidationMode.REQUIRE_PRESENT));
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
                 .thenReturn(operation);
 
@@ -1242,17 +1206,6 @@ public class RequestHandlerManagerTest {
     @Test
     public void testInvokeOperationSyncRequestWithDefaultInputArgument() throws Exception {
         String submodelId = "http://example.org";
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        FileStorage fileStorage = mock(FileStorage.class);
-        StaticRequestExecutionContext context = new StaticRequestExecutionContext(coreConfig, persistence, fileStorage, messageBus, assetConnectionManager);
-        when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenAnswer(x -> new CustomAssetOperationProvider(
-                CustomAssetOperationProviderConfig.builder()
-                        .inputValidationMode(ArgumentValidationMode.REQUIRE_PRESENT_OR_DEFAULT)
-                        .build()));
         Operation operation = getTestOperation();
 
         when(persistence.getSubmodelElement(ReferenceBuilder.forSubmodel(submodelId, operation.getIdShort()), QueryModifier.MINIMAL, Operation.class))
@@ -1264,7 +1217,6 @@ public class RequestHandlerManagerTest {
                 .submodelId(submodelId)
                 .path(operation.getIdShort())
                 .build();
-
         InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest, context);
         InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -1283,75 +1235,6 @@ public class RequestHandlerManagerTest {
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
-    static class CustomAssetOperationProviderConfig extends AbstractAssetOperationProviderConfig {
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public abstract static class AbstractBuilder<T extends CustomAssetOperationProviderConfig, B extends AbstractBuilder<T, B>>
-                extends AbstractAssetOperationProviderConfig.AbstractBuilder<T, B> {
-
-        }
-
-        public static class Builder extends AbstractBuilder<CustomAssetOperationProviderConfig, Builder> {
-
-            @Override
-            protected Builder getSelf() {
-                return this;
-            }
-
-
-            @Override
-            protected CustomAssetOperationProviderConfig newBuildingInstance() {
-                return new CustomAssetOperationProviderConfig();
-            }
-
-        }
-    }
-
-    static class CustomAssetOperationProvider implements AssetOperationProvider<CustomAssetOperationProviderConfig> {
-
-        private final CustomAssetOperationProviderConfig config;
-
-        public CustomAssetOperationProvider() {
-            config = new CustomAssetOperationProviderConfig();
-        }
-
-
-        public CustomAssetOperationProvider(CustomAssetOperationProviderConfig config) {
-            this.config = config;
-        }
-
-
-        @Override
-        public CustomAssetOperationProviderConfig getConfig() {
-            return config;
-        }
-
-
-        @Override
-        public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-            Property property = (Property) inoutput[0].getValue();
-            property.setValue("TestOutput");
-            return new OperationVariable[] {
-                    new DefaultOperationVariable.Builder()
-                            .value(new DefaultProperty.Builder()
-                                    .idShort("TestPropOutput")
-                                    .value("TestValue")
-                                    .build())
-                            .build()
-            };
-        }
-
-
-        @Override
-        public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callbackSuccess,
-                                Consumer<Throwable> callbackFailure)
-                throws AssetConnectionException {
-            // intentionally left empty
-        }
-    }
 
     @Test
     public void testGetAllConceptDescriptionsRequest() throws ResourceNotFoundException, Exception {
@@ -1581,21 +1464,10 @@ public class RequestHandlerManagerTest {
     public void testGetValueWithInvalidAssetConnectionRequest() throws ResourceNotFoundException, AssetConnectionException, Exception {
         when(persistence.getSubmodelElement((SubmodelElementIdentifier) any(), any()))
                 .thenReturn(new DefaultProperty());
-        AssetValueProvider assetValueProvider = mock(AssetValueProvider.class);
-        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
-        when(assetValueProvider.getValue()).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
+        when(assetConnectionManager.readValue(any())).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
         AssetConnectionException exception = Assert.assertThrows(AssetConnectionException.class, () -> manager.execute(request, context));
         Assert.assertEquals("Invalid Assetconnection", exception.getMessage());
-    }
-
-
-    private GetSubmodelElementByPathRequest getExampleGetSubmodelElementByPathRequest() {
-        return new GetSubmodelElementByPathRequest.Builder()
-                .path("testProperty")
-                .submodelId("test")
-                .build();
     }
 
 
@@ -1654,26 +1526,11 @@ public class RequestHandlerManagerTest {
         Reference propertyStaticRef = AasUtils.toReference(AasUtils.toReference(parentRef, collection), propertyStatic);
         Reference rangeUpdatedRef = AasUtils.toReference(parentRef, rangeUpdated);
         List<SubmodelElement> submodelElements = new ArrayList<>(List.of(propertyUpdated, rangeUpdated, collection));
-        AssetValueProvider propertyUpdatedProvider = mock(AssetValueProvider.class);
-        AssetValueProvider propertyStaticProvider = mock(AssetValueProvider.class);
-        AssetValueProvider rangeUpdatedProvider = mock(AssetValueProvider.class);
-        when(assetConnectionManager.hasValueProvider(propertyUpdatedRef)).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(propertyStaticRef)).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(rangeUpdatedRef)).thenReturn(true);
 
-        when(assetConnectionManager.getValueProvider(propertyUpdatedRef)).thenReturn(propertyUpdatedProvider);
-        when(propertyUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyExpected, DataElementValue.class));
+        when(assetConnectionManager.readValue(propertyUpdatedRef)).thenReturn(Optional.of(ElementValueMapper.toValue(propertyExpected, DataElementValue.class)));
+        when(assetConnectionManager.readValue(propertyStaticRef)).thenReturn(Optional.of(ElementValueMapper.toValue(propertyStatic, DataElementValue.class)));
+        when(assetConnectionManager.readValue(rangeUpdatedRef)).thenReturn(Optional.of(ElementValueMapper.toValue(rangeExpected, DataElementValue.class)));
 
-        when(assetConnectionManager.getValueProvider(propertyStaticRef)).thenReturn(propertyStaticProvider);
-        when(propertyStaticProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyStatic, DataElementValue.class));
-
-        when(assetConnectionManager.getValueProvider(rangeUpdatedRef)).thenReturn(rangeUpdatedProvider);
-        when(rangeUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected, DataElementValue.class));
-
-        // TODO fix
-        //when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
-        //when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
-        //when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
         requestHandler.syncWithAsset(
                 parentRef,
                 submodelElements,
@@ -1689,25 +1546,24 @@ public class RequestHandlerManagerTest {
     }
 
 
-    public void testImport() throws Exception {
-        ImportRequest request = new ImportRequest.Builder()
-                .content("{}".getBytes())
-                .contentType("application/json")
+    private GetSubmodelElementByPathRequest getExampleGetSubmodelElementByPathRequest() {
+        return new GetSubmodelElementByPathRequest.Builder()
+                .path("testProperty")
+                .submodelId("test")
                 .build();
-        ImportResponse actual = manager.execute(request, context);
-        ImportResponse expected = new ImportResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
-    public void testReset() throws Exception {
-        ResetRequest request = new ResetRequest.Builder().build();
-        ResetResponse actual = manager.execute(request, context);
-        ResetResponse expected = new ResetResponse.Builder()
-                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    private OperationVariable[] invokeMockOperation(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        Property property = (Property) inoutput[0].getValue();
+        property.setValue("TestOutput");
+        return new OperationVariable[] {
+                new DefaultOperationVariable.Builder()
+                        .value(new DefaultProperty.Builder()
+                                .idShort("TestPropOutput")
+                                .value("TestValue")
+                                .build())
+                        .build()
+        };
     }
 }

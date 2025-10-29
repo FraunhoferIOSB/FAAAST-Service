@@ -63,7 +63,7 @@ public class PatchSubmodelElementByPathRequestHandler extends AbstractSubmodelIn
         SubmodelElement newSubmodelElement = applyMergePatch(request.getChanges(), oldSubmodelElement, SubmodelElement.class);
         ModelValidator.validate(newSubmodelElement, context.getCoreConfig().getValidationOnUpdate());
         context.getPersistence().update(reference, newSubmodelElement);
-        cleanupDanglingAssetConnectionsForParent(reference, context.getPersistence(), context);
+        context.getAssetConnectionManager().cleanupDanglingConnectionsAfterModify(reference);
         if (!request.isInternal() && Objects.isNull(oldSubmodelElement)) {
             context.getMessageBus().publish(ElementCreateEventMessage.builder()
                     .element(reference)

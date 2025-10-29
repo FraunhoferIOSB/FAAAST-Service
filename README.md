@@ -37,23 +37,23 @@ The features of FA³ST Service include
 ### Download pre-compiled JAR
 
 <!--start:download-release-->
-[Download latest RELEASE version (1.2.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/1.2.0/starter-1.2.0.jar)<!--end:download-release-->
+[Download latest RELEASE version (1.3.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/1.3.0/starter-1.3.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (1.3.0-SNAPSHOT)](https://purl.archive.org/faaast/service/snapshot/latest)<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (1.4.0-SNAPSHOT)](https://purl.archive.org/faaast/service/snapshot/latest)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 ```xml
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
 	<artifactId>starter</artifactId>
-	<version>1.2.0</version>
+	<version>1.3.0</version>
 </dependency>
 ```
 
 ### As Gradle Dependency
 ```kotlin
-implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.2.0'
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:1.3.0'
 ```
 
 ## Building from Source

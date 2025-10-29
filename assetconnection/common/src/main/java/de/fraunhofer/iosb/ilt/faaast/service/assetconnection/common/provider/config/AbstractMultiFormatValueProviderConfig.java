@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
 
 
@@ -47,6 +49,20 @@ public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMul
         AbstractMultiFormatValueProviderConfig that = (AbstractMultiFormatValueProviderConfig) o;
         return super.equals(that)
                 && Objects.equals(query, that.query);
+    }
+
+
+    @Override
+    public boolean sameAs(AssetProviderConfig other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AbstractMultiFormatValueProviderConfig that = (AbstractMultiFormatValueProviderConfig) other;
+        return super.sameAs(that)
+                && StringHelper.equalsNullOrEmpty(query, that.query);
     }
 
 
