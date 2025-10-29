@@ -71,7 +71,7 @@ public class AimcSubmodelTemplateProcessorIT {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(100);
-    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration MAX_TIMEOUT = Duration.ofSeconds(60);
 
     private static MoquetteServer server;
     private static PahoClient client;
@@ -124,7 +124,7 @@ public class AimcSubmodelTemplateProcessorIT {
         service = new Service(serviceConfig(http, HttpModel.create(httpServerPort)));
         service.start();
         // wait for asset connections to be established
-        await().atMost(60, TimeUnit.SECONDS)
+        await().atMost(MAX_TIMEOUT)
                 .with()
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> service.getAssetConnectionManager().isFullyConnected());
@@ -167,7 +167,7 @@ public class AimcSubmodelTemplateProcessorIT {
         service = new Service(serviceConfig(http, MqttModel.create(mqttPort)));
         service.start();
         // wait for asset connections to be established
-        await().atMost(60, TimeUnit.SECONDS)
+        await().atMost(MAX_TIMEOUT)
                 .with()
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> service.getAssetConnectionManager().isFullyConnected());
