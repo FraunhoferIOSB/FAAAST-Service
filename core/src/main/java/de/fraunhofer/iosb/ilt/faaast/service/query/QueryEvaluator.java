@@ -520,7 +520,6 @@ public class QueryEvaluator {
 
     private SubmodelElement getSubmodelElementByPath(Submodel sm, String path) {
         SubmodelElement current = null;
-        //TODO
         for (String token: path.split("\\.")) {
             current = sm.getSubmodelElements().stream()
                     .filter(e -> e.getIdShort().equals(token))
@@ -565,7 +564,6 @@ public class QueryEvaluator {
 
 
     private SubmodelElement getSubmodelElementByPathForItem(SubmodelElement item, String path) {
-        // Similar to getSubmodelElementByPath, but start from item
         SubmodelElement current = null;
         Submodel container = null;
         if (path.startsWith("."))
