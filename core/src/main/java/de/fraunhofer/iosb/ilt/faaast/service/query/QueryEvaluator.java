@@ -247,7 +247,7 @@ public class QueryEvaluator {
                 boolean all = true;
                 for (String f: suffixes.keySet()) {
                     String suffix = suffixes.get(f);
-                    Object value = getPropertyFromObject(item, suffix);
+                    String value = getPropertyFromObject(item, suffix);
                     Object c = constants.get(f);
                     if (!compareObjects(value, c, op)) {
                         all = false;
@@ -402,7 +402,7 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> getSmAttrValues(Submodel sm, String attr) {
+    private List<String> getSmAttrValues(Submodel sm, String attr) {
         if (attr.equals("idShort")) {
             return Collections.singletonList(sm.getIdShort());
         }
@@ -435,7 +435,7 @@ public class QueryEvaluator {
                 remaining = remaining.substring(end + 1);
             }
             List<Key> keys = ref.getKeys();
-            List<Object> values = new ArrayList<>();
+            List<String> values = new ArrayList<>();
             // set targets depending if any is true otherwise target index
             List<Key> targets = any || index == null ? keys : (index < keys.size() && index >= 0 ? Collections.singletonList(keys.get(index)) : Collections.emptyList());
             for (Key key: targets) {
@@ -453,7 +453,7 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> getSmeAttrValues(SubmodelElement sme, String attr) {
+    private List<String> getSmeAttrValues(SubmodelElement sme, String attr) {
         if (attr.equals("idShort")) {
             return Collections.singletonList(sme.getIdShort());
         }
@@ -501,7 +501,7 @@ public class QueryEvaluator {
                 remaining = remaining.substring(end + 1);
             }
             List<Key> keys = ref.getKeys();
-            List<Object> values = new ArrayList<>();
+            List<String> values = new ArrayList<>();
             List<Key> targets = any || index == null ? keys : (index < keys.size() && index >= 0 ? Collections.singletonList(keys.get(index)) : Collections.emptyList());
             for (Key key: targets) {
                 if (remaining.equals(".type")) {
@@ -520,6 +520,7 @@ public class QueryEvaluator {
 
     private SubmodelElement getSubmodelElementByPath(Submodel sm, String path) {
         SubmodelElement current = null;
+        //TODO
         for (String token: path.split("\\.")) {
             current = sm.getSubmodelElements().stream()
                     .filter(e -> e.getIdShort().equals(token))
@@ -529,7 +530,7 @@ public class QueryEvaluator {
     }
 
 
-    private Object getPropertyFromObject(Object item, String path) {
+    private String getPropertyFromObject(Object item, String path) {
         if (item instanceof SpecificAssetId) {
             if (path.equals(".name")) {
                 return ((SpecificAssetId) item).getName();
@@ -538,7 +539,7 @@ public class QueryEvaluator {
                 return ((SpecificAssetId) item).getValue();
             }
             else if (path.startsWith(".externalSubjectId")) {
-                return ((SpecificAssetId) item).getExternalSubjectId();
+                return ((SpecificAssetId) item).getExternalSubjectId().toString();
             }
         }
         LOGGER.error("Unsupported property: " + path);
@@ -546,7 +547,7 @@ public class QueryEvaluator {
     }
 
 
-    private Object getPropertyFromSuffix(SubmodelElement item, String suffix) {
+    private String getPropertyFromSuffix(SubmodelElement item, String suffix) {
         // For suffixes like .ProductClassId#value
         int hashPos = suffix.indexOf("#");
         if (hashPos == -1) {
@@ -558,7 +559,7 @@ public class QueryEvaluator {
         SubmodelElement subElem = getSubmodelElementByPathForItem(item, subPath);
         if (subElem == null)
             return null;
-        List<Object> values = getSmeAttrValues(subElem, attr);
+        List<String> values = getSmeAttrValues(subElem, attr);
         return values.isEmpty() ? null : values.get(0);
     }
 
