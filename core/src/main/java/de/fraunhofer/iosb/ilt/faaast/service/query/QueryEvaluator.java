@@ -19,10 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.MatchExpression;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Value;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -37,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,40 +199,96 @@ public class QueryEvaluator {
         return null;
     }
 
+    private static class Condition {
+        String suffix;
+        String op;
+        List<Object> rightVals;
+
+        Condition(String suffix, String op, List<Object> rightVals) {
+            this.suffix = suffix;
+            this.op = op;
+            this.rightVals = rightVals;
+        }
+    }
 
     private boolean evaluateMatch(List<MatchExpression> matches, Identifiable identifiable) {
         String commonPrefix = null;
-        Map<String, String> suffixes = new HashMap<>();
-        Map<String, Object> constants = new HashMap<>();
-        String op = "eq"; // Assume eq for all
+        List<Condition> itemConditions = new ArrayList<>();
+
         for (MatchExpression m: matches) {
-            if (m.get$eq() == null || m.get$eq().isEmpty()) {
-                LOGGER.error("Only $eq supported in match for now");
+            String op;
+            List<Value> args = null;
+            Value left = null;
+            Value right = null;
+            if (m.get$eq() != null && !m.get$eq().isEmpty()) {
+                op = "eq";
+                args = m.get$eq();
+            }
+            else if (m.get$ne() != null && !m.get$ne().isEmpty()) {
+                op = "ne";
+                args = m.get$ne();
+            }
+            else if (m.get$gt() != null && !m.get$gt().isEmpty()) {
+                op = "gt";
+                args = m.get$gt();
+            }
+            else if (m.get$ge() != null && !m.get$ge().isEmpty()) {
+                op = "ge";
+                args = m.get$ge();
+            }
+            else if (m.get$lt() != null && !m.get$lt().isEmpty()) {
+                op = "lt";
+                args = m.get$lt();
+            }
+            else if (m.get$le() != null && !m.get$le().isEmpty()) {
+                op = "le";
+                args = m.get$le();
+            }
+            else {
+                op = null;
+                LOGGER.error("Unsupported operator in match");
                 return false;
             }
-            Value left = m.get$eq().get(0);
-            Value right = m.get$eq().get(1);
+            left = args.get(0);
+            right = args.get(1);
             if (left.get$field() == null) {
                 LOGGER.error("Left not field in match");
                 return false;
             }
             String f = left.get$field();
-            Object c = evaluateValue(right, identifiable).get(0);
+            List<Object> rightVals = evaluateValue(right, identifiable);
             int pos = f.indexOf("[]");
             if (pos == -1) {
-                LOGGER.error("No [] in field for match");
-                return false;
+                if (f.startsWith("$sme#")) {
+                    // Treat as top-level SME list condition
+                    String prefix = "$sme";
+                    if (commonPrefix != null && !commonPrefix.equals(prefix)) {
+                        LOGGER.error("Non-common prefix in match");
+                        return false;
+                    }
+                    commonPrefix = prefix;
+                    String suffix = f.substring(5); // "#attr"
+                    itemConditions.add(new Condition(suffix, op, rightVals));
+                }
+                else {
+                    // Parent condition
+                    List<Object> leftVals = evaluateValue(left, identifiable);
+                    boolean condMatch = leftVals.stream().anyMatch(l -> rightVals.stream().anyMatch(r -> compareObjects(l, r, op)));
+                    if (!condMatch) {
+                        return false;
+                    }
+                }
             }
-            String prefix = f.substring(0, pos);
-            if (commonPrefix == null) {
+            else {
+                String prefix = f.substring(0, pos);
+                if (commonPrefix != null && !commonPrefix.equals(prefix)) {
+                    LOGGER.error("Non-common prefix in match");
+                    return false;
+                }
                 commonPrefix = prefix;
+                String suffix = f.substring(pos + 2);
+                itemConditions.add(new Condition(suffix, op, rightVals));
             }
-            else if (!commonPrefix.equals(prefix)) {
-                LOGGER.error("Non-common prefix in match");
-            }
-            String suffix = f.substring(pos + 2);
-            suffixes.put(f, suffix);
-            constants.put(f, c);
         }
         if (commonPrefix == null) {
             return true;
@@ -245,11 +301,33 @@ public class QueryEvaluator {
             List<SpecificAssetId> list = aas.getAssetInformation().getSpecificAssetIds();
             for (SpecificAssetId item: list) {
                 boolean all = true;
-                for (String f: suffixes.keySet()) {
-                    String suffix = suffixes.get(f);
-                    String value = getPropertyFromObject(item, suffix);
-                    Object c = constants.get(f);
-                    if (!compareObjects(value, c, op)) {
+                for (Condition cond: itemConditions) {
+                    String valStr = getPropertyFromObject(item, cond.suffix);
+                    List<Object> leftVals = valStr == null ? Collections.emptyList() : Collections.singletonList(valStr);
+                    boolean condMatch = leftVals.stream().anyMatch(l -> cond.rightVals.stream().anyMatch(r -> compareObjects(l, r, cond.op)));
+                    if (!condMatch) {
+                        all = false;
+                        break;
+                    }
+                }
+                if (all) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else if (commonPrefix.equals("$sme")) {
+            if (!(identifiable instanceof Submodel)) {
+                return false;
+            }
+            Submodel sm = (Submodel) identifiable;
+            List<SubmodelElement> list = sm.getSubmodelElements();
+            for (SubmodelElement item: list) {
+                boolean all = true;
+                for (Condition cond: itemConditions) {
+                    List<Object> leftVals = getPropertyFromSuffix(item, cond.suffix);
+                    boolean condMatch = leftVals.stream().anyMatch(l -> cond.rightVals.stream().anyMatch(r -> compareObjects(l, r, cond.op)));
+                    if (!condMatch) {
                         all = false;
                         break;
                     }
@@ -261,28 +339,28 @@ public class QueryEvaluator {
             return false;
         }
         else if (commonPrefix.startsWith("$sme.")) {
-            // Basic support for $sme paths with []
-            List<Submodel> sms = environment.getSubmodels();
-            for (Submodel sm: sms) {
-                String path = commonPrefix.substring(5); // e.g., "ProductClassifications"
-                SubmodelElement listElem = getSubmodelElementByPath(sm, path);
-                if (listElem == null || !(listElem instanceof SubmodelElementList))
-                    continue;
-                SubmodelElementList smeList = (SubmodelElementList) listElem;
-                for (SubmodelElement item: smeList.getValue()) {
-                    boolean all = true;
-                    for (String f: suffixes.keySet()) {
-                        String suffix = suffixes.get(f);
-                        Object value = getPropertyFromSuffix(item, suffix);
-                        Object c = constants.get(f);
-                        if (!compareObjects(value, c, op)) {
-                            all = false;
-                            break;
-                        }
+            if (!(identifiable instanceof Submodel)) {
+                return false;
+            }
+            Submodel sm = (Submodel) identifiable;
+            String path = commonPrefix.substring(5);
+            SubmodelElement listElem = getSubmodelElementByPath(sm, path);
+            if (listElem == null || !(listElem instanceof SubmodelElementList)) {
+                return false;
+            }
+            SubmodelElementList smeList = (SubmodelElementList) listElem;
+            for (SubmodelElement item: smeList.getValue()) {
+                boolean all = true;
+                for (Condition cond: itemConditions) {
+                    List<Object> leftVals = getPropertyFromSuffix(item, cond.suffix);
+                    boolean condMatch = leftVals.stream().anyMatch(l -> cond.rightVals.stream().anyMatch(r -> compareObjects(l, r, cond.op)));
+                    if (!condMatch) {
+                        all = false;
+                        break;
                     }
-                    if (all) {
-                        return true;
-                    }
+                }
+                if (all) {
+                    return true;
                 }
             }
             return false;
@@ -342,47 +420,42 @@ public class QueryEvaluator {
             LOGGER.error("Unsupported AAS attribute: " + attr);
         }
         else if (field.startsWith("$sm#")) {
+            if (!(identifiable instanceof Submodel))
+                return Collections.emptyList();
+            Submodel sm = (Submodel) identifiable;
             String attr = field.substring(4);
-            List<Submodel> sms = environment.getSubmodels();
-            List<Object> values = new ArrayList<>();
-            for (Submodel sm: sms) {
-                values.addAll(getSmAttrValues(sm, attr));
-            }
-            return values;
+            return new ArrayList<>(getSmAttrValues(sm, attr));
         }
         else if (field.startsWith("$sme")) {
+            if (!(identifiable instanceof Submodel))
+                return Collections.emptyList();
+            Submodel sm = (Submodel) identifiable;
             String pathPart = "";
             String attr = "";
             if (field.contains(".")) {
-                int hashPos = field.indexOf("#");
+                int hashPos = field.indexOf("#", field.indexOf("."));
                 pathPart = field.substring(field.indexOf(".") + 1, hashPos);
                 attr = field.substring(hashPos + 1);
             }
             else {
                 attr = field.substring(5);
             }
+            List<Object> values = new ArrayList<>();
             if (!pathPart.isEmpty()) {
                 // Basic path support, no [] for now
-                List<Submodel> sms = environment.getSubmodels();
-                List<Object> values = new ArrayList<>();
-                for (Submodel sm: sms) {
-                    SubmodelElement sme = getSubmodelElementByPath(sm, pathPart);
-                    if (sme != null) {
-                        values.addAll(getSmeAttrValues(sme, attr));
-                    }
+                SubmodelElement sme = getSubmodelElementByPath(sm, pathPart);
+                if (sme != null) {
+                    values.addAll(getSmeAttrValues(sme, attr));
                 }
-                return values;
             }
             else {
                 // Recursive all SME
-                Submodel sm = (Submodel) identifiable;
                 List<SubmodelElement> smes = sm.getSubmodelElements();
-                List<Object> values = new ArrayList<>();
                 for (SubmodelElement sme: smes) {
                     values.addAll(getSmeAttrValues(sme, attr));
                 }
-                return values;
             }
+            return values;
         }
         else if (field.startsWith("$cd#")) {
             if (!(identifiable instanceof ConceptDescription))
@@ -546,44 +619,46 @@ public class QueryEvaluator {
     }
 
 
-    private String getPropertyFromSuffix(SubmodelElement item, String suffix) {
-        // For suffixes like .ProductClassId#value
-        int hashPos = suffix.indexOf("#");
-        if (hashPos == -1) {
-            LOGGER.error("No # in suffix for match");
-            return null;
+    private List<Object> getPropertyFromSuffix(SubmodelElement item, String suffix) {
+        if (suffix.startsWith(".")) {
+            suffix = suffix.substring(1);
         }
-        String subPath = suffix.substring(0, hashPos);
-        String attr = suffix.substring(hashPos + 1);
+        String subPath = "";
+        String attr = suffix;
+        int hashPos = suffix.indexOf("#");
+        if (hashPos != -1) {
+            subPath = suffix.substring(0, hashPos);
+            attr = suffix.substring(hashPos + 1);
+        }
         SubmodelElement subElem = getSubmodelElementByPathForItem(item, subPath);
-        if (subElem == null)
-            return null;
+        if (subElem == null) {
+            return Collections.emptyList();
+        }
         List<String> values = getSmeAttrValues(subElem, attr);
-        return values.isEmpty() ? null : values.get(0);
+        return new ArrayList<>(values);
     }
 
 
     private SubmodelElement getSubmodelElementByPathForItem(SubmodelElement item, String path) {
-        SubmodelElement current = null;
-        Submodel container = null;
-        if (path.startsWith("."))
-            path = path.substring(1);
-        for (String token: path.split("\\.")) {
-            if (container == null) {
-                if (item.getIdShort().equals(token)) {
-                    current = item;
-                }
-                else {
-                    return null;
-                }
-            }
-            else {
-                current = container.getSubmodelElements().stream()
-                        .filter(e -> e.getIdShort().equals(token))
-                        .findFirst().orElse(null);
-            }
-            if (current == null)
+        SubmodelElement current = item;
+        if (path.isEmpty()) {
+            return current;
+        }
+        List<String> tokens = Arrays.asList(path.split("\\."));
+        if (!tokens.isEmpty() && tokens.get(0).equals(current.getIdShort())) {
+            tokens = tokens.subList(1, tokens.size());
+        }
+        for (String token: tokens) {
+            if (!(current instanceof SubmodelElementCollection)) {
                 return null;
+            }
+            SubmodelElementCollection container = (SubmodelElementCollection) current;
+            current = container.getValue().stream()
+                    .filter(e -> e.getIdShort().equals(token))
+                    .findFirst().orElse(null);
+            if (current == null) {
+                return null;
+            }
         }
         return current;
     }
@@ -619,10 +694,13 @@ public class QueryEvaluator {
             }
         }
         catch (NumberFormatException e) {}
-        boolean bool1, bool2;
-        try {
-            bool1 = a instanceof Boolean ? (Boolean) a : Boolean.parseBoolean(a.toString());
-            bool2 = b instanceof Boolean ? (Boolean) b : Boolean.parseBoolean(b.toString());
+        String sa = a.toString();
+        String sb = b.toString();
+        boolean isBoolA = sa.trim().equalsIgnoreCase("true") || sa.trim().equalsIgnoreCase("false");
+        boolean isBoolB = sb.trim().equalsIgnoreCase("true") || sb.trim().equalsIgnoreCase("false");
+        if (isBoolA && isBoolB) {
+            boolean bool1 = Boolean.parseBoolean(sa);
+            boolean bool2 = Boolean.parseBoolean(sb);
             switch (op) {
                 case "eq":
                     return bool1 == bool2;
@@ -632,10 +710,7 @@ public class QueryEvaluator {
                     return false;
             }
         }
-        catch (Exception e) {}
-        String s1 = a.toString();
-        String s2 = b.toString();
-        int cmp = s1.compareTo(s2);
+        int cmp = sa.compareTo(sb);
         switch (op) {
             case "eq":
                 return cmp == 0;
