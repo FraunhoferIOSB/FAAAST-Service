@@ -12,36 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.request.handler.aasrepository;
+package de.fraunhofer.iosb.ilt.faaast.service.request.handler.conceptdescription;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.QueryAssetAdministrationShellsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.QueryAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.QueryConceptDescriptionsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.conceptdescription.QueryConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.request.aasrepository.QueryAssetAdministrationShellsRequest}
+ * {@link QueryConceptDescriptionsRequest}
  * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.QueryAssetAdministrationShellsResponse}.
+ * {@link QueryConceptDescriptionsResponse}.
  * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
-public class QueryAllAssetAdministrationShellsRequestHandler extends AbstractRequestHandler<QueryAssetAdministrationShellsRequest, QueryAssetAdministrationShellsResponse> {
+public class QueryConceptDescriptionsRequestHandler extends AbstractRequestHandler<QueryConceptDescriptionsRequest, QueryConceptDescriptionsResponse> {
 
     @Override
-    public QueryAssetAdministrationShellsResponse process(QueryAssetAdministrationShellsRequest request, RequestExecutionContext context)
+    public QueryConceptDescriptionsResponse process(QueryConceptDescriptionsRequest request, RequestExecutionContext context)
             throws MessageBusException, PersistenceException {
-        Page<AssetAdministrationShell> page = context.getPersistence().findAssetAdministrationShellsWithQuery(
-                AssetAdministrationShellSearchCriteria.NONE,
+        Page<ConceptDescription> page = context.getPersistence().findConceptDescriptionsWithQuery(
+                ConceptDescriptionSearchCriteria.NONE,
                 request.getOutputModifier(),
                 request.getPagingInfo(),
                 request.getQuery());
@@ -52,7 +52,7 @@ public class QueryAllAssetAdministrationShellsRequestHandler extends AbstractReq
                             .value(x)
                             .build())));
         }
-        return QueryAssetAdministrationShellsResponse.builder()
+        return QueryConceptDescriptionsResponse.builder()
                 .payload(page)
                 .success()
                 .build();

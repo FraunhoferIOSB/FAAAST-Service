@@ -260,6 +260,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
 
+
     /**
      * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.Submodel}s by search criteria and query.
      *
@@ -298,6 +299,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      */
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException;
 
+
     /**
      * Finds {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s by search criteria and query.
      *
@@ -308,7 +310,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the found {@code org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription}s
      * @throws PersistenceException if there was an error with the storage.
      */
-    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException;
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException;
 
 
     /**

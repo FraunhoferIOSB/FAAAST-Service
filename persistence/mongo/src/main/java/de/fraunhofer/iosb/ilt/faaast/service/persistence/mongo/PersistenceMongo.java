@@ -280,8 +280,10 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         return preparePagedResult(cdCollection, filter, paging, modifier, ConceptDescription.class);
     }
 
+
     @Override
-    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
         throw new PersistenceException("Query not supported with mongoDB.");
     }
 
@@ -298,6 +300,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
         return preparePagedResult(submodelCollection, filter, paging, modifier, Submodel.class);
     }
+
 
     @Override
     public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {

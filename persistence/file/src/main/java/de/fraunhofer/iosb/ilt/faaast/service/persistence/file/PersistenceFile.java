@@ -191,6 +191,7 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         return persistence.findSubmodels(criteria, modifier, paging);
     }
 
+
     @Override
     public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
         return persistence.findSubmodelsWithQuery(criteria, modifier, paging, query);
@@ -208,8 +209,10 @@ public class PersistenceFile implements Persistence<PersistenceFileConfig> {
         return persistence.findConceptDescriptions(criteria, modifier, paging);
     }
 
+
     @Override
-    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
         return persistence.findConceptDescriptionsWithQuery(criteria, modifier, paging, query);
     }
 

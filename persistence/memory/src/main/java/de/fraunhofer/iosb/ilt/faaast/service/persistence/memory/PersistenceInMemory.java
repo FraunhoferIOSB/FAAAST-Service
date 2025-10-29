@@ -257,8 +257,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         return preparePagedResult(result, modifier, paging);
     }
 
+
     @Override
-    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
@@ -334,6 +336,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         return preparePagedResult(result, modifier, paging);
     }
+
 
     @Override
     public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
