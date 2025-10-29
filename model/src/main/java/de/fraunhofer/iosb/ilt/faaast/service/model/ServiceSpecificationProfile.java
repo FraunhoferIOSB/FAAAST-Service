@@ -52,6 +52,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescriptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.conceptdescription.QueryConceptDescriptionsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.description.GetSelfDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ImportRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.proprietary.ResetRequest;
@@ -88,6 +89,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepositor
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PatchSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodelrepository.QuerySubmodelsRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -297,6 +299,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
+                    QuerySubmodelsRequest.class,
                     GetSubmodelByIdReferenceRequest.class,
                     GetSubmodelByIdRequest.class,
                     PatchSubmodelByIdRequest.class,
@@ -356,6 +359,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
+                    QuerySubmodelsRequest.class,
                     GetSubmodelByIdReferenceRequest.class,
                     GetSubmodelByIdRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
@@ -382,6 +386,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
+                    QuerySubmodelsRequest.class,
                     GetSubmodelByIdReferenceRequest.class,
                     GetSubmodelByIdRequest.class,
                     PatchSubmodelByIdRequest.class,
@@ -425,6 +430,7 @@ public enum ServiceSpecificationProfile {
                     GetAllSubmodelsBySemanticIdRequest.class,
                     GetAllSubmodelsReferenceRequest.class,
                     GetAllSubmodelsRequest.class,
+                    QuerySubmodelsRequest.class,
                     GetSubmodelByIdReferenceRequest.class,
                     GetSubmodelByIdRequest.class,
                     GetAllSubmodelElementsPathRequest.class,
@@ -450,6 +456,7 @@ public enum ServiceSpecificationProfile {
                     GetAllConceptDescriptionsByIdShortRequest.class,
                     GetAllConceptDescriptionsByIsCaseOfRequest.class,
                     GetAllConceptDescriptionsRequest.class,
+                    QueryConceptDescriptionsRequest.class,
                     GetConceptDescriptionByIdRequest.class,
                     PostConceptDescriptionRequest.class,
                     PutConceptDescriptionByIdRequest.class,
