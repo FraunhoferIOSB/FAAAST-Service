@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Evaluates queries sent to /query endpoints
+ * Evaluates queries sent to /query endpoints.
  */
 public class QueryEvaluator {
 
@@ -56,7 +56,7 @@ public class QueryEvaluator {
 
 
     /**
-     * Used to decice whether to filter out the Identifiable
+     * Used to decide whether to filter out the Identifiable.
      *
      * @param expr LogicalExpression of the query
      * @param identifiable like AAS, Submodel or Concept-Description
@@ -485,8 +485,11 @@ public class QueryEvaluator {
             Reference ref = sme.getSemanticId();
             if (ref == null)
                 return Collections.emptyList();
+            //cut prefix
             String remaining = attr.substring("semanticId.keys".length());
+            //check if there is an index like [1]
             boolean any = remaining.startsWith("[]");
+            //set index
             Integer index = null;
             if (remaining.startsWith("[")) {
                 int end = remaining.indexOf("]");

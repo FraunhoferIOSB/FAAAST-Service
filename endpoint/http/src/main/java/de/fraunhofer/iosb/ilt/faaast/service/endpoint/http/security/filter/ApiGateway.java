@@ -190,9 +190,9 @@ public class ApiGateway {
                     .collect(Collectors.toList());
             Map<String, String> claimList = new HashMap<>();
             for (String val: claimValues) {
-                Object claim = claims.get(val);
+                Claim claim = claims.get(val);
                 if (claim != null) {
-                    claimList.put(val, claim.toString());
+                    claimList.put(val, claim.asString());
                 }
             }
             return !claimValues.isEmpty()
