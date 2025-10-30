@@ -98,12 +98,10 @@ public class QueryEvaluator {
     }
 
     /**
-     * 
      * Used to decide whether to filter out the Identifiable.
      *
      * @param expr logical expression (tree)
      * @param identifiable AAS | Submodel | ConceptDescription
-     * 
      * @return true if expression matches the identifiable
      * 
      */
@@ -743,9 +741,7 @@ public class QueryEvaluator {
 
 
     /**
-     * 
      * Resolve a submodel element by dot-separated path.
-     * 
      */
     private SubmodelElement getSubmodelElementByPath(Submodel sm, String path) {
         if (sm == null || path == null || path.isEmpty())
