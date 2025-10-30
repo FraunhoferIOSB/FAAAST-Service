@@ -52,10 +52,12 @@ import java.nio.file.WatchService;
 import java.time.Clock;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
@@ -464,7 +466,7 @@ public class ApiGateway {
 
 
     private static List<AttributeItem> getAttributes(Acl acl, AllAccessPermissionRules allAccess) {
-        if (acl.getAttributes() != null) {
+        if ((acl.getAttributes() != null) && (!acl.getAttributes().isEmpty())) {
             return acl.getAttributes();
         }
         else if (acl.getUseattributes() != null) {
@@ -506,18 +508,23 @@ public class ApiGateway {
 
 
     private static List<ObjectItem> getObjects(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
-        if (rule.getObjects() != null) {
+        if ((rule.getObjects() != null) && (!rule.getObjects().isEmpty())) {
             return rule.getObjects();
         }
         else if (rule.getUseobjects() != null) {
-            Optional<Defobject> objects = allAccess.getDefobjects().stream()
-                    .filter(a -> Objects.equals(a.getName(), rule.getUseobjects()))
-                    .findAny();
-            if (objects.isPresent()) {
-                return objects.get().getObjects();
+            // We must collect all Defobjects in all Useobjects
+            List<Defobject> objectList = allAccess.getDefobjects().stream()
+                    .filter(a -> rule.getUseobjects().contains(a.getName()))
+                    .toList();
+            if (objectList.isEmpty()) {
+                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUseobjects());
             }
             else {
-                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUseobjects());
+                Set<ObjectItem> retval = new HashSet<>();
+                for (Defobject item: objectList) {
+                    retval.addAll(item.getObjects());
+                }
+                return retval.stream().toList();
             }
         }
         else {
