@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentifica
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
@@ -39,6 +40,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
@@ -216,6 +218,28 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
+    public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                                 Query query) {
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+
+        Stream<AssetAdministrationShell> result = environment.getAssetAdministrationShells().stream();
+        if (criteria.isIdShortSet()) {
+            result = filterByIdShort(result, criteria.getIdShort());
+        }
+        if (criteria.isAssetIdsSet()) {
+            result = filterByAssetIds(result, criteria.getAssetIds());
+        }
+        QueryEvaluator evaluator = new QueryEvaluator();
+        if (query != null) {
+            result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
+        }
+        return preparePagedResult(result, modifier, paging);
+    }
+
+
+    @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -229,6 +253,30 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
+        }
+        return preparePagedResult(result, modifier, paging);
+    }
+
+
+    @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+        Stream<ConceptDescription> result = environment.getConceptDescriptions().stream();
+        if (criteria.isIdShortSet()) {
+            result = filterByIdShort(result, criteria.getIdShort());
+        }
+        if (criteria.isIsCaseOfSet()) {
+            result = filterByIsCaseOf(result, criteria.getIsCaseOf());
+        }
+        if (criteria.isDataSpecificationSet()) {
+            result = filterByDataSpecification(result, criteria.getDataSpecification());
+        }
+        QueryEvaluator evaluator = new QueryEvaluator();
+        if (query != null) {
+            result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }
         return preparePagedResult(result, modifier, paging);
     }
@@ -285,6 +333,26 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
+        }
+        return preparePagedResult(result, modifier, paging);
+    }
+
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
+        Stream<Submodel> result = environment.getSubmodels().stream();
+        if (criteria.isIdShortSet()) {
+            result = filterByIdShort(result, criteria.getIdShort());
+        }
+        if (criteria.isSemanticIdSet()) {
+            result = filterBySemanticId(result, criteria.getSemanticId());
+        }
+        QueryEvaluator evaluator = new QueryEvaluator();
+        if (query != null) {
+            result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }
         return preparePagedResult(result, modifier, paging);
     }

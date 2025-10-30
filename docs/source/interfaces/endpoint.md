@@ -42,13 +42,15 @@ All endpoint implementations share the following common configuration properties
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
 In accordance to the specification, only HTTPS is supported since AAS v3.0. 
 The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0) and the corresponding [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1).
+This HTTP Endpoint also supports JWT Access Tokens and simple JSON Access Rules for Routes and Identifiables, as defined in [Part 4: Security (IDTA-01004)](https://admin-shell-io.github.io/aas-specs-antora/IDTA-01004/v3.0/index.html).
 
 ### Configuration
 
 :::{table} Configuration properties of HTTP Endpoint.
 | Name                                 | Allowed Value                                               | Description                                                                                                                                                                              | Default Value                               |
 | ------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration) | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate                     |
+| aclFolder<br>*(optional)*            | String                                                      | Sets the path to the folder, where JSON Access Control Rules are defined                                                                                                                 |                                             |
+| certificate<br>*(optional)*          | [CertificateInfo](#providing-certificates-in-configuration)                                      | The HTTPS certificate to use.<br>                                                                                                                                                        | self-signed certificate                     |
 | corsAllowCredentials<br>*(optional)* | Boolean                                                     | Sets the `Access-Control-Allow-Credentials` response header.                                                                                                                             | false                                       |
 | corsAllowedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Headers` response header.                                                                                                                                 | *                                           |
 | corsAllowedMethods<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Allow-Methods` response header.                                                                                                                                 | GET, POST, HEAD                             |
@@ -57,6 +59,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                             |
 | corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                                        |
 | hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address)          |
+| jwkProvider<br>*(optional)*          | String                                                      | The URL of the IdentityProvider to verify JWT Access Tokens.                                                                                                                             |                                             |
 | includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                                       |
 | port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                         |
 | sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                                        |
@@ -69,6 +72,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 {
 	"endpoints": [ {
 		"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+		"aclFolder": "C:\\Users\\FAST\\ACL",
 		"certificate": {
 			"keyStoreType": "PKCS12",
 			"keyStorePath": "C:\faaast\MyKeyStore.p12",
@@ -84,6 +88,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsExposedHeaders": "X-Custom-Header",
 		"corsMaxAge": 1000,
 		"hostname": "localhost",
+		"jwkProvider": "http://localhost:4444",
 		"includeErrorDetails": true,
 		"port": 443,
 		"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],
@@ -91,6 +96,125 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"sslEnabled": true
 	} ],
 	// ...
+}
+```
+
+### AAS Security Part 4
+
+FA³ST Service supports the verification of JWT Access Tokens and simple Access rules.
+If the configuration includes the `jwkProvider` URL, all HTTP API requests will be validated.
+To grant anonymous READ access, an Access rule must be defined and placed in the `aclFolder`:
+```
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "GLOBAL": "ANONYMOUS"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "ROUTE": "*"
+          }
+        ],
+        "FORMULA": {
+          "$boolean": true
+        }
+      }
+    ]
+  }
+}
+```
+
+If a `jwkProvider` is defined and no Access rules exist, all HTTP API requests will be blocked.
+We recommend Ory Hydra as OAuth2 and OpenID Connect server, which can be used with the following curl requests to retrieve a JWT token.
+
+Create client_id:
+```
+curl -s -X POST http://127.0.0.1:4444/oauth2/token -u '6c176008-9308-4603-a55a-9975bb3a93b6:MCXepEOPh3GLx.hPpdb.NRCCsz' -d 'grant_type=client_credentials' -d 'scope=openid'"
+```
+Retrieve token:
+```
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded"
+-d "grant_type=client_credentials" -d "scope=openid" -d "client_id=6c176008-9308-4603-a55a-9975bb3a93b6" -d "client_secret=MCXepEOPh3GLx.hPpdb.NRCCsz" http://127.0.0.1:4444/oauth2/token
+```
+To grant READ access to this client_id, the following Access rule can be used:
+```
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "client_id"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "ROUTE": "*"
+          }
+        ],
+        "FORMULA": {
+          "$eq": [
+            {
+              "$attribute": {
+                "CLAIM": "client_id"
+              }
+            },
+            {
+              "$strVal": "6c176008-9308-4603-a55a-9975bb3a93b6"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+To grant access to specific submodels, FA³ST Service supports Identifiables like `"IDENTIFIABLE": "(Submodel)https://example.com/ids/sm/5120_2111_9032_9005"` or `"IDENTIFIABLE": "(Submodel)*"`.
+Example:
+```
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "GLOBAL": "ANONYMOUS"
+            }
+          ],
+          "RIGHTS": [
+            "READ"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "IDENTIFIABLE": "(Submodel)https://example.com/ids/sm/5120_2111_9032_9005"
+          }
+        ],
+        "FORMULA": {        
+            "$boolean": true
+        }
+      }
+    ]
+  }
 }
 ```
 

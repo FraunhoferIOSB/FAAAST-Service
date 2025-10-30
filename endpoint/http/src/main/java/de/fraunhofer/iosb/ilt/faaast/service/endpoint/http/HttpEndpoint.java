@@ -16,19 +16,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper.DEFAULT_ALIAS;
 
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.JwtValidationFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import jakarta.servlet.DispatcherType;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -36,6 +42,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -75,6 +82,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     private static final String ENDPOINT_PROTOCOL = "HTTP";
     private static final String ENDPOINT_PROTOCOL_VERSION = "1.1";
     private Server server;
+
+    @Override
+    public HttpEndpointConfig asConfig() {
+        return config;
+    }
+
     private ServletContextHandler context;
 
     /**
@@ -103,6 +116,20 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
 
         RequestHandlerServlet handler = new RequestHandlerServlet(this, config, serviceContext);
         context.addServlet(handler, "/*");
+
+        if (Objects.nonNull(config.getJwkProvider())) {
+            URL jwkProviderUrl;
+            try {
+                jwkProviderUrl = new URL(config.getJwkProvider());
+            }
+            catch (MalformedURLException malformedJwkProviderUrl) {
+                throw new EndpointException("Could not parse JWK provider URL", malformedJwkProviderUrl);
+            }
+            JwkProvider jwkProvider = new UrlJwkProvider(jwkProviderUrl);
+
+            context.addFilter(new JwtValidationFilter(jwkProvider),
+                    "*", EnumSet.allOf(DispatcherType.class));
+        }
         server.setErrorHandler(new HttpErrorHandler(config));
         try {
             server.start();
