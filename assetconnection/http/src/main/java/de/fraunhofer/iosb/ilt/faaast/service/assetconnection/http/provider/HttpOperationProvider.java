@@ -32,6 +32,7 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -91,6 +92,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
                     ? DEFAULT_EXECUTE_METHOD
                     : config.getMethod();
             Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            headers = headers.entrySet().stream().collect(Collectors.toMap(x -> x.getKey(), x -> variableReplacer.apply(x.getValue())));
             LOGGER.trace("Sending HTTP request to asset (baseUrl: {}, path: {}, method: {}, headers: {}, body: {})",
                     connectionConfig.getBaseUrl(),
                     config.getPath(),
