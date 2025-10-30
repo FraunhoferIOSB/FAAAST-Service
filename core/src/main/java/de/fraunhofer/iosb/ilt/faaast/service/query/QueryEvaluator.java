@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
@@ -59,7 +60,7 @@ public class QueryEvaluator {
         this.environment = environment;
     }
 
-    private enum Operator {
+    private enum ComparisonOperator {
         EQ,
         NE,
         GT,
@@ -71,16 +72,38 @@ public class QueryEvaluator {
         ENDS_WITH,
         REGEX;
 
-        boolean isStringOp() {
+        boolean isStringOperator() {
             return this == CONTAINS || this == STARTS_WITH || this == ENDS_WITH || this == REGEX;
         }
     }
 
+    private enum ValueKind {
+        NONE,
+        FIELD,
+        STR,
+        NUM,
+        HEX,
+        DATETIME,
+        TIME,
+        BOOL,
+        STR_CAST,
+        NUM_CAST
+    }
+
+    private enum StringValueKind {
+        NONE,
+        FIELD,
+        STR,
+        STR_CAST
+    }
+
     /**
+     * 
      * Used to decide whether to filter out the Identifiable.
      *
      * @param expr logical expression (tree)
      * @param identifiable AAS | Submodel | ConceptDescription
+     * 
      * @return true if expression matches the identifiable
      * 
      */
@@ -88,10 +111,13 @@ public class QueryEvaluator {
         if (expr == null || identifiable == null) {
             return false;
         }
+
+        // boolean
         if (expr.get$boolean() != null) {
             return expr.get$boolean();
         }
 
+        // logical
         if (expr.get$and() != null && !expr.get$and().isEmpty()) {
             return expr.get$and().stream().allMatch(e -> matches(e, identifiable));
         }
@@ -102,68 +128,89 @@ public class QueryEvaluator {
             return !matches(expr.get$not(), identifiable);
         }
 
-        // $match
+        // match operator
         if (expr.get$match() != null && !expr.get$match().isEmpty()) {
             return evaluateMatch(expr.get$match(), identifiable);
         }
 
-        // Binary
-        if (expr.get$eq() != null && !expr.get$eq().isEmpty())
-            return evaluateBinary(expr.get$eq(), identifiable, Operator.EQ);
-        if (expr.get$ne() != null && !expr.get$ne().isEmpty())
-            return evaluateBinary(expr.get$ne(), identifiable, Operator.NE);
-        if (expr.get$gt() != null && !expr.get$gt().isEmpty())
-            return evaluateBinary(expr.get$gt(), identifiable, Operator.GT);
-        if (expr.get$ge() != null && !expr.get$ge().isEmpty())
-            return evaluateBinary(expr.get$ge(), identifiable, Operator.GE);
-        if (expr.get$lt() != null && !expr.get$lt().isEmpty())
-            return evaluateBinary(expr.get$lt(), identifiable, Operator.LT);
-        if (expr.get$le() != null && !expr.get$le().isEmpty())
-            return evaluateBinary(expr.get$le(), identifiable, Operator.LE);
+        // numeric/boolean/string comparisons
+        boolean evaluated = evaluateFirstValueOperator(expr, identifiable);
+        if (evaluated) {
+            return true;
+        }
 
-        // String binary operators
-        if (expr.get$contains() != null && !expr.get$contains().isEmpty())
-            return evaluateStringBinary(expr.get$contains(), identifiable, Operator.CONTAINS);
-        if (expr.get$startsWith() != null && !expr.get$startsWith().isEmpty())
-            return evaluateStringBinary(expr.get$startsWith(), identifiable, Operator.STARTS_WITH);
-        if (expr.get$endsWith() != null && !expr.get$endsWith().isEmpty())
-            return evaluateStringBinary(expr.get$endsWith(), identifiable, Operator.ENDS_WITH);
-        if (expr.get$regex() != null && !expr.get$regex().isEmpty())
-            return evaluateStringBinary(expr.get$regex(), identifiable, Operator.REGEX);
+        // string binary operators
+        return evaluateFirstStringOperator(expr, identifiable);
+    }
 
+
+    private boolean evaluateFirstValueOperator(LogicalExpression expr, Identifiable identifiable) {
+        List<OperationSpec<Value>> operations = Arrays.asList(
+                new OperationSpec<>(ComparisonOperator.EQ, expr::get$eq),
+                new OperationSpec<>(ComparisonOperator.NE, expr::get$ne),
+                new OperationSpec<>(ComparisonOperator.GT, expr::get$gt),
+                new OperationSpec<>(ComparisonOperator.GE, expr::get$ge),
+                new OperationSpec<>(ComparisonOperator.LT, expr::get$lt),
+                new OperationSpec<>(ComparisonOperator.LE, expr::get$le));
+        for (OperationSpec<Value> spec: operations) {
+            List<Value> args = spec.argumentProvider.get();
+            if (args != null && !args.isEmpty()) {
+                return evaluateBinaryComparison(args, identifiable, spec.operator);
+            }
+        }
         return false;
     }
 
 
-    private boolean evaluateBinary(List<Value> args, Identifiable identifiable, Operator op) {
+    private boolean evaluateFirstStringOperator(LogicalExpression expr, Identifiable identifiable) {
+        List<OperationSpec<StringValue>> operations = Arrays.asList(
+                new OperationSpec<>(ComparisonOperator.CONTAINS, expr::get$contains),
+                new OperationSpec<>(ComparisonOperator.STARTS_WITH, expr::get$startsWith),
+                new OperationSpec<>(ComparisonOperator.ENDS_WITH, expr::get$endsWith),
+                new OperationSpec<>(ComparisonOperator.REGEX, expr::get$regex));
+        for (OperationSpec<StringValue> spec: operations) {
+            List<StringValue> args = spec.argumentProvider.get();
+            if (args != null && !args.isEmpty()) {
+                return evaluateBinaryStringOperator(args, identifiable, spec.operator);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param argumentProvider provides arguments for this operator
+     */
+    private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>> argumentProvider) {}
+
+    private boolean evaluateBinaryComparison(List<Value> args, Identifiable identifiable, ComparisonOperator operator) {
         if (args.size() < 2) {
-            LOGGER.error("Operator {} requires two arguments", op);
+            LOGGER.error("Operator {} requires two arguments", operator);
             return false;
         }
         List<Object> left = evaluateValue(args.get(0), identifiable);
         List<Object> right = evaluateValue(args.get(1), identifiable);
-        return anyPairMatches(left, right, op);
+        return anyPairSatisfies(left, right, operator);
     }
 
 
-    private boolean evaluateStringBinary(List<StringValue> args, Identifiable identifiable, Operator op) {
+    private boolean evaluateBinaryStringOperator(List<StringValue> args, Identifiable identifiable, ComparisonOperator operator) {
         if (args.size() < 2) {
-            LOGGER.error("String operator {} requires two arguments", op);
+            LOGGER.error("String operator {} requires two arguments", operator);
             return false;
         }
         List<Object> left = evaluateStringValue(args.get(0), identifiable);
         List<Object> right = evaluateStringValue(args.get(1), identifiable);
-        return anyPairMatches(left, right, op);
+        return anyPairSatisfies(left, right, operator);
     }
 
 
-    private boolean anyPairMatches(List<Object> left, List<Object> right, Operator op) {
+    private boolean anyPairSatisfies(List<Object> left, List<Object> right, ComparisonOperator operator) {
         if (left == null || right == null) {
             return false;
         }
         for (Object l: left) {
             for (Object r: right) {
-                if (compare(l, r, op)) {
+                if (compareValues(l, r, operator)) {
                     return true;
                 }
             }
@@ -172,49 +219,89 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> evaluateValue(Value v, Identifiable identifiable) {
+    private ValueKind determineValueKind(Value v) {
         if (v == null)
-            return Collections.emptyList();
-
-        if (v.get$field() != null) {
-            return nonNull(getFieldValues(v.get$field(), identifiable));
-        }
+            return ValueKind.NONE;
+        if (v.get$field() != null)
+            return ValueKind.FIELD;
         if (v.get$strVal() != null)
-            return Collections.singletonList(v.get$strVal());
+            return ValueKind.STR;
         if (v.get$numVal() != null)
-            return Collections.singletonList(v.get$numVal());
+            return ValueKind.NUM;
         if (v.get$hexVal() != null)
-            return Collections.singletonList(v.get$hexVal());
+            return ValueKind.HEX;
         if (v.get$dateTimeVal() != null)
-            return Collections.singletonList(v.get$dateTimeVal());
+            return ValueKind.DATETIME;
         if (v.get$timeVal() != null)
-            return Collections.singletonList(v.get$timeVal());
+            return ValueKind.TIME;
         if (v.get$boolean() != null)
-            return Collections.singletonList(v.get$boolean());
-        if (v.get$strCast() != null) {
-            return evaluateValue(v.get$strCast(), identifiable).stream().map(String::valueOf).collect(Collectors.toList());
+            return ValueKind.BOOL;
+        if (v.get$strCast() != null)
+            return ValueKind.STR_CAST;
+        if (v.get$numCast() != null)
+            return ValueKind.NUM_CAST;
+        return ValueKind.NONE;
+    }
+
+
+    private StringValueKind determineStringValueKind(StringValue sv) {
+        if (sv == null)
+            return StringValueKind.NONE;
+        if (sv.get$field() != null)
+            return StringValueKind.FIELD;
+        if (sv.get$strVal() != null)
+            return StringValueKind.STR;
+        if (sv.get$strCast() != null)
+            return StringValueKind.STR_CAST;
+        return StringValueKind.NONE;
+    }
+
+
+    private List<Object> evaluateValue(Value v, Identifiable identifiable) {
+        switch (determineValueKind(v)) {
+            case FIELD:
+                return nonNull(getFieldValues(v.get$field(), identifiable));
+            case STR:
+                return Collections.singletonList(v.get$strVal());
+            case NUM:
+                return Collections.singletonList(v.get$numVal());
+            case HEX:
+                return Collections.singletonList(v.get$hexVal());
+            case DATETIME:
+                return Collections.singletonList(v.get$dateTimeVal());
+            case TIME:
+                return Collections.singletonList(v.get$timeVal());
+            case BOOL:
+                return Collections.singletonList(v.get$boolean());
+            case STR_CAST:
+                return evaluateValue(v.get$strCast(), identifiable).stream()
+                        .map(String::valueOf).collect(Collectors.toList());
+            case NUM_CAST:
+                return evaluateValue(v.get$numCast(), identifiable).stream()
+                        .map(String::valueOf)
+                        .map(this::parseDoubleOrNull)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            default:
+                return Collections.emptyList();
         }
-        if (v.get$numCast() != null) {
-            return evaluateValue(v.get$numCast(), identifiable).stream().map(String::valueOf).map(this::parseDoubleOrNull).filter(Objects::nonNull).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
     }
 
 
     private List<Object> evaluateStringValue(StringValue sv, Identifiable identifiable) {
-        if (sv == null)
-            return Collections.emptyList();
-        if (sv.get$field() != null) {
-            return nonNull(getFieldValues(sv.get$field(), identifiable));
+        switch (determineStringValueKind(sv)) {
+            case FIELD:
+                return nonNull(getFieldValues(sv.get$field(), identifiable));
+            case STR:
+                return Collections.singletonList(sv.get$strVal());
+            case STR_CAST:
+                return evaluateValue(sv.get$strCast(), identifiable).stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.toList());
+            default:
+                LOGGER.error("Invalid string value: {}", sv);
+                return Collections.emptyList();
         }
-        if (sv.get$strVal() != null) {
-            return Collections.singletonList(sv.get$strVal());
-        }
-        if (sv.get$strCast() != null) {
-            return evaluateValue(sv.get$strCast(), identifiable).stream().map(String::valueOf).collect(Collectors.toList());
-        }
-        LOGGER.error("Invalid string value: {}", sv);
-        return Collections.emptyList();
     }
 
 
@@ -227,25 +314,45 @@ public class QueryEvaluator {
         }
     }
 
+
+    private Double toDouble(Object o) {
+        if (o instanceof Number) {
+            return ((Number) o).doubleValue();
+        }
+        return parseDoubleOrNull(String.valueOf(o));
+    }
+
     private static final class Condition {
         final String suffix; // e.g., ".name", "Sub.Path#value"
-        final Operator op;
+        final ComparisonOperator operator;
         final List<Object> rightVals;
 
-        Condition(String suffix, Operator op, List<Object> rightVals) {
+        Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
             this.suffix = suffix;
-            this.op = op;
+            this.operator = operator;
             this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
         }
     }
 
-    private static final class MatchOp {
-        final Operator op;
+    private static final class MatchOperation {
+        final ComparisonOperator operator;
         final List<Value> args;
 
-        MatchOp(Operator op, List<Value> args) {
-            this.op = op;
+        MatchOperation(ComparisonOperator operator, List<Value> args) {
+            this.operator = operator;
             this.args = args;
+        }
+    }
+
+    private static final class MatchEvaluationContext {
+        final String commonPrefix;
+        final List<Condition> itemConditions;
+        final boolean directMismatch;
+
+        MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {
+            this.commonPrefix = commonPrefix;
+            this.itemConditions = itemConditions;
+            this.directMismatch = directMismatch;
         }
     }
 
@@ -253,23 +360,41 @@ public class QueryEvaluator {
         if (matches == null || matches.isEmpty()) {
             return true;
         }
+        MatchEvaluationContext ctx = buildMatchEvaluationContext(matches, identifiable);
+        if (ctx.directMismatch) {
+            return false;
+        }
+        if (ctx.commonPrefix == null) {
+            return true;
+        }
+        return evaluateListMatch(ctx.commonPrefix, ctx.itemConditions, identifiable);
+    }
 
+
+    private MatchEvaluationContext buildMatchEvaluationContext(List<MatchExpression> matches, Identifiable identifiable) {
         String commonPrefix = null;
         List<Condition> itemConditions = new ArrayList<>();
+        boolean directMismatch = false;
 
-        // Evaluate/collect each match clause
         for (MatchExpression m: matches) {
-            MatchOp mo = getMatchOp(m);
+            MatchOperation mo = getMatchOperation(m);
             if (mo == null) {
                 LOGGER.error("Unsupported operator in match");
-                return false;
+                directMismatch = true;
+                break;
+            }
+            if (mo.args.size() < 2) {
+                LOGGER.error("$match operator {} requires two arguments", mo.operator);
+                directMismatch = true;
+                break;
             }
 
             Value left = mo.args.get(0);
             Value right = mo.args.get(1);
             if (left.get$field() == null) {
                 LOGGER.error("Left side in $match must be a field: {}", left);
-                return false;
+                directMismatch = true;
+                break;
             }
 
             String field = left.get$field();
@@ -281,16 +406,19 @@ public class QueryEvaluator {
                     String prefix = PREFIX_SME;
                     if (commonPrefix != null && !commonPrefix.equals(prefix)) {
                         LOGGER.error("Non-common prefix in match: {} vs {}", commonPrefix, prefix);
-                        return false;
+                        directMismatch = true;
+                        break;
                     }
                     commonPrefix = prefix;
                     String suffix = field.substring((PREFIX_SME + "#").length());
-                    itemConditions.add(new Condition(suffix, mo.op, rightVals));
+                    itemConditions.add(new Condition(suffix, mo.operator, rightVals));
                 }
                 else {
+                    // evaluate parent condition immediately
                     List<Object> leftVals = evaluateValue(left, identifiable);
-                    if (!anyPairMatches(leftVals, rightVals, mo.op)) {
-                        return false;
+                    if (!anyPairSatisfies(leftVals, rightVals, mo.operator)) {
+                        directMismatch = true;
+                        break;
                     }
                 }
             }
@@ -298,20 +426,20 @@ public class QueryEvaluator {
                 String prefix = field.substring(0, listMarker);
                 if (commonPrefix != null && !commonPrefix.equals(prefix)) {
                     LOGGER.error("Non-common prefix in match: {} vs {}", commonPrefix, prefix);
-                    return false;
+                    directMismatch = true;
+                    break;
                 }
                 commonPrefix = prefix;
                 String suffix = field.substring(listMarker + 2);
-                itemConditions.add(new Condition(suffix, mo.op, rightVals));
+                itemConditions.add(new Condition(suffix, mo.operator, rightVals));
             }
         }
 
-        // parent conditions: all matched
-        if (commonPrefix == null) {
-            return true;
-        }
+        return new MatchEvaluationContext(commonPrefix, itemConditions, directMismatch);
+    }
 
-        // Evaluate list items depending on prefix
+
+    private boolean evaluateListMatch(String commonPrefix, List<Condition> itemConditions, Identifiable identifiable) {
         switch (commonPrefix) {
             case "$aas#assetInformation.specificAssetIds":
                 if (!(identifiable instanceof AssetAdministrationShell))
@@ -321,8 +449,8 @@ public class QueryEvaluator {
                     return false;
 
                 for (SpecificAssetId item: aas.getAssetInformation().getSpecificAssetIds()) {
-                    if (allItemConditionsMatch(itemConditions, cond -> {
-                        String s = getPropertyFromObject(item, cond.suffix);
+                    if (doAllItemConditionsMatch(itemConditions, cond -> {
+                        String s = getSpecificAssetIdAttribute(item, cond.suffix);
                         return s == null ? Collections.emptyList() : Collections.singletonList(s);
                     })) {
                         return true;
@@ -339,7 +467,7 @@ public class QueryEvaluator {
                     return false;
 
                 for (SubmodelElement item: topLevel) {
-                    if (allItemConditionsMatch(itemConditions, cond -> getPropertyFromSuffix(item, cond.suffix))) {
+                    if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
                         return true;
                     }
                 }
@@ -360,7 +488,7 @@ public class QueryEvaluator {
                         return false;
 
                     for (SubmodelElement item: items) {
-                        if (allItemConditionsMatch(itemConditions, cond -> getPropertyFromSuffix(item, cond.suffix))) {
+                        if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
                             return true;
                         }
                     }
@@ -372,28 +500,28 @@ public class QueryEvaluator {
     }
 
 
-    private MatchOp getMatchOp(MatchExpression m) {
-        if (m.get$eq() != null && !m.get$eq().isEmpty())
-            return new MatchOp(Operator.EQ, m.get$eq());
-        if (m.get$ne() != null && !m.get$ne().isEmpty())
-            return new MatchOp(Operator.NE, m.get$ne());
-        if (m.get$gt() != null && !m.get$gt().isEmpty())
-            return new MatchOp(Operator.GT, m.get$gt());
-        if (m.get$ge() != null && !m.get$ge().isEmpty())
-            return new MatchOp(Operator.GE, m.get$ge());
-        if (m.get$lt() != null && !m.get$lt().isEmpty())
-            return new MatchOp(Operator.LT, m.get$lt());
-        if (m.get$le() != null && !m.get$le().isEmpty())
-            return new MatchOp(Operator.LE, m.get$le());
+    private MatchOperation getMatchOperation(MatchExpression m) {
+        List<MatchOperation> candidates = Arrays.asList(
+                new MatchOperation(ComparisonOperator.EQ, m.get$eq()),
+                new MatchOperation(ComparisonOperator.NE, m.get$ne()),
+                new MatchOperation(ComparisonOperator.GT, m.get$gt()),
+                new MatchOperation(ComparisonOperator.GE, m.get$ge()),
+                new MatchOperation(ComparisonOperator.LT, m.get$lt()),
+                new MatchOperation(ComparisonOperator.LE, m.get$le()));
+        for (MatchOperation mo: candidates) {
+            if (mo.args != null && !mo.args.isEmpty()) {
+                return mo;
+            }
+        }
         return null;
     }
 
 
-    private boolean allItemConditionsMatch(List<Condition> conditions,
-                                           java.util.function.Function<Condition, List<Object>> leftExtractor) {
+    private boolean doAllItemConditionsMatch(List<Condition> conditions,
+                                             java.util.function.Function<Condition, List<Object>> leftValueExtractor) {
         for (Condition cond: conditions) {
-            List<Object> leftVals = nonNull(leftExtractor.apply(cond));
-            if (!anyPairMatches(leftVals, cond.rightVals, cond.op)) {
+            List<Object> leftVals = nonNull(leftValueExtractor.apply(cond));
+            if (!anyPairSatisfies(leftVals, cond.rightVals, cond.operator)) {
                 return false;
             }
         }
@@ -414,7 +542,7 @@ public class QueryEvaluator {
         if (field.startsWith(PREFIX_SM)) {
             if (!(identifiable instanceof Submodel))
                 return Collections.emptyList();
-            return new ArrayList<>(getSmAttrValues((Submodel) identifiable, field.substring(PREFIX_SM.length())));
+            return new ArrayList<>(getSubmodelAttributeValues((Submodel) identifiable, field.substring(PREFIX_SM.length())));
         }
 
         if (field.startsWith(PREFIX_SME)) {
@@ -437,14 +565,14 @@ public class QueryEvaluator {
             if (!pathPart.isEmpty()) {
                 SubmodelElement sme = getSubmodelElementByPath(sm, pathPart);
                 if (sme != null) {
-                    values.addAll(getSmeAttrValues(sme, attr));
+                    values.addAll(getSubmodelElementAttributeValues(sme, attr));
                 }
             }
             else {
                 List<SubmodelElement> smes = sm.getSubmodelElements();
                 if (smes != null) {
                     for (SubmodelElement sme: smes) {
-                        values.addAll(getSmeAttrValues(sme, attr));
+                        values.addAll(getSubmodelElementAttributeValues(sme, attr));
                     }
                 }
             }
@@ -456,12 +584,15 @@ public class QueryEvaluator {
                 return Collections.emptyList();
             ConceptDescription cd = (ConceptDescription) identifiable;
             String attr = field.substring(PREFIX_CD.length());
-            if ("idShort".equals(attr))
-                return Collections.singletonList(cd.getIdShort());
-            if ("id".equals(attr))
-                return Collections.singletonList(cd.getId());
-            LOGGER.error("Unsupported CD attribute: {}", attr);
-            return Collections.emptyList();
+            switch (attr) {
+                case "idShort":
+                    return Collections.singletonList(cd.getIdShort());
+                case "id":
+                    return Collections.singletonList(cd.getId());
+                default:
+                    LOGGER.error("Unsupported CD attribute: {}", attr);
+                    return Collections.emptyList();
+            }
         }
 
         LOGGER.error("Unsupported field: {}", field);
@@ -470,147 +601,151 @@ public class QueryEvaluator {
 
 
     private List<Object> getAasFieldValues(AssetAdministrationShell aas, String attr) {
-        if ("idShort".equals(attr))
-            return Collections.singletonList(aas.getIdShort());
-        if ("id".equals(attr))
-            return Collections.singletonList(aas.getId());
-
-        if ("assetInformation.assetKind".equals(attr)) {
-            return aas.getAssetInformation() == null || aas.getAssetInformation().getAssetKind() == null
-                    ? Collections.emptyList()
-                    : Collections.singletonList(aas.getAssetInformation().getAssetKind().name());
-        }
-        if ("assetInformation.assetType".equals(attr)) {
-            return aas.getAssetInformation() == null
-                    ? Collections.emptyList()
-                    : Collections.singletonList(aas.getAssetInformation().getAssetType());
-        }
-        if ("assetInformation.globalAssetId".equals(attr)) {
-            if (aas.getAssetInformation() == null)
+        switch (attr) {
+            case "idShort":
+                return Collections.singletonList(aas.getIdShort());
+            case "id":
+                return Collections.singletonList(aas.getId());
+            case "assetInformation.assetKind":
+                return (aas.getAssetInformation() == null || aas.getAssetInformation().getAssetKind() == null)
+                        ? Collections.emptyList()
+                        : Collections.singletonList(aas.getAssetInformation().getAssetKind().name());
+            case "assetInformation.assetType":
+                return (aas.getAssetInformation() == null)
+                        ? Collections.emptyList()
+                        : Collections.singletonList(aas.getAssetInformation().getAssetType());
+            case "assetInformation.globalAssetId":
+                if (aas.getAssetInformation() == null)
+                    return Collections.emptyList();
+                String globalAssetId = aas.getAssetInformation().getGlobalAssetId();
+                return globalAssetId == null ? Collections.emptyList() : Collections.singletonList(globalAssetId);
+            default:
+                if (attr.startsWith("assetInformation.specificAssetIds")) {
+                    if (aas.getAssetInformation() == null || aas.getAssetInformation().getSpecificAssetIds() == null) {
+                        return Collections.emptyList();
+                    }
+                    String remaining = attr.substring("assetInformation.specificAssetIds".length());
+                    IndexSelection indexSelection = parseIndexSelection(remaining);
+                    List<SpecificAssetId> sais = aas.getAssetInformation().getSpecificAssetIds();
+                    List<SpecificAssetId> selectedItems = selectByIndex(sais, indexSelection);
+                    List<Object> values = new ArrayList<>();
+                    for (SpecificAssetId sai: selectedItems) {
+                        values.add(getSpecificAssetIdAttribute(sai, indexSelection.remainingSuffix));
+                    }
+                    return values;
+                }
+                LOGGER.error("Unsupported AAS attribute: {}", attr);
                 return Collections.emptyList();
-            String globalAssetId = aas.getAssetInformation().getGlobalAssetId();
-            return globalAssetId == null ? Collections.emptyList() : Collections.singletonList(globalAssetId);
         }
-
-        if (attr.startsWith("assetInformation.specificAssetIds")) {
-            if (aas.getAssetInformation() == null || aas.getAssetInformation().getSpecificAssetIds() == null) {
-                return Collections.emptyList();
-            }
-            String remaining = attr.substring("assetInformation.specificAssetIds".length());
-            IndexSpec spec = parseIndexSuffix(remaining);
-
-            List<SpecificAssetId> sais = aas.getAssetInformation().getSpecificAssetIds();
-            List<SpecificAssetId> targets = selectTargets(sais, spec);
-
-            List<Object> values = new ArrayList<>();
-            for (SpecificAssetId sai: targets) {
-                values.add(getPropertyFromObject(sai, spec.remaining));
-            }
-            return values;
-        }
-
-        LOGGER.error("Unsupported AAS attribute: {}", attr);
-        return Collections.emptyList();
     }
 
 
-    private List<String> getSmAttrValues(Submodel sm, String attr) {
-        if ("idShort".equals(attr))
-            return Collections.singletonList(sm.getIdShort());
-        if ("id".equals(attr))
-            return Collections.singletonList(sm.getId());
-
-        if ("semanticId".equals(attr)) {
-            Reference ref = sm.getSemanticId();
-            if (ref == null || ref.getKeys() == null || ref.getKeys().isEmpty())
-                return Collections.emptyList();
-            return Collections.singletonList(ref.getKeys().get(0).getValue());
-        }
-
-        if (attr.startsWith("semanticId.keys")) {
-            Reference ref = sm.getSemanticId();
-            if (ref == null || ref.getKeys() == null)
-                return Collections.emptyList();
-
-            String remaining = attr.substring("semanticId.keys".length());
-            IndexSpec spec = parseIndexSuffix(remaining);
-
-            List<Key> targets = selectTargets(ref.getKeys(), spec);
-            List<String> out = new ArrayList<>();
-            for (Key key: targets) {
-                if (".type".equals(spec.remaining))
-                    out.add(key.getType().name());
-                else if (".value".equals(spec.remaining))
-                    out.add(key.getValue());
+    private List<String> getSubmodelAttributeValues(Submodel sm, String attr) {
+        switch (attr) {
+            case "idShort":
+                return Collections.singletonList(sm.getIdShort());
+            case "id":
+                return Collections.singletonList(sm.getId());
+            case "semanticId": {
+                Reference ref = sm.getSemanticId();
+                if (ref == null || ref.getKeys() == null || ref.getKeys().isEmpty())
+                    return Collections.emptyList();
+                return Collections.singletonList(ref.getKeys().get(0).getValue());
             }
-            return out;
-        }
+            default:
+                if (attr.startsWith("semanticId.keys")) {
+                    Reference ref = sm.getSemanticId();
+                    if (ref == null || ref.getKeys() == null)
+                        return Collections.emptyList();
 
-        LOGGER.error("Unsupported SM attribute: {}", attr);
-        return Collections.emptyList();
+                    String remaining = attr.substring("semanticId.keys".length());
+                    IndexSelection indexSelection = parseIndexSelection(remaining);
+
+                    List<Key> selectedItems = selectByIndex(ref.getKeys(), indexSelection);
+                    List<String> results = extractKeyAttributeValues(selectedItems, indexSelection);
+                    return results;
+                }
+                LOGGER.error("Unsupported SM attribute: {}", attr);
+                return Collections.emptyList();
+        }
     }
 
 
-    private List<String> getSmeAttrValues(SubmodelElement sme, String attr) {
+    private List<String> getSubmodelElementAttributeValues(SubmodelElement sme, String attr) {
         if (sme == null || attr == null)
             return Collections.emptyList();
 
-        if ("idShort".equals(attr)) {
-            return Collections.singletonList(sme.getIdShort());
-        }
-        if ("value".equals(attr)) {
-            if (sme instanceof Property) {
-                return Collections.singletonList(((Property) sme).getValue());
-            }
-            return Collections.emptyList();
-        }
-        if ("valueType".equals(attr)) {
-            if (sme instanceof Property && ((Property) sme).getValueType() != null) {
-                return Collections.singletonList(((Property) sme).getValueType().name());
-            }
-            return Collections.emptyList();
-        }
-        if ("language".equals(attr)) {
-            if (sme instanceof MultiLanguageProperty) {
-                List<LangStringTextType> values = ((MultiLanguageProperty) sme).getValue();
-                if (values == null)
+        switch (attr) {
+            case "idShort":
+                return Collections.singletonList(sme.getIdShort());
+            case "value":
+                if (sme instanceof Property) {
+                    return Collections.singletonList(((Property) sme).getValue());
+                }
+                return Collections.emptyList();
+            case "valueType":
+                if (sme instanceof Property && ((Property) sme).getValueType() != null) {
+                    return Collections.singletonList(((Property) sme).getValueType().name());
+                }
+                return Collections.emptyList();
+            case "language":
+                if (sme instanceof MultiLanguageProperty) {
+                    List<LangStringTextType> values = ((MultiLanguageProperty) sme).getValue();
+                    if (values == null)
+                        return Collections.emptyList();
+                    return values.stream()
+                            .filter(Objects::nonNull)
+                            .map(LangStringTextType::getLanguage)
+                            .collect(Collectors.toList());
+                }
+                return Collections.emptyList();
+            case "semanticId": {
+                Reference ref = sme.getSemanticId();
+                if (ref == null || ref.getKeys() == null || ref.getKeys().isEmpty())
                     return Collections.emptyList();
-                return values.stream().filter(Objects::nonNull).map(LangStringTextType::getLanguage).collect(Collectors.toList());
+                return Collections.singletonList(ref.getKeys().get(0).getValue());
             }
-            return Collections.emptyList();
-        }
-        if ("semanticId".equals(attr)) {
-            Reference ref = sme.getSemanticId();
-            if (ref == null || ref.getKeys() == null || ref.getKeys().isEmpty())
-                return Collections.emptyList();
-            return Collections.singletonList(ref.getKeys().get(0).getValue());
-        }
-        if (attr.startsWith("semanticId.keys")) {
-            Reference ref = sme.getSemanticId();
-            if (ref == null || ref.getKeys() == null)
-                return Collections.emptyList();
+            default:
+                if (attr.startsWith("semanticId.keys")) {
+                    Reference ref = sme.getSemanticId();
+                    if (ref == null || ref.getKeys() == null)
+                        return Collections.emptyList();
 
-            String remaining = attr.substring("semanticId.keys".length());
-            IndexSpec spec = parseIndexSuffix(remaining);
+                    String remaining = attr.substring("semanticId.keys".length());
+                    IndexSelection indexSelection = parseIndexSelection(remaining);
 
-            List<Key> targets = selectTargets(ref.getKeys(), spec);
-            List<String> out = new ArrayList<>();
-            for (Key key: targets) {
-                if (".type".equals(spec.remaining))
-                    out.add(key.getType().name());
-                else if (".value".equals(spec.remaining))
-                    out.add(key.getValue());
+                    List<Key> selectedItems = selectByIndex(ref.getKeys(), indexSelection);
+                    List<String> results = extractKeyAttributeValues(selectedItems, indexSelection);
+                    return results;
+                }
+                LOGGER.error("Unsupported SME attribute: {}", attr);
+                return Collections.emptyList();
+        }
+    }
+
+
+    private static List<String> extractKeyAttributeValues(List<Key> selectedItems, IndexSelection selector) {
+        List<String> results = new ArrayList<>();
+        for (Key key: selectedItems) {
+            switch (selector.remainingSuffix) {
+                case ".type":
+                    results.add(key.getType().name());
+                    break;
+                case ".value":
+                    results.add(key.getValue());
+                    break;
+                default:
+                    break;
             }
-            return out;
         }
-
-        LOGGER.error("Unsupported SME attribute: {}", attr);
-        return Collections.emptyList();
+        return results;
     }
 
 
     /**
+     * 
      * Resolve a submodel element by dot-separated path.
+     * 
      */
     private SubmodelElement getSubmodelElementByPath(Submodel sm, String path) {
         if (sm == null || path == null || path.isEmpty())
@@ -649,7 +784,7 @@ public class QueryEvaluator {
     }
 
 
-    private String getPropertyFromObject(Object item, String path) {
+    private String getSpecificAssetIdAttribute(Object item, String path) {
         if (!(item instanceof SpecificAssetId) || path == null) {
             LOGGER.error("Unsupported property {} for object {}", path, item);
             return null;
@@ -670,7 +805,7 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> getPropertyFromSuffix(SubmodelElement item, String suffix) {
+    private List<Object> getPropertyValuesFromSuffix(SubmodelElement item, String suffix) {
         if (item == null || suffix == null)
             return Collections.emptyList();
 
@@ -682,15 +817,15 @@ public class QueryEvaluator {
             subPath = normalized.substring(0, hashPos);
             attr = normalized.substring(hashPos + 1);
         }
-        SubmodelElement target = getSubmodelElementByPathForItem(item, subPath);
+        SubmodelElement target = resolveRelativeSubmodelElementPath(item, subPath);
         if (target == null) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(getSmeAttrValues(target, attr));
+        return new ArrayList<>(getSubmodelElementAttributeValues(target, attr));
     }
 
 
-    private SubmodelElement getSubmodelElementByPathForItem(SubmodelElement item, String path) {
+    private SubmodelElement resolveRelativeSubmodelElementPath(SubmodelElement item, String path) {
         if (item == null || path == null || path.isEmpty())
             return item;
 
@@ -711,24 +846,24 @@ public class QueryEvaluator {
     }
 
 
-    private boolean compare(Object a, Object b, Operator op) {
-        if (op == null)
+    private boolean compareValues(Object a, Object b, ComparisonOperator operator) {
+        if (operator == null)
             return false;
 
-        if (op.isStringOp()) {
-            return compareStrings(a, b, op);
+        if (operator.isStringOperator()) {
+            return compareUsingStringOperator(a, b, operator);
         }
-        return compareGeneral(a, b, op);
+        return compareUsingGeneralComparison(a, b, operator);
     }
 
 
-    private boolean compareStrings(Object a, Object b, Operator op) {
+    private boolean compareUsingStringOperator(Object a, Object b, ComparisonOperator operator) {
         if (a == null || b == null)
             return false;
         String left = String.valueOf(a);
         String right = String.valueOf(b);
 
-        switch (op) {
+        switch (operator) {
             case CONTAINS:
                 return left.contains(right);
             case STARTS_WITH:
@@ -743,20 +878,22 @@ public class QueryEvaluator {
     }
 
 
-    private boolean compareGeneral(Object a, Object b, Operator op) {
+    private boolean compareUsingGeneralComparison(Object a, Object b, ComparisonOperator operator) {
         if (a == null || b == null) {
-            return (op == Operator.EQ) ? a == b
-                    : (op == Operator.NE) && a != b;
+            return (operator == ComparisonOperator.EQ)
+                    ? Objects.equals(a, b)
+                    : (operator == ComparisonOperator.NE) && !Objects.equals(a, b);
         }
 
-        try {
-            double d1 = (a instanceof Number) ? ((Number) a).doubleValue() : Double.parseDouble(String.valueOf(a));
-            double d2 = (b instanceof Number) ? ((Number) b).doubleValue() : Double.parseDouble(String.valueOf(b));
-            switch (op) {
+        // try numeric
+        Double d1 = toDouble(a);
+        Double d2 = toDouble(b);
+        if (d1 != null && d2 != null) {
+            switch (operator) {
                 case EQ:
-                    return d1 == d2;
+                    return Double.compare(d1, d2) == 0;
                 case NE:
-                    return d1 != d2;
+                    return Double.compare(d1, d2) != 0;
                 case GT:
                     return d1 > d2;
                 case GE:
@@ -769,25 +906,26 @@ public class QueryEvaluator {
                     return false;
             }
         }
-        catch (NumberFormatException ignored) {
-            // left blank intentionally
-        }
 
-        // boolean
+        // try boolean
         String sa = String.valueOf(a).trim();
         String sb = String.valueOf(b).trim();
-        boolean ba = "true".equalsIgnoreCase(sa) || "false".equalsIgnoreCase(sa);
-        boolean bb = "true".equalsIgnoreCase(sb) || "false".equalsIgnoreCase(sb);
-        if (ba && bb) {
-            boolean b1 = Boolean.parseBoolean(sa);
-            boolean b2 = Boolean.parseBoolean(sb);
-            return (op == Operator.EQ) ? (b1 == b2)
-                    : (op == Operator.NE) && (b1 != b2);
+        Boolean ba = parseBooleanStrict(sa);
+        Boolean bb = parseBooleanStrict(sb);
+        if (ba != null && bb != null) {
+            switch (operator) {
+                case EQ:
+                    return Objects.equals(ba, bb);
+                case NE:
+                    return !Objects.equals(ba, bb);
+                default:
+                    return false;
+            }
         }
 
-        // string
+        // string comparison
         int cmp = sa.compareTo(sb);
-        switch (op) {
+        switch (operator) {
             case EQ:
                 return cmp == 0;
             case NE:
@@ -806,25 +944,34 @@ public class QueryEvaluator {
     }
 
 
+    private static Boolean parseBooleanStrict(String s) {
+        if ("true".equalsIgnoreCase(s))
+            return Boolean.TRUE;
+        if ("false".equalsIgnoreCase(s))
+            return Boolean.FALSE;
+        return null;
+    }
+
+
     private static <T> List<T> nonNull(List<T> in) {
         return in != null ? in : Collections.emptyList();
     }
 
     /**
-     * @param remaining remaining suffix (e.g., ".name")
+     * @param remainingSuffix remaining suffix (e.g., ".name")
      */
-    private record IndexSpec(boolean any, Integer index, String remaining) {}
+    private record IndexSelection(boolean selectAll, Integer index, String remainingSuffix) {}
 
-    private IndexSpec parseIndexSuffix(String s) {
+    private IndexSelection parseIndexSelection(String s) {
         if (s == null || s.isEmpty()) {
-            return new IndexSpec(true, null, "");
+            return new IndexSelection(true, null, "");
         }
         String rem = s;
-        boolean any = false;
+        boolean selectAll = false;
         Integer idx = null;
 
         if (rem.startsWith("[]")) {
-            any = true;
+            selectAll = true;
             rem = rem.substring(2);
         }
         else if (rem.startsWith("[")) {
@@ -832,7 +979,7 @@ public class QueryEvaluator {
             if (end > 1) {
                 String idxStr = rem.substring(1, end);
                 if (idxStr.isEmpty()) {
-                    any = true;
+                    selectAll = true;
                 }
                 else {
                     try {
@@ -840,22 +987,22 @@ public class QueryEvaluator {
                     }
                     catch (NumberFormatException e) {
                         LOGGER.error("Invalid index in path: {}", s);
-                        return new IndexSpec(true, null, rem.substring(end + 1));
+                        return new IndexSelection(true, null, rem.substring(end + 1));
                     }
                 }
                 rem = rem.substring(end + 1);
             }
         }
-        return new IndexSpec(any, idx, rem);
+        return new IndexSelection(selectAll, idx, rem);
     }
 
 
-    private <T> List<T> selectTargets(List<T> list, IndexSpec spec) {
+    private <T> List<T> selectByIndex(List<T> list, IndexSelection selector) {
         if (list == null || list.isEmpty())
             return Collections.emptyList();
-        if (spec.any || spec.index == null)
+        if (selector.selectAll || selector.index == null)
             return list;
-        int i = spec.index;
+        int i = selector.index;
         return (i >= 0 && i < list.size()) ? Collections.singletonList(list.get(i)) : Collections.emptyList();
     }
 }

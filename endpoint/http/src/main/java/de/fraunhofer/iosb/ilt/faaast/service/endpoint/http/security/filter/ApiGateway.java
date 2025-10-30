@@ -327,9 +327,8 @@ public class ApiGateway {
                     && getObjects(rule, allAccess) != null
                     && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                         if (attr.getRoute() != null) {
-                            // route is a list of allowed routes; support wildcard "*"
-                            List<String> routes = attr.getRoute();
-                            return routes.contains("*") || routes.contains(path);
+                            String route = attr.getRoute();
+                            return route.contains("*") || route.contains(path);
                         }
                         else if (attr.getIdentifiable() != null) {
                             return checkIdentifiable(path, attr.getIdentifiable());
