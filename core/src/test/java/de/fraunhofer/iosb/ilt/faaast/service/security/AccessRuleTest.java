@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.security;
 
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
@@ -26,10 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Objects;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
 
 
 public class AccessRuleTest {
