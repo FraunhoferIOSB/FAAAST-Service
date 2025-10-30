@@ -79,12 +79,10 @@ public class ApiGateway {
 
 
     /**
-     * 
      * Checks if the user is authorized to receive the response of the request.
      *
      * @param request the HttpRequest
      * @return true if authorized and ACL exists
-     * 
      */
     public boolean isAuthorized(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
@@ -102,14 +100,11 @@ public class ApiGateway {
 
 
     /**
-     * 
      * Filters out AAS that the user is not authorized for.
      *
      * @param request the HttpRequest
      * @param response the ApiResponse
-     * 
      * @return the ApiResponse with only allowed AAS
-     * 
      */
     public Response filterAas(HttpServletRequest request, GetAllAssetAdministrationShellsResponse response) {
         response.getPayload().getContent()
@@ -122,14 +117,11 @@ public class ApiGateway {
 
 
     /**
-     * 
      * Filters out Submodels that the user is not authorized for.
      *
      * @param request the HttpRequest
      * @param response the ApiResponse
-     * 
      * @return the ApiResponse with only allowed Submodels
-     * 
      */
     public Response filterSubmodels(HttpServletRequest request, GetAllSubmodelsResponse response) {
         response.getPayload().getContent()
@@ -159,28 +151,20 @@ public class ApiGateway {
     }
 
     /**
-     * 
      * Simple whitelist AuthServer implementation that supports ANONYMOUS access,
      * claims with simple eq formulas and route authorization.
-     * 
      * Access must be explicitly defined, otherwise it is blocked.
-     * 
      */
     public static class AuthServer {
         private static final String apiPrefix = "/api/v3.0/";
 
         /**
-         * 
          * Check all rules that explicitly allows the request.
          * If a rule exists after all filters, true is returned
          *
-         * 
-         * 
          * @param claims
          * @param request
-         * 
          * @return
-         * 
          */
         private static boolean filterRules(Map<Path, AllAccessPermissionRules> aclList, Map<String, Claim> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
