@@ -54,6 +54,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
@@ -78,18 +79,22 @@ public class ApiGateway {
 
 
     /**
+     * 
      * Checks if the user is authorized to receive the response of the request.
      *
      * @param request the HttpRequest
      * @return true if authorized and ACL exists
+     * 
      */
     public boolean isAuthorized(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (java.util.Objects.isNull(token)) {
+        if (token == null) {
             return AuthServer.filterRules(this.aclList, null, request);
         }
         else {
-            token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
+            if (token.startsWith(BEARER_KWD + " ")) {
+                token = token.substring(BEARER_KWD.length() + 1).trim();
+            }
             DecodedJWT jwt = JWT.decode(token);
             return AuthServer.filterRules(this.aclList, jwt.getClaims(), request);
         }
@@ -97,11 +102,14 @@ public class ApiGateway {
 
 
     /**
+     * 
      * Filters out AAS that the user is not authorized for.
      *
      * @param request the HttpRequest
      * @param response the ApiResponse
+     * 
      * @return the ApiResponse with only allowed AAS
+     * 
      */
     public Response filterAas(HttpServletRequest request, GetAllAssetAdministrationShellsResponse response) {
         response.getPayload().getContent()
@@ -114,11 +122,14 @@ public class ApiGateway {
 
 
     /**
+     * 
      * Filters out Submodels that the user is not authorized for.
      *
      * @param request the HttpRequest
      * @param response the ApiResponse
+     * 
      * @return the ApiResponse with only allowed Submodels
+     * 
      */
     public Response filterSubmodels(HttpServletRequest request, GetAllSubmodelsResponse response) {
         response.getPayload().getContent()
@@ -135,7 +146,9 @@ public class ApiGateway {
         if (token == null) {
             return null;
         }
-        token = token.startsWith("Bearer ") ? token.substring("Bearer ".length()).trim() : token;
+        if (token.startsWith(BEARER_KWD + " ")) {
+            token = token.substring(BEARER_KWD.length() + 1).trim();
+        }
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaims();
@@ -146,24 +159,32 @@ public class ApiGateway {
     }
 
     /**
+     * 
      * Simple whitelist AuthServer implementation that supports ANONYMOUS access,
      * claims with simple eq formulas and route authorization.
+     * 
      * Access must be explicitly defined, otherwise it is blocked.
+     * 
      */
     public static class AuthServer {
         private static final String apiPrefix = "/api/v3.0/";
 
         /**
+         * 
          * Check all rules that explicitly allows the request.
          * If a rule exists after all filters, true is returned
          *
+         * 
+         * 
          * @param claims
          * @param request
+         * 
          * @return
+         * 
          */
         private static boolean filterRules(Map<Path, AllAccessPermissionRules> aclList, Map<String, Claim> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
-            String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(9) : requestPath;
+            String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(apiPrefix.length()) : requestPath;
             String method = request.getMethod();
             List<AllAccessPermissionRules> relevantRules = aclList.values().stream()
                     .filter(a -> a.getRules().stream()
@@ -186,7 +207,7 @@ public class ApiGateway {
             List<String> claimValues = getAttributes(acl, allAccess).stream()
                     .filter(attr -> attr.getGlobal() == null)
                     .map(AttributeItem::getClaim)
-                    .filter(java.util.Objects::nonNull)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             Map<String, String> claimList = new HashMap<>();
             for (String val: claimValues) {
@@ -197,9 +218,7 @@ public class ApiGateway {
             }
             return !claimValues.isEmpty()
                     && claimValues.stream()
-                            .allMatch(value -> {
-                                return evaluateFormula(getFormula(rule, allAccess), claimList);
-                            });
+                            .allMatch(value -> evaluateFormula(getFormula(rule, allAccess), claimList));
         }
 
 
@@ -209,23 +228,19 @@ public class ApiGateway {
             for (var c: claims.entrySet()) {
                 ctx.put("CLAIM:" + c.getKey(), c.getValue());
             }
-            //ctx.put("CLAIM:" + claimName, claimValue);
             ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
             return FormulaEvaluator.evaluate(formula, ctx);
         }
 
 
         private static boolean evaluateRights(List<RightsEnum> aclRights, String method, String path) {
-            // We need the path to check if the request is an operation invocation (EXECUTE)
             String requiredRight = isOperationRequest(method, path) ? "EXECUTE" : getRequiredRight(method);
-
             return aclRights.contains(RightsEnum.ALL) || aclRights.contains(RightsEnum.valueOf(requiredRight));
         }
 
 
         private static boolean isOperationRequest(String method, String path) {
-            // Requirements for an operation request according to FAAAST docs:
-            // Method: POST, URL suffix: /invoke, /invoke-async, /invoke/$value, /invoke-async/$value
+            // Requirements: POST and URL suffix: invoke, invoke-async, invoke/$value, invoke-async/$value
             String cleanPath;
             String[] pathParts = path.split("/");
 
@@ -236,7 +251,7 @@ public class ApiGateway {
                 cleanPath = pathParts[pathParts.length - 1];
             }
 
-            return POST.name().equals(method) && ("/invoke".equals(cleanPath) || "invoke-async".equals(path));
+            return POST.name().equals(method) && ("invoke".equals(cleanPath) || "invoke-async".equals(cleanPath));
         }
 
 
@@ -257,14 +272,14 @@ public class ApiGateway {
                 return false;
             }
 
-            if (identifiable.equals("(Submodel)*")) {
+            if ("(Submodel)*".equals(identifiable)) {
                 return true;
             }
             else if (identifiable.startsWith("(Submodel)")) {
                 String id = identifiable.substring(10);
                 return path.contains(EncodingHelper.base64Encode(id));
             }
-            if (identifiable.equals("(AssetAdministrationShell)*")) {
+            if ("(AssetAdministrationShell)*".equals(identifiable)) {
                 return true;
             }
             else if (identifiable.startsWith("(AssetAdministrationShell)")) {
@@ -280,7 +295,7 @@ public class ApiGateway {
                 if (!path.startsWith("/shell-descriptors")) {
                     return false;
                 }
-                if (descriptor.equals("(aasDesc)*")) {
+                if ("(aasDesc)*".equals(descriptor)) {
                     return true;
                 }
                 else if (descriptor.startsWith("(aasDesc)")) {
@@ -292,7 +307,7 @@ public class ApiGateway {
                 if (!path.startsWith("/submodel-descriptors")) {
                     return false;
                 }
-                if (descriptor.equals("(smDesc)*")) {
+                if ("(smDesc)*".equals(descriptor)) {
                     return true;
                 }
                 else if (descriptor.startsWith("(smDesc)")) {
@@ -312,7 +327,9 @@ public class ApiGateway {
                     && getObjects(rule, allAccess) != null
                     && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                         if (attr.getRoute() != null) {
-                            return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
+                            // route is a list of allowed routes; support wildcard "*"
+                            List<String> routes = attr.getRoute();
+                            return routes.contains("*") || routes.contains(path);
                         }
                         else if (attr.getIdentifiable() != null) {
                             return checkIdentifiable(path, attr.getIdentifiable());
@@ -393,12 +410,14 @@ public class ApiGateway {
         ObjectMapper mapper = new ObjectMapper();
         Thread monitoringThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                WatchKey watchKey = null;
+                WatchKey watchKey;
                 try {
                     watchKey = watchService.take();
                 }
                 catch (InterruptedException e) {
-                    LOGGER.error(abortMessage);
+                    Thread.currentThread().interrupt(); // restore interrupt status
+                    LOGGER.warn("ACL monitoring thread interrupted", e);
+                    break; // exit loop
                 }
                 for (WatchEvent<?> event: watchKey.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
@@ -430,10 +449,9 @@ public class ApiGateway {
                         }
                     }
                 }
-                // Reset the key to receive further watch events
                 boolean valid = watchKey.reset();
                 if (!valid) {
-                    System.out.println("WatchKey no longer valid; exiting.");
+                    LOGGER.info("WatchKey no longer valid; exiting.");
                     break;
                 }
             }
@@ -447,7 +465,9 @@ public class ApiGateway {
             return rule.getAcl();
         }
         else if (rule.getUseacl() != null) {
-            Optional<Defacl> acl = allAccess.getDefacls().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            Optional<Defacl> acl = allAccess.getDefacls().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUseacl()))
+                    .findAny();
             if (acl.isPresent()) {
                 return acl.get().getAcl();
             }
@@ -466,7 +486,8 @@ public class ApiGateway {
             return acl.getAttributes();
         }
         else if (acl.getUseattributes() != null) {
-            Optional<Defattribute> attribute = allAccess.getDefattributes().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName())))
+            Optional<Defattribute> attribute = allAccess.getDefattributes().stream()
+                    .filter(a -> Objects.equals(a.getName(), acl.getUseattributes()))
                     .findAny();
             if (attribute.isPresent()) {
                 return attribute.get().getAttributes();
@@ -486,7 +507,9 @@ public class ApiGateway {
             return rule.getFormula();
         }
         else if (rule.getUseformula() != null) {
-            Optional<Defformula> formula = allAccess.getDefformulas().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            Optional<Defformula> formula = allAccess.getDefformulas().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUseformula()))
+                    .findAny();
             if (formula.isPresent()) {
                 return formula.get().getFormula();
             }
@@ -505,12 +528,14 @@ public class ApiGateway {
             return rule.getObjects();
         }
         else if (rule.getUseobjects() != null) {
-            Optional<Defobject> objects = allAccess.getDefobjects().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            Optional<Defobject> objects = allAccess.getDefobjects().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUseobjects()))
+                    .findAny();
             if (objects.isPresent()) {
                 return objects.get().getObjects();
             }
             else {
-                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUseformula());
+                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUseobjects());
             }
         }
         else {
