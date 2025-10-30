@@ -311,8 +311,7 @@ public class ApiGateway {
                     && getObjects(rule, allAccess) != null
                     && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                         if (attr.getRoute() != null) {
-                            String route = attr.getRoute();
-                            return route.contains("*") || route.contains(path);
+                            return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
                         }
                         else if (attr.getIdentifiable() != null) {
                             return checkIdentifiable(path, attr.getIdentifiable());
