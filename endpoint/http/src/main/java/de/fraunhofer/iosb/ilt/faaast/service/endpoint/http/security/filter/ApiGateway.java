@@ -181,7 +181,7 @@ public class ApiGateway {
         private static boolean verifyAllClaims(Map<String, Claim> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
             Acl acl = getAcl(rule, allAccess);
             if (getAttributes(acl, allAccess).stream()
-                    .anyMatch(attr -> "ANONYMOUS".equals(attr.getGlobal())
+                    .anyMatch(attr -> "ANONYMOUS".equals(attr.getGlobal().value())
                             && Boolean.TRUE.equals(getFormula(rule, allAccess).get$boolean()))) {
                 return true;
             }
@@ -323,7 +323,7 @@ public class ApiGateway {
                             return false;
                         }
                     })
-                    && "ALLOW".equals(acl.getAccess())
+                    && "ALLOW".equals(acl.getAccess().value())
                     && evaluateRights(acl.getRights(), method, path)
                     && verifyAllClaims(claims, rule, allAccess);
         }
