@@ -231,7 +231,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isAssetIdsSet()) {
             result = filterByAssetIds(result, criteria.getAssetIds());
         }
-        QueryEvaluator evaluator = new QueryEvaluator(environment);
+        QueryEvaluator evaluator = new QueryEvaluator();
         if (query != null) {
             result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }
@@ -274,7 +274,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isDataSpecificationSet()) {
             result = filterByDataSpecification(result, criteria.getDataSpecification());
         }
-        QueryEvaluator evaluator = new QueryEvaluator(environment);
+        QueryEvaluator evaluator = new QueryEvaluator();
         if (query != null) {
             result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }
@@ -350,7 +350,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        QueryEvaluator evaluator = new QueryEvaluator(environment);
+        QueryEvaluator evaluator = new QueryEvaluator();
         if (query != null) {
             result = result.filter(aas -> evaluator.matches(query.get$condition(), aas));
         }

@@ -231,7 +231,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForSimpleEq(true);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         AssetAdministrationShell aas = env.getAssetAdministrationShells().get(0);
         boolean result = evaluator.matches(query.get$condition(), aas);
         assertTrue(result);
@@ -259,7 +259,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForSimpleEq(false);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         AssetAdministrationShell aas = env.getAssetAdministrationShells().get(0);
         boolean result = evaluator.matches(query.get$condition(), aas);
         assertFalse(result);
@@ -292,7 +292,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForDocumentsMatch(true);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         Submodel submodel = env.getSubmodels().get(0);
         boolean result = evaluator.matches(query.get$condition(), submodel);
         assertTrue(result);
@@ -325,7 +325,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForDocumentsMatch(false);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         Submodel submodel = env.getSubmodels().get(0);
         boolean result = evaluator.matches(query.get$condition(), submodel);
         assertFalse(result);
@@ -385,7 +385,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForAndMatch(true);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         Submodel submodel = env.getSubmodels().get(0);
         boolean result = evaluator.matches(query.get$condition(), submodel);
         assertTrue(result);
@@ -445,7 +445,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForAndMatch(false);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         Submodel submodel = env.getSubmodels().get(0);
         boolean result = evaluator.matches(query.get$condition(), submodel);
         assertFalse(result);
@@ -498,7 +498,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForOrMatch(true);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         AssetAdministrationShell aas = env.getAssetAdministrationShells().get(0);
         boolean result = evaluator.matches(query.get$condition(), aas);
         assertTrue(result);
@@ -551,7 +551,7 @@ public class QueryEvaluatorTest {
                 json, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForOrMatch(false);
-        QueryEvaluator evaluator = new QueryEvaluator(env);
+        QueryEvaluator evaluator = new QueryEvaluator();
         AssetAdministrationShell aas = env.getAssetAdministrationShells().get(0);
         boolean result = evaluator.matches(query.get$condition(), aas);
         assertFalse(result);

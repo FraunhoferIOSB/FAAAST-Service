@@ -26,15 +26,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.RightsEnum;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import org.junit.Before;
+import java.util.Objects;
 import org.junit.Test;
 
 
 public class AccessRuleTest {
-
-    @Before
-    public void init() {}
-
 
     @Test
     public void testAllowAnonymousReadConstruction() {
@@ -63,6 +59,7 @@ public class AccessRuleTest {
         // Wrap in AllAccessPermissionRules and the root
         AllAccessPermissionRules allRules = new AllAccessPermissionRules();
         allRules.setRules(Arrays.asList(rule));
+        assert !allRules.getRules().isEmpty();
     }
 
 
@@ -76,5 +73,6 @@ public class AccessRuleTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(inputStream);
         AllAccessPermissionRules allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
+        assert Objects.nonNull(allRules);
     }
 }
