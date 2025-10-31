@@ -39,7 +39,7 @@ For testing purposes, we provide an example model here: <!--start:download-model
 
 :::
 
-:::{admonition} Resource not found '/shells'
+:::{admonition} Resource not found '/shells' (for versions < v1.4.0)
 :class: note
 :name: resources
 

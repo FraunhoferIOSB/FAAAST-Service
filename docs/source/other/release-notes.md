@@ -1,6 +1,15 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**New Features & Major Changes**
+
+
+**Internal changes & bugfixes**
+- Endpoint
+    - HTTP
+        - the URL prefix /api/v3.x is now optional
+
 ## 1.3.0
 
 **New Features & Major Changes**

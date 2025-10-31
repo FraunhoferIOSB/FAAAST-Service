@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMapp
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -72,10 +71,7 @@ public class RequestHandlerServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!request.getRequestURI().startsWith(HttpEndpoint.getVersionPrefix())) {
-            doThrow(new ResourceNotFoundException(String.format("Resource not found '%s'", request.getRequestURI())));
-        }
-        String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
+        String url = request.getRequestURI();
         HttpMethod method = null;
         try {
             method = HttpMethod.valueOf(request.getMethod());
