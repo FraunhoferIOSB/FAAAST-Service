@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.AbstractEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.Interface;
-import de.fraunhofer.iosb.ilt.faaast.service.model.Version;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.io.File;
 import java.io.IOException;
