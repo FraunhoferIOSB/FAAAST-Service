@@ -241,6 +241,16 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
     }
 
 
+    /**
+     * Gets the configured path prefix (e.g., /api/v3.0).
+     *
+     * @return the configured path prefix
+     */
+    public String getPathPrefix() {
+        return config.getPathPrefix();
+    }
+
+
     private org.eclipse.digitaltwin.aas4j.v3.model.Endpoint endpointFor(String interfaceName, String path) {
         return new DefaultEndpoint.Builder()
                 ._interface(interfaceName)
@@ -267,12 +277,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
                         result.getUserInfo(),
                         config.getHostname(),
                         result.getPort(),
-                        result.getPath(),
+                        config.getPathPrefix().concat(result.getPath()),
                         result.getQuery(),
                         result.getFragment());
             }
             catch (URISyntaxException e) {
-                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuratoin (hostname: {})",
+                LOGGER.warn("error creating endpoint URI for HTTP endpoint based on hostname from configuration (hostname: {})",
                         config.getHostname(),
                         e);
             }
