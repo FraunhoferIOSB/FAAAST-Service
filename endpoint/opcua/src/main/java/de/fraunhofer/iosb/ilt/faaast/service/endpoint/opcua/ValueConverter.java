@@ -21,6 +21,9 @@ import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
+import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
+import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
@@ -42,6 +45,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeInteg
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedIntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedLongValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedShortValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -797,6 +803,15 @@ public class ValueConverter {
         }
         else if (typedValue instanceof Base64BinaryValue base64BinaryValue) {
             retval = ByteString.valueOf(base64BinaryValue.getValue());
+        }
+        else if (typedValue instanceof UnsignedShortValue unsShortValue) {
+            retval = UnsignedShort.valueOf(unsShortValue.getValue());
+        }
+        else if (typedValue instanceof UnsignedIntValue unsIntValue) {
+            retval = UnsignedInteger.valueOf(unsIntValue.getValue());
+        }
+        else if (typedValue instanceof UnsignedLongValue unsLongValue) {
+            retval = UnsignedLong.valueOf(unsLongValue.getValue());
         }
         return retval;
     }
