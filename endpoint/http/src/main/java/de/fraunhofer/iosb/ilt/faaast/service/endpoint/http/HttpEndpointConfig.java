@@ -33,7 +33,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final String DEFAULT_CORS_EXPOSED_HEADERS = "";
     public static final long DEFAULT_CORS_MAX_AGE = 3600;
     public static final String DEFAULT_HOSTNAME = null;
-    public static final String DEFAULT_PATH_PREFIX = "";
+    public static final String DEFAULT_PATH_PREFIX = "/api/v3.0";
     public static final boolean DEFAULT_INCLUDE_ERROR_DETAILS = false;
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
