@@ -76,8 +76,8 @@ public class RegistrySynchronizationTest {
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
-    private static final String AAS_URL_PATH = "/api/v3.0/shell-descriptors";
-    private static final String SUBMODEL_URL_PATH = "/api/v3.0/submodel-descriptors";
+    private static final String AAS_URL_PATH = "/shell-descriptors";
+    private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
     private ObjectMapper mapper;
     private MessageBus messageBus;
     private Endpoint endpoint;
@@ -88,7 +88,7 @@ public class RegistrySynchronizationTest {
 
     @Before
     public void init() throws Exception {
-        serviceUri = new URI("https://example.org/service/api/v3.0");
+        serviceUri = new URI("https://example.org/service/");
         mapper = new ObjectMapper()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

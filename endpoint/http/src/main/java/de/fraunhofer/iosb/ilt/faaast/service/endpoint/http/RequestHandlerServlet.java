@@ -72,10 +72,10 @@ public class RequestHandlerServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!request.getRequestURI().startsWith(HttpEndpoint.getVersionPrefix())) {
+        if (!request.getRequestURI().startsWith(endpoint.getPathPrefix())) {
             doThrow(new ResourceNotFoundException(String.format("Resource not found '%s'", request.getRequestURI())));
         }
-        String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
+        String url = request.getRequestURI().replaceFirst(endpoint.getPathPrefix(), "");
         HttpMethod method = null;
         try {
             method = HttpMethod.valueOf(request.getMethod());
