@@ -112,7 +112,7 @@
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.owasp.version>12.1.8</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.1.9</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.4.0-163</maven.plugin.prosys.codegen.version>
