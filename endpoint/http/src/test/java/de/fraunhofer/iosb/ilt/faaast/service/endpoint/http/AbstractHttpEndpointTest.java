@@ -121,6 +121,7 @@ public abstract class AbstractHttpEndpointTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpEndpointTest.class);
     protected static final String HOST = "localhost";
+    private static final String API_PREFIX = "/api/v3.0";
     protected static String scheme;
     protected static int port;
     protected static HttpClient client;
@@ -356,7 +357,7 @@ public abstract class AbstractHttpEndpointTest {
                 .timeout(1, TimeUnit.HOURS)
                 .idleTimeout(1, TimeUnit.HOURS)
                 .method(HttpMethod.PUT)
-                .path(String.format("/shells/%s/asset-information/thumbnail", EncodingHelper.base64UrlEncode(aasId)))
+                .path(String.format("%s/shells/%s/asset-information/thumbnail", API_PREFIX, EncodingHelper.base64UrlEncode(aasId)))
                 .body(multiPart)
                 .scheme(scheme)
                 .send();
@@ -921,6 +922,7 @@ public abstract class AbstractHttpEndpointTest {
         if (Objects.nonNull(content) && !Objects.equals(content, Content.NORMAL)) {
             actualPath = String.format("%s/$%s", path, content.name().toLowerCase());
         }
+        actualPath = API_PREFIX + actualPath;
         Request request = client.newRequest(HOST, port)
                 // TODO remove
                 .timeout(1, TimeUnit.HOURS)

@@ -44,15 +44,17 @@ public class ApiPaths {
 
     private final String host;
     private final int port;
+    private final String pathPrefix;
 
     public ApiPaths(String host, int port) {
         this.host = host;
         this.port = port;
+        this.pathPrefix = "/api/v3.0";
     }
 
 
     public String root() {
-        return String.format("%s:%d", host, port);
+        return String.format("%s:%d%s", host, port, pathPrefix);
     }
 
 
