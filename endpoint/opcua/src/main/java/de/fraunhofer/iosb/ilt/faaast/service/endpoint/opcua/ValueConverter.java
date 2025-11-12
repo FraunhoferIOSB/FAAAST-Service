@@ -21,6 +21,7 @@ import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.UnsignedByte;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
@@ -45,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NegativeInteg
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonNegativeIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.NonPositiveIntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.PositiveIntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedByteValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedIntValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedLongValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.UnsignedShortValue;
@@ -812,6 +814,9 @@ public class ValueConverter {
         }
         else if (typedValue instanceof UnsignedLongValue unsLongValue) {
             retval = UnsignedLong.valueOf(unsLongValue.getValue());
+        }
+        else if (typedValue instanceof UnsignedByteValue unsByteVylue) {
+            retval = UnsignedByte.valueOf(unsByteVylue.getValue());
         }
         return retval;
     }
