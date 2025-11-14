@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
+import static java.util.Objects.requireNonNull;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
@@ -93,12 +95,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private UaMethodNode getMethodNode(NodeId nodeId) throws AssetConnectionException {
         try {
-            UaNode node = client.getAddressSpace().getNode(nodeId);
-            if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
+            UaNode methodNode = client.getAddressSpace().getNode(nodeId);
+            if (!UaMethodNode.class.isAssignableFrom(methodNode.getClass())) {
                 throw new AssetConnectionException(String.format("Provided node must be a method (nodeId: %s",
                         providerConfig.getNodeId()));
             }
-            return (UaMethodNode) node;
+            return (UaMethodNode) methodNode;
         }
         catch (UaException e) {
             throw new AssetConnectionException(String.format("Could not resolve nodeId (nodeId: %s)",
@@ -341,10 +343,10 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         Variant[] actualParameters = convertParameters(inputParameter, inoutputParameter);
         CallMethodResult methodResult;
         try {
-            methodResult = client.call(new CallMethodRequest(
+            methodResult = client.callAsync(List.of(new CallMethodRequest(
                     parentNodeId,
                     nodeId,
-                    actualParameters)).get();
+                    actualParameters))).thenApply(r -> requireNonNull(r.getResults())[0]).get();
         }
         catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();

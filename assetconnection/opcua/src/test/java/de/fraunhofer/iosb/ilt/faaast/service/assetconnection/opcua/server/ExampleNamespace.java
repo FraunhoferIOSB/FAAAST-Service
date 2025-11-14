@@ -25,18 +25,15 @@ import java.util.UUID;
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.core.ValueRank;
+import org.eclipse.milo.opcua.sdk.server.ManagedNamespaceWithLifecycle;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
-import org.eclipse.milo.opcua.sdk.server.api.DataItem;
-import org.eclipse.milo.opcua.sdk.server.api.ManagedNamespaceWithLifecycle;
-import org.eclipse.milo.opcua.sdk.server.api.MonitoredItem;
-import org.eclipse.milo.opcua.sdk.server.model.nodes.variables.AnalogItemTypeNode;
+import org.eclipse.milo.opcua.sdk.server.items.DataItem;
+import org.eclipse.milo.opcua.sdk.server.items.MonitoredItem;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaFolderNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaVariableNode;
-import org.eclipse.milo.opcua.sdk.server.nodes.factories.NodeFactory;
 import org.eclipse.milo.opcua.sdk.server.util.SubscriptionModel;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
-import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
@@ -46,7 +43,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.XmlElement;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
-import org.eclipse.milo.opcua.stack.core.types.structured.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -638,27 +634,27 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 LocalizedText.english("DataAccess"));
         getNodeManager().addNode(dataAccessFolder);
         rootNode.addOrganizes(dataAccessFolder);
-        try {
-            AnalogItemTypeNode node = (AnalogItemTypeNode) getNodeFactory().createNode(
-                    newNodeId("HelloWorld/DataAccess/AnalogValue"),
-                    Identifiers.AnalogItemType,
-                    new NodeFactory.InstantiationCallback() {
-                        @Override
-                        public boolean includeOptionalNode(NodeId typeDefinitionId, QualifiedName browseName) {
-                            return true;
-                        }
-                    });
-            node.setBrowseName(newQualifiedName("AnalogValue"));
-            node.setDisplayName(LocalizedText.english("AnalogValue"));
-            node.setDataType(Identifiers.Double);
-            node.setValue(new DataValue(new Variant(3.14d)));
-            node.setEURange(new Range(0.0, 100.0));
-            getNodeManager().addNode(node);
-            dataAccessFolder.addOrganizes(node);
-        }
-        catch (UaException e) {
-            LOGGER.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
-        }
+        ////        try {
+        ////            AnalogItemTypeNode node = (AnalogItemTypeNode) getNodeFactory().createNode(
+        ////                    newNodeId("HelloWorld/DataAccess/AnalogValue"),
+        ////                    Identifiers.AnalogItemType,
+        ////                    new NodeFactory.InstantiationCallback() {
+        ////                        @Override
+        ////                        public boolean includeOptionalNode(NodeId typeDefinitionId, QualifiedName browseName) {
+        ////                            return true;
+        ////                        }
+        ////                    });
+        ////            node.setBrowseName(newQualifiedName("AnalogValue"));
+        ////            node.setDisplayName(LocalizedText.english("AnalogValue"));
+        ////            node.setDataType(Identifiers.Double);
+        ////            node.setValue(new DataValue(new Variant(3.14d)));
+        ////            node.setEURange(new Range(0.0, 100.0));
+        ////            getNodeManager().addNode(node);
+        ////            dataAccessFolder.addOrganizes(node);
+        ////        }
+        ////        catch (UaException e) {
+        ////            LOGGER.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
+        ////        }
     }
 
 
@@ -673,7 +669,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         SqrtMethod sqrtMethod = new SqrtMethod(methodNode);
         methodNode.setInputArguments(sqrtMethod.getInputArguments());
         methodNode.setOutputArguments(sqrtMethod.getOutputArguments());
-        methodNode.setInvocationHandler(sqrtMethod);
+        ////methodNode.setInvocationHandler(sqrtMethod);
         getNodeManager().addNode(methodNode);
         methodNode.addReference(new Reference(
                 methodNode.getNodeId(),
@@ -705,5 +701,28 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
     public void onMonitoringModeChanged(List<MonitoredItem> monitoredItems) {
         subscriptionModel.onMonitoringModeChanged(monitoredItems);
     }
+
+    ////    @Override
+    ////    public void onDataItemsCreated(List<DataItem> dataItems) {
+    ////        subscriptionModel.onDataItemsCreated(dataItems);
+    ////    }
+    ////
+    ////
+    ////    @Override
+    ////    public void onDataItemsModified(List<DataItem> dataItems) {
+    ////        subscriptionModel.onDataItemsModified(dataItems);
+    ////    }
+    ////
+    ////
+    ////    @Override
+    ////    public void onDataItemsDeleted(List<DataItem> dataItems) {
+    ////        subscriptionModel.onDataItemsDeleted(dataItems);
+    ////    }
+    ////
+    ////
+    ////    @Override
+    ////    public void onMonitoringModeChanged(List<MonitoredItem> monitoredItems) {
+    ////        subscriptionModel.onMonitoringModeChanged(monitoredItems);
+    ////    }
 
 }

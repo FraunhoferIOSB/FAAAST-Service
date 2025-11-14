@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.SecurityPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -34,9 +33,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.milo.opcua.sdk.server.EndpointConfig;
+import org.eclipse.milo.opcua.sdk.server.ManagedNamespaceWithLifecycle;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
-import org.eclipse.milo.opcua.sdk.server.api.ManagedNamespaceWithLifecycle;
-import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
+import org.eclipse.milo.opcua.sdk.server.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
@@ -45,8 +45,13 @@ import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaRuntimeException;
+import org.eclipse.milo.opcua.stack.core.security.DefaultApplicationGroup;
 import org.eclipse.milo.opcua.stack.core.security.DefaultCertificateManager;
-import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
+import org.eclipse.milo.opcua.stack.core.security.DefaultServerCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
+import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateStore;
+import org.eclipse.milo.opcua.stack.core.security.MemoryTrustListManager;
+import org.eclipse.milo.opcua.stack.core.security.RsaSha256CertificateFactory;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
@@ -58,9 +63,8 @@ import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedHttpsCertificateBuilder;
-import org.eclipse.milo.opcua.stack.server.EndpointConfiguration;
-import org.eclipse.milo.opcua.stack.server.security.DefaultServerCertificateValidator;
-import org.eclipse.milo.opcua.stack.server.security.ServerCertificateValidator;
+import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransport;
+import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransportConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,13 +78,14 @@ public class EmbeddedOpcUaServer {
     public static final String DEFAULT_APPLICATION_CERTIFICATE_FILE = "server-application.p12";
     public static final String DEFAULT_APPLICATION_CERTIFICATE_PASSWORD = "";
     public static final String DEFAULT_APPLICATION_CERTIFICATE_KEY_STORE_TYPE = "PKCS12";
-    private static final BuildInfo BUILD_INFO = BuildInfo.builder()
-            .productUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua:test")
-            .manufacturerName("Fraunhofer IOSB")
-            .productName("FA³ST OPC UA Asset Connection Test Server")
-            .softwareVersion(OpcUaServer.SDK_VERSION)
-            .buildDate(DateTime.now())
-            .build();
+    private static final BuildInfo BUILD_INFO = new BuildInfo(
+            "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua:test",
+            "Fraunhofer IOSB",
+            "FA³ST OPC UA Asset Connection Test Server",
+            OpcUaServer.SDK_VERSION,
+            "1",
+            DateTime.now());
+    //.build();
     private static final List<TransportProfile> SUPPORTED_TRANSPORT_PROFILES = List.of(TransportProfile.HTTPS_UABINARY, TransportProfile.TCP_UASC_UABINARY);
 
     private final EmbeddedOpcUaServerConfig config;
@@ -143,9 +148,14 @@ public class EmbeddedOpcUaServer {
         }
         if (availableTokenPolicies.contains(UserTokenType.UserName)) {
             result = compositor.apply(result, new UsernameIdentityValidator(
-                    false,
-                    x -> config.getAllowedCredentials().containsKey(x.getUsername())
-                            && Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()))));
+                    x -> {
+                        //String username = authChallenge.getUsername();
+                        //String password = authChallenge.getPassword();
+                        boolean userOk = config.getAllowedCredentials().containsKey(x.getUsername());
+                        boolean passwordOk = Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()));
+
+                        return userOk || passwordOk;
+                    }));
         }
         if (availableTokenPolicies.contains(UserTokenType.Certificate)) {
             result = compositor.apply(result, new X509IdentityValidator(x -> config.getAllowedClientCertificates().contains(x)));
@@ -197,12 +207,34 @@ public class EmbeddedOpcUaServer {
         Files.createDirectories(config.getSecurityBaseDir());
         CertificateData applicationCertificate = getApplicationCertificate(config);
         CertificateData httpsCertificate = getHttpsCertificate(config);
-        DefaultCertificateManager certificateManager = new DefaultCertificateManager(
-                applicationCertificate.getKeyPair(),
-                applicationCertificate.getCertificateChain());
+        var certificateQuarantine = new MemoryCertificateQuarantine();
 
-        DefaultTrustListManager trustListManager = new DefaultTrustListManager(SecurityPathHelper.pki(config.getSecurityBaseDir()).toFile());
-        ServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
+        var certificateFactory = new RsaSha256CertificateFactory() {
+            @Override
+            protected KeyPair createRsaSha256KeyPair() {
+                return applicationCertificate.getKeyPair();
+            }
+
+
+            @Override
+            protected X509Certificate[] createRsaSha256CertificateChain(KeyPair keyPair) {
+                return applicationCertificate.getCertificateChain();
+            }
+        };
+
+        var trustListManager = new MemoryTrustListManager();
+        var certificateStore = new MemoryCertificateStore();
+        var certificateValidator = new DefaultServerCertificateValidator(trustListManager, certificateQuarantine);
+        var defaultGroup = DefaultApplicationGroup.createAndInitialize(
+                trustListManager, certificateStore, certificateFactory, certificateValidator);
+
+        var certificateManager = new DefaultCertificateManager(certificateQuarantine, defaultGroup);
+        //DefaultCertificateManager certificateManager = new DefaultCertificateManager(
+        //        applicationCertificate.getKeyPair(),
+        //        applicationCertificate.getCertificateChain());
+
+        //DefaultTrustListManager trustListManager = new DefaultTrustListManager(SecurityPathHelper.pki(config.getSecurityBaseDir()).toFile());
+        //ServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
 
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = CertificateUtil
@@ -210,19 +242,29 @@ public class EmbeddedOpcUaServer {
                 .orElseThrow(() -> new UaRuntimeException(
                         StatusCodes.Bad_ConfigurationError,
                         "certificate is missing the application URI"));
-        server = new OpcUaServer(new OpcUaServerConfigBuilder()
+        server = new OpcUaServer(OpcUaServerConfig.builder()
                 .setEndpoints(createEndpointConfigurations(applicationCertificate.getCertificate(), config.getEndpointSecurityConfigurations()))
                 .setApplicationUri(applicationUri)
                 .setApplicationName(LocalizedText.english("FA³ST OPC UA Asset Connection Test Server"))
                 .setBuildInfo(BUILD_INFO)
                 .setCertificateManager(certificateManager)
-                .setTrustListManager(trustListManager)
-                .setCertificateValidator(certificateValidator)
-                .setHttpsKeyPair(httpsCertificate.getKeyPair())
-                .setHttpsCertificateChain(httpsCertificate.getCertificateChain())
+                //.setTrustListManager(trustListManager)
+                .setCertificateManager(certificateManager)
+                //.setHttpsKeyPair(httpsCertificate.getKeyPair())
+                //.setHttpsCertificateChain(httpsCertificate.getCertificateChain())
                 .setIdentityValidator(buildIdentityValidator(config))
                 .setProductUri(BUILD_INFO.getProductUri())
-                .build());
+                .build(),
+                transportProfile -> {
+                    if (transportProfile == TransportProfile.TCP_UASC_UABINARY) {
+                        OpcTcpServerTransportConfig transportConfig = OpcTcpServerTransportConfig.newBuilder().build();
+
+                        return new OpcTcpServerTransport(transportConfig);
+                    }
+                    else {
+                        throw new RuntimeException("unexpected TransportProfile: " + transportProfile);
+                    }
+                });
         namespaces.add(new ExampleNamespace(server));
         startupNamespaces();
     }
@@ -239,17 +281,15 @@ public class EmbeddedOpcUaServer {
 
 
     private static UserTokenPolicy toPolicy(UserTokenType tokenType) {
-        return UserTokenPolicy.builder()
-                .policyId(tokenType.name())
-                .tokenType(tokenType)
-                .issuedTokenType(null)
-                .issuerEndpointUrl(null)
-                .securityPolicyUri(tokenType == UserTokenType.Anonymous ? null : SecurityPolicy.Basic256.getUri())
-                .build();
+        return new UserTokenPolicy(tokenType.name(),
+                tokenType,
+                null,
+                null,
+                tokenType == UserTokenType.Anonymous ? null : SecurityPolicy.Basic256.getUri());
     }
 
 
-    private EndpointConfiguration.Builder applyEndpointSecurityConfiguration(EndpointConfiguration.Builder builder, EndpointSecurityConfiguration securityConfiguration) {
+    private EndpointConfig.Builder applyEndpointSecurityConfiguration(EndpointConfig.Builder builder, EndpointSecurityConfiguration securityConfiguration) {
         return builder.copy()
                 .setSecurityPolicy(securityConfiguration.getPolicy())
                 .setSecurityMode(securityConfiguration.getSecurityMode())
@@ -305,15 +345,15 @@ public class EmbeddedOpcUaServer {
     }
 
 
-    private Set<EndpointConfiguration> createEndpointConfigurations(X509Certificate certificate, List<EndpointSecurityConfiguration> endpointSecurityConfigurations) {
+    private Set<EndpointConfig> createEndpointConfigurations(X509Certificate certificate, List<EndpointSecurityConfiguration> endpointSecurityConfigurations) {
         List<EndpointSecurityConfiguration> securityConfigurations = endpointSecurityConfigurations;
         if (Objects.isNull(securityConfigurations) || securityConfigurations.isEmpty()) {
             LOGGER.warn("No endpoint security configuration specified - using default (all allowed configurations)");
             securityConfigurations = EndpointSecurityConfiguration.ALL;
         }
-        Set<EndpointConfiguration> result = new HashSet<>();
+        Set<EndpointConfig> result = new HashSet<>();
         for (var hostname: getRelevantHostnames(certificate)) {
-            EndpointConfiguration.Builder builder = EndpointConfiguration.newBuilder()
+            EndpointConfig.Builder builder = EndpointConfig.newBuilder()
                     .setBindAddress("0.0.0.0")
                     .setHostname(hostname)
                     .setPath(config.getPath())
@@ -322,7 +362,7 @@ public class EmbeddedOpcUaServer {
                 result.add(applyEndpointSecurityConfiguration(builder, securityConfiguration).build());
             }
 
-            EndpointConfiguration.Builder discoveryBuilder = builder.copy()
+            EndpointConfig.Builder discoveryBuilder = builder.copy()
                     .setPath(String.format("%s/discovery", config.getPath()))
                     .setSecurityPolicy(SecurityPolicy.None)
                     .setSecurityMode(MessageSecurityMode.None)

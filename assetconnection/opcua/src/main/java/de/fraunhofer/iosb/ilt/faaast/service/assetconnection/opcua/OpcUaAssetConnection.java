@@ -31,16 +31,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.security.Security;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
-import org.eclipse.milo.opcua.sdk.client.api.UaSession;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.sdk.client.UaSession;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaMonitoredItem;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class OpcUaAssetConnection extends
     private static final ValueConverter valueConverter = new ValueConverter();
 
     private OpcUaClient client;
-    private ManagedSubscription opcUaSubscription;
+    private OpcUaSubscription opcUaSubscription;
     private volatile boolean isConnecting;
     private volatile boolean isDisconnecting;
 
@@ -91,13 +92,29 @@ public class OpcUaAssetConnection extends
 
 
     private void createNewSubscription() throws UaException {
-        opcUaSubscription = ManagedSubscription.create(client);
-        opcUaSubscription.addStatusListener(new ManagedSubscription.StatusListener() {
-            @Override
-            public void onSubscriptionTransferFailed(ManagedSubscription subscription, StatusCode statusCode) {
-                reconnect();
-            }
-        });
+        opcUaSubscription = new OpcUaSubscription(client);
+        opcUaSubscription.setSubscriptionListener(
+                new OpcUaSubscription.SubscriptionListener() {
+                    @Override
+                    public void onDataReceived(
+                                               OpcUaSubscription subscription,
+                                               List<OpcUaMonitoredItem> items,
+                                               List<DataValue> values) {
+
+                        for (int i = 0; i < items.size(); i++) {
+                            LOGGER.info(
+                                    "subscription onDataReceived: nodeId={}, value={}",
+                                    items.get(i).getReadValueId().getNodeId(),
+                                    values.get(i).value());
+                        }
+                    }
+                });
+        //        opcUaSubscription.addStatusListener(new ManagedSubscription.StatusListener() {
+        //            @Override
+        //            public void onSubscriptionTransferFailed(ManagedSubscription subscription, StatusCode statusCode) {
+        //                reconnect();
+        //            }
+        //        });
     }
 
 
@@ -234,9 +251,9 @@ public class OpcUaAssetConnection extends
         isDisconnecting = true;
         try {
             closeSubscriptions();
-            client.disconnect().get();
+            client.disconnect();
         }
-        catch (InterruptedException | ExecutionException e) {
+        catch (UaException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("error closing OPC UA asset connection", e);
         }
