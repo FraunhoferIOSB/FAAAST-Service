@@ -67,18 +67,18 @@
         <aas4j.version>1.0.5</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.82</bouncycastle.version>
-        <checkstyle.version>12.1.1</checkstyle.version>
+        <checkstyle.version>12.1.2</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
-        <commons.codec.version>1.19.0</commons.codec.version>
+        <commons.codec.version>1.20.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <commons.fileupload.version>1.6.0</commons.fileupload.version>
-        <commons.io.version>2.20.0</commons.io.version>
+        <commons.io.version>2.21.0</commons.io.version>
         <commons.lang3.version>3.19.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.21.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.2.1</equalsverifier.version>
+        <equalsverifier.version>4.2.2</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
         <jackson-jq.version>1.6.0</jackson-jq.version>
@@ -90,13 +90,13 @@
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.6.0</jena.version>
-        <jetty.version>12.1.3</jetty.version>
+        <jetty.version>12.1.4</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.10.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.20</logback.version>
+        <logback.version>1.5.21</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -112,7 +112,7 @@
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
-        <maven.plugin.owasp.version>12.1.8</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.1.9</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>5.4.0-163</maven.plugin.prosys.codegen.version>
@@ -136,7 +136,7 @@
         <proguard.version>7.8.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>5.4.0-201</prosys.sdk.version>
-        <protobuf.version>4.33.0</protobuf.version>
+        <protobuf.version>4.33.1</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
