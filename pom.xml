@@ -109,7 +109,7 @@
         <maven.plugin.git.commit.id.version>9.0.2</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.2.8</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.14</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.5.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.owasp.version>12.1.9</maven.plugin.owasp.version>
