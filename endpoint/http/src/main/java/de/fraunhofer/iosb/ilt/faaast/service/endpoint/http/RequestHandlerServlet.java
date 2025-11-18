@@ -133,26 +133,30 @@ public class RequestHandlerServlet extends HttpServlet {
             throw new InvalidRequestException("empty API request");
         }
         checkRequestSupportedByProfiles(apiRequest);
-        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = serviceContext.execute(endpoint, apiRequest);
-        if (Objects.isNull(apiResponse)) {
-            throw new ServletException("empty API response");
-        }
+        de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = null;
         if (Objects.nonNull(apiGateway)) {
             String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
             if ((url.equals("/shells") || url.equals("/shells/")) && request.getMethod().equals("GET")) {
-                GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) apiResponse;
+                GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);;
                 apiResponse = apiGateway.filterAas(request, aasResponse);
             }
             else if ((url.equals("/submodels/") || url.equals("/submodels")) && request.getMethod().equals("GET")) {
-                GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) apiResponse;
+                GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
                 apiResponse = apiGateway.filterSubmodels(request, submodelsResponse);
             }
-            else {
-                if (!apiGateway.isAuthorized(request)) {
-                    doThrow(new UnauthorizedException(
-                            String.format("User not authorized '%s'", request.getRequestURI())));
-                }
+            if (!apiGateway.isAuthorized(request)) {
+                doThrow(new UnauthorizedException(
+                        String.format("User not authorized '%s'", request.getRequestURI())));
             }
+            else {
+                apiResponse = serviceContext.execute(endpoint, apiRequest);
+            }
+        }
+        else {
+            apiResponse = serviceContext.execute(endpoint, apiRequest);
+        }
+        if (Objects.isNull(apiResponse)) {
+            throw new ServletException("empty API response");
         }
         if (isSuccessful(apiResponse)) {
             responseMappingManager.map(apiRequest, apiResponse, response);

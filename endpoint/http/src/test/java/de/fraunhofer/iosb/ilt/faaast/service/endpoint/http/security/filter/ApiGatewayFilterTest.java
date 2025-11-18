@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -69,23 +71,21 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
 
         HttpServletRequest request = req("GET", "/api/v3.0/submodels");
         HttpServletResponse response = mockResponse();
-        FilterChain filterChain = mockFilterChain();
+        FilterChain filter = mockFilterChain();
 
-        // TODO  I suggest we build a filterChain and fail/succeed if filterChain.doFilter is called (i.e. the next filter)
-        //assertFalse(filter.doFilter(null, request));
-        apiGateway.isAuthorized(request);
+        assertFalse(apiGateway.isAuthorized(request));
         // Verify that request was blocked off
-        verify(filterChain, never()).doFilter(any(), any());
+        verify(filter, never()).doFilter(any(), any());
         Path rule = aclDir.resolve("allow.json");
         Path tmpRule = aclDir.resolve("allow.json.tmp");
         Files.writeString(tmpRule, ACL_JSON, StandardCharsets.UTF_8);
         Files.move(tmpRule, rule, StandardCopyOption.ATOMIC_MOVE);
 
         Thread.sleep(200);
-        //assertTrue(filter.isAuthorized(null, request));
+        assertTrue(apiGateway.isAuthorized(request));
 
         Files.delete(rule);
         Thread.sleep(200);
-        //assertFalse(filter.isAuthorized(null, request));
+        assertFalse(apiGateway.isAuthorized(request));
     }
 }
