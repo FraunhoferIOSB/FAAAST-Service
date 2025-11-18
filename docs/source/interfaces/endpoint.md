@@ -105,6 +105,7 @@ This HTTP Endpoint also supports JWT Access Tokens and JSON Access Rules (exclud
 FA³ST Service supports the verification of JWT Access Tokens and simple Access rules.
 If the configuration includes the `jwkProvider` URL, all HTTP API requests will be validated.
 To grant anonymous READ access, an Access rule must be defined and placed in the `aclFolder`:
+
 ```
 {
   "AllAccessPermissionRules": {
