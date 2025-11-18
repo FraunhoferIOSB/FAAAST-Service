@@ -304,38 +304,21 @@ public class QueryEvaluator {
         return parseDoubleOrNull(String.valueOf(o));
     }
 
-    private static final class Condition {
-        final String suffix; // e.g., ".name", "Sub.Path#value"
-        final ComparisonOperator operator;
-        final List<Object> rightVals;
-
-        Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
-            this.suffix = suffix;
-            this.operator = operator;
-            this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
+    /**
+     * @param suffix e.g., ".name", "Sub.Path#value"
+     */
+    private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+            private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+                this.suffix = suffix;
+                this.operator = operator;
+                this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
+            }
         }
+
+    private record MatchOperation(ComparisonOperator operator, List<Value> args) {
     }
 
-    private static final class MatchOperation {
-        final ComparisonOperator operator;
-        final List<Value> args;
-
-        MatchOperation(ComparisonOperator operator, List<Value> args) {
-            this.operator = operator;
-            this.args = args;
-        }
-    }
-
-    private static final class MatchEvaluationContext {
-        final String commonPrefix;
-        final List<Condition> itemConditions;
-        final boolean directMismatch;
-
-        MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {
-            this.commonPrefix = commonPrefix;
-            this.itemConditions = itemConditions;
-            this.directMismatch = directMismatch;
-        }
+    private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {
     }
 
     private boolean evaluateMatch(List<MatchExpression> matches, Identifiable identifiable) {
