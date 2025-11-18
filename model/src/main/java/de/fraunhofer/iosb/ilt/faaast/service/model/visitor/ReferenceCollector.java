@@ -178,12 +178,24 @@ public class ReferenceCollector extends AssetAdministrationShellElementWalker {
         visitBefore(submodelElementList);
         if (submodelElementList != null) {
             visit(submodelElementList.getSemanticId());
-            submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
-            submodelElementList.getDescription().forEach(this::visit);
-            submodelElementList.getDisplayName().forEach(this::visit);
-            submodelElementList.getQualifiers().forEach(this::visit);
-            submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
-            submodelElementList.getExtensions().forEach(this::visit);
+            if (submodelElementList.getSupplementalSemanticIds() != null) {
+                submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (submodelElementList.getDescription() != null) {
+                submodelElementList.getDescription().forEach(this::visit);
+            }
+            if (submodelElementList.getDisplayName() != null) {
+                submodelElementList.getDisplayName().forEach(this::visit);
+            }
+            if (submodelElementList.getQualifiers() != null) {
+                submodelElementList.getQualifiers().forEach(this::visit);
+            }
+            if (submodelElementList.getEmbeddedDataSpecifications() != null) {
+                submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (submodelElementList.getExtensions() != null) {
+                submodelElementList.getExtensions().forEach(this::visit);
+            }
             if (Objects.nonNull(submodelElementList.getValue())) {
                 for (int i = 0; i < submodelElementList.getValue().size(); i++) {
                     currentListIndex = i;

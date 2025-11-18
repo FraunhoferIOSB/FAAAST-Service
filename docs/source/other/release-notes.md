@@ -2,13 +2,12 @@
 <!--start:changelog-header-->
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
-**New Features & Major Changes**
-
-
 **Internal changes & bugfixes**
+- General
+	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
 - Endpoint
-    - HTTP
-        - the URL prefix /api/v3.x is now optional
+	- HTTP
+		- the URL prefix /api/v3.x is now optional
 
 ## 1.3.0
 
