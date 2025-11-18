@@ -308,18 +308,16 @@ public class QueryEvaluator {
      * @param suffix e.g., ".name", "Sub.Path#value"
      */
     private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
-            private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
-                this.suffix = suffix;
-                this.operator = operator;
-                this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
-            }
+        private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+            this.suffix = suffix;
+            this.operator = operator;
+            this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
         }
-
-    private record MatchOperation(ComparisonOperator operator, List<Value> args) {
     }
 
-    private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {
-    }
+    private record MatchOperation(ComparisonOperator operator, List<Value> args) {}
+
+    private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {}
 
     private boolean evaluateMatch(List<MatchExpression> matches, Identifiable identifiable) {
         if (matches == null || matches.isEmpty()) {
