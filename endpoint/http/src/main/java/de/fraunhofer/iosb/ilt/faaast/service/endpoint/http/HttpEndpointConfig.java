@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Objects;
 
 
@@ -32,10 +33,13 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final String DEFAULT_CORS_EXPOSED_HEADERS = "";
     public static final long DEFAULT_CORS_MAX_AGE = 3600;
     public static final String DEFAULT_HOSTNAME = null;
+    public static final String DEFAULT_PATH_PREFIX = "/api/v3.0";
     public static final boolean DEFAULT_INCLUDE_ERROR_DETAILS = false;
     public static final int DEFAULT_PORT = 443;
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
+
+    private static final String PATH_PREFIX_REGEX = "^/.*[^/]$";
 
     public static Builder builder() {
         return new Builder();
@@ -50,6 +54,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     private String corsExposedHeaders;
     private long corsMaxAge;
     private String hostname;
+    private String pathPrefix;
     private boolean includeErrorDetails;
     private int port;
     private boolean sniEnabled;
@@ -66,6 +71,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         corsExposedHeaders = DEFAULT_CORS_EXPOSED_HEADERS;
         corsMaxAge = DEFAULT_CORS_MAX_AGE;
         hostname = DEFAULT_HOSTNAME;
+        pathPrefix = DEFAULT_PATH_PREFIX;
         includeErrorDetails = DEFAULT_INCLUDE_ERROR_DETAILS;
         port = DEFAULT_PORT;
         sniEnabled = DEFAULT_SNI_ENABLED;
@@ -163,6 +169,22 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     }
 
 
+    public String getPathPrefix() {
+        return pathPrefix;
+    }
+
+
+    /**
+     * Sets the path prefix of this endpoint. The path prefix must start with a "/" and not end with a "/".
+     *
+     * @param pathPrefix The path prefix used for HTTP requests to this endpoint.
+     */
+    public void setPathPrefix(String pathPrefix) {
+        validatePathPrefix(pathPrefix);
+        this.pathPrefix = pathPrefix;
+    }
+
+
     public boolean isIncludeErrorDetails() {
         return includeErrorDetails;
     }
@@ -222,6 +244,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 && Objects.equals(corsExposedHeaders, that.corsExposedHeaders)
                 && Objects.equals(corsMaxAge, that.corsMaxAge)
                 && Objects.equals(hostname, that.hostname)
+                && Objects.equals(pathPrefix, that.pathPrefix)
                 && Objects.equals(includeErrorDetails, that.includeErrorDetails)
                 && Objects.equals(port, that.port)
                 && Objects.equals(sniEnabled, that.sniEnabled)
@@ -243,11 +266,18 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
                 corsExposedHeaders,
                 corsMaxAge,
                 hostname,
+                pathPrefix,
                 includeErrorDetails,
                 port,
                 sniEnabled,
                 sslEnabled,
                 profiles);
+    }
+
+
+    private void validatePathPrefix(String pathPrefix) {
+        Ensure.require(pathPrefix.matches(PATH_PREFIX_REGEX),
+                String.format("%s.%s must match regex %s", this.getClass().getSimpleName(), "pathPrefix", PATH_PREFIX_REGEX));
     }
 
     private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
@@ -314,6 +344,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B hostname(String value) {
             getBuildingInstance().setHostname(value);
+            return getSelf();
+        }
+
+
+        public B pathPrefix(String value) {
+            getBuildingInstance().setPathPrefix(value);
             return getSelf();
         }
 
