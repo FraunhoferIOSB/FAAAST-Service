@@ -41,8 +41,9 @@ All endpoint implementations share the following common configuration properties
 
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
 In accordance to the specification, only HTTPS is supported since AAS v3.0. 
-The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0) and the corresponding [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1).
-This HTTP Endpoint also supports JWT Access Tokens and simple JSON Access Rules for Routes and Identifiables, as defined in [Part 4: Security (IDTA-01004)](https://admin-shell-io.github.io/aas-specs-antora/IDTA-01004/v3.0/index.html).
+The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2: Application Programming Interfaces v3.0](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-2-application-programming-interfaces-idta-number-01002) and the corresponding [OpenAPI documentation v3.0.1](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection).
+Queries are supported if the chosen persistence implementation includes handling of queries.
+This HTTP Endpoint also supports JWT Access Tokens and JSON Access Rules (excluding semanticIds) for Routes and Identifiables, as defined in [Part 4: Security (IDTA-01004)](https://industrialdigitaltwin.io/aas-specifications/IDTA-01004/v3.0.1/index.html).
 
 ### Configuration
 
