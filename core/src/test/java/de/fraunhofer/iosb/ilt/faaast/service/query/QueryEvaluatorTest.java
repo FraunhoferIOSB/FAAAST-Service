@@ -210,7 +210,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void simpleEq_withMatchingFields() throws Exception {
         String json = """
@@ -299,7 +298,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void documentsMatch_withNonMatchingValues() throws Exception {
         String json = """
@@ -392,7 +390,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void andMatch_withNonMatchingConditions() throws Exception {
         String json = """
@@ -505,7 +502,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void orMatch_withNonMatchingSpecificAssetIds() throws Exception {
         String json = """

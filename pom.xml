@@ -43,6 +43,7 @@
         <module>persistence/memory</module>
         <module>persistence/file</module>
         <module>persistence/mongo</module>
+        <module>persistence/postgres</module>
         <module>filestorage/memory</module>
         <module>filestorage/filesystem</module>
         <module>assetconnection/common</module>
