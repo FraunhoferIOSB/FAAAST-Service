@@ -37,7 +37,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCr
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -796,10 +795,5 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         return QueryModifierHelper.applyQueryModifier(
                 DeepCopyHelper.deepCopy(result),
                 modifier);
-    }
-
-
-    private static <T> Stream<T> filterByHasValueOnlySerialization(Stream<T> stream) {
-        return stream.filter(ElementValueHelper::isValueOnlySupported);
     }
 }
