@@ -30,16 +30,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelElementSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.SubmodelSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,11 +52,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
@@ -59,6 +63,7 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -80,7 +85,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     private static final String TABLE_SUBMODEL = "submodels";
     private static final String TABLE_CONCEPT = "concept_descriptions";
     private static final String TABLE_OP_RESULT = "operation_results";
-    private static final String PATH_SPLIT_REGEX = "[.\\[\\]]+";
 
     @Override
     public void init(CoreConfig coreConfig, PersistencePostgresConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
@@ -283,280 +287,172 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     @Override
-    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
+    public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier,
+                                                      PagingInfo paging)
             throws ResourceNotFoundException, PersistenceException {
-        List<Submodel> submodelsToCheck = new ArrayList<>();
-        if (criteria.isParentSet() && criteria.getParent().getSubmodelId() != null) {
-            try {
-                submodelsToCheck.add(getSubmodel(criteria.getParent().getSubmodelId()));
+        Ensure.requireNonNull(criteria, "criteria must be non-null");
+        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(paging, "paging must be non-null");
+        final Collection<SubmodelElement> elements = new ArrayList<>();
+        if (criteria.isParentSet()) {
+            if (criteria.getParent().getSubmodelId() != null) {
+                Submodel submodel = getSubmodel(criteria.getParent().getSubmodelId());
+                Referable parent = EnvironmentHelper.resolve(criteria.getParent().toReference(), submodel,
+                        Referable.class);
+                if (Submodel.class.isAssignableFrom(parent.getClass())) {
+                    elements.addAll(((Submodel) parent).getSubmodelElements());
+                }
+                else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+                    elements.addAll(((SubmodelElementCollection) parent).getValue());
+                }
+                else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+                    elements.addAll(((SubmodelElementList) parent).getValue());
+                }
             }
-            catch (ResourceNotFoundException ignored) {}
         }
         else {
-            submodelsToCheck.addAll(getSubmodels());
+            List<Submodel> submodels = getSubmodels();
+            AssetAdministrationShellElementWalker.builder()
+                    .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                        @Override
+                        public void visit(SubmodelElement submodelElement) {
+                            elements.add(submodelElement);
+                        }
+                    })
+                    .build()
+                    .walk(submodels);
         }
-
-        List<SubmodelElement> allMatches = new ArrayList<>();
-
-        for (Submodel submodel: submodelsToCheck) {
-            Collection<SubmodelElement> searchStart;
-            if (criteria.isParentSet()) {
-                String pathStr = criteria.getParent().getIdShortPath() != null ? criteria.getParent().getIdShortPath().toString() : "";
-                if (pathStr.isEmpty()) {
-                    searchStart = submodel.getSubmodelElements();
-                }
-                else {
-                    try {
-                        SubmodelElement parentEl = resolveElement(submodel, criteria.getParent());
-                        if (parentEl instanceof SubmodelElementCollection) {
-                            searchStart = ((SubmodelElementCollection) parentEl).getValue();
-                        }
-                        else if (parentEl instanceof SubmodelElementList) {
-                            searchStart = ((SubmodelElementList) parentEl).getValue();
-                        }
-                        else {
-                            searchStart = Collections.emptyList();
-                        }
-                    }
-                    catch (ResourceNotFoundException e) {
-                        continue;
-                    }
-                }
-            }
-            else {
-                searchStart = submodel.getSubmodelElements();
-            }
-
-            if (searchStart != null) {
-                collectMatchingElements(searchStart, criteria, allMatches);
-            }
+        Stream<SubmodelElement> result = elements.stream();
+        if (criteria.isSemanticIdSet()) {
+            result = filterBySemanticId(result, criteria.getSemanticId());
         }
-        return preparePagedResult(allMatches.stream(), modifier, paging);
+        if (criteria.getValueOnly()) {
+            result = filterByHasValueOnlySerialization(result);
+        }
+        return preparePagedResult(result, modifier, paging);
     }
 
 
-    private void collectMatchingElements(Collection<SubmodelElement> elements, SubmodelElementSearchCriteria criteria, List<SubmodelElement> result) {
-        if (elements == null)
-            return;
-        for (SubmodelElement el: elements) {
-            boolean matches = true;
-            if (criteria.isSemanticIdSet()) {
-                if (!ReferenceHelper.equals(el.getSemanticId(), criteria.getSemanticId())) {
-                    matches = false;
-                }
-            }
-            if (matches) {
-                result.add(el);
-            }
-            if (el instanceof SubmodelElementCollection) {
-                collectMatchingElements(((SubmodelElementCollection) el).getValue(), criteria, result);
-            }
-            else if (el instanceof SubmodelElementList) {
-                collectMatchingElements(((SubmodelElementList) el).getValue(), criteria, result);
-            }
+    private static <T> Stream<T> filterByHasValueOnlySerialization(Stream<T> stream) {
+        return stream.filter(ElementValueHelper::isValueOnlySupported);
+    }
+
+
+    private static <T extends HasSemantics> Stream<T> filterBySemanticId(Stream<T> stream, Reference semanticId) {
+        if (Objects.isNull(semanticId)) {
+            return stream;
         }
+        return stream.filter(x -> ReferenceHelper.equals(x.getSemanticId(), semanticId)
+                || Optional.ofNullable(x.getSupplementalSemanticIds())
+                        .orElse(List.of()).stream()
+                        .anyMatch(y -> ReferenceHelper.equals(y, semanticId)));
     }
 
 
     @Override
     public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, ResourceAlreadyExistsException, PersistenceException {
+        Ensure.requireNonNull(parentIdentifier, "parentIdentifier must be non-null");
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Submodel submodel = getSubmodel(parentIdentifier.getSubmodelId());
-        String pathStr = parentIdentifier.getIdShortPath() != null ? parentIdentifier.getIdShortPath().toString() : "";
+        Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), submodel, Referable.class);
 
-        if (pathStr.isEmpty()) {
-            checkIdShortExists(submodel.getSubmodelElements(), submodelElement.getIdShort());
-            submodel.getSubmodelElements().add(submodelElement);
+        Collection<SubmodelElement> container;
+        boolean acceptEmptyIdShort = false;
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            container = ((Submodel) parent).getSubmodelElements();
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            container = ((SubmodelElementCollection) parent).getValue();
+        }
+        else if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            container = ((SubmodelElementList) parent).getValue();
+            acceptEmptyIdShort = true;
         }
         else {
-            SubmodelElement parent = resolveElement(submodel, parentIdentifier);
-            if (parent instanceof SubmodelElementCollection coll) {
-                checkIdShortExists(coll.getValue(), submodelElement.getIdShort());
-                coll.getValue().add(submodelElement);
-            }
-            else if (parent instanceof SubmodelElementList list) {
-                if (submodelElement.getIdShort() != null) {
-                    checkIdShortExists(list.getValue(), submodelElement.getIdShort());
-                }
-                list.getValue().add(submodelElement);
-            }
-            else {
-                throw new ResourceNotAContainerElementException(parentIdentifier.toString());
-            }
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                    parent.getClass(),
+                    Submodel.class,
+                    SubmodelElementCollection.class,
+                    SubmodelElementList.class));
         }
+        if (!acceptEmptyIdShort && StringHelper.isBlank(submodelElement.getIdShort())) {
+            throw new IllegalArgumentException("idShort most be non-empty");
+        }
+        CollectionHelper.put(container,
+                container.stream()
+                        .filter(StringHelper.isBlank(submodelElement.getIdShort())
+                                ? x -> false
+                                : x -> !StringHelper.isBlank(x.getIdShort())
+                                        && x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
+                        .findFirst()
+                        .orElse(null),
+                submodelElement);
         save(submodel);
-    }
-
-
-    private SubmodelElement resolveElement(Submodel submodel, SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
-        List<String> path = getPathSegments(identifier);
-        if (path.isEmpty())
-            throw new ResourceNotFoundException("Identifier path is empty");
-
-        SubmodelElement current = findInCollection(submodel.getSubmodelElements(), path.get(0));
-        for (int i = 1; i < path.size(); i++) {
-            String segment = path.get(i);
-            if (current instanceof SubmodelElementCollection) {
-                current = findInCollection(((SubmodelElementCollection) current).getValue(), segment);
-            }
-            else if (current instanceof SubmodelElementList) {
-                try {
-                    int index = Integer.parseInt(segment);
-                    List<SubmodelElement> list = ((SubmodelElementList) current).getValue();
-                    if (index < 0 || index >= list.size())
-                        throw new ResourceNotFoundException("List index out of bounds");
-                    current = list.get(index);
-                }
-                catch (NumberFormatException e) {
-                    throw new ResourceNotFoundException("Invalid list index: " + segment);
-                }
-            }
-            else {
-                throw new ResourceNotFoundException("Element " + path.get(i - 1) + " is not a container");
-            }
-        }
-        return current;
     }
 
 
     @Override
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
+        Ensure.requireNonNull(identifier, "identifier must be non-null");
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Submodel submodel = getSubmodel(identifier.getSubmodelId());
-        ContainerContext ctx = resolveParentContainer(submodel, identifier);
+        SubmodelElement oldElement = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
+        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
 
-        if (ctx.isList) {
-            int index = Integer.parseInt(ctx.targetIdentifier);
-            if (index < 0 || index >= ctx.list.size()) {
-                throw new ResourceNotFoundException("List index out of bounds: " + index);
-            }
-            ctx.list.set(index, submodelElement);
-        }
-        else {
-            int idx = -1;
-            for (int i = 0; i < ctx.list.size(); i++) {
-                if (Objects.equals(ctx.list.get(i).getIdShort(), ctx.targetIdentifier)) {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx == -1)
-                throw new ResourceNotFoundException("Element not found: " + ctx.targetIdentifier);
-            ctx.list.set(idx, submodelElement);
-        }
-        save(submodel);
-    }
-
-
-    private void checkIdShortExists(Collection<SubmodelElement> collection, String idShort) throws ResourceAlreadyExistsException {
-        if (idShort == null || collection == null)
+        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            int index = Integer.parseInt(identifier.getIdShortPath().getElements().get(identifier.getIdShortPath().getElements().size() - 1).substring(1, 2));
+            ((SubmodelElementList) parent).getValue().set(index, submodelElement);
+            save(submodel);
             return;
-        if (collection.stream().anyMatch(e -> Objects.equals(e.getIdShort(), idShort))) {
-            throw new ResourceAlreadyExistsException("Element with idShort '" + idShort + "' already exists.");
         }
-    }
 
-    private static class ContainerContext {
-        List<SubmodelElement> list;
-        String targetIdentifier; // idShort OR index string
-        boolean isList; // true if parent is a SubmodelElementList
-
-        ContainerContext(List<SubmodelElement> list, String targetIdentifier, boolean isList) {
-            this.list = list;
-            this.targetIdentifier = targetIdentifier;
-            this.isList = isList;
+        Collection<SubmodelElement> container;
+        if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            container = ((Submodel) parent).getSubmodelElements();
         }
-    }
-
-    private ContainerContext resolveParentContainer(Submodel submodel, SubmodelElementIdentifier identifier) throws ResourceNotFoundException {
-        List<String> path = getPathSegments(identifier);
-        if (path.isEmpty())
-            throw new ResourceNotFoundException("Path is empty");
-
-        String targetIdentifier = path.get(path.size() - 1);
-        List<SubmodelElement> containerList;
-        boolean isList = false;
-
-        if (path.size() == 1) {
-            containerList = submodel.getSubmodelElements();
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            container = ((SubmodelElementCollection) parent).getValue();
         }
         else {
-            // Navigate to the parent (n-2)
-            SubmodelElement current = findInCollection(submodel.getSubmodelElements(), path.get(0));
-            for (int i = 1; i < path.size() - 1; i++) {
-                String segment = path.get(i);
-                if (current instanceof SubmodelElementCollection) {
-                    current = findInCollection(((SubmodelElementCollection) current).getValue(), segment);
-                }
-                else if (current instanceof SubmodelElementList) {
-                    try {
-                        int index = Integer.parseInt(segment);
-                        current = ((SubmodelElementList) current).getValue().get(index);
-                    }
-                    catch (Exception e) {
-                        throw new ResourceNotFoundException("Invalid path in list: " + segment);
-                    }
-                }
-                else {
-                    throw new ResourceNotFoundException("Element " + path.get(i - 1) + " is not a container");
-                }
-            }
-
-            // Determine container type of parent
-            if (current instanceof SubmodelElementCollection) {
-                containerList = ((SubmodelElementCollection) current).getValue();
-            }
-            else if (current instanceof SubmodelElementList) {
-                containerList = ((SubmodelElementList) current).getValue();
-                isList = true;
-            }
-            else {
-                throw new ResourceNotFoundException("Parent element is not a container");
-            }
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                    parent.getClass(),
+                    Submodel.class,
+                    SubmodelElementCollection.class,
+                    SubmodelElementList.class));
         }
-        return new ContainerContext(containerList, targetIdentifier, isList);
-    }
-
-
-    private List<String> getPathSegments(SubmodelElementIdentifier identifier) {
-        if (identifier.getIdShortPath() == null)
-            return Collections.emptyList();
-        String path = identifier.getIdShortPath().toString();
-        if (path == null || path.isEmpty())
-            return Collections.emptyList();
-
-        // Updated to handle array notation in paths e.g. "list[0]"
-        return Arrays.stream(path.split(PATH_SPLIT_REGEX))
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
-    }
-
-
-    private SubmodelElement findInCollection(Collection<SubmodelElement> collection, String idShort) throws ResourceNotFoundException {
-        if (collection == null)
-            throw new ResourceNotFoundException("Collection is null");
-        return collection.stream()
-                .filter(e -> Objects.equals(e.getIdShort(), idShort))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Element not found: " + idShort));
+        CollectionHelper.put(container,
+                container.stream()
+                        .filter(x -> Objects.equals(x, oldElement))
+                        .findFirst()
+                        .orElse(null),
+                submodelElement);
+        save(submodel);
     }
 
 
     @Override
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
+        Ensure.requireNonNull(identifier, "identifier must be non-null");
         Submodel submodel = getSubmodel(identifier.getSubmodelId());
-        ContainerContext ctx = resolveParentContainer(submodel, identifier);
+        SubmodelElement element = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
+        Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
 
-        if (ctx.isList) {
-            int index = Integer.parseInt(ctx.targetIdentifier);
-            if (index < 0 || index >= ctx.list.size()) {
-                throw new ResourceNotFoundException("List index out of bounds: " + index);
-            }
-            ctx.list.remove(index);
+        if (SubmodelElementList.class.isAssignableFrom(parent.getClass())) {
+            ((SubmodelElementList) parent).getValue().remove(element);
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(parent.getClass())) {
+            ((SubmodelElementCollection) parent).getValue().remove(element);
+        }
+        else if (Submodel.class.isAssignableFrom(parent.getClass())) {
+            ((Submodel) parent).getSubmodelElements().remove(element);
         }
         else {
-            boolean removed = ctx.list.removeIf(e -> Objects.equals(e.getIdShort(), ctx.targetIdentifier));
-            if (!removed)
-                throw new ResourceNotFoundException("Element not found: " + ctx.targetIdentifier);
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s",
+                    parent.getClass(),
+                    Submodel.class,
+                    SubmodelElementCollection.class,
+                    SubmodelElementList.class));
         }
         save(submodel);
     }
