@@ -75,6 +75,12 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 public class PersistencePostgres implements Persistence<PersistencePostgresConfig> {
 
+    private static final String MSG_ID_NOT_NULL = "id must be non-null";
+    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
+    private static final String MSG_CRITERIA_NOT_NULL = "criteria must be non-null";
+    private static final String MSG_PAGING_NOT_NULL = "paging must be non-null";
+    private static final String MSG_ELEMENT_NOT_NULL = "element must be non-null";
+
     private PersistencePostgresConfig config;
     private HikariDataSource dataSource;
 
@@ -279,7 +285,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public SubmodelElement getSubmodelElement(SubmodelElementIdentifier identifier, QueryModifier modifier) throws ResourceNotFoundException, PersistenceException {
-        Ensure.requireNonNull(identifier, "identifier must not be null");
+        Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         return prepareResult(
                 EnvironmentHelper.resolve(identifier.toReference(), getSubmodel(identifier.getSubmodelId()), SubmodelElement.class),
                 modifier);
@@ -290,9 +296,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     public Page<SubmodelElement> findSubmodelElements(SubmodelElementSearchCriteria criteria, QueryModifier modifier,
                                                       PagingInfo paging)
             throws ResourceNotFoundException, PersistenceException {
-        Ensure.requireNonNull(criteria, "criteria must be non-null");
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
-        Ensure.requireNonNull(paging, "paging must be non-null");
+        Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
         final Collection<SubmodelElement> elements = new ArrayList<>();
         if (criteria.isParentSet()) {
             if (criteria.getParent().getSubmodelId() != null) {
@@ -352,8 +358,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     @Override
     public void insert(SubmodelElementIdentifier parentIdentifier, SubmodelElement submodelElement)
             throws ResourceNotFoundException, ResourceNotAContainerElementException, ResourceAlreadyExistsException, PersistenceException {
-        Ensure.requireNonNull(parentIdentifier, "parentIdentifier must be non-null");
-        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(parentIdentifier, MSG_ID_NOT_NULL);
+        Ensure.requireNonNull(submodelElement, MSG_ELEMENT_NOT_NULL);
+
         Submodel submodel = getSubmodel(parentIdentifier.getSubmodelId());
         Referable parent = EnvironmentHelper.resolve(parentIdentifier.toReference(), submodel, Referable.class);
 
@@ -394,8 +401,8 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void update(SubmodelElementIdentifier identifier, SubmodelElement submodelElement) throws ResourceNotFoundException, PersistenceException {
-        Ensure.requireNonNull(identifier, "identifier must be non-null");
-        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
+        Ensure.requireNonNull(submodelElement, MSG_ELEMENT_NOT_NULL);
         Submodel submodel = getSubmodel(identifier.getSubmodelId());
         SubmodelElement oldElement = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
@@ -433,7 +440,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void deleteSubmodelElement(SubmodelElementIdentifier identifier) throws ResourceNotFoundException, PersistenceException {
-        Ensure.requireNonNull(identifier, "identifier must be non-null");
+        Ensure.requireNonNull(identifier, MSG_ID_NOT_NULL);
         Submodel submodel = getSubmodel(identifier.getSubmodelId());
         SubmodelElement element = EnvironmentHelper.resolve(identifier.toReference(), submodel, SubmodelElement.class);
         Referable parent = EnvironmentHelper.resolve(ReferenceHelper.getParent(identifier.toReference()), submodel, Referable.class);
@@ -554,12 +561,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         }
     }
 
-    //helpers
-
 
     private <T> void saveEntity(String table, String id, T entity) {
-        if (id == null)
-            throw new IllegalArgumentException("Entity ID cannot be null");
+        Ensure.requireNonNull(id, MSG_ID_NOT_NULL);
         try {
             String json = jsonSerializer.write(entity);
             String sql = "INSERT INTO " + table + " (id, content) VALUES (?, ?) " +
