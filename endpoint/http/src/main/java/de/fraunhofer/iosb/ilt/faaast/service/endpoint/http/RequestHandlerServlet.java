@@ -177,7 +177,7 @@ public class RequestHandlerServlet extends HttpServlet {
             GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
             return apiGateway.filterSubmodels(request, submodelsResponse);
         }
-        else if ((url.startsWith("/submodels/"))) {
+        else if ((url.matches("^/submodels/[^/]+$")) && request.getMethod().equals("GET")) {
             GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);;
             if (!apiGateway.filterSubmodel(request, submodelResponse)) {
                 doThrow(new UnauthorizedException(
