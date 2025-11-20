@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
@@ -57,6 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.LoggerFactory;
 
 
@@ -138,6 +140,32 @@ public class ApiGateway {
                     .noneMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
         });
         return response;
+    }
+
+
+    /**
+     * Filters out the Submodel that the user is not authorized for.
+     *
+     * @param request the HttpRequest
+     * @param response the ApiResponse
+     * @return true if user is authorized
+     */
+    public boolean filterSubmodel(HttpServletRequest request, GetSubmodelResponse response) {
+        Submodel submodel = response.getPayload();
+        if (Objects.isNull(submodel)) {
+            return true;
+        }
+        String path = "/submodels/" + EncodingHelper.base64Encode(submodel.getId());
+        String method = request.getMethod();
+        Map<String, Claim> claims = extractClaims(request);
+
+        Map<String, Object> fieldCtx = new HashMap<>();
+        if (submodel.getSemanticId() != null) {
+            fieldCtx.put("$sm#semanticId", submodel.getSemanticId().getKeys().get(0).getValue());
+        }
+
+        return aclList.values().stream()
+                .anyMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
     }
 
 

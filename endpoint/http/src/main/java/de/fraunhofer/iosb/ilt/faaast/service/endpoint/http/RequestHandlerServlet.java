@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter.ApiGa
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
@@ -143,6 +144,14 @@ public class RequestHandlerServlet extends HttpServlet {
             else if ((url.equals("/submodels/") || url.equals("/submodels")) && request.getMethod().equals("GET")) {
                 GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
                 apiResponse = apiGateway.filterSubmodels(request, submodelsResponse);
+            }
+            else if ((url.startsWith("/submodels/"))) {
+                GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);;
+                if (!apiGateway.filterSubmodel(request, submodelResponse)) {
+                    doThrow(new UnauthorizedException(
+                            String.format("User not authorized '%s'", request.getRequestURI())));
+                }
+                apiResponse = submodelResponse;
             }
             else if (!apiGateway.isAuthorized(request)) {
                 doThrow(new UnauthorizedException(
