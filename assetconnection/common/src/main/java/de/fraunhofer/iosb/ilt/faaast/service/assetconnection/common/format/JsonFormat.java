@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -92,7 +93,12 @@ public class JsonFormat implements Format {
                             if (jsonPathResult.size() > 1) {
                                 throw new AssetConnectionException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value));
                             }
-                            actualValue = jsonPathResult.get(0).toString();
+                            if (Objects.nonNull(jsonPathResult.get(0))) {
+                                actualValue = jsonPathResult.get(0).toString();
+                            }
+                            else {
+                                actualValue = "";
+                            }
                         }
                         catch (PathNotFoundException e) {
                             throw new AssetConnectionException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e);

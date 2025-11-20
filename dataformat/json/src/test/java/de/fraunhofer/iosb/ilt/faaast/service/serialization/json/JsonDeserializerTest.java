@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -35,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.ValueOnlyExamples;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -43,17 +45,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class JsonDeserializerTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonDeserializerTest.class);
     private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
 
     @Test
@@ -173,6 +176,30 @@ public class JsonDeserializerTest {
     public void testSubmodelElementList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_SIMPLE_FILE);
         assertValue(ValueOnlyExamples.SUBMODEL_ELEMENT_LIST, ValueOnlyExamples.SUBMODEL_ELEMENT_LIST_FILE);
+    }
+
+
+    @Test
+    public void testEmptyPropertyValue() throws DeserializationException, ValueFormatException {
+        for (var datatype: Datatype.values()) {
+            String expectedValue = null;
+            if (datatype == Datatype.STRING) {
+                expectedValue = "";
+            }
+            LOGGER.info("testing empty property value deserializatin for datatype {}...", datatype);
+            assertPropertyValue(null, datatype, expectedValue);
+            assertPropertyValue("", datatype, expectedValue);
+        }
+    }
+
+
+    private void assertPropertyValue(String input, Datatype datatype, String expectedValue) throws DeserializationException, ValueFormatException {
+        PropertyValue expected = PropertyValue.of(datatype, expectedValue);
+        ElementValue actual = deserializer.readValue(input, ElementValueTypeInfo.builder()
+                .type(PropertyValue.class)
+                .datatype(datatype)
+                .build());
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -297,7 +324,7 @@ public class JsonDeserializerTest {
                     }
                     catch (IOException e) {
                         // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
+                        LOGGER.error("failed to convert files to JSON array", e);
                     }
                     return null;
                 })
@@ -315,7 +342,7 @@ public class JsonDeserializerTest {
                     }
                     catch (IOException e) {
                         // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
+                        LOGGER.error("failed to convert files to JSON object", e);
                     }
                     return null;
                 })
