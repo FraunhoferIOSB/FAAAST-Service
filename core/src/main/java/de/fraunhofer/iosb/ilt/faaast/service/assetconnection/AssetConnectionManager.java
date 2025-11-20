@@ -750,12 +750,12 @@ public class AssetConnectionManager {
                 Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConnectionAccessor().apply(target).keySet(), provider.getKey());
                 if (Objects.nonNull(reference)) {
                     if (provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
-                        LOGGER.debug("Skipped adding {} provider (reference: %s, reason: already exists)",
+                        LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists)",
                                 providerType.toString().toLowerCase(),
                                 ReferenceHelper.asString(reference));
                     }
                     else {
-                        LOGGER.debug("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
+                        LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists but with different provider details)",
                                 providerType.toString().toLowerCase(),
                                 ReferenceHelper.asString(reference));
                     }
