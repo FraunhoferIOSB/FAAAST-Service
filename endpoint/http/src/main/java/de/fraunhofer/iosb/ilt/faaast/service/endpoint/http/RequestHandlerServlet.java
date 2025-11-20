@@ -136,30 +136,7 @@ public class RequestHandlerServlet extends HttpServlet {
         checkRequestSupportedByProfiles(apiRequest);
         de.fraunhofer.iosb.ilt.faaast.service.model.api.Response apiResponse = null;
         if (Objects.nonNull(apiGateway)) {
-            String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
-            if ((url.equals("/shells") || url.equals("/shells/")) && request.getMethod().equals("GET")) {
-                GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);;
-                apiResponse = apiGateway.filterAas(request, aasResponse);
-            }
-            else if ((url.equals("/submodels/") || url.equals("/submodels")) && request.getMethod().equals("GET")) {
-                GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
-                apiResponse = apiGateway.filterSubmodels(request, submodelsResponse);
-            }
-            else if ((url.startsWith("/submodels/"))) {
-                GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);;
-                if (!apiGateway.filterSubmodel(request, submodelResponse)) {
-                    doThrow(new UnauthorizedException(
-                            String.format("User not authorized '%s'", request.getRequestURI())));
-                }
-                apiResponse = submodelResponse;
-            }
-            else if (!apiGateway.isAuthorized(request)) {
-                doThrow(new UnauthorizedException(
-                        String.format("User not authorized '%s'", request.getRequestURI())));
-            }
-            else {
-                apiResponse = serviceContext.execute(endpoint, apiRequest);
-            }
+            apiResponse = handleResponseWithAcl(request, apiRequest);
         }
         else {
             apiResponse = serviceContext.execute(endpoint, apiRequest);
@@ -185,6 +162,34 @@ public class RequestHandlerServlet extends HttpServlet {
                         .stream()
                         .map(message -> message.getMessageType())
                         .noneMatch(x -> Objects.equals(x, MessageTypeEnum.ERROR) || Objects.equals(x, MessageTypeEnum.EXCEPTION));
+    }
+
+
+    private de.fraunhofer.iosb.ilt.faaast.service.model.api.Response handleResponseWithAcl(HttpServletRequest request,
+                                                                                           de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
+            throws ServletException {
+        String url = request.getRequestURI().replaceFirst(HttpEndpoint.getVersionPrefix(), "");
+        if ((url.equals("/shells") || url.equals("/shells/")) && request.getMethod().equals("GET")) {
+            GetAllAssetAdministrationShellsResponse aasResponse = (GetAllAssetAdministrationShellsResponse) serviceContext.execute(endpoint, apiRequest);;
+            return apiGateway.filterAas(request, aasResponse);
+        }
+        else if ((url.equals("/submodels/") || url.equals("/submodels")) && request.getMethod().equals("GET")) {
+            GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
+            return apiGateway.filterSubmodels(request, submodelsResponse);
+        }
+        else if ((url.startsWith("/submodels/"))) {
+            GetSubmodelResponse submodelResponse = (GetSubmodelResponse) serviceContext.execute(endpoint, apiRequest);;
+            if (!apiGateway.filterSubmodel(request, submodelResponse)) {
+                doThrow(new UnauthorizedException(
+                        String.format("User not authorized '%s'", request.getRequestURI())));
+            }
+            return submodelResponse;
+        }
+        else if (!apiGateway.isAuthorized(request)) {
+            doThrow(new UnauthorizedException(
+                    String.format("User not authorized '%s'", request.getRequestURI())));
+        }
+        return serviceContext.execute(endpoint, apiRequest);
     }
 
 }
