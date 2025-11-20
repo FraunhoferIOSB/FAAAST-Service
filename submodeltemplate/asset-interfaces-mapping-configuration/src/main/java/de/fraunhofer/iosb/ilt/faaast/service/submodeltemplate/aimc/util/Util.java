@@ -265,7 +265,8 @@ public class Util {
      * @return True if it's the InteractionMetadata object, false if not.
      */
     public static boolean isInteractionMetadata(SubmodelElementCollection object) {
-        return semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID);
+        return semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID) || (semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID_2)
+                && containsSupplementalSemanticId(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID));
     }
 
 
