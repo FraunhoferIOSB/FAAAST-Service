@@ -144,7 +144,7 @@ public class RequestHandlerServlet extends HttpServlet {
                 GetAllSubmodelsResponse submodelsResponse = (GetAllSubmodelsResponse) serviceContext.execute(endpoint, apiRequest);;
                 apiResponse = apiGateway.filterSubmodels(request, submodelsResponse);
             }
-            if (!apiGateway.isAuthorized(request)) {
+            else if (!apiGateway.isAuthorized(request)) {
                 doThrow(new UnauthorizedException(
                         String.format("User not authorized '%s'", request.getRequestURI())));
             }
