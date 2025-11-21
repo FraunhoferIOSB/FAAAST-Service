@@ -83,6 +83,11 @@ public class AssetConnectionManager {
     }
 
 
+    List<AssetConnection> getConnections() {
+        return connections;
+    }
+
+
     /**
      * Cleans up dangling asset connections recursively after an element has been modified.
      *
@@ -142,7 +147,7 @@ public class AssetConnectionManager {
         try {
             List<AssetConnectionConfig> newConnections = mergeChanges(connections, changeSet);
             validateConnectionConfigs(newConnections);
-            return apply(newConnectionConfigs);
+            return apply(newConnections);
         }
         catch (ExceptionWithDetails e) {
             return e.getMessages();
@@ -748,17 +753,11 @@ public class AssetConnectionManager {
         for (var providerType: AssetProviderType.values()) {
             for (var provider: providerType.getProvidersFromConfigAccessor().apply(source).entrySet()) {
                 Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConnectionAccessor().apply(target).keySet(), provider.getKey());
-                if (Objects.nonNull(reference)) {
-                    if (provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
-                        LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists)",
-                                providerType.toString().toLowerCase(),
-                                ReferenceHelper.asString(reference));
-                    }
-                    else {
-                        LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists but with different provider details)",
-                                providerType.toString().toLowerCase(),
-                                ReferenceHelper.asString(reference));
-                    }
+                if (Objects.nonNull(reference)
+                        && provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
+                    LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists)",
+                            providerType.toString().toLowerCase(),
+                            ReferenceHelper.asString(reference));
                 }
                 else {
                     try {
@@ -806,23 +805,14 @@ public class AssetConnectionManager {
         for (var providerType: AssetProviderType.values()) {
             for (var provider: ((Map<Reference, AssetProviderConfig>) providerType.getProvidersFromConfigAccessor().apply(source)).entrySet()) {
                 Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConfigAccessor().apply(target).keySet(), provider.getKey());
-                if (Objects.nonNull(reference)) {
-                    if (provider.getValue().equals(providerType.getProvidersFromConfigAccessor().apply(target).get(reference))) {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.INFO)
-                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
-                                        providerType.toString().toLowerCase(),
-                                        ReferenceHelper.asString(reference)))
-                                .build());
-                    }
-                    else {
-                        result.add(Message.builder()
-                                .messageType(MessageTypeEnum.WARNING)
-                                .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists but with different provider details)",
-                                        providerType.toString().toLowerCase(),
-                                        ReferenceHelper.asString(reference)))
-                                .build());
-                    }
+                if (Objects.nonNull(reference)
+                        && provider.getValue().equals(providerType.getProvidersFromConfigAccessor().apply(target).get(reference))) {
+                    result.add(Message.builder()
+                            .messageType(MessageTypeEnum.INFO)
+                            .text(String.format("Skipped adding %s provider (reference: %s, reason: already exists)",
+                                    providerType.toString().toLowerCase(),
+                                    ReferenceHelper.asString(reference)))
+                            .build());
                 }
                 else {
                     providerType.getProvidersFromConfigAccessor().apply(target).put(provider.getKey(), provider.getValue());

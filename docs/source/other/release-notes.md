@@ -7,7 +7,10 @@
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
 - Endpoint
 	- HTTP
-		- the URL prefix /api/v3.x is now optional
+		- URL prefix /api/v3.x is now optional
+- SMT Processor
+	- AID/AIMC
+		- Fixed bug that prevented to update asset connection providers are runtime
 
 ## 1.3.0
 
