@@ -770,7 +770,6 @@ public class AssetConnectionManager {
                                 result.add(Message.builder()
                                         .messageType(MessageTypeEnum.WARNING)
                                         .text(String.format("Failed to unsubscribe subscription (reference: %s, reason: %s)",
-                                                providerType.toString().toLowerCase(),
                                                 ReferenceHelper.asString(reference),
                                                 e.getMessage()))
                                         .build());
