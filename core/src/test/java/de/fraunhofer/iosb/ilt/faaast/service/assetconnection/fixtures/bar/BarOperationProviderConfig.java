@@ -12,32 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
-public class DummyNodeBasedProviderConfig extends AbstractAssetOperationProviderConfig implements AssetValueProviderConfig {
+public class BarOperationProviderConfig extends AbstractAssetOperationProviderConfig {
 
-    private String nodeId;
+    private String property1;
 
-    public String getNodeId() {
-        return nodeId;
+    public String getProperty1() {
+        return property1;
     }
 
 
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
+    public void setProperty1(String property1) {
+        this.property1 = property1;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId);
+        return Objects.hash(property1);
     }
 
 
@@ -52,8 +52,9 @@ public class DummyNodeBasedProviderConfig extends AbstractAssetOperationProvider
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DummyNodeBasedProviderConfig other = (DummyNodeBasedProviderConfig) obj;
-        return Objects.equals(this.nodeId, other.nodeId);
+        final BarOperationProviderConfig other = (BarOperationProviderConfig) obj;
+        return super.equals(other)
+                && Objects.equals(this.property1, other.property1);
     }
 
 
@@ -68,9 +69,34 @@ public class DummyNodeBasedProviderConfig extends AbstractAssetOperationProvider
         if (getClass() != other.getClass()) {
             return false;
         }
-        final DummyNodeBasedProviderConfig that = (DummyNodeBasedProviderConfig) other;
+        final BarOperationProviderConfig that = (BarOperationProviderConfig) other;
         return super.sameAs(that)
-                && StringHelper.equalsNullOrEmpty(nodeId, that.nodeId);
+                && StringHelper.equalsNullOrEmpty(property1, that.property1);
     }
 
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<BarOperationProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected BarOperationProviderConfig newBuildingInstance() {
+            return new BarOperationProviderConfig();
+        }
+    }
+
+    private abstract static class AbstractBuilder<T extends BarOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+        public B property1(String value) {
+            getBuildingInstance().setProperty1(value);
+            return getSelf();
+        }
+    }
 }
