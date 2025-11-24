@@ -24,6 +24,7 @@ public class Constants {
     public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_HTTP = "http://www.w3.org/2011/http";
     public static final String AID_INTERFACE_SUPP_SEMANTIC_ID_MQTT = "http://www.w3.org/2011/mqtt";
     public static final String AID_INTERACTION_METADATA_SEMANTIC_ID = "https://www.w3.org/2019/wot/td#InteractionAffordance";
+    public static final String AID_INTERACTION_METADATA_SEMANTIC_ID_2 = "https://admin-shell.io/idta/AssetInterfacesDescription/1/0/InteractionMetadata";
     public static final String AID_PROPERTY_TYPE = "type";
     public static final String AID_PROPERTY_PROPERTIES = "properties";
     public static final String AID_PROPERTY_OBSERVABLE = "observable";

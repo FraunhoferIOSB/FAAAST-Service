@@ -57,6 +57,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 | corsExposedHeaders<br>*(optional)*   | String (comma-separated list)                               | Sets the `Access-Control-Expose-Headers` response header.                                                                                                                                |                                             |
 | corsMaxAge<br>*(optional)*           | Long                                                        | Sets the `Access-Control-Max-Age` response header.                                                                                                                                       | 3600                                        |
 | hostname<br>*(optional)*             | String                                                      | The hostname to be used for automatic registration with registry.                                                                                                                        | auto-detect (typically IP address)          |
+| pathPrefix<br>*(optional)*           | String                                                      | The path prefix to be used for automatic registration with registry. Must start with a "/" and not end with a "/". (regex: `^\/.*[^\/]$`)                                                | /api/v3.0                                   | 
 | includeErrorDetails<br>*(optional)*  | Boolean                                                     | If set, stack traceis added to the HTTP responses incase of error.                                                                                                                       | false                                       |
 | port<br>*(optional)*                 | Integer                                                     | The port to use.                                                                                                                                                                         | 443                                         |
 | sniEnabled<br>*(optional)*           | Boolean                                                     | If Server Name Identification (SNI) should be enabled.<br>**This should only be disabled for testing purposes as it may present a security risk!**                                       | true                                        |
@@ -84,6 +85,7 @@ The HTTP Endpoint is based on the document [Details of the Asset Administration 
 		"corsExposedHeaders": "X-Custom-Header",
 		"corsMaxAge": 1000,
 		"hostname": "localhost",
+		"pathPrefix": "/api/v3.0",
 		"includeErrorDetails": true,
 		"port": 443,
 		"profiles": [ "AAS_REPOSITORY_FULL", "AAS_FULL", "SUBMODEL_REPOSITORY_FULL", "SUBMODEL_FULL" ],
