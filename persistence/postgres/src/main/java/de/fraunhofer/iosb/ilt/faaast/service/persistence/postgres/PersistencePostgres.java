@@ -18,7 +18,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SubmodelElementIdentifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
@@ -73,6 +75,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList;
 
 
+/**
+ * Persistence implementation for Postgres DB.
+ */
 public class PersistencePostgres implements Persistence<PersistencePostgresConfig> {
 
     private static final String MSG_ID_NOT_NULL = "id must be non-null";
@@ -110,18 +115,18 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
             initDb();
 
-            if (config.getInitialModel() != null) {
+            if (config.loadInitialModel() != null) {
                 if (Boolean.TRUE.equals(config.getOverride())) {
                     deleteAll();
-                    save(config.getInitialModel());
+                    save(config.loadInitialModel());
                 }
                 else if (isDatabaseEmpty()) {
-                    save(config.getInitialModel());
+                    save(config.loadInitialModel());
                 }
             }
 
         }
-        catch (SQLException e) {
+        catch (SQLException | InvalidConfigurationException | DeserializationException e) {
             throw new PersistenceException("Database connection failed", e);
         }
     }
@@ -161,7 +166,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    public AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException {
+    private AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException {
         return loadEntity(TABLE_AAS, id, AssetAdministrationShell.class);
     }
 
@@ -225,7 +230,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    public Submodel getSubmodel(String id) throws ResourceNotFoundException {
+    private Submodel getSubmodel(String id) throws ResourceNotFoundException {
         return loadEntity(TABLE_SUBMODEL, id, Submodel.class);
     }
 
@@ -465,7 +470,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    public ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException {
+    private ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException {
         return loadEntity(TABLE_CONCEPT, id, ConceptDescription.class);
     }
 
@@ -536,7 +541,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    public void save(Environment environment) {
+    private void save(Environment environment) {
         if (environment == null)
             return;
         if (environment.getAssetAdministrationShells() != null)
