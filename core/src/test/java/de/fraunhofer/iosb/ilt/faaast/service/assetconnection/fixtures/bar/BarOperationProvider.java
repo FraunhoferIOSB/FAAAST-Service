@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.bar;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
@@ -28,12 +27,10 @@ import org.slf4j.LoggerFactory;
 public class BarOperationProvider implements AssetOperationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BarOperationProvider.class);
-    private final ServiceContext serviceContext;
     private final Reference reference;
     private final BarOperationProviderConfig providerConfig;
 
-    public BarOperationProvider(ServiceContext serviceContext, Reference reference, BarOperationProviderConfig providerConfig) {
-        this.serviceContext = serviceContext;
+    public BarOperationProvider(Reference reference, BarOperationProviderConfig providerConfig) {
         this.reference = reference;
         this.providerConfig = providerConfig;
     }

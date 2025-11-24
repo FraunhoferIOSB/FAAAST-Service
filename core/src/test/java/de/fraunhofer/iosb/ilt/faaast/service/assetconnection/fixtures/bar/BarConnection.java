@@ -39,19 +39,19 @@ public class BarConnection extends
 
     @Override
     protected BarValueProvider createValueProvider(Reference reference, BarValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new BarValueProvider(serviceContext, reference, providerConfig);
+        return new BarValueProvider(reference, providerConfig);
     }
 
 
     @Override
     protected BarOperationProvider createOperationProvider(Reference reference, BarOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new BarOperationProvider(serviceContext, reference, providerConfig);
+        return new BarOperationProvider(reference, providerConfig);
     }
 
 
     @Override
     protected BarSubscriptionProvider createSubscriptionProvider(Reference reference, BarSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        return new BarSubscriptionProvider(serviceContext, reference, providerConfig);
+        return new BarSubscriptionProvider(reference, providerConfig);
     }
 
 

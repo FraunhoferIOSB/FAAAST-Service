@@ -31,11 +31,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooSub
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonMapperFactory;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.SimpleAbstractTypeResolverFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -63,7 +61,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_addOnlyConnection() throws ConfigurationException, Exception {
+    public void testUpdateConnections_addOnlyConnection() throws Exception {
         FooConnectionConfig newConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -80,7 +78,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_addConnection() throws ConfigurationException, Exception {
+    public void testUpdateConnections_addConnection() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -109,7 +107,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_deleteOnlyConnection() throws ConfigurationException, Exception {
+    public void testUpdateConnections_deleteOnlyConnection() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -126,7 +124,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_deleteConnection() throws ConfigurationException, Exception {
+    public void testUpdateConnections_deleteConnection() throws Exception {
         FooConnectionConfig initialConnectionConfig1 = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -155,7 +153,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_updateConnection() throws ConfigurationException, Exception {
+    public void testUpdateConnections_updateConnection() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -179,7 +177,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_addProvider() throws ConfigurationException, Exception {
+    public void testUpdateConnections_addProvider() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -206,7 +204,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_deleteProvider() throws ConfigurationException, Exception {
+    public void testUpdateConnections_deleteProvider() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -233,7 +231,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_updateProviderMapping() throws ConfigurationException, Exception {
+    public void testUpdateConnections_updateProviderMapping() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -257,7 +255,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_updateProviderType() throws ConfigurationException, Exception {
+    public void testUpdateConnections_updateProviderType() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -281,7 +279,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_updateProviderValue() throws ConfigurationException, Exception {
+    public void testUpdateConnections_updateProviderValue() throws Exception {
         FooConnectionConfig initialConnectionConfig = FooConnectionConfig.builder()
                 .property1("foo")
                 .property2(1)
@@ -311,7 +309,7 @@ public class AssetConnectionManagerTest {
 
 
     @Test
-    public void testUpdateConnections_complexScenario() throws ConfigurationException, Exception {
+    public void testUpdateConnections_complexScenario() throws Exception {
         Reference reference3 = ReferenceBuilder.forAas("reference3");
         Reference reference4 = ReferenceBuilder.forAas("reference4");
 
@@ -380,7 +378,7 @@ public class AssetConnectionManagerTest {
         }
         List<AssetConnection> initialConnections = initialConnectionConfigs.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> (AssetConnection) x.newInstance(CoreConfig.DEFAULT, service)))
-                .collect(Collectors.toList());
+                .toList();
         AssetConnectionManager assetConnectionManager = new AssetConnectionManager(CoreConfig.DEFAULT, initialConnections, service);
         assetConnectionManager.updateConnections(oldConnectionConfigs, newConnectionConfigs);
         assertNotNull(assetConnectionManager.getConnections());

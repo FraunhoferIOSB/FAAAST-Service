@@ -39,19 +39,19 @@ public class FooConnection extends
 
     @Override
     protected FooValueProvider createValueProvider(Reference reference, FooValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new FooValueProvider(serviceContext, reference, providerConfig);
+        return new FooValueProvider(reference, providerConfig);
     }
 
 
     @Override
     protected FooOperationProvider createOperationProvider(Reference reference, FooOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new FooOperationProvider(serviceContext, reference, providerConfig);
+        return new FooOperationProvider(reference, providerConfig);
     }
 
 
     @Override
     protected FooSubscriptionProvider createSubscriptionProvider(Reference reference, FooSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        return new FooSubscriptionProvider(serviceContext, reference, providerConfig);
+        return new FooSubscriptionProvider(reference, providerConfig);
     }
 
 

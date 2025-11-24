@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
@@ -27,12 +26,10 @@ import org.slf4j.LoggerFactory;
 public class FooSubscriptionProvider implements AssetSubscriptionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FooSubscriptionProvider.class);
-    private final ServiceContext serviceContext;
     private final Reference reference;
     private final FooSubscriptionProviderConfig providerConfig;
 
-    public FooSubscriptionProvider(ServiceContext serviceContext, Reference reference, FooSubscriptionProviderConfig providerConfig) {
-        this.serviceContext = serviceContext;
+    public FooSubscriptionProvider(Reference reference, FooSubscriptionProviderConfig providerConfig) {
         this.reference = reference;
         this.providerConfig = providerConfig;
     }

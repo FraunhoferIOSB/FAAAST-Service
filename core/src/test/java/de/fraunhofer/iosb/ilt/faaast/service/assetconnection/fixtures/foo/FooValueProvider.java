@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
@@ -32,12 +31,10 @@ import org.slf4j.LoggerFactory;
 public class FooValueProvider implements AssetValueProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FooValueProvider.class);
-    private final ServiceContext serviceContext;
     private final Reference reference;
     private final FooValueProviderConfig providerConfig;
 
-    public FooValueProvider(ServiceContext serviceContext, Reference reference, FooValueProviderConfig providerConfig) {
-        this.serviceContext = serviceContext;
+    public FooValueProvider(Reference reference, FooValueProviderConfig providerConfig) {
         this.reference = reference;
         this.providerConfig = providerConfig;
     }
