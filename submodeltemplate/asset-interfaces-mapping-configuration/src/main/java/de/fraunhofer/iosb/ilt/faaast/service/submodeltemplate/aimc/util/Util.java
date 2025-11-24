@@ -57,34 +57,16 @@ public class Util {
      */
     public static SubmodelElementCollection getPropertyForms(SubmodelElementCollection property, Reference propertyReference, RelationData data)
             throws PersistenceException, ResourceNotFoundException {
-        // search root object
-        SubmodelElementCollection current = property;
-        Reference currentReference = propertyReference;
-        while (semanticIdEquals(current, Constants.AID_PROPERTY_NESTED_SEMANTIC_ID)) {
-            Reference grandParent = getGrandParent(currentReference);
-            if ((grandParent != null)
-                    && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)) {
-                current = grandParentObject;
-                currentReference = grandParent;
-            }
-            else {
-                throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
-            }
-        }
+        SubmodelElementCollection current = getRootProperty(property, propertyReference, data);
 
         Optional<SubmodelElementCollection> element;
-        if (semanticIdEquals(current, Constants.AID_PROPERTY_ROOT_SEMANTIC_ID)) {
-            element = SemanticIdPath.builder()
-                    .globalReference(Constants.AID_PROPERTY_FORMS_SEMANTIC_ID)
-                    .build()
-                    .resolveOptional(current, SubmodelElementCollection.class);
+        element = SemanticIdPath.builder()
+                .globalReference(Constants.AID_PROPERTY_FORMS_SEMANTIC_ID)
+                .build()
+                .resolveOptional(current, SubmodelElementCollection.class);
 
-            if (element.isEmpty()) {
-                throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
-            }
-        }
-        else {
-            throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
+        if (element.isEmpty()) {
+            throw new IllegalArgumentException("Submodel AID invalid: Property forms not found.");
         }
         return element.get();
     }
@@ -265,7 +247,8 @@ public class Util {
      * @return True if it's the InteractionMetadata object, false if not.
      */
     public static boolean isInteractionMetadata(SubmodelElementCollection object) {
-        return semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID);
+        return semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID) || (semanticIdEquals(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID_2)
+                && containsSupplementalSemanticId(object, Constants.AID_INTERACTION_METADATA_SEMANTIC_ID));
     }
 
 
@@ -380,7 +363,44 @@ public class Util {
     }
 
 
+    /**
+     * Gets the root property for the given property.
+     *
+     * @param property The desired property.
+     * @param propertyReference The reference for the given property.
+     * @param data The relation data.
+     * @return The root property.
+     * @throws IllegalArgumentException When the Root Property was not found.
+     * @throws ResourceNotFoundException if the resource dcesn't exist.
+     * @throws PersistenceException if storage error occurs.
+     */
+    public static SubmodelElementCollection getRootProperty(SubmodelElementCollection property, Reference propertyReference, RelationData data)
+            throws IllegalArgumentException, ResourceNotFoundException, PersistenceException {
+        // search root object
+        SubmodelElementCollection current = property;
+        Reference currentReference = propertyReference;
+        while (semanticIdEquals(current, Constants.AID_PROPERTY_NESTED_SEMANTIC_ID)) {
+            Reference grandParent = getGrandParent(currentReference);
+            if ((grandParent != null)
+                    && (EnvironmentHelper.resolve(grandParent, data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection grandParentObject)) {
+                current = grandParentObject;
+                currentReference = grandParent;
+            }
+            else {
+                throw new IllegalArgumentException("Submodel AID invalid: Root Property not found.");
+            }
+        }
+        if (semanticIdEquals(current, Constants.AID_PROPERTY_ROOT_SEMANTIC_ID)) {
+            return current;
+        }
+        else {
+            throw new IllegalArgumentException("Submodel AID invalid: Root Property not found (Property {}).");
+        }
+    }
+
+
     private static boolean semanticReferenceEquals(Reference ref, String semanticId) {
         return (ref.getKeys().size() == 1) && semanticId.equals(ref.getKeys().get(0).getValue());
     }
+
 }

@@ -146,12 +146,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(blob);
         if (blob != null) {
             visit(blob.getSemanticId());
-            blob.getSupplementalSemanticIds().forEach(this::visit);
-            blob.getDescription().forEach(this::visit);
-            blob.getDisplayName().forEach(this::visit);
-            blob.getQualifiers().forEach(this::visit);
-            blob.getEmbeddedDataSpecifications().forEach(this::visit);
-            blob.getExtensions().forEach(this::visit);
+            if (blob.getSupplementalSemanticIds() != null) {
+                blob.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (blob.getDescription() != null) {
+                blob.getDescription().forEach(this::visit);
+            }
+            if (blob.getDisplayName() != null) {
+                blob.getDisplayName().forEach(this::visit);
+            }
+            if (blob.getQualifiers() != null) {
+                blob.getQualifiers().forEach(this::visit);
+            }
+            if (blob.getEmbeddedDataSpecifications() != null) {
+                blob.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (blob.getExtensions() != null) {
+                blob.getExtensions().forEach(this::visit);
+            }
         }
         visitAfter(blob);
     }
@@ -162,12 +174,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(capability);
         if (capability != null) {
             visit(capability.getSemanticId());
-            capability.getSupplementalSemanticIds().forEach(this::visit);
-            capability.getDescription().forEach(this::visit);
-            capability.getDisplayName().forEach(this::visit);
-            capability.getQualifiers().forEach(this::visit);
-            capability.getEmbeddedDataSpecifications().forEach(this::visit);
-            capability.getExtensions().forEach(this::visit);
+            if (capability.getSupplementalSemanticIds() != null) {
+                capability.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (capability.getDescription() != null) {
+                capability.getDescription().forEach(this::visit);
+            }
+            if (capability.getDisplayName() != null) {
+                capability.getDisplayName().forEach(this::visit);
+            }
+            if (capability.getQualifiers() != null) {
+                capability.getQualifiers().forEach(this::visit);
+            }
+            if (capability.getEmbeddedDataSpecifications() != null) {
+                capability.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (capability.getExtensions() != null) {
+                capability.getExtensions().forEach(this::visit);
+            }
         }
         visitAfter(capability);
     }
@@ -199,11 +223,21 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(file);
         if (file != null) {
             visit(file.getSemanticId());
-            file.getDescription().forEach(this::visit);
-            file.getDisplayName().forEach(this::visit);
-            file.getQualifiers().forEach(this::visit);
-            file.getEmbeddedDataSpecifications().forEach(this::visit);
-            file.getExtensions().forEach(this::visit);
+            if (file.getDescription() != null) {
+                file.getDescription().forEach(this::visit);
+            }
+            if (file.getDisplayName() != null) {
+                file.getDisplayName().forEach(this::visit);
+            }
+            if (file.getQualifiers() != null) {
+                file.getQualifiers().forEach(this::visit);
+            }
+            if (file.getEmbeddedDataSpecifications() != null) {
+                file.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (file.getExtensions() != null) {
+                file.getExtensions().forEach(this::visit);
+            }
         }
         visitAfter(file);
     }
@@ -228,11 +262,21 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(range);
         if (range != null) {
             visit(range.getSemanticId());
-            range.getDescription().forEach(this::visit);
-            range.getDisplayName().forEach(this::visit);
-            range.getQualifiers().forEach(this::visit);
-            range.getEmbeddedDataSpecifications().forEach(this::visit);
-            range.getExtensions().forEach(this::visit);
+            if (range.getDescription() != null) {
+                range.getDescription().forEach(this::visit);
+            }
+            if (range.getDisplayName() != null) {
+                range.getDisplayName().forEach(this::visit);
+            }
+            if (range.getQualifiers() != null) {
+                range.getQualifiers().forEach(this::visit);
+            }
+            if (range.getEmbeddedDataSpecifications() != null) {
+                range.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (range.getExtensions() != null) {
+                range.getExtensions().forEach(this::visit);
+            }
         }
         visitAfter(range);
     }
@@ -241,7 +285,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     @Override
     public void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
         visitBefore(annotatedRelationshipElement);
-        if (annotatedRelationshipElement != null) {
+        if (annotatedRelationshipElement != null && annotatedRelationshipElement.getAnnotations() != null) {
             annotatedRelationshipElement.getAnnotations().forEach(this::visit);
         }
         visitAfter(annotatedRelationshipElement);
@@ -252,14 +296,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(AssetAdministrationShell assetAdministrationShell) {
         visitBefore(assetAdministrationShell);
         if (assetAdministrationShell != null) {
-            assetAdministrationShell.getExtensions().forEach(this::visit);
-            assetAdministrationShell.getDescription().forEach(this::visit);
-            assetAdministrationShell.getDisplayName().forEach(this::visit);
+            if (assetAdministrationShell.getExtensions() != null) {
+                assetAdministrationShell.getExtensions().forEach(this::visit);
+            }
+            if (assetAdministrationShell.getDescription() != null) {
+                assetAdministrationShell.getDescription().forEach(this::visit);
+            }
+            if (assetAdministrationShell.getDisplayName() != null) {
+                assetAdministrationShell.getDisplayName().forEach(this::visit);
+            }
             visit(assetAdministrationShell.getAdministration());
             visit(assetAdministrationShell.getDerivedFrom());
             visit(assetAdministrationShell.getAssetInformation());
-            assetAdministrationShell.getEmbeddedDataSpecifications().forEach(this::visit);
-            assetAdministrationShell.getSubmodels().forEach(this::visit);
+            if (assetAdministrationShell.getEmbeddedDataSpecifications() != null) {
+                assetAdministrationShell.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (assetAdministrationShell.getSubmodels() != null) {
+                assetAdministrationShell.getSubmodels().forEach(this::visit);
+            }
         }
         visitAfter(assetAdministrationShell);
     }
@@ -270,7 +324,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(assetInformation);
         if (assetInformation != null) {
             visit(assetInformation.getDefaultThumbnail());
-            assetInformation.getSpecificAssetIds().forEach(this::visit);
+            if (assetInformation.getSpecificAssetIds() != null) {
+                assetInformation.getSpecificAssetIds().forEach(this::visit);
+            }
         }
         visitAfter(assetInformation);
     }
@@ -281,12 +337,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(basicEventElement);
         if (basicEventElement != null) {
             visit(basicEventElement.getSemanticId());
-            basicEventElement.getSupplementalSemanticIds().forEach(this::visit);
-            basicEventElement.getDescription().forEach(this::visit);
-            basicEventElement.getDisplayName().forEach(this::visit);
-            basicEventElement.getQualifiers().forEach(this::visit);
-            basicEventElement.getExtensions().forEach(this::visit);
-            basicEventElement.getEmbeddedDataSpecifications().forEach(this::visit);
+            if (basicEventElement.getSupplementalSemanticIds() != null) {
+                basicEventElement.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (basicEventElement.getDescription() != null) {
+                basicEventElement.getDescription().forEach(this::visit);
+            }
+            if (basicEventElement.getDisplayName() != null) {
+                basicEventElement.getDisplayName().forEach(this::visit);
+            }
+            if (basicEventElement.getQualifiers() != null) {
+                basicEventElement.getQualifiers().forEach(this::visit);
+            }
+            if (basicEventElement.getExtensions() != null) {
+                basicEventElement.getExtensions().forEach(this::visit);
+            }
+            if (basicEventElement.getEmbeddedDataSpecifications() != null) {
+                basicEventElement.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
             visit(basicEventElement.getObserved());
         }
         visitAfter(basicEventElement);
@@ -298,10 +366,18 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(conceptDescription);
         if (conceptDescription != null) {
             visit(conceptDescription.getAdministration());
-            conceptDescription.getDescription().forEach(this::visit);
-            conceptDescription.getDisplayName().forEach(this::visit);
-            conceptDescription.getExtensions().forEach(this::visit);
-            conceptDescription.getIsCaseOf().forEach(this::visit);
+            if (conceptDescription.getDescription() != null) {
+                conceptDescription.getDescription().forEach(this::visit);
+            }
+            if (conceptDescription.getDisplayName() != null) {
+                conceptDescription.getDisplayName().forEach(this::visit);
+            }
+            if (conceptDescription.getExtensions() != null) {
+                conceptDescription.getExtensions().forEach(this::visit);
+            }
+            if (conceptDescription.getIsCaseOf() != null) {
+                conceptDescription.getIsCaseOf().forEach(this::visit);
+            }
         }
         visitAfter(conceptDescription);
     }
@@ -312,7 +388,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(specificAssetId);
         if (specificAssetId != null) {
             visit(specificAssetId.getSemanticId());
-            specificAssetId.getSupplementalSemanticIds().forEach(this::visit);
+            if (specificAssetId.getSupplementalSemanticIds() != null) {
+                specificAssetId.getSupplementalSemanticIds().forEach(this::visit);
+            }
             visit(specificAssetId.getExternalSubjectId());
         }
         visitAfter(specificAssetId);
@@ -324,13 +402,27 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(multiLanguageProperty);
         if (multiLanguageProperty != null) {
             visit(multiLanguageProperty.getSemanticId());
-            multiLanguageProperty.getSupplementalSemanticIds().forEach(this::visit);
-            multiLanguageProperty.getDescription().forEach(this::visit);
-            multiLanguageProperty.getDisplayName().forEach(this::visit);
-            multiLanguageProperty.getQualifiers().forEach(this::visit);
-            multiLanguageProperty.getEmbeddedDataSpecifications().forEach(this::visit);
-            multiLanguageProperty.getExtensions().forEach(this::visit);
-            multiLanguageProperty.getValue().forEach(this::visit);
+            if (multiLanguageProperty.getSupplementalSemanticIds() != null) {
+                multiLanguageProperty.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getDescription() != null) {
+                multiLanguageProperty.getDescription().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getDisplayName() != null) {
+                multiLanguageProperty.getDisplayName().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getQualifiers() != null) {
+                multiLanguageProperty.getQualifiers().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getEmbeddedDataSpecifications() != null) {
+                multiLanguageProperty.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getExtensions() != null) {
+                multiLanguageProperty.getExtensions().forEach(this::visit);
+            }
+            if (multiLanguageProperty.getValue() != null) {
+                multiLanguageProperty.getValue().forEach(this::visit);
+            }
             visit(multiLanguageProperty.getValueId());
         }
         visitAfter(multiLanguageProperty);
@@ -352,12 +444,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(property);
         if (property != null) {
             visit(property.getSemanticId());
-            property.getSupplementalSemanticIds().forEach(this::visit);
-            property.getDescription().forEach(this::visit);
-            property.getDisplayName().forEach(this::visit);
-            property.getQualifiers().forEach(this::visit);
-            property.getEmbeddedDataSpecifications().forEach(this::visit);
-            property.getExtensions().forEach(this::visit);
+            if (property.getSupplementalSemanticIds() != null) {
+                property.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (property.getDescription() != null) {
+                property.getDescription().forEach(this::visit);
+            }
+            if (property.getDisplayName() != null) {
+                property.getDisplayName().forEach(this::visit);
+            }
+            if (property.getQualifiers() != null) {
+                property.getQualifiers().forEach(this::visit);
+            }
+            if (property.getEmbeddedDataSpecifications() != null) {
+                property.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (property.getExtensions() != null) {
+                property.getExtensions().forEach(this::visit);
+            }
             visit(property.getValueId());
         }
         visitAfter(property);
@@ -379,7 +483,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(reference);
         if (reference != null) {
             visit(reference.getReferredSemanticId());
-            reference.getKeys().forEach(this::visit);
+            if (reference.getKeys() != null) {
+                reference.getKeys().forEach(this::visit);
+            }
         }
         visitAfter(reference);
     }
@@ -390,12 +496,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(referenceElement);
         if (referenceElement != null) {
             visit(referenceElement.getSemanticId());
-            referenceElement.getSupplementalSemanticIds().forEach(this::visit);
-            referenceElement.getDescription().forEach(this::visit);
-            referenceElement.getDisplayName().forEach(this::visit);
-            referenceElement.getQualifiers().forEach(this::visit);
-            referenceElement.getEmbeddedDataSpecifications().forEach(this::visit);
-            referenceElement.getExtensions().forEach(this::visit);
+            if (referenceElement.getSupplementalSemanticIds() != null) {
+                referenceElement.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (referenceElement.getDescription() != null) {
+                referenceElement.getDescription().forEach(this::visit);
+            }
+            if (referenceElement.getDisplayName() != null) {
+                referenceElement.getDisplayName().forEach(this::visit);
+            }
+            if (referenceElement.getQualifiers() != null) {
+                referenceElement.getQualifiers().forEach(this::visit);
+            }
+            if (referenceElement.getEmbeddedDataSpecifications() != null) {
+                referenceElement.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (referenceElement.getExtensions() != null) {
+                referenceElement.getExtensions().forEach(this::visit);
+            }
             visit(referenceElement.getValue());
         }
         visitAfter(referenceElement);
@@ -411,12 +529,24 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
             visitBefore(relationshipElement);
             if (relationshipElement != null) {
                 visit(relationshipElement.getSemanticId());
-                relationshipElement.getSupplementalSemanticIds().forEach(this::visit);
-                relationshipElement.getDescription().forEach(this::visit);
-                relationshipElement.getDisplayName().forEach(this::visit);
-                relationshipElement.getQualifiers().forEach(this::visit);
-                relationshipElement.getEmbeddedDataSpecifications().forEach(this::visit);
-                relationshipElement.getExtensions().forEach(this::visit);
+                if (relationshipElement.getSupplementalSemanticIds() != null) {
+                    relationshipElement.getSupplementalSemanticIds().forEach(this::visit);
+                }
+                if (relationshipElement.getDescription() != null) {
+                    relationshipElement.getDescription().forEach(this::visit);
+                }
+                if (relationshipElement.getDisplayName() != null) {
+                    relationshipElement.getDisplayName().forEach(this::visit);
+                }
+                if (relationshipElement.getQualifiers() != null) {
+                    relationshipElement.getQualifiers().forEach(this::visit);
+                }
+                if (relationshipElement.getEmbeddedDataSpecifications() != null) {
+                    relationshipElement.getEmbeddedDataSpecifications().forEach(this::visit);
+                }
+                if (relationshipElement.getExtensions() != null) {
+                    relationshipElement.getExtensions().forEach(this::visit);
+                }
                 visit(relationshipElement.getFirst());
                 visit(relationshipElement.getSecond());
             }
@@ -429,15 +559,31 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(Entity entity) {
         visitBefore(entity);
         if (entity != null) {
-            entity.getQualifiers().forEach(this::visit);
-            entity.getEmbeddedDataSpecifications().forEach(this::visit);
-            entity.getExtensions().forEach(this::visit);
-            entity.getDescription().forEach(this::visit);
-            entity.getDisplayName().forEach(this::visit);
-            entity.getSpecificAssetIds().forEach(this::visit);
+            if (entity.getQualifiers() != null) {
+                entity.getQualifiers().forEach(this::visit);
+            }
+            if (entity.getEmbeddedDataSpecifications() != null) {
+                entity.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (entity.getExtensions() != null) {
+                entity.getExtensions().forEach(this::visit);
+            }
+            if (entity.getDescription() != null) {
+                entity.getDescription().forEach(this::visit);
+            }
+            if (entity.getDisplayName() != null) {
+                entity.getDisplayName().forEach(this::visit);
+            }
+            if (entity.getSpecificAssetIds() != null) {
+                entity.getSpecificAssetIds().forEach(this::visit);
+            }
             visit(entity.getSemanticId());
-            entity.getSupplementalSemanticIds().forEach(this::visit);
-            entity.getStatements().forEach(this::visit);
+            if (entity.getSupplementalSemanticIds() != null) {
+                entity.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (entity.getStatements() != null) {
+                entity.getStatements().forEach(this::visit);
+            }
         }
         visitAfter(entity);
     }
@@ -448,7 +594,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(extension);
         if (extension != null) {
             visit(extension.getSemanticId());
-            extension.getSupplementalSemanticIds().forEach(this::visit);
+            if (extension.getSupplementalSemanticIds() != null) {
+                extension.getSupplementalSemanticIds().forEach(this::visit);
+            }
             visit(extension.getRefersTo());
         }
         visitAfter(extension);
@@ -459,9 +607,15 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(Environment environment) {
         visitBefore(environment);
         if (environment != null) {
-            environment.getAssetAdministrationShells().forEach(this::visit);
-            environment.getConceptDescriptions().forEach(this::visit);
-            environment.getSubmodels().forEach(this::visit);
+            if (environment.getAssetAdministrationShells() != null) {
+                environment.getAssetAdministrationShells().forEach(this::visit);
+            }
+            if (environment.getConceptDescriptions() != null) {
+                environment.getConceptDescriptions().forEach(this::visit);
+            }
+            if (environment.getSubmodels() != null) {
+                environment.getSubmodels().forEach(this::visit);
+            }
         }
         visitAfter(environment);
     }
@@ -472,14 +626,28 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(submodel);
         if (submodel != null) {
             visit(submodel.getSemanticId());
-            submodel.getSupplementalSemanticIds().forEach(this::visit);
+            if (submodel.getSupplementalSemanticIds() != null) {
+                submodel.getSupplementalSemanticIds().forEach(this::visit);
+            }
             visit(submodel.getAdministration());
-            submodel.getDescription().forEach(this::visit);
-            submodel.getDisplayName().forEach(this::visit);
-            submodel.getQualifiers().forEach(this::visit);
-            submodel.getExtensions().forEach(this::visit);
-            submodel.getEmbeddedDataSpecifications().forEach(this::visit);
-            submodel.getSubmodelElements().forEach(this::visit);
+            if (submodel.getDescription() != null) {
+                submodel.getDescription().forEach(this::visit);
+            }
+            if (submodel.getDisplayName() != null) {
+                submodel.getDisplayName().forEach(this::visit);
+            }
+            if (submodel.getQualifiers() != null) {
+                submodel.getQualifiers().forEach(this::visit);
+            }
+            if (submodel.getExtensions() != null) {
+                submodel.getExtensions().forEach(this::visit);
+            }
+            if (submodel.getEmbeddedDataSpecifications() != null) {
+                submodel.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (submodel.getSubmodelElements() != null) {
+                submodel.getSubmodelElements().forEach(this::visit);
+            }
         }
         visitAfter(submodel);
     }
@@ -490,13 +658,27 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(submodelElementCollection);
         if (submodelElementCollection != null) {
             visit(submodelElementCollection.getSemanticId());
-            submodelElementCollection.getSupplementalSemanticIds().forEach(this::visit);
-            submodelElementCollection.getDescription().forEach(this::visit);
-            submodelElementCollection.getDisplayName().forEach(this::visit);
-            submodelElementCollection.getQualifiers().forEach(this::visit);
-            submodelElementCollection.getEmbeddedDataSpecifications().forEach(this::visit);
-            submodelElementCollection.getExtensions().forEach(this::visit);
-            submodelElementCollection.getValue().forEach(this::visit);
+            if (submodelElementCollection.getSupplementalSemanticIds() != null) {
+                submodelElementCollection.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (submodelElementCollection.getDescription() != null) {
+                submodelElementCollection.getDescription().forEach(this::visit);
+            }
+            if (submodelElementCollection.getDisplayName() != null) {
+                submodelElementCollection.getDisplayName().forEach(this::visit);
+            }
+            if (submodelElementCollection.getQualifiers() != null) {
+                submodelElementCollection.getQualifiers().forEach(this::visit);
+            }
+            if (submodelElementCollection.getEmbeddedDataSpecifications() != null) {
+                submodelElementCollection.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (submodelElementCollection.getExtensions() != null) {
+                submodelElementCollection.getExtensions().forEach(this::visit);
+            }
+            if (submodelElementCollection.getValue() != null) {
+                submodelElementCollection.getValue().forEach(this::visit);
+            }
         }
         visitAfter(submodelElementCollection);
     }
@@ -507,13 +689,27 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(submodelElementList);
         if (submodelElementList != null) {
             visit(submodelElementList.getSemanticId());
-            submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
-            submodelElementList.getDescription().forEach(this::visit);
-            submodelElementList.getDisplayName().forEach(this::visit);
-            submodelElementList.getQualifiers().forEach(this::visit);
-            submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
-            submodelElementList.getExtensions().forEach(this::visit);
-            submodelElementList.getValue().forEach(this::visit);
+            if (submodelElementList.getSupplementalSemanticIds() != null) {
+                submodelElementList.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (submodelElementList.getDescription() != null) {
+                submodelElementList.getDescription().forEach(this::visit);
+            }
+            if (submodelElementList.getDisplayName() != null) {
+                submodelElementList.getDisplayName().forEach(this::visit);
+            }
+            if (submodelElementList.getQualifiers() != null) {
+                submodelElementList.getQualifiers().forEach(this::visit);
+            }
+            if (submodelElementList.getEmbeddedDataSpecifications() != null) {
+                submodelElementList.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (submodelElementList.getExtensions() != null) {
+                submodelElementList.getExtensions().forEach(this::visit);
+            }
+            if (submodelElementList.getValue() != null) {
+                submodelElementList.getValue().forEach(this::visit);
+            }
         }
         visitAfter(submodelElementList);
     }
@@ -524,15 +720,33 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         visitBefore(operation);
         if (operation != null) {
             visit(operation.getSemanticId());
-            operation.getSupplementalSemanticIds().forEach(this::visit);
-            operation.getDescription().forEach(this::visit);
-            operation.getDisplayName().forEach(this::visit);
-            operation.getQualifiers().forEach(this::visit);
-            operation.getEmbeddedDataSpecifications().forEach(this::visit);
-            operation.getExtensions().forEach(this::visit);
-            operation.getInputVariables().forEach(x -> visit(x.getValue()));
-            operation.getInoutputVariables().forEach(x -> visit(x.getValue()));
-            operation.getOutputVariables().forEach(x -> visit(x.getValue()));
+            if (operation.getSupplementalSemanticIds() != null) {
+                operation.getSupplementalSemanticIds().forEach(this::visit);
+            }
+            if (operation.getDescription() != null) {
+                operation.getDescription().forEach(this::visit);
+            }
+            if (operation.getDisplayName() != null) {
+                operation.getDisplayName().forEach(this::visit);
+            }
+            if (operation.getQualifiers() != null) {
+                operation.getQualifiers().forEach(this::visit);
+            }
+            if (operation.getEmbeddedDataSpecifications() != null) {
+                operation.getEmbeddedDataSpecifications().forEach(this::visit);
+            }
+            if (operation.getExtensions() != null) {
+                operation.getExtensions().forEach(this::visit);
+            }
+            if (operation.getInputVariables() != null) {
+                operation.getInputVariables().forEach(x -> visit(x.getValue()));
+            }
+            if (operation.getInoutputVariables() != null) {
+                operation.getInoutputVariables().forEach(x -> visit(x.getValue()));
+            }
+            if (operation.getOutputVariables() != null) {
+                operation.getOutputVariables().forEach(x -> visit(x.getValue()));
+            }
         }
         visitAfter(operation);
     }
@@ -542,7 +756,9 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     public void visit(ValueList valueList) {
         visitBefore(valueList);
         if (valueList != null) {
-            valueList.getValueReferencePairs().forEach(this::visit);
+            if (valueList.getValueReferencePairs() != null) {
+                valueList.getValueReferencePairs().forEach(this::visit);
+            }
         }
         visitAfter(valueList);
     }
