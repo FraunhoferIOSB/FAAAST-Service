@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.FormulaEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.aasrepository.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodelrepository.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.AccessPermissionRule;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Acl;
@@ -40,7 +41,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,7 +58,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import org.slf4j.LoggerFactory;
 
 
@@ -126,12 +126,46 @@ public class ApiGateway {
      * @return the ApiResponse with only allowed Submodels
      */
     public Response filterSubmodels(HttpServletRequest request, GetAllSubmodelsResponse response) {
-        response.getPayload().getContent()
-                .removeIf(submodel -> aclList.values().stream().noneMatch(
-                        a -> a.getRules().stream()
-                                .anyMatch(r -> AuthServer.evaluateRule(r, "/submodels/" + EncodingHelper.base64Encode(submodel.getId()),
-                                        request.getMethod(), extractClaims(request), a))));
+        response.getPayload().getContent().removeIf(submodel -> {
+            String path = "/submodels/" + EncodingHelper.base64Encode(submodel.getId());
+            String method = request.getMethod();
+            Map<String, Claim> claims = extractClaims(request);
+
+            Map<String, Object> fieldCtx = new HashMap<>();
+            if (submodel.getSemanticId() != null) {
+                fieldCtx.put("$sm#semanticId", submodel.getSemanticId().getKeys().get(0).getValue());
+            }
+
+            return aclList.values().stream()
+                    .noneMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
+        });
         return response;
+    }
+
+
+    /**
+     * Filters out the Submodel that the user is not authorized for.
+     *
+     * @param request the HttpRequest
+     * @param response the ApiResponse
+     * @return true if user is authorized
+     */
+    public boolean filterSubmodel(HttpServletRequest request, GetSubmodelResponse response) {
+        Submodel submodel = response.getPayload();
+        if (Objects.isNull(submodel)) {
+            return true;
+        }
+        String path = "/submodels/" + EncodingHelper.base64Encode(submodel.getId());
+        String method = request.getMethod();
+        Map<String, Claim> claims = extractClaims(request);
+
+        Map<String, Object> fieldCtx = new HashMap<>();
+        if (submodel.getSemanticId() != null) {
+            fieldCtx.put("$sm#semanticId", submodel.getSemanticId().getKeys().get(0).getValue());
+        }
+
+        return aclList.values().stream()
+                .anyMatch(allAccess -> allAccess.getRules().stream().anyMatch(rule -> AuthServer.evaluateRule(rule, path, method, claims, allAccess, fieldCtx)));
     }
 
 
@@ -164,9 +198,9 @@ public class ApiGateway {
          * Check all rules that explicitly allows the request.
          * If a rule exists after all filters, true is returned
          *
-         * @param claims
-         * @param request
-         * @return
+         * @param claims the claims found in the token
+         * @param request the request coming in
+         * @return true if there is a valid rule
          */
         private static boolean filterRules(Map<Path, AllAccessPermissionRules> aclList, Map<String, Claim> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
@@ -175,47 +209,43 @@ public class ApiGateway {
             List<AllAccessPermissionRules> relevantRules = aclList.values().stream()
                     .filter(a -> a.getRules().stream()
                             .anyMatch(r -> evaluateRule(r, path, method, claims, a)))
-                    .collect(Collectors.toList());
+                    .toList();
             return !relevantRules.isEmpty();
         }
 
 
-        private static boolean verifyAllClaims(Map<String, Claim> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        private static boolean verifyAllClaims(Map<String, Claim> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess, Map<String, Object> fieldCtx) {
             Acl acl = getAcl(rule, allAccess);
-            if (getAttributes(acl, allAccess).stream()
-                    .anyMatch(attr -> "ANONYMOUS".equals(attr.getGlobal().value())
-                            && Boolean.TRUE.equals(getFormula(rule, allAccess).get$boolean()))) {
-                return true;
-            }
-            if (claims == null) {
-                return false;
-            }
-            List<String> claimValues = getAttributes(acl, allAccess).stream()
+
+            boolean isAnonymous = getAttributes(acl, allAccess).stream()
+                    .anyMatch(attr -> attr.getGlobal() != null && "ANONYMOUS".equals(attr.getGlobal().value()));
+
+            List<String> claimNames = getAttributes(acl, allAccess).stream()
                     .filter(attr -> attr.getGlobal() == null)
                     .map(AttributeItem::getClaim)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            Map<String, String> claimList = new HashMap<>();
-            for (String val: claimValues) {
-                Claim claim = claims.get(val);
-                if (claim != null) {
-                    claimList.put(val, claim.asString());
+                    .toList();
+
+            // Build  context
+            Map<String, Object> ctx = new HashMap<>();
+            if (claims != null) {
+                for (String name: claimNames) {
+                    Claim c = claims.get(name);
+                    if (c != null) {
+                        ctx.put("CLAIM:" + name, c.asString());
+                    }
                 }
             }
-            return !claimValues.isEmpty()
-                    && claimValues.stream()
-                            .allMatch(value -> evaluateFormula(getFormula(rule, allAccess), claimList));
-        }
-
-
-        private static boolean evaluateFormula(LogicalExpression formula,
-                                               Map<String, String> claims) {
-            Map<String, Object> ctx = new HashMap<>();
-            for (var c: claims.entrySet()) {
-                ctx.put("CLAIM:" + c.getKey(), c.getValue());
+            // Add $sm#semanticId
+            if (fieldCtx != null && !fieldCtx.isEmpty()) {
+                ctx.putAll(fieldCtx);
             }
-            ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
-            return FormulaEvaluator.evaluate(formula, ctx);
+            ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC()));
+            if (isAnonymous) {
+                return FormulaEvaluator.evaluate(getFormula(rule, allAccess), ctx);
+            }
+            return !ctx.entrySet().stream().filter(e -> e.getKey().startsWith("CLAIM:")).toList().isEmpty() &&
+                    FormulaEvaluator.evaluate(getFormula(rule, allAccess), ctx);
         }
 
 
@@ -263,14 +293,14 @@ public class ApiGateway {
             }
             else if (identifiable.startsWith("(Submodel)")) {
                 String id = identifiable.substring(10);
-                return path.contains(EncodingHelper.base64Encode(id));
+                return path.contains(Objects.requireNonNull(EncodingHelper.base64Encode(id)));
             }
             if ("(AssetAdministrationShell)*".equals(identifiable)) {
                 return true;
             }
             else if (identifiable.startsWith("(AssetAdministrationShell)")) {
                 String id = identifiable.substring(26);
-                return path.contains(EncodingHelper.base64Encode(id));
+                return path.contains(Objects.requireNonNull(EncodingHelper.base64Encode(id)));
             }
             return false;
         }
@@ -286,7 +316,7 @@ public class ApiGateway {
                 }
                 else if (descriptor.startsWith("(aasDesc)")) {
                     String id = descriptor.substring(9);
-                    return path.contains(EncodingHelper.base64UrlEncode(id));
+                    return path.contains(Objects.requireNonNull(EncodingHelper.base64UrlEncode(id)));
                 }
             }
             else if (descriptor.startsWith("(smDesc)")) {
@@ -298,7 +328,7 @@ public class ApiGateway {
                 }
                 else if (descriptor.startsWith("(smDesc)")) {
                     String id = descriptor.substring(8);
-                    return path.contains(EncodingHelper.base64UrlEncode(id));
+                    return path.contains(Objects.requireNonNull(EncodingHelper.base64UrlEncode(id)));
                 }
             }
             return false;
@@ -306,11 +336,14 @@ public class ApiGateway {
 
 
         private static boolean evaluateRule(AccessPermissionRule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess) {
+            return evaluateRule(rule, path, method, claims, allAccess, null);
+        }
+
+
+        private static boolean evaluateRule(AccessPermissionRule rule, String path, String method, Map<String, Claim> claims, AllAccessPermissionRules allAccess,
+                                            Map<String, Object> fieldCtx) {
             Acl acl = getAcl(rule, allAccess);
-            return acl != null
-                    && getAttributes(acl, allAccess) != null
-                    && acl.getRights() != null
-                    && getObjects(rule, allAccess) != null
+            return acl != null && getAttributes(acl, allAccess) != null && acl.getRights() != null && getObjects(rule, allAccess) != null
                     && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                         if (attr.getRoute() != null) {
                             return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
@@ -324,10 +357,7 @@ public class ApiGateway {
                         else {
                             return false;
                         }
-                    })
-                    && "ALLOW".equals(acl.getAccess().value())
-                    && evaluateRights(acl.getRights(), method, path)
-                    && verifyAllClaims(claims, rule, allAccess);
+                    }) && "ALLOW".equals(acl.getAccess().value()) && evaluateRights(acl.getRights(), method, path) && verifyAllClaims(claims, rule, allAccess, fieldCtx);
         }
     }
 
@@ -346,7 +376,7 @@ public class ApiGateway {
             for (File file: jsonFiles) {
                 Path filePath = file.toPath();
                 try {
-                    String jsonContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    String jsonContent = Files.readString(filePath);
                     JsonNode rootNode = mapper.readTree(jsonContent);
                     AllAccessPermissionRules allRules;
                     if (rootNode.has("AllAccessPermissionRules")) {
@@ -411,7 +441,7 @@ public class ApiGateway {
                     if (filePath.toString().toLowerCase().endsWith(".json")) {
                         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
                             try {
-                                String jsonContent = new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8);
+                                String jsonContent = Files.readString(absolutePath);
                                 JsonNode rootNode = mapper.readTree(jsonContent);
                                 AllAccessPermissionRules allRules;
                                 if (rootNode.has("AllAccessPermissionRules")) {
