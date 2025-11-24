@@ -753,13 +753,34 @@ public class AssetConnectionManager {
         for (var providerType: AssetProviderType.values()) {
             for (var provider: providerType.getProvidersFromConfigAccessor().apply(source).entrySet()) {
                 Reference reference = ReferenceHelper.findSameReference(providerType.getProvidersFromConnectionAccessor().apply(target).keySet(), provider.getKey());
-                if (Objects.nonNull(reference)
-                        && provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
-                    LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists)",
-                            providerType.toString().toLowerCase(),
-                            ReferenceHelper.asString(reference));
+                boolean skip = false;
+                if (Objects.nonNull(reference)) {
+                    if (provider.getValue().sameAs(providerType.getProvidersFromConnectionAccessor().apply(target).get(reference))) {
+                        skip = true;
+                        LOGGER.debug("Skipped adding {} provider (reference: {}, reason: already exists)",
+                                providerType.toString().toLowerCase(),
+                                ReferenceHelper.asString(reference));
+                    }
+                    else {
+                        if (providerType == AssetProviderType.SUBSCRIPTION && target.isConnected()) {
+                            try {
+                                ((AssetSubscriptionProvider) target.getSubscriptionProviders().get(reference)).unsubscribe();
+                            }
+                            catch (AssetConnectionException e) {
+                                result.add(Message.builder()
+                                        .messageType(MessageTypeEnum.WARNING)
+                                        .text(String.format("Failed to unsubscribe subscription (reference: %s, reason: %s)",
+                                                providerType.toString().toLowerCase(),
+                                                ReferenceHelper.asString(reference),
+                                                e.getMessage()))
+                                        .build());
+                            }
+                        }
+
+                    }
+
                 }
-                else {
+                if (!skip) {
                     try {
                         providerType.getRegisterProviderAccessor().accept(target, provider.getKey(), provider.getValue());
                         if (providerType == AssetProviderType.SUBSCRIPTION && target.isConnected()) {
