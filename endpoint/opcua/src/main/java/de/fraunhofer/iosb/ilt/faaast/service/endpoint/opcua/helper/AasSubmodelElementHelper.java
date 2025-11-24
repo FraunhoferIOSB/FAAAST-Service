@@ -51,7 +51,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -426,7 +425,7 @@ public class AasSubmodelElementHelper {
         usbyteProperty.setDataTypeId(Identifiers.Byte);
         usbyteProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            usbyteProperty.setValue(typedValue.getValue());
+            usbyteProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return usbyteProperty;
     }
@@ -448,7 +447,7 @@ public class AasSubmodelElementHelper {
         uint16Property.setDataTypeId(Identifiers.UInt16);
         uint16Property.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            uint16Property.setValue(typedValue.getValue());
+            uint16Property.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return uint16Property;
     }
@@ -459,11 +458,7 @@ public class AasSubmodelElementHelper {
         longProperty.setDataTypeId(Identifiers.Int64);
         longProperty.setDescription(new LocalizedText("", ""));
         if (typedValue != null) {
-            Object obj = typedValue.getValue();
-            if ((obj != null) && (!(obj instanceof Long))) {
-                obj = Long.valueOf(obj.toString());
-            }
-            longProperty.setValue(obj);
+            longProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return longProperty;
     }
@@ -474,11 +469,7 @@ public class AasSubmodelElementHelper {
         ulongProperty.setDataTypeId(Identifiers.UInt64);
         ulongProperty.setDescription(new LocalizedText("", ""));
         if (typedValue != null) {
-            Object obj = typedValue.getValue();
-            if ((obj != null) && (!(obj instanceof UnsignedLong))) {
-                obj = UnsignedLong.valueOf(obj.toString());
-            }
-            ulongProperty.setValue(obj);
+            ulongProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return ulongProperty;
     }
@@ -500,7 +491,7 @@ public class AasSubmodelElementHelper {
         uintProperty.setDataTypeId(Identifiers.UInt32);
         uintProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            uintProperty.setValue(typedValue.getValue());
+            uintProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return uintProperty;
     }
@@ -511,12 +502,7 @@ public class AasSubmodelElementHelper {
         dateTimeProperty.setDataTypeId(Identifiers.DateTime);
         dateTimeProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            if (typedValue.getValue() instanceof OffsetDateTime odt) {
-                dateTimeProperty.setValue(ValueConverter.createDateTime(odt));
-            }
-            else {
-                dateTimeProperty.setValue(typedValue.getValue());
-            }
+            dateTimeProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return dateTimeProperty;
     }
@@ -546,7 +532,7 @@ public class AasSubmodelElementHelper {
         byteStringProperty.setDataTypeId(Identifiers.ByteString);
         byteStringProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            byteStringProperty.setValue(typedValue.getValue());
+            byteStringProperty.setValue(ValueConverter.convertTypedValue(typedValue));
         }
         return byteStringProperty;
     }

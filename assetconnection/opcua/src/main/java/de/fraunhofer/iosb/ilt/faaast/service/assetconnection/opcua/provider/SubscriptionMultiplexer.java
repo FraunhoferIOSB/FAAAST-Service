@@ -157,7 +157,7 @@ public class SubscriptionMultiplexer {
             });
         }
         catch (ValueConversionException e) {
-            LOGGER.warn("received illegal value via OPC UA subscription - type conversion faild (value: {}, target type: {}, nodeId: {})",
+            LOGGER.warn("received illegal value via OPC UA subscription - type conversion failed (value: {}, target type: {}, nodeId: {})",
                     value.getValue(),
                     datatype,
                     providerConfig.getNodeId(),
