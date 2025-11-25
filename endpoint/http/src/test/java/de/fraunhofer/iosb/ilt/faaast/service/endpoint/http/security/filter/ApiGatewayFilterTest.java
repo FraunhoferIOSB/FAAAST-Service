@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.security.filter;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,11 +84,9 @@ public class ApiGatewayFilterTest extends JwtAuthorizationFilterTest {
         Files.writeString(tmpRule, ACL_JSON, StandardCharsets.UTF_8);
         Files.move(tmpRule, rule, StandardCopyOption.ATOMIC_MOVE);
 
-        Thread.sleep(200);
-        assertTrue(apiGateway.isAuthorized(request));
+        await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertTrue(apiGateway.isAuthorized(request)));
 
         Files.delete(rule);
-        Thread.sleep(200);
-        assertFalse(apiGateway.isAuthorized(request));
+        await().atMost(5, SECONDS).pollInterval(100, MILLISECONDS).untilAsserted(() -> assertFalse(apiGateway.isAuthorized(request)));
     }
 }
