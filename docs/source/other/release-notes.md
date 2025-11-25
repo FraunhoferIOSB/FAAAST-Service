@@ -11,6 +11,7 @@
 - SMT Processor
 	- AID/AIMC
 		- Fixed bug that prevented to update asset connection providers are runtime
+		- Fixed bug that prevented subscription providers to not be properly stopped
 
 ## 1.3.0
 
