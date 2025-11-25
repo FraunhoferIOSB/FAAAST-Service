@@ -1,0 +1,817 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Common JSON Schema for AAS Queries and Access Rules",
+    "description": "This schema contains all classes that are shared between the AAS Query Language and the AAS Access Rule Language.",
+    "definitions": {
+        "standardString": {
+            "type": "string",
+            "pattern": "^(?!\\$).*"
+        },
+        "modelStringPattern": {
+            "type": "string",
+            "pattern": "^((?:\\$aas#(?:idShort|id|assetInformation\\.assetKind|assetInformation\\.assetType|assetInformation\\.globalAssetId|assetInformation\\.(?:specificAssetIds(\\[[0-9]*\\])(?:\\.(?:name|value|externalSubjectId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(?:type|value))?)?)?)|submodels\\.(?:type|keys\\[\\d*\\](?:\\.(?:type|value))?))|submodels\\.(type|keys\\[\\d*\\](?:\\.(type|value))?)))|(?:\\$sm#(?:semanticId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(type|value))?)?|idShort|id))|(?:\\$sme(?:\\.[a-zA-Z][a-zA-Z0-9_]*(\\[[0-9]*\\])?(?:\\.[a-zA-Z][a-zA-Z0-9_]*(\\[[0-9]*\\])?)*)?#(?:semanticId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(type|value))?)?|idShort|value|valueType|language))|(?:\\$cd#(?:idShort|id))|(?:\\$aasdesc#(?:idShort|id|assetKind|assetType|globalAssetId|specificAssetIds(\\[[0-9]*\\])?(?:\\.(name|value|externalSubjectId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(type|value))?)?)?)|endpoints(\\[[0-9]*\\])\\.(interface|protocolinformation\\.href)|submodelDescriptors(\\[[0-9]*\\])\\.(semanticId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(type|value))?)?|idShort|id|endpoints(\\[[0-9]*\\])\\.(interface|protocolinformation\\.href))))|(?:\\$smdesc#(?:semanticId(?:\\.type|\\.keys\\[\\d*\\](?:\\.(type|value))?)?|idShort|id|endpoints(\\[[0-9]*\\])\\.(interface|protocolinformation\\.href))))$"
+        },
+        "hexLiteralPattern": {
+            "type": "string",
+            "pattern": "^16#[0-9A-F]+$"
+        },
+        "dateTimeLiteralPattern": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "timeLiteralPattern": {
+            "type": "string",
+            "pattern": "^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])?$"
+        },
+        "Value": {
+            "type": "object",
+            "properties": {
+                "$field": {
+                    "$ref": "#/definitions/modelStringPattern"
+                },
+                "$strVal": {
+                    "$ref": "#/definitions/standardString"
+                },
+                "$attribute": {
+                    "$ref": "#/definitions/attributeItem"
+                },
+                "$numVal": {
+                    "type": "number"
+                },
+                "$hexVal": {
+                    "$ref": "#/definitions/hexLiteralPattern"
+                },
+                "$dateTimeVal": {
+                    "$ref": "#/definitions/dateTimeLiteralPattern"
+                },
+                "$timeVal": {
+                    "$ref": "#/definitions/timeLiteralPattern"
+                },
+                "$boolean": {
+                    "type": "boolean"
+                },
+                "$strCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$numCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$hexCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$boolCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$dateTimeCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$timeCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$dayOfWeek": {
+                    "$ref": "#/definitions/dateTimeLiteralPattern"
+                },
+                "$dayOfMonth": {
+                    "$ref": "#/definitions/dateTimeLiteralPattern"
+                },
+                "$month": {
+                    "$ref": "#/definitions/dateTimeLiteralPattern"
+                },
+                "$year": {
+                    "$ref": "#/definitions/dateTimeLiteralPattern"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "$field"
+                    ]
+                },
+                {
+                    "required": [
+                        "$strVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$attribute"
+                    ]
+                },
+                {
+                    "required": [
+                        "$numVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$hexVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$dateTimeVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$timeVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$boolean"
+                    ]
+                },
+                {
+                    "required": [
+                        "$strCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$numCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$hexCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$boolCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$dateTimeCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$timeCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$dayOfWeek"
+                    ]
+                },
+                {
+                    "required": [
+                        "$dayOfMonth"
+                    ]
+                },
+                {
+                    "required": [
+                        "$month"
+                    ]
+                },
+                {
+                    "required": [
+                        "$year"
+                    ]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "stringValue": {
+            "type": "object",
+            "properties": {
+                "$field": {
+                    "$ref": "#/definitions/modelStringPattern"
+                },
+                "$strVal": {
+                    "$ref": "#/definitions/standardString"
+                },
+                "$strCast": {
+                    "$ref": "#/definitions/Value"
+                },
+                "$attribute": {
+                    "$ref": "#/definitions/attributeItem"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "$field"
+                    ]
+                },
+                {
+                    "required": [
+                        "$strVal"
+                    ]
+                },
+                {
+                    "required": [
+                        "$strCast"
+                    ]
+                },
+                {
+                    "required": [
+                        "$attribute"
+                    ]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "comparisonItems": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+                "$ref": "#/definitions/Value"
+            }
+        },
+        "stringItems": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+                "$ref": "#/definitions/stringValue"
+            }
+        },
+        "matchExpression": {
+            "type": "object",
+            "properties": {
+                "$match": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/matchExpression"
+                    }
+                },
+                "$eq": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$ne": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$gt": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$ge": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$lt": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$le": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$contains": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$starts-with": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$ends-with": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$regex": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$boolean": {
+                    "type": "boolean"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "$eq"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ne"
+                    ]
+                },
+                {
+                    "required": [
+                        "$gt"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ge"
+                    ]
+                },
+                {
+                    "required": [
+                        "$lt"
+                    ]
+                },
+                {
+                    "required": [
+                        "$le"
+                    ]
+                },
+                {
+                    "required": [
+                        "$contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "$starts-with"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ends-with"
+                    ]
+                },
+                {
+                    "required": [
+                        "$regex"
+                    ]
+                },
+                {
+                    "required": [
+                        "$boolean"
+                    ]
+                },
+                {
+                    "required": [
+                        "$match"
+                    ]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "logicalExpression": {
+            "type": "object",
+            "properties": {
+                "$and": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "$ref": "#/definitions/logicalExpression"
+                    }
+                },
+                "$match": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/matchExpression"
+                    }
+                },
+                "$or": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "$ref": "#/definitions/logicalExpression"
+                    }
+                },
+                "$not": {
+                    "$ref": "#/definitions/logicalExpression"
+                },
+                "$eq": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$ne": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$gt": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$ge": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$lt": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$le": {
+                    "$ref": "#/definitions/comparisonItems"
+                },
+                "$contains": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$starts-with": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$ends-with": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$regex": {
+                    "$ref": "#/definitions/stringItems"
+                },
+                "$boolean": {
+                    "type": "boolean"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "$and"
+                    ]
+                },
+                {
+                    "required": [
+                        "$or"
+                    ]
+                },
+                {
+                    "required": [
+                        "$not"
+                    ]
+                },
+                {
+                    "required": [
+                        "$eq"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ne"
+                    ]
+                },
+                {
+                    "required": [
+                        "$gt"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ge"
+                    ]
+                },
+                {
+                    "required": [
+                        "$lt"
+                    ]
+                },
+                {
+                    "required": [
+                        "$le"
+                    ]
+                },
+                {
+                    "required": [
+                        "$contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "$starts-with"
+                    ]
+                },
+                {
+                    "required": [
+                        "$ends-with"
+                    ]
+                },
+                {
+                    "required": [
+                        "$regex"
+                    ]
+                },
+                {
+                    "required": [
+                        "$boolean"
+                    ]
+                },
+                {
+                    "required": [
+                        "$match"
+                    ]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "attributeItem": {
+            "oneOf": [
+                {
+                    "required": [
+                        "CLAIM"
+                    ]
+                },
+                {
+                    "required": [
+                        "GLOBAL"
+                    ]
+                },
+                {
+                    "required": [
+                        "REFERENCE"
+                    ]
+                }
+            ],
+            "properties": {
+                "CLAIM": {
+                    "type": "string"
+                },
+                "GLOBAL": {
+                    "type": "string",
+                    "enum": [
+                        "LOCALNOW",
+                        "UTCNOW",
+                        "CLIENTNOW",
+                        "ANONYMOUS"
+                    ]
+                },
+                "REFERENCE": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "objectItem": {
+            "oneOf": [
+                {
+                    "required": [
+                        "ROUTE"
+                    ]
+                },
+                {
+                    "required": [
+                        "IDENTIFIABLE"
+                    ]
+                },
+                {
+                    "required": [
+                        "REFERABLE"
+                    ]
+                },
+                {
+                    "required": [
+                        "FRAGMENT"
+                    ]
+                },
+                {
+                    "required": [
+                        "DESCRIPTOR"
+                    ]
+                }
+            ],
+            "properties": {
+                "ROUTE": {
+                    "type": "string"
+                },
+                "IDENTIFIABLE": {
+                    "type": "string"
+                },
+                "REFERABLE": {
+                    "type": "string"
+                },
+                "FRAGMENT": {
+                    "type": "string"
+                },
+                "DESCRIPTOR": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "rightsEnum": {
+            "type": "string",
+            "enum": [
+                "CREATE",
+                "READ",
+                "UPDATE",
+                "DELETE",
+                "EXECUTE",
+                "VIEW",
+                "ALL",
+                "TREE"
+            ],
+            "additionalProperties": false
+        },
+        "ACL": {
+            "type": "object",
+            "properties": {
+                "ATTRIBUTES": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/attributeItem"
+                    }
+                },
+                "USEATTRIBUTES": {
+                    "type": "string"
+                },
+                "RIGHTS": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rightsEnum"
+                    }
+                },
+                "ACCESS": {
+                    "type": "string",
+                    "enum": [
+                        "ALLOW",
+                        "DISABLED"
+                    ]
+                }
+            },
+            "required": [
+                "RIGHTS",
+                "ACCESS"
+            ],
+            "oneOf": [
+                {
+                    "required": [
+                        "ATTRIBUTES"
+                    ]
+                },
+                {
+                    "required": [
+                        "USEATTRIBUTES"
+                    ]
+                }
+            ],
+            "additionalProperties": false
+        },
+        "AccessPermissionRule": {
+            "type": "object",
+            "properties": {
+                "ACL": {
+                    "$ref": "#/definitions/ACL"
+                },
+                "USEACL": {
+                    "type": "string"
+                },
+                "OBJECTS": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/objectItem"
+                    },
+                    "additionalProperties": false
+                },
+                "USEOBJECTS": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "FORMULA": {
+                    "$ref": "#/definitions/logicalExpression",
+                    "additionalProperties": false
+                },
+                "USEFORMULA": {
+                    "type": "string"
+                },
+                "FRAGMENT": {
+                    "type": "string"
+                },
+                "FILTER": {
+                    "$ref": "#/definitions/logicalExpression",
+                    "additionalProperties": false
+                },
+                "USEFILTER": {
+                    "type": "string"
+                }
+            },
+            "allOf": [
+                { "oneOf": [ { "required": ["ACL"] }, { "required": ["USEACL"] } ] },
+                { "oneOf": [ { "required": ["OBJECTS"] }, { "required": ["USEOBJECTS"] } ] },
+                { "oneOf": [ { "required": ["FORMULA"] }, { "required": ["USEFORMULA"] } ] } ],
+            "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "Query": {
+            "type": "object",
+            "properties": {
+                "$select": {
+                    "type": "string",
+                    "pattern": "^id$"
+                },
+                "$condition": {
+                    "$ref": "#/definitions/logicalExpression"
+                }
+            },
+            "required": [
+                "$condition"
+            ],
+            "additionalProperties": false
+        },
+        "AllAccessPermissionRules": {
+            "type": "object",
+            "properties": {
+                "DEFATTRIBUTES": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "attributes": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/attributeItem"
+                                }
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "attributes"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "DEFACLS": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "acl": {
+                                "$ref": "#/definitions/ACL"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "acl"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "DEFOBJECTS": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "objects": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/objectItem"
+                                }
+                            },
+                            "USEOBJECTS": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "name"
+                        ],
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "objects"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "USEOBJECTS"
+                                ]
+                            }
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "DEFFORMULAS": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "formula": {
+                                "$ref": "#/definitions/logicalExpression"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "formula"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AccessPermissionRule"
+                    }
+                }
+            },
+            "required": [
+                "rules"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "oneOf": [
+        {
+            "required": [
+                "Query"
+            ]
+        },
+        {
+            "required": [
+                "AllAccessPermissionRules"
+            ]
+        }
+    ],
+    "additionalProperties": false
+}
