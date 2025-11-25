@@ -129,16 +129,16 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     @Override
     public void disconnect() throws AssetConnectionException {
-        doDisconnect();
         unregisterProviders();
+        doDisconnect();
         connected = false;
     }
 
 
     private void unregisterProviders() {
-        valueProviders.clear();
-        subscriptionProviders.clear();
-        operationProviders.clear();
+        valueProviders.keySet().forEach(this::unregisterValueProvider);
+        subscriptionProviders.keySet().forEach(this::unregisterSubscriptionProvider);
+        operationProviders.keySet().forEach(this::unregisterOperationProvider);
     }
 
 
@@ -257,8 +257,8 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
                     s.unsubscribe();
                 }
             }
-            catch (AssetConnectionException ex) {
-                LOGGER.error("unregisterSubscriptionProvider error in unsubscribe");
+            catch (AssetConnectionException e) {
+                LOGGER.error("unregisterSubscriptionProvider error in unsubscribe", e);
             }
         }
         config.getSubscriptionProviders().remove(reference);
