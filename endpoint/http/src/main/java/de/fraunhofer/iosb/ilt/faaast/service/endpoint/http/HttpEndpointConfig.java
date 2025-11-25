@@ -379,6 +379,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         public B jwkProvider(String value) {
             getBuildingInstance().setJwkProvider(value);
         }
+
+
         public B pathPrefix(String value) {
             getBuildingInstance().setPathPrefix(value);
             return getSelf();
