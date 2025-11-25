@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.request.submodel.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.submodel.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -29,6 +30,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ModelValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestExecutionContext;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -47,8 +52,20 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
             PersistenceException {
         ModelValidator.validate(request.getSubmodel(), context.getCoreConfig().getValidationOnUpdate());
         //check if resource does exist
-        context.getPersistence().getSubmodel(request.getSubmodel().getId(), QueryModifier.DEFAULT);
-        context.getPersistence().deleteSubmodel(request.getSubmodelId());
+        context.getPersistence().getSubmodel(request.getSubmodelId(), QueryModifier.DEFAULT);
+        if (Objects.nonNull(request.getSubmodel()) && !Objects.equals(request.getSubmodel().getId(), request.getSubmodelId())) {
+            // id has changed, need to update references to this submodel
+            Reference submodelRefOld = ReferenceBuilder.forSubmodel(request.getSubmodelId());
+            Reference submodelRefNew = ReferenceBuilder.forSubmodel(request.getSubmodel().getId());
+            context.getPersistence().getAllAssetAdministrationShells(QueryModifier.MINIMAL, PagingInfo.ALL).getContent().stream()
+                    .filter(aas -> aas.getSubmodels().stream().anyMatch(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld)))
+                    .forEach(LambdaExceptionHelper.rethrowConsumer(aas -> {
+                        aas.getSubmodels().removeIf(submodelRef -> ReferenceHelper.equals(submodelRef, submodelRefOld));
+                        aas.getSubmodels().add(submodelRefNew);
+                        context.getPersistence().save(aas);
+                    }));
+            context.getPersistence().deleteSubmodel(request.getSubmodelId());
+        }
         context.getPersistence().save(request.getSubmodel());
         Reference reference = AasUtils.toReference(request.getSubmodel());
         syncWithAsset(reference, request.getSubmodel().getSubmodelElements(), !request.isInternal(), context);

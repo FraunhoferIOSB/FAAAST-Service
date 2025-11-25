@@ -114,7 +114,7 @@ public class HttpHelper {
             throws PersistenceException, ResourceNotFoundException {
         for (var r: data.getRelations()) {
             if (EnvironmentHelper.resolve(r.getFirst(), data.getServiceContext().getAASEnvironment()) instanceof SubmodelElementCollection property) {
-                if (isObservable(property)) {
+                if (isObservable(property, data, r.getFirst())) {
                     LOGGER.atDebug().log("processRelations: createSubscriptionProvider for: {}", ReferenceHelper.asString(r.getSecond()));
                     subscriptionProviders.put(r.getSecond(), createSubscriptionProvider(property, base, data, r.getFirst()));
                 }
@@ -235,10 +235,12 @@ public class HttpHelper {
     }
 
 
-    private static boolean isObservable(SubmodelElementCollection property) {
+    private static boolean isObservable(SubmodelElementCollection property, RelationData data, Reference propertyReference)
+            throws IllegalArgumentException, ResourceNotFoundException, PersistenceException {
         boolean retval = false;
         // only available in the root object
-        Optional<SubmodelElement> element = property.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
+        SubmodelElementCollection root = Util.getRootProperty(property, propertyReference, data);
+        Optional<SubmodelElement> element = root.getValue().stream().filter(e -> Util.semanticIdEquals(e, Constants.AID_PROPERTY_OBSERVABLE_SEMANTIC_ID)).findFirst();
         if (element.isPresent() && (element.get() instanceof Property prop)) {
             String obsText = prop.getValue();
             retval = Boolean.parseBoolean(obsText);

@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyNodeBasedProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.fixtures.foo.FooValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.io.File;
 import java.io.IOException;
@@ -41,11 +41,11 @@ public class ConfigTest {
 
     @BeforeClass
     public static void init() {
-        DummyAssetConnectionConfig assetConnection = new DummyAssetConnectionConfig();
-        assetConnection.setHost("tcp://localhost");
-        assetConnection.setPort(1234);
-        DummyNodeBasedProviderConfig valueProvider = new DummyNodeBasedProviderConfig();
-        valueProvider.setNodeId("some.opc.ua.node.id");
+        FooConnectionConfig assetConnection = new FooConnectionConfig();
+        assetConnection.setProperty1("tcp://localhost");
+        assetConnection.setProperty2(1234);
+        FooValueProviderConfig valueProvider = new FooValueProviderConfig();
+        valueProvider.setProperty1("some.opc.ua.node.id");
         assetConnection.getValueProviders().put(ReferenceHelper.parse("(Property)Temperature"), valueProvider);
         config = ServiceConfig.builder()
                 .core(CoreConfig.builder()

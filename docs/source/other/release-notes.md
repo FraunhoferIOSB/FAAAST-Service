@@ -1,6 +1,18 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.4.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**Internal changes & bugfixes**
+- General
+	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+- Endpoint
+	- HTTP
+		- URL prefix /api/v3.x is now optional
+- SMT Processor
+	- AID/AIMC
+		- Fixed bug that prevented to update asset connection providers are runtime
+		- Fixed bug that prevented subscription providers to not be properly stopped
+
 ## 1.3.0
 
 **New Features & Major Changes**

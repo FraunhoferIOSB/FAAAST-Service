@@ -84,8 +84,8 @@ public class RegistrySynchronization {
     private static final String MSG_SUBMODEL_NOT_FOUND = "submodel could not be found in persistence";
     private static final String MSG_BAD_RETURN_CODE = "bad return code %s";
 
-    private static final String AAS_URL_PATH = "/api/v3.0/shell-descriptors";
-    private static final String SUBMODEL_URL_PATH = "/api/v3.0/submodel-descriptors";
+    private static final String AAS_URL_PATH = "/shell-descriptors";
+    private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
 
     private final CoreConfig coreConfig;
     private final Persistence<?> persistence;
