@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
@@ -37,11 +38,11 @@ import org.slf4j.LoggerFactory;
 public abstract class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceConfig.class);
-    protected File initialModelFile;
+    protected List<File> initialModelFile;
     @JsonIgnore
     protected Environment initialModel;
 
-    public File getInitialModelFile() {
+    public List<File> getInitialModelFile() {
         return initialModelFile;
     }
 
@@ -56,7 +57,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
     }
 
 
-    public void setInitialModelFile(File initialModelFile) {
+    public void setInitialModelFile(List<File> initialModelFile) {
         this.initialModelFile = initialModelFile;
     }
 
@@ -76,11 +77,11 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
             return initialModel;
         }
         if (Objects.nonNull(initialModelFile)) {
-            if (!initialModelFile.exists()) {
+            if (!initialModelFile.isEmpty()) {
                 throw new InvalidConfigurationException(String.format("model file not found (file: %s)", initialModelFile));
             }
-            if (!initialModelFile.isFile()) {
-                throw new InvalidConfigurationException(String.format("model file is not file (file: %s)", initialModelFile));
+            if (!initialModelFile.stream().filter(f -> f.isFile()).toList().isEmpty()) {
+                throw new InvalidConfigurationException(String.format("model files are not files (file: %s)", initialModelFile));
             }
             return EnvironmentSerializationManager
                     .deserialize(initialModelFile)
@@ -121,7 +122,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
-        public B initialModelFile(File value) {
+        public B initialModelFile(List<File> value) {
             getBuildingInstance().setInitialModelFile(value);
             return getSelf();
         }

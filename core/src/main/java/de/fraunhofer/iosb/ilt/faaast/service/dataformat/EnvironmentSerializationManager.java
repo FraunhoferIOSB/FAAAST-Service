@@ -15,19 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.EnvironmentContext;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+
 import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,6 +167,33 @@ public class EnvironmentSerializationManager {
                         potentialDataFormats.stream()
                                 .map(Enum::name)
                                 .collect(Collectors.joining(","))));
+    }
+
+    /**
+     * Reads an {@link Environment} from given files while automatically determining used data
+     * format based on file extension.
+     *
+     * @param files the list of files to read
+     * @return the deserialized environment context
+     * @throws DeserializationException if file extensions is not supported
+     * @throws DeserializationException if deserialization fails
+     */
+    public static EnvironmentContext deserialize(List<File> files) throws DeserializationException {
+        Ensure.requireNonNull(files, MSG_FILE_MUST_BE_NON_NULL);
+        init();
+        EnvironmentContext context = new EnvironmentContext();
+        Environment environment = new DefaultEnvironment();
+        List<InMemoryFile> inMemoryFiles = new ArrayList<>();
+        for (File file: files) {
+            EnvironmentContext currentContext = deserialize(file);
+            environment.setAssetAdministrationShells(currentContext.getEnvironment().getAssetAdministrationShells());
+            environment.setSubmodels(currentContext.getEnvironment().getSubmodels());
+            environment.setConceptDescriptions(currentContext.getEnvironment().getConceptDescriptions());
+            inMemoryFiles.addAll(currentContext.getFiles());
+        }
+        context.setEnvironment(environment);
+        context.setFiles(inMemoryFiles);
+        return  context;
     }
 
 
