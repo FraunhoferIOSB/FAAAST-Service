@@ -133,9 +133,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                         arrayIndex);
             }
             List<StatusCode> results = client.writeValues(List.of(node.getNodeId()), List.of(new DataValue(
-                    valueToWrite,
-                    null,
-                    null)));
+                    valueToWrite)));
             StatusCode result = results.get(0);
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");
         }
