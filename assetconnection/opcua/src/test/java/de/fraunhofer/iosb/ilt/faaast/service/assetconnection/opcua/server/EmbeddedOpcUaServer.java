@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.SecurityPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -48,9 +49,9 @@ import org.eclipse.milo.opcua.stack.core.UaRuntimeException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultApplicationGroup;
 import org.eclipse.milo.opcua.stack.core.security.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.security.DefaultServerCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
 import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateStore;
-import org.eclipse.milo.opcua.stack.core.security.MemoryTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.RsaSha256CertificateFactory;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
@@ -154,7 +155,7 @@ public class EmbeddedOpcUaServer {
                         boolean userOk = config.getAllowedCredentials().containsKey(x.getUsername());
                         boolean passwordOk = Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()));
 
-                        return userOk || passwordOk;
+                        return userOk && passwordOk;
                     }));
         }
         if (availableTokenPolicies.contains(UserTokenType.Certificate)) {
@@ -206,7 +207,7 @@ public class EmbeddedOpcUaServer {
         this.config = config;
         Files.createDirectories(config.getSecurityBaseDir());
         CertificateData applicationCertificate = getApplicationCertificate(config);
-        CertificateData httpsCertificate = getHttpsCertificate(config);
+        //CertificateData httpsCertificate = getHttpsCertificate(config);
         var certificateQuarantine = new MemoryCertificateQuarantine();
 
         var certificateFactory = new RsaSha256CertificateFactory() {
@@ -222,7 +223,8 @@ public class EmbeddedOpcUaServer {
             }
         };
 
-        var trustListManager = new MemoryTrustListManager();
+        //var trustListManager = new MemoryTrustListManager();
+        var trustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
         var certificateStore = new MemoryCertificateStore();
         var certificateValidator = new DefaultServerCertificateValidator(trustListManager, certificateQuarantine);
         var defaultGroup = DefaultApplicationGroup.createAndInitialize(
@@ -249,7 +251,7 @@ public class EmbeddedOpcUaServer {
                 .setBuildInfo(BUILD_INFO)
                 .setCertificateManager(certificateManager)
                 //.setTrustListManager(trustListManager)
-                .setCertificateManager(certificateManager)
+                //.setCertificateManager(certificateManager)
                 //.setHttpsKeyPair(httpsCertificate.getKeyPair())
                 //.setHttpsCertificateChain(httpsCertificate.getCertificateChain())
                 .setIdentityValidator(buildIdentityValidator(config))
@@ -305,8 +307,8 @@ public class EmbeddedOpcUaServer {
         switch (protocol) {
             case TCP:
                 return TransportProfile.TCP_UASC_UABINARY;
-            case HTTPS:
-                return TransportProfile.HTTPS_UABINARY;
+            //case HTTPS:
+            //    return TransportProfile.HTTPS_UABINARY;
             default:
                 throw new IllegalStateException(String.format("unsupported protocol: %s", protocol));
         }
