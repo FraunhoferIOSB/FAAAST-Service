@@ -31,17 +31,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.security.Security;
-import java.util.List;
 import java.util.Objects;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
 import org.eclipse.milo.opcua.sdk.client.UaSession;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,18 +93,24 @@ public class OpcUaAssetConnection extends
         opcUaSubscription = new OpcUaSubscription(client);
         opcUaSubscription.setSubscriptionListener(
                 new OpcUaSubscription.SubscriptionListener() {
-                    @Override
-                    public void onDataReceived(
-                                               OpcUaSubscription subscription,
-                                               List<OpcUaMonitoredItem> items,
-                                               List<DataValue> values) {
+                    //                    @Override
+                    //                    public void onDataReceived(
+                    //                                               OpcUaSubscription subscription,
+                    //                                               List<OpcUaMonitoredItem> items,
+                    //                                               List<DataValue> values) {
+                    //
+                    //                        for (int i = 0; i < items.size(); i++) {
+                    //                            LOGGER.info(
+                    //                                    "subscription onDataReceived: nodeId={}, value={}",
+                    //                                    items.get(i).getReadValueId().getNodeId(),
+                    //                                    values.get(i).value());
+                    //                        }
+                    //                    }
 
-                        for (int i = 0; i < items.size(); i++) {
-                            LOGGER.info(
-                                    "subscription onDataReceived: nodeId={}, value={}",
-                                    items.get(i).getReadValueId().getNodeId(),
-                                    values.get(i).value());
-                        }
+                    @Override
+                    public void onTransferFailed(OpcUaSubscription subscription, StatusCode status) {
+                        LOGGER.debug("subscription Transfer to new session failed - try reconnect");
+                        reconnect();
                     }
                 });
         opcUaSubscription.create();
