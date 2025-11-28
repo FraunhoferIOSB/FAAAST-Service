@@ -177,12 +177,11 @@ public class EmbeddedOpcUaServer {
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
 
-
-    private static CertificateData getHttpsCertificate(EmbeddedOpcUaServerConfig config) throws Exception {
-        return Objects.nonNull(config.getHttpsCertificate())
-                ? config.getHttpsCertificate()
-                : generateHttpsCertificate();
-    }
+    //private static CertificateData getHttpsCertificate(EmbeddedOpcUaServerConfig config) throws Exception {
+    //    return Objects.nonNull(config.getHttpsCertificate())
+    //            ? config.getHttpsCertificate()
+    //            : generateHttpsCertificate();
+    //}
 
 
     private static CertificateData generateHttpsCertificate() throws Exception {
