@@ -36,6 +36,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.MonitoredItemSynchronizationException;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -113,9 +114,20 @@ public class SubscriptionMultiplexer {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
                     ReferenceHelper.toString(reference)));
         }
-        //try {
         dataItem = OpcUaMonitoredItem.newDataItem(OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()));
         dataItem.setDataValueListener(this::notify);
+        opcUaSubscription.addMonitoredItem(dataItem);
+        try {
+            // Synchronize the MonitoredItems with the server.
+            // This will create, modify, and delete items as necessary.
+            opcUaSubscription.synchronizeMonitoredItems();
+        }
+        catch (MonitoredItemSynchronizationException e) {
+            LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
+                    ReferenceHelper.toString(reference),
+                    providerConfig.getNodeId(),
+                    e);
+        }
         //dataItem = opcUaSubscription.createDataItem(
         //        OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()),
         //        LambdaExceptionHelper.rethrowConsumer(
@@ -219,16 +231,17 @@ public class SubscriptionMultiplexer {
      * @throws AssetConnectionException if closing the OPC UA subscription fails
      */
     public void close() throws AssetConnectionException {
-        //        try {
-        //            dataItem.delete();
-        //        }
-        //        catch (UaException e) {
-        //            throw new AssetConnectionException(
-        //                    String.format("Removing subscription failed (reference: %s, nodeId: %s)",
-        //                            ReferenceHelper.toString(reference),
-        //                            providerConfig.getNodeId()),
-        //                    e);
-        //        }
+        try {
+            opcUaSubscription.removeMonitoredItem(dataItem);
+            opcUaSubscription.synchronizeMonitoredItems();
+        }
+        catch (MonitoredItemSynchronizationException e) {
+            throw new AssetConnectionException(
+                    String.format("Removing subscription failed (reference: %s, nodeId: %s)",
+                            ReferenceHelper.toString(reference),
+                            providerConfig.getNodeId()),
+                    e);
+        }
     }
 
 

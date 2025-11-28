@@ -109,6 +109,7 @@ public class OpcUaAssetConnection extends
                         }
                     }
                 });
+        opcUaSubscription.create();
         //        opcUaSubscription.addStatusListener(new ManagedSubscription.StatusListener() {
         //            @Override
         //            public void onSubscriptionTransferFailed(ManagedSubscription subscription, StatusCode statusCode) {
