@@ -354,6 +354,10 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     providerConfig.getNodeId()),
                     e);
         }
+        if (methodResult.getStatusCode().isBad()) {
+            throw new AssetConnectionException(String.format("Executing OPC UA method failed (nodeId: %s): %s",
+                    providerConfig.getNodeId(), methodResult.getStatusCode()));
+        }
         return convertResult(methodResult, inoutputParameter, inoutput);
     }
 

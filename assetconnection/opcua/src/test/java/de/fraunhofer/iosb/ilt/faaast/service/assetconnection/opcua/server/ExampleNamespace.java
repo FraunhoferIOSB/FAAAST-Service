@@ -669,7 +669,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         SqrtMethod sqrtMethod = new SqrtMethod(methodNode);
         methodNode.setInputArguments(sqrtMethod.getInputArguments());
         methodNode.setOutputArguments(sqrtMethod.getOutputArguments());
-        ////methodNode.setInvocationHandler(sqrtMethod);
+        methodNode.setInvocationHandler(sqrtMethod);
         getNodeManager().addNode(methodNode);
         methodNode.addReference(new Reference(
                 methodNode.getNodeId(),
