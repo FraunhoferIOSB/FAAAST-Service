@@ -75,6 +75,8 @@ public class OpcUaHelper {
             TransportProfile.TCP_UASC_UABINARY,
             TransportProfile.HTTPS_UABINARY,
             TransportProfile.WSS_UASC_UABINARY);
+    private static final String REGEX_IP_V4 = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$";
+    private static final String REGEX_IP_V6 = "^[0-9a-fA-F:]+$";
 
     private OpcUaHelper() {}
 
@@ -429,8 +431,8 @@ public class OpcUaHelper {
                                 .filter(e -> e.getSecurityMode() == config.getSecurityMode())
                                 .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
                                 .toList();
-                        var resolvableEndpoint = filteredEndpoints.stream()
-                                .filter(OpcUaHelper::isHostnameResolvable)
+                        var resolvableEndpoint = filteredEndpoints.parallelStream()
+                                .filter(OpcUaHelper::isEndpointReachable)
                                 .findFirst();
                         if (resolvableEndpoint.isPresent()) {
                             return resolvableEndpoint;
@@ -489,10 +491,18 @@ public class OpcUaHelper {
     }
 
 
-    private static boolean isHostnameResolvable(EndpointDescription endpoint) {
+    private static boolean isEndpointReachable(EndpointDescription endpoint) {
         try {
-            InetAddress.getByName(URI.create(endpoint.getEndpointUrl()).getHost());
-            return true;
+            URI uri = URI.create(endpoint.getEndpointUrl());
+            String host = uri.getHost();
+            if (host.matches(REGEX_IP_V4) || host.matches(REGEX_IP_V6)) {
+                InetAddress address = InetAddress.getByName(host);
+                return address.isReachable(1000);
+            }
+            else {
+                InetAddress.getByName(host);
+                return true;
+            }
         }
         catch (Exception e) {
             return false;
