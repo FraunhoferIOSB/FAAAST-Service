@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.AASXSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.InMemoryFile;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aasx.MetamodelContentType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
 
 
@@ -43,7 +44,7 @@ public class AasxEnvironmentSerializer implements EnvironmentSerializer {
     @Override
     public byte[] write(Charset charset, Environment environment, Collection<InMemoryFile> files) throws SerializationException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            serializer.write(environment, files, out);
+            serializer.write(environment, files, out, MetamodelContentType.JSON);
             return out.toByteArray();
         }
         catch (org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException | IOException e) {
