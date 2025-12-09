@@ -39,7 +39,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -482,7 +481,7 @@ public class RegistrySynchronization {
                     }
 
                 }
-                catch (URISyntaxException | IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
+                catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
                     LOGGER.warn(String.format(
                             errorMsg,
                             id,
@@ -499,7 +498,7 @@ public class RegistrySynchronization {
 
 
     private HttpResponse<String> execute(String method, String baseUrl, String path, Object payload)
-            throws URISyntaxException, IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
+            throws IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException {
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");

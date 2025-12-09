@@ -76,6 +76,7 @@ public class RegistrySynchronizationTest {
     @Rule
     public WireMockClassRule instanceRule = wireMockRule;
 
+    private static final String API_PREFIX = "/api/v3.0";
     private static final String AAS_URL_PATH = "/shell-descriptors";
     private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
     private ObjectMapper mapper;
@@ -98,9 +99,10 @@ public class RegistrySynchronizationTest {
         mockEndpoint();
         mockMessageBus();
         mockPersistence();
+        // Trying shell registry with and submodel registry without path prefix.
         registrySynchronization = new RegistrySynchronization(
                 CoreConfig.builder()
-                        .aasRegistry("http://localhost:" + wireMockRule.port())
+                        .aasRegistry("http://localhost:" + wireMockRule.port() + API_PREFIX)
                         .submodelRegistry("http://localhost:" + wireMockRule.port())
                         .build(),
                 persistence,
@@ -115,7 +117,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
+            verify(postRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH))
                     .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
         }
     }
@@ -127,7 +129,7 @@ public class RegistrySynchronizationTest {
         registrySynchronization.stop();
 
         for (AssetAdministrationShell aas: environment.getAssetAdministrationShells()) {
-            verify(deleteRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))));
+            verify(deleteRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))));
         }
     }
 
@@ -139,7 +141,7 @@ public class RegistrySynchronizationTest {
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(aas).build());
         registrySynchronization.stop();
-        verify(postRequestedFor(urlEqualTo(AAS_URL_PATH))
+        verify(postRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
     }
 
@@ -152,7 +154,7 @@ public class RegistrySynchronizationTest {
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(aas).build());
         registrySynchronization.stop();
-        verify(putRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId())))
+        verify(putRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId())))
                 .withRequestBody(equalToJson(getAasDescriptorBody(aas), true, false)));
     }
 
@@ -164,7 +166,7 @@ public class RegistrySynchronizationTest {
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(aas).build());
         registrySynchronization.stop();
-        verify(deleteRequestedFor(urlEqualTo(AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))));
+        verify(deleteRequestedFor(urlEqualTo(API_PREFIX + AAS_URL_PATH + "/" + EncodingHelper.base64UrlEncode(aas.getId()))));
     }
 
 
