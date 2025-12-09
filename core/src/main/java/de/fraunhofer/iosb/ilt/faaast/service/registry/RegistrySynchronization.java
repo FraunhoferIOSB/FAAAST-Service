@@ -38,8 +38,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.SslHelper;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -84,8 +84,8 @@ public class RegistrySynchronization {
     private static final String MSG_SUBMODEL_NOT_FOUND = "submodel could not be found in persistence";
     private static final String MSG_BAD_RETURN_CODE = "bad return code %s";
 
-    private static final String AAS_URL_PATH = "/shell-descriptors";
-    private static final String SUBMODEL_URL_PATH = "/submodel-descriptors";
+    private static final String AAS_URL_PATH = "shell-descriptors";
+    private static final String SUBMODEL_URL_PATH = "submodel-descriptors";
 
     private final CoreConfig coreConfig;
     private final Persistence<?> persistence;
@@ -504,8 +504,9 @@ public class RegistrySynchronization {
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");
         Ensure.requireNonNull(payload, "payload must be non-null");
+        String safeBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl.concat("/");
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(new URL(new URL(baseUrl), path).toURI())
+                .uri(URI.create(safeBaseUrl).resolve(path))
                 .header("Content-Type", "application/json");
         HttpRequest request = builder.method(method, HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload))).build();
         return SslHelper.newClientAcceptingAllCertificates().send(request, BodyHandlers.ofString());
