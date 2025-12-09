@@ -8,6 +8,7 @@
 
 MAVEN_SNAPSHOT_REPOSITORY="https://central.sonatype.com/repository/maven-snapshots"
 ACCOUNT_URL="https://archive.org/account"
+LOGIN_URL="https://archive.org/services/xauthn?op=login"
 PURL_URL="https://purl.archive.org"
 TOKEN_ERROR_EDITING_PURL="Error editing PURL:"
 TOKEN_ERROR_SAVING_PURL="Error saving PURL:"
@@ -101,13 +102,27 @@ main() {
 	local cookie csrf_response update_response
 	# update PURL entry with new_url
 	cookie="cookie"
-	echo -e -n "Preparing cookies...\t\t"	
-	curl --silent --show-error --fail --cookie-jar "$cookie" "${ACCOUNT_URL}/login" -o /dev/null || fatal "failed to fetch initial set of cookies"
-	echo "success"
+
+	local login_data
 
 	echo -e -n "logging in...\t\t\t"
-	curl --silent --show-error --fail --cookie "$cookie" --cookie-jar "$cookie" --data "username=${PURL_USER}&password=${PURL_PASSWORD}" "${ACCOUNT_URL}/login" | grep --silent "Successful login." || fatal "failed to log in"
-	echo "success"
+	curl \
+		--silent \
+		--show-error \
+		--fail \
+		--cookie $cookie \
+		--cookie-jar $cookie \
+		--data "{\"email\":\"${PURL_USER}\",\"password\":\"${PURL_PASSWORD}\"}"\
+		--output /dev/null \
+		--location "${LOGIN_URL}"
+			    
+
+	if [ "$(echo "$login_data" | jq -r '.success')" = "false" ]; then
+		echo "logging in failed..."
+		exit 1
+	fi
+	echo "successfully logged in"
+
 
 	echo -e -n "fetching CSRF token...\t\t"
 	csrf_response=$(curl \
