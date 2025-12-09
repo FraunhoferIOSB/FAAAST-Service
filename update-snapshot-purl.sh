@@ -118,10 +118,9 @@ main() {
 			    
 
 	if [ "$(echo "$login_data" | jq -r '.success')" = "false" ]; then
-		echo "logging in failed..."
-		exit 1
+		fatal "logging in failed..."
 	fi
-	echo "successfully logged in"
+	echo "success"
 
 
 	echo -e -n "fetching CSRF token...\t\t"
