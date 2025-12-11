@@ -147,3 +147,57 @@ nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - FA³ST'
 
 The authentication configuration will vary based on your deployment environment.
 :::
+
+:::{admonition} Automated synchronization with AAS registries: `href` field
+:class: note
+Automated synchronization with AAS and submodel registries uses the HTTP endpoints defined in the FA³ST service to fill the `href`-field in the Endpoints of the Descriptors.
+For example, if your FA³ST service is reachable under https://my-faaast-service.example/mypath, a corresponding configuration could look like this:
+
+```{code-block} json
+{
+	"endpoints": [
+		{
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+			"pathPrefix": "mypath",
+            "port": 443,
+			"hostname": "my-faaast-service.example",
+			"sslEnabled": true
+		}
+	],
+	"core":  {
+	    "aasRegistries": [ "https://my-registry:8090/api/v3.0" ]
+	}
+}
+```
+
+A registered shell descriptor could then look like this:
+
+```{code-block} json
+{
+    "assetKind": "Type",
+    "endpoints": [
+        {
+            "protocolInformation": {
+                "endpointProtocol": "HTTP",
+                "endpointProtocolVersion": ["1.1"]
+            },
+            "href": "https://my-faaast-service.example:443/mypath/shells"
+            "securityAttributes": ...,
+            interface	"AAS-REPOSITORY-3.0"    
+        },
+        {
+            "protocolInformation": {
+                "endpointProtocol": "HTTP",
+                "endpointProtocolVersion": ["1.1"]
+            },
+            "href": "https://my-faaast-service.example:443/mypath/shells/ZXhhbXBsZS1hYXMtaWQK"
+            "securityAttributes": ...,
+            interface	"AAS-3.0"    
+        }
+    ],
+    "id": "example-aas-id",
+    "idShort": "ExampleIdShort",
+    ...
+}
+```
+:::
