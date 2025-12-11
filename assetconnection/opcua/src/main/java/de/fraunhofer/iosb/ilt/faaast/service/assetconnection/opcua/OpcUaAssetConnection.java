@@ -30,8 +30,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.security.Security;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
@@ -65,6 +67,11 @@ public class OpcUaAssetConnection extends
     private ManagedSubscription opcUaSubscription;
     private volatile boolean isConnecting;
     private volatile boolean isDisconnecting;
+
+    static {
+        // Required for SecurityPolicy.Aes256_Sha256_RsaPss
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public OpcUaAssetConnection() {
         isConnecting = false;

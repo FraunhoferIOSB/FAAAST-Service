@@ -37,6 +37,10 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UByte;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.ULong;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 
 
 /**
@@ -88,6 +92,36 @@ public class ValueConverter {
             @Override
             public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
                 return convertByteString(value, targetType);
+            }
+        });
+        register(Datatype.UNSIGNED_SHORT, Identifiers.UInt16, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UShort.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_INT, Identifiers.UInt32, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UInteger.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_LONG, Identifiers.UInt64, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(ULong.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.UNSIGNED_BYTE, Identifiers.Byte, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(UByte.valueOf(value.getValue().toString()));
+            }
+        });
+        register(Datatype.BYTE, Identifiers.SByte, new AasToOpcUaValueConverter() {
+            @Override
+            public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
+                return new Variant(Byte.valueOf(value.getValue().toString()));
             }
         });
     }
