@@ -26,6 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
@@ -55,6 +57,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
+import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +76,8 @@ public class OpcUaHelper {
             TransportProfile.TCP_UASC_UABINARY,
             TransportProfile.HTTPS_UABINARY,
             TransportProfile.WSS_UASC_UABINARY);
+    private static final String REGEX_IP_V4 = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$";
+    private static final String REGEX_IP_V6 = "^[0-9a-fA-F:]+$";
 
     private OpcUaHelper() {}
 
@@ -420,11 +425,20 @@ public class OpcUaHelper {
         try {
             return OpcUaClient.create(
                     config.getHost(),
-                    endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
-                            .filter(e -> e.getSecurityMode() == config.getSecurityMode())
-                            .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
-                            .findFirst(),
+                    endpoints -> {
+                        var filteredEndpoints = endpoints.stream()
+                                .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
+                                .filter(e -> e.getSecurityMode() == config.getSecurityMode())
+                                .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
+                                .toList();
+                        var resolvableEndpoint = filteredEndpoints.parallelStream()
+                                .filter(OpcUaHelper::isEndpointReachable)
+                                .findFirst();
+                        if (resolvableEndpoint.isPresent()) {
+                            return resolvableEndpoint;
+                        }
+                        return filteredEndpoints.stream().findFirst();
+                    },
                     transportConfigBuilder -> {},
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english(OpcUaConstants.CERTIFICATE_APPLICATION_NAME))
@@ -474,6 +488,25 @@ public class OpcUaHelper {
         if ((exception.getStatusCode().getValue() == StatusCodes.Bad_UserAccessDenied)
                 || (exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenInvalid)) {
             throw new IllegalArgumentException(String.format("Access Denied (host: %s)", endpointUrl));
+        }
+    }
+
+
+    private static boolean isEndpointReachable(EndpointDescription endpoint) {
+        try {
+            URI uri = URI.create(endpoint.getEndpointUrl());
+            String host = uri.getHost();
+            if (host.matches(REGEX_IP_V4) || host.matches(REGEX_IP_V6)) {
+                InetAddress address = InetAddress.getByName(host);
+                return address.isReachable(1000);
+            }
+            else {
+                InetAddress.getByName(host);
+                return true;
+            }
+        }
+        catch (Exception e) {
+            return false;
         }
     }
 }

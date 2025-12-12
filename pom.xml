@@ -66,8 +66,8 @@
     <properties>
         <aas4j.version>1.0.5</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <bouncycastle.version>1.82</bouncycastle.version>
-        <checkstyle.version>12.1.2</checkstyle.version>
+        <bouncycastle.version>1.83</bouncycastle.version>
+        <checkstyle.version>12.2.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
         <commons.codec.version>1.20.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
@@ -78,7 +78,7 @@
         <container.image.tag>latest</container.image.tag>
         <de.flapdoodle.embed.version>4.21.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
-        <equalsverifier.version>4.2.3</equalsverifier.version>
+        <equalsverifier.version>4.2.5</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <guava.version>33.5.0-jre</guava.version>
         <jackson-jq.version>1.6.0</jackson-jq.version>
@@ -90,7 +90,7 @@
         <janino.version>3.1.12</janino.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.6.0</jena.version>
-        <jetty.version>12.1.4</jetty.version>
+        <jetty.version>12.1.5</jetty.version>
         <json-patch.version>1.13</json-patch.version>
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -99,7 +99,7 @@
         <logback.version>1.5.21</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
+        <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.6.1</maven.plugin.buildhelper.version>
         <maven.plugin.central-publishing.version>0.9.0</maven.plugin.central-publishing.version>
         <maven.plugin.checkstyle.version>3.6.0</maven.plugin.checkstyle.version>
@@ -115,16 +115,16 @@
         <maven.plugin.owasp.version>12.1.9</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.7.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>5.4.0-163</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>5.5.0-172</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.6.1</maven.plugin.shade.version>
-        <maven.plugin.sonar.version>5.3.0.6276</maven.plugin.sonar.version>
-        <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
+        <maven.plugin.sonar.version>5.5.0.6356</maven.plugin.sonar.version>
+        <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>3.1.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.4</maven.plugin.surefire.version>
         <milo.version>1.0.8</milo.version>
-        <mockito.version>5.20.0</mockito.version>
-        <mongodb.version>5.6.1</mongodb.version>
+        <mockito.version>5.21.0</mockito.version>
+        <mongodb.version>5.6.2</mongodb.version>
         <moquette.version>0.18.3</moquette.version>
         <netty.version>4.2.7.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.5.1</org.apache.httpcomponents.client5.version>
@@ -132,12 +132,12 @@
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.7</picocli.version>
-        <poi.ooxml.version>5.5.0</poi.ooxml.version>
+        <poi.ooxml.version>5.5.1</poi.ooxml.version>
         <proguard.core.version>9.2.0</proguard.core.version>
-        <proguard.version>7.8.1</proguard.version>
+        <proguard.version>7.8.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>5.4.0-201</prosys.sdk.version>
-        <protobuf.version>4.33.1</protobuf.version>
+        <prosys.sdk.version>5.5.0-212</prosys.sdk.version>
+        <protobuf.version>4.33.2</protobuf.version>
         <rgxgen.version>3.1</rgxgen.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
