@@ -49,6 +49,10 @@ The `core` configuration block contains properties not related to the implementa
 | minInflateRatio<br>*(optional)*              | Double         | Ratio between de- and inflated bytes to detect zipbomb when loading AASX files                                                                  | 0.001                           |
 :::
 
+:::{tip}
+When FA³ST Service synchronizes its shells and submodels with AAS registries defined in `aasRegistries` and `submodelRegistries`, it will use the `hostname` of its HTTP endpoints to fill the `href` field of the Endpoints of the Descriptor. See also: [HTTP endpoint configuration](https://faaast-service.readthedocs.io/en/latest/interfaces/endpoint.html#http)
+:::
+
 ```{code-block} json
 :caption: Example `core` configuration
 :lineno-start: 1
