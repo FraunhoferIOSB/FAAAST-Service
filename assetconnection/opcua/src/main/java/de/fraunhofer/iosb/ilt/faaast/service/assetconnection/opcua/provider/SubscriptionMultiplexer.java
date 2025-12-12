@@ -156,7 +156,7 @@ public class SubscriptionMultiplexer {
     }
 
 
-    private void notify(OpcUaMonitoredItem item, DataValue value) {
+    private void notify(@SuppressWarnings("unused") OpcUaMonitoredItem item, DataValue value) {
         try {
             if (value == null) {
                 LOGGER.warn("notify: value is null");
