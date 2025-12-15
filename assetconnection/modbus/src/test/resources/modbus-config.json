@@ -1,0 +1,24 @@
+{
+  "core": {
+    "serviceName": "ExampleAAS"
+  },
+  "assetConnections": [
+    {
+      "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnection",
+      "subscriptionProviders": {
+        "(Property)[ID_SHORT]Temperature": {
+          "pollingRate": "500",
+          "dataType": "COIL",
+          "address": 14
+        }
+      },
+      "hostname": "tcp://localhost",
+      "port": 502,
+      "connectTimeout": 1000,
+      "tlsEnabled": false
+    }
+  ],
+  "persistence": {
+    "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence"
+  }
+}

@@ -1,0 +1,107 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
+
+import com.digitalpetri.modbus.client.ModbusClient;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSubscriptionProviderConfig> implements AssetSubscriptionProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModbusSubscriptionProvider.class);
+    public static final long MINIMUM_INTERVAL = 1000;
+
+    private ScheduledExecutorService executor;
+    private ScheduledFuture<?> executorHandler;
+    private TypedValue<?> lastValue;
+
+    protected final List<NewDataListener> listeners;
+
+    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusSubscriptionProviderConfig config) {
+        super(serviceContext, modbusClient, reference, unitId, config);
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
+    }
+
+
+    private void subscribe() {
+        if (executor == null || executor.isShutdown()) {
+            executor = Executors.newScheduledThreadPool(0);
+            executorHandler = executor.scheduleAtFixedRate(() -> {
+                try {
+                    notifyOnChangedData(doRead());
+                }
+                catch (AssetConnectionException e) {
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
+                }
+            }, 0, Math.max(MINIMUM_INTERVAL, config.getPollingRate()), TimeUnit.MILLISECONDS);
+        }
+    }
+
+
+    private void notifyOnChangedData(TypedValue<?> newValue) {
+        if (lastValue == null || !Objects.equals(lastValue, newValue)) {
+            lastValue = newValue;
+            listeners.forEach(listener -> listener.newDataReceived(new PropertyValue(newValue)));
+        }
+    }
+
+
+    @Override
+    public void addNewDataListener(NewDataListener listener) {
+        if (listeners.isEmpty()) {
+            subscribe();
+        }
+        listeners.add(listener);
+    }
+
+
+    @Override
+    public void removeNewDataListener(NewDataListener listener) {
+        listeners.remove(listener);
+        if (listeners.isEmpty()) {
+            unsubscribe();
+        }
+    }
+
+
+    @Override
+    public void unsubscribe() {
+        if (executorHandler != null) {
+            executorHandler.cancel(true);
+        }
+        if (executor != null) {
+            executor.shutdown();
+        }
+    }
+
+}
