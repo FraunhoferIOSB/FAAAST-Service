@@ -131,8 +131,6 @@ public class EmbeddedOpcUaServer {
         if (availableTokenPolicies.contains(UserTokenType.UserName)) {
             result = compositor.apply(result, new UsernameIdentityValidator(
                     x -> {
-                        //String username = authChallenge.getUsername();
-                        //String password = authChallenge.getPassword();
                         boolean userOk = config.getAllowedCredentials().containsKey(x.getUsername());
                         boolean passwordOk = Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()));
 
@@ -157,17 +155,6 @@ public class EmbeddedOpcUaServer {
                                 DEFAULT_APPLICATION_CERTIFICATE_PASSWORD,
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
-
-    //    private static CertificateData generateHttpsCertificate() throws Exception {
-    //        KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
-    //        SelfSignedHttpsCertificateBuilder httpsCertificateBuilder = new SelfSignedHttpsCertificateBuilder(httpsKeyPair)
-    //                .setCommonName(HostnameUtil.getHostname());
-    //        HostnameUtil.getHostnames("0.0.0.0").forEach(httpsCertificateBuilder::addDnsName);
-    //        return CertificateData.builder()
-    //                .keyPair(httpsKeyPair)
-    //                .certificate(httpsCertificateBuilder.build())
-    //                .build();
-    //    }
 
 
     /**
@@ -268,8 +255,6 @@ public class EmbeddedOpcUaServer {
         switch (protocol) {
             case TCP:
                 return TransportProfile.TCP_UASC_UABINARY;
-            //case HTTPS:
-            //    return TransportProfile.HTTPS_UABINARY;
             default:
                 throw new IllegalStateException(String.format("unsupported protocol: %s", protocol));
         }

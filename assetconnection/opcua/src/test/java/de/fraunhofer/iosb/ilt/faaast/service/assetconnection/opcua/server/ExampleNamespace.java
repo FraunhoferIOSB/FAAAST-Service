@@ -44,8 +44,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.XmlElement;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
@@ -327,8 +325,6 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     new NodeId(1234, "abcd")
             }
     };
-
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final SubscriptionModel subscriptionModel;
 
@@ -634,27 +630,6 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 LocalizedText.english("DataAccess"));
         getNodeManager().addNode(dataAccessFolder);
         rootNode.addOrganizes(dataAccessFolder);
-        ////        try {
-        ////            AnalogItemTypeNode node = (AnalogItemTypeNode) getNodeFactory().createNode(
-        ////                    newNodeId("HelloWorld/DataAccess/AnalogValue"),
-        ////                    NodeIds.AnalogItemType,
-        ////                    new NodeFactory.InstantiationCallback() {
-        ////                        @Override
-        ////                        public boolean includeOptionalNode(NodeId typeDefinitionId, QualifiedName browseName) {
-        ////                            return true;
-        ////                        }
-        ////                    });
-        ////            node.setBrowseName(newQualifiedName("AnalogValue"));
-        ////            node.setDisplayName(LocalizedText.english("AnalogValue"));
-        ////            node.setDataType(NodeIds.Double);
-        ////            node.setValue(new DataValue(new Variant(3.14d)));
-        ////            node.setEURange(new Range(0.0, 100.0));
-        ////            getNodeManager().addNode(node);
-        ////            dataAccessFolder.addOrganizes(node);
-        ////        }
-        ////        catch (UaException e) {
-        ////            LOGGER.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
-        ////        }
     }
 
 
