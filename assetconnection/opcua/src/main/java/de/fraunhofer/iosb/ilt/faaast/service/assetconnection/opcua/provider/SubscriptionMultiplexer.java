@@ -153,7 +153,7 @@ public class SubscriptionMultiplexer {
             else if (value.getStatusCode().isBad()) {
                 LOGGER.warn("notify: StatusCode error: {}", value.getStatusCode());
             }
-            else if ((value.getValue() == null) || (value.getValue().isNull())) {
+            else if (value.getValue().isNull()) {
                 LOGGER.warn("notify: contained value is null");
             }
             else {

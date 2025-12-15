@@ -47,7 +47,6 @@ import org.eclipse.milo.opcua.stack.core.UaServiceFaultException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
-import org.eclipse.milo.opcua.stack.core.security.TrustListManager;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
@@ -408,7 +407,7 @@ public class OpcUaHelper {
 
         DefaultClientCertificateValidator certificateValidator;
         try {
-            TrustListManager clientTrustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
+            var clientTrustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
             Files.createDirectories(config.getSecurityBaseDir());
             certificateValidator = new DefaultClientCertificateValidator(clientTrustListManager, new MemoryCertificateQuarantine());
         }
