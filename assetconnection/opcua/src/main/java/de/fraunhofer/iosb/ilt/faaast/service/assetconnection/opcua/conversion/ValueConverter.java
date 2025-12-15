@@ -186,8 +186,6 @@ public class ValueConverter {
         Ensure.require(value.getDataType().isPresent(), new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value)));
 
         NodeId valueDatatype = value.getDataType().get().getNodeId();
-        //Ensure.require(valueDatatype.isPresent(),
-        //        new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get())));
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, valueDatatype),
                 new DefaultConverter());
@@ -233,6 +231,9 @@ public class ValueConverter {
             }
             if ((value.getDataType() == Datatype.DATE_TIME) && (targetType.equals(NodeIds.DateTime))) {
                 return new Variant(new DateTime(((OffsetDateTime) value.getValue()).toInstant()));
+            }
+            if (dataType == null) {
+                throw new ValueConversionException("datatype is null");
             }
             Object implicit = ImplicitConversions.convert(value.getValue(), dataType);
             if (Objects.isNull(implicit) && Objects.equals(String.class, dataType.getBackingClass())) {

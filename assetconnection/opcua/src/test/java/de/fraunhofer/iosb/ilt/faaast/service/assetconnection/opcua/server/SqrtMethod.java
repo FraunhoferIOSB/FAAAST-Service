@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 import org.eclipse.milo.opcua.sdk.core.ValueRanks;
 import org.eclipse.milo.opcua.sdk.server.methods.AbstractMethodInvocationHandler;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaMethodNode;
-import org.eclipse.milo.opcua.stack.core.Identifiers;
+import org.eclipse.milo.opcua.stack.core.NodeIds;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.structured.Argument;
@@ -29,14 +29,14 @@ public class SqrtMethod extends AbstractMethodInvocationHandler {
 
     public static final Argument X = new Argument(
             "x",
-            Identifiers.Double,
+            NodeIds.Double,
             ValueRanks.Scalar,
             null,
             new LocalizedText("A value."));
 
     public static final Argument X_SQRT = new Argument(
             "x_sqrt",
-            Identifiers.Double,
+            NodeIds.Double,
             ValueRanks.Scalar,
             null,
             new LocalizedText("A value."));

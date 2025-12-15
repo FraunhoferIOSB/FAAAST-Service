@@ -62,8 +62,6 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
 import org.eclipse.milo.opcua.stack.core.types.structured.UserTokenPolicy;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedHttpsCertificateBuilder;
 import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransport;
 import org.eclipse.milo.opcua.stack.transport.server.tcp.OpcTcpServerTransportConfig;
 import org.slf4j.Logger;
@@ -86,7 +84,6 @@ public class EmbeddedOpcUaServer {
             OpcUaServer.SDK_VERSION,
             "1",
             DateTime.now());
-    //.build();
     private static final List<TransportProfile> SUPPORTED_TRANSPORT_PROFILES = List.of(TransportProfile.HTTPS_UABINARY, TransportProfile.TCP_UASC_UABINARY);
 
     private final EmbeddedOpcUaServerConfig config;
@@ -113,22 +110,6 @@ public class EmbeddedOpcUaServer {
     }
 
 
-    //    /**
-    //     * Starts an embedded OPC UA server.
-    //     *
-    //     * @param identityValidator identity validator to use
-    //     * @param tcpPort TCP port to use
-    //     * @param httpsPort HTTPS port to use
-    //     * @param endpointSecurityConfigurations information about which endpoints to create
-    //     * @throws Exception if initialization of server fails
-    //     */
-    //    public EmbeddedOpcUaServer(
-    //            IdentityValidator identityValidator,
-    //            int tcpPort,
-    //            int httpsPort,
-    //            List<EndpointSecurityConfiguration> endpointSecurityConfigurations) throws Exception {
-    //        this(identityValidator, tcpPort, httpsPort, Files.createTempDirectory("server"), endpointSecurityConfigurations);
-    //    }
     private static IdentityValidator buildIdentityValidator(EmbeddedOpcUaServerConfig config) {
         Set<UserTokenType> availableTokenPolicies = config.getEndpointSecurityConfigurations().stream()
                 .flatMap(x -> x.getTokenPolicies().stream())
@@ -177,23 +158,16 @@ public class EmbeddedOpcUaServer {
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
 
-    //private static CertificateData getHttpsCertificate(EmbeddedOpcUaServerConfig config) throws Exception {
-    //    return Objects.nonNull(config.getHttpsCertificate())
-    //            ? config.getHttpsCertificate()
-    //            : generateHttpsCertificate();
-    //}
-
-
-    private static CertificateData generateHttpsCertificate() throws Exception {
-        KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
-        SelfSignedHttpsCertificateBuilder httpsCertificateBuilder = new SelfSignedHttpsCertificateBuilder(httpsKeyPair)
-                .setCommonName(HostnameUtil.getHostname());
-        HostnameUtil.getHostnames("0.0.0.0").forEach(httpsCertificateBuilder::addDnsName);
-        return CertificateData.builder()
-                .keyPair(httpsKeyPair)
-                .certificate(httpsCertificateBuilder.build())
-                .build();
-    }
+    //    private static CertificateData generateHttpsCertificate() throws Exception {
+    //        KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
+    //        SelfSignedHttpsCertificateBuilder httpsCertificateBuilder = new SelfSignedHttpsCertificateBuilder(httpsKeyPair)
+    //                .setCommonName(HostnameUtil.getHostname());
+    //        HostnameUtil.getHostnames("0.0.0.0").forEach(httpsCertificateBuilder::addDnsName);
+    //        return CertificateData.builder()
+    //                .keyPair(httpsKeyPair)
+    //                .certificate(httpsCertificateBuilder.build())
+    //                .build();
+    //    }
 
 
     /**
@@ -206,7 +180,6 @@ public class EmbeddedOpcUaServer {
         this.config = config;
         Files.createDirectories(config.getSecurityBaseDir());
         CertificateData applicationCertificate = getApplicationCertificate(config);
-        //CertificateData httpsCertificate = getHttpsCertificate(config);
         var certificateQuarantine = new MemoryCertificateQuarantine();
 
         var certificateFactory = new RsaSha256CertificateFactory() {
@@ -222,7 +195,6 @@ public class EmbeddedOpcUaServer {
             }
         };
 
-        //var trustListManager = new MemoryTrustListManager();
         var trustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
         var certificateStore = new MemoryCertificateStore();
         var certificateValidator = new DefaultServerCertificateValidator(trustListManager, certificateQuarantine);
@@ -230,12 +202,6 @@ public class EmbeddedOpcUaServer {
                 trustListManager, certificateStore, certificateFactory, certificateValidator);
 
         var certificateManager = new DefaultCertificateManager(certificateQuarantine, defaultGroup);
-        //DefaultCertificateManager certificateManager = new DefaultCertificateManager(
-        //        applicationCertificate.getKeyPair(),
-        //        applicationCertificate.getCertificateChain());
-
-        //DefaultTrustListManager trustListManager = new DefaultTrustListManager(SecurityPathHelper.pki(config.getSecurityBaseDir()).toFile());
-        //ServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
 
         // The configured application URI must match the one in the certificate(s)
         String applicationUri = CertificateUtil
@@ -249,10 +215,6 @@ public class EmbeddedOpcUaServer {
                 .setApplicationName(LocalizedText.english("FA³ST OPC UA Asset Connection Test Server"))
                 .setBuildInfo(BUILD_INFO)
                 .setCertificateManager(certificateManager)
-                //.setTrustListManager(trustListManager)
-                //.setCertificateManager(certificateManager)
-                //.setHttpsKeyPair(httpsCertificate.getKeyPair())
-                //.setHttpsCertificateChain(httpsCertificate.getCertificateChain())
                 .setIdentityValidator(buildIdentityValidator(config))
                 .setProductUri(BUILD_INFO.getProductUri())
                 .build(),

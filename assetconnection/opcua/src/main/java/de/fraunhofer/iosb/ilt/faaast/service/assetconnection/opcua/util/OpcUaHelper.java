@@ -34,7 +34,6 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -134,10 +133,8 @@ public class OpcUaHelper {
      * @param nodeId string representation of the node to read
      * @return the value of given node
      * @throws UaException if reading fails
-     * @throws InterruptedException if reading fails
-     * @throws ExecutionException if reading fails
      */
-    public static DataValue readValue(OpcUaClient client, String nodeId) throws UaException, InterruptedException, ExecutionException {
+    public static DataValue readValue(OpcUaClient client, String nodeId) throws UaException {
         return client.readValue(0,
                 TimestampsToReturn.Neither,
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
@@ -153,10 +150,8 @@ public class OpcUaHelper {
      * @param value the value to write
      * @return the status code
      * @throws UaException if parsing node fails
-     * @throws InterruptedException if writing fails
-     * @throws ExecutionException if writing fails
      */
-    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException, InterruptedException, ExecutionException {
+    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException {
         return client.writeValues(List.of(
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
                         .getNodeId()),

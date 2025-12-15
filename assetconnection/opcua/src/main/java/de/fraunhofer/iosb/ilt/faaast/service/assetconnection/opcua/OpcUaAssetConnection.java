@@ -93,19 +93,6 @@ public class OpcUaAssetConnection extends
         opcUaSubscription = new OpcUaSubscription(client);
         opcUaSubscription.setSubscriptionListener(
                 new OpcUaSubscription.SubscriptionListener() {
-                    //                    @Override
-                    //                    public void onDataReceived(
-                    //                                               OpcUaSubscription subscription,
-                    //                                               List<OpcUaMonitoredItem> items,
-                    //                                               List<DataValue> values) {
-                    //
-                    //                        for (int i = 0; i < items.size(); i++) {
-                    //                            LOGGER.info(
-                    //                                    "subscription onDataReceived: nodeId={}, value={}",
-                    //                                    items.get(i).getReadValueId().getNodeId(),
-                    //                                    values.get(i).value());
-                    //                        }
-                    //                    }
 
                     @Override
                     public void onTransferFailed(OpcUaSubscription subscription, StatusCode status) {
@@ -114,12 +101,6 @@ public class OpcUaAssetConnection extends
                     }
                 });
         opcUaSubscription.create();
-        //        opcUaSubscription.addStatusListener(new ManagedSubscription.StatusListener() {
-        //            @Override
-        //            public void onSubscriptionTransferFailed(ManagedSubscription subscription, StatusCode statusCode) {
-        //                reconnect();
-        //            }
-        //        });
     }
 
 

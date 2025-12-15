@@ -702,27 +702,4 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         subscriptionModel.onMonitoringModeChanged(monitoredItems);
     }
 
-    ////    @Override
-    ////    public void onDataItemsCreated(List<DataItem> dataItems) {
-    ////        subscriptionModel.onDataItemsCreated(dataItems);
-    ////    }
-    ////
-    ////
-    ////    @Override
-    ////    public void onDataItemsModified(List<DataItem> dataItems) {
-    ////        subscriptionModel.onDataItemsModified(dataItems);
-    ////    }
-    ////
-    ////
-    ////    @Override
-    ////    public void onDataItemsDeleted(List<DataItem> dataItems) {
-    ////        subscriptionModel.onDataItemsDeleted(dataItems);
-    ////    }
-    ////
-    ////
-    ////    @Override
-    ////    public void onMonitoringModeChanged(List<MonitoredItem> monitoredItems) {
-    ////        subscriptionModel.onMonitoringModeChanged(monitoredItems);
-    ////    }
-
 }

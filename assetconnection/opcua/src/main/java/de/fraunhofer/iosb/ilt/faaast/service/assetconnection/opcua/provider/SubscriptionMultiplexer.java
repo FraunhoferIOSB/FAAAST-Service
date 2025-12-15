@@ -128,17 +128,6 @@ public class SubscriptionMultiplexer {
                     providerConfig.getNodeId(),
                     e);
         }
-        //dataItem = opcUaSubscription.createDataItem(
-        //        OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()),
-        //        LambdaExceptionHelper.rethrowConsumer(
-        //                x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(this::notify))));
-        //}
-        //catch (UaException e) {
-        //    LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
-        //            ReferenceHelper.toString(reference),
-        //            providerConfig.getNodeId(),
-        //            e);
-        //}
     }
 
 
