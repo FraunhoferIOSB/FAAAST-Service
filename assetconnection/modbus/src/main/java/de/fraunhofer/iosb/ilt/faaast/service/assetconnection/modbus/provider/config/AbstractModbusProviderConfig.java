@@ -14,16 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
-import com.digitalpetri.modbus.pdu.ModbusRequestPdu;
-import com.digitalpetri.modbus.pdu.ReadCoilsRequest;
-import com.digitalpetri.modbus.pdu.ReadDiscreteInputsRequest;
-import com.digitalpetri.modbus.pdu.ReadHoldingRegistersRequest;
-import com.digitalpetri.modbus.pdu.ReadInputRegistersRequest;
-import com.digitalpetri.modbus.pdu.WriteMultipleCoilsRequest;
-import com.digitalpetri.modbus.pdu.WriteMultipleRegistersRequest;
-import com.digitalpetri.modbus.pdu.WriteSingleCoilRequest;
-import com.digitalpetri.modbus.pdu.WriteSingleRegisterRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.DataTypes;
 import java.util.Objects;
@@ -55,28 +45,6 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
 
     public DataTypes getDataType() {
         return dataType;
-    }
-
-
-    public ModbusRequestPdu toReadRequest() {
-        return switch (dataType) {
-            case COIL -> new ReadCoilsRequest(address, quantity);
-            case DISCRETE_INPUT -> new ReadDiscreteInputsRequest(address, quantity);
-            case HOLDING_REGISTER -> new ReadHoldingRegistersRequest(address, quantity);
-            case INPUT_REGISTER -> new ReadInputRegistersRequest(address, quantity);
-        };
-    }
-
-
-    public ModbusRequestPdu toWriteRequest(byte[] value) throws AssetConnectionException {
-        if (quantity != value.length) {
-            throw new AssetConnectionException("Mismatched quantity and actual values to write (quantity: %s, actual values: %s)");
-        }
-        return switch (dataType) {
-            case COIL -> quantity > 1 ? new WriteMultipleCoilsRequest(address, quantity, value) : new WriteSingleCoilRequest(address, value[0]);
-            case HOLDING_REGISTER -> quantity > 1 ? new WriteMultipleRegistersRequest(address, quantity, value) : new WriteSingleRegisterRequest(address, value[0]);
-            case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", dataType));
-        };
     }
 
 

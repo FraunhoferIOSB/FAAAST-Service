@@ -7,7 +7,6 @@
         <version>1.4.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>assetconnection-modbus</artifactId>
     <name>assetconnection-modbus</name>
     <description>Modbus Asset Connection implementation of the FA³ST Service.</description>

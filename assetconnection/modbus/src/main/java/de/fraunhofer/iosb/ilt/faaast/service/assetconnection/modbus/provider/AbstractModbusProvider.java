@@ -60,7 +60,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     @Override
-    public AssetProviderConfig asConfig() {
+    public AssetProviderConfig<?> asConfig() {
         return config;
     }
 
@@ -101,7 +101,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private void write(DataElementValue value) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException, AssetConnectionException {
-        ModbusRequestPdu request = config.toWriteRequest(AasToModbusConversionHelper.convert(value));
+        ModbusRequestPdu request = createWriteRequest(AasToModbusConversionHelper.convert(value));
 
         if (request instanceof WriteMultipleCoilsRequest req) {
             modbusClient.writeMultipleCoils(unitId, req);
@@ -132,7 +132,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private TypedValue<?> read() throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
-        ModbusRequestPdu request = config.toReadRequest();
+        ModbusRequestPdu request = createReadRequest();
 
         if (request instanceof ReadCoilsRequest req) {
             byte[] coils = modbusClient.readCoils(unitId, req).coils();
@@ -172,5 +172,31 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
     private IntegerValue readInt16(byte[] bytes) {
         return new IntegerValue(BigInteger.valueOf(validateQuantityRead(bytes)[0]));
+    }
+
+
+    public ModbusRequestPdu createReadRequest() {
+        int address = config.getAddress();
+        int quantity = config.getQuantity();
+        return switch (config.getDataType()) {
+            case COIL -> new ReadCoilsRequest(address, quantity);
+            case DISCRETE_INPUT -> new ReadDiscreteInputsRequest(address, quantity);
+            case HOLDING_REGISTER -> new ReadHoldingRegistersRequest(address, quantity);
+            case INPUT_REGISTER -> new ReadInputRegistersRequest(address, quantity);
+        };
+    }
+
+
+    public ModbusRequestPdu createWriteRequest(byte[] value) throws AssetConnectionException {
+        int quantity = config.getQuantity();
+        if (quantity != value.length) {
+            throw new AssetConnectionException("Mismatched quantity and actual values to write (quantity: %s, actual values: %s)");
+        }
+        int address = config.getAddress();
+        return switch (config.getDataType()) {
+            case COIL -> quantity > 1 ? new WriteMultipleCoilsRequest(address, quantity, value) : new WriteSingleCoilRequest(address, value[0]);
+            case HOLDING_REGISTER -> quantity > 1 ? new WriteMultipleRegistersRequest(address, quantity, value) : new WriteSingleRegisterRequest(address, value[0]);
+            case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
+        };
     }
 }
