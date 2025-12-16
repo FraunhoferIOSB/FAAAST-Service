@@ -39,7 +39,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public static final boolean DEFAULT_SNI_ENABLED = true;
     public static final boolean DEFAULT_SSL_ENABLED = true;
 
-    private static final String PATH_PREFIX_REGEX = "^/.*[^/]$";
+    private static final String PATH_PREFIX_REGEX = "^(?:$|/|/.*[^/])$";
 
     public static Builder builder() {
         return new Builder();

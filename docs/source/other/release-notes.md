@@ -5,6 +5,9 @@
 **Internal changes & bugfixes**
 - General
 	- Fixed bug that incorrectly removed submodel reference from AAS when updating a submodel via PUT /submodels/{submodelId}
+- Asset Connection
+	- OPC UA
+		- When connecting to an OPC UA asset and the discovery service returns mutliple URLs to use, the ones with a reachable host are preferred.
 - Endpoint
 	- HTTP
 		- URL prefix /api/v3.x is now optional
