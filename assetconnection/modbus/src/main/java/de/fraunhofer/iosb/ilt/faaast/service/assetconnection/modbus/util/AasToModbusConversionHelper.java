@@ -92,29 +92,29 @@ public class AasToModbusConversionHelper {
     private static byte[] convert(TypedValue value) throws AssetConnectionException {
 
         return switch (value.getDataType()) {
-            case STRING -> ((StringValue) value.getValue()).asString().getBytes(StandardCharsets.UTF_8);
-            case BOOLEAN -> toByteArray(((BooleanValue) value.getValue()).getValue());
-            case DECIMAL -> ((DecimalValue) value.getValue()).getValue().toBigInteger().toByteArray();
-            case INTEGER -> ((IntegerValue) value.getValue()).getValue().toByteArray();
+            case STRING -> value.asString().getBytes(StandardCharsets.UTF_8);
+            case BOOLEAN -> toByteArray(((BooleanValue) value).getValue());
+            case DECIMAL -> ((DecimalValue) value).getValue().toBigInteger().toByteArray();
+            case INTEGER -> ((IntegerValue) value).getValue().toByteArray();
             // TODO double and float could be undefined: what would be the byte encoding? IEEE 754? BCD?
             // TODO furthermore, how to convert bytes to double is also undefined
-            case DOUBLE -> toByteArray(Double.doubleToLongBits(((DoubleValue) value.getValue()).getValue()));
-            case FLOAT -> toByteArray(Double.doubleToLongBits(((FloatValue) value.getValue()).getValue().doubleValue()));
-            case BYTE -> toByteArray(((ByteValue) value.getValue()).getValue());
-            case SHORT -> toByteArray(((ShortValue) value.getValue()).getValue());
-            case INT -> toByteArray(((IntValue) value.getValue()).getValue());
-            case LONG -> toByteArray(((LongValue) value.getValue()).getValue());
-            case UNSIGNED_BYTE -> fromUnsigned(toByteArray(((ByteValue) value.getValue()).getValue()));
-            case UNSIGNED_SHORT -> fromUnsigned(toByteArray(((ShortValue) value.getValue()).getValue()));
-            case UNSIGNED_INT -> fromUnsigned(toByteArray(((IntValue) value.getValue()).getValue()));
-            case UNSIGNED_LONG -> fromUnsigned(toByteArray(((LongValue) value.getValue()).getValue()));
-            case POSITIVE_INTEGER -> toByteArray(((PositiveIntegerValue) value.getValue()).getValue().intValueExact());
-            case NON_NEGATIVE_INTEGER -> toByteArray(((NonNegativeIntegerValue) value.getValue()).getValue().intValueExact());
-            case NEGATIVE_INTEGER -> toByteArray(((NegativeIntegerValue) value.getValue()).getValue().intValueExact());
-            case NON_POSITIVE_INTEGER -> toByteArray(((NonPositiveIntegerValue) value.getValue()).getValue().intValueExact());
-            case HEX_BINARY -> ((HexBinaryValue) value.getValue()).getValue();
-            case BASE64_BINARY -> ((Base64BinaryValue) value.getValue()).getValue();
-            case ANY_URI -> ((AnyURIValue) value.getValue()).getValue().getBytes(StandardCharsets.UTF_8);
+            case DOUBLE -> toByteArray(Double.doubleToLongBits(((DoubleValue) value).getValue()));
+            case FLOAT -> toByteArray(Double.doubleToLongBits(((FloatValue) value).getValue().doubleValue()));
+            case BYTE -> toByteArray(((ByteValue) value).getValue());
+            case SHORT -> toByteArray(((ShortValue) value).getValue());
+            case INT -> toByteArray(((IntValue) value).getValue());
+            case LONG -> toByteArray(((LongValue) value).getValue());
+            case UNSIGNED_BYTE -> fromUnsigned(toByteArray(((ByteValue) value).getValue()));
+            case UNSIGNED_SHORT -> fromUnsigned(toByteArray(((ShortValue) value).getValue()));
+            case UNSIGNED_INT -> fromUnsigned(toByteArray(((IntValue) value).getValue()));
+            case UNSIGNED_LONG -> fromUnsigned(toByteArray(((LongValue) value).getValue()));
+            case POSITIVE_INTEGER -> toByteArray(((PositiveIntegerValue) value).getValue().intValueExact());
+            case NON_NEGATIVE_INTEGER -> toByteArray(((NonNegativeIntegerValue) value).getValue().intValueExact());
+            case NEGATIVE_INTEGER -> toByteArray(((NegativeIntegerValue) value).getValue().intValueExact());
+            case NON_POSITIVE_INTEGER -> toByteArray(((NonPositiveIntegerValue) value).getValue().intValueExact());
+            case HEX_BINARY -> ((HexBinaryValue) value).getValue();
+            case BASE64_BINARY -> ((Base64BinaryValue) value).getValue();
+            case ANY_URI -> ((AnyURIValue) value).getValue().getBytes(StandardCharsets.UTF_8);
             // LANG_STRING not supported (out of scope of modbus protocol)
             default -> throw new AssetConnectionException(String.format("Data type currently not supported for writing to modbus server: %s", value.getDataType().getName()));
         };

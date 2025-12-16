@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
@@ -53,8 +54,7 @@ public class ModbusAssetConnection extends
         super.init(coreConfig, config, serviceContext);
         LOGGER.warn(String.format("Creating modbus client %s", config.getHostname()));
         ModbusClientConfig modbusClientConfig = new ModbusClientConfig.Builder()
-                // Duration dependency stuff preventing this
-                // .setRequestTimeout(config.getConnectTimeoutMillis()) // TODO should this be the same as request timeout?
+                .setRequestTimeout(Duration.ofMillis(config.getConnectTimeoutMillis())) // TODO should this be the same as request timeout?
                 .build();
 
         CertificateConfig keyCertificateConfig = config.getKeyCertificateConfig();
@@ -75,8 +75,7 @@ public class ModbusAssetConnection extends
         }
 
         NettyClientTransportConfig nettyConfig = new NettyClientTransportConfig.Builder()
-                // Duration dependency stuff preventing this
-                // .setConnectTimeout(config.getConnectTimeoutMillis())
+                .setConnectTimeout(Duration.ofMillis(config.getConnectTimeoutMillis()))
                 .setPort(config.getPort())
                 .setHostname(config.getHostname())
                 .setConnectPersistent(config.isConnectPersistent())
@@ -111,7 +110,7 @@ public class ModbusAssetConnection extends
 
     @Override
     protected void doConnect() throws AssetConnectionException {
-        LOGGER.warn(String.format("Connecting to modbus server w hostname %s", config.getHostname()));
+        LOGGER.debug(String.format("Attempting to connect to modbus TCP server with hostname %s on port %d", config.getHostname(), config.getPort()));
 
         try {
             modbusTcpClient.connect();
@@ -119,7 +118,7 @@ public class ModbusAssetConnection extends
         catch (ModbusExecutionException e) {
             throw new AssetConnectionException(e);
         }
-        LOGGER.warn("Connected");
+        LOGGER.debug("Connection to modbus server successful!");
     }
 
 

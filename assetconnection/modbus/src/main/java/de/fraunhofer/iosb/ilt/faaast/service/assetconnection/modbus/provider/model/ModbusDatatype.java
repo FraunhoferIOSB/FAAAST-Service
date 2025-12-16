@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.mo
 /**
  * See <a href="https://www.modbus.org/modbus-specifications">ModbusSpec</a>.
  */
-public enum DataTypes {
+public enum ModbusDatatype {
     /**
      * Single bit, Read-Write
      */

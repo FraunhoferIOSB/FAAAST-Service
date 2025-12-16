@@ -6,6 +6,5 @@ What does not work yet:
 
 - Operations
 - KeyManagerFactory for TLS connections
-- Only PropertyElements are supported as of now. Are more necessary? E.g., blobs are not really reasonable, as modbus is
-not designed for that.
+- Only PropertyElements, Blobs and Files are supported as of now. Are more necessary? think of intent and uses of modbus.
 - probably a lot more which I will discover when running the program

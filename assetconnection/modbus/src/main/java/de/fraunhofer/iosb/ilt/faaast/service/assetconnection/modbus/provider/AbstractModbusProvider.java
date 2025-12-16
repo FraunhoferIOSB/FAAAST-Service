@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
+
 import com.digitalpetri.modbus.client.ModbusClient;
 import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.exceptions.ModbusResponseException;
@@ -42,6 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -152,12 +155,9 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private void write(byte[] bytesToWrite) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException, AssetConnectionException {
         // TODO Might be relaxed to >. Throwing this guard away is also possible (but unsafe)
         // TODO another thing: quantity != bytes.length. Registers have 2 bytes each, so qty = bytes.length * 2
-//        if (bytesToWrite.length != config.getQuantity()) {
-//            throw new AssetConnectionException(
-//                    String.format("Bytes to write do not match configured quantity (To write: %d, quantity: %d)", bytesToWrite.length, config.getQuantity()));
-//        }
         ModbusRequestPdu request = createWriteRequest(bytesToWrite);
 
+        // Java 24 offers an enhanced switch for this case
         if (request instanceof WriteMultipleCoilsRequest req) {
             modbusClient.writeMultipleCoils(unitId, req);
         }
@@ -240,6 +240,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private ModbusRequestPdu createReadRequest() {
         int address = config.getAddress();
         int quantity = config.getQuantity();
+
         return switch (config.getDataType()) {
             case COIL -> new ReadCoilsRequest(address, quantity);
             case DISCRETE_INPUT -> new ReadDiscreteInputsRequest(address, quantity);
@@ -249,16 +250,44 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     }
 
 
-    private ModbusRequestPdu createWriteRequest(byte[] value) throws AssetConnectionException {
-        int quantity = config.getQuantity();
-        if (quantity != value.length) {
-            throw new AssetConnectionException("Mismatched quantity and actual values to write (quantity: %s, actual values: %s)");
-        }
+    private ModbusRequestPdu createWriteRequest(byte[] rawBytesToWrite) throws AssetConnectionException {
         int address = config.getAddress();
+        int quantity = config.getQuantity();
+
+        validateQuantity(rawBytesToWrite);
+
         return switch (config.getDataType()) {
-            case COIL -> quantity > 1 ? new WriteMultipleCoilsRequest(address, quantity, value) : new WriteSingleCoilRequest(address, value[0]);
-            case HOLDING_REGISTER -> quantity > 1 ? new WriteMultipleRegistersRequest(address, quantity, value) : new WriteSingleRegisterRequest(address, value[0]);
+            case COIL -> quantity > 1 ? new WriteMultipleCoilsRequest(address, quantity, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
+            case HOLDING_REGISTER -> quantity > 1 ? new WriteMultipleRegistersRequest(address, quantity, rawBytesToWrite)
+                    : new WriteSingleRegisterRequest(address,
+                            ByteBuffer.wrap(rawBytesToWrite).getShort());
             case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
         };
+    }
+
+
+    private void validateQuantity(byte[] bytesToWrite) throws AssetConnectionException {
+        if (config.getDataType() == COIL) {
+            int bitsWrittenTotal = 0;
+            for (byte b: bytesToWrite) {
+                bitsWrittenTotal += getBitsWritten(b);
+
+            }
+            if (bitsWrittenTotal > config.getQuantity()) {
+                throw new AssetConnectionException(
+                        String.format("Attempting to write more bits to COIL than defined quantity (quantity: %d, bits to write: %d)", config.getQuantity(), bitsWrittenTotal));
+            }
+        }
+        else if (config.getQuantity() < (int) Math.ceil(bytesToWrite.length * 0.5)) {
+            throw new AssetConnectionException(
+                    String.format("Mismatched quantity and actual values to write (quantity: %d, actual values to write: %d)", config.getQuantity(),
+                            (int) Math.ceil(bytesToWrite.length * 0.5)));
+        }
+    }
+
+
+    private int getBitsWritten(byte b) {
+        int x = Byte.toUnsignedInt(b);
+        return 32 - Integer.numberOfLeadingZeros(x);
     }
 }

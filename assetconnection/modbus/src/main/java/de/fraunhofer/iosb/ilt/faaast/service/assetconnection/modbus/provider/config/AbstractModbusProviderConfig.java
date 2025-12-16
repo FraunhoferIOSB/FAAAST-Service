@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.DataTypes;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
 import java.util.Objects;
 
 
@@ -24,9 +24,9 @@ import java.util.Objects;
  */
 public abstract class AbstractModbusProviderConfig implements AssetProviderConfig {
 
-    private DataTypes dataType;
+    private ModbusDatatype dataType;
     private int address;
-    private final int quantity = 1;
+    private int quantity;
 
     @Override
     public boolean sameAs(AssetProviderConfig other) {
@@ -41,12 +41,12 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     }
 
 
-    public void setDataType(DataTypes dataType) {
+    public void setDataType(ModbusDatatype dataType) {
         this.dataType = dataType;
     }
 
 
-    public DataTypes getDataType() {
+    public ModbusDatatype getDataType() {
         return dataType;
     }
 
@@ -63,5 +63,10 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
 
     public int getQuantity() {
         return quantity;
+    }
+
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
