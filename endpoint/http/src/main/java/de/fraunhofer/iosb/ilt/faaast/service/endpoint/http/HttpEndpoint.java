@@ -236,12 +236,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS_REPOSITORY))) {
-            result.add(endpointFor("AAS-REPOSITORY-3.0", "/shells"));
+            result.add(endpointFor("AAS-REPOSITORY-3.0", "shells"));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.AAS))) {
-            result.add(endpointFor("AAS-3.0", "/shells/" + EncodingHelper.base64UrlEncode(aasId)));
+            result.add(endpointFor("AAS-3.0", "shells/" + EncodingHelper.base64UrlEncode(aasId)));
         }
         return result;
     }
@@ -256,12 +256,12 @@ public class HttpEndpoint extends AbstractEndpoint<HttpEndpointConfig> {
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL_REPOSITORY))) {
-            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "/submodels"));
+            result.add(endpointFor("SUBMODEL-REPOSITORY-3.0", "submodels"));
         }
         if (config.getProfiles().stream()
                 .flatMap(x -> x.getInterfaces().stream())
                 .anyMatch(x -> Objects.equals(x, Interface.SUBMODEL))) {
-            result.add(endpointFor("SUBMODEL-3.0", "/submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
+            result.add(endpointFor("SUBMODEL-3.0", "submodels/" + EncodingHelper.base64UrlEncode(submodelId)));
         }
 
         return result;
