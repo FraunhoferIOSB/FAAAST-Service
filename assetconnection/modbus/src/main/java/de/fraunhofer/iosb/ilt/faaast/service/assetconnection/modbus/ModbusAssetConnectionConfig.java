@@ -23,44 +23,46 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
-import java.time.Duration;
 import java.util.Objects;
 
 
+/**
+ * Modbus asset connection config.
+ */
 public class ModbusAssetConnectionConfig
         extends AssetConnectionConfig<ModbusAssetConnection, ModbusValueProviderConfig, ModbusOperationProviderConfig, ModbusSubscriptionProviderConfig> {
 
     public static final String DEFAULT_HOSTNAME = null;
     public static final int DEFAULT_PORT = 502;
-    public static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofMillis(5000);
+    public static final long DEFAULT_CONNECT_TIMEOUT = 5000;
     public static final boolean DEFAULT_CONNECT_PERSISTENT = true;
     public static final boolean DEFAULT_RECONNECT_LAZY = false;
     public static final boolean DEFAULT_TLS_ENABLED = false;
     public static final CertificateConfig DEFAULT_CERTIFICATE_CONFIG = CertificateConfig.builder().build();
-    public static final Duration DEFAULT_SUBSCRIPTION_POLLING_RATE = Duration.ofMillis(1000);
-    public static final int DEFAULT_UNIT_ID = 0;
+    public static final long DEFAULT_SUBSCRIPTION_POLLING_RATE = 1000;
+    public static final int DEFAULT_UNIT_ID = 1;
 
     private String hostname;
     private int port;
     private int unitId;
-    private Duration connectTimeout;
+    private long connectTimeoutMillis;
     private boolean connectPersistent;
     private boolean reconnectLazy;
     private boolean tlsEnabled;
     private CertificateConfig keyCertificateConfig;
     private CertificateConfig trustCertificateConfig;
-    private Duration subscriptionPollingRate;
+    private long subscriptionPollingRateMillis;
 
     public ModbusAssetConnectionConfig() {
         this.hostname = DEFAULT_HOSTNAME;
         this.port = DEFAULT_PORT;
-        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.connectTimeoutMillis = DEFAULT_CONNECT_TIMEOUT;
         this.connectPersistent = DEFAULT_CONNECT_PERSISTENT;
         this.reconnectLazy = DEFAULT_RECONNECT_LAZY;
         this.tlsEnabled = DEFAULT_TLS_ENABLED;
         this.keyCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
         this.trustCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
-        this.subscriptionPollingRate = DEFAULT_SUBSCRIPTION_POLLING_RATE;
+        this.subscriptionPollingRateMillis = DEFAULT_SUBSCRIPTION_POLLING_RATE;
         this.unitId = DEFAULT_UNIT_ID;
     }
 
@@ -76,7 +78,7 @@ public class ModbusAssetConnectionConfig
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) obj;
         return StringHelper.equalsNullOrEmpty(hostname, that.hostname)
                 && Objects.equals(port, that.port)
-                && Objects.equals(connectTimeout, that.connectTimeout)
+                && Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis)
                 && Objects.equals(connectPersistent, that.connectPersistent)
                 && Objects.equals(tlsEnabled, that.tlsEnabled)
                 && Objects.equals(keyCertificateConfig, that.keyCertificateConfig)
@@ -99,10 +101,10 @@ public class ModbusAssetConnectionConfig
                 Objects.equals(reconnectLazy, that.reconnectLazy) &&
                 Objects.equals(tlsEnabled, that.tlsEnabled) &&
                 Objects.equals(hostname, that.hostname) &&
-                Objects.equals(connectTimeout, that.connectTimeout) &&
+                Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
                 Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
                 Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
-                Objects.equals(subscriptionPollingRate, that.subscriptionPollingRate);
+                Objects.equals(subscriptionPollingRateMillis, that.subscriptionPollingRateMillis);
     }
 
 
@@ -112,13 +114,13 @@ public class ModbusAssetConnectionConfig
                 hostname,
                 port,
                 unitId,
-                connectTimeout,
+                connectTimeoutMillis,
                 connectPersistent,
                 reconnectLazy,
                 tlsEnabled,
                 keyCertificateConfig,
                 trustCertificateConfig,
-                subscriptionPollingRate);
+                subscriptionPollingRateMillis);
     }
 
 
@@ -142,13 +144,13 @@ public class ModbusAssetConnectionConfig
     }
 
 
-    public Duration getConnectTimeout() {
-        return connectTimeout;
+    public long getConnectTimeoutMillis() {
+        return connectTimeoutMillis;
     }
 
 
-    public void setConnectTimeout(Duration connectTimeout) {
-        this.connectTimeout = connectTimeout;
+    public void setConnectTimeoutMillis(long connectTimeoutMillis) {
+        this.connectTimeoutMillis = connectTimeoutMillis;
     }
 
 
@@ -207,13 +209,13 @@ public class ModbusAssetConnectionConfig
     }
 
 
-    public Duration getSubscriptionPollingRate() {
-        return subscriptionPollingRate;
+    public long getSubscriptionPollingRateMillis() {
+        return subscriptionPollingRateMillis;
     }
 
 
-    public void setSubscriptionPollingRate(Duration subscriptionPollingRate) {
-        this.subscriptionPollingRate = subscriptionPollingRate;
+    public void setSubscriptionPollingRateMillis(long subscriptionPollingRateMillis) {
+        this.subscriptionPollingRateMillis = subscriptionPollingRateMillis;
     }
 
 
@@ -254,8 +256,8 @@ public class ModbusAssetConnectionConfig
         }
 
 
-        public B connectTimeout(int connectTimeoutMillis) {
-            getBuildingInstance().setConnectTimeout(Duration.ofMillis(connectTimeoutMillis));
+        public B connectTimeout(long connectTimeoutMillis) {
+            getBuildingInstance().setConnectTimeoutMillis(connectTimeoutMillis);
             return getSelf();
         }
 
@@ -278,8 +280,8 @@ public class ModbusAssetConnectionConfig
         }
 
 
-        public B subscriptionPollingRate(int subscriptionPollingRateMillis) {
-            getBuildingInstance().setSubscriptionPollingRate(Duration.ofMillis(subscriptionPollingRateMillis));
+        public B subscriptionPollingRate(long subscriptionPollingRateMillis) {
+            getBuildingInstance().setSubscriptionPollingRateMillis(subscriptionPollingRateMillis);
             return getSelf();
         }
 

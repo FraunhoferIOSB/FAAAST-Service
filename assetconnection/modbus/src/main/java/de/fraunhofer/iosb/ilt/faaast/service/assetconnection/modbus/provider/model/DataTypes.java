@@ -15,11 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model;
 
 /**
- * See <a href="https://www.modbus.org/modbus-specifications">ModbusSpec</a>
+ * See <a href="https://www.modbus.org/modbus-specifications">ModbusSpec</a>.
  */
 public enum DataTypes {
+    /**
+     * Single bit, Read-Write
+     */
     COIL,
+    /**
+     * Single bit, Read-Only
+     */
     DISCRETE_INPUT,
+    /**
+     * 16-bit word, Read-Write
+     */
     HOLDING_REGISTER,
+    /**
+     * 16-bit word, Read-Only
+     */
     INPUT_REGISTER
 }

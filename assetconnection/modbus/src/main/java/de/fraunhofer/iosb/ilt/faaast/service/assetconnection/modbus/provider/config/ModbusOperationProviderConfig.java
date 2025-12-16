@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.ArgumentValidationM
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 
 
+/**
+ * Modbus asset connection operation provider config.
+ */
 public class ModbusOperationProviderConfig extends AbstractModbusProviderConfig implements AssetOperationProviderConfig {
 
     @Override

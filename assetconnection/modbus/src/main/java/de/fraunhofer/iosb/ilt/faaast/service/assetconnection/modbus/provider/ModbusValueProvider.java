@@ -29,19 +29,20 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProviderConfig> implements AssetValueProvider {
 
-    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusValueProviderConfig config) {
+    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusValueProviderConfig config)
+            throws AssetConnectionException {
         super(serviceContext, modbusClient, reference, unitId, config);
     }
 
 
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
-        return new PropertyValue(doRead());
+        return new PropertyValue(convert(doRead()));
     }
 
 
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
-        doWrite(value);
+        doWrite(convert(value));
     }
 }

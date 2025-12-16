@@ -35,35 +35,48 @@ import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
+/**
+ * Modbus asset connection.
+ */
 public class ModbusAssetConnection extends
         AbstractAssetConnection<ModbusAssetConnection, ModbusAssetConnectionConfig, ModbusValueProviderConfig, ModbusValueProvider, ModbusOperationProviderConfig, ModbusOperationProvider, ModbusSubscriptionProviderConfig, ModbusSubscriptionProvider> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModbusAssetConnection.class);
 
     ModbusTcpClient modbusTcpClient;
 
     @Override
     public void init(CoreConfig coreConfig, ModbusAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+        super.init(coreConfig, config, serviceContext);
+        LOGGER.warn(String.format("Creating modbus client %s", config.getHostname()));
         ModbusClientConfig modbusClientConfig = new ModbusClientConfig.Builder()
-                .setRequestTimeout(config.getConnectTimeout()) // TODO should this be the same as request timeout?
+                // Duration dependency stuff preventing this
+                // .setRequestTimeout(config.getConnectTimeoutMillis()) // TODO should this be the same as request timeout?
                 .build();
 
         CertificateConfig keyCertificateConfig = config.getKeyCertificateConfig();
         CertificateConfig trustCertificateConfig = config.getTrustCertificateConfig();
-        KeyManagerFactory keyManagerFactory;
-        TrustManagerFactory trustManagerFactory;
-        try {
-            // TODO this seems wrong. where to put path? Test with tls disabled for now.
-            keyManagerFactory = KeyManagerFactory.getInstance(keyCertificateConfig.getKeyStoreType());
-            trustManagerFactory = TrustManagerFactory.getInstance(trustCertificateConfig.getKeyStoreType());
-        }
-        catch (NoSuchAlgorithmException e) {
-            // TODO
-            throw new ConfigurationInitializationException(e);
+
+        KeyManagerFactory keyManagerFactory = null;
+        TrustManagerFactory trustManagerFactory = null;
+        if (config.isTlsEnabled()) {
+            try {
+                // TODO this seems wrong. where to put path? Test with tls disabled for now.
+                keyManagerFactory = KeyManagerFactory.getInstance(keyCertificateConfig.getKeyStoreType());
+                trustManagerFactory = TrustManagerFactory.getInstance(trustCertificateConfig.getKeyStoreType());
+            }
+            catch (NoSuchAlgorithmException e) {
+                // TODO
+                throw new ConfigurationInitializationException(e);
+            }
         }
 
         NettyClientTransportConfig nettyConfig = new NettyClientTransportConfig.Builder()
-                .setConnectTimeout(config.getConnectTimeout())
+                // Duration dependency stuff preventing this
+                // .setConnectTimeout(config.getConnectTimeoutMillis())
                 .setPort(config.getPort())
                 .setHostname(config.getHostname())
                 .setConnectPersistent(config.isConnectPersistent())
@@ -74,11 +87,12 @@ public class ModbusAssetConnection extends
                 .build();
 
         modbusTcpClient = new ModbusTcpClient(modbusClientConfig, new NettyTcpClientTransport(nettyConfig));
+        LOGGER.warn(String.format("Created modbus client %s", config.getHostname()));
     }
 
 
     @Override
-    protected ModbusValueProvider createValueProvider(Reference reference, ModbusValueProviderConfig providerConfig) {
+    protected ModbusValueProvider createValueProvider(Reference reference, ModbusValueProviderConfig providerConfig) throws AssetConnectionException {
         return new ModbusValueProvider(serviceContext, reference, modbusTcpClient, config.getUnitId(), providerConfig);
     }
 
@@ -90,19 +104,22 @@ public class ModbusAssetConnection extends
 
 
     @Override
-    protected ModbusSubscriptionProvider createSubscriptionProvider(Reference reference, ModbusSubscriptionProviderConfig providerConfig) {
+    protected ModbusSubscriptionProvider createSubscriptionProvider(Reference reference, ModbusSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         return new ModbusSubscriptionProvider(serviceContext, reference, modbusTcpClient, asConfig().getUnitId(), providerConfig);
     }
 
 
     @Override
     protected void doConnect() throws AssetConnectionException {
+        LOGGER.warn(String.format("Connecting to modbus server w hostname %s", config.getHostname()));
+
         try {
             modbusTcpClient.connect();
         }
         catch (ModbusExecutionException e) {
             throw new AssetConnectionException(e);
         }
+        LOGGER.warn("Connected");
     }
 
 

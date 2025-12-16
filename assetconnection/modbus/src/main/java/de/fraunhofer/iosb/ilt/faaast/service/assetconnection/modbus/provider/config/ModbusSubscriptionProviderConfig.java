@@ -18,9 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnectionConfig;
 
 
+/**
+ * Modbus asset connection subscription provider config.
+ */
 public class ModbusSubscriptionProviderConfig extends AbstractModbusProviderConfig implements AssetSubscriptionProviderConfig {
 
-    private static final long DEFAULT_POLLING_RATE = ModbusAssetConnectionConfig.DEFAULT_SUBSCRIPTION_POLLING_RATE.toMillis();
+    private static final long DEFAULT_POLLING_RATE = ModbusAssetConnectionConfig.DEFAULT_SUBSCRIPTION_POLLING_RATE;
 
     private long pollingRate;
 

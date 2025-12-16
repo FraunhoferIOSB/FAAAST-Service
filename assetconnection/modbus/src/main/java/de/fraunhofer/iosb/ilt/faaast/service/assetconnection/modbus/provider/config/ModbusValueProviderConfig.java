@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.co
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 
 
+/**
+ * Modbus asset connection value provider config.
+ */
 public class ModbusValueProviderConfig extends AbstractModbusProviderConfig implements AssetValueProviderConfig {
 
 }

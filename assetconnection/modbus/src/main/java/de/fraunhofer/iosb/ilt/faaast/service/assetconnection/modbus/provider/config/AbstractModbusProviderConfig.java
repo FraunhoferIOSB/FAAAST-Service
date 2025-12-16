@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.mod
 import java.util.Objects;
 
 
+/**
+ * Modbus asset connection common provider configuration.
+ */
 public abstract class AbstractModbusProviderConfig implements AssetProviderConfig {
 
     private DataTypes dataType;

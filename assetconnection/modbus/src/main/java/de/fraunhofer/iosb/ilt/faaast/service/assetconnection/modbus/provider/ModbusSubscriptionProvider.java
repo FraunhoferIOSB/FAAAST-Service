@@ -21,12 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -36,18 +35,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Subscription provider for modbus servers. Modbus does not support subscriptions out of the box, so values are polled
+ * and listeners get notified when a value changes.
+ */
 public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModbusSubscriptionProvider.class);
+    // TODO possibly remove: why constrain user to this minimum polling interval?
     public static final long MINIMUM_INTERVAL = 1000;
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> executorHandler;
-    private TypedValue<?> lastValue;
+    // Storing lastValue as raw bytes can help debugging the provider:
+    // If lastValue != newValue but the DataElementValue is the same, something might be wrong with the conversion
+    private byte[] lastValue;
 
     protected final List<NewDataListener> listeners;
 
-    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusSubscriptionProviderConfig config) {
+    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusSubscriptionProviderConfig config)
+            throws AssetConnectionException {
         super(serviceContext, modbusClient, reference, unitId, config);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
@@ -68,10 +75,14 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
     }
 
 
-    private void notifyOnChangedData(TypedValue<?> newValue) {
-        if (lastValue == null || !Objects.equals(lastValue, newValue)) {
-            lastValue = newValue;
-            listeners.forEach(listener -> listener.newDataReceived(new PropertyValue(newValue)));
+    private void notifyOnChangedData(byte[] newValue) throws AssetConnectionException {
+        if (lastValue != null && Arrays.equals(lastValue, newValue)) {
+            return;
+        }
+        lastValue = newValue;
+
+        for (NewDataListener listener: listeners) {
+            listener.newDataReceived(new PropertyValue(convert(newValue)));
         }
     }
 

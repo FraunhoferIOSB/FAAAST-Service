@@ -23,9 +23,13 @@ import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
+/**
+ * Modbus asset connection operation provider TODO functionality.
+ */
 public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperationProviderConfig> implements AssetOperationProvider<ModbusOperationProviderConfig> {
 
-    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusOperationProviderConfig config) {
+    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusOperationProviderConfig config)
+            throws AssetConnectionException {
         super(serviceContext, modbusClient, reference, unitId, config);
     }
 
