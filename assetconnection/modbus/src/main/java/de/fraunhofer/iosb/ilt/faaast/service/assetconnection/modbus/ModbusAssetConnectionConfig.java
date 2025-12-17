@@ -34,35 +34,35 @@ public class ModbusAssetConnectionConfig
 
     public static final String DEFAULT_HOSTNAME = null;
     public static final int DEFAULT_PORT = 502;
-    public static final long DEFAULT_CONNECT_TIMEOUT = 5000;
-    public static final boolean DEFAULT_CONNECT_PERSISTENT = true;
+    public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS = 5000;
+    public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS = 5000;
+    public static final boolean DEFAULT_CONNECT_PERSISTENT = false;
     public static final boolean DEFAULT_RECONNECT_LAZY = false;
     public static final boolean DEFAULT_TLS_ENABLED = false;
     public static final CertificateConfig DEFAULT_CERTIFICATE_CONFIG = CertificateConfig.builder().build();
-    public static final long DEFAULT_SUBSCRIPTION_POLLING_RATE = 1000;
     public static final int DEFAULT_UNIT_ID = 1;
 
     private String hostname;
     private int port;
     private int unitId;
     private long connectTimeoutMillis;
+    private long requestTimeoutMillis;
     private boolean connectPersistent;
     private boolean reconnectLazy;
     private boolean tlsEnabled;
     private CertificateConfig keyCertificateConfig;
     private CertificateConfig trustCertificateConfig;
-    private long subscriptionPollingRateMillis;
 
     public ModbusAssetConnectionConfig() {
         this.hostname = DEFAULT_HOSTNAME;
         this.port = DEFAULT_PORT;
-        this.connectTimeoutMillis = DEFAULT_CONNECT_TIMEOUT;
+        this.connectTimeoutMillis = DEFAULT_CONNECT_TIMEOUT_MILLIS;
+        this.requestTimeoutMillis = DEFAULT_REQUEST_TIMEOUT_MILLIS;
         this.connectPersistent = DEFAULT_CONNECT_PERSISTENT;
         this.reconnectLazy = DEFAULT_RECONNECT_LAZY;
         this.tlsEnabled = DEFAULT_TLS_ENABLED;
         this.keyCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
         this.trustCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
-        this.subscriptionPollingRateMillis = DEFAULT_SUBSCRIPTION_POLLING_RATE;
         this.unitId = DEFAULT_UNIT_ID;
     }
 
@@ -76,14 +76,16 @@ public class ModbusAssetConnectionConfig
             return false;
         }
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) obj;
-        return StringHelper.equalsNullOrEmpty(hostname, that.hostname)
-                && Objects.equals(port, that.port)
-                && Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis)
-                && Objects.equals(connectPersistent, that.connectPersistent)
-                && Objects.equals(tlsEnabled, that.tlsEnabled)
-                && Objects.equals(keyCertificateConfig, that.keyCertificateConfig)
-                && Objects.equals(trustCertificateConfig, that.trustCertificateConfig)
-                && Objects.equals(reconnectLazy, that.reconnectLazy);
+        return StringHelper.equalsNullOrEmpty(hostname, that.hostname) &&
+                Objects.equals(port, that.port) &&
+                Objects.equals(unitId, that.unitId) &&
+                Objects.equals(connectPersistent, that.connectPersistent) &&
+                Objects.equals(reconnectLazy, that.reconnectLazy) &&
+                Objects.equals(tlsEnabled, that.tlsEnabled) &&
+                Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
+                Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
+                Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
+                Objects.equals(trustCertificateConfig, that.trustCertificateConfig);
     }
 
 
@@ -100,11 +102,10 @@ public class ModbusAssetConnectionConfig
                 Objects.equals(connectPersistent, that.connectPersistent) &&
                 Objects.equals(reconnectLazy, that.reconnectLazy) &&
                 Objects.equals(tlsEnabled, that.tlsEnabled) &&
-                Objects.equals(hostname, that.hostname) &&
                 Objects.equals(connectTimeoutMillis, that.connectTimeoutMillis) &&
+                Objects.equals(requestTimeoutMillis, that.requestTimeoutMillis) &&
                 Objects.equals(keyCertificateConfig, that.keyCertificateConfig) &&
-                Objects.equals(trustCertificateConfig, that.trustCertificateConfig) &&
-                Objects.equals(subscriptionPollingRateMillis, that.subscriptionPollingRateMillis);
+                Objects.equals(trustCertificateConfig, that.trustCertificateConfig);
     }
 
 
@@ -115,12 +116,12 @@ public class ModbusAssetConnectionConfig
                 port,
                 unitId,
                 connectTimeoutMillis,
+                requestTimeoutMillis,
                 connectPersistent,
                 reconnectLazy,
                 tlsEnabled,
                 keyCertificateConfig,
-                trustCertificateConfig,
-                subscriptionPollingRateMillis);
+                trustCertificateConfig);
     }
 
 
@@ -209,16 +210,6 @@ public class ModbusAssetConnectionConfig
     }
 
 
-    public long getSubscriptionPollingRateMillis() {
-        return subscriptionPollingRateMillis;
-    }
-
-
-    public void setSubscriptionPollingRateMillis(long subscriptionPollingRateMillis) {
-        this.subscriptionPollingRateMillis = subscriptionPollingRateMillis;
-    }
-
-
     public int getUnitId() {
         return unitId;
     }
@@ -226,6 +217,16 @@ public class ModbusAssetConnectionConfig
 
     public void setUnitId(int unitId) {
         this.unitId = unitId;
+    }
+
+
+    public long getRequestTimeoutMillis() {
+        return requestTimeoutMillis;
+    }
+
+
+    public void setRequestTimeoutMillis(long requestTimeoutMillis) {
+        this.requestTimeoutMillis = requestTimeoutMillis;
     }
 
     public abstract static class AbstractBuilder<T extends ModbusAssetConnectionConfig, B extends AbstractBuilder<T, B>>
@@ -262,6 +263,12 @@ public class ModbusAssetConnectionConfig
         }
 
 
+        public B requestTimeout(long requestTimeoutMillis) {
+            getBuildingInstance().setRequestTimeoutMillis(requestTimeoutMillis);
+            return getSelf();
+        }
+
+
         public B tlsEnabled(boolean tlsEnabled) {
             getBuildingInstance().setTlsEnabled(tlsEnabled);
             return getSelf();
@@ -276,12 +283,6 @@ public class ModbusAssetConnectionConfig
 
         public B trustCertificatePath(String trustCertificatePath) {
             getBuildingInstance().setTrustCertificateConfig(CertificateConfig.builder().keyStorePath(trustCertificatePath).build());
-            return getSelf();
-        }
-
-
-        public B subscriptionPollingRate(long subscriptionPollingRateMillis) {
-            getBuildingInstance().setSubscriptionPollingRateMillis(subscriptionPollingRateMillis);
             return getSelf();
         }
 
