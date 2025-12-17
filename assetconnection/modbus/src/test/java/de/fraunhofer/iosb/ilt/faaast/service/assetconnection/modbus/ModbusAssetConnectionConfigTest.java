@@ -12,20 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus;
 
-public class ModbusSubscriptionProviderTest extends AbstractModbusProviderTest<ModbusSubscriptionProvider> {
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
 
-    @Override
-    protected Class<ModbusSubscriptionProvider> getImplementation() {
-        return ModbusSubscriptionProvider.class;
+
+public class ModbusAssetConnectionConfigTest {
+    @Test
+    public void testEquals() {
+        EqualsVerifier.simple().forClass(ModbusAssetConnectionConfig.class).verify();
     }
 
-
-    @Override
-    protected String[] getIgnoredFields() {
-        return new String[] {
-                "lastValue"
-        };
-    }
 }

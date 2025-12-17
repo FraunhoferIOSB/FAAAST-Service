@@ -1,4 +1,23 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus;
+
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import com.digitalpetri.modbus.server.ModbusTcpServer;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
@@ -16,16 +35,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import java.net.InetAddress;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.net.InetAddress;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 
 public class ModbusAssetConnectionTest {
@@ -106,6 +120,41 @@ public class ModbusAssetConnectionTest {
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testReconnect() {
+        // TODO
+        // create server, start server
+        // set value at an address of the server
+        // create and init assetconnection with a subscription
+        // add listener to subscription
+        // get the previously set value, assert it is correct
+        // shutdown modbus server, wait until !connection.isConnected(), restart server, wait til connection.isConnected(),
+        // update value at address
+        // add listener, get value, validate again
+    }
+
+
+    @Test
+    public void testOperationProvider() {
+        // TODO if operations are implemented
+    }
+
+
+    @Test
+    public void testSubscriptionProvider() {
+        // TODO
+        // Start server, assetConnection
+        // valueProvider and subscriptionProvider
+        // with valueprovider, change value; with subProvider, check if dataListeners get notified
+    }
+
+
+    @Test
+    public void testValueProvider() {
+        // TODO
     }
 
 

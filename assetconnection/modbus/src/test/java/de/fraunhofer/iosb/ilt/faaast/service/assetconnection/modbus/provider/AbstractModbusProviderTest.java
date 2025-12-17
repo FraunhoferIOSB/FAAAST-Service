@@ -19,19 +19,17 @@ import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.server.ModbusTcpServer;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.ExecutionException;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
 
 
 public abstract class AbstractModbusProviderTest<T extends AbstractModbusProvider> {
 
     private final ModbusTcpServer server;
     private final int serverPort = PortHelper.findFreePort();
-
 
     protected AbstractModbusProviderTest() {
         try {
