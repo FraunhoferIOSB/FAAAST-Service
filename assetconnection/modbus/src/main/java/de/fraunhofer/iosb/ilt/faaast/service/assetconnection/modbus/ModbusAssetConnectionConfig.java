@@ -40,11 +40,9 @@ public class ModbusAssetConnectionConfig
     public static final boolean DEFAULT_RECONNECT_LAZY = false;
     public static final boolean DEFAULT_TLS_ENABLED = false;
     public static final CertificateConfig DEFAULT_CERTIFICATE_CONFIG = CertificateConfig.builder().build();
-    public static final int DEFAULT_UNIT_ID = 1;
 
     private String hostname;
     private int port;
-    private int unitId;
     private long connectTimeoutMillis;
     private long requestTimeoutMillis;
     private boolean connectPersistent;
@@ -63,7 +61,6 @@ public class ModbusAssetConnectionConfig
         this.tlsEnabled = DEFAULT_TLS_ENABLED;
         this.keyCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
         this.trustCertificateConfig = DEFAULT_CERTIFICATE_CONFIG;
-        this.unitId = DEFAULT_UNIT_ID;
     }
 
 
@@ -78,7 +75,6 @@ public class ModbusAssetConnectionConfig
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) obj;
         return StringHelper.equalsNullOrEmpty(hostname, that.hostname) &&
                 Objects.equals(port, that.port) &&
-                Objects.equals(unitId, that.unitId) &&
                 Objects.equals(connectPersistent, that.connectPersistent) &&
                 Objects.equals(reconnectLazy, that.reconnectLazy) &&
                 Objects.equals(tlsEnabled, that.tlsEnabled) &&
@@ -98,7 +94,6 @@ public class ModbusAssetConnectionConfig
         ModbusAssetConnectionConfig that = (ModbusAssetConnectionConfig) o;
         return StringHelper.equalsNullOrEmpty(hostname, that.hostname) &&
                 Objects.equals(port, that.port) &&
-                Objects.equals(unitId, that.unitId) &&
                 Objects.equals(connectPersistent, that.connectPersistent) &&
                 Objects.equals(reconnectLazy, that.reconnectLazy) &&
                 Objects.equals(tlsEnabled, that.tlsEnabled) &&
@@ -114,7 +109,6 @@ public class ModbusAssetConnectionConfig
         return Objects.hash(super.hashCode(),
                 hostname,
                 port,
-                unitId,
                 connectTimeoutMillis,
                 requestTimeoutMillis,
                 connectPersistent,
@@ -210,16 +204,6 @@ public class ModbusAssetConnectionConfig
     }
 
 
-    public int getUnitId() {
-        return unitId;
-    }
-
-
-    public void setUnitId(int unitId) {
-        this.unitId = unitId;
-    }
-
-
     public long getRequestTimeoutMillis() {
         return requestTimeoutMillis;
     }
@@ -283,12 +267,6 @@ public class ModbusAssetConnectionConfig
 
         public B trustCertificatePath(String trustCertificatePath) {
             getBuildingInstance().setTrustCertificateConfig(CertificateConfig.builder().keyStorePath(trustCertificatePath).build());
-            return getSelf();
-        }
-
-
-        public B unitId(int unitId) {
-            getBuildingInstance().setUnitId(unitId);
             return getSelf();
         }
     }

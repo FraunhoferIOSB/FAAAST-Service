@@ -52,8 +52,9 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
             return false;
         }
         AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) other;
-        return dataType == that.dataType &&
+        return Objects.equals(dataType, that.getDataType()) &&
                 Objects.equals(address, that.address) &&
+                Objects.equals(unitId, that.getUnitId()) &&
                 Objects.equals(quantity, that.quantity);
     }
 
@@ -62,9 +63,10 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass())
             return false;
-        ModbusSubscriptionProviderConfig that = (ModbusSubscriptionProviderConfig) o;
+        AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) o;
         return Objects.equals(dataType, that.getDataType()) &&
                 Objects.equals(address, that.getAddress()) &&
+                Objects.equals(unitId, that.getUnitId()) &&
                 Objects.equals(quantity, that.getQuantity());
     }
 
@@ -73,6 +75,7 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     public int hashCode() {
         return Objects.hash(Objects.hashCode(dataType),
                 Objects.hashCode(address),
+                Objects.hashCode(unitId),
                 Objects.hashCode(quantity));
     }
 
@@ -87,7 +90,7 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
     }
 
 
-    public int getAddress() {
+    public Integer getAddress() {
         return address;
     }
 

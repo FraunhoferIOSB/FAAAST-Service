@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -37,7 +38,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Subscription provider for modbus servers. Modbus does not support subscriptions out of the box, so values are polled
- * and listeners get notified when a value changes, like in the HTTP AssetConnection.
+ * and listeners get notified when a value changes, like in the
+ * HTTP AssetConnection.
  */
 public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
@@ -50,37 +52,35 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
 
     protected final List<NewDataListener> listeners;
 
-    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusSubscriptionProviderConfig config)
+    public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusSubscriptionProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, unitId, config);
+        super(serviceContext, reference, modbusClient, config);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
 
-    private void subscribe() {
-        if (executor == null || executor.isShutdown()) {
-            executor = Executors.newScheduledThreadPool(0);
-            executorHandler = executor.scheduleAtFixedRate(() -> {
-                try {
-                    notifyOnChangedData(doRead(createReadRequest()));
-                }
-                catch (AssetConnectionException e) {
-                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
-                }
-            }, 0, config.getPollingRate(), TimeUnit.MILLISECONDS);
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ModbusSubscriptionProvider that = (ModbusSubscriptionProvider) o;
+        return super.equals(o) &&
+                Objects.equals(executor, that.executor) &&
+                Objects.equals(executorHandler, that.executorHandler) &&
+                Objects.equals(listeners, that.listeners);
     }
 
 
-    private void notifyOnChangedData(byte[] newValue) throws AssetConnectionException {
-        if (lastValue != null && Arrays.equals(lastValue, newValue)) {
-            return;
-        }
-        lastValue = newValue;
-
-        for (NewDataListener listener: listeners) {
-            listener.newDataReceived(new PropertyValue(convert(newValue)));
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                executor,
+                executorHandler,
+                listeners);
     }
 
 
@@ -109,6 +109,33 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
         }
         if (executor != null) {
             executor.shutdown();
+        }
+    }
+
+
+    private void subscribe() {
+        if (executor == null || executor.isShutdown()) {
+            executor = Executors.newScheduledThreadPool(0);
+            executorHandler = executor.scheduleAtFixedRate(() -> {
+                try {
+                    notifyOnChangedData(doRead(createReadRequest()));
+                }
+                catch (AssetConnectionException e) {
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
+                }
+            }, 0, asConfig().getPollingRate(), TimeUnit.MILLISECONDS);
+        }
+    }
+
+
+    private void notifyOnChangedData(byte[] newValue) throws AssetConnectionException {
+        if (lastValue != null && Arrays.equals(lastValue, newValue)) {
+            return;
+        }
+        lastValue = newValue;
+
+        for (NewDataListener listener: listeners) {
+            listener.newDataReceived(new PropertyValue(convert(newValue)));
         }
     }
 

@@ -32,9 +32,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProviderConfig> implements AssetValueProvider {
 
-    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusValueProviderConfig config)
+    public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusValueProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, unitId, config);
+        super(serviceContext, reference, modbusClient, config);
     }
 
 

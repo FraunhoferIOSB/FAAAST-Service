@@ -36,16 +36,16 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperationProviderConfig> implements AssetOperationProvider<ModbusOperationProviderConfig> {
 
-    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusOperationProviderConfig config)
+    public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, ModbusOperationProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, reference, modbusClient, unitId, config);
+        super(serviceContext, reference, modbusClient, config);
         throw new AssetConnectionException("Operations are not supported for modbus asset connections");
     }
 
 
     @Override
     public ModbusOperationProviderConfig getConfig() {
-        return config;
+        return asConfig();
     }
 
 

@@ -33,7 +33,6 @@ import com.digitalpetri.modbus.pdu.WriteSingleRegisterRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper;
@@ -60,33 +59,30 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private static final int BYTES_IN_INT = 4;
     private static final String WRITE_OVERFLOW_TEMPLATE = "Attempting to write more %ss than defined quantity (quantity: %d, COILs to write: %d)";
 
-    protected final ServiceContext serviceContext;
-    protected final ModbusClient modbusClient;
     protected final Reference reference;
-    protected final C config;
-    private Datatype datatype;
-    // Don't set in provider config. This is a modbus server property.
-    private final int unitId;
+    private final C config;
+    private final ServiceContext serviceContext;
+    private final ModbusClient modbusClient;
+    private final Datatype datatype;
 
-    protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, C config) throws AssetConnectionException {
+    protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, C config) throws AssetConnectionException {
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.modbusClient = modbusClient;
-        this.unitId = unitId;
         this.config = config;
         this.datatype = getDatatype(reference);
     }
 
 
     @Override
-    public AssetProviderConfig<?> asConfig() {
+    public C asConfig() {
         return config;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), serviceContext, modbusClient, reference, config);
+        return Objects.hash(serviceContext, modbusClient, datatype, reference, config);
     }
 
 
@@ -98,14 +94,14 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof ModbusValueProvider modbusValueProvider)) {
+        if (!(obj instanceof AbstractModbusProvider<?> abstractModbusProvider)) {
             return false;
         }
-        return super.equals(obj)
-                && Objects.equals(serviceContext, modbusValueProvider.serviceContext)
-                && Objects.equals(modbusClient, modbusValueProvider.modbusClient)
-                && Objects.equals(reference, modbusValueProvider.reference)
-                && config.sameAs(modbusValueProvider.asConfig());
+        return Objects.equals(serviceContext, abstractModbusProvider.serviceContext) &&
+                Objects.equals(modbusClient, abstractModbusProvider.modbusClient) &&
+                Objects.equals(datatype, abstractModbusProvider.datatype) &&
+                Objects.equals(reference, abstractModbusProvider.reference) &&
+                Objects.equals(config, abstractModbusProvider.config);
     }
 
 
@@ -169,6 +165,8 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private byte[] read(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+        int unitId = config.getUnitId();
+
         if (request instanceof ReadCoilsRequest coilsRequest) {
             return modbusClient.readCoils(unitId, coilsRequest).coils();
         }
@@ -188,6 +186,8 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private void write(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+        int unitId = config.getUnitId();
+
         // Java 24 offers an enhanced switch for this case
         // We use async operations as we do not use the results.
         if (request instanceof WriteMultipleCoilsRequest req) {
@@ -299,7 +299,6 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                     ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
-        datatype = valueTypeInfo.getDatatype();
         if (datatype == null) {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
                     ReferenceHelper.toString(reference)));
