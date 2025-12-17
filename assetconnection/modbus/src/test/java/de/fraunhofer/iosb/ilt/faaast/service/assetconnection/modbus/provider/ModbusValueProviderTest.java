@@ -14,31 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
-import com.digitalpetri.modbus.client.ModbusClient;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-
-
-public class ModbusValueProviderTest extends AbstractModbusProviderTest {
-    @Test
-    public void testEquals() throws Exception {
-        server.start();
-        try {
-            ModbusClient client1 = getClient();
-            client1.connect();
-            ModbusClient client2 = getClient();
-            client2.connect();
-
-            EqualsVerifier.simple()
-                    .forClass(ModbusValueProvider.class)
-                    .withPrefabValues(ModbusClient.class, client1, client2)
-                    .verify();
-
-            client1.disconnect();
-            client2.disconnect();
-        }
-        finally {
-            server.stop();
-        }
+public class ModbusValueProviderTest extends AbstractModbusProviderTest<ModbusValueProvider> {
+    @Override
+    protected Class<ModbusValueProvider> getImplementation() {
+        return ModbusValueProvider.class;
     }
 }

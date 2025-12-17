@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
-import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.HOLDING_REGISTER;
-
 import com.digitalpetri.modbus.client.ModbusClient;
 import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.exceptions.ModbusResponseException;
@@ -45,10 +42,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.HOLDING_REGISTER;
 
 
 /**
@@ -64,6 +65,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private final ServiceContext serviceContext;
     private final ModbusClient modbusClient;
     private final Datatype datatype;
+
 
     protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, C config) throws AssetConnectionException {
         this.serviceContext = serviceContext;
@@ -118,8 +120,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     /**
-     * Read a byte array from a specified modbus server address and data type defined by {@code address} and
-     * {@code datatype}. The amount of bytes depends on the {@code quantity}
+     * Read a byte array from a specified modbus server address and data type defined by {@code address} and {@code datatype}. The amount of bytes depends on the {@code quantity}
      * defined in the provider config.
      *
      * @param readRequest The read request containing address and quantity of values to read.
@@ -227,8 +228,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     /**
-     * Creates an implementation-specific write modbus write request given the bytes to write in conjunction with the
-     * configuration variables.
+     * Creates an implementation-specific write modbus write request given the bytes to write in conjunction with the configuration variables.
      *
      * @param rawBytesToWrite bytes to write to modbus server.
      * @return The implementation-specific modbus write request
@@ -299,11 +299,13 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                     ReferenceHelper.toString(reference),
                     valueTypeInfo.getType()));
         }
-        if (datatype == null) {
+        Datatype type = valueTypeInfo.getDatatype();
+
+        if (type == null) {
             throw new AssetConnectionException(String.format("Missing datatype (reference: %s)",
                     ReferenceHelper.toString(reference)));
         }
-        return datatype;
+        return type;
     }
 
 }

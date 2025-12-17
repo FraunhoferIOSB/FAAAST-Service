@@ -265,8 +265,14 @@ public class ModbusAssetConnectionConfig
         }
 
 
-        public B trustCertificatePath(String trustCertificatePath) {
-            getBuildingInstance().setTrustCertificateConfig(CertificateConfig.builder().keyStorePath(trustCertificatePath).build());
+        public B keyCertificateConfig(CertificateConfig keyCertificateConfig) {
+            getBuildingInstance().setKeyCertificateConfig(keyCertificateConfig);
+            return getSelf();
+        }
+
+
+        public B trustCertificateConfig(CertificateConfig trustCertificateConfig) {
+            getBuildingInstance().setTrustCertificateConfig(trustCertificateConfig);
             return getSelf();
         }
     }

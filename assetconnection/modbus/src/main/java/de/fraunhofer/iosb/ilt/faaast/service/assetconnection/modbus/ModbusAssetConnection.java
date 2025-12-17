@@ -52,7 +52,7 @@ public class ModbusAssetConnection extends
         AbstractAssetConnection<ModbusAssetConnection, ModbusAssetConnectionConfig, ModbusValueProviderConfig, ModbusValueProvider, ModbusOperationProviderConfig, ModbusOperationProvider, ModbusSubscriptionProviderConfig, ModbusSubscriptionProvider> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModbusAssetConnection.class);
 
-    ModbusTcpClient modbusTcpClient;
+    ModbusTcpClient client;
 
     @Override
     public void init(CoreConfig coreConfig, ModbusAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
@@ -90,7 +90,7 @@ public class ModbusAssetConnection extends
                 .setRequestTimeout(Duration.ofMillis(config.getRequestTimeoutMillis()))
                 .build();
 
-        modbusTcpClient = new ModbusTcpClient(modbusClientConfig, new NettyTcpClientTransport(nettyConfig));
+        client = new ModbusTcpClient(modbusClientConfig, new NettyTcpClientTransport(nettyConfig));
         LOGGER.debug("Created modbus client for {}", getEndpointInformation());
     }
 
@@ -103,32 +103,32 @@ public class ModbusAssetConnection extends
 
     @Override
     protected ModbusValueProvider createValueProvider(Reference reference, ModbusValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusValueProvider(serviceContext, reference, modbusTcpClient, providerConfig);
+        return new ModbusValueProvider(serviceContext, reference, client, providerConfig);
     }
 
 
     @Override
     protected ModbusOperationProvider createOperationProvider(Reference reference, ModbusOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusOperationProvider(serviceContext, reference, modbusTcpClient, providerConfig);
+        return new ModbusOperationProvider(serviceContext, reference, client, providerConfig);
     }
 
 
     @Override
     protected ModbusSubscriptionProvider createSubscriptionProvider(Reference reference, ModbusSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        return new ModbusSubscriptionProvider(serviceContext, reference, modbusTcpClient, providerConfig);
+        return new ModbusSubscriptionProvider(serviceContext, reference, client, providerConfig);
     }
 
 
     @Override
     protected void doConnect() throws AssetConnectionException {
-        if (modbusTcpClient.isConnected()) {
+        if (client.isConnected()) {
             return;
         }
 
         LOGGER.debug("Attempting to connect to {}.", getEndpointInformation());
 
         try {
-            modbusTcpClient.connect();
+            client.connect();
         }
         catch (ModbusExecutionException e) {
             throw new AssetConnectionException(e);
@@ -139,12 +139,12 @@ public class ModbusAssetConnection extends
 
     @Override
     protected void doDisconnect() throws AssetConnectionException {
-        if (!modbusTcpClient.isConnected()) {
+        if (!client.isConnected()) {
             return;
         }
         LOGGER.debug("Attempting to disconnect from {}.", getEndpointInformation());
         try {
-            modbusTcpClient.disconnect();
+            client.disconnect();
         }
         catch (ModbusExecutionException e) {
             throw new AssetConnectionException(e);
@@ -153,18 +153,18 @@ public class ModbusAssetConnection extends
     }
 
 
-    private TrustManagerFactory initializeTrustManagerFactory(CertificateConfig trustCertificateConfig) throws GeneralSecurityException, IOException {
-        KeyStore trustStore = KeyStoreHelper.load(Path.of(trustCertificateConfig.getKeyStorePath()).toFile(), trustCertificateConfig.getKeyStoreType(),
-                trustCertificateConfig.getKeyStorePassword());
-        return SecurityUtil.createTrustManagerFactory(trustStore);
-
-    }
-
-
     private KeyManagerFactory initializeKeyManagerFactory(CertificateConfig keyCertificateConfig) throws GeneralSecurityException, IOException {
         KeyStore keyStore = KeyStoreHelper.load(Path.of(keyCertificateConfig.getKeyStorePath()).toFile(), keyCertificateConfig.getKeyStoreType(),
                 keyCertificateConfig.getKeyStorePassword());
         return SecurityUtil.createKeyManagerFactory(keyStore, keyCertificateConfig.getKeyStorePassword().toCharArray());
+
+    }
+
+
+    private TrustManagerFactory initializeTrustManagerFactory(CertificateConfig trustCertificateConfig) throws GeneralSecurityException, IOException {
+        KeyStore trustStore = KeyStoreHelper.load(Path.of(trustCertificateConfig.getKeyStorePath()).toFile(), trustCertificateConfig.getKeyStoreType(),
+                trustCertificateConfig.getKeyStorePassword());
+        return SecurityUtil.createTrustManagerFactory(trustStore);
 
     }
 }

@@ -14,49 +14,63 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
-import com.digitalpetri.modbus.client.ModbusTcpClient;
+import com.digitalpetri.modbus.client.ModbusClient;
+import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.server.ModbusTcpServer;
-import com.digitalpetri.modbus.server.ProcessImage;
-import com.digitalpetri.modbus.server.ReadWriteModbusServices;
-import com.digitalpetri.modbus.tcp.client.NettyClientTransportConfig;
-import com.digitalpetri.modbus.tcp.client.NettyTcpClientTransport;
-import com.digitalpetri.modbus.tcp.server.NettyServerTransportConfig;
-import com.digitalpetri.modbus.tcp.server.NettyTcpServerTransport;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
-import java.net.InetAddress;
-import java.util.Optional;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.concurrent.ExecutionException;
 
 
-public class AbstractModbusProviderTest {
+public abstract class AbstractModbusProviderTest<T extends AbstractModbusProvider> {
 
-    protected ModbusTcpServer server;
+    private final ModbusTcpServer server;
     private final int serverPort = PortHelper.findFreePort();
 
+
     protected AbstractModbusProviderTest() {
-        server = getServer();
+        try {
+            server = ModbusHelper.getServer(serverPort, false);
+        }
+        catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    protected ModbusTcpClient getClient() {
-        return ModbusTcpClient.create(new NettyTcpClientTransport(new NettyClientTransportConfig.Builder()
-                .setHostname(InetAddress.getLoopbackAddress().getHostName())
-                .setPort(serverPort)
-                .build()));
+    @Test
+    public void testEqualsHashCode() throws ExecutionException, InterruptedException, ModbusExecutionException {
+        server.start();
+        try {
+            ModbusClient client1 = ModbusHelper.getClient(serverPort);
+            client1.connect();
+            ModbusClient client2 = ModbusHelper.getClient(serverPort);
+            client2.connect();
 
+            EqualsVerifier.simple()
+                    .forClass(getImplementation())
+                    .withPrefabValues(ModbusClient.class, client1, client2)
+                    .withIgnoredFields(getIgnoredFields())
+                    .verify();
+
+            client1.disconnect();
+            client2.disconnect();
+        }
+        finally {
+            server.stop();
+        }
     }
 
 
-    private ModbusTcpServer getServer() {
-        return ModbusTcpServer.create(
-                new NettyTcpServerTransport(new NettyServerTransportConfig.Builder()
-                        .setBindAddress("0.0.0.0")
-                        .setPort(serverPort)
-                        .build()),
-                new ReadWriteModbusServices() {
-                    @Override
-                    protected Optional<ProcessImage> getProcessImage(int unitId) {
-                        return Optional.empty();
-                    }
-                });
+    protected abstract Class<T> getImplementation();
+
+
+    protected String[] getIgnoredFields() {
+        return new String[] {};
     }
 }
