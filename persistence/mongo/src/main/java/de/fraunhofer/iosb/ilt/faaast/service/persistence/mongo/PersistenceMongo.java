@@ -54,6 +54,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.UnsupportedModifierException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -257,6 +258,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
+    public Page<AssetAdministrationShell> findAssetAdministrationShellsWithQuery(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging,
+                                                                                 Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
+    }
+
+
+    @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -273,6 +282,13 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     @Override
+    public Page<ConceptDescription> findConceptDescriptionsWithQuery(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query)
+            throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
+    }
+
+
+    @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
@@ -283,6 +299,12 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
         if (criteria.isSemanticIdSet())
             filter = Filters.and(filter, getSemanticIdFilter(criteria.getSemanticId()));
         return preparePagedResult(submodelCollection, filter, paging, modifier, Submodel.class);
+    }
+
+
+    @Override
+    public Page<Submodel> findSubmodelsWithQuery(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging, Query query) throws PersistenceException {
+        throw new PersistenceException("Query not supported with mongoDB.");
     }
 
 

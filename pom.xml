@@ -88,6 +88,7 @@
         <jakarta.json-api.version>2.1.2</jakarta.json-api.version>
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
         <janino.version>3.1.12</janino.version>
+        <java.jwt.version>4.4.0</java.jwt.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <jena.version>5.6.0</jena.version>
         <jetty.version>12.1.5</jetty.version>
@@ -95,7 +96,9 @@
         <json-smart.version>2.6.0</json-smart.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.10.0</jsonpath.version>
+        <jsonschema2pojo.version>1.2.2</jsonschema2pojo.version>
         <junit.version>4.13.2</junit.version>
+        <jwks.rsa.version>0.22.1</jwks.rsa.version>
         <logback.version>1.5.22</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
