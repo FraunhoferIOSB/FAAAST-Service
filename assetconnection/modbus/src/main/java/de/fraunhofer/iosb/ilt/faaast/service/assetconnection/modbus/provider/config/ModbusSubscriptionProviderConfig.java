@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetConnectionConfig;
+import java.util.Objects;
 
 
 /**
@@ -23,12 +23,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.ModbusAssetC
  */
 public class ModbusSubscriptionProviderConfig extends AbstractModbusProviderConfig implements AssetSubscriptionProviderConfig {
 
-    private static final long DEFAULT_POLLING_RATE = ModbusAssetConnectionConfig.DEFAULT_SUBSCRIPTION_POLLING_RATE;
+    public static final long DEFAULT_POLLING_RATE = 1000;
 
     private long pollingRate;
 
     public ModbusSubscriptionProviderConfig() {
         this.pollingRate = DEFAULT_POLLING_RATE;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ModbusSubscriptionProviderConfig that = (ModbusSubscriptionProviderConfig) o;
+        return super.equals(o) &&
+                Objects.equals(pollingRate, that.pollingRate);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), Objects.hashCode(pollingRate));
     }
 
 
@@ -39,5 +55,33 @@ public class ModbusSubscriptionProviderConfig extends AbstractModbusProviderConf
 
     public void setPollingRate(long pollingRate) {
         this.pollingRate = pollingRate;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    protected abstract static class AbstractBuilder<T extends ModbusSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {
+
+        public B pollingRate(long pollingRate) {
+            getBuildingInstance().setPollingRate(pollingRate);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<ModbusSubscriptionProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ModbusSubscriptionProviderConfig newBuildingInstance() {
+            return new ModbusSubscriptionProviderConfig();
+        }
     }
 }

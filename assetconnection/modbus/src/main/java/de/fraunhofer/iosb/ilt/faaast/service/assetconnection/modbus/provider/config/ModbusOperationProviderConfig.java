@@ -57,4 +57,39 @@ public class ModbusOperationProviderConfig extends AbstractModbusProviderConfig 
     public void setOutputValidationMode(ArgumentValidationMode mode) {
 
     }
+
+    protected abstract static class AbstractBuilder<T extends ModbusOperationProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {
+
+        public B inputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B inoutputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setInoutputValidationMode(value);
+            return getSelf();
+        }
+
+
+        public B outputValidationMode(ArgumentValidationMode value) {
+            getBuildingInstance().setOutputValidationMode(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<ModbusOperationProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ModbusOperationProviderConfig newBuildingInstance() {
+            return new ModbusOperationProviderConfig();
+        }
+    }
 }

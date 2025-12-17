@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.co
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -24,9 +25,23 @@ import java.util.Objects;
  */
 public abstract class AbstractModbusProviderConfig implements AssetProviderConfig {
 
+    public static final ModbusDatatype DEFAULT_DATATYPE = null;
+    public static final Integer DEFAULT_ADDRESS = null;
+    public static final int DEFAULT_QUANTITY = 1;
+    public static final int DEFAULT_UNIT_ID = 1;
+
     private ModbusDatatype dataType;
-    private int address;
+    private Integer address;
     private int quantity;
+    private int unitId;
+
+    public AbstractModbusProviderConfig() {
+        this.dataType = DEFAULT_DATATYPE;
+        this.address = DEFAULT_ADDRESS;
+        this.quantity = DEFAULT_QUANTITY;
+        this.unitId = DEFAULT_UNIT_ID;
+    }
+
 
     @Override
     public boolean sameAs(AssetProviderConfig other) {
@@ -37,7 +52,28 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
             return false;
         }
         AbstractModbusProviderConfig that = (AbstractModbusProviderConfig) other;
-        return Objects.equals(dataType, that.dataType);
+        return dataType == that.dataType &&
+                Objects.equals(address, that.address) &&
+                Objects.equals(quantity, that.quantity);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ModbusSubscriptionProviderConfig that = (ModbusSubscriptionProviderConfig) o;
+        return Objects.equals(dataType, that.getDataType()) &&
+                Objects.equals(address, that.getAddress()) &&
+                Objects.equals(quantity, that.getQuantity());
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Objects.hashCode(dataType),
+                Objects.hashCode(address),
+                Objects.hashCode(quantity));
     }
 
 
@@ -68,5 +104,41 @@ public abstract class AbstractModbusProviderConfig implements AssetProviderConfi
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+
+    public int getUnitId() {
+        return unitId;
+    }
+
+
+    public void setUnitId(int unitId) {
+        this.unitId = unitId;
+    }
+
+    protected abstract static class AbstractBuilder<T extends AbstractModbusProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B dataType(ModbusDatatype dataType) {
+            getBuildingInstance().setDataType(dataType);
+            return getSelf();
+        }
+
+
+        public B address(int address) {
+            getBuildingInstance().setAddress(address);
+            return getSelf();
+        }
+
+
+        public B quantity(int quantity) {
+            getBuildingInstance().setQuantity(quantity);
+            return getSelf();
+        }
+
+
+        public B unitId(int unitId) {
+            getBuildingInstance().setUnitId(unitId);
+            return getSelf();
+        }
     }
 }

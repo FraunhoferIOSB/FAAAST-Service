@@ -37,25 +37,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Subscription provider for modbus servers. Modbus does not support subscriptions out of the box, so values are polled
- * and listeners get notified when a value changes.
+ * and listeners get notified when a value changes, like in the HTTP AssetConnection.
  */
 public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModbusSubscriptionProvider.class);
-    // TODO possibly remove: why constrain user to this minimum polling interval?
-    public static final long MINIMUM_INTERVAL = 1000;
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> executorHandler;
-    // Storing lastValue as raw bytes can help debugging the provider:
-    // If lastValue != newValue but the DataElementValue is the same, something might be wrong with the conversion
+    // Don't rely on equals implementation of TypedValue inheritors
     private byte[] lastValue;
 
     protected final List<NewDataListener> listeners;
 
     public ModbusSubscriptionProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusSubscriptionProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, modbusClient, reference, unitId, config);
+        super(serviceContext, reference, modbusClient, unitId, config);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
@@ -65,12 +62,12 @@ public class ModbusSubscriptionProvider extends AbstractModbusProvider<ModbusSub
             executor = Executors.newScheduledThreadPool(0);
             executorHandler = executor.scheduleAtFixedRate(() -> {
                 try {
-                    notifyOnChangedData(doRead());
+                    notifyOnChangedData(doRead(createReadRequest()));
                 }
                 catch (AssetConnectionException e) {
                     LOGGER.debug("error subscribing to asset connection (reference: {})", ReferenceHelper.toString(reference), e);
                 }
-            }, 0, Math.max(MINIMUM_INTERVAL, config.getPollingRate()), TimeUnit.MILLISECONDS);
+            }, 0, config.getPollingRate(), TimeUnit.MILLISECONDS);
         }
     }
 

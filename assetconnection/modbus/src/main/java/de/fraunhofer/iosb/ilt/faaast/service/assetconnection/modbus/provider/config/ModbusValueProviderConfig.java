@@ -22,4 +22,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderC
  */
 public class ModbusValueProviderConfig extends AbstractModbusProviderConfig implements AssetValueProviderConfig {
 
+    protected abstract static class AbstractBuilder<T extends ModbusValueProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractModbusProviderConfig.AbstractBuilder<T, B> {}
+
+    public static class Builder extends AbstractBuilder<ModbusValueProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ModbusValueProviderConfig newBuildingInstance() {
+            return new ModbusValueProviderConfig();
+        }
+    }
 }

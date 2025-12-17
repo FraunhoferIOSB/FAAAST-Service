@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.HOLDING_REGISTER;
 
 import com.digitalpetri.modbus.client.ModbusClient;
 import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
@@ -35,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -45,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -54,20 +57,220 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public abstract class AbstractModbusProvider<C extends AbstractModbusProviderConfig> implements AssetProvider {
 
+    private static final int BYTES_IN_INT = 4;
+    private static final String WRITE_OVERFLOW_TEMPLATE = "Attempting to write more %ss than defined quantity (quantity: %d, COILs to write: %d)";
+
     protected final ServiceContext serviceContext;
     protected final ModbusClient modbusClient;
     protected final Reference reference;
     protected final C config;
-    private final int unitId;
     private Datatype datatype;
+    // Don't set in provider config. This is a modbus server property.
+    private final int unitId;
 
-    protected AbstractModbusProvider(ServiceContext serviceContext, ModbusClient modbusClient, Reference reference, int unitId, C config) throws AssetConnectionException {
+    protected AbstractModbusProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, C config) throws AssetConnectionException {
         this.serviceContext = serviceContext;
-        this.modbusClient = modbusClient;
         this.reference = reference;
+        this.modbusClient = modbusClient;
         this.unitId = unitId;
         this.config = config;
-        datatype = getDatatype(reference);
+        this.datatype = getDatatype(reference);
+    }
+
+
+    @Override
+    public AssetProviderConfig<?> asConfig() {
+        return config;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), serviceContext, modbusClient, reference, config);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ModbusValueProvider modbusValueProvider)) {
+            return false;
+        }
+        return super.equals(obj)
+                && Objects.equals(serviceContext, modbusValueProvider.serviceContext)
+                && Objects.equals(modbusClient, modbusValueProvider.modbusClient)
+                && Objects.equals(reference, modbusValueProvider.reference)
+                && config.sameAs(modbusValueProvider.asConfig());
+    }
+
+
+    /**
+     * Convert raw bytes that were read from the modbus server to AAS data.
+     *
+     * @param rawBytes The bytes to convert.
+     * @return AAS TypedValue data
+     * @throws AssetConnectionException If conversion of data fails due to type constraints.
+     */
+    protected TypedValue<?> convert(byte[] rawBytes) throws AssetConnectionException {
+        return AasToModbusConversionHelper.convert(rawBytes, datatype);
+    }
+
+
+    /**
+     * Read a byte array from a specified modbus server address and data type defined by {@code address} and
+     * {@code datatype}. The amount of bytes depends on the {@code quantity}
+     * defined in the provider config.
+     *
+     * @param readRequest The read request containing address and quantity of values to read.
+     * @return Bytes read from the modbus server.
+     * @throws AssetConnectionException If writing to modbus server fails.
+     */
+    protected byte[] doRead(ModbusRequestPdu readRequest) throws AssetConnectionException {
+        try {
+            return read(readRequest);
+        }
+        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
+            throw new AssetConnectionException(e);
+        }
+    }
+
+
+    /**
+     * Convert AAS data to raw bytes readable by the modbus server.
+     *
+     * @param value AAS TypedValue data
+     * @return The bytes to write.
+     * @throws AssetConnectionException If conversion of data fails due to type constraints.
+     */
+    protected byte[] convert(DataElementValue value) throws AssetConnectionException {
+        return AasToModbusConversionHelper.convert(value);
+    }
+
+
+    /**
+     * Write a byte array to a specified modbus server address.
+     *
+     * @param writeRequest The write request containing address, quantity and bytes to write.
+     * @throws AssetConnectionException If writing to modbus server fails.
+     */
+    protected void doWrite(ModbusRequestPdu writeRequest) throws AssetConnectionException {
+        try {
+            write(writeRequest);
+        }
+        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
+            throw new AssetConnectionException(e);
+        }
+    }
+
+
+    private byte[] read(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+        if (request instanceof ReadCoilsRequest coilsRequest) {
+            return modbusClient.readCoils(unitId, coilsRequest).coils();
+        }
+        else if (request instanceof ReadDiscreteInputsRequest discreteInputsRequest) {
+            return modbusClient.readDiscreteInputs(unitId, discreteInputsRequest).inputs();
+        }
+        else if (request instanceof ReadHoldingRegistersRequest holdingRegistersRequest) {
+            return modbusClient.readHoldingRegisters(unitId, holdingRegistersRequest).registers();
+        }
+        else if (request instanceof ReadInputRegistersRequest inputRegistersRequest) {
+            return modbusClient.readInputRegisters(unitId, inputRegistersRequest).registers();
+        }
+        else {
+            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
+        }
+    }
+
+
+    private void write(ModbusRequestPdu request) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
+        // Java 24 offers an enhanced switch for this case
+        // We use async operations as we do not use the results.
+        if (request instanceof WriteMultipleCoilsRequest req) {
+            modbusClient.writeMultipleCoilsAsync(unitId, req);
+        }
+        else if (request instanceof WriteSingleCoilRequest req) {
+            modbusClient.writeSingleCoilAsync(unitId, req);
+        }
+        else if (request instanceof WriteMultipleRegistersRequest req) {
+            modbusClient.writeMultipleRegistersAsync(unitId, req);
+        }
+        else if (request instanceof WriteSingleRegisterRequest req) {
+            modbusClient.writeSingleRegisterAsync(unitId, req);
+        }
+        else {
+            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
+        }
+    }
+
+
+    /**
+     * Creates an implementation-specific read modbus write request given the configuration variables.
+     *
+     * @return The implementation-specific modbus read request
+     */
+    protected ModbusRequestPdu createReadRequest() {
+        int address = config.getAddress();
+        int quantity = config.getQuantity();
+
+        return switch (config.getDataType()) {
+            case COIL -> new ReadCoilsRequest(address, quantity);
+            case DISCRETE_INPUT -> new ReadDiscreteInputsRequest(address, quantity);
+            case HOLDING_REGISTER -> new ReadHoldingRegistersRequest(address, quantity);
+            case INPUT_REGISTER -> new ReadInputRegistersRequest(address, quantity);
+        };
+    }
+
+
+    /**
+     * Creates an implementation-specific write modbus write request given the bytes to write in conjunction with the
+     * configuration variables.
+     *
+     * @param rawBytesToWrite bytes to write to modbus server.
+     * @return The implementation-specific modbus write request
+     * @throws AssetConnectionException If the provider does not support write-operations.
+     */
+    protected ModbusRequestPdu createWriteRequest(byte[] rawBytesToWrite) throws AssetConnectionException {
+        int address = config.getAddress();
+        int quantity = config.getQuantity();
+
+        return switch (config.getDataType()) {
+            case COIL -> {
+                validateCoilQuantity(rawBytesToWrite);
+                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, quantity, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
+            }
+            case HOLDING_REGISTER -> {
+                validateHoldingRegisterQuantity(rawBytesToWrite);
+
+                if (quantity > 1) {
+                    yield new WriteMultipleRegistersRequest(address, quantity, rawBytesToWrite);
+                }
+                else {
+                    yield new WriteSingleRegisterRequest(address, ByteBuffer.wrap(ByteArrayHelper.pad(rawBytesToWrite, BYTES_IN_INT)).order(ByteOrder.BIG_ENDIAN).getInt());
+                }
+            }
+            case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
+        };
+    }
+
+
+    private void validateCoilQuantity(byte[] bytesToWrite) throws AssetConnectionException {
+        int coilsToWrite = ByteArrayHelper.mostSignificantBitIndex(bytesToWrite);
+        if (config.getQuantity() < coilsToWrite) {
+            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, COIL, config.getQuantity(), coilsToWrite));
+        }
+    }
+
+
+    private void validateHoldingRegisterQuantity(byte[] bytesToWrite) throws AssetConnectionException {
+        int registersToWrite = (int) Math.ceil(bytesToWrite.length * 0.5);
+        if (config.getQuantity() < registersToWrite) {
+            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, HOLDING_REGISTER, config.getQuantity(), registersToWrite));
+        }
     }
 
 
@@ -104,190 +307,4 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         return datatype;
     }
 
-
-    @Override
-    public AssetProviderConfig<?> asConfig() {
-        return config;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), serviceContext, modbusClient, reference, config);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof ModbusValueProvider modbusValueProvider)) {
-            return false;
-        }
-        return super.equals(obj)
-                && Objects.equals(serviceContext, modbusValueProvider.serviceContext)
-                && Objects.equals(modbusClient, modbusValueProvider.modbusClient)
-                && Objects.equals(reference, modbusValueProvider.reference)
-                && config.sameAs(modbusValueProvider.asConfig());
-    }
-
-
-    /**
-     * Write a byte array to a specified modbus server address.
-     *
-     * @param bytesToWrite The bytes to write.
-     * @throws AssetConnectionException If writing to modbus server fails.
-     */
-    protected void doWrite(byte[] bytesToWrite) throws AssetConnectionException {
-        try {
-            write(bytesToWrite);
-        }
-        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
-            throw new AssetConnectionException(e);
-        }
-    }
-
-
-    private void write(byte[] bytesToWrite) throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException, AssetConnectionException {
-        // TODO Might be relaxed to >. Throwing this guard away is also possible (but unsafe)
-        // TODO another thing: quantity != bytes.length. Registers have 2 bytes each, so qty = bytes.length * 2
-        ModbusRequestPdu request = createWriteRequest(bytesToWrite);
-
-        // Java 24 offers an enhanced switch for this case
-        if (request instanceof WriteMultipleCoilsRequest req) {
-            modbusClient.writeMultipleCoils(unitId, req);
-        }
-        else if (request instanceof WriteSingleCoilRequest req) {
-            modbusClient.writeSingleCoil(unitId, req);
-        }
-        else if (request instanceof WriteMultipleRegistersRequest req) {
-            modbusClient.writeMultipleRegisters(unitId, req);
-        }
-        else if (request instanceof WriteSingleRegisterRequest req) {
-            modbusClient.writeSingleRegister(unitId, req);
-        }
-        else {
-            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
-        }
-    }
-
-
-    /**
-     * Convert raw bytes read from modbus servers to AAS data.
-     *
-     * @param rawBytes The bytes to convert.
-     * @return AAS TypedValue data
-     * @throws AssetConnectionException If conversion of data fails due to type constraints.
-     */
-    protected TypedValue<?> convert(byte[] rawBytes) throws AssetConnectionException {
-        return AasToModbusConversionHelper.convert(rawBytes, datatype);
-    }
-
-
-    /**
-     * Convert AAS data to raw bytes read from modbus servers.
-     *
-     * @param value AAS TypedValue data
-     * @return The bytes to write.
-     * @throws AssetConnectionException If conversion of data fails due to type constraints.
-     */
-    protected byte[] convert(DataElementValue value) throws AssetConnectionException {
-        return AasToModbusConversionHelper.convert(value);
-    }
-
-
-    /**
-     * Read a byte array from a specified modbus server address.
-     *
-     * @return The read bytes.
-     * @throws AssetConnectionException If writing to modbus server fails.
-     */
-    protected byte[] doRead() throws AssetConnectionException {
-        try {
-            return read();
-        }
-        catch (ModbusExecutionException | ModbusTimeoutException | ModbusResponseException e) {
-            throw new AssetConnectionException(e);
-        }
-    }
-
-
-    private byte[] read() throws ModbusExecutionException, ModbusTimeoutException, ModbusResponseException {
-        ModbusRequestPdu request = createReadRequest();
-
-        if (request instanceof ReadCoilsRequest req) {
-            return modbusClient.readCoils(unitId, req).coils();
-        }
-        else if (request instanceof ReadDiscreteInputsRequest req) {
-            return modbusClient.readDiscreteInputs(unitId, req).inputs();
-        }
-        else if (request instanceof ReadHoldingRegistersRequest req) {
-            return modbusClient.readHoldingRegisters(unitId, req).registers();
-        }
-        else if (request instanceof ReadInputRegistersRequest req) {
-            return modbusClient.readInputRegisters(unitId, req).registers();
-        }
-        else {
-            throw new UnsupportedOperationException(String.format("Request type unknown: %s", request.getClass()));
-        }
-    }
-
-
-    private ModbusRequestPdu createReadRequest() {
-        int address = config.getAddress();
-        int quantity = config.getQuantity();
-
-        return switch (config.getDataType()) {
-            case COIL -> new ReadCoilsRequest(address, quantity);
-            case DISCRETE_INPUT -> new ReadDiscreteInputsRequest(address, quantity);
-            case HOLDING_REGISTER -> new ReadHoldingRegistersRequest(address, quantity);
-            case INPUT_REGISTER -> new ReadInputRegistersRequest(address, quantity);
-        };
-    }
-
-
-    private ModbusRequestPdu createWriteRequest(byte[] rawBytesToWrite) throws AssetConnectionException {
-        int address = config.getAddress();
-        int quantity = config.getQuantity();
-
-        validateQuantity(rawBytesToWrite);
-
-        return switch (config.getDataType()) {
-            case COIL -> quantity > 1 ? new WriteMultipleCoilsRequest(address, quantity, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
-            case HOLDING_REGISTER -> quantity > 1 ? new WriteMultipleRegistersRequest(address, quantity, rawBytesToWrite)
-                    : new WriteSingleRegisterRequest(address,
-                            ByteBuffer.wrap(rawBytesToWrite).getShort());
-            case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
-        };
-    }
-
-
-    private void validateQuantity(byte[] bytesToWrite) throws AssetConnectionException {
-        if (config.getDataType() == COIL) {
-            int bitsWrittenTotal = 0;
-            for (byte b: bytesToWrite) {
-                bitsWrittenTotal += getBitsWritten(b);
-
-            }
-            if (bitsWrittenTotal > config.getQuantity()) {
-                throw new AssetConnectionException(
-                        String.format("Attempting to write more bits to COIL than defined quantity (quantity: %d, bits to write: %d)", config.getQuantity(), bitsWrittenTotal));
-            }
-        }
-        else if (config.getQuantity() < (int) Math.ceil(bytesToWrite.length * 0.5)) {
-            throw new AssetConnectionException(
-                    String.format("Mismatched quantity and actual values to write (quantity: %d, actual values to write: %d)", config.getQuantity(),
-                            (int) Math.ceil(bytesToWrite.length * 0.5)));
-        }
-    }
-
-
-    private int getBitsWritten(byte b) {
-        int x = Byte.toUnsignedInt(b);
-        return 32 - Integer.numberOfLeadingZeros(x);
-    }
 }

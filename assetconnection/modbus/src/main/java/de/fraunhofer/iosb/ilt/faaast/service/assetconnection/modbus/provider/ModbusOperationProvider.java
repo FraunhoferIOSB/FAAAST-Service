@@ -24,13 +24,22 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * Modbus asset connection operation provider TODO functionality.
+ * Modbus asset connection operation provider
+ *
+ * <p>
+ * My idea of what an operation in modbus-land <i><b>could be</b></i>:
+ * <ol>
+ * <li>Set the value of a writable modbus server address to given input/inoutput parameter values</li>
+ * <li>Wait for {@code timeout} seconds</li>
+ * <li>Read inoutput parameter address and optionally output parameter addresses.</li>
+ * </ol>
  */
 public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperationProviderConfig> implements AssetOperationProvider<ModbusOperationProviderConfig> {
 
     public ModbusOperationProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusOperationProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, modbusClient, reference, unitId, config);
+        super(serviceContext, reference, modbusClient, unitId, config);
+        throw new AssetConnectionException("Operations are not supported for modbus asset connections");
     }
 
 
@@ -41,7 +50,7 @@ public class ModbusOperationProvider extends AbstractModbusProvider<ModbusOperat
 
 
     @Override
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        return AssetOperationProvider.super.invoke(input, inoutput);
+    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) {
+        return null;
     }
 }

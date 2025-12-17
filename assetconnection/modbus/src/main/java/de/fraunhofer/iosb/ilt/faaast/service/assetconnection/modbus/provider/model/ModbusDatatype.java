@@ -19,19 +19,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.mo
  */
 public enum ModbusDatatype {
     /**
-     * Single bit, Read-Write
+     * Single bit, read-write.
      */
     COIL,
     /**
-     * Single bit, Read-Only
+     * Single bit, read-only.
      */
     DISCRETE_INPUT,
     /**
-     * 16-bit word, Read-Write
+     * 16-bit word, read-write.
      */
     HOLDING_REGISTER,
     /**
-     * 16-bit word, Read-Only
+     * 16-bit word, read-only.
      */
     INPUT_REGISTER
 }

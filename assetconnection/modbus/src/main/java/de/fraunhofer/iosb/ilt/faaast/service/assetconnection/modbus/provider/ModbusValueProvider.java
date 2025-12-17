@@ -15,34 +15,44 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
 import com.digitalpetri.modbus.client.ModbusClient;
+import com.digitalpetri.modbus.pdu.ModbusRequestPdu;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
- * ValueProvider for Modbus.
+ * ValueProvider for Modbus. Supports reading from COILs, DISCRETE_INPUTs, INPUT_REGISTERs and HOLDING_REGISTERs and
+ * writing to COILS and HOLDING_REGISTERS.
  */
 public class ModbusValueProvider extends AbstractModbusProvider<ModbusValueProviderConfig> implements AssetValueProvider {
 
     public ModbusValueProvider(ServiceContext serviceContext, Reference reference, ModbusClient modbusClient, int unitId, ModbusValueProviderConfig config)
             throws AssetConnectionException {
-        super(serviceContext, modbusClient, reference, unitId, config);
+        super(serviceContext, reference, modbusClient, unitId, config);
     }
 
 
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
-        return new PropertyValue(convert(doRead()));
+        ModbusRequestPdu request = createReadRequest();
+
+        byte[] responseBytes = doRead(request);
+        TypedValue<?> responseAas = convert(responseBytes);
+
+        return new PropertyValue(responseAas);
     }
 
 
     @Override
     public void setValue(DataElementValue value) throws AssetConnectionException {
-        doWrite(convert(value));
+        byte[] bytesToWrite = convert(value);
+        ModbusRequestPdu request = createWriteRequest(bytesToWrite);
+        doWrite(request);
     }
 }
