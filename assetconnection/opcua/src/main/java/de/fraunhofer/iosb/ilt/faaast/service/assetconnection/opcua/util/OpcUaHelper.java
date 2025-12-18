@@ -47,7 +47,6 @@ import org.eclipse.milo.opcua.stack.core.UaServiceFaultException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
-import org.eclipse.milo.opcua.stack.core.security.TrustListManager;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
@@ -77,8 +76,6 @@ public class OpcUaHelper {
             TransportProfile.WSS_UASC_UABINARY);
     private static final String REGEX_IP_V4 = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$";
     private static final String REGEX_IP_V6 = "^[0-9a-fA-F:]+$";
-
-    private static TrustListManager clientTrustListManager;
 
     private OpcUaHelper() {}
 
@@ -410,9 +407,9 @@ public class OpcUaHelper {
 
         DefaultClientCertificateValidator certificateValidator;
         try {
-            clientTrustListManager = FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir()));
             Files.createDirectories(config.getSecurityBaseDir());
-            certificateValidator = new DefaultClientCertificateValidator(clientTrustListManager, new MemoryCertificateQuarantine());
+            certificateValidator = new DefaultClientCertificateValidator(FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir())),
+                    new MemoryCertificateQuarantine());
         }
         catch (IOException e) {
             throw new ConfigurationInitializationException("unable to initialize OPC UA client security", e);
