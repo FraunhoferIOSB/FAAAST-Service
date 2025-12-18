@@ -67,7 +67,7 @@
         <aas4j.version>1.0.5</aas4j.version>
         <awaitility.version>4.3.0</awaitility.version>
         <bouncycastle.version>1.83</bouncycastle.version>
-        <checkstyle.version>12.2.0</checkstyle.version>
+        <checkstyle.version>12.3.0</checkstyle.version>
         <classgraph.version>4.8.184</classgraph.version>
         <commons.codec.version>1.20.0</commons.codec.version>
         <commons.compress.version>1.28.0</commons.compress.version>
@@ -76,7 +76,7 @@
         <commons.lang3.version>3.20.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <de.flapdoodle.embed.version>4.21.0</de.flapdoodle.embed.version>
+        <de.flapdoodle.embed.version>4.22.0</de.flapdoodle.embed.version>
         <eclipse.jdt.version>4.32</eclipse.jdt.version>
         <equalsverifier.version>4.2.5</equalsverifier.version>
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
@@ -96,7 +96,7 @@
         <jsonassert.version>1.5.3</jsonassert.version>
         <jsonpath.version>2.10.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.21</logback.version>
+        <logback.version>1.5.22</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -126,9 +126,9 @@
         <mockito.version>5.21.0</mockito.version>
         <mongodb.version>5.6.2</mongodb.version>
         <moquette.version>0.18.3</moquette.version>
-        <netty.version>4.2.7.Final</netty.version>
+        <netty.version>4.2.9.Final</netty.version>
         <org.apache.httpcomponents.client5.version>5.5.1</org.apache.httpcomponents.client5.version>
-        <org.apache.log4j-to-slf4j>2.25.2</org.apache.log4j-to-slf4j>
+        <org.apache.log4j-to-slf4j>2.25.3</org.apache.log4j-to-slf4j>
         <paho.version>1.2.5</paho.version>
         <parsson.version>1.1.7</parsson.version>
         <picocli.version>4.7.7</picocli.version>
