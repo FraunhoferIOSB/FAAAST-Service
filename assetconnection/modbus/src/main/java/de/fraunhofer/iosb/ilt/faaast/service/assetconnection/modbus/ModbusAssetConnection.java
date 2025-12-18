@@ -120,6 +120,12 @@ public class ModbusAssetConnection extends
 
 
     @Override
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+
+
+    @Override
     protected void doConnect() throws AssetConnectionException {
         if (client.isConnected()) {
             return;

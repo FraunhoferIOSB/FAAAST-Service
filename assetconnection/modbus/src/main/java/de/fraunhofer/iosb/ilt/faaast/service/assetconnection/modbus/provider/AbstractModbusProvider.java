@@ -45,8 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.math.BigInteger;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
@@ -57,7 +56,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 public abstract class AbstractModbusProvider<C extends AbstractModbusProviderConfig> implements AssetProvider {
 
     private static final int BYTES_IN_INT = 4;
-    private static final String WRITE_OVERFLOW_TEMPLATE = "Attempting to write more %ss than defined quantity (quantity: %d, COILs to write: %d)";
+    private static final String WRITE_OVERFLOW_TEMPLATE = "Attempting to write more %1$s than defined quantity (quantity: %2$d, %1$s to write: %3$d)";
 
     protected final Reference reference;
     private final C config;
@@ -241,7 +240,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         return switch (config.getDataType()) {
             case COIL -> {
                 validateCoilQuantity(rawBytesToWrite);
-                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, quantity, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
+                yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, rawBytesToWrite.length, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
             }
             case HOLDING_REGISTER -> {
                 validateHoldingRegisterQuantity(rawBytesToWrite);
@@ -250,7 +249,7 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
                     yield new WriteMultipleRegistersRequest(address, quantity, rawBytesToWrite);
                 }
                 else {
-                    yield new WriteSingleRegisterRequest(address, ByteBuffer.wrap(ByteArrayHelper.pad(rawBytesToWrite, BYTES_IN_INT)).order(ByteOrder.BIG_ENDIAN).getInt());
+                    yield new WriteSingleRegisterRequest(address, new BigInteger(rawBytesToWrite).intValue());
                 }
             }
             case DISCRETE_INPUT, INPUT_REGISTER -> throw new AssetConnectionException(String.format("Unsupported operation WRITE on %s", config.getDataType()));
@@ -267,9 +266,19 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
 
 
     private void validateHoldingRegisterQuantity(byte[] bytesToWrite) throws AssetConnectionException {
-        int registersToWrite = (int) Math.ceil(bytesToWrite.length * 0.5);
-        if (config.getQuantity() < registersToWrite) {
-            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, HOLDING_REGISTER, config.getQuantity(), registersToWrite));
+        // If zero-padded, get real bytes to write
+        int realNumberOfBytesToWrite = bytesToWrite.length;
+        for (byte b: bytesToWrite) {
+            if (b != 0x0 && b != -0x1) {
+                break;
+            }
+            realNumberOfBytesToWrite--;
+        }
+
+        // 2 bytes per register
+        realNumberOfBytesToWrite = (int) Math.ceil(realNumberOfBytesToWrite * 0.5);
+        if (config.getQuantity() < realNumberOfBytesToWrite) {
+            throw new AssetConnectionException(String.format(WRITE_OVERFLOW_TEMPLATE, HOLDING_REGISTER, config.getQuantity(), realNumberOfBytesToWrite));
         }
     }
 

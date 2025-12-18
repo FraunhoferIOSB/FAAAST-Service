@@ -30,7 +30,7 @@ public class ByteArrayHelper {
      * @return padded array.
      */
     public static byte[] pad(byte[] array, int padding) {
-        byte[] padded = new byte[padding];
+        byte[] padded = new byte[array.length + padding];
 
         System.arraycopy(array, 0, padded, padded.length - array.length, array.length);
 
