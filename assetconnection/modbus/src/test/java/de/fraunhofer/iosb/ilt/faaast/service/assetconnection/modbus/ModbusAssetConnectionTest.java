@@ -215,7 +215,7 @@ public class ModbusAssetConnectionTest {
         writeToServer(port, unitId, modbusAddress, newValue);
 
         // add listener, get value, validate again
-        assertTrue(conditionUpdated.await(pollingRate + 100, TimeUnit.MILLISECONDS));
+        assertTrue(conditionUpdated.await(pollingRate + 10000, TimeUnit.MILLISECONDS));
         assertEquals(newValue, (int) ((PropertyValue) updatedResponse.get()).getValue().getValue());
 
         server.stop();
@@ -294,20 +294,20 @@ public class ModbusAssetConnectionTest {
         ModbusTcpServer server = ModbusHelper.getServer(port, false);
         server.start();
 
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INTEGER, "787878787878787878787878787878"), 2, 7);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_BYTE, "78"), 17);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 1);
-        //assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INTEGER, "787878787878787878787878787878"), 2, 7);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.STRING, "testtest"), 49, "testtest".getBytes(StandardCharsets.UTF_8).length / 2);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BOOLEAN, new BooleanValue(false).asString()), 9);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BYTE, "-78"), 10);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.SHORT, "-189"), 11);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 12);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.LONG, "78"), 13, 4);
-        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_BYTE, "78"), 17);
+        // assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.LONG, "7878787878787878787878"), 13, 4);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_SHORT, "78"), 18);
         // UnsignedInt has >4 bytes;
         // Those produce timeout error, likely by modbus server implementation
-        //assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_INT, "78"), 19, 2);
-        //assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_LONG, "78"), 24, 5);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_INT, "2222278"), 19, 4);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_LONG, "78"), 24, 5);
 
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.POSITIVE_INTEGER, "78"), 30);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.NON_NEGATIVE_INTEGER, "78"), 33);

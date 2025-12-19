@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.COIL;
+import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.DISCRETE_INPUT;
 import static de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype.HOLDING_REGISTER;
 
 import com.digitalpetri.modbus.client.ModbusClient;
@@ -34,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.AbstractModbusProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.AasToModbusConversionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ByteArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -143,7 +145,13 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
      * @throws AssetConnectionException If conversion of data fails due to type constraints.
      */
     protected byte[] convert(DataElementValue value) throws AssetConnectionException {
-        return AasToModbusConversionHelper.convert(value);
+        ModbusDatatype dtype = config.getDataType();
+        if (dtype == COIL || dtype == DISCRETE_INPUT) {
+            return AasToModbusConversionHelper.convert(value, 1);
+        }
+        else {
+            return AasToModbusConversionHelper.convert(value, 2);
+        }
     }
 
 
@@ -237,12 +245,19 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
         int address = config.getAddress();
         int quantity = config.getQuantity();
 
+        rawBytesToWrite = ByteArrayHelper.removePadding(rawBytesToWrite);
+
         return switch (config.getDataType()) {
             case COIL -> {
                 validateCoilQuantity(rawBytesToWrite);
                 yield (quantity > 1) ? new WriteMultipleCoilsRequest(address, rawBytesToWrite.length, rawBytesToWrite) : new WriteSingleCoilRequest(address, rawBytesToWrite[0]);
             }
             case HOLDING_REGISTER -> {
+                // Use the configured addresses in full
+                if (quantity * 2 > rawBytesToWrite.length) {
+                    rawBytesToWrite = ByteArrayHelper.pad(rawBytesToWrite, quantity * 2 - rawBytesToWrite.length);
+                }
+
                 validateHoldingRegisterQuantity(rawBytesToWrite);
 
                 if (quantity > 1) {
@@ -268,12 +283,6 @@ public abstract class AbstractModbusProvider<C extends AbstractModbusProviderCon
     private void validateHoldingRegisterQuantity(byte[] bytesToWrite) throws AssetConnectionException {
         // If zero-padded, get real bytes to write
         int realNumberOfBytesToWrite = bytesToWrite.length;
-        for (byte b: bytesToWrite) {
-            if (b != 0x0 && b != -0x1) {
-                break;
-            }
-            realNumberOfBytesToWrite--;
-        }
 
         // 2 bytes per register
         realNumberOfBytesToWrite = (int) Math.ceil(realNumberOfBytesToWrite * 0.5);

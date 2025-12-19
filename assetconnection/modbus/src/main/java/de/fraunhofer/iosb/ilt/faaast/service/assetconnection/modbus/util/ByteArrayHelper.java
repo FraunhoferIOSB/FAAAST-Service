@@ -30,11 +30,45 @@ public class ByteArrayHelper {
      * @return padded array.
      */
     public static byte[] pad(byte[] array, int padding) {
+        if (padding < 0) {
+            throw new IllegalArgumentException(String.format("Tried to pad %d bytes", padding));
+        }
         byte[] padded = new byte[array.length + padding];
 
         System.arraycopy(array, 0, padded, padded.length - array.length, array.length);
 
         return padded;
+    }
+
+
+    /**
+     * Removes the padding of a byte array such that it does not contain zero-bytes before the actual non-zero data starts.
+     *
+     * <p>
+     * NOTE: Assuming BigEndian. MSB is in the front of the array.
+     *
+     * @param array array to remove padding from
+     * @return unpadded array.
+     */
+    public static byte[] removePadding(byte[] array) {
+        int unpaddedLength = array.length;
+        for (byte b: array) {
+            if (b != 0x0) {
+                break;
+            }
+            unpaddedLength--;
+
+        }
+        // Don't allow empty arrays. Zero is a number too
+        if (unpaddedLength == 0) {
+            unpaddedLength++;
+        }
+
+        byte[] notPadded = new byte[unpaddedLength];
+
+        System.arraycopy(array, array.length - unpaddedLength, notPadded, 0, unpaddedLength);
+
+        return notPadded;
     }
 
 

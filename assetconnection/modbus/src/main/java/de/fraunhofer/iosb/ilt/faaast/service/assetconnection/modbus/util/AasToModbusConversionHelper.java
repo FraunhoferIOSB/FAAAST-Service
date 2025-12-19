@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.BYTE;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.INT;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.LONG;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
@@ -29,8 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Base64BinaryV
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.BooleanValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ByteValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.FloatValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.HexBinaryValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
@@ -69,9 +65,10 @@ public class AasToModbusConversionHelper {
      * Convert an AAS DataElementValue to a byte array.
      *
      * @param dataElementValue Value to convert.
+     * @param minBytes The resulting byte array shall contain at least minBytes bytes.
      * @return converted data.
      */
-    public static byte[] convert(DataElementValue dataElementValue) throws AssetConnectionException {
+    public static byte[] convert(DataElementValue dataElementValue, int minBytes) throws AssetConnectionException {
         if (dataElementValue instanceof BlobValue blobValue) {
             return blobValue.getValue();
         }
@@ -79,7 +76,7 @@ public class AasToModbusConversionHelper {
             return file.getValue().getBytes(StandardCharsets.UTF_8);
         }
         else if (dataElementValue instanceof PropertyValue propertyValue) {
-            return convert(propertyValue.getValue());
+            return convert(propertyValue.getValue(), minBytes);
         }
         else {
             throw new UnsupportedOperationException(
@@ -88,33 +85,32 @@ public class AasToModbusConversionHelper {
     }
 
 
-    private static byte[] convert(TypedValue value) throws AssetConnectionException {
+    private static byte[] convert(TypedValue value, int minBytes) throws AssetConnectionException {
 
         return switch (value.getDataType()) {
-            case STRING -> value.asString().getBytes(StandardCharsets.UTF_8);
             case BOOLEAN -> toByteArray(((BooleanValue) value).getValue());
-            case DECIMAL -> ((DecimalValue) value).getValue().toBigInteger().toByteArray();
-            case INTEGER -> ((IntegerValue) value).getValue().toByteArray();
-            // TODO double and float could be undefined: what would be the byte encoding? IEEE 754? BCD?
-            // TODO furthermore, how to convert bytes to double is also undefined
-            case DOUBLE -> toByteArray(Double.doubleToLongBits(((DoubleValue) value).getValue()));
-            case FLOAT -> toByteArray(Double.doubleToLongBits(((FloatValue) value).getValue().doubleValue()));
             case BYTE -> toByteArray(((ByteValue) value).getValue());
             case SHORT -> toByteArray(((ShortValue) value).getValue());
             case INT -> toByteArray(((IntValue) value).getValue());
             case LONG -> toByteArray(((LongValue) value).getValue());
-            case UNSIGNED_BYTE -> fromUnsigned(toByteArray(((UnsignedByteValue) value).getValue()));
-            case UNSIGNED_SHORT -> fromUnsigned(toByteArray(((UnsignedShortValue) value).getValue()));
-            case UNSIGNED_INT -> fromUnsigned(toByteArray(((UnsignedIntValue) value).getValue()));
-            case UNSIGNED_LONG -> fromUnsigned(toByteArray(((UnsignedLongValue) value).getValue()));
-            case POSITIVE_INTEGER -> ((PositiveIntegerValue) value).getValue().toByteArray();
-            case NON_NEGATIVE_INTEGER -> ((NonNegativeIntegerValue) value).getValue().toByteArray();
-            case NEGATIVE_INTEGER -> ((NegativeIntegerValue) value).getValue().toByteArray();
-            case NON_POSITIVE_INTEGER -> toByteArray(((NonPositiveIntegerValue) value).getValue().intValueExact());
+
+            case UNSIGNED_BYTE -> fromUnsigned(toByteArray(((UnsignedByteValue) value).getValue()), minBytes);
+            case UNSIGNED_SHORT -> fromUnsigned(toByteArray(((UnsignedShortValue) value).getValue()), minBytes);
+            case UNSIGNED_INT -> fromUnsigned(toByteArray(((UnsignedIntValue) value).getValue()), minBytes);
+            case UNSIGNED_LONG -> fromUnsigned(toByteArray(((UnsignedLongValue) value).getValue()), minBytes);
+
+            case INTEGER -> toByteArray(((IntegerValue) value).getValue(), minBytes);
+            case DECIMAL -> toByteArray(((DecimalValue) value).getValue().toBigInteger(), minBytes);
+            case POSITIVE_INTEGER -> toByteArray(((PositiveIntegerValue) value).getValue(), minBytes);
+            case NON_POSITIVE_INTEGER -> toByteArray(((NonPositiveIntegerValue) value).getValue(), minBytes);
+            case NEGATIVE_INTEGER -> toByteArray(((NegativeIntegerValue) value).getValue(), minBytes);
+            case NON_NEGATIVE_INTEGER -> toByteArray(((NonNegativeIntegerValue) value).getValue(), minBytes);
+
+            case STRING -> value.asString().getBytes(StandardCharsets.UTF_8);
             case HEX_BINARY -> ((HexBinaryValue) value).getValue();
             case BASE64_BINARY -> ((Base64BinaryValue) value).getValue();
             case ANY_URI -> ((AnyURIValue) value).getValue().getBytes(StandardCharsets.UTF_8);
-            // LANG_STRING not supported (out of scope of modbus protocol)
+            // case LANG_STRING, DOUBLE, FLOAT
             default -> throw new AssetConnectionException(String.format("Data type currently not supported for writing to modbus server: %s", value.getDataType().getName()));
         };
     }
@@ -130,98 +126,42 @@ public class AasToModbusConversionHelper {
     public static TypedValue<?> convert(byte[] rawBytes, Datatype datatype) throws AssetConnectionException {
 
         return switch (datatype) {
+            case BOOLEAN -> new BooleanValue(toBigInteger(rawBytes, 1).signum() != 0);
+            case BYTE -> new ByteValue(toBigInteger(rawBytes, 1).byteValueExact());
+            case SHORT -> new ShortValue(toBigInteger(rawBytes, 2).shortValueExact());
+            case INT -> new IntValue(toBigInteger(rawBytes, 4).intValueExact());
+            case LONG -> new LongValue(toBigInteger(rawBytes, 8).longValueExact());
+
+            case UNSIGNED_BYTE -> new UnsignedByteValue(toUnsignedBigInteger(rawBytes, 1).shortValueExact());
+            case UNSIGNED_SHORT -> new UnsignedShortValue(toUnsignedBigInteger(rawBytes, 2).intValueExact());
+            case UNSIGNED_INT -> new UnsignedIntValue(toUnsignedBigInteger(rawBytes, 4).longValueExact());
+            case UNSIGNED_LONG -> new UnsignedLongValue(toUnsignedBigInteger(rawBytes, 8));
+
+            case INTEGER -> new IntegerValue(new BigInteger(rawBytes));
+            case DECIMAL -> new DecimalValue(new BigDecimal(new BigInteger(rawBytes)));
+            case POSITIVE_INTEGER -> new PositiveIntegerValue(new BigInteger(rawBytes));
+            case NON_POSITIVE_INTEGER -> new NonPositiveIntegerValue(new BigInteger(rawBytes));
+            case NEGATIVE_INTEGER -> new NegativeIntegerValue(new BigInteger(rawBytes));
+            case NON_NEGATIVE_INTEGER -> new NonNegativeIntegerValue(new BigInteger(rawBytes));
+
             case STRING -> new StringValue(new String(rawBytes, StandardCharsets.UTF_8));
-            case BOOLEAN -> {
-                for (byte b: rawBytes) {
-                    if (b != 0x0) {
-                        yield new BooleanValue(true);
-                    }
-                }
-                yield new BooleanValue(false);
-            }
-            case DECIMAL -> new DecimalValue(new BigDecimal(toBigInteger(rawBytes)));
-            case INTEGER -> new IntegerValue(toBigInteger(rawBytes));
-            // TODO double and float could be undefined: what would be the byte encoding? IEEE 754?
-            case DOUBLE -> new DoubleValue(ByteBuffer.wrap(rawBytes).getDouble());
-            case FLOAT -> new FloatValue(ByteBuffer.wrap(rawBytes).getFloat());
-            case BYTE -> {
-                if (amountNonzero(rawBytes) > 1 && new BigInteger(rawBytes).signum() >= 0) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new ByteValue(rawBytes[rawBytes.length - 1]);
-            }
-            case SHORT -> {
-                if (amountNonzero(rawBytes) > 2) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new ShortValue(toBigInteger(rawBytes).shortValueExact());
-            }
-            case INT -> {
-                if (amountNonzero(rawBytes) > 4) {
-                    doThrow(TOO_MANY_BYTES_READ, INT, rawBytes.length);
-                }
-                yield new IntValue(toBigInteger(rawBytes).intValueExact());
-            }
-            case LONG -> {
-                if (amountNonzero(rawBytes) > 8) {
-                    doThrow(TOO_MANY_BYTES_READ, LONG, rawBytes.length);
-                }
-                yield new LongValue(toBigInteger(rawBytes).longValueExact());
-            }
-            case UNSIGNED_BYTE -> {
-                if (amountNonzero(rawBytes) > 2) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new UnsignedByteValue(toUnsignedBigInteger(rawBytes).shortValueExact());
-            }
-            case UNSIGNED_SHORT -> {
-                if (amountNonzero(rawBytes) > 3) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new UnsignedShortValue(toUnsignedBigInteger(rawBytes).intValueExact());
-            }
-            case UNSIGNED_INT -> {
-                if (amountNonzero(rawBytes) > 5) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new UnsignedIntValue(toUnsignedBigInteger(rawBytes).longValueExact());
-            }
-            case UNSIGNED_LONG -> {
-                if (amountNonzero(rawBytes) > 9) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new UnsignedLongValue(toUnsignedBigInteger(rawBytes));
-            }
-            case POSITIVE_INTEGER -> {
-                if (amountNonzero(rawBytes) > 4) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new PositiveIntegerValue(toBigInteger(rawBytes));
-            }
-            case NON_NEGATIVE_INTEGER -> {
-                if (amountNonzero(rawBytes) > 4) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new NonNegativeIntegerValue(toBigInteger(rawBytes));
-            }
-            case NEGATIVE_INTEGER -> {
-                if (amountNonzero(rawBytes) > 4) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new NegativeIntegerValue(toBigInteger(rawBytes));
-            }
-            case NON_POSITIVE_INTEGER -> {
-                if (amountNonzero(rawBytes) > 4) {
-                    doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
-                }
-                yield new NonPositiveIntegerValue(toBigInteger(rawBytes));
-            }
             case HEX_BINARY -> new HexBinaryValue(rawBytes);
             case BASE64_BINARY -> new Base64BinaryValue(rawBytes);
             case ANY_URI -> new AnyURIValue(new String(rawBytes, StandardCharsets.UTF_8));
-            // LANG_STRING not supported (out of scope of modbus protocol)
-            default -> throw new AssetConnectionException(String.format("Data type currently not supported for writing to modbus server: %s", datatype.getName()));
+            // case LANG_STRING, DOUBLE, FLOAT
+            default -> throw new AssetConnectionException("floating point numbers not supported by modbus asset connection");
         };
+    }
+
+
+    private static byte[] toByteArray(BigInteger big, int minLength) {
+        byte[] base = big.toByteArray();
+        byte[] returnArray = new byte[Math.max(base.length, minLength)];
+        if (big.signum() == -1) {
+            Arrays.fill(returnArray, (byte) 0xFF);
+        }
+        System.arraycopy(base, 0, returnArray, returnArray.length - base.length, base.length);
+        return returnArray;
     }
 
 
@@ -239,26 +179,62 @@ public class AasToModbusConversionHelper {
     }
 
 
+    private static int amountNonzeroNonnegative(byte[] array) {
+        int nonzero = array.length;
+        boolean zeroPaddingOver = false;
+        for (byte b: array) {
+            if (!zeroPaddingOver && b == (byte) 0x0) {
+                nonzero--;
+                continue;
+            }
+            zeroPaddingOver = true;
+
+            if (b == (byte) 0xFF) {
+                nonzero--;
+            }
+            else {
+                break;
+            }
+        }
+        return nonzero;
+    }
+
+
     private static void doThrow(String reason, Datatype datatype, int totalBytes) throws AssetConnectionException {
         throw new AssetConnectionException(String.format(reason, datatype, totalBytes));
     }
 
 
-    private static BigInteger toUnsignedBigInteger(byte[] rawBytes) {
+    private static BigInteger toUnsignedBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
+        if (amountNonzero(rawBytes) > maxBytes) {
+            doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
+        }
         return new BigInteger(1, rawBytes);
     }
 
 
-    private static BigInteger toBigInteger(byte[] rawBytes) {
-        return new BigInteger(rawBytes);
+    private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
+        if (amountNonzeroNonnegative(rawBytes) > maxBytes) {
+            doThrow(TOO_MANY_BYTES_READ, BYTE, amountNonzero(rawBytes));
+        }
+        return new BigInteger(ByteArrayHelper.removePadding(rawBytes));
     }
 
 
-    private static byte[] fromUnsigned(byte[] rawBytes) {
-        byte[] cutoff = new byte[rawBytes.length - 1];
+    private static byte[] fromUnsigned(byte[] rawBytes, int minLength) {
+        // Unsigned datatypes are represented as the next bigger datatype in AAS-land
+        // e.g., unsigned short --> int, the first half of the byte array is always zero.
+        // Modbus is not concerned with signed/unsigned data, so we simply store the bare data.
+        // When converting read unsigned byte[]-data into AAS data again, zero-padding is applied again.
+        int cutoffLength = Math.min(Math.max(1, (int) (rawBytes.length / 2.0)), rawBytes.length - minLength);
+
+        if (cutoffLength < 1) {
+            return rawBytes;
+        }
+        byte[] cutoff = new byte[rawBytes.length - cutoffLength];
 
         // big endian, so cut off first byte (most significant)
-        System.arraycopy(rawBytes, 1, cutoff, 0, rawBytes.length - 1);
+        System.arraycopy(rawBytes, cutoffLength, cutoff, 0, rawBytes.length - cutoffLength);
         return cutoff;
     }
 
