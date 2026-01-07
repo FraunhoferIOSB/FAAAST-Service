@@ -35,8 +35,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 
-public class ModbusHelper {
-    private ModbusHelper() {}
+public class ModbusTestHelper {
+    private ModbusTestHelper() {}
 
 
     public static ModbusTcpServer getServer(int port, boolean tls) throws GeneralSecurityException, IOException {

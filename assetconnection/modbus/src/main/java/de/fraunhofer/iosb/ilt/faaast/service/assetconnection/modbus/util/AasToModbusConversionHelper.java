@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.BYTE;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.UNSIGNED_BYTE;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
@@ -215,7 +216,7 @@ public class AasToModbusConversionHelper {
 
     private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
         if (amountNonzeroNonnegative(rawBytes) > maxBytes) {
-            doThrow(TOO_MANY_BYTES_READ, BYTE, amountNonzero(rawBytes));
+            doThrow(TOO_MANY_BYTES_READ, UNSIGNED_BYTE, amountNonzero(rawBytes));
         }
         return new BigInteger(ByteArrayHelper.removePadding(rawBytes));
     }

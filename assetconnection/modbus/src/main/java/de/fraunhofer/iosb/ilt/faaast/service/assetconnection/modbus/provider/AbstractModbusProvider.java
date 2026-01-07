@@ -57,7 +57,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
  */
 public abstract class AbstractModbusProvider<C extends AbstractModbusProviderConfig> implements AssetProvider {
 
-    private static final int BYTES_IN_INT = 4;
     private static final String WRITE_OVERFLOW_TEMPLATE = "Attempting to write more %1$s than defined quantity (quantity: %2$d, %1$s to write: %3$d)";
 
     protected final Reference reference;

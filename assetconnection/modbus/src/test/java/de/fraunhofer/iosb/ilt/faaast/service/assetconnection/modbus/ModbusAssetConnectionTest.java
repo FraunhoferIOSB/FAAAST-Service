@@ -21,7 +21,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import com.digitalpetri.modbus.client.ModbusTcpClient;
-import com.digitalpetri.modbus.pdu.ReadHoldingRegistersRequest;
 import com.digitalpetri.modbus.pdu.WriteMultipleRegistersRequest;
 import com.digitalpetri.modbus.pdu.WriteSingleRegisterRequest;
 import com.digitalpetri.modbus.server.ModbusTcpServer;
@@ -32,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.config.ModbusValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider.model.ModbusDatatype;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusTestHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CertificateConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
@@ -62,7 +61,7 @@ public class ModbusAssetConnectionTest {
     @Test
     public void testConnectNoTls() throws Exception {
         int port = PortHelper.findFreePort();
-        ModbusTcpServer server = ModbusHelper.getServer(port, false);
+        ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
 
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
 
@@ -98,9 +97,9 @@ public class ModbusAssetConnectionTest {
 
 
     @Test
-    public void testConnectYesTls() throws Exception {
+    public void testConnectWithTls() throws Exception {
         int port = PortHelper.findFreePort();
-        ModbusTcpServer server = ModbusHelper.getServer(port, true);
+        ModbusTcpServer server = ModbusTestHelper.getServer(port, true);
 
         Reference reference = ReferenceHelper.parseReference("(Property)[ID_SHORT]Temperature");
 
@@ -155,7 +154,7 @@ public class ModbusAssetConnectionTest {
 
         // create server, start server
         int port = PortHelper.findFreePort();
-        ModbusTcpServer server = ModbusHelper.getServer(port, false);
+        ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
 
         // set value at an address of the server
@@ -242,7 +241,7 @@ public class ModbusAssetConnectionTest {
 
         // create server, start server
         int port = PortHelper.findFreePort();
-        ModbusTcpServer server = ModbusHelper.getServer(port, false);
+        ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
 
         // valueProvider and subscriptionProvider
@@ -291,7 +290,7 @@ public class ModbusAssetConnectionTest {
     @Test
     public void testValueProvider() throws Exception {
         int port = PortHelper.findFreePort();
-        ModbusTcpServer server = ModbusHelper.getServer(port, false);
+        ModbusTcpServer server = ModbusTestHelper.getServer(port, false);
         server.start();
 
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INTEGER, "787878787878787878787878787878"), 2, 7);
@@ -302,10 +301,9 @@ public class ModbusAssetConnectionTest {
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.BYTE, "-78"), 10);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.SHORT, "-189"), 11);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.INT, "78"), 12);
-        // assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.LONG, "7878787878787878787878"), 13, 4);
+        assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.LONG, "7878787878787878787"), 13, 4);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_SHORT, "78"), 18);
         // UnsignedInt has >4 bytes;
-        // Those produce timeout error, likely by modbus server implementation
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_INT, "2222278"), 19, 4);
         assertWriteReadRegister(port, 1, PropertyValue.of(Datatype.UNSIGNED_LONG, "78"), 24, 5);
 
@@ -376,7 +374,7 @@ public class ModbusAssetConnectionTest {
 
 
     private void writeToServer(int port, int unitId, int address, int value) throws Exception {
-        ModbusTcpClient client = ModbusHelper.getClient(port);
+        ModbusTcpClient client = ModbusTestHelper.getClient(port);
         client.connect();
 
         client.writeSingleRegister(unitId, new WriteSingleRegisterRequest(address, value));
@@ -384,16 +382,9 @@ public class ModbusAssetConnectionTest {
 
 
     private void writeToServer(int port, int unitId, int address, byte[] value) throws Exception {
-        ModbusTcpClient client = ModbusHelper.getClient(port);
+        ModbusTcpClient client = ModbusTestHelper.getClient(port);
         client.connect();
         client.writeMultipleRegisters(unitId, new WriteMultipleRegistersRequest(address, value.length / 2, value));
-    }
-
-
-    private byte[] readFromServer(int port, int unitId, int address, int quantity) throws Exception {
-        ModbusTcpClient client = ModbusHelper.getClient(port);
-        client.connect();
-        return client.readHoldingRegisters(unitId, new ReadHoldingRegistersRequest(address, quantity)).registers();
     }
 
 
