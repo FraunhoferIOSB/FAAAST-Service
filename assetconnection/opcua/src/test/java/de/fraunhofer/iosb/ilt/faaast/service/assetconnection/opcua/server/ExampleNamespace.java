@@ -25,30 +25,25 @@ import java.util.UUID;
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.core.ValueRank;
+import org.eclipse.milo.opcua.sdk.server.ManagedNamespaceWithLifecycle;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
-import org.eclipse.milo.opcua.sdk.server.api.DataItem;
-import org.eclipse.milo.opcua.sdk.server.api.ManagedNamespaceWithLifecycle;
-import org.eclipse.milo.opcua.sdk.server.api.MonitoredItem;
-import org.eclipse.milo.opcua.sdk.server.model.nodes.variables.AnalogItemTypeNode;
+import org.eclipse.milo.opcua.sdk.server.items.DataItem;
+import org.eclipse.milo.opcua.sdk.server.items.MonitoredItem;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaFolderNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.server.nodes.UaVariableNode;
-import org.eclipse.milo.opcua.sdk.server.nodes.factories.NodeFactory;
 import org.eclipse.milo.opcua.sdk.server.util.SubscriptionModel;
-import org.eclipse.milo.opcua.stack.core.Identifiers;
-import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.NodeIds;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ByteString;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Matrix;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.QualifiedName;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.XmlElement;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
-import org.eclipse.milo.opcua.stack.core.types.structured.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
@@ -58,87 +53,87 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
     private static final Object[][] STATIC_SCALAR_NODES = new Object[][] {
             {
                     "Boolean",
-                    Identifiers.Boolean,
+                    NodeIds.Boolean,
                     new Variant(false)
             },
             {
                     "Byte",
-                    Identifiers.Byte,
+                    NodeIds.Byte,
                     new Variant(ubyte(0x00))
             },
             {
                     "SByte",
-                    Identifiers.SByte,
+                    NodeIds.SByte,
                     new Variant((byte) 0x00)
             },
             {
                     "Integer",
-                    Identifiers.Integer,
+                    NodeIds.Integer,
                     new Variant(32)
             },
             {
                     "Int16",
-                    Identifiers.Int16,
+                    NodeIds.Int16,
                     new Variant((short) 16)
             },
             {
                     "Int32",
-                    Identifiers.Int32,
+                    NodeIds.Int32,
                     new Variant(32)
             },
             {
                     "Int64",
-                    Identifiers.Int64,
+                    NodeIds.Int64,
                     new Variant(64L)
             },
             {
                     "UInteger",
-                    Identifiers.UInteger,
+                    NodeIds.UInteger,
                     new Variant(uint(32))
             },
             {
                     "UInt16",
-                    Identifiers.UInt16,
+                    NodeIds.UInt16,
                     new Variant(ushort(16))
             },
             {
                     "UInt32",
-                    Identifiers.UInt32,
+                    NodeIds.UInt32,
                     new Variant(uint(32))
             },
             {
                     "UInt64",
-                    Identifiers.UInt64,
+                    NodeIds.UInt64,
                     new Variant(ulong(64L))
             },
             {
                     "Float",
-                    Identifiers.Float,
+                    NodeIds.Float,
                     new Variant(3.14f)
             },
             {
                     "Double",
-                    Identifiers.Double,
+                    NodeIds.Double,
                     new Variant(3.14d)
             },
             {
                     "String",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("string value")
             },
             {
                     "DateTime",
-                    Identifiers.DateTime,
+                    NodeIds.DateTime,
                     new Variant(DateTime.now())
             },
             {
                     "Guid",
-                    Identifiers.Guid,
+                    NodeIds.Guid,
                     new Variant(UUID.randomUUID())
             },
             {
                     "ByteString",
-                    Identifiers.ByteString,
+                    NodeIds.ByteString,
                     new Variant(new ByteString(new byte[] {
                             0x01,
                             0x02,
@@ -148,82 +143,82 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
             },
             {
                     "XmlElement",
-                    Identifiers.XmlElement,
+                    NodeIds.XmlElement,
                     new Variant(new XmlElement("<a>hello</a>"))
             },
             {
                     "LocalizedText",
-                    Identifiers.LocalizedText,
+                    NodeIds.LocalizedText,
                     new Variant(LocalizedText.english("localized text"))
             },
             {
                     "QualifiedName",
-                    Identifiers.QualifiedName,
+                    NodeIds.QualifiedName,
                     new Variant(new QualifiedName(1234, "defg"))
             },
             {
                     "NodeId",
-                    Identifiers.NodeId,
+                    NodeIds.NodeId,
                     new Variant(new NodeId(1234, "abcd"))
             },
             {
                     "Variant",
-                    Identifiers.BaseDataType,
+                    NodeIds.BaseDataType,
                     new Variant(32)
             },
             {
                     "Duration",
-                    Identifiers.Duration,
+                    NodeIds.Duration,
                     new Variant(1.0)
             },
             {
                     "UtcTime",
-                    Identifiers.UtcTime,
+                    NodeIds.UtcTime,
                     new Variant(DateTime.now())
             },
             {
                     "DateString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("2000-01-01+12:05")
             },
             {
                     "TimeString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("14:23:00.527634+03:00")
             },
             {
                     "DateTimeString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("2000-01-01T14:23:00.66372+14:00")
             },
             {
                     "YearString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("2000+03:00")
             },
             {
                     "MonthString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("--02+03:00")
             },
             {
                     "DayString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("---04+03:00")
             },
             {
                     "YearMonthString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("2000-02+03:00")
             },
             {
                     "MonthDayString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("--02-04+03:00")
             },
             {
                     "DurationString",
-                    Identifiers.String,
+                    NodeIds.String,
                     new Variant("-P1Y2M3DT1H")
             }
     };
@@ -231,77 +226,77 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
     private static final Object[][] STATIC_ARRAY_NODES = new Object[][] {
             {
                     "BooleanArray",
-                    Identifiers.Boolean,
+                    NodeIds.Boolean,
                     false
             },
             {
                     "ByteArray",
-                    Identifiers.Byte,
+                    NodeIds.Byte,
                     ubyte(0)
             },
             {
                     "SByteArray",
-                    Identifiers.SByte,
+                    NodeIds.SByte,
                     (byte) 0x00
             },
             {
                     "Int16Array",
-                    Identifiers.Int16,
+                    NodeIds.Int16,
                     (short) 16
             },
             {
                     "Int32Array",
-                    Identifiers.Int32,
+                    NodeIds.Int32,
                     32
             },
             {
                     "Int64Array",
-                    Identifiers.Int64,
+                    NodeIds.Int64,
                     64L
             },
             {
                     "UInt16Array",
-                    Identifiers.UInt16,
+                    NodeIds.UInt16,
                     ushort(16)
             },
             {
                     "UInt32Array",
-                    Identifiers.UInt32,
+                    NodeIds.UInt32,
                     uint(32)
             },
             {
                     "UInt64Array",
-                    Identifiers.UInt64,
+                    NodeIds.UInt64,
                     ulong(64L)
             },
             {
                     "FloatArray",
-                    Identifiers.Float,
+                    NodeIds.Float,
                     3.14f
             },
             {
                     "DoubleArray",
-                    Identifiers.Double,
+                    NodeIds.Double,
                     3.14d
             },
             {
                     "StringArray",
-                    Identifiers.String,
+                    NodeIds.String,
                     "string value"
             },
             {
                     "DateTimeArray",
-                    Identifiers.DateTime,
+                    NodeIds.DateTime,
                     DateTime.now()
             },
             {
                     "GuidArray",
-                    Identifiers.Guid,
+                    NodeIds.Guid,
                     UUID.randomUUID()
             },
             {
                     "ByteStringArray",
-                    Identifiers.ByteString,
+                    NodeIds.ByteString,
                     new ByteString(new byte[] {
                             0x01,
                             0x02,
@@ -311,27 +306,25 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
             },
             {
                     "XmlElementArray",
-                    Identifiers.XmlElement,
+                    NodeIds.XmlElement,
                     new XmlElement("<a>hello</a>")
             },
             {
                     "LocalizedTextArray",
-                    Identifiers.LocalizedText,
+                    NodeIds.LocalizedText,
                     LocalizedText.english("localized text")
             },
             {
                     "QualifiedNameArray",
-                    Identifiers.QualifiedName,
+                    NodeIds.QualifiedName,
                     new QualifiedName(1234, "defg")
             },
             {
                     "NodeIdArray",
-                    Identifiers.NodeId,
+                    NodeIds.NodeId,
                     new NodeId(1234, "abcd")
             }
     };
-
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final SubscriptionModel subscriptionModel;
 
@@ -355,8 +348,8 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         // Make sure our new folder shows up under the server's Objects folder.
         folderNode.addReference(new Reference(
                 folderNode.getNodeId(),
-                Identifiers.Organizes,
-                Identifiers.ObjectsFolder.expanded(),
+                NodeIds.Organizes,
+                NodeIds.ObjectsFolder.expanded(),
                 false));
 
         // Add the rest of the nodes
@@ -394,11 +387,10 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
             Object[][] array = (Object[][]) Array.newInstance(value.getClass(), 5, 5);
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
-                    //Array.set(array, i, value);
                     array[i][j] = value;
                 }
             }
-            Variant variant = new Variant(array);
+            Variant variant = Variant.ofMatrix(new Matrix(array));
 
             UaVariableNode.build(getNodeContext(), builder -> {
                 builder.setNodeId(newNodeId("HelloWorld/MatrixTypes/" + name));
@@ -407,7 +399,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 builder.setBrowseName(newQualifiedName(name));
                 builder.setDisplayName(LocalizedText.english(name));
                 builder.setDataType(typeId);
-                builder.setTypeDefinition(Identifiers.BaseDataVariableType);
+                builder.setTypeDefinition(NodeIds.BaseDataVariableType);
                 builder.setValueRank(ValueRank.OneOrMoreDimensions.getValue());
                 builder.setArrayDimensions(new UInteger[] {
                         uint(0),
@@ -417,7 +409,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
 
                 builder.addReference(new Reference(
                         builder.getNodeId(),
-                        Identifiers.Organizes,
+                        NodeIds.Organizes,
                         arrayTypesFolder.getNodeId().expanded(),
                         Reference.Direction.INVERSE));
 
@@ -452,7 +444,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 builder.setBrowseName(newQualifiedName(name));
                 builder.setDisplayName(LocalizedText.english(name));
                 builder.setDataType(typeId);
-                builder.setTypeDefinition(Identifiers.BaseDataVariableType);
+                builder.setTypeDefinition(NodeIds.BaseDataVariableType);
                 builder.setValueRank(ValueRank.OneDimension.getValue());
                 builder.setArrayDimensions(new UInteger[] {
                         uint(0)
@@ -460,7 +452,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 builder.setValue(new DataValue(variant));
                 builder.addReference(new Reference(
                         builder.getNodeId(),
-                        Identifiers.Organizes,
+                        NodeIds.Organizes,
                         arrayTypesFolder.getNodeId().expanded(),
                         Reference.Direction.INVERSE));
                 return builder.buildAndAdd();
@@ -488,7 +480,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     .setBrowseName(newQualifiedName(name))
                     .setDisplayName(LocalizedText.english(name))
                     .setDataType(typeId)
-                    .setTypeDefinition(Identifiers.BaseDataVariableType)
+                    .setTypeDefinition(NodeIds.BaseDataVariableType)
                     .build();
             node.setValue(new DataValue(variant));
             getNodeManager().addNode(node);
@@ -512,8 +504,8 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 .setUserAccessLevel(AccessLevel.WRITE_ONLY)
                 .setBrowseName(newQualifiedName(name))
                 .setDisplayName(LocalizedText.english(name))
-                .setDataType(Identifiers.String)
-                .setTypeDefinition(Identifiers.BaseDataVariableType)
+                .setDataType(NodeIds.String)
+                .setTypeDefinition(NodeIds.BaseDataVariableType)
                 .build();
         node.setValue(new DataValue(new Variant("can't read this")));
         getNodeManager().addNode(node);
@@ -535,8 +527,8 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 .setAccessLevel(AccessLevel.READ_WRITE)
                 .setBrowseName(newQualifiedName(name))
                 .setDisplayName(LocalizedText.english(name))
-                .setDataType(Identifiers.String)
-                .setTypeDefinition(Identifiers.BaseDataVariableType)
+                .setDataType(NodeIds.String)
+                .setTypeDefinition(NodeIds.BaseDataVariableType)
                 .build();
         node.setValue(new DataValue(new Variant("shh... don't tell the lusers")));
         getNodeManager().addNode(node);
@@ -558,8 +550,8 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 .setAccessLevel(AccessLevel.READ_WRITE)
                 .setBrowseName(newQualifiedName(name))
                 .setDisplayName(LocalizedText.english(name))
-                .setDataType(Identifiers.String)
-                .setTypeDefinition(Identifiers.BaseDataVariableType)
+                .setDataType(NodeIds.String)
+                .setTypeDefinition(NodeIds.BaseDataVariableType)
                 .build();
         node.setValue(new DataValue(new Variant("admin was here")));
         getNodeManager().addNode(node);
@@ -578,7 +570,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         // Dynamic Boolean
         {
             String name = "Boolean";
-            NodeId typeId = Identifiers.Boolean;
+            NodeId typeId = NodeIds.Boolean;
             Variant variant = new Variant(false);
             UaVariableNode node = new UaVariableNode.UaVariableNodeBuilder(getNodeContext())
                     .setNodeId(newNodeId("HelloWorld/Dynamic/" + name))
@@ -586,7 +578,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     .setBrowseName(newQualifiedName(name))
                     .setDisplayName(LocalizedText.english(name))
                     .setDataType(typeId)
-                    .setTypeDefinition(Identifiers.BaseDataVariableType)
+                    .setTypeDefinition(NodeIds.BaseDataVariableType)
                     .build();
             node.setValue(new DataValue(variant));
             getNodeManager().addNode(node);
@@ -595,7 +587,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         // Dynamic Int32
         {
             String name = "Int32";
-            NodeId typeId = Identifiers.Int32;
+            NodeId typeId = NodeIds.Int32;
             Variant variant = new Variant(0);
             UaVariableNode node = new UaVariableNode.UaVariableNodeBuilder(getNodeContext())
                     .setNodeId(newNodeId("HelloWorld/Dynamic/" + name))
@@ -603,7 +595,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     .setBrowseName(newQualifiedName(name))
                     .setDisplayName(LocalizedText.english(name))
                     .setDataType(typeId)
-                    .setTypeDefinition(Identifiers.BaseDataVariableType)
+                    .setTypeDefinition(NodeIds.BaseDataVariableType)
                     .build();
             node.setValue(new DataValue(variant));
             getNodeManager().addNode(node);
@@ -612,7 +604,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         // Dynamic Double
         {
             String name = "Double";
-            NodeId typeId = Identifiers.Double;
+            NodeId typeId = NodeIds.Double;
             Variant variant = new Variant(0.0);
             UaVariableNode node = new UaVariableNode.UaVariableNodeBuilder(getNodeContext())
                     .setNodeId(newNodeId("HelloWorld/Dynamic/" + name))
@@ -620,7 +612,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     .setBrowseName(newQualifiedName(name))
                     .setDisplayName(LocalizedText.english(name))
                     .setDataType(typeId)
-                    .setTypeDefinition(Identifiers.BaseDataVariableType)
+                    .setTypeDefinition(NodeIds.BaseDataVariableType)
                     .build();
             node.setValue(new DataValue(variant));
             getNodeManager().addNode(node);
@@ -638,27 +630,6 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                 LocalizedText.english("DataAccess"));
         getNodeManager().addNode(dataAccessFolder);
         rootNode.addOrganizes(dataAccessFolder);
-        try {
-            AnalogItemTypeNode node = (AnalogItemTypeNode) getNodeFactory().createNode(
-                    newNodeId("HelloWorld/DataAccess/AnalogValue"),
-                    Identifiers.AnalogItemType,
-                    new NodeFactory.InstantiationCallback() {
-                        @Override
-                        public boolean includeOptionalNode(NodeId typeDefinitionId, QualifiedName browseName) {
-                            return true;
-                        }
-                    });
-            node.setBrowseName(newQualifiedName("AnalogValue"));
-            node.setDisplayName(LocalizedText.english("AnalogValue"));
-            node.setDataType(Identifiers.Double);
-            node.setValue(new DataValue(new Variant(3.14d)));
-            node.setEURange(new Range(0.0, 100.0));
-            getNodeManager().addNode(node);
-            dataAccessFolder.addOrganizes(node);
-        }
-        catch (UaException e) {
-            LOGGER.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
-        }
     }
 
 
@@ -677,7 +648,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         getNodeManager().addNode(methodNode);
         methodNode.addReference(new Reference(
                 methodNode.getNodeId(),
-                Identifiers.HasComponent,
+                NodeIds.HasComponent,
                 folderNode.getNodeId().expanded(),
                 false));
     }

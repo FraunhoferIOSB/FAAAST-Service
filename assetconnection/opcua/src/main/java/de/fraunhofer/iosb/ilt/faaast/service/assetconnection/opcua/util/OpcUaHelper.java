@@ -34,20 +34,19 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.X509IdentityProvider;
-import org.eclipse.milo.opcua.stack.client.security.ClientCertificateValidator;
-import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
+import org.eclipse.milo.opcua.sdk.client.identity.AnonymousProvider;
+import org.eclipse.milo.opcua.sdk.client.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.identity.UsernameProvider;
+import org.eclipse.milo.opcua.sdk.client.identity.X509IdentityProvider;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.UaServiceFaultException;
-import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
+import org.eclipse.milo.opcua.stack.core.security.DefaultClientCertificateValidator;
+import org.eclipse.milo.opcua.stack.core.security.FileBasedTrustListManager;
+import org.eclipse.milo.opcua.stack.core.security.MemoryCertificateQuarantine;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
@@ -133,15 +132,12 @@ public class OpcUaHelper {
      * @param nodeId string representation of the node to read
      * @return the value of given node
      * @throws UaException if reading fails
-     * @throws InterruptedException if reading fails
-     * @throws ExecutionException if reading fails
      */
-    public static DataValue readValue(OpcUaClient client, String nodeId) throws UaException, InterruptedException, ExecutionException {
+    public static DataValue readValue(OpcUaClient client, String nodeId) throws UaException {
         return client.readValue(0,
                 TimestampsToReturn.Neither,
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
-                        .getNodeId())
-                .get();
+                        .getNodeId());
     }
 
 
@@ -153,15 +149,12 @@ public class OpcUaHelper {
      * @param value the value to write
      * @return the status code
      * @throws UaException if parsing node fails
-     * @throws InterruptedException if writing fails
-     * @throws ExecutionException if writing fails
      */
-    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException, InterruptedException, ExecutionException {
-        return client.writeValue(
+    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException {
+        return client.writeValues(List.of(
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
-                        .getNodeId(),
-                new DataValue(new Variant(value)))
-                .get();
+                        .getNodeId()),
+                List.of(new DataValue(new Variant(value)))).get(0);
     }
 
 
@@ -412,10 +405,11 @@ public class OpcUaHelper {
                 config.getApplicationCertificate().getKeyPassword(),
                 config.getApplicationCertificate().getKeyStorePassword());
 
-        ClientCertificateValidator certificateValidator;
+        DefaultClientCertificateValidator certificateValidator;
         try {
             Files.createDirectories(config.getSecurityBaseDir());
-            certificateValidator = new DefaultClientCertificateValidator(new DefaultTrustListManager(SecurityPathHelper.pki(config.getSecurityBaseDir()).toFile()));
+            certificateValidator = new DefaultClientCertificateValidator(FileBasedTrustListManager.createAndInitialize(SecurityPathHelper.pki(config.getSecurityBaseDir())),
+                    new MemoryCertificateQuarantine());
         }
         catch (IOException e) {
             throw new ConfigurationInitializationException("unable to initialize OPC UA client security", e);
@@ -439,14 +433,15 @@ public class OpcUaHelper {
                         }
                         return filteredEndpoints.stream().findFirst();
                     },
+                    transportConfigBuilder -> {},
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english(OpcUaConstants.CERTIFICATE_APPLICATION_NAME))
                             .setApplicationUri(CertificateUtil.getSanUri(applicationCertificate.getCertificate())
                                     .orElse(OpcUaConstants.CERTIFICATE_APPLICATION_URI))
-                            //.setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
+                            .setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
                             .setIdentityProvider(identityProvider)
                             .setRequestTimeout(uint(config.getRequestTimeout()))
-                            .setAcknowledgeTimeout(uint(config.getAcknowledgeTimeout()))
+                            //.setAcknowledgeTimeout(uint(config.getAcknowledgeTimeout()))
                             .setKeyPair(applicationCertificate.getKeyPair())
                             .setCertificate(applicationCertificate.getCertificate())
                             .setCertificateChain(applicationCertificate.getCertificateChain())
@@ -461,9 +456,9 @@ public class OpcUaHelper {
 
     private static OpcUaClient connect(OpcUaClient client) throws AssetConnectionException {
         try {
-            client.connect().get();
+            client.connect();
         }
-        catch (InterruptedException | ExecutionException e) {
+        catch (UaException e) {
             if (e instanceof UaServiceFaultException) {
                 checkUserAuthenticationError((UaServiceFaultException) e, client.getConfig().getEndpoint().getEndpointUrl());
             }
