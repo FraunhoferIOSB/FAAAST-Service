@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.BYTE;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype.UNSIGNED_BYTE;
-
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -55,7 +52,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.File;
  */
 public class AasToModbusConversionHelper {
 
-    private static final String TOO_MANY_BYTES_READ = "too many bytes read for %s: %d";
+    private static final String TOO_MANY_BYTES_READ = "too many bytes read: %d, should be %d";
 
     private AasToModbusConversionHelper() {
 
@@ -150,7 +147,7 @@ public class AasToModbusConversionHelper {
             case BASE64_BINARY -> new Base64BinaryValue(rawBytes);
             case ANY_URI -> new AnyURIValue(new String(rawBytes, StandardCharsets.UTF_8));
             // case LANG_STRING, DOUBLE, FLOAT
-            default -> throw new AssetConnectionException("floating point numbers not supported by modbus asset connection");
+            default -> throw new AssetConnectionException(String.format("type %s not supported by modbus asset connection", datatype));
         };
     }
 
@@ -201,14 +198,14 @@ public class AasToModbusConversionHelper {
     }
 
 
-    private static void doThrow(String reason, Datatype datatype, int totalBytes) throws AssetConnectionException {
-        throw new AssetConnectionException(String.format(reason, datatype, totalBytes));
+    private static void throwTooManyBytes(int totalBytes, long maxBytes) throws AssetConnectionException {
+        throw new AssetConnectionException(String.format(TOO_MANY_BYTES_READ, totalBytes, maxBytes));
     }
 
 
     private static BigInteger toUnsignedBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
         if (amountNonzero(rawBytes) > maxBytes) {
-            doThrow(TOO_MANY_BYTES_READ, BYTE, rawBytes.length);
+            throwTooManyBytes(amountNonzero(rawBytes), maxBytes);
         }
         return new BigInteger(1, rawBytes);
     }
@@ -216,7 +213,7 @@ public class AasToModbusConversionHelper {
 
     private static BigInteger toBigInteger(byte[] rawBytes, long maxBytes) throws AssetConnectionException {
         if (amountNonzeroNonnegative(rawBytes) > maxBytes) {
-            doThrow(TOO_MANY_BYTES_READ, UNSIGNED_BYTE, amountNonzero(rawBytes));
+            throwTooManyBytes(amountNonzeroNonnegative(rawBytes), maxBytes);
         }
         return new BigInteger(ByteArrayHelper.removePadding(rawBytes));
     }

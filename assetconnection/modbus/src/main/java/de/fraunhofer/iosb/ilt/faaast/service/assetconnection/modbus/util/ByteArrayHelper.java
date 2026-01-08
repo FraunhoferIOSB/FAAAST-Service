@@ -89,10 +89,9 @@ public class ByteArrayHelper {
                 continue;
             }
 
-            msb_index = 8;
-            while ((b & 0x70) == 0) {
+            while ((b & 0x80) == 0) {
                 b <<= 0x01;
-                msb_index--;
+                msb_index++;
             }
             break;
         }
