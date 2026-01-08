@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.testutil;
 
 import com.digitalpetri.modbus.client.ModbusTcpClient;
 import com.digitalpetri.modbus.server.ModbusTcpServer;

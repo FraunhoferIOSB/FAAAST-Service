@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.provider;
 import com.digitalpetri.modbus.client.ModbusClient;
 import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.server.ModbusTcpServer;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.util.ModbusTestHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.modbus.testutil.ModbusTestHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
