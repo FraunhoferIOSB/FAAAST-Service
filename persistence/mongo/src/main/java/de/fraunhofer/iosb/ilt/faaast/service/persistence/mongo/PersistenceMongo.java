@@ -456,9 +456,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
         if (config.isOverride()) {
             deleteAll();
+            try {
+                saveEnvironment(config.loadInitialModel());
+            }
+            catch (DeserializationException | InvalidConfigurationException | IllegalStateException e) {
+                throw new PersistenceException(e);
+            }
         }
-
-        if (!databaseHasSavedEnvironment(database)) {
+        else if (!databaseHasSavedEnvironment(database)) {
             deleteAll();
             try {
                 saveEnvironment(config.loadInitialModel());
