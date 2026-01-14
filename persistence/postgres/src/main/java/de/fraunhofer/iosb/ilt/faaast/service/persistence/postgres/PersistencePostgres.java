@@ -32,8 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotAContainerElementException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.query.json.Query;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AssetAdministrationShellSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConceptDescriptionSearchCriteria;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -189,7 +187,22 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     @Override
     public Page<AssetAdministrationShell> findAssetAdministrationShells(AssetAdministrationShellSearchCriteria criteria, QueryModifier modifier, PagingInfo paging)
             throws PersistenceException {
-        List<AssetAdministrationShell> all = loadAllEntities(TABLE_AAS, AssetAdministrationShell.class);
+        long offset = 0;
+        if (paging.getCursor() != null) {
+            offset = readCursor(paging.getCursor());
+        }
+
+        int totalCount = countEntities(TABLE_AAS);
+        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
+
+        List<AssetAdministrationShell> all;
+        if (criteria != null && (criteria.getIdShort() != null || (criteria.getAssetIds() != null && !criteria.getAssetIds().isEmpty()))) {
+            all = loadAllEntities(TABLE_AAS, AssetAdministrationShell.class);
+        }
+        else {
+            all = loadAllEntitiesPaginated(TABLE_AAS, AssetAdministrationShell.class, offset, limit + 1);
+        }
+
         Stream<AssetAdministrationShell> stream = all.stream();
 
         if (criteria != null) {
@@ -202,7 +215,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                                 c -> Objects.equals(x.getAssetInformation().getGlobalAssetId(), c.getValue())));
             }
         }
-        return preparePagedResult(stream, modifier, paging);
+        return preparePagedResult(stream, modifier, paging, totalCount);
     }
 
 
@@ -244,7 +257,22 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public Page<Submodel> findSubmodels(SubmodelSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        List<Submodel> all = loadAllEntities(TABLE_SUBMODEL, Submodel.class);
+        long offset = 0;
+        if (paging.getCursor() != null) {
+            offset = readCursor(paging.getCursor());
+        }
+
+        int totalCount = countEntities(TABLE_SUBMODEL);
+        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
+
+        List<Submodel> all;
+        if (criteria != null && (criteria.getIdShort() != null || criteria.getSemanticId() != null)) {
+            all = loadAllEntities(TABLE_SUBMODEL, Submodel.class);
+        }
+        else {
+            all = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, offset, limit + 1);
+        }
+
         Stream<Submodel> stream = all.stream();
 
         if (criteria != null) {
@@ -304,7 +332,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
         Ensure.requireNonNull(criteria, MSG_CRITERIA_NOT_NULL);
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         Ensure.requireNonNull(paging, MSG_PAGING_NOT_NULL);
-        final Collection<SubmodelElement> elements = new ArrayList<>();
+
+        List<SubmodelElement> elements = new ArrayList<>();
+
         if (criteria.isParentSet()) {
             if (criteria.getParent().getSubmodelId() != null) {
                 Submodel submodel = getSubmodel(criteria.getParent().getSubmodelId());
@@ -322,17 +352,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         else {
-            List<Submodel> submodels = getSubmodels();
-            AssetAdministrationShellElementWalker.builder()
-                    .visitor(new DefaultAssetAdministrationShellElementVisitor() {
-                        @Override
-                        public void visit(SubmodelElement submodelElement) {
-                            elements.add(submodelElement);
-                        }
-                    })
-                    .build()
-                    .walk(submodels);
+            elements = getAllSubmodelElementsOptimized(criteria, paging);
         }
+
         Stream<SubmodelElement> result = elements.stream();
         if (criteria.isSemanticIdSet()) {
             result = filterBySemanticId(result, criteria.getSemanticId());
@@ -341,6 +363,57 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             result = filterByHasValueOnlySerialization(result);
         }
         return preparePagedResult(result, modifier, paging);
+    }
+
+
+    private List<SubmodelElement> getAllSubmodelElementsOptimized(SubmodelElementSearchCriteria criteria, PagingInfo paging) {
+        List<SubmodelElement> elements = new ArrayList<>();
+
+        if (paging.hasLimit()) {
+            long offset = 0;
+            if (paging.getCursor() != null) {
+                offset = readCursor(paging.getCursor());
+            }
+
+            int totalLoaded = 0;
+            long currentOffset = offset;
+            int pageSize = (int) Math.min(paging.getLimit() * 2, Integer.MAX_VALUE);
+
+            while (totalLoaded < paging.getLimit()) {
+                List<Submodel> submodels = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, currentOffset, pageSize);
+                if (submodels.isEmpty()) {
+                    break;
+                }
+
+                for (Submodel submodel: submodels) {
+                    if (totalLoaded >= paging.getLimit()) {
+                        break;
+                    }
+                    for (SubmodelElement element: submodel.getSubmodelElements()) {
+                        if (totalLoaded < paging.getLimit()) {
+                            elements.add(element);
+                            totalLoaded++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+
+                currentOffset += pageSize;
+                if (submodels.size() < pageSize) {
+                    break;
+                }
+            }
+        }
+        else {
+            List<Submodel> submodels = loadAllEntities(TABLE_SUBMODEL, Submodel.class);
+            for (Submodel submodel: submodels) {
+                elements.addAll(submodel.getSubmodelElements());
+            }
+        }
+
+        return elements;
     }
 
 
@@ -485,7 +558,22 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public Page<ConceptDescription> findConceptDescriptions(ConceptDescriptionSearchCriteria criteria, QueryModifier modifier, PagingInfo paging) throws PersistenceException {
-        List<ConceptDescription> all = loadAllEntities(TABLE_CONCEPT, ConceptDescription.class);
+        long offset = 0;
+        if (paging.getCursor() != null) {
+            offset = readCursor(paging.getCursor());
+        }
+
+        int totalCount = countEntities(TABLE_CONCEPT);
+        int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
+
+        List<ConceptDescription> all;
+        if (criteria != null && (criteria.getIdShort() != null || criteria.getIsCaseOf() != null || criteria.getDataSpecification() != null)) {
+            all = loadAllEntities(TABLE_CONCEPT, ConceptDescription.class);
+        }
+        else {
+            all = loadAllEntitiesPaginated(TABLE_CONCEPT, ConceptDescription.class, offset, limit + 1);
+        }
+
         Stream<ConceptDescription> stream = all.stream();
 
         if (criteria != null) {
@@ -624,6 +712,104 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
+    private <T> List<T> loadAllEntitiesPaginated(String table, Class<T> clazz, long offset, int limit) {
+        List<T> results = new ArrayList<>();
+        String sql = "SELECT content FROM " + table + " ORDER BY seq ASC LIMIT ? OFFSET ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            pstmt.setLong(2, offset);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    results.add(jsonDeserializer.read(rs.getString("content"), clazz));
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Database error loading paginated from " + table, e);
+        }
+        return results;
+    }
+
+
+    private int countEntities(String table) {
+        String sql = "SELECT COUNT(*) FROM " + table;
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Database error counting from " + table, e);
+        }
+        return 0;
+    }
+
+
+    private List<String> extractSubmodelElementsFromJsonb(String submodelId) throws ResourceNotFoundException {
+        String sql = "SELECT jsonb_array_elements(content->'submodelElements')::text as element FROM " + TABLE_SUBMODEL + " WHERE id = ?";
+        List<String> elements = new ArrayList<>();
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, submodelId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    elements.add(rs.getString("element"));
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException("Database error extracting submodel elements from " + submodelId, e);
+        }
+        return elements;
+    }
+
+
+    private List<String> extractSubmodelElementsRecursiveFromJsonb(String submodelId) throws ResourceNotFoundException {
+        String sql = "SELECT jsonb_path_query(content, '$.submodelElements[*] ? (@.value != null ? (@.value[*] ? (@.idShort != null) recursive) : true)')::text as element FROM "
+                + TABLE_SUBMODEL + " WHERE id = ?";
+        List<String> elements = new ArrayList<>();
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, submodelId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String element = rs.getString("element");
+                    if (element != null) {
+                        elements.add(element);
+                    }
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException("Database error extracting recursive submodel elements from " + submodelId, e);
+        }
+        return elements;
+    }
+
+
+    private List<String> extractSubmodelElementsByPathFromJsonb(String submodelId, String path) throws ResourceNotFoundException {
+        String sql = "SELECT jsonb_path_query(content, ?)::text as element FROM " + TABLE_SUBMODEL + " WHERE id = ?";
+        List<String> elements = new ArrayList<>();
+        String jsonPath = "$.submodelElements" + path + "[*]";
+        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, jsonPath);
+            pstmt.setString(2, submodelId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String element = rs.getString("element");
+                    if (element != null) {
+                        elements.add(element);
+                    }
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException("Database error extracting submodel elements by path from " + submodelId, e);
+        }
+        return elements;
+    }
+
+
     private void deleteEntity(String table, String id) {
         String sql = "DELETE FROM " + table + " WHERE id = ?";
         try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
@@ -644,6 +830,32 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                         .collect(Collectors.toList()),
                 modifier));
         return result;
+    }
+
+
+    private static <T extends Referable> Page<T> preparePagedResult(Stream<T> input, QueryModifier modifier, PagingInfo paging, int totalCount) {
+        Stream<T> result = input;
+        List<T> temp;
+        boolean hasMoreData = false;
+
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
+            temp = result.toList();
+            hasMoreData = temp.size() > paging.getLimit();
+            temp = temp.stream()
+                    .limit(paging.getLimit())
+                    .collect(Collectors.toList());
+        }
+        else {
+            temp = result.toList();
+        }
+
+        return Page.<T> builder()
+                .result(temp)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, hasMoreData))
+                        .build())
+                .build();
     }
 
 
