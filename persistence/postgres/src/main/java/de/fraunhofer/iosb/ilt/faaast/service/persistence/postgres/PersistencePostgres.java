@@ -375,33 +375,31 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
                 offset = readCursor(paging.getCursor());
             }
 
-            int totalLoaded = 0;
-            long currentOffset = offset;
-            int pageSize = (int) Math.min(paging.getLimit() * 2, Integer.MAX_VALUE);
+            int limit = (int) paging.getLimit();
+            int fetchSize = Math.min(limit * 2, 100);
 
-            while (totalLoaded < paging.getLimit()) {
-                List<Submodel> submodels = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, currentOffset, pageSize);
+            long currentOffset = offset;
+            int totalLoaded = 0;
+
+            while (totalLoaded < limit) {
+                List<Submodel> submodels = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, currentOffset, fetchSize);
+
                 if (submodels.isEmpty()) {
                     break;
                 }
 
                 for (Submodel submodel: submodels) {
-                    if (totalLoaded >= paging.getLimit()) {
+                    if (totalLoaded >= limit) {
                         break;
                     }
-                    for (SubmodelElement element: submodel.getSubmodelElements()) {
-                        if (totalLoaded < paging.getLimit()) {
-                            elements.add(element);
-                            totalLoaded++;
-                        }
-                        else {
-                            break;
-                        }
-                    }
+                    List<SubmodelElement> subElements = submodel.getSubmodelElements();
+                    int elementsToAdd = Math.min(limit - totalLoaded, subElements.size());
+                    elements.addAll(subElements.subList(0, elementsToAdd));
+                    totalLoaded += elementsToAdd;
                 }
 
-                currentOffset += pageSize;
-                if (submodels.size() < pageSize) {
+                currentOffset += fetchSize;
+                if (submodels.size() < fetchSize) {
                     break;
                 }
             }
