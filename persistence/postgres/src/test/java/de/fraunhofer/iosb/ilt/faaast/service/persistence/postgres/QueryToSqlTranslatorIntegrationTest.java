@@ -825,49 +825,6 @@ public class QueryToSqlTranslatorIntegrationTest {
     }
 
 
-    private Environment createTestEnvironmentForNestedMatches() {
-        Property productClassId = new DefaultProperty.Builder()
-                .idShort("ProductClassId")
-                .value("27-37-09-05")
-                .valueType(DataTypeDefXsd.STRING)
-                .build();
-
-        Property rootProductClassId = new DefaultProperty.Builder()
-                .idShort("ProductClassId")
-                .value("27-37-09-05")
-                .valueType(DataTypeDefXsd.STRING)
-                .build();
-
-        List<SubmodelElement> productClassItems = new ArrayList<>();
-        productClassItems.add(productClassId);
-
-        SubmodelElementList productClassifications = new DefaultSubmodelElementList.Builder()
-                .idShort("ProductClassifications")
-                .value(productClassItems)
-                .build();
-
-        Submodel submodel = new DefaultSubmodel.Builder()
-                .id("https://example.com/submodel/nested")
-                .idShort("TechnicalData")
-                .submodelElements(productClassifications)
-                .submodelElements(rootProductClassId)
-                .build();
-
-        AssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
-                .id("https://example.com/aas/nested")
-                .idShort("TestAAS")
-                .assetInformation(new DefaultAssetInformation.Builder()
-                        .assetKind(AssetKind.INSTANCE)
-                        .build())
-                .build();
-
-        return new DefaultEnvironment.Builder()
-                .assetAdministrationShells(aas)
-                .submodels(submodel)
-                .build();
-    }
-
-
     private Environment createTestEnvironmentForExtensions() {
         Extension versionExt = new DefaultExtension.Builder()
                 .name("Version")
@@ -929,7 +886,7 @@ public class QueryToSqlTranslatorIntegrationTest {
                 """;
 
         Query query = MAPPER.readValue(json, new TypeReference<>() {});
-        Environment env = createTestEnvironmentForNestedMatches();
+        Environment env = createTestEnvironmentForAndMatch(true);
 
         clearDatabase();
         insertEnvironment(env);
@@ -960,7 +917,7 @@ public class QueryToSqlTranslatorIntegrationTest {
                 """;
 
         Query query = MAPPER.readValue(json, new TypeReference<>() {});
-        Environment env = createTestEnvironmentForNestedMatches();
+        Environment env = createTestEnvironmentForAndMatch(true);
 
         clearDatabase();
         insertEnvironment(env);
@@ -996,7 +953,7 @@ public class QueryToSqlTranslatorIntegrationTest {
                 """;
 
         Query query = MAPPER.readValue(json, new TypeReference<>() {});
-        Environment env = createTestEnvironmentForNestedMatches();
+        Environment env = createTestEnvironmentForAndMatch(true);
 
         clearDatabase();
         insertEnvironment(env);

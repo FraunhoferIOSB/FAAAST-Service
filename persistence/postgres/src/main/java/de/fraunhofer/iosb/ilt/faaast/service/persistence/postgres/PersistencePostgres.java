@@ -91,11 +91,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     private final JsonSerializer jsonSerializer = new JsonSerializer();
     private final JsonDeserializer jsonDeserializer = new JsonDeserializer();
 
-    private static final String TABLE_AAS = "aas";
-    private static final String TABLE_SUBMODEL = "submodels";
-    private static final String TABLE_CONCEPT = "concept_descriptions";
-    private static final String TABLE_OP_RESULT = "operation_results";
-
     @Override
     public void init(CoreConfig coreConfig, PersistencePostgresConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
@@ -112,7 +107,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             hikariConfig.setMaximumPoolSize(10);
             this.dataSource = new HikariDataSource(hikariConfig);
 
-            initDb();
+            DatabaseSchema.createTables(dataSource.getConnection());
 
             if (config.loadInitialModel() != null) {
                 if (Boolean.TRUE.equals(config.getOverride())) {
@@ -131,21 +126,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private void initDb() throws SQLException {
-        try (Connection c = dataSource.getConnection(); Statement stmt = c.createStatement()) {
-            String schema = " (id TEXT PRIMARY KEY, content JSONB NOT NULL, seq BIGSERIAL)";
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_AAS + schema);
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_SUBMODEL + schema);
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_CONCEPT + schema);
-            stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_OP_RESULT + schema);
-        }
-    }
-
-
     private boolean isDatabaseEmpty() throws SQLException {
         try (Connection c = dataSource.getConnection();
                 Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT 1 FROM " + TABLE_AAS + " LIMIT 1")) {
+                ResultSet rs = stmt.executeQuery("SELECT 1 FROM " + DatabaseSchema.TABLE_AAS + " LIMIT 1")) {
             return !rs.next();
         }
     }
@@ -166,7 +150,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     private AssetAdministrationShell getAssetAdministrationShell(String id) throws ResourceNotFoundException {
-        return loadEntity(TABLE_AAS, id, AssetAdministrationShell.class);
+        return loadEntity(DatabaseSchema.TABLE_AAS, id, AssetAdministrationShell.class);
     }
 
 
@@ -193,15 +177,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntities(TABLE_AAS);
+        int totalCount = countEntities(DatabaseSchema.TABLE_AAS);
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
         List<AssetAdministrationShell> all;
         if (criteria != null && (criteria.getIdShort() != null || (criteria.getAssetIds() != null && !criteria.getAssetIds().isEmpty()))) {
-            all = loadAllEntities(TABLE_AAS, AssetAdministrationShell.class);
+            all = loadAllEntities(DatabaseSchema.TABLE_AAS, AssetAdministrationShell.class);
         }
         else {
-            all = loadAllEntitiesPaginated(TABLE_AAS, AssetAdministrationShell.class, offset, limit + 1);
+            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_AAS, AssetAdministrationShell.class, offset, limit + 1);
         }
 
         Stream<AssetAdministrationShell> stream = all.stream();
@@ -232,7 +216,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             return findAssetAdministrationShells(criteria, modifier, paging);
         }
 
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), TABLE_AAS);
+        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_AAS);
 
         if (result.isEmpty()) {
             return findAssetAdministrationShells(criteria, modifier, paging);
@@ -243,10 +227,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntitiesWithQuery(TABLE_AAS, result.getSql());
+        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_AAS, result.getSql());
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
-        String sql = "SELECT content FROM " + TABLE_AAS + " WHERE " + result.getSql()
+        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_AAS + " WHERE " + result.getSql()
                 + " ORDER BY seq ASC LIMIT ? OFFSET ?";
 
         List<AssetAdministrationShell> matched;
@@ -289,18 +273,18 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(AssetAdministrationShell shell) {
-        saveEntity(TABLE_AAS, shell.getId(), shell);
+        saveEntity(DatabaseSchema.TABLE_AAS, shell.getId(), shell);
     }
 
 
     @Override
     public void deleteAssetAdministrationShell(String id) {
-        deleteEntity(TABLE_AAS, id);
+        deleteEntity(DatabaseSchema.TABLE_AAS, id);
     }
 
 
     private Submodel getSubmodel(String id) throws ResourceNotFoundException {
-        return loadEntity(TABLE_SUBMODEL, id, Submodel.class);
+        return loadEntity(DatabaseSchema.TABLE_SUBMODEL, id, Submodel.class);
     }
 
 
@@ -318,15 +302,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntities(TABLE_SUBMODEL);
+        int totalCount = countEntities(DatabaseSchema.TABLE_SUBMODEL);
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
         List<Submodel> all;
         if (criteria != null && (criteria.getIdShort() != null || criteria.getSemanticId() != null)) {
-            all = loadAllEntities(TABLE_SUBMODEL, Submodel.class);
+            all = loadAllEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class);
         }
         else {
-            all = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, offset, limit + 1);
+            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, offset, limit + 1);
         }
 
         Stream<Submodel> stream = all.stream();
@@ -355,7 +339,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             return findSubmodels(criteria, modifier, paging);
         }
 
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), TABLE_SUBMODEL);
+        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
 
         if (result.isEmpty()) {
             return findSubmodels(criteria, modifier, paging);
@@ -366,10 +350,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntitiesWithQuery(TABLE_SUBMODEL, result.getSql());
+        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_SUBMODEL, result.getSql());
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
-        String sql = "SELECT content FROM " + TABLE_SUBMODEL + " WHERE " + result.getSql()
+        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()
                 + " ORDER BY seq ASC LIMIT ? OFFSET ?";
 
         List<Submodel> matched;
@@ -455,13 +439,13 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(Submodel submodel) {
-        saveEntity(TABLE_SUBMODEL, submodel.getId(), submodel);
+        saveEntity(DatabaseSchema.TABLE_SUBMODEL, submodel.getId(), submodel);
     }
 
 
     @Override
     public void deleteSubmodel(String id) {
-        deleteEntity(TABLE_SUBMODEL, id);
+        deleteEntity(DatabaseSchema.TABLE_SUBMODEL, id);
     }
 
 
@@ -531,7 +515,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             int totalLoaded = 0;
 
             while (totalLoaded < limit) {
-                List<Submodel> submodels = loadAllEntitiesPaginated(TABLE_SUBMODEL, Submodel.class, currentOffset, fetchSize);
+                List<Submodel> submodels = loadAllEntitiesPaginated(DatabaseSchema.TABLE_SUBMODEL, Submodel.class, currentOffset, fetchSize);
 
                 if (submodels.isEmpty()) {
                     break;
@@ -554,7 +538,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         else {
-            List<Submodel> submodels = loadAllEntities(TABLE_SUBMODEL, Submodel.class);
+            List<Submodel> submodels = loadAllEntities(DatabaseSchema.TABLE_SUBMODEL, Submodel.class);
             for (Submodel submodel: submodels) {
                 elements.addAll(submodel.getSubmodelElements());
             }
@@ -691,7 +675,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
 
     private ConceptDescription getConceptDescription(String id) throws ResourceNotFoundException {
-        return loadEntity(TABLE_CONCEPT, id, ConceptDescription.class);
+        return loadEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id, ConceptDescription.class);
     }
 
 
@@ -710,15 +694,15 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntities(TABLE_CONCEPT);
+        int totalCount = countEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION);
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
         List<ConceptDescription> all;
         if (criteria != null && (criteria.getIdShort() != null || criteria.getIsCaseOf() != null || criteria.getDataSpecification() != null)) {
-            all = loadAllEntities(TABLE_CONCEPT, ConceptDescription.class);
+            all = loadAllEntities(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class);
         }
         else {
-            all = loadAllEntitiesPaginated(TABLE_CONCEPT, ConceptDescription.class, offset, limit + 1);
+            all = loadAllEntitiesPaginated(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, ConceptDescription.class, offset, limit + 1);
         }
 
         Stream<ConceptDescription> stream = all.stream();
@@ -752,7 +736,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             return findConceptDescriptions(criteria, modifier, paging);
         }
 
-        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), TABLE_CONCEPT);
+        QueryToSqlTranslator.TranslationResult result = queryToSqlTranslator.translate(query.get$condition(), DatabaseSchema.TABLE_CONCEPT_DESCRIPTION);
 
         if (result.isEmpty()) {
             return findConceptDescriptions(criteria, modifier, paging);
@@ -763,10 +747,10 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             offset = readCursor(paging.getCursor());
         }
 
-        int totalCount = countEntitiesWithQuery(TABLE_CONCEPT, result.getSql());
+        int totalCount = countEntitiesWithQuery(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, result.getSql());
         int limit = paging.hasLimit() ? (int) paging.getLimit() : totalCount;
 
-        String sql = "SELECT content FROM " + TABLE_CONCEPT + " WHERE " + result.getSql()
+        String sql = "SELECT content FROM " + DatabaseSchema.TABLE_CONCEPT_DESCRIPTION + " WHERE " + result.getSql()
                 + " ORDER BY seq ASC LIMIT ? OFFSET ?";
 
         List<ConceptDescription> matched;
@@ -812,25 +796,25 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void save(ConceptDescription conceptDescription) {
-        saveEntity(TABLE_CONCEPT, conceptDescription.getId(), conceptDescription);
+        saveEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, conceptDescription.getId(), conceptDescription);
     }
 
 
     @Override
     public void deleteConceptDescription(String id) {
-        deleteEntity(TABLE_CONCEPT, id);
+        deleteEntity(DatabaseSchema.TABLE_CONCEPT_DESCRIPTION, id);
     }
 
 
     @Override
     public OperationResult getOperationResult(OperationHandle handle) throws ResourceNotFoundException, PersistenceException {
-        return loadEntity(TABLE_OP_RESULT, handle.getHandleId(), OperationResult.class);
+        return loadEntity(DatabaseSchema.TABLE_OPERATION_RESULT, handle.getHandleId(), OperationResult.class);
     }
 
 
     @Override
     public void save(OperationHandle handle, OperationResult result) throws PersistenceException {
-        saveEntity(TABLE_OP_RESULT, handle.getHandleId(), result);
+        saveEntity(DatabaseSchema.TABLE_OPERATION_RESULT, handle.getHandleId(), result);
     }
 
 
@@ -848,11 +832,9 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
 
     @Override
     public void deleteAll() throws PersistenceException {
-        try (Connection c = dataSource.getConnection(); Statement stmt = c.createStatement()) {
-            stmt.execute("TRUNCATE TABLE " + TABLE_AAS);
-            stmt.execute("TRUNCATE TABLE " + TABLE_SUBMODEL);
-            stmt.execute("TRUNCATE TABLE " + TABLE_CONCEPT);
-            stmt.execute("TRUNCATE TABLE " + TABLE_OP_RESULT);
+        try (Connection c = dataSource.getConnection()) {
+            DatabaseSchema.dropTables(c);
+            DatabaseSchema.createTables(c);
         }
         catch (SQLException e) {
             throw new PersistenceException("Failed to clear database", e);
