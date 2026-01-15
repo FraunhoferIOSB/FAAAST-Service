@@ -638,9 +638,9 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         Query query2 = MAPPER.readValue(
-                json, new TypeReference<>() {});
+                json2, new TypeReference<>() {});
         Query query3 = MAPPER.readValue(
-                json, new TypeReference<>() {});
+                json3, new TypeReference<>() {});
 
         Environment env = createTestEnvironmentForAndMatch(true);
         QueryEvaluator evaluator = new QueryEvaluator();

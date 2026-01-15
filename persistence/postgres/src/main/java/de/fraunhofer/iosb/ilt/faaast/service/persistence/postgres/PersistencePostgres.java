@@ -299,36 +299,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private <T> List<T> executeQuery(PreparedStatement pstmt, Class<T> clazz) {
-        List<T> results = new ArrayList<>();
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                results.add(jsonDeserializer.read(rs.getString("content"), clazz));
-            }
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Failed to execute query", e);
-        }
-        return results;
-    }
-
-
-    private int countEntitiesWithQuery(String table, String whereClause) {
-        String sql = "SELECT COUNT(*) FROM " + table + " WHERE " + whereClause;
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        }
-        catch (Exception e) {
-            return 0;
-        }
-        return 0;
-    }
-
-
     @Override
     public void save(Submodel submodel) {
         saveEntity(TABLE_SUBMODEL, submodel.getId(), submodel);
@@ -338,11 +308,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     @Override
     public void deleteSubmodel(String id) {
         deleteEntity(TABLE_SUBMODEL, id);
-    }
-
-
-    public List<Submodel> getSubmodels() {
-        return loadAllEntities(TABLE_SUBMODEL, Submodel.class);
     }
 
 
@@ -382,7 +347,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             }
         }
         else {
-            elements = getAllSubmodelElementsOptimized(criteria, paging);
+            elements = getAllSubmodelElementsOptimized(paging);
         }
 
         Stream<SubmodelElement> result = elements.stream();
@@ -396,7 +361,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private List<SubmodelElement> getAllSubmodelElementsOptimized(SubmodelElementSearchCriteria criteria, PagingInfo paging) {
+    private List<SubmodelElement> getAllSubmodelElementsOptimized(PagingInfo paging) {
         List<SubmodelElement> elements = new ArrayList<>();
 
         if (paging.hasLimit()) {
@@ -633,21 +598,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
     }
 
 
-    private static String calculateNextCursor(PagingInfo paging, int resultCount, int limit) {
-        boolean hasMoreData = resultCount > limit;
-        if (!hasMoreData) {
-            return null;
-        }
-        if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-        }
-        if (Objects.isNull(paging.getCursor())) {
-            return writeCursor(paging.getLimit());
-        }
-        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
-    }
-
-
     @Override
     public void save(ConceptDescription conceptDescription) {
         saveEntity(TABLE_CONCEPT, conceptDescription.getId(), conceptDescription);
@@ -787,69 +737,6 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             throw new RuntimeException("Database error counting from " + table, e);
         }
         return 0;
-    }
-
-
-    private List<String> extractSubmodelElementsFromJsonb(String submodelId) throws ResourceNotFoundException {
-        String sql = "SELECT jsonb_array_elements(content->'submodelElements')::text as element FROM " + TABLE_SUBMODEL + " WHERE id = ?";
-        List<String> elements = new ArrayList<>();
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setString(1, submodelId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    elements.add(rs.getString("element"));
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new RuntimeException("Database error extracting submodel elements from " + submodelId, e);
-        }
-        return elements;
-    }
-
-
-    private List<String> extractSubmodelElementsRecursiveFromJsonb(String submodelId) throws ResourceNotFoundException {
-        String sql = "SELECT jsonb_path_query(content, '$.submodelElements[*] ? (@.value != null ? (@.value[*] ? (@.idShort != null) recursive) : true)')::text as element FROM "
-                + TABLE_SUBMODEL + " WHERE id = ?";
-        List<String> elements = new ArrayList<>();
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setString(1, submodelId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String element = rs.getString("element");
-                    if (element != null) {
-                        elements.add(element);
-                    }
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new RuntimeException("Database error extracting recursive submodel elements from " + submodelId, e);
-        }
-        return elements;
-    }
-
-
-    private List<String> extractSubmodelElementsByPathFromJsonb(String submodelId, String path) throws ResourceNotFoundException {
-        String sql = "SELECT jsonb_path_query(content, ?)::text as element FROM " + TABLE_SUBMODEL + " WHERE id = ?";
-        List<String> elements = new ArrayList<>();
-        String jsonPath = "$.submodelElements" + path + "[*]";
-        try (Connection c = dataSource.getConnection(); PreparedStatement pstmt = c.prepareStatement(sql)) {
-            pstmt.setString(1, jsonPath);
-            pstmt.setString(2, submodelId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String element = rs.getString("element");
-                    if (element != null) {
-                        elements.add(element);
-                    }
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new RuntimeException("Database error extracting submodel elements by path from " + submodelId, e);
-        }
-        return elements;
     }
 
 
