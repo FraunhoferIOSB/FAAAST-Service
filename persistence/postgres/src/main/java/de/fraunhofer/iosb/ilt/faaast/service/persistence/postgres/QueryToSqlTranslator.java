@@ -27,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Translator that converts query expressions to SQL queries for PostgreSQL persistence.
+ */
 public class QueryToSqlTranslator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryToSqlTranslator.class);
@@ -35,9 +38,17 @@ public class QueryToSqlTranslator {
     private static final String PREFIX_SM = "$sm#";
     private static final String PREFIX_SME = "$sme";
     private static final String PREFIX_CD = "$cd#";
+    private static final int nestingLevel = 20;
 
     private final List<Object> parameters = new ArrayList<>();
 
+    /**
+     * Translates a logical expression to SQL.
+     *
+     * @param expr the logical expression to translate
+     * @param tableName the table name to use in the query
+     * @return the translation result containing SQL and parameters
+     */
     public TranslationResult translate(LogicalExpression expr, String tableName) {
         parameters.clear();
 
@@ -99,13 +110,12 @@ public class QueryToSqlTranslator {
         }
 
         if (expr.get$or() != null && !expr.get$or().isEmpty()) {
-            String conditions = expr.get$or().stream()
+            return expr.get$or().stream()
                     .map(e -> translateExpression(e, tableName))
                     .filter(c -> !c.isEmpty())
                     .map(c -> "(" + c + ")")
                     .reduce((a, b) -> a + " OR " + b)
                     .orElse("FALSE");
-            return conditions;
         }
 
         if (expr.get$not() != null) {
@@ -406,93 +416,6 @@ public class QueryToSqlTranslator {
     }
 
 
-    private String translateNonArrayMatch(List<MatchExpression> matches, String tableName) {
-        if (matches == null || matches.isEmpty()) {
-            return "TRUE";
-        }
-
-        List<MatchCondition> smConditions = new ArrayList<>();
-        List<MatchCondition> smeConditions = new ArrayList<>();
-        List<MatchCondition> aasConditions = new ArrayList<>();
-
-        for (MatchExpression m: matches) {
-            MatchOperation mo = getMatchOperation(m);
-            if (mo == null) {
-                continue;
-            }
-
-            Value left = mo.args.get(0);
-            Value right = mo.args.get(1);
-
-            if (left.get$field() == null) {
-                continue;
-            }
-
-            String field = left.get$field();
-            String rightValue = evaluateRightValue(right);
-
-            LOGGER.debug("translateNonArrayMatch: field={}, value={}", field, rightValue);
-
-            if (field.startsWith("$sm#")) {
-                smConditions.add(new MatchCondition(field.substring(4), mo.operator, rightValue));
-            }
-            else if (field.startsWith("$sme")) {
-                String suffix;
-                if (field.startsWith("$sme#")) {
-                    suffix = field.substring(5);
-                }
-                else if (field.startsWith("$sme.")) {
-                    suffix = field.substring(5);
-                }
-                else {
-                    continue;
-                }
-                smeConditions.add(new MatchCondition(suffix, mo.operator, rightValue));
-                LOGGER.debug("  Added to smeConditions: suffix={}", suffix);
-            }
-            else if (field.startsWith("$aas#")) {
-                aasConditions.add(new MatchCondition(field.substring(5), mo.operator, rightValue));
-            }
-        }
-
-        LOGGER.debug("smConditions size: {}, smeConditions size: {}, aasConditions size: {}",
-                smConditions.size(), smeConditions.size(), aasConditions.size());
-
-        List<String> sqlParts = new ArrayList<>();
-
-        if (!smConditions.isEmpty()) {
-            String smSql = translateSmMatch(smConditions, tableName);
-            if (!smSql.isEmpty() && !smSql.equals("TRUE")) {
-                sqlParts.add(smSql);
-            }
-        }
-
-        if (!smeConditions.isEmpty()) {
-            String smeSql = translateSmeMatch(smeConditions, tableName);
-            LOGGER.debug("translateSmeMatch result: {}", smeSql);
-            if (!smeSql.isEmpty() && !smeSql.equals("TRUE")) {
-                sqlParts.add(smeSql);
-            }
-        }
-
-        if (!aasConditions.isEmpty()) {
-            String aasSql = translateAasMatch(aasConditions, tableName);
-            if (!aasSql.isEmpty() && !aasSql.equals("TRUE")) {
-                sqlParts.add(aasSql);
-            }
-        }
-
-        if (sqlParts.isEmpty()) {
-            return "TRUE";
-        }
-
-        return sqlParts.stream()
-                .map(s -> "(" + s + ")")
-                .reduce((a, b) -> a + " AND " + b)
-                .orElse("TRUE");
-    }
-
-
     private String translateAasMatch(List<MatchCondition> conditions, String tableName) {
         List<String> aasConditions = new ArrayList<>();
         for (MatchCondition cond: conditions) {
@@ -528,19 +451,7 @@ public class QueryToSqlTranslator {
                                 "value"
                         });
 
-            case "$aas#extensions":
-                return translateArrayMatch(
-                        tableName,
-                        "content->'extensions'",
-                        conditions,
-                        new String[] {
-                                "name",
-                                "value",
-                                "valueType",
-                                "semanticId"
-                        });
-
-            case "$sm#extensions":
+            case "$aas#extensions", "$sm#extensions":
                 return translateArrayMatch(
                         tableName,
                         "content->'extensions'",
@@ -599,9 +510,9 @@ public class QueryToSqlTranslator {
 
 
     private String mapFieldNameToJsonPath(String fieldName, String[] mappings) {
-        for (int i = 0; i < mappings.length; i++) {
-            if (fieldName.equals(mappings[i])) {
-                return "->>'" + mappings[i] + "'";
+        for (String mapping: mappings) {
+            if (fieldName.equals(mapping)) {
+                return "->>'" + mapping + "'";
             }
         }
         return "->>'" + fieldName + "'";
@@ -609,20 +520,56 @@ public class QueryToSqlTranslator {
 
 
     private String translateSmeMatch(List<MatchCondition> conditions, String tableName) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("EXISTS (SELECT 1 FROM jsonb_array_elements(").append(tableName).append(".content->'submodelElements') AS elem WHERE ");
-
-        List<String> elemConditions = new ArrayList<>();
-        for (MatchCondition cond: conditions) {
+        if (conditions.size() == 1) {
+            // For single conditions, use recursive CTE to handle arbitrary nesting depth
+            MatchCondition cond = conditions.get(0);
             String fieldName = cond.suffix.startsWith(".") ? cond.suffix.substring(1) : cond.suffix;
-            String elemCondition = translateSmeJsonCondition(fieldName, cond.operator, cond.value);
-            elemConditions.add(elemCondition);
+            String jsonOp = cond.operator.equals("=") ? "=" : cond.operator;
+            String conditionStr = "{\"" + escapeJsonPathString(fieldName) + "\": \"" + escapeJsonPathString(cond.value) + "\"}";
+
+            // Use recursive CTE to traverse all nesting levels - check current element AND recurse into value arrays
+            return String.format(
+                    "EXISTS (WITH RECURSIVE search_path AS (" +
+                            "  SELECT elem as current_elem, 0 as nesting_level " +
+                            "  FROM jsonb_array_elements(%s.content->'submodelElements') as elem " +
+                            "  UNION ALL " +
+                            "  SELECT child_elem as current_elem, nesting_level + 1 " +
+                            "  FROM search_path " +
+                            "  CROSS JOIN jsonb_array_elements(current_elem->'value') as child_elem " +
+                            "  WHERE nesting_level < " + nestingLevel + " AND jsonb_typeof(current_elem->'value') = 'array'" +
+                            ") " +
+                            "SELECT 1 FROM search_path WHERE (current_elem @> '%s') OR (nesting_level < " + nestingLevel
+                            + " AND jsonb_typeof(current_elem->'value') = 'array' AND EXISTS (" +
+                            "  WITH RECURSIVE inner_search AS (" +
+                            "    SELECT child as current_elem, 0 as inner_level " +
+                            "    FROM jsonb_array_elements(current_elem->'value') as child " +
+                            "    UNION ALL " +
+                            "    SELECT grandchild as current_elem, inner_level + 1 " +
+                            "    FROM inner_search " +
+                            "    CROSS JOIN jsonb_array_elements(current_elem->'value') as grandchild " +
+                            "    WHERE inner_level < " + nestingLevel + " AND jsonb_typeof(current_elem->'value') = 'array'" +
+                            "  ) " +
+                            "  SELECT 1 FROM inner_search WHERE current_elem @> '%s'" +
+                            ")))",
+                    tableName, conditionStr, conditionStr);
         }
+        else {
+            // For multiple conditions, use jsonb_array_elements
+            StringBuilder sql = new StringBuilder();
+            sql.append("EXISTS (SELECT 1 FROM jsonb_array_elements(").append(tableName).append(".content->'submodelElements') AS elem WHERE ");
 
-        sql.append(String.join(" AND ", elemConditions));
-        sql.append(")");
+            List<String> elemConditions = new ArrayList<>();
+            for (MatchCondition cond: conditions) {
+                String fieldName = cond.suffix.startsWith(".") ? cond.suffix.substring(1) : cond.suffix;
+                String elemCondition = translateSmeJsonCondition(fieldName, cond.operator, cond.value);
+                elemConditions.add(elemCondition);
+            }
 
-        return sql.toString();
+            sql.append(String.join(" AND ", elemConditions));
+            sql.append(")");
+
+            return sql.toString();
+        }
     }
 
 
@@ -675,22 +622,11 @@ public class QueryToSqlTranslator {
         String path = fieldName.substring(0, hashIndex);
         LOGGER.debug("  path = {}, actualField = {}", path, actualField);
 
-        List<String> cleanPathParts = new ArrayList<>();
-        for (String part: path.split("\\.")) {
-            if (part.endsWith("[]")) {
-                cleanPathParts.add(part.substring(0, part.length() - 2));
-            }
-            else {
-                cleanPathParts.add(part);
-            }
-        }
-        LOGGER.debug("  cleanPathParts = {}", cleanPathParts);
-
         String jsonOp = operator.equals("=") ? "==" : operator;
 
         StringBuilder jsonPath = new StringBuilder("$.submodelElements[*]");
 
-        for (String cleanPart: cleanPathParts) {
+        for (String cleanPart: cleanPathParts(path)) {
             jsonPath.append(".value[*] ? (@.idShort == \"").append(escapeJsonPathString(cleanPart)).append("\")");
         }
 
@@ -702,12 +638,9 @@ public class QueryToSqlTranslator {
     }
 
 
-    private String translateSmePathMatchSimple(String path, List<MatchCondition> conditions, String tableName) {
-        LOGGER.debug("translateSmePathMatchSimple called with path: {}, tableName: {}", path, tableName);
-        String effectivePath = path;
-
+    private List<String> cleanPathParts(String path) {
         List<String> cleanPathParts = new ArrayList<>();
-        for (String part: effectivePath.split("\\.")) {
+        for (String part: path.split("\\.")) {
             if (part.endsWith("[]")) {
                 cleanPathParts.add(part.substring(0, part.length() - 2));
             }
@@ -716,7 +649,13 @@ public class QueryToSqlTranslator {
             }
         }
         LOGGER.debug("  cleanPathParts = {}", cleanPathParts);
+        return cleanPathParts;
+    }
 
+
+    private String translateSmePathMatchSimple(String path, List<MatchCondition> conditions, String tableName) {
+        LOGGER.debug("translateSmePathMatchSimple called with path: {}, tableName: {}", path, tableName);
+        List<String> cleanPathParts = cleanPathParts(path);
         StringBuilder jsonPath = new StringBuilder("$.submodelElements[*] ? (@.idShort == \"").append(escapeJsonPathString(cleanPathParts.get(0))).append("\")");
         for (int i = 1; i < cleanPathParts.size(); i++) {
             jsonPath.append(".value[*] ? (@.idShort == \"").append(escapeJsonPathString(cleanPathParts.get(i))).append("\")");
@@ -801,16 +740,7 @@ public class QueryToSqlTranslator {
         LOGGER.debug("  path = {}, actualField = {}", path, actualField);
 
         if (!path.isEmpty()) {
-            List<String> cleanPathParts = new ArrayList<>();
-            for (String part: path.split("\\.")) {
-                if (part.endsWith("[]")) {
-                    cleanPathParts.add(part.substring(0, part.length() - 2));
-                }
-                else {
-                    cleanPathParts.add(part);
-                }
-            }
-            LOGGER.debug("  cleanPathParts = {}", cleanPathParts);
+            List<String> cleanPathParts = cleanPathParts(path);
 
             String jsonOp = operator.equals("=") ? "==" : operator;
 
@@ -831,7 +761,7 @@ public class QueryToSqlTranslator {
 
         String result = sql.toString();
         LOGGER.debug("  result = {}", result);
-        return result.toString();
+        return result;
     }
 
 
@@ -842,32 +772,34 @@ public class QueryToSqlTranslator {
 
 
     private String aasAttrToJsonPath(String attr) {
-        if (attr.equals("idShort")) {
-            return "content->>'idShort'";
-        }
-        else if (attr.equals("id")) {
-            return "content->>'id'";
-        }
-        else if (attr.equals("assetInformation.assetKind")) {
-            return "content->'assetInformation'->>'assetKind'";
-        }
-        else if (attr.equals("assetInformation.assetType")) {
-            return "content->'assetInformation'->>'assetType'";
-        }
-        else if (attr.equals("assetInformation.globalAssetId")) {
-            return "content->'assetInformation'->>'globalAssetId'";
-        }
-        else if (attr.equals("description")) {
-            return "content->'description'->0->>'text'";
-        }
-        else if (attr.equals("displayName")) {
-            return "content->'displayName'->0->>'text'";
-        }
-        else if (attr.equals("administration.version")) {
-            return "content->'administration'->>'version'";
-        }
-        else if (attr.equals("administration.revision")) {
-            return "content->'administration'->>'revision'";
+        switch (attr) {
+            case "idShort" -> {
+                return "content->>'idShort'";
+            }
+            case "id" -> {
+                return "content->>'id'";
+            }
+            case "assetInformation.assetKind" -> {
+                return "content->'assetInformation'->>'assetKind'";
+            }
+            case "assetInformation.assetType" -> {
+                return "content->'assetInformation'->>'assetType'";
+            }
+            case "assetInformation.globalAssetId" -> {
+                return "content->'assetInformation'->>'globalAssetId'";
+            }
+            case "description" -> {
+                return "content->'description'->0->>'text'";
+            }
+            case "displayName" -> {
+                return "content->'displayName'->0->>'text'";
+            }
+            case "administration.version" -> {
+                return "content->'administration'->>'version'";
+            }
+            case "administration.revision" -> {
+                return "content->'administration'->>'revision'";
+            }
         }
 
         LOGGER.warn("Unsupported AAS attribute: {}", attr);
@@ -882,32 +814,34 @@ public class QueryToSqlTranslator {
 
 
     private String smAttrToJsonPath(String attr) {
-        if (attr.equals("idShort")) {
-            return "content->>'idShort'";
-        }
-        else if (attr.equals("id")) {
-            return "content->>'id'";
-        }
-        else if (attr.equals("semanticId")) {
-            return "content->'semanticId'->'keys'->0->>'value'";
-        }
-        else if (attr.equals("semanticId.type")) {
-            return "content->'semanticId'->'keys'->0->>'type'";
-        }
-        else if (attr.equals("kind")) {
-            return "content->>'kind'";
-        }
-        else if (attr.equals("description")) {
-            return "content->'description'->0->>'text'";
-        }
-        else if (attr.equals("displayName")) {
-            return "content->'displayName'->0->>'text'";
-        }
-        else if (attr.equals("administration.version")) {
-            return "content->'administration'->>'version'";
-        }
-        else if (attr.equals("administration.revision")) {
-            return "content->'administration'->>'revision'";
+        switch (attr) {
+            case "idShort" -> {
+                return "content->>'idShort'";
+            }
+            case "id" -> {
+                return "content->>'id'";
+            }
+            case "semanticId" -> {
+                return "content->'semanticId'->'keys'->0->>'value'";
+            }
+            case "semanticId.type" -> {
+                return "content->'semanticId'->'keys'->0->>'type'";
+            }
+            case "kind" -> {
+                return "content->>'kind'";
+            }
+            case "description" -> {
+                return "content->'description'->0->>'text'";
+            }
+            case "displayName" -> {
+                return "content->'displayName'->0->>'text'";
+            }
+            case "administration.version" -> {
+                return "content->'administration'->>'version'";
+            }
+            case "administration.revision" -> {
+                return "content->'administration'->>'revision'";
+            }
         }
 
         LOGGER.warn("Unsupported SM attribute: {}", attr);
@@ -922,17 +856,19 @@ public class QueryToSqlTranslator {
 
 
     private String cdAttrToJsonPath(String attr) {
-        if (attr.equals("idShort")) {
-            return "content->>'idShort'";
-        }
-        else if (attr.equals("id")) {
-            return "content->>'id'";
-        }
-        else if (attr.equals("description")) {
-            return "content->'description'->0->>'text'";
-        }
-        else if (attr.equals("displayName")) {
-            return "content->'displayName'->0->>'text'";
+        switch (attr) {
+            case "idShort" -> {
+                return "content->>'idShort'";
+            }
+            case "id" -> {
+                return "content->>'id'";
+            }
+            case "description" -> {
+                return "content->'description'->0->>'text'";
+            }
+            case "displayName" -> {
+                return "content->'displayName'->0->>'text'";
+            }
         }
 
         LOGGER.warn("Unsupported CD attribute: {}", attr);
@@ -998,7 +934,7 @@ public class QueryToSqlTranslator {
                 args,
                 operator,
                 this::evaluateRightValue,
-                arg -> arg.get$field(),
+                Value::get$field,
                 tableName);
     }
 
@@ -1045,7 +981,7 @@ public class QueryToSqlTranslator {
             return v.get$dateTimeVal().toString();
         }
         if (v.get$timeVal() != null) {
-            return v.get$timeVal().toString();
+            return v.get$timeVal();
         }
         if (v.get$boolean() != null) {
             return v.get$boolean().toString();
@@ -1137,6 +1073,9 @@ public class QueryToSqlTranslator {
         }
     }
 
+    /**
+     * Result of translating a query expression to SQL.
+     */
     public static class TranslationResult {
         private final String sql;
         private final List<Object> parameters;

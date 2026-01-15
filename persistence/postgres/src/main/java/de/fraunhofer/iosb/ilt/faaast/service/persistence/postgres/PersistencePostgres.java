@@ -110,7 +110,7 @@ public class PersistencePostgres implements Persistence<PersistencePostgresConfi
             DatabaseSchema.createTables(dataSource.getConnection());
 
             if (config.loadInitialModel() != null) {
-                if (Boolean.TRUE.equals(config.getOverride())) {
+                if (config.getOverride()) {
                     deleteAll();
                     save(config.loadInitialModel());
                 }

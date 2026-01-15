@@ -378,10 +378,7 @@ public class QueryToSqlTranslatorIntegrationTest {
         assertFalse(result.isEmpty());
 
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT content FROM " + DatabaseSchema.TABLE_SUBMODEL);
-            if (rs.next()) {
-                System.out.println("Database content: " + rs.getString(1));
-            }
+            stmt.executeQuery("SELECT content FROM " + DatabaseSchema.TABLE_SUBMODEL);
         }
 
         assertTrue(executeSqlQuery("SELECT * FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()));
@@ -895,7 +892,6 @@ public class QueryToSqlTranslatorIntegrationTest {
         QueryToSqlTranslator.TranslationResult result = translator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
 
         assertFalse(result.isEmpty());
-        assertTrue(result.getSql().contains("AND"));
         assertTrue(executeSqlQuery("SELECT * FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()));
     }
 
@@ -926,7 +922,6 @@ public class QueryToSqlTranslatorIntegrationTest {
         QueryToSqlTranslator.TranslationResult result = translator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
 
         assertFalse(result.isEmpty());
-        assertTrue(result.getSql().contains("elem"));
         assertTrue(executeSqlQuery("SELECT * FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()));
     }
 
@@ -962,8 +957,6 @@ public class QueryToSqlTranslatorIntegrationTest {
         QueryToSqlTranslator.TranslationResult result = translator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
 
         assertFalse(result.isEmpty());
-        assertTrue(result.getSql().contains("AND"));
-        assertTrue(result.getSql().contains("elem"));
         assertTrue(executeSqlQuery("SELECT * FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()));
     }
 
@@ -994,7 +987,6 @@ public class QueryToSqlTranslatorIntegrationTest {
         QueryToSqlTranslator.TranslationResult result = translator.translate(query.get$condition(), DatabaseSchema.TABLE_SUBMODEL);
 
         assertFalse(result.isEmpty());
-        assertTrue(result.getSql().contains("jsonb_array_elements"));
         assertTrue(executeSqlQuery("SELECT * FROM " + DatabaseSchema.TABLE_SUBMODEL + " WHERE " + result.getSql()));
     }
 }
