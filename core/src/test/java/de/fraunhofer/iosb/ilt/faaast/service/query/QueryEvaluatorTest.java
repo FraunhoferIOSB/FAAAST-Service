@@ -210,6 +210,45 @@ public class QueryEvaluatorTest {
     }
 
 
+    private Environment createTestEnvironmentForDescriptionMatch(boolean matching) {
+        List<SubmodelElement> productClassItems = new ArrayList<>();
+        Property productClassId = new DefaultProperty.Builder()
+                .idShort("ProductClassId")
+                .value(matching ? "27-37-09-05" : "NonMatching")
+                .valueType(DataTypeDefXsd.STRING)
+                .build();
+        productClassItems.add(productClassId);
+
+        SubmodelElementList productClassifications = new DefaultSubmodelElementList.Builder()
+                .idShort("ProductClassifications")
+                .value(productClassItems)
+                .build();
+
+        Submodel submodel = new DefaultSubmodel.Builder()
+                .id("https://example.com/submodel/3")
+                .idShort("TechnicalData")
+                .description(new DefaultLangStringTextType.Builder()
+                        .text("english text")
+                        .language("en")
+                        .build())
+                .submodelElements(productClassifications)
+                .build();
+
+        AssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
+                .id("https://example.com/aas/3")
+                .idShort("TestAAS")
+                .assetInformation(new DefaultAssetInformation.Builder()
+                        .assetKind(AssetKind.INSTANCE)
+                        .build())
+                .build();
+
+        return new DefaultEnvironment.Builder()
+                .assetAdministrationShells(aas)
+                .submodels(submodel)
+                .build();
+    }
+
+
     @Test
     public void simpleEq_withMatchingFields() throws Exception {
         String json = """
@@ -237,7 +276,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void simpleEq_withNonMatchingFields() throws Exception {
         String json = """
@@ -265,7 +303,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void documentsMatch_withMatchingValues() throws Exception {
         String json = """
@@ -330,7 +367,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void andMatch_withMatchingConditions() throws Exception {
         String json = """
@@ -449,7 +485,6 @@ public class QueryEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void orMatch_withMatchingSpecificAssetIds() throws Exception {
         String json = """
@@ -551,6 +586,71 @@ public class QueryEvaluatorTest {
         AssetAdministrationShell aas = env.getAssetAdministrationShells().get(0);
         boolean result = evaluator.matches(query.get$condition(), aas);
         assertFalse(result);
+    }
+
+
+    @Test
+    public void matchInArray() throws Exception {
+        String json = """
+                {"$condition":{"$match":[{"$eq":[{"$field":"$sm#description[].language"},{"$strVal":"en"}]}]}}
+                 """;
+
+        Query query = MAPPER.readValue(
+                json, new TypeReference<>() {});
+
+        Environment env = createTestEnvironmentForDescriptionMatch(true);
+        QueryEvaluator evaluator = new QueryEvaluator();
+        Submodel submodel = env.getSubmodels().get(0);
+        boolean result = evaluator.matches(query.get$condition(), submodel);
+        assertTrue(result);
+    }
+
+
+    @Test
+    public void regexTest() throws Exception {
+        String json = """
+                {"$condition":{"$and":[{"$regex":[{"$field":"$sm#idShort"},{"$strVal":".*"}]}]}}
+                 """;
+
+        Query query = MAPPER.readValue(
+                json, new TypeReference<>() {});
+
+        Environment env = createTestEnvironmentForDescriptionMatch(true);
+        QueryEvaluator evaluator = new QueryEvaluator();
+        Submodel submodel = env.getSubmodels().get(0);
+        boolean result = evaluator.matches(query.get$condition(), submodel);
+        assertTrue(result);
+    }
+
+
+    @Test
+    public void nestedMatches() throws Exception {
+        String json = """
+                {"$condition":{"$and":[{"$eq":[{"$field":"$sm#idShort"},{"$strVal":"TechnicalData"}]},{"$eq":[{"$field":"$sme#idShort"},{"$strVal":"ProductClassifications"}]},{"$eq":[{"$field":"$sme#idShort"},{"$strVal":"ProductClassId"}]}]}}
+                 """;
+        String json2 = """
+                {"$condition":{"$and":[{"$eq":[{"$field":"$sme#idShort"},{"$strVal":"ProductClassId"}]}]}}
+                 """;
+        String json3 = """
+                {"$condition":{"$and":[{"$eq":[{"$field":"$sm#idShort"},{"$strVal":"TechnicalData"}]},{"$eq":[{"$field":"$sme#value"},{"$strVal":"27-37-09-05"}]}]}}
+                 """;
+
+        Query query = MAPPER.readValue(
+                json, new TypeReference<>() {});
+        Query query2 = MAPPER.readValue(
+                json, new TypeReference<>() {});
+        Query query3 = MAPPER.readValue(
+                json, new TypeReference<>() {});
+
+        Environment env = createTestEnvironmentForAndMatch(true);
+        QueryEvaluator evaluator = new QueryEvaluator();
+        Submodel submodel = env.getSubmodels().get(0);
+        boolean result = evaluator.matches(query.get$condition(), submodel);
+        boolean result2 = evaluator.matches(query2.get$condition(), submodel);
+        boolean result3 = evaluator.matches(query3.get$condition(), submodel);
+        assertTrue(result);
+        assertTrue(result2);
+        assertTrue(result3);
     }
 
 }

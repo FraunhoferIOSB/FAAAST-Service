@@ -34,7 +34,6 @@ public class FormulaEvaluatorTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void complexFormula_withMatchingClaims() throws Exception {
         String json = """
@@ -87,7 +86,6 @@ public class FormulaEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void regexFormula_withNonMatchingEmail() throws Exception {
         String json = """
@@ -128,7 +126,6 @@ public class FormulaEvaluatorTest {
     }
 
 
-    /* ------------------------------------------------------------------ */
     @Test
     public void fullFormula_allConditionsMet() throws Exception {
         String json = """
