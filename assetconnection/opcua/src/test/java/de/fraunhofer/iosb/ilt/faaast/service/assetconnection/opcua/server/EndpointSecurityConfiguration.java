@@ -46,164 +46,91 @@ public class EndpointSecurityConfiguration {
             MessageSecurityMode.None,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration NONE_NONE_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.None,
-            MessageSecurityMode.None,
-            Protocol.HTTPS);
-
     public static final EndpointSecurityConfiguration BASIC256_SIGN_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic256,
             MessageSecurityMode.Sign,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration BASIC256_SIGN_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic256,
-            MessageSecurityMode.Sign,
-            Protocol.HTTPS);
-
     public static final EndpointSecurityConfiguration BASIC256_SIGN_ENCRYPT_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic256,
             MessageSecurityMode.SignAndEncrypt,
             Protocol.TCP);
-    public static final EndpointSecurityConfiguration BASIC256_SIGN_ENCRYPT_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic256,
-            MessageSecurityMode.SignAndEncrypt,
-            Protocol.HTTPS);
 
     public static final EndpointSecurityConfiguration BASIC256SHA256_SIGN_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic256Sha256,
             MessageSecurityMode.Sign,
             Protocol.TCP);
-    public static final EndpointSecurityConfiguration BASIC256SHA256_SIGN_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic256Sha256,
-            MessageSecurityMode.Sign,
-            Protocol.HTTPS);
+
     public static final EndpointSecurityConfiguration BASIC256SHA256_SIGN_ENCRYPT_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic256Sha256,
             MessageSecurityMode.SignAndEncrypt,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration BASIC256SHA256_SIGN_ENCRYPT_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic256Sha256,
-            MessageSecurityMode.SignAndEncrypt,
-            Protocol.HTTPS);
-
     public static final EndpointSecurityConfiguration AES256_SHA256_RSAPSS_SIGN_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Aes256_Sha256_RsaPss,
             MessageSecurityMode.Sign,
             Protocol.TCP);
-    public static final EndpointSecurityConfiguration AES256_SHA256_RSAPSS_SIGN_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Aes256_Sha256_RsaPss,
-            MessageSecurityMode.Sign,
-            Protocol.HTTPS);
 
     public static final EndpointSecurityConfiguration AES256_SHA256_RSAPSS_SIGN_ENCRYPT_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Aes256_Sha256_RsaPss,
             MessageSecurityMode.SignAndEncrypt,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration AES256_SHA256_RSAPSS_SIGN_ENCRYPT_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Aes256_Sha256_RsaPss,
-            MessageSecurityMode.SignAndEncrypt,
-            Protocol.HTTPS);
-
     public static final EndpointSecurityConfiguration AES128_SHA256_RSAOAEP_SIGN_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Aes128_Sha256_RsaOaep,
             MessageSecurityMode.Sign,
             Protocol.TCP);
-
-    public static final EndpointSecurityConfiguration AES128_SHA256_RSAOAEP_SIGN_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Aes128_Sha256_RsaOaep,
-            MessageSecurityMode.Sign,
-            Protocol.HTTPS);
 
     public static final EndpointSecurityConfiguration AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Aes128_Sha256_RsaOaep,
             MessageSecurityMode.SignAndEncrypt,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Aes128_Sha256_RsaOaep,
-            MessageSecurityMode.SignAndEncrypt,
-            Protocol.HTTPS);
-
     public static final EndpointSecurityConfiguration BASIC128_RSA15_SIGN_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic128Rsa15,
             MessageSecurityMode.Sign,
             Protocol.TCP);
-
-    public static final EndpointSecurityConfiguration BASIC128_RSA15_SIGN_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic128Rsa15,
-            MessageSecurityMode.Sign,
-            Protocol.HTTPS);
 
     public static final EndpointSecurityConfiguration BASIC128_RSA15_SIGN_ENCRYPT_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.Basic128Rsa15,
             MessageSecurityMode.SignAndEncrypt,
             Protocol.TCP);
 
-    public static final EndpointSecurityConfiguration BASIC128_RSA15_SIGN_ENCRYPT_HTTPS = new EndpointSecurityConfiguration(
-            SecurityPolicy.Basic128Rsa15,
-            MessageSecurityMode.SignAndEncrypt,
-            Protocol.HTTPS);
-
     public static final List<EndpointSecurityConfiguration> POLICY_NONE = List.of(
-            NONE_NONE_TCP,
-            NONE_NONE_HTTPS);
+            NONE_NONE_TCP);
 
     public static final List<EndpointSecurityConfiguration> POLICY_BASIC256 = List.of(
             BASIC256_SIGN_TCP,
-            BASIC256_SIGN_HTTPS,
-            BASIC256_SIGN_ENCRYPT_TCP,
-            BASIC256_SIGN_ENCRYPT_HTTPS);
+            BASIC256_SIGN_ENCRYPT_TCP);
 
     public static final List<EndpointSecurityConfiguration> POLICY_BASIC256SHA256 = List.of(
             BASIC256SHA256_SIGN_TCP,
-            BASIC256SHA256_SIGN_HTTPS,
-            BASIC256SHA256_SIGN_ENCRYPT_TCP,
-            BASIC256SHA256_SIGN_ENCRYPT_HTTPS);
+            BASIC256SHA256_SIGN_ENCRYPT_TCP);
 
     public static final List<EndpointSecurityConfiguration> POLICY_AES256_SHA256_RSAPSS = List.of(
             AES256_SHA256_RSAPSS_SIGN_TCP,
-            AES256_SHA256_RSAPSS_SIGN_HTTPS,
-            AES256_SHA256_RSAPSS_SIGN_ENCRYPT_TCP,
-            AES256_SHA256_RSAPSS_SIGN_ENCRYPT_HTTPS);
+            AES256_SHA256_RSAPSS_SIGN_ENCRYPT_TCP);
 
     public static final List<EndpointSecurityConfiguration> POLICY_AES128_SHA256_RSAOAEP = List.of(
             AES128_SHA256_RSAOAEP_SIGN_TCP,
-            AES128_SHA256_RSAOAEP_SIGN_HTTPS,
-            AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_TCP,
-            AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_HTTPS);
+            AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_TCP);
 
     public static final List<EndpointSecurityConfiguration> POLICY_BASIC128_RSA15 = List.of(
             BASIC128_RSA15_SIGN_TCP,
-            BASIC128_RSA15_SIGN_HTTPS,
-            BASIC128_RSA15_SIGN_ENCRYPT_TCP,
-            BASIC128_RSA15_SIGN_ENCRYPT_HTTPS);
+            BASIC128_RSA15_SIGN_ENCRYPT_TCP);
 
     public static final List<EndpointSecurityConfiguration> ALL = List.of(
             NONE_NONE_TCP,
-            NONE_NONE_HTTPS,
             BASIC256_SIGN_TCP,
-            BASIC256_SIGN_HTTPS,
             BASIC256_SIGN_ENCRYPT_TCP,
-            BASIC256_SIGN_ENCRYPT_HTTPS,
             BASIC256SHA256_SIGN_TCP,
-            BASIC256SHA256_SIGN_HTTPS,
             BASIC256SHA256_SIGN_ENCRYPT_TCP,
-            BASIC256SHA256_SIGN_ENCRYPT_HTTPS,
             AES256_SHA256_RSAPSS_SIGN_TCP,
-            AES256_SHA256_RSAPSS_SIGN_HTTPS,
             AES256_SHA256_RSAPSS_SIGN_ENCRYPT_TCP,
-            AES256_SHA256_RSAPSS_SIGN_ENCRYPT_HTTPS,
             AES128_SHA256_RSAOAEP_SIGN_TCP,
-            AES128_SHA256_RSAOAEP_SIGN_HTTPS,
             AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_TCP,
-            AES128_SHA256_RSAOAEP_SIGN_ENCRYPT_HTTPS,
             BASIC128_RSA15_SIGN_TCP,
-            BASIC128_RSA15_SIGN_HTTPS,
-            BASIC128_RSA15_SIGN_ENCRYPT_TCP,
-            BASIC128_RSA15_SIGN_ENCRYPT_HTTPS);
+            BASIC128_RSA15_SIGN_ENCRYPT_TCP);
 
     private static final SecurityPolicy DEFAULT_POLICY = SecurityPolicy.None;
     private static final MessageSecurityMode DEFAULT_SECURITY_MODE = MessageSecurityMode.None;

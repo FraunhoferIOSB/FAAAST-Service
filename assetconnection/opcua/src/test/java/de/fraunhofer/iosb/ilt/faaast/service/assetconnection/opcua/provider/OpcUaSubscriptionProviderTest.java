@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Endpoi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Protocol;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.OpcUaSubscription;
 import org.junit.Test;
 
 
@@ -33,12 +33,12 @@ public class OpcUaSubscriptionProviderTest {
         server.startup();
         try {
             OpcUaClient client1 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
-            client1.connect().get();
+            client1.connect();
             OpcUaClient client2 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
-            client2.connect().get();
+            client2.connect();
             EqualsVerifier.simple().forClass(OpcUaSubscriptionProvider.class)
                     .withPrefabValues(OpcUaClient.class, client1, client2)
-                    .withPrefabValues(ManagedSubscription.class, ManagedSubscription.create(client1), ManagedSubscription.create(client2))
+                    .withPrefabValues(OpcUaSubscription.class, new OpcUaSubscription(client1), new OpcUaSubscription(client2))
                     .verify();
             client1.disconnect();
             client2.disconnect();
