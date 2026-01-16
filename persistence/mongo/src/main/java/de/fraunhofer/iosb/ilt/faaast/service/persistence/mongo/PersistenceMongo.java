@@ -212,6 +212,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
     @Override
     public void deleteAll() throws PersistenceException {
+        LOGGER.debug("Dropping all AAS collections from MongoDB.");
         aasCollection = resetCollection(AAS_COLLECTION_NAME);
         submodelCollection = resetCollection(SUBMODEL_COLLECTION_NAME);
         cdCollection = resetCollection(CD_COLLECTION_NAME);
@@ -573,10 +574,14 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
     private boolean databaseHasSavedEnvironment(MongoDatabase database) {
         List<String> collectionNames = new ArrayList<>();
         database.listCollectionNames().into(collectionNames);
-        return collectionNames.contains(AAS_COLLECTION_NAME)
+        boolean dataPresent = collectionNames.contains(AAS_COLLECTION_NAME)
                 || collectionNames.contains(SUBMODEL_COLLECTION_NAME)
                 || collectionNames.contains(CD_COLLECTION_NAME)
                 || collectionNames.contains(OPERATION_COLLECTION_NAME);
+        if (dataPresent) {
+            LOGGER.error("Database is not empty and model will not be saved.");
+        }
+        return dataPresent;
     }
 
 
@@ -795,6 +800,7 @@ public class PersistenceMongo implements Persistence<PersistenceMongoConfig> {
 
 
     private void saveEnvironment(Environment environment) throws PersistenceException {
+        LOGGER.debug("Reading environment from file provided in config and storing in mongoDB collections.");
         save(environment.getAssetAdministrationShells(), aasCollection);
         save(environment.getSubmodels(), submodelCollection);
         save(environment.getConceptDescriptions(), cdCollection);
