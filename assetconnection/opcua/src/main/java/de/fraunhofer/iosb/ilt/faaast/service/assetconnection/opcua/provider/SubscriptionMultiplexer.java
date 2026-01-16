@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHel
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.PersistenceException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -153,11 +154,14 @@ public class SubscriptionMultiplexer {
             else if (value.getStatusCode().isBad()) {
                 LOGGER.warn("notify: StatusCode error: {}", value.getStatusCode());
             }
-            else if (value.getValue().isNull()) {
-                LOGGER.warn("notify: contained value is null");
-            }
             else {
-                DataElementValue newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
+                DataElementValue newValue;
+                if (value.getValue().isNull()) {
+                    newValue = PropertyValue.of(datatype, null);
+                }
+                else {
+                    newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
+                }
                 listeners.forEach(x -> {
                     try {
                         x.newDataReceived(newValue);
@@ -168,7 +172,7 @@ public class SubscriptionMultiplexer {
                 });
             }
         }
-        catch (ValueConversionException e) {
+        catch (ValueConversionException | ValueFormatException e) {
             LOGGER.warn("received illegal value via OPC UA subscription - type conversion failed (value: {}, target type: {}, nodeId: {})",
                     value.getValue(),
                     datatype,
