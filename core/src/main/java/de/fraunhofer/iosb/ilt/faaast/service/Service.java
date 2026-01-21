@@ -310,7 +310,7 @@ public class Service implements ServiceContext {
         Ensure.requireNonNull(config.getPersistence(), new InvalidConfigurationException("config.persistence must be non-null"));
         Ensure.requireNonNull(config.getFileStorage(), new InvalidConfigurationException("config.filestorage must be non-null"));
         Ensure.requireNonNull(config.getMessageBus(), new InvalidConfigurationException("config.messagebus must be non-null"));
-        ZipSecureFile.setMinInflateRatio(config.getCore().getMinInflateRatio());
+
         ensureInitialModelFilesAreLoaded();
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         fileStorage = (FileStorage) config.getFileStorage().newInstance(config.getCore(), this);
