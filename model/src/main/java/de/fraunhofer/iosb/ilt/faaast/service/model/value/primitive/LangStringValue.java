@@ -43,7 +43,7 @@ public class LangStringValue extends TypedValue<AbstractLangString> {
     @Override
     public String asString() {
         if (Objects.isNull(value)) {
-            return "";
+            return super.asString();
         }
         return String.format("%s@%s", value.getText(), value.getLanguage());
     }
