@@ -25,6 +25,16 @@ import org.junit.Test;
 public class ByteValueTest {
 
     @Test
+    public void testPositive() throws ValueFormatException {
+        String value = "3";
+        Byte expected = 3;
+        TypedValue actual = TypedValueFactory.create(Datatype.BYTE, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
+    }
+
+
+    @Test
     public void testNullAsString() throws ValueFormatException {
         String value = null;
         TypedValue actual = TypedValueFactory.create(Datatype.BYTE, value);

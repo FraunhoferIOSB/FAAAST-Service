@@ -25,6 +25,16 @@ import org.junit.Test;
 public class BooleanValueTest {
 
     @Test
+    public void testTrue() throws ValueFormatException {
+        String value = "true";
+        Boolean expected = true;
+        TypedValue actual = TypedValueFactory.create(Datatype.BOOLEAN, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
+    }
+
+
+    @Test
     public void testNullAsString() throws ValueFormatException {
         String value = null;
         TypedValue actual = TypedValueFactory.create(Datatype.BOOLEAN, value);

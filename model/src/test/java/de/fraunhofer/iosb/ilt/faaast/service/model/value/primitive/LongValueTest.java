@@ -17,52 +17,37 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-/**
- * A long value. 64-bit, -9223372036854775808…9223372036854775807
- */
-public class LongValue extends TypedValue<Long> {
+public class LongValueTest {
 
-    public LongValue() {
-        super();
+    @Test
+    public void testNegative() throws ValueFormatException {
+        String value = "-11";
+        Long expected = -11l;
+        TypedValue actual = TypedValueFactory.create(Datatype.LONG, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 
-    public LongValue(Long value) {
-        super(value);
+    @Test
+    public void testPositive() throws ValueFormatException {
+        String value = "24";
+        Long expected = 24l;
+        TypedValue actual = TypedValueFactory.create(Datatype.LONG, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 
-    @Override
-    public String asString() {
-        if (Objects.isNull(value)) {
-            return super.asString();
-        }
-        return Long.toString(value);
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.LONG, value);
+        Assert.assertNull(actual.asString());
     }
-
-
-    @Override
-    public void fromString(String value) throws ValueFormatException {
-        if (StringUtils.isAllBlank(value)) {
-            this.setValue(null);
-            return;
-        }
-        try {
-            this.setValue(Long.valueOf(value));
-        }
-        catch (NumberFormatException e) {
-            throw new ValueFormatException(e);
-        }
-    }
-
-
-    @Override
-    public Datatype getDataType() {
-        return Datatype.LONG;
-    }
-
 }
