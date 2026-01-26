@@ -18,52 +18,36 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
-import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class NonPositiveIntegerValueTest {
+public class IntValueTest {
 
     @Test
     public void testNegative() throws ValueFormatException {
         String value = "-1";
-        BigInteger expected = new BigInteger(value);
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
-    }
-
-
-    @Test
-    public void testLargeNumber() throws ValueFormatException {
-        String value = "-8889496729588";
-        BigInteger expected = new BigInteger(value);
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
+        Integer expected = -1;
+        TypedValue actual = TypedValueFactory.create(Datatype.INT, value);
         Assert.assertEquals(expected, actual.getValue());
         Assert.assertEquals(value, actual.asString());
     }
 
 
     @Test
-    public void testZero() throws ValueFormatException {
-        String value = "0";
-        BigInteger expected = new BigInteger(value);
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
-        Assert.assertEquals(expected, actual.getValue());
-    }
-
-
-    @Test(expected = ValueFormatException.class)
     public void testPositive() throws ValueFormatException {
-        String value = "5";
-        TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
+        String value = "22";
+        Integer expected = 22;
+        TypedValue actual = TypedValueFactory.create(Datatype.INT, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 
     @Test
     public void testNullAsString() throws ValueFormatException {
         String value = null;
-        TypedValue actual = TypedValueFactory.create(Datatype.NON_POSITIVE_INTEGER, value);
+        TypedValue actual = TypedValueFactory.create(Datatype.INT, value);
         Assert.assertNull(actual.asString());
     }
 }

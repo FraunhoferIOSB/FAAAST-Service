@@ -41,7 +41,7 @@ public abstract class TypedValue<T> {
      * @return string representation of the actual value.
      */
     public String asString() {
-        return value != null ? value.toString() : "";
+        return value != null ? value.toString() : null;
     }
 
 

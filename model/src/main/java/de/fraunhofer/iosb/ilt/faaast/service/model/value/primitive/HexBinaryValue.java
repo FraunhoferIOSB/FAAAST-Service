@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatExceptio
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
 import jakarta.xml.bind.DatatypeConverter;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -38,6 +39,9 @@ public class HexBinaryValue extends TypedValue<byte[]> {
 
     @Override
     public String asString() {
+        if (Objects.isNull(value)) {
+            return super.asString();
+        }
         return DatatypeConverter.printHexBinary(value);
     }
 

@@ -14,49 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValue;
-import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.TypedValueFactory;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-/**
- * A boolean value.
- */
-public class BooleanValue extends TypedValue<Boolean> {
+public class ByteValueTest {
 
-    public BooleanValue() {
-        super();
+    @Test
+    public void testPositive() throws ValueFormatException {
+        String value = "3";
+        Byte expected = 3;
+        TypedValue actual = TypedValueFactory.create(Datatype.BYTE, value);
+        Assert.assertEquals(expected, actual.getValue());
+        Assert.assertEquals(value, actual.asString());
     }
 
 
-    public BooleanValue(Boolean value) {
-        super(value);
+    @Test
+    public void testNullAsString() throws ValueFormatException {
+        String value = null;
+        TypedValue actual = TypedValueFactory.create(Datatype.BYTE, value);
+        Assert.assertNull(actual.asString());
     }
-
-
-    @Override
-    public String asString() {
-        if (Objects.isNull(value)) {
-            return super.asString();
-        }
-        return Boolean.toString(value);
-    }
-
-
-    @Override
-    public void fromString(String value) {
-        if (StringUtils.isAllBlank(value)) {
-            this.setValue(null);
-            return;
-        }
-        this.setValue(Boolean.valueOf(value));
-    }
-
-
-    @Override
-    public Datatype getDataType() {
-        return Datatype.BOOLEAN;
-    }
-
 }
