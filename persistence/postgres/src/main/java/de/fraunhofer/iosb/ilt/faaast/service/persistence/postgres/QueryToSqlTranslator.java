@@ -38,7 +38,18 @@ public class QueryToSqlTranslator {
     private static final String PREFIX_SM = "$sm#";
     private static final String PREFIX_SME = "$sme";
     private static final String PREFIX_CD = "$cd#";
-    private static final int nestingLevel = 20;
+    private static final String RECURSIVE_CTE_TEMPLATE = """
+            WITH RECURSIVE search_path AS (
+                SELECT current_elem
+                FROM jsonb_array_elements(%s.content->'submodelElements') as current_elem
+                UNION ALL
+                SELECT child_elem
+                FROM search_path
+                CROSS JOIN jsonb_array_elements(current_elem->'value') as child_elem
+                WHERE current_elem->'value' IS NOT NULL
+            )
+            SELECT 1 FROM search_path
+            """;
 
     private final List<Object> parameters = new ArrayList<>();
 
@@ -521,40 +532,18 @@ public class QueryToSqlTranslator {
 
     private String translateSmeMatch(List<MatchCondition> conditions, String tableName) {
         if (conditions.size() == 1) {
-            // For single conditions, use recursive CTE to handle arbitrary nesting depth
+            // Use recursive CTE to handle arbitrary nesting depth
             MatchCondition cond = conditions.get(0);
             String fieldName = cond.suffix.startsWith(".") ? cond.suffix.substring(1) : cond.suffix;
-            String jsonOp = cond.operator.equals("=") ? "=" : cond.operator;
-            String conditionStr = "{\"" + escapeJsonPathString(fieldName) + "\": \"" + escapeJsonPathString(cond.value) + "\"}";
+            String jsonCondition = String.format("{\"%s\": \"%s\"}", escapeJsonPathString(fieldName), escapeJsonPathString(cond.value));
 
-            // Use recursive CTE to traverse all nesting levels - check current element AND recurse into value arrays
             return String.format(
-                    "EXISTS (WITH RECURSIVE search_path AS (" +
-                            "  SELECT elem as current_elem, 0 as nesting_level " +
-                            "  FROM jsonb_array_elements(%s.content->'submodelElements') as elem " +
-                            "  UNION ALL " +
-                            "  SELECT child_elem as current_elem, nesting_level + 1 " +
-                            "  FROM search_path " +
-                            "  CROSS JOIN jsonb_array_elements(current_elem->'value') as child_elem " +
-                            "  WHERE nesting_level < " + nestingLevel + " AND jsonb_typeof(current_elem->'value') = 'array'" +
-                            ") " +
-                            "SELECT 1 FROM search_path WHERE (current_elem @> '%s') OR (nesting_level < " + nestingLevel
-                            + " AND jsonb_typeof(current_elem->'value') = 'array' AND EXISTS (" +
-                            "  WITH RECURSIVE inner_search AS (" +
-                            "    SELECT child as current_elem, 0 as inner_level " +
-                            "    FROM jsonb_array_elements(current_elem->'value') as child " +
-                            "    UNION ALL " +
-                            "    SELECT grandchild as current_elem, inner_level + 1 " +
-                            "    FROM inner_search " +
-                            "    CROSS JOIN jsonb_array_elements(current_elem->'value') as grandchild " +
-                            "    WHERE inner_level < " + nestingLevel + " AND jsonb_typeof(current_elem->'value') = 'array'" +
-                            "  ) " +
-                            "  SELECT 1 FROM inner_search WHERE current_elem @> '%s'" +
-                            ")))",
-                    tableName, conditionStr, conditionStr);
+                    "EXISTS (" + RECURSIVE_CTE_TEMPLATE +
+                            "WHERE current_elem @> '%s')",
+                    tableName, jsonCondition);
         }
         else {
-            // For multiple conditions, use jsonb_array_elements
+            // For multiple conditions, use simple jsonb_array_elements
             StringBuilder sql = new StringBuilder();
             sql.append("EXISTS (SELECT 1 FROM jsonb_array_elements(").append(tableName).append(".content->'submodelElements') AS elem WHERE ");
 
