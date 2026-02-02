@@ -99,7 +99,7 @@ public class EventExamples {
     private static final Property PROPERTY_DATETIME = new DefaultProperty.Builder()
             .idShort("PROPERTY_DATETIME")
             .valueType(DataTypeDefXsd.DATE_TIME)
-            .value("2026-01-28T15:13:45")
+            .value("2026-01-28T15:13:45+01:00")
             .build();
 
     private static final PropertyValue PROPERTY_VALUE_INT;
